@@ -28,13 +28,16 @@ def classify(segment, path):
             return "reject"
     if "does not match the name" in segment:
         return "name_mismatch"
-    if "Fatal errors" in segment or "Exception" in segment:
+    # A Java throwable class name, e.g. java.lang.NullPointerException.
+    throwable = re.search(r"\b(?:java|javax|tla2sany|tlc2|util)\.[\w.$]*(?:Exception|Error)\b",
+                          segment)
+    if "Fatal errors" in segment or throwable:
         # A fatal error is explained if it concerns another module: a missing
         # dependency, or a dependency that failed to parse. Anything else
         # (for example a Java exception inside SANY's parser) is a crash.
         explained = ("Cannot find source file" in segment
                      or re.search(r"Could not parse module \S+ from file", segment))
-        if not explained or "Exception" in segment:
+        if not explained or throwable:
             return "crash"
     return "accept"
 
