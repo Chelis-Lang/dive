@@ -1,7 +1,7 @@
 //! The `dive` binary.
 //!
 //! `dive parse` (including reading a TLC model configuration with
-//! `--config`) and `dive analyze` are implemented. Every other core command
+//! `--config`), `dive analyze` and `dive check` are implemented. Every other core command
 //! is recognised and refuses with an explicit `unsupported` result until its
 //! backend exists (soundness contract rule 3).
 #![forbid(unsafe_code)]
@@ -30,7 +30,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -270,6 +270,133 @@ fn analyze_command(
     }
 }
 
+/// Parses a numeric option value.
+fn number<T: std::str::FromStr>(
+    flag: &str,
+    v: Option<&String>,
+    err: &mut impl std::io::Write,
+) -> Option<T> {
+    let parsed = v.and_then(|v| v.parse().ok());
+    if parsed.is_none() {
+        let _ = writeln!(err, "error: {flag} expects a number");
+    }
+    parsed
+}
+
+/// `dive check <file> [options]`: safety model checking (see `usage`).
+#[allow(clippy::too_many_lines, reason = "one flag per arm")]
+fn check_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let mut req = dive_api::CheckRequest {
+        compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
+        ..dive_api::CheckRequest::default()
+    };
+    let mut file: Option<&str> = None;
+    let mut json = false;
+    let usage_error = |err: &mut dyn std::io::Write, m: &str| {
+        let _ = writeln!(err, "error: {m}");
+        ExitCode::from(EXIT_USAGE)
+    };
+    let mut it = args.iter();
+    while let Some(a) = it.next() {
+        let (flag, inline) = match a.split_once('=') {
+            Some((f, v)) if f.starts_with('-') => (f, Some(v.to_owned())),
+            _ => (a.as_str(), None),
+        };
+        let mut value = || inline.clone().or_else(|| it.next().cloned());
+        match flag {
+            "--output" => match value().as_deref() {
+                Some("json") => json = true,
+                Some("human") => json = false,
+                _ => return usage_error(err, "--output expects `human` or `json`"),
+            },
+            "--compat" => match value().as_deref() {
+                Some("tlc") => req.compat_tlc = true,
+                Some("dive" | "none") => req.compat_tlc = false,
+                _ => return usage_error(err, "--compat expects `tlc`"),
+            },
+            "--config" | "-config" => match value() {
+                Some(c) => req.config = Some(c.into()),
+                None => return usage_error(err, "--config expects a .cfg file"),
+            },
+            "--store" => match value().as_deref() {
+                Some("exact") => req.store = dive_api::Store::Exact,
+                Some("fp" | "fingerprint") => req.store = dive_api::Store::Fingerprint,
+                _ => return usage_error(err, "--store expects `fp` or `exact`"),
+            },
+            "--seed" | "-seed" => {
+                let v = value();
+                match v.as_deref().and_then(dive_api::parse_seed) {
+                    Some(s) => req.seed = Some(s),
+                    None => return usage_error(err, "--seed expects a 64-bit integer"),
+                }
+            }
+            "--fp" | "-fp" => {
+                let v = value();
+                match number::<usize>(flag, v.as_ref(), err) {
+                    Some(n) if n < 131 => req.fp = Some(n),
+                    _ => return usage_error(err, "--fp expects a polynomial index from 0 to 130"),
+                }
+            }
+            "--workers" | "-workers" => {
+                let v = value();
+                if v.as_deref() == Some("auto") {
+                    req.workers = None;
+                } else {
+                    match number::<usize>(flag, v.as_ref(), err) {
+                        Some(n) if n > 0 => req.workers = Some(n),
+                        _ => {
+                            return usage_error(
+                                err,
+                                "--workers expects a positive number or `auto`",
+                            );
+                        }
+                    }
+                }
+            }
+            "-deadlock" => req.no_deadlock = true,
+            "--library-path" | "--module-path" => match value() {
+                Some(dir) if flag == "--library-path" => req.library_paths.push(dir.into()),
+                Some(dir) => req.module_paths.push(dir.into()),
+                None => return usage_error(err, &format!("{flag} expects a directory")),
+            },
+            s if s.starts_with('-') => {
+                return usage_error(err, &format!("unknown option `{s}` for `dive check`"));
+            }
+            s => {
+                if file.replace(s).is_some() {
+                    return usage_error(err, "`dive check` takes one file");
+                }
+            }
+        }
+    }
+    let Some(file) = file else {
+        let _ = writeln!(err, "error: `dive check` needs a file\n\n{}", usage());
+        return ExitCode::from(EXIT_USAGE);
+    };
+    req.file = file.into();
+    let report = match dive_api::check_file(&req) {
+        Ok(r) => r,
+        Err(e @ dive_api::ApiError::Unsupported { .. }) => {
+            let _ = writeln!(err, "{e}; no verdict produced");
+            return ExitCode::from(EXIT_UNSUPPORTED);
+        }
+        Err(e) => {
+            let _ = writeln!(err, "error: {e}");
+            return ExitCode::from(EXIT_USAGE);
+        }
+    };
+    if json {
+        let _ = writeln!(out, "{}", report.to_json());
+    } else {
+        let _ = write!(out, "{}", report.render_human());
+    }
+    ExitCode::from(report.exit_code())
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut stdout = std::io::stdout().lock();
@@ -286,6 +413,7 @@ fn main() -> ExitCode {
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
+        Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {
             let _ = writeln!(
                 stderr,
