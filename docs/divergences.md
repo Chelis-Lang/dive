@@ -39,6 +39,28 @@ an explicit error code and never approximates (soundness rule 3).
     as a chain of thousands of `+`, because rowan frees trees recursively.
   - Tests: `crates/dive-syntax/tests/roundtrip.rs`. No corpus module comes near either
     limit.
+- **Very deep cfg sets** (`DIVE-C0030`). `dive-config` refuses constant values with sets
+  nested more than 1024 deep. TLC parses them recursively and fails with a stack overflow
+  at a depth that depends on `-Xss`. Test: `crates/dive-config/tests/robustness.rs`.
+
+## TLC cfg reader artefacts (candidates)
+
+`dive-config` reads every cfg exactly as the pinned TLC's `ModelConfig` does. There are no
+disagreements on 886 corpus files or on 99 mutants; see
+`crates/dive-config/acceptance/README.md`. The behaviours below look like artefacts of
+TLC's reader rather than intended format rules. Each has a minimal case with TLC's
+recorded result. dive matches TLC on all of them, and warns (`DIVE-C0100`–`C0102`)
+where TLC accepts input that it will later fail to resolve. A future opt-in, result-changing
+`--cfg=strict` could reject them. Nothing is implemented.
+
+| Case | TLC behaviour |
+|---|---|
+| `CfgNegativeInt` | `N = -1` cannot be written: `-` becomes a model value, then 5006 on the next entry. |
+| `CfgBigInt`, `CfgHexInt` | Integers above 2^31−1, or written in `\h`/`\o`/`\b` notation, fail as `GENERAL` (1000, exit 255), not as config errors (exit 151). |
+| `CfgCommaList` | `INVARIANT A, B` is accepted with `,` as an invariant name; TLC fails later (2229). |
+| `CfgKeywordAsValue` | `INIT NEXT` makes `NEXT` the init predicate. |
+| `CfgSetTrailingComma` | `{1,}}` is a set containing the model value `}`. |
+| `CfgStringRaw` | cfg strings keep escapes verbatim (`"a\nb"` has four characters), unlike TLA+ strings. |
 
 ## SANY acceptance artefacts (candidates)
 

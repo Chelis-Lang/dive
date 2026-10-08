@@ -74,6 +74,7 @@ dependencies = [
 name = "dive-api"
 version = "0.0.0"
 dependencies = [
+ "dive-config",
  "dive-syntax",
  "serde_json",
 ]
@@ -101,6 +102,11 @@ version = "0.0.0"
 [[package]]
 name = "dive-config"
 version = "0.0.0"
+dependencies = [
+ "dive-syntax",
+ "proptest",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-conformance"

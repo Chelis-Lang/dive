@@ -828,6 +828,19 @@ pub(crate) fn lex(src: &str) -> Vec<LexToken> {
     lx.tokens
 }
 
+/// Lexes `src` entirely in the `SPEC` state, as a token manager created in
+/// that state does (TLC's model-configuration reader does this).
+pub(crate) fn lex_spec(src: &str) -> Vec<LexToken> {
+    let mut lx = Lexer {
+        src,
+        pos: 0,
+        tokens: Vec::with_capacity(src.len() / 3 + 4),
+        cols: ColTracker::new(),
+    };
+    lx.spec_state();
+    lx.tokens
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
