@@ -23,8 +23,11 @@ The charter's appendix records factual corrections made since it was written.
   ported algorithm in `docs/provenance.md`, naming the Java class or method matched.
 - **Better by default where approved, TLC-compatible always built and proven**
   (ADR 0010).
-  - `--compat=tlc` reproduces the pinned TLC exactly, and full conformance is
-    enforced in that mode.
+  - `--compat=tlc` is the single global switch (also `DIVE_COMPAT=tlc` and the
+    config key) that makes *every* behaviour precisely TLC-equivalent, including
+    defaults like the worker count, seeding, exit codes and output conventions.
+    Full conformance is enforced in that mode. Every new option must declare its
+    TLC-equivalent setting.
   - Wherever TLC imposes a handcuff, build a named dive option that does better:
     single-worker exactness, unseeded or unreplayable randomness, 32-bit
     integers, silent soundness hazards, or human-only output. "Better" means

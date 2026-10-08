@@ -24,7 +24,15 @@ The charter's soundness contract requires matching TLC by default (rule 5). The 
   - This is the profile the charter's conformance contract (rule 1) is enforced against, over **the full corpus**.
   - The TLC-matching behaviour is always *built*, never merely recorded. Every result-changing enhancement ships with its TLC-matching counterpart, and the harness proves that counterpart matches.
 - **The default profile (dive).** This is TLC-compatible except where the owner has approved a better default. Approved defaults are listed in the registry in `docs/divergences.md`.
-- **Per-feature switches.** Each enhancement also has its own flag, for example `--int=big|tlc` or `--symmetry-liveness=refuse|tlc`. `--compat=tlc` sets all of them to TLC behaviour at once.
+- **Per-feature switches.** Each enhancement also has its own flag, for example `--int=big|tlc` or `--symmetry-liveness=refuse|tlc`.
+
+`--compat=tlc` is one global switch, set by the `--compat=tlc` flag, the `DIVE_COMPAT=tlc` environment variable, the `compat = "tlc"` config key, or `Profile::Tlc` in the library API. It puts **every** behaviour into its precisely TLC-equivalent form at once, for clean testing and for users who want to validate dive against TLC:
+
+- Result-changing behaviours are switched, for example integers and symmetry with liveness.
+- So are result-preserving defaults and observable conventions: the default worker count (TLC's 1), seeding (unseeded unless `-seed` is given), the meaning of flags shared with TLC, exit codes, and the shape of the default human-readable output where TLC defines it.
+- A newly added option must declare its TLC-equivalent setting, or that it has no observable TLC counterpart. Otherwise it fails review.
+- Per-feature flags given explicitly alongside `--compat=tlc` override it for that feature only. The output's `options` block then reports the run as `tlc+overrides`, listing each override, so a "pure TLC" claim is never made for a mixed run.
+- The conformance harness runs dive under pure `--compat=tlc` for the strict tier.
 
 ### 2. Better behaviour is always available
 
