@@ -64,4 +64,4 @@ Whenever an agent finds a TLC handcuff, it:
 - **Value representation.** `dive-value` must leave room for arbitrary-precision integers behind an option without penalising the 32-bit fast path.
 - **CLI.** Flags that share a name with TLC flags keep TLC's meaning. Options only dive has use distinct names and are listed in `dive --help` under their own heading.
 - **Reporting.** The JSON output has an `options` block that records every active enhancement and divergence, and the seed.
-- **Open question:** may result-preserving enhancements such as parallel workers default to "on" (for example `--workers auto`)? TLC itself defaults to 1 worker. This ADR permits it, because results are identical by construction and by test. The owner may override.
+- **Defaults for result-preserving enhancements:** the owner confirmed on 2026-10-08 that these may default to on. For example, parallel workers may be on by default (`--workers auto`), even though TLC defaults to 1. This rests on results being identical by construction and by harness test.
