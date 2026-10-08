@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 39efb2ad242ccf0de4c67c67673a2fb473c0d58a882c6a19569e835ee670a0ff # shrinks to s = [[adr |-> FALSE, val |-> <<a1>>], {a1, "rdy"}], perm = ["p1", "p3", "a1", "v1", "p2"]
+cc 1f04d1ce2d654c549594614ded51e6c73ac60db2b5c81cfd0940cc8b58b52e31 # shrinks to others = [], (a, b) = (p2, p1), ci = Ctx1 { layers: [] }, cj = Ctx1 { layers: [] }, aligned = true, pre = [], pad = 0, i = 0, j = 5

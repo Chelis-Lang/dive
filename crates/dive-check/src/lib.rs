@@ -26,11 +26,12 @@
 //!
 //! # Stores and profiles
 //!
-//! Fingerprint mode is the default, keyed on TLC's own state fingerprints
-//! (`StateFingerprinter::tlc`, TLC's variable order) in both profiles: ADR
-//! 0015 §5's cheaper two-level scheme collides systematically and is not used
-//! (see [`CheckOptions::tlc_fingerprints`]). Exact mode (`--store exact`,
-//! D-007) keys on canonical state encodings through the same engine.
+//! Fingerprint mode is the default. Under `--compat=tlc` it keys on TLC's own
+//! state fingerprints (`StateFingerprinter::tlc`, TLC's variable order); the
+//! default profile keys on ADR 0015 §5's cheaper two-level fingerprints
+//! (`StateFingerprinter::new`), which reuse cached value fingerprints (see
+//! [`CheckOptions::tlc_fingerprints`]). Exact mode (`--store exact`, D-007)
+//! keys on canonical state encodings through the same engine.
 //!
 //! # What it refuses
 //!

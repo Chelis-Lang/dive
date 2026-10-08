@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- `dive-store` and `dive check` (issue #42): the default profile's two-level state
+  fingerprint combined per-value FP64 fingerprints with FP64 again, which is affine
+  over GF(2), so the same change made to two variables could cancel; Examples
+  `MCWriteThroughCache` lost 64 of its 5,196 states. The value fingerprints are now
+  combined by a non-linear, position-keyed SplitMix64 chain (`dive_store::state::combine`,
+  ADR 0015 §5 amendment), and `dive check` uses it again in the default profile, keeping
+  TLC's own fingerprints under `--compat=tlc`. The JSON report's `collision` block names
+  the scheme. Regression tests: `MCWriteThroughCache` in the default profile
+  (`crates/dive-check/tests/fingerprints.rs`) and collision properties
+  (`crates/dive-store/tests/state_fingerprint.rs`).
 - Conformance harness (issue #35): goldens and `dev capture` no longer record TLC as
   perturbed by `-dumpTrace json`, which loads `Integers` and its Java overrides into
   every spec. The deciding run omits it; a counterexample's JSON document comes from a
