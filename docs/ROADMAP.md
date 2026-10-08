@@ -73,6 +73,8 @@ This is not a build-or-buy gate: `dive` is built regardless.
 - **Trace validation:** the `dive-trace` validator replays every counterexample.
 - **Conformance gate:** the standard conformance tier becomes a PR gate on a small subset.
 
+The design is in ADRs 0013–0016 (proposed). The sequenced plan, with work packages, conformance milestones, the gate subset and benchmark targets, is `docs/design/m5-plan.md`.
+
 ## Later
 
 - **Checking features:** parallel checking with worker invariance, then liveness and fairness, symmetry, `VIEW`, simulation, and PlusCal.

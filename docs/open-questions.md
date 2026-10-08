@@ -14,3 +14,22 @@ Each question is open until it is answered here or recorded in an ADR.
    Either way the decision is recorded.
 7. ~~**Module library pins.**~~ **Resolved 2026-10-08:** they move together with the oracle as one bundle (ADR 0002 revision). Original question: The TLAPS library (tlapm `library/`) and Apalache's modules are now pinned by commit, as upstream Examples CI uses them unpinned. Should they follow the same refresh policy as the oracle, which is currently a single snapshot (ADR 0002)?
 8. ~~**Canonical `CHOOSE` order.**~~ **Answered 2026-10-08: (a)**, canonical order by default, with TLC's order under `--choose-order=tlc` / `--compat=tlc` (ADR 0010). Original question: TLC's `CHOOSE` over strings follows the interning order of string tokens in the module text, so adding an unused definition can change a `CHOOSE` result (probes P2 and P7 in `docs/survey/competitive.md`). This breaks the charter's metamorphic rule. Should `--choose-order=canonical` become the default, with TLC's order under `--compat=tlc`? Or should TLC's order stay the default? The metamorphic tests would then need to exempt string `CHOOSE`.
+9. **Exploration order in the default profile** (ADR 0015 §7).
+   - **What canonical order changes.** Under the approved canonical value order, sets of strings and model values are also *enumerated* canonically: in `\E`, `x' \in S`, filters and maps.
+     - Complete searches are unaffected: the same states, totals and depth.
+     - At a violation, the default profile can stop at a different event than TLC. It may report a different violated property among violations at the same depth, different counts at the stop, or a different shortest counterexample of the same length.
+     - Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`: TLC reports `InvZeta`, and canonical order would report `InvAlpha`.
+   - **The options:**
+     - **(a)** Exploration follows the canonical order, keeping the default profile text-independent, which is D-006's purpose. dive flags runs where the two orders disagreed on an enumerated set, and the harness treats at-violation differences on flagged runs as expected divergences under D-006.
+     - **(b)** Keep TLC's order for exploration in both profiles, and use canonical order only for `CHOOSE`. Then adding an unused definition can again change which violation is reported.
+   - **Recommended:** (a).
+   - `--compat=tlc` is unaffected either way.
+10. **`TLCGet("config").worker`** (ADR 0014 §7).
+    - **The proposal.** Report the *logical* worker count, 1, at every `--workers` setting. dive's parallel search is by construction TLC's single-worker search (ADR 0015), and the harness holds dive to the single-worker golden. `MCDieHardest` asserts `worker = 1`. The physical count is in dive's own output.
+    - **The alternative.** Report the physical count, as TLC does for its own workers. A spec could then fail at `--workers 8` exactly as TLC fails at `-workers 8`.
+    - **Recommended:** logical.
+11. **Layering change for M5** (ADRs 0013 §8 and 0016 §2). Approve:
+    - a new crate, `dive-model`, which ports TLC's `SpecProcessor` and binds the configuration. It would depend on `dive-ir`, `dive-value`, `dive-config`, `dive-eval` and `dive-stdlib`, and `dive-check`, `dive-liveness`, `dive-sim`, `dive-trace`, `dive-compile` and `dive-api` would depend on it;
+    - `dive-eval`'s successor enumerator behind a cargo feature, `enumerate`, which `dive-trace` keeps off. It would be enforced by a standalone `dive-trace` build in the workspace gate and a `check-layering` rule.
+
+    The trace-independence rule is kept: `dive-trace` still does not depend on `dive-check`, `dive-liveness`, `dive-sim` or `dive-store`.
