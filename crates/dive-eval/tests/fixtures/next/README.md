@@ -17,6 +17,10 @@ depth and counterexample length with TLC's transcript.
   ```
 
   They are generated, never edited.
+- `*.nowarning.stdout` are runs of the same jar with the harness's flags plus `-nowarning`
+  (the exact command is in each `.nowarning.command`), which `dev capture` cannot pass.
+  Paths are replaced by `$CWD`, `$TMP` and `$DIVE_CACHE_DIR` as in the harness's
+  transcripts. `NxFastPath` generates 37 states there instead of 7.
 
 | Fixture | TLC (generated / distinct) | What it pins |
 |---|---|---|

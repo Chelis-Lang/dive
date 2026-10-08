@@ -81,7 +81,7 @@ transcripts are in `crates/dive-eval/tests/fixtures/next/`.
 | Case | TLC behaviour |
 |---|---|
 | `NxInLazyCup` | `r' \in [a : {1}] \cup [a : {1, 2}]` generates `[a \|-> 1]` twice per state (10 generated, 3 distinct; 7 for `[a : {1, 2}]`). The count also depends on whether TLC already normalized and cached the same lazy set object. dive refuses the case. |
-| `NxFastPath` | The all-assigned shortcut runs only while warnings are on, so `-nowarning` changes "states generated". |
+| `NxFastPath` | The all-assigned shortcut runs only while warnings are on, so `-nowarning` changes "states generated": 7 by default, 37 with `-nowarning` (4 distinct either way). |
 | `NxForallOrder` | `\A` in an action visits its first binding, then the others last first. |
 
 ## SANY acceptance artefacts (candidates)

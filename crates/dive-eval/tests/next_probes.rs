@@ -133,6 +133,10 @@ fn warnings(text: &str) -> Vec<String> {
 }
 
 fn run(specs: &Path, name: &str) -> Result<Checked, String> {
+    run_with(specs, name, dive_eval::Options::tlc())
+}
+
+fn run_with(specs: &Path, name: &str, opts: dive_eval::Options) -> Result<Checked, String> {
     let dir = specs.join(name);
     let loaded = harness::load(&dir.join(format!("{name}.tla")), &[])?;
     let cfg_text =
@@ -141,7 +145,7 @@ fn run(specs: &Path, name: &str) -> Result<Checked, String> {
         .into_config()
         .ok_or("cfg rejected")?;
     on_big_stack(move || {
-        let b = bind_model(&loaded, &cfg, dive_eval::Options::tlc())?;
+        let b = bind_model(&loaded, &cfg, opts)?;
         Ok(bfs(&b, 1_000_000))
     })?
 }
@@ -236,4 +240,28 @@ fn rule_fixtures_match_tlc() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/next");
     let refused = [("NxInLazyCup", "TLC's unnormalized enumeration of it")];
     assert_eq!(run_set(&root, &[], &refused), 17);
+}
+
+/// With warnings off (`-nowarning`, `Options::warnings = false`) TLC skips
+/// the all-assigned shortcut for successors, but not for initial states, and
+/// prints no warning. The transcripts `*.nowarning.stdout` were captured by
+/// running the pinned jar with the harness's flags plus `-nowarning` (see
+/// the `.nowarning.command` files).
+#[test]
+fn no_warnings_matches_tlc() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/next");
+    let opts = dive_eval::Options {
+        warnings: false,
+        ..dive_eval::Options::tlc()
+    };
+    for name in ["NxFastPath", "NxUnchangedChanged", "NxInitFastPath"] {
+        let stdout =
+            std::fs::read_to_string(root.join(ORACLE).join(format!("{name}.nowarning.stdout")))
+                .expect("transcript");
+        let tlc = parse(&stdout);
+        let dive = run_with(&root.join("specs"), name, opts).expect("runs");
+        if let Err(e) = compare(&tlc, &dive) {
+            panic!("{name} with -nowarning: {e}");
+        }
+    }
 }
