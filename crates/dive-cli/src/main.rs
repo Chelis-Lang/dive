@@ -1,8 +1,9 @@
 //! The `dive` binary.
 //!
-//! `dive parse` is implemented. Every other core command is recognised and
-//! refuses with an explicit `unsupported` result until its backend exists
-//! (soundness contract rule 3).
+//! `dive parse` is implemented, including reading a TLC model configuration
+//! with `--config`. Every other core command is recognised and refuses with
+//! an explicit `unsupported` result until its backend exists (soundness
+//! contract rule 3).
 #![forbid(unsafe_code)]
 
 use std::io::Write as _;
@@ -18,7 +19,7 @@ const COMMANDS: &[&str] = &[
     "lsp",
 ];
 
-/// Exit code when the input is rejected (for `parse`: syntax errors).
+/// Exit code when the input is rejected (for `parse`: syntax or cfg errors).
 const EXIT_REJECTED: u8 = 1;
 /// Exit code for a malformed command line or unreadable input.
 const EXIT_USAGE: u8 = 2;
@@ -27,72 +28,158 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse <FILE.tla> [--output human|json] [--cst]\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
 }
 
-/// `dive parse <file> [--output human|json] [--cst]`.
-fn parse_command(
-    args: &[String],
-    out: &mut impl std::io::Write,
-    err: &mut impl std::io::Write,
-) -> ExitCode {
-    let mut file: Option<&str> = None;
-    let mut json = false;
-    let mut cst = false;
+/// Parsed `dive parse` arguments.
+#[derive(Default)]
+struct ParseArgs<'a> {
+    file: Option<&'a str>,
+    config: Option<&'a str>,
+    json: bool,
+    cst: bool,
+}
+
+fn parse_args<'a>(args: &'a [String], err: &mut impl std::io::Write) -> Option<ParseArgs<'a>> {
+    let mut p = ParseArgs::default();
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {
             "--output" => match it.next().map(String::as_str) {
-                Some("json") => json = true,
-                Some("human") => json = false,
+                Some("json") => p.json = true,
+                Some("human") => p.json = false,
                 other => {
                     let _ = writeln!(
                         err,
                         "error: --output expects `human` or `json`, got {}",
                         other.unwrap_or("nothing")
                     );
-                    return ExitCode::from(EXIT_USAGE);
+                    return None;
                 }
             },
-            "--cst" => cst = true,
+            "--config" => {
+                let Some(c) = it.next() else {
+                    let _ = writeln!(err, "error: --config expects a .cfg file");
+                    return None;
+                };
+                if p.config.replace(c).is_some() {
+                    let _ = writeln!(err, "error: --config given twice");
+                    return None;
+                }
+            }
+            "--cst" => p.cst = true,
             s if s.starts_with('-') => {
                 let _ = writeln!(err, "error: unknown option `{s}` for `dive parse`");
-                return ExitCode::from(EXIT_USAGE);
+                return None;
             }
             s => {
-                if file.replace(s).is_some() {
+                if p.file.replace(s).is_some() {
                     let _ = writeln!(err, "error: `dive parse` takes one file");
-                    return ExitCode::from(EXIT_USAGE);
+                    return None;
                 }
             }
         }
     }
-    let Some(file) = file else {
-        let _ = writeln!(err, "error: `dive parse` needs a file\n\n{}", usage());
+    if p.file.is_none() && p.config.is_none() {
+        let _ = writeln!(
+            err,
+            "error: `dive parse` needs a file or --config\n\n{}",
+            usage()
+        );
+        return None;
+    }
+    Some(p)
+}
+
+/// `dive parse [file] [--config cfg] [--output human|json] [--cst]`.
+fn parse_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let Some(p) = parse_args(args, err) else {
         return ExitCode::from(EXIT_USAGE);
     };
-    let report = match dive_api::parse_file(std::path::Path::new(file)) {
-        Ok(r) => r,
-        Err(e) => {
+    let report = match p
+        .file
+        .map(|f| dive_api::parse_file(std::path::Path::new(f)))
+    {
+        None => None,
+        Some(Ok(r)) => Some(r),
+        Some(Err(e)) => {
             let _ = writeln!(err, "error: {e}");
             return ExitCode::from(EXIT_USAGE);
         }
     };
-    if json {
-        let _ = writeln!(out, "{}", report.to_json(cst));
-    } else {
-        let _ = write!(err, "{}", report.render_human());
-        if cst {
-            let _ = write!(out, "{:#?}", report.parse().syntax());
+    let config = match p
+        .config
+        .map(|c| dive_api::parse_config_file(std::path::Path::new(c)))
+    {
+        None => None,
+        Some(Ok(r)) => Some(r),
+        Some(Err(e @ dive_api::ApiError::Unsupported { .. })) => {
+            let _ = writeln!(err, "{e}; no result produced");
+            return ExitCode::from(EXIT_UNSUPPORTED);
         }
-        if report.accepted() {
-            let _ = writeln!(out, "ok: {} parsed ({})", file, report.modules().join(", "));
+        Some(Err(e)) => {
+            let _ = writeln!(err, "error: {e}");
+            return ExitCode::from(EXIT_USAGE);
+        }
+    };
+    let accepted = report.as_ref().is_none_or(dive_api::ParseReport::accepted)
+        && config.as_ref().is_none_or(dive_api::ConfigReport::accepted);
+    if p.json {
+        let mut v = match &report {
+            Some(r) => r.to_json(p.cst),
+            None => serde_json::json!({
+                "schema_version": dive_api::PARSE_SCHEMA_VERSION,
+                "command": "parse",
+                "file": null,
+                "module": null,
+                "modules": [],
+                "diagnostics": [],
+            }),
+        };
+        if let Some(obj) = v.as_object_mut() {
+            obj.insert("accepted".to_owned(), serde_json::Value::Bool(accepted));
+            if let Some(c) = &config {
+                obj.insert("config".to_owned(), c.to_json());
+            }
+        }
+        let _ = writeln!(out, "{v}");
+    } else {
+        if let Some(r) = &report {
+            let _ = write!(err, "{}", r.render_human());
+            if p.cst {
+                let _ = write!(out, "{:#?}", r.parse().syntax());
+            }
+            if r.accepted() {
+                let _ = writeln!(
+                    out,
+                    "ok: {} parsed ({})",
+                    p.file.unwrap_or_default(),
+                    r.modules().join(", ")
+                );
+            }
+        }
+        if let Some(c) = &config {
+            let _ = write!(err, "{}", c.render_human());
+            if let Some(m) = c.config() {
+                let _ = writeln!(
+                    out,
+                    "ok: {} read ({} constants, {} invariants, {} properties)",
+                    p.config.unwrap_or_default(),
+                    m.constants.len(),
+                    m.invariants.len(),
+                    m.properties.len()
+                );
+            }
         }
     }
-    if report.accepted() {
+    if accepted {
         ExitCode::SUCCESS
     } else {
         ExitCode::from(EXIT_REJECTED)

@@ -16,6 +16,16 @@ All notable changes to this project are documented here. The project will follow
   - typed AST views (ADR 0009).
 - `dive parse FILE [--output human|json] [--cst]`, with a versioned JSON report
   (`schema_version` 1), through `dive_api::parse_file`.
+- `dive-config`: the TLC `.cfg` reader. It covers:
+  - every keyword the pinned TLC knows, including `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE`;
+  - TLC's constant value grammar and `<-`, `[Module]` and `A!B` forms;
+  - typed `ModelConfig` with spans;
+  - stable `DIVE-C` diagnostics, each with TLC's `EC` code, exit status and line.
+
+  It matches TLC's own reader on 886 corpus cfg files and 99 mutants.
+- `dive parse [FILE.tla] --config FILE.cfg` reports cfg diagnostics, and adds a `config`
+  object to the JSON report (`dive_api::parse_config_file`).
+- `dive-syntax`: `tokens::tokenize_spec`, SANY's `SPEC`-state lexer as a public API.
 - `dive-conformance`: the differential harness. It covers:
   - oracle and corpus fetching with SHA-256 verification;
   - TLC `-tool` stream parsing and verdict classification, cross-checked against exit codes;
