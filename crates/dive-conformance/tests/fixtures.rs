@@ -417,6 +417,19 @@ fn sany_exit_codes_per_version() -> TestResult {
         SanyVerdict::ParseError
     );
     assert!(sany_fixture(NEW, "UsesCommunityModules")?.accepted);
+    // v1.7.4 prints a "Semantic errors:" header above a warnings-only list
+    // ("Multiple declarations or definitions for symbol Foo") and accepts.
+    for oracle in [NEW, OLD] {
+        let r = sany_fixture(oracle, "SanyWarning")?;
+        assert_eq!(
+            r.verdict,
+            SanyVerdict::Accept,
+            "{oracle}: {:?}",
+            r.error_text
+        );
+    }
+    assert!(read(OLD, "SanyWarning.sany.stdout")?.contains("Semantic errors:"));
+    assert_eq!(tlc(OLD, "SanyWarning")?.verdict, Verdict::Success);
     Ok(())
 }
 

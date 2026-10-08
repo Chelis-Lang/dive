@@ -13,7 +13,8 @@
 //! a module is accepted only if SANY exits 0 and prints no error marker. An
 //! exit of 0 with error markers is a rejection with
 //! `exit_code_reflects_errors = false`, which is the documented behaviour
-//! above, not a guess.
+//! above, not a guess. v1.7.4 prints a `Semantic errors:` header even when
+//! the list under it holds only warnings; that is not a rejection.
 
 use crate::process::ProcessOutcome;
 use crate::tlc::result::{PARSE_MARKERS, SEMANTIC_MARKERS, unresolved_modules};
@@ -57,11 +58,14 @@ pub struct SanyResult {
     pub note: Option<String>,
 }
 
-/// Every marker that means SANY reported an error.
+/// Every marker that means SANY reported an error. `Semantic errors:` is
+/// deliberately not one: v1.7.4 prints that header above a list of
+/// *warnings* only (`*** Warnings: 1`, e.g. "Multiple declarations or
+/// definitions for symbol"), and accepts the module. A semantic rejection
+/// always comes with `*** Errors:`.
 fn error_markers() -> impl Iterator<Item = &'static str> {
     PARSE_MARKERS
         .iter()
-        .chain(SEMANTIC_MARKERS)
         .chain(&["*** Errors:", "*** Abort messages:", "Illegal switch"])
         .copied()
 }
@@ -109,7 +113,16 @@ pub fn classify(outcome: &ProcessOutcome) -> SanyResult {
         accepted,
         exit_code: outcome.exit_code,
         exit_code_reflects_errors: exit_ok != has_errors,
-        error_text: first_marker.map(|i| text[i..].trim_end().to_owned()),
+        error_text: first_marker.map(|i| {
+            // Start at the "Semantic errors:" header when it precedes the marker.
+            let start = SEMANTIC_MARKERS
+                .iter()
+                .filter_map(|m| text.find(m))
+                .filter(|h| *h < i)
+                .min()
+                .unwrap_or(i);
+            text[start..].trim_end().to_owned()
+        }),
         unresolved_modules: unresolved_modules(&text),
         note,
     }
@@ -144,6 +157,16 @@ mod tests {
             r.error_text
                 .is_some_and(|t| t.starts_with("Semantic errors:"))
         );
+    }
+
+    #[test]
+    fn warnings_under_semantic_errors_header_are_accepted() {
+        let r = classify(&outcome(
+            0,
+            "Semantic errors:\n\n*** Warnings: 1\n\nline 5, col 1 to line 5, col 24 of module M\n\nMultiple declarations or definitions for symbol Foo.\n",
+        ));
+        assert_eq!(r.verdict, SanyVerdict::Accept);
+        assert!(r.accepted);
     }
 
     #[test]
