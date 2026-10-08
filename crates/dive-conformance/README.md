@@ -38,6 +38,7 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 
 **Each model gets exactly one outcome:**
 - `agree`;
+- `agree-pending-trace-validation`: every compared field agrees, but the counterexample has not been validated by an independent trace validator (charter rule 2, ADR 0016), which does not exist yet (WP-E1). It is never counted as `agree` and is not a finding;
 - `disagree`, with a field-by-field diff;
 - `unsupported`;
 - `oracle-error`;
@@ -79,14 +80,14 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - the violated property, when the golden names one;
   - distinct, generated and queued counts, and depth;
   - the counterexample's length and how it ends (finite, lasso, stuttering).
-- The counterexample's content is never compared. An implementation that is not TLC must report it validated (`Implementation::trace_validated`), or it cannot agree on a violation.
+- The counterexample's content is never compared. An implementation that is not TLC must report it validated (`Implementation::trace_validated`), or it cannot agree on a violation: when that is the only difference, the outcome is `agree-pending-trace-validation`, otherwise `disagree`.
 - Only a TLC oracle gets multi-worker leniency. With more than one worker, its counts are compared only after a complete search, and depth, queue, counterexample and property are not compared.
 - For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
 - For anything else, every worker count must match, and any variance is `disagree`.
 - v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
 - Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`.
 - Simulation models compare verdict-level fields only.
-- Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The exception is an implementation that refuses every model (`dive` until `dive check` exists): its models are `unsupported`, and the detail notes a missing golden. The summary asserts that the totals equal the selection.
+- Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The exception is an implementation that refuses every model (`Implementation::models_unsupported`): its models are `unsupported`, and the detail notes a missing golden. The summary asserts that the totals equal the selection.
 
 ## Corpora
 
@@ -127,7 +128,7 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 - `--repo-root DIR` and `--cache-dir DIR`.
 
 **Outputs:**
-- `run` writes `conformance/reports/<run-id>.json` (schema version 1) and `docs/conformance.md`. Use `--no-summary` to skip the summary, or `--summary PATH` to put it elsewhere.
+- `run` writes `conformance/reports/<run-id>.json` (schema version 1) and updates `docs/conformance.md`. That file keeps one section per implementation and profile (`tlc:<oracle>`, `dive (tlc)`, `dive (dive)`, ...); a run replaces only its own section (issue #27). `report summarise <report.json>...` re-renders existing reports' sections without running anything. Use `--no-summary` to skip the summary, or `--summary PATH` to put it elsewhere.
 - Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes, except in runs involving a reference oracle); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
 
 **Examples:**
@@ -241,7 +242,14 @@ pub trait Implementation: Sync {
   - each `[[module_library]]` directory: Apalache's `src/tla`, then the TLAPS `library/`.
 
   Standard modules therefore win over the TLAPS library's own `Bags`, `FiniteSets` and `RealTime`, as they do for SANY (ADR 0011).
-- **Models.** `dive check` does not exist yet, so every model is `unsupported` ("`dive check` is not implemented yet"), with or without a golden. Nothing passes silently, and `unsupported` is not a finding.
+- **Models.** Each exhaustive model runs `dive check --output json --config <cfg> --workers N --seed 0 --fp 0 --module-path ... <module>` from the module's directory (TLC's goldens use `-fp 0 -seed 0`). Simulation models and models with action composition are `unsupported`. The report is mapped to the oracle vocabulary (`dive::check_result`):
+  - the TLC message code dive reports (`tlc.code`) gives the verdict (`tlc::codes::verdict_for_code`) and the error class; under `--impl-profile tlc` the exit code must be TLC's for that code;
+  - the statistics are taken only where TLC prints them (`reported_by_tlc`; none for a stop while generating initial states);
+  - the counterexample's length and printed states (label and text) form the trace, ending `finite`;
+  - `unsupported` and `resource-limit` reports (exit 3) are `unsupported`, naming the feature; an error whose TLC class dive does not claim yet (`tlc.verified: false`) is `unsupported` too, with dive's own finding in the detail;
+  - `internal-error`, or a report that contradicts itself, is `unclassified`, which is a `disagree`.
+
+  dive's counterexamples are not validated independently yet (WP-E1), so a violation is at best `agree-pending-trace-validation`.
 - **Robustness.** A run whose exit code contradicts `accepted` (0 if accepted, 1 if rejected), a crash, missing or unparsable JSON, or a `schema_version` other than 1 is `unclassified`, which is a `disagree`. Exit 3 (`dive` refusing) is `unsupported`. Every run must leave the corpus checkout unmodified.
 - **Profiles.** `--impl-profile` and `DIVE_COMPAT=tlc` are recorded. `dive parse` and `dive analyze` have no profile-dependent behaviour yet. The harness passes `DIVE_COMPAT=tlc` to `dive` under the pure `tlc` profile, and removes it otherwise. A result-changing `--impl-option` makes module outcomes `divergence-mode`, as it does for models.
 

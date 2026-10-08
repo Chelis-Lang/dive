@@ -35,7 +35,7 @@ fn version_succeeds() {
 
 #[test]
 fn unimplemented_commands_refuse_explicitly() {
-    for cmd in ["check", "simulate", "translate", "validate-trace", "lsp"] {
+    for cmd in ["simulate", "translate", "validate-trace", "lsp"] {
         let out = dive(&[cmd]);
         assert_eq!(out.status.code(), Some(3), "{cmd}");
         assert!(
@@ -228,4 +228,66 @@ fn analyze_finds_modules_on_the_library_path() {
         dive(&["analyze", "x.tla", "--library-path"]).status.code(),
         Some(2)
     );
+}
+
+const CHECK_SPEC: &str = "---- MODULE CheckMe ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = (x + 1) % 4\nInv == x < 3\n====\n";
+
+#[test]
+fn check_reports_a_violation_with_each_profiles_exit_code() {
+    let tla = temp_file("CheckMe.tla", CHECK_SPEC);
+    let cfg = temp_file("CheckMe.cfg", "INIT Init\nNEXT Next\nINVARIANT Inv\n");
+    let (tla, cfg) = (tla.to_string_lossy(), cfg.to_string_lossy());
+    // TLC's exit status under --compat=tlc, dive's own otherwise.
+    let tlc = dive(&[
+        "check",
+        &tla,
+        "--config",
+        &cfg,
+        "--compat=tlc",
+        "--output",
+        "json",
+    ]);
+    assert_eq!(tlc.status.code(), Some(12));
+    let v: serde_json::Value = match serde_json::from_slice(&tlc.stdout) {
+        Ok(v) => v,
+        Err(e) => unreachable!("not JSON: {e}"),
+    };
+    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["verdict"], "invariant-violation");
+    assert_eq!(v["property"], "Inv");
+    assert_eq!(v["tlc"]["code"], 2110);
+    assert_eq!(v["statistics"]["generated"], 4);
+    assert_eq!(v["counterexample"]["length"], 4);
+    assert_eq!(v["counterexample"]["states"][3]["values"]["x"], 3);
+    assert_eq!(v["options"]["profile"], "tlc");
+    for store in ["fp", "exact"] {
+        let own = dive(&[
+            "check", &tla, "--config", &cfg, "--store", store, "--seed", "7",
+        ]);
+        assert_eq!(own.status.code(), Some(10), "{store}");
+        let text = String::from_utf8_lossy(&own.stdout);
+        assert!(text.contains("Error: Invariant Inv is violated."), "{text}");
+        assert!(text.contains("seed 7"), "{text}");
+    }
+}
+
+#[test]
+fn check_refuses_and_rejects_with_distinct_codes() {
+    assert_eq!(dive(&["check"]).status.code(), Some(2));
+    let tla = temp_file(
+        "CheckLive.tla",
+        "---- MODULE CheckLive ----\nVARIABLE x\nInit == x = 0\nNext == x' = x\nSpec == Init /\\ [][Next]_x\nLive == <>(x = 1)\n====\n",
+    );
+    let cfg = temp_file("CheckLive.cfg", "SPECIFICATION Spec\nPROPERTY Live\n");
+    let out = dive(&[
+        "check",
+        &tla.to_string_lossy(),
+        "--config",
+        &cfg.to_string_lossy(),
+    ]);
+    assert_eq!(out.status.code(), Some(3));
+    assert!(String::from_utf8_lossy(&out.stdout).contains("unsupported: temporal"));
+    let bad = temp_file("CheckBad.tla", "---- MODULE CheckBad ----\nx == y\n====\n");
+    let out = dive(&["check", &bad.to_string_lossy(), "--compat=tlc"]);
+    assert_eq!(out.status.code(), Some(150));
 }

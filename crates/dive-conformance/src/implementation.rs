@@ -9,8 +9,7 @@
 //! - [`TlcImplementation`] re-runs a pinned TLC oracle (self-consistency,
 //!   determinism and cross-oracle diffs).
 //! - [`DiveImplementation`] runs the `dive` binary: `dive analyze` and
-//!   `dive parse` for modules; models are refused until `dive check` exists
-//!   (see [`crate::dive`]).
+//!   `dive parse` for modules, `dive check` for models (see [`crate::dive`]).
 //! - [`ExternalAdapter`] is the shape for external tools (M2): a TOML file
 //!   with a command template and an exit-code map. It is parsed and
 //!   validated, but not executed yet; every request is refused.

@@ -40,6 +40,9 @@ COMMANDS:
     corpus list            list models with tier, mode and scope
     golden generate        generate goldens from an oracle
     run                    run an implementation against the goldens and write a report
+    report summarise <report.json>...
+                           re-render the summary sections of existing reports into
+                           --summary (default docs/conformance.md), one per implementation
 
 SELECTION (corpus list, golden generate, run):
     --corpus <id>          corpus (default: examples); `run` takes several, into one report
@@ -307,6 +310,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             Ok(failures > 0)
         }
         ["run"] => cmd_run(&config, &cache, &root, o),
+        ["report", "summarise"] => report_summarise(&root, o),
         ["dev", "capture"] => {
             dev_capture(&config, &cache, o)?;
             Ok(false)
@@ -316,6 +320,33 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             cmd.join(" ")
         ))),
     }
+}
+
+/// `report summarise <report.json>...`: merges each report's section into
+/// the summary file.
+fn report_summarise(root: &Path, o: &Opts) -> Result<bool> {
+    let md = o
+        .summary
+        .clone()
+        .unwrap_or_else(|| root.join("docs").join("conformance.md"));
+    if o.positional.is_empty() {
+        return Err(Error::Usage(
+            "`report summarise` needs one or more report files".to_owned(),
+        ));
+    }
+    for file in &o.positional {
+        let text = std::fs::read_to_string(file).map_err(|e| Error::Io(format!("{file}: {e}")))?;
+        let report: dive_conformance::report::Report = serde_json::from_str(&text)
+            .map_err(|e| Error::Config(format!("{file}: not a report: {e}")))?;
+        let existing = std::fs::read_to_string(&md).ok();
+        let merged = dive_conformance::report::merge_summary(
+            existing.as_deref(),
+            &dive_conformance::report::summary_key(&report),
+            &dive_conformance::report::render_markdown(&report)?,
+        );
+        std::fs::write(&md, merged).map_err(|e| Error::Io(format!("{}: {e}", md.display())))?;
+    }
+    Ok(false)
 }
 
 /// `--sany-phase full|parse`.
@@ -592,7 +623,7 @@ fn main() -> ExitCode {
         };
         let rest = o.positional.split_off(n.min(o.positional.len()));
         let cmd = std::mem::replace(&mut o.positional, rest);
-        let takes_args = cmd.first().map(String::as_str) == Some("dev");
+        let takes_args = matches!(cmd.first().map(String::as_str), Some("dev" | "report"));
         if !takes_args && !o.positional.is_empty() {
             return Err(Error::Usage(format!(
                 "unexpected argument(s) {:?} after `{}`",

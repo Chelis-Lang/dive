@@ -104,7 +104,7 @@ All runs use the pinned oracle `tlc-2026.10.06.014338` and Examples `6a7b26a`. A
 | **CM4: default profile** | The CM2 set under the default profile (big integers, canonical order). It agrees except for registered expected divergences, with `Overflow` flagged and the Q9 policy applied |
 | **CM5: exact mode** | `--store exact` equals fingerprint mode on CM2. Forced-spill runs (D5) equal in-memory runs |
 
-**CM1 candidate list.** Each was chosen as a small model with standard modules only and a safety-only configuration. The WP-E2 owner confirms each model's cfg uses no M5-refused feature before freezing the list, and replaces any that does.
+**CM1 candidate list.** The frozen list, with the replacements WP-D2 made for models whose configuration uses a refused feature, is `conformance/gates/cm1.txt`. Each was chosen as a small model with standard modules only and a safety-only configuration. The WP-E2 owner confirms each model's cfg uses no M5-refused feature before freezing the list, and replaces any that does.
 
 | Category | Models |
 |---|---|
