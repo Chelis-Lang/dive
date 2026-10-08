@@ -170,6 +170,15 @@ pub struct Settings {
     /// Implementation options active for the run (ADR 0010).
     #[serde(default)]
     pub impl_options: Vec<crate::implementation::ImplOption>,
+    /// The implementation's profile (`dive`, `tlc`, `tlc+overrides`), if it
+    /// has one (TLC oracles and external tools do not).
+    #[serde(default)]
+    pub impl_profile: Option<crate::divergence::Profile>,
+    /// Whether agreement in this run counts for the strict tier: only the
+    /// pure `tlc` profile without result-changing options. `None` when the
+    /// implementation has no profile.
+    #[serde(default)]
+    pub strict_tier: Option<bool>,
 }
 
 /// Outcome counts.
@@ -352,6 +361,38 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         "- **Settings:** tier `{}`, workers {:?}, filters {:?}, manifest cross-check {}",
         r.settings.tier, r.settings.workers, r.settings.filters, r.settings.crosscheck_manifest
     );
+    if let Some(p) = &r.settings.impl_profile {
+        let _ = writeln!(
+            s,
+            "- **Profile:** `{}`; strict tier: {}",
+            serde_json::to_string(p).unwrap_or_default(),
+            r.settings.strict_tier.unwrap_or(false)
+        );
+    }
+    if !r.settings.impl_options.is_empty() {
+        let _ = writeln!(
+            s,
+            "- **Implementation options:** {}",
+            r.settings
+                .impl_options
+                .iter()
+                .map(|o| format!(
+                    "`{}{}`{}",
+                    o.name,
+                    o.value
+                        .as_ref()
+                        .map(|v| format!("={v}"))
+                        .unwrap_or_default(),
+                    if o.result_changing {
+                        " (result-changing)"
+                    } else {
+                        ""
+                    }
+                ))
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+    }
     let _ = writeln!(
         s,
         "- **Host:** {} {} ({}), {} CPUs\n",

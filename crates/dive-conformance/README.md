@@ -145,6 +145,11 @@ pub trait Implementation: Sync {
 
 **Wiring.** Add the new variant to `--impl` in `src/main.rs`.
 
+**Profiles, options and expected divergences (ADR 0010).**
+- **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
+- **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
+- **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
+
 **External tools (M2)** are described by a TOML file, loaded with `--impl adapter:<file>`:
 
 ```toml

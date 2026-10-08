@@ -109,6 +109,13 @@ pub trait Implementation: Sync {
     /// the implementation itself is a result.
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>>;
 
+    /// The profile this instance runs under (ADR 0010): `dive`, `tlc` or
+    /// `tlc+overrides`. `None` for TLC oracles and external tools, which
+    /// have no profile and are never excused by the divergence registry.
+    fn profile(&self) -> Option<crate::divergence::Profile> {
+        None
+    }
+
     /// The implementation options this instance runs under
     /// (`--impl-option`), recorded in every report (ADR 0010).
     fn options(&self) -> &[ImplOption] {
@@ -256,9 +263,15 @@ impl Implementation for TlcImplementation {
 pub struct DiveImplementation {
     /// Options `dive` would run under (`--impl-option`).
     pub options: Vec<ImplOption>,
+    /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
+    pub profile: crate::divergence::Profile,
 }
 
 impl Implementation for DiveImplementation {
+    fn profile(&self) -> Option<crate::divergence::Profile> {
+        Some(self.profile.clone())
+    }
+
     fn options(&self) -> &[ImplOption] {
         &self.options
     }

@@ -27,6 +27,7 @@ pub mod cache;
 pub mod compare;
 pub mod config;
 pub mod corpus;
+pub mod divergence;
 pub mod error;
 pub mod fetch;
 pub mod golden;

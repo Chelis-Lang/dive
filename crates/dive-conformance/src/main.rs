@@ -4,6 +4,7 @@
 use dive_conformance::cache::Cache;
 use dive_conformance::compare::Outcome;
 use dive_conformance::config::Config;
+use dive_conformance::divergence::Profile;
 use dive_conformance::error::{Error, Result};
 use dive_conformance::implementation::{
     DiveImplementation, ExternalAdapter, ImplOption, Implementation, TlcImplementation,
@@ -52,6 +53,8 @@ RUN:
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
     --no-sany              skip SANY goldens
+    --impl-profile P       dive profile: dive (default) | tlc | tlc+overrides=<f>,... (ADR 0010);
+                           DIVE_COMPAT=tlc selects tlc when not given
     --impl-option N[=V]    run dive/adapter under an option (repeatable; ADR 0010). Options
                            the implementation does not declare result-preserving make every
                            would-be `agree` a `divergence-mode` outcome
@@ -116,6 +119,7 @@ struct Opts {
     timeout_cap: Option<u64>,
     java: Option<PathBuf>,
     impl_options: Vec<String>,
+    impl_profile: Option<String>,
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
     positional: Vec<String>,
@@ -168,6 +172,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--timeout-cap" => o.timeout_cap = Some(parse_num(&a, &args.value(&a)?)?),
             "--java" => o.java = Some(args.value(&a)?.into()),
             "--impl-option" => o.impl_options.push(args.value(&a)?),
+            "--impl-profile" => o.impl_profile = Some(args.value(&a)?),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
@@ -331,18 +336,27 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             .to_owned();
         let java = Java::resolve(config, cache, o.java.as_deref())?;
         let env = OracleEnv::prepare(config, cache, &id, &java)?;
-        if !o.impl_options.is_empty() {
+        if !o.impl_options.is_empty() || o.impl_profile.is_some() {
             return Err(Error::Usage(
-                "--impl-option applies to dive and adapters; TLC oracles take none".to_owned(),
+                "--impl-option/--impl-profile apply to dive (and options to adapters); TLC oracles take none".to_owned(),
             ));
         }
         let imp = TlcImplementation { env };
         pipeline::run(config, cache, &imp, Some(&imp.env), &opts)?
     } else if imp_spec == "dive" {
         let mut imp = DiveImplementation::default();
+        imp.profile = match &o.impl_profile {
+            Some(p) => Profile::parse(p)?,
+            None => Profile::from_env()?.unwrap_or_default(),
+        };
         imp.options = parse_impl_options(&o.impl_options, &imp)?;
         pipeline::run(config, cache, &imp, None, &opts)?
     } else if let Some(path) = imp_spec.strip_prefix("adapter:") {
+        if o.impl_profile.is_some() {
+            return Err(Error::Usage(
+                "--impl-profile applies to dive only".to_owned(),
+            ));
+        }
         let mut adapter = ExternalAdapter::load(Path::new(path))?;
         adapter.options = parse_impl_options(&o.impl_options, &adapter)?;
         pipeline::run(config, cache, &adapter, None, &opts)?

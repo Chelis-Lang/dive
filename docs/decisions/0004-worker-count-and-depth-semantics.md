@@ -38,6 +38,13 @@ Generating goldens is slower, because it is single-threaded. That cost is accept
    - it can even change the verdict when the spec reads the worker count (`MCDieHardest` asserts `TLCGet("config").worker = 1`, so at four workers it is an assumption failure).
 3. **Worker-introspecting specs.** A model whose module mentions `TLCGet("config")` is marked `worker_introspecting` in the report, because its behaviour may legitimately depend on `-workers`. The detection is a plain text search with whitespace ignored. `dive` is still held to the single-worker golden for these models; the flag explains a variance, it does not excuse one.
 4. **Excluded points.** Runs that time out, hit a resource limit or are unclassified are left out of the variance judgements, and are counted as `excluded`.
-5. **ADR 0010 (TLC-compatible by default, better by option).** The oracle's `-workers 1` is a golden-generation constraint, not a limit on `dive`. `dive` runs at any worker count and must equal the single-worker golden at each one.
+5. **ADR 0010 (profiles and options).** The oracle's `-workers 1` is a golden-generation constraint, not a limit on `dive`. `dive` runs at any worker count and must equal the single-worker golden at each one.
 
    Implementation options (`--impl-option`, e.g. `seed`) are recorded in every report. An option the implementation does not declare result-preserving (e.g. `int=big`) makes every would-be `agree` a `divergence-mode` outcome. Such runs are never counted as agreeing with TLC goldens. Comparing them against a separate expectation set is future work.
+
+   Every report also records the implementation's profile, set with `--impl-profile` or `DIVE_COMPAT=tlc`:
+   - `dive`, the default;
+   - `tlc`, pure TLC behaviour, including TLC's defaults for the worker count, seeding and exit codes;
+   - `tlc+overrides=<features>`.
+
+   It also records `strict_tier`, which is true only for pure `tlc` without result-changing options. Under `dive`, a disagreement listed in `conformance/expected-divergences.toml` (glob, profile or option, expected verdict, justification, link into `docs/divergences.md`) is `expected-divergence`, never `agree`. Under `tlc` and `tlc+overrides` the registry never applies, and an entry claiming those profiles is a configuration error.

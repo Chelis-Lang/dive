@@ -615,7 +615,7 @@ fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
         Outcome::OracleError => 5,
         Outcome::Timeout => 4,
         Outcome::Disagree => 3,
-        Outcome::Unsupported => 2,
+        Outcome::Unsupported | Outcome::ExpectedDivergence => 2,
         Outcome::OutOfScope | Outcome::DivergenceMode => 1,
         Outcome::Agree => 0,
     };
@@ -634,6 +634,7 @@ fn run_model(
     m: &ModelEntry,
     golden_root: &Path,
     golden_sha256: &str,
+    registry: &crate::divergence::Registry,
     opts: &RunOptions,
 ) -> ModelReport {
     let mut report = ModelReport {
@@ -771,7 +772,32 @@ fn run_model(
                     _ if diffs.is_empty() => Outcome::Agree,
                     _ => Outcome::Disagree,
                 };
-                let detail = result.note.clone();
+                let mut detail = result.note.clone();
+                let excused = if outcome == Outcome::Disagree && !imp.is_oracle() {
+                    let profile = imp.profile();
+                    let active: Vec<String> = imp
+                        .options()
+                        .iter()
+                        .map(|o| {
+                            o.value
+                                .as_ref()
+                                .map_or_else(|| o.name.clone(), |v| format!("{}={v}", o.name))
+                        })
+                        .collect();
+                    registry
+                        .excuse(profile.as_ref(), &active, &m.id, result.verdict)
+                        .or_else(|| {
+                            registry.excuse(profile.as_ref(), &active, &m.module, result.verdict)
+                        })
+                } else {
+                    None
+                };
+                let outcome = if let Some(d) = excused {
+                    detail = Some(format!("expected divergence `{}` ({})", d.id, d.link));
+                    Outcome::ExpectedDivergence
+                } else {
+                    outcome
+                };
                 record_from(workers, outcome, Some(&result), diffs, elapsed, detail)
             }
         };
@@ -897,6 +923,7 @@ pub fn run(
 ) -> Result<Report> {
     let corpus = load_corpus(config, cache, &opts.corpus)?;
     let golden_oracle = config.oracles.oracle(&opts.golden_oracle)?;
+    let registry = crate::divergence::Registry::load(&config.repo_root)?;
     let root = golden_root(&config.repo_root);
     let models = opts.selection.models(&corpus)?;
     let modules: Vec<String> = if opts.sany {
@@ -919,7 +946,15 @@ pub fn run(
     ));
     let done = AtomicUsize::new(0);
     let mut model_reports = parallel_map(&models, opts.limits.jobs, |_, m| {
-        let r = run_model(imp, &corpus, m, &root, &golden_oracle.sha256, opts);
+        let r = run_model(
+            imp,
+            &corpus,
+            m,
+            &root,
+            &golden_oracle.sha256,
+            &registry,
+            opts,
+        );
         let n = done.fetch_add(1, Ordering::Relaxed) + 1;
         log(&format!(
             "[{n}/{total}] {:<13} {}{}",
@@ -985,6 +1020,10 @@ pub fn run(
             timeout_policy: opts.limits.policy(),
             crosscheck_manifest: opts.crosscheck_manifest,
             impl_options: imp.options().to_vec(),
+            impl_profile: imp.profile(),
+            strict_tier: imp
+                .profile()
+                .map(|p| p.is_strict() && !imp.options().iter().any(|o| o.result_changing)),
         },
         summary: summarise(&model_reports, &module_reports, models.len(), modules.len())?,
         models: model_reports,

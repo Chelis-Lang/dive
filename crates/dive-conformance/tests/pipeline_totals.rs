@@ -6,6 +6,7 @@
 use dive_conformance::cache::Cache;
 use dive_conformance::compare::Outcome;
 use dive_conformance::config::Config;
+use dive_conformance::divergence::Profile;
 use dive_conformance::error::{Error, Result as DResult};
 use dive_conformance::golden::{
     GOLDEN_SCHEMA, GoldenModel, ModelGolden, Provenance, model_golden_path, to_pretty,
@@ -190,6 +191,8 @@ fn success() -> OracleResult {
 /// the given options.
 struct Optioned {
     options: Vec<ImplOption>,
+    profile: Option<Profile>,
+    result: OracleResult,
 }
 
 impl Implementation for Optioned {
@@ -202,12 +205,15 @@ impl Implementation for Optioned {
     fn options(&self) -> &[ImplOption] {
         &self.options
     }
+    fn profile(&self) -> Option<Profile> {
+        self.profile.clone()
+    }
     fn result_preserving_options(&self) -> &[&str] {
         &["seed"]
     }
     fn check_model(&self, _req: &ModelRequest<'_>) -> DResult<ImplResult<OracleResult>> {
         Ok(ImplResult::Completed {
-            result: success(),
+            result: self.result.clone(),
             command: vec![],
             elapsed: Duration::ZERO,
         })
@@ -217,11 +223,7 @@ impl Implementation for Optioned {
     }
 }
 
-#[test]
-fn result_changing_options_never_agree() -> TestResult {
-    let tmp = dive_conformance::util::TempDir::new("options")?;
-    let (repo, cache) = setup(tmp.path())?;
-    let config = Config::load(&repo)?;
+fn write_success_golden(repo: &Path, config: &Config) -> TestResult {
     let oracle = config.oracles.default_oracle()?.clone();
     let corpus = config.corpora.corpus("examples")?.clone();
     let golden = ModelGolden {
@@ -274,12 +276,70 @@ fn result_changing_options_never_agree() -> TestResult {
     );
     std::fs::create_dir_all(path.parent().ok_or("parent")?)?;
     std::fs::write(&path, to_pretty(&golden)?)?;
+    Ok(())
+}
+
+#[test]
+fn registry_excuses_only_under_the_dive_profile() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("registry")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    write_success_golden(&repo, &config)?;
+    // dive (big integers) reports success where TLC overflows: here the
+    // golden says success and dive says overflow, i.e. a disagreement.
+    let mut overflow = success();
+    overflow.verdict = Verdict::Overflow;
+    overflow.verdict_code = Some(2178);
+    overflow.error_class = Some("TLC_MODULE_OVERFLOW".to_owned());
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        "[[divergence]]\nid = \"test\"\npattern = \"specifications/x/*\"\nprofile = \"dive\"\nexpected_verdict = \"overflow\"\njustification = \"test\"\nlink = \"docs/divergences.md#test\"\n",
+    )?;
+    let mut opts = options(&repo, vec!["specifications/x/X.cfg".to_owned()]);
+    opts.sany = false;
+    opts.workers = vec![1];
+    let run = |profile: Option<Profile>| -> Result<_, Box<dyn std::error::Error>> {
+        let imp = Optioned {
+            options: vec![],
+            profile,
+            result: overflow.clone(),
+        };
+        Ok(pipeline::run(&config, &cache, &imp, None, &opts)?)
+    };
+    let dive = run(Some(Profile::Dive))?;
+    assert_eq!(dive.models[0].outcome, Outcome::ExpectedDivergence);
+    assert_eq!(dive.settings.strict_tier, Some(false));
+    let tlc = run(Some(Profile::Tlc))?;
+    assert_eq!(tlc.models[0].outcome, Outcome::Disagree);
+    assert_eq!(tlc.settings.strict_tier, Some(true));
+    let over = run(Some(Profile::TlcWithOverrides(vec!["int".to_owned()])))?;
+    assert_eq!(over.models[0].outcome, Outcome::Disagree);
+    assert_eq!(over.settings.strict_tier, Some(false));
+    // A registry entry claiming to apply under the tlc profile is refused.
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        "[[divergence]]\nid = \"bad\"\npattern = \"*\"\nprofile = \"tlc\"\nexpected_verdict = \"overflow\"\njustification = \"x\"\nlink = \"docs/divergences.md\"\n",
+    )?;
+    assert!(run(Some(Profile::Dive)).is_err());
+    Ok(())
+}
+
+#[test]
+fn result_changing_options_never_agree() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("options")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    write_success_golden(&repo, &config)?;
     let filters = vec!["specifications/x/X.cfg".to_owned()];
     let mut opts = options(&repo, filters);
     opts.sany = false;
     opts.workers = vec![1];
     // A declared result-preserving option (`seed`) still agrees.
-    let mut imp = Optioned { options: vec![] };
+    let mut imp = Optioned {
+        options: vec![],
+        profile: Some(Profile::Dive),
+        result: success(),
+    };
     imp.options = vec![ImplOption::parse("seed=7", &imp)?];
     assert!(!imp.options[0].result_changing);
     let report = pipeline::run(&config, &cache, &imp, None, &opts)?;

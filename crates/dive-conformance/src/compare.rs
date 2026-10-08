@@ -55,11 +55,14 @@ pub enum Outcome {
     /// TLC-compatible by default, better by option). Its result is not
     /// comparable with TLC goldens and is never counted as `agree`.
     DivergenceMode,
+    /// A disagreement listed in `conformance/expected-divergences.toml` for
+    /// the `dive` profile (ADR 0010). Never counted as `agree`.
+    ExpectedDivergence,
 }
 
 impl Outcome {
     /// All outcomes, in report order.
-    pub const ALL: [Self; 7] = [
+    pub const ALL: [Self; 8] = [
         Self::Agree,
         Self::Disagree,
         Self::Unsupported,
@@ -67,6 +70,7 @@ impl Outcome {
         Self::Timeout,
         Self::OutOfScope,
         Self::DivergenceMode,
+        Self::ExpectedDivergence,
     ];
 
     /// The kebab-case name.
@@ -80,6 +84,7 @@ impl Outcome {
             Self::Timeout => "timeout",
             Self::OutOfScope => "out-of-scope",
             Self::DivergenceMode => "divergence-mode",
+            Self::ExpectedDivergence => "expected-divergence",
         }
     }
 }
