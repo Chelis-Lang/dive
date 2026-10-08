@@ -1,0 +1,26 @@
+---- MODULE PrintFp ----
+EXTENDS Integers, Sequences, FiniteSets, TLC, TLCExt
+CONSTANTS mvq1, mvq2, T_q1, T_q2, U_q1, mv_q3
+ASSUME PrintT("#int0") /\ PrintT(TLCFP(0))
+ASSUME PrintT("#int1") /\ PrintT(TLCFP(1))
+ASSUME PrintT("#intneg") /\ PrintT(TLCFP(-123456))
+ASSUME PrintT("#intmax") /\ PrintT(TLCFP(2147483647))
+ASSUME PrintT("#true") /\ PrintT(TLCFP(TRUE))
+ASSUME PrintT("#false") /\ PrintT(TLCFP(FALSE))
+ASSUME PrintT("#str") /\ PrintT(TLCFP("qsq"))
+ASSUME PrintT("#strempty") /\ PrintT(TLCFP(""))
+ASSUME PrintT("#strunicode") /\ PrintT(TLCFP("qé中"))
+ASSUME PrintT("#set") /\ PrintT(TLCFP({3, 1, 2}))
+ASSUME PrintT("#setempty") /\ PrintT(TLCFP({}))
+ASSUME PrintT("#interval") /\ PrintT(TLCFP(1..3))
+ASSUME PrintT("#tuple") /\ PrintT(TLCFP(<<1, 2>>))
+ASSUME PrintT("#emptytuple") /\ PrintT(TLCFP(<<>>))
+ASSUME PrintT("#record") /\ PrintT(TLCFP([qfa |-> 1, qfb |-> "qsr"]))
+ASSUME PrintT("#fcn") /\ PrintT(TLCFP((5 :> TRUE @@ 7 :> FALSE)))
+ASSUME PrintT("#nested") /\ PrintT(TLCFP({<<1, {2}>>, <<3, {}>>}))
+ASSUME PrintT("#subset") /\ PrintT(TLCFP(SUBSET {1, 2}))
+ASSUME PrintT("#fcnset") /\ PrintT(TLCFP([{1, 2} -> {3}]))
+ASSUME PrintT("#product") /\ PrintT(TLCFP({1, 2} \X {3}))
+ASSUME PrintT("#rcdset") /\ PrintT(TLCFP([qfa : {1, 2}]))
+ASSUME PrintT("#strset") /\ PrintT(TLCFP({"qss", "qst"}))
+====

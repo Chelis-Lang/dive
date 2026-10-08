@@ -9,6 +9,17 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+num-bigint.workspace = true
+num-integer.workspace = true
+num-traits.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+divan.workspace = true
+
+[[bench]]
+name = "values"
+harness = false
 
 [lints]
 workspace = true
