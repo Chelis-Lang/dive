@@ -173,6 +173,41 @@ fn rust_eq_on_a_raw_set_must_not_change_membership_issue_normalize_side_effect()
     );
 }
 
+/// Issue #32: `==` on an unnormalized set whose elements TLC cannot compare (here an
+/// integer and a set) must not mark the *nested* unnormalized set as normalized. TLC's
+/// `SetEnumValue.normalize` would, through `compareTo`, but `==` is not a TLC
+/// operation (ADR 0012).
+#[test]
+fn rust_eq_on_an_incomparable_raw_set_must_not_normalize_nested_sets_issue_32() {
+    let ctx = Ctx::tlc();
+    let names = Interner::new();
+    let inner = raw_record_set(&names, ctx);
+    let outer = Value::set_raw(vec![Value::from(1), inner.clone()], ctx);
+    let other = Value::set_raw(vec![Value::from(1), raw_record_set(&names, ctx)], ctx);
+    let t = Value::tuple(vec![Value::from(1)]);
+    assert!(
+        tlc::member(&t, &inner, ctx).is_err(),
+        "TLC: error before normalization"
+    );
+    let _ = outer == other;
+    let _ = outer.hash64();
+    let _ = format!("{outer:?}");
+    let _ = outer.cmp_with(&other, ValueOrder::Tlc);
+    assert!(
+        tlc::member(&t, &inner, ctx).is_err(),
+        "== / Hash / Debug / cmp_with normalized the nested set: membership became {:?}",
+        tlc::member(&t, &inner, ctx)
+    );
+    // A TLC operation that normalizes the outer set still normalizes the nested one,
+    // as TLC's `compareTo` does, even after the quiet operations above.
+    assert!(outer.as_set().unwrap().elements(ctx).is_err());
+    assert_eq!(
+        tlc::member(&t, &inner, ctx).ok(),
+        Some(false),
+        "TLC's normalize of the outer set normalizes the nested set first"
+    );
+}
+
 // ---------------------------------------------------------------------------------
 // The element cache remembers the first Ctx's error.
 // ---------------------------------------------------------------------------------

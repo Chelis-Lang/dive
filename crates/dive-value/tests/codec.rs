@@ -165,10 +165,12 @@ proptest! {
             let ctx = ctx_for(order);
             let bytes = encode(&v, ctx);
             let back = decode(&bytes);
-            // Re-encode before anything else: `==` can normalize nested unnormalized
-            // sets through TLC's comparison path, which changes their `isNorm` flag.
-            prop_assert_eq!(encode(&back, ctx), bytes);
+            prop_assert_eq!(&encode(&back, ctx), &bytes);
             prop_assert_eq!(&back, &v);
+            // `==` changes no TLC-observable state, not even the `isNorm` flag of a
+            // nested unnormalized set (issue #32): the encodings are unchanged.
+            prop_assert_eq!(encode(&back, ctx), encode(&v, ctx));
+            prop_assert_eq!(encode(&v, ctx), bytes);
             prop_assert_eq!(to_tlc_string_lenient(&back, ctx), to_tlc_string_lenient(&v, ctx));
         }
     }
