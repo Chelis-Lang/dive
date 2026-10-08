@@ -45,19 +45,22 @@ Never bypass the hook with `--no-verify`.
 
 ## Workflow mode
 
-**Current mode: direct-to-main.** The repo has no users yet. Sequential
-scaffolding work lands as direct commits to `main`, and CI runs on every push.
-Keep commits small and keep `main` green.
+**Current mode: PR mode.** This mode has applied since 2026-10-08, once parallel agent work began.
 
-**Switch to PR mode** when work widens into parallel agents that need
-coordination. This is expected around milestone M2/M3; see `docs/ROADMAP.md`.
-To switch:
-1. Run `cargo xtask protect-main`. It requires the `No AI authorship markers` and
-   `Workspace gate` checks and PRs, including for admins.
-2. Update this section.
+`main` is protected. Every change lands through a squash-merged PR, and the PR must pass two required checks: `No AI authorship markers` and `Workspace gate`. Admins are not exempt.
 
-After the switch, merges are squash merges and each PR states which conformance
-entries it affects, with the harness results.
+**Keep `main` green.**
+- Run the full local gate (see Gates) before you push.
+- Never merge on red.
+- If `main` goes red, fixing it takes priority over new work. Label the tracking issue `failing-on-main`.
+
+Each PR states:
+- which conformance entries it affects;
+- the harness results.
+
+Agents working in parallel use separate worktrees and branches. The lead merges their work.
+
+Protection is applied by `cargo xtask protect-main`, which is idempotent.
 
 ## Repository layout
 

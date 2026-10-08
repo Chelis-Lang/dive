@@ -22,3 +22,7 @@ Several agents will develop the project over a long period, so tracking must out
 ## Consequences
 
 Early velocity stays high. Branch protection is deferred, not dropped. Until the switch, `main` relies on discipline: run the local gate before pushing.
+
+## Update 2026-10-08
+
+PR mode began on the same day. Three parallel agents were running, and the authorship-guard negative test plus an accidental commit had already turned `main` red in two runs. That was enough reason to switch early. Branch protection is now on.
