@@ -7,8 +7,11 @@ rust-version.workspace = true
 publish.workspace = true
 license.workspace = true
 repository.workspace = true
+# The embedded standard modules are MIT, from tlaplus/tlaplus; see stdlib/README.md.
+include = ["src/**", "stdlib/**", "Cargo.toml"]
 
 [dependencies]
+dive-syntax = { workspace = true }
 
 [lints]
 workspace = true

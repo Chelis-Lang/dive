@@ -142,6 +142,9 @@ version = "0.0.0"
 [[package]]
 name = "dive-sema"
 version = "0.0.0"
+dependencies = [
+ "dive-syntax",
+]
 
 [[package]]
 name = "dive-sim"
