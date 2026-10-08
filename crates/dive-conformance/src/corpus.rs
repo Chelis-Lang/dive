@@ -208,6 +208,68 @@ pub fn isolation_dir(path: &str) -> String {
     parts[..parts.len().saturating_sub(1)].join("/")
 }
 
+/// Names of modules that `text` extends or instantiates (`EXTENDS A, B`,
+/// `INSTANCE C`). A plain scan; comments are not stripped, so it may find
+/// extra names, which only widens the search.
+#[must_use]
+pub fn referenced_modules(text: &str) -> Vec<String> {
+    let mut names = Vec::new();
+    let ident = |w: &str| {
+        w.chars()
+            .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+            .collect::<String>()
+    };
+    for line in text.lines() {
+        let line = line.trim_start();
+        if let Some(rest) = line.strip_prefix("EXTENDS") {
+            names.extend(
+                rest.split(',')
+                    .map(|n| ident(n.trim()))
+                    .filter(|n| !n.is_empty()),
+            );
+        }
+        let mut rest = line;
+        while let Some(i) = rest.find("INSTANCE ") {
+            rest = &rest[i + "INSTANCE ".len()..];
+            let n = ident(rest.trim_start());
+            if !n.is_empty() {
+                names.push(n);
+            }
+        }
+    }
+    names
+}
+
+/// Whether `module` or any module it extends or instantiates from the same
+/// directory (transitively) reads `TLCGet("config")`. Examples
+/// `MCDieHardest` reads it through `DieHardest`.
+#[must_use]
+pub fn module_closure_reads_tlc_config(module: &Path) -> bool {
+    let Some(dir) = module.parent() else {
+        return false;
+    };
+    let mut todo = vec![module.to_path_buf()];
+    let mut seen = std::collections::BTreeSet::new();
+    while let Some(path) = todo.pop() {
+        if !seen.insert(path.clone()) {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(&path) else {
+            continue;
+        };
+        if reads_tlc_config(&text) {
+            return true;
+        }
+        for name in referenced_modules(&text) {
+            let next = dir.join(format!("{name}.tla"));
+            if next.is_file() {
+                todo.push(next);
+            }
+        }
+    }
+    false
+}
+
 /// Whether a module reads TLC's configuration (`TLCGet("config")`), which
 /// includes the worker count, so its behaviour may legitimately depend on
 /// `-workers` (Examples `MCDieHardest` asserts `TLCGet("config").worker = 1`).
@@ -418,8 +480,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
         uncovered.sort();
     }
     for m in &mut models {
-        let text = std::fs::read_to_string(root.join(&m.module)).unwrap_or_default();
-        m.worker_introspecting = reads_tlc_config(&text);
+        m.worker_introspecting = module_closure_reads_tlc_config(&root.join(&m.module));
     }
     for pair in models.windows(2) {
         if pair[0].id == pair[1].id {
@@ -498,6 +559,40 @@ mod tests {
         assert_eq!(sim.mode, ModelMode::Simulate { traces: 100 });
         assert!(sim.out_of_scope.is_none() && !sim.counts_comparable);
         assert_eq!(sim.tier, Tier::Deep);
+        Ok(())
+    }
+
+    #[test]
+    fn worker_introspection_follows_extends() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = crate::util::TempDir::new("introspect")?;
+        std::fs::write(
+            dir.path().join("MC.tla"),
+            "---- MODULE MC ----\nEXTENDS Base, Naturals\n====\n",
+        )?;
+        std::fs::write(
+            dir.path().join("Base.tla"),
+            "---- MODULE Base ----\nEXTENDS TLC\nASSUME TLCGet( \"config\" ).worker = 1\n====\n",
+        )?;
+        std::fs::write(
+            dir.path().join("Plain.tla"),
+            "---- MODULE Plain ----\nX == INSTANCE MC\n====\n",
+        )?;
+        assert!(module_closure_reads_tlc_config(&dir.path().join("MC.tla")));
+        assert!(module_closure_reads_tlc_config(
+            &dir.path().join("Plain.tla")
+        ));
+        std::fs::write(
+            dir.path().join("Other.tla"),
+            "---- MODULE Other ----\nEXTENDS Naturals\n====\n",
+        )?;
+        assert!(!module_closure_reads_tlc_config(
+            &dir.path().join("Other.tla")
+        ));
+        assert_eq!(
+            referenced_modules("EXTENDS A, B_1\nY == INSTANCE C WITH x <- 1"),
+            ["A", "B_1", "C"]
+        );
         Ok(())
     }
 
