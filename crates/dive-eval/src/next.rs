@@ -97,14 +97,13 @@
 use std::sync::Arc;
 
 use dive_ir::actions::{ActionName, ActionTree, Split, label};
-use dive_ir::{
-    Arg, BuiltinOp, DefId, DefScope, Expr, ExprId, JunctionKind, OpRef, Pass, QuantKind,
-};
+use dive_ir::{Arg, BuiltinOp, DefId, DefScope, Expr, ExprId, JunctionKind, OpRef, QuantKind};
 use dive_value::Value;
 
 use crate::core::{Core, is_enumerable};
 use crate::env::{Env, Ev, OpVal, St, StateRef, Sv, Thunk, control};
 use crate::error::{Ec, ErrorClass, EvalError, Result};
+pub use crate::scope::Scope;
 use crate::{ConstBinding, Evaluator};
 
 /// A state's variable values by [`dive_ir::VarId`], `None` where unassigned.
@@ -166,17 +165,6 @@ impl Action {
     pub fn id(&self) -> usize {
         self.id
     }
-}
-
-/// The context in which a binding stage found a part of a configured
-/// formula: a definition's frame, possibly with parameters bound and under
-/// `INSTANCE` substitutions (TLC's `Context` for an `Action`).
-#[derive(Clone, Debug)]
-pub struct Scope {
-    env: Env,
-    /// The innermost substitution entered, whose location labels the
-    /// actions found under it.
-    wrapper: Option<ExprId>,
 }
 
 /// A successor or initial state handed to the sink.
@@ -266,99 +254,6 @@ impl Evaluator {
     #[must_use]
     pub fn predicate(&self, frame: DefId, expr: ExprId, name: ActionName, id: usize) -> Action {
         self.predicate_in(&self.scope(frame), expr, name, id)
-    }
-
-    /// A fresh frame of the top-level definition `def`: the context in which
-    /// `SpecProcessor` finds a configured formula's parts.
-    #[must_use]
-    pub fn scope(&self, def: DefId) -> Scope {
-        let d = self.core.ir.def(def);
-        Scope {
-            env: Env::new(
-                def,
-                d.depth,
-                d.frame.len(),
-                None,
-                crate::env::Dyn::default(),
-            ),
-            wrapper: None,
-        }
-    }
-
-    /// `scope` under the substitutions of `subst`, an [`Expr::Subst`] node of
-    /// its frame, as TLC wraps a formula found under an `INSTANCE` in a
-    /// substitution (`Specs.addSubsts`) that the generator then evaluates as
-    /// uncached lazy values (`Tool.java:960-990`, `:488-498`). Labels of
-    /// actions in the result name the substitution's location, as TLC's
-    /// wrapper does.
-    ///
-    /// # Errors
-    /// A bug if `subst` is not a substitution; an evaluation error of a
-    /// binding TLC evaluates eagerly (none: every expression binding is lazy).
-    pub fn scope_subst(&self, scope: &Scope, subst: ExprId) -> Result<Scope> {
-        let Expr::Subst { bindings, .. } = &self.core.ir.node(subst).expr else {
-            return Err(EvalError::bug(
-                "scope_subst on a node that is not a substitution",
-            ));
-        };
-        let env = self
-            .core
-            .bind_subst(&scope.env, &St::default(), bindings, false)?;
-        Ok(Scope {
-            env,
-            wrapper: Some(subst),
-        })
-    }
-
-    /// The context of a call `apply` (an application of a user definition)
-    /// made in `scope`: a fresh frame of the definition with its arguments
-    /// bound as uncached lazy values (`getOpContext(..., false)`, as
-    /// `SpecProcessor.processConfigSpec` inlines a parameterized formula).
-    /// Returns the definition called.
-    ///
-    /// # Errors
-    /// A bug if `apply` is not such an application.
-    pub fn scope_call(&self, scope: &Scope, apply: ExprId) -> Result<(Scope, DefId)> {
-        let (d, args): (&DefId, &[Arg]) = match &self.core.ir.node(apply).expr {
-            Expr::Apply {
-                callee: OpRef::Def(d),
-                args,
-            } => (d, args),
-            Expr::Def(d) => (d, &[]),
-            _ => return Err(EvalError::bug("scope_call on a node that is not a call")),
-        };
-        let d = self.core.redirect(*d);
-        let def = self.core.ir.def(d);
-        let mut env = Env::new(
-            d,
-            def.depth,
-            def.frame.len(),
-            None,
-            scope.env.dynamic.clone(),
-        );
-        for (i, a) in args.iter().enumerate() {
-            let sv = match a {
-                Arg::Expr { expr, pass } => match pass {
-                    Pass::Strict => Sv::from(self.core.eval(
-                        &mut scope.env.clone(),
-                        &St::constant(),
-                        *expr,
-                    )?),
-                    Pass::Lazy | Pass::Direct => {
-                        Sv::Thunk(Thunk::new(*expr, scope.env.clone(), false))
-                    }
-                },
-                Arg::Op { op, .. } => Sv::Op(self.core.op_value(&scope.env, op)?),
-            };
-            env.bind(i, sv);
-        }
-        Ok((
-            Scope {
-                env,
-                wrapper: scope.wrapper,
-            },
-            d,
-        ))
     }
 
     /// An initial predicate or action `expr` evaluated in `scope`.
@@ -1610,30 +1505,6 @@ impl Core {
 
     /// Conses a `Subst`'s bindings onto the dynamic context, as lazy values
     /// over the outer context (cached or not, as the caller's TLC code does).
-    pub(crate) fn bind_subst(
-        self: &Arc<Self>,
-        env: &Env,
-        st: &St,
-        bindings: &[dive_ir::SubstBinding],
-        cachable: bool,
-    ) -> Result<Env> {
-        let outer = env.clone();
-        let mut env1 = env.clone();
-        for b in bindings {
-            let val = match &b.value {
-                Arg::Expr { expr, pass } => match pass {
-                    Pass::Strict => Sv::from(self.eval(&mut outer.clone(), st, *expr)?),
-                    Pass::Lazy | Pass::Direct => {
-                        Sv::Thunk(Thunk::new(*expr, outer.clone(), cachable))
-                    }
-                },
-                Arg::Op { op, .. } => Sv::Op(self.op_value(&outer, op)?),
-            };
-            env1.dynamic.push(b.decl, val);
-        }
-        Ok(env1)
-    }
-
     /// `Tool.getFcnContext`: the lambda's context with its parameters bound
     /// to `arg`, for applying a lazy function as an action. TLC ignores the
     /// lambda's pending `EXCEPT`s here, so one with any is refused, as is an

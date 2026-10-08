@@ -81,6 +81,10 @@ pub(crate) struct Core {
     pub(crate) open_ok: bool,
     /// The warnings printed so far (`MP.warningHistory`).
     pub(crate) warned: Mutex<std::collections::HashSet<String>>,
+    /// Values the binding stage computed at start-up
+    /// (`Evaluator::precompute`, TLC's `processConstantDefns`): every later
+    /// use of the definition sees this value.
+    pub(crate) startup: Vec<OnceLock<Value>>,
     pub(crate) sink: Arc<dyn PrintSink>,
 }
 
@@ -133,6 +137,7 @@ impl Core {
             ConstBinding::Def(d) => constant_pure(d),
             ConstBinding::Value(_) => true,
         }) && model.redirects.values().all(constant_pure);
+        let startup = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
         let std_redirects = model
             .redirects
             .iter()
@@ -152,6 +157,7 @@ impl Core {
             def_cache,
             open_ok,
             warned: Mutex::default(),
+            startup,
             sink,
         }
     }

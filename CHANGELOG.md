@@ -36,6 +36,32 @@ All notable changes to this project are documented here. The project will follow
     22 of them).
 - `dive-value`: `DeferredSet::as_any`, so the evaluator can enumerate its own lazy sets in
   TLC's unnormalized order.
+- `dive-model` (M5, WP-B1): the binding stage, a port of TLC's `SpecProcessor`
+  (ADR 0013 §8 and its WP-B1 amendment):
+  - binds the configuration's constants (values, model values, `<-` substitutions,
+    module-scoped `[M]` entries) and reports every configuration error with TLC's code
+    and text, in TLC's order;
+  - evaluates constant definitions at start-up as TLC does, module by module, with
+    TLC's own level bound, so `Print` output appears when and as often as in TLC;
+  - resolves `INIT`/`NEXT` or `SPECIFICATION` into initial predicates, the next-state
+    relation, its actions (with TLC's labels) and fairness, and `PROPERTY` into
+    invariants, implied initial predicates, implied actions and temporal properties;
+    constraints, `VIEW`, `ALIAS`, `POSTCONDITION`, `SYMMETRY` and the deadlock flag;
+  - fills the run's name table in TLC's encounter order: model values get TLC's exact
+    intern tokens;
+  - lists what the checker must refuse (liveness, `SYMMETRY`, operators dive does not
+    implement), by name. Checked against TLC's own binding of 721 models: none wrong.
+- `dive-eval`: `Scope`, TLC's context of a role, shared with the successor generator,
+  and the evaluator methods that build and evaluate scopes; start-up values
+  (`Evaluator::precompute`). The successor generator's test harness binds models with
+  `dive-model` (one binding path). Uses of a constant or
+  definition the configuration substitutes (`C <- D`) now evaluate `D`'s body each
+  time, as TLC does.
+- `dive-sema`: `Options::extra_root_extendees`, which loads modules as TLC's
+  `-dumpTrace json` does, for oracle comparison.
+- `dive-ir`: `Module::axioms`, `Module::tlc_constants`, `Ir::lexical_names`
+  (`IR_SCHEMA` 3); a next-state relation that is a bare `TRUE` is one action named
+  `TRUE`, as in TLC.
 - `dive-eval` (M5, WP-C1): the interpreter over the IR (ADR 0014 and its amendment):
   - every expression form with TLC's evaluation order, laziness (thunks under
     `LazyValue`'s caching rule), lazy sets and lazy functions, `CHOOSE` in the run's

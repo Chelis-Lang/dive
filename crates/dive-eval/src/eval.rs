@@ -627,8 +627,11 @@ impl Core {
         match self.consts.get(c.index()).and_then(Option::as_ref) {
             Some(ConstBinding::Value(v)) => Ok(Ev::V(v.clone())),
             Some(ConstBinding::Def(d)) => {
-                let d = *d;
-                self.eval_def_use(env, st, d, e)
+                // `C <- D`: TLC's lookup gives `D`'s node, and evaluating it
+                // evaluates `D`'s body every time, whatever value `D` itself
+                // was given at start-up (`SpecProcessor.java:276-316`).
+                let d = self.redirect(*d);
+                self.eval_def_body(env, st, d, e)
             }
             None => {
                 let name = self
@@ -730,10 +733,30 @@ impl Core {
         d: dive_ir::DefId,
         e: ExprId,
     ) -> Result<Ev> {
-        let d = self.redirect(d);
+        let r = self.redirect(d);
+        if r != d {
+            // `Op <- D`: `Op`'s tool object is `D`'s node, whose body TLC
+            // evaluates at every use.
+            return self.eval_def_body(env, st, r, e);
+        }
         if let Some(v) = self.def_values.get(&d) {
             return Ok(Ev::V(v.clone()));
         }
+        if let Some(v) = self.startup[d.index()].get() {
+            return Ok(Ev::V(v.clone()));
+        }
+        self.eval_def_body(env, st, d, e)
+    }
+
+    /// Evaluates a zero-arity definition's body (or its Java override),
+    /// without the value the configuration or start-up gave the definition.
+    fn eval_def_body(
+        self: &Arc<Self>,
+        env: &mut Env,
+        st: &St,
+        d: dive_ir::DefId,
+        e: ExprId,
+    ) -> Result<Ev> {
         let def = self.ir.def(d);
         if let Some(op) = def.std {
             return self.eval_std(env, st, op, &[], e);
@@ -905,13 +928,13 @@ impl Core {
         e: ExprId,
     ) -> Result<Ev> {
         match callee {
-            OpRef::Def(d) => {
-                let d = self.redirect(*d);
+            OpRef::Def(d0) => {
+                let d = self.redirect(*d0);
                 if let Some(op) = self.ir.def(d).std {
                     return self.eval_std(env, st, op, args, e);
                 }
                 if args.is_empty() {
-                    return self.eval_def_use(env, st, d, e);
+                    return self.eval_def_use(env, st, *d0, e);
                 }
                 self.call_def(env, st, d, None, args, e)
             }

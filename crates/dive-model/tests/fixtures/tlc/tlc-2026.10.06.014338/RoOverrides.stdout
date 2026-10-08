@@ -1,0 +1,32 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 31314] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/RoOverrides/RoOverrides.tla
+Parsing file $CWD/RoOverrides/RoOverridesBase.tla
+Semantic processing of module RoOverridesBase
+Semantic processing of module RoOverrides
+Linting of module RoOverridesBase
+Linting of module RoOverrides
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 21:43:05)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2107:1 @!@!@
+Invariant Inv is violated by the initial state:
+x = 0
+
+@!@!@ENDMSG 2107 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 409ms at (2026-10-08 21:43:05)
+@!@!@ENDMSG 2186 @!@!@
