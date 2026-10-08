@@ -6,3 +6,5 @@
 /conformance/.work
 *.profraw
 .DS_Store
+# Agent worktrees (Claude Code isolation)
+/.claude/worktrees
