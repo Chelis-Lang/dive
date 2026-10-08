@@ -6,8 +6,9 @@
 //!   and the chaos schedule (random shard-claim order and random yields).
 //! - A resolve gives byte-identical winners and an identical set under every
 //!   schedule, and equals sequential insertion in position order.
-//! - Exact-store and fingerprint-store membership agree on states whose
-//!   fingerprints do not collide.
+//! - Exact-store and fingerprint-store membership agree, and no two distinct
+//!   states share a fingerprint (`tests/state_fingerprint.rs` has the targeted
+//!   collision properties).
 //! - States round-trip through the codec, and equal states have equal fingerprints
 //!   and keys however their values are represented.
 
@@ -371,13 +372,13 @@ proptest! {
     ) {
         let f = StateFingerprinter::new(0).expect("polynomial 0");
         let fp = |s: &[Value]| f.fingerprint(s, ctx()).expect("fp");
-        // Skip inputs with a fingerprint collision between distinct keys (none is
-        // expected in practice; then the stores may legitimately differ).
+        // No two distinct states share a fingerprint (a collision would be a
+        // finding: the per-pair probability is about 2^-64; issue #42).
         let mut by_fp: HashMap<u64, Box<[u8]>> = HashMap::new();
         for s in states.iter().chain(&queries) {
             let k = key_of(s);
             if let Some(other) = by_fp.insert(fp(s), k.clone()) {
-                prop_assume!(other == k);
+                prop_assert_eq!(other, k);
             }
         }
         let fp_level: Level<u64> = states.iter().enumerate()

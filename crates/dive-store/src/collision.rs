@@ -30,7 +30,9 @@
 //!   applied to Java's `Double.toString`.
 //!
 //! Both are estimates that assume fingerprints behave like independent random 64-bit
-//! values; dive says so wherever it reports them. The actual figure equals TLC's only
+//! values; dive says so wherever it reports them. For dive's own two-level
+//! fingerprints the assumption rests on the mixer argument of ADR 0015 §5 (issue
+//! #42): about `2^-64` per pair of distinct states, as TLC's formula assumes. The actual figure equals TLC's only
 //! when computed over TLC's own fingerprints, which
 //! [`StateFingerprinter::tlc`](crate::state::StateFingerprinter::tlc) produces
 //! (ADR 0015 §5).
