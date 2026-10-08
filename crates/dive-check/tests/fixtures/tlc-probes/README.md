@@ -11,7 +11,9 @@ Minimal specs that pin down how the pinned TLC counts, orders and stops its brea
       --out crates/dive-check/tests/fixtures/tlc-probes <Name>...
   ```
 
-  `dev capture` runs TLC exactly as golden generation does: `-workers 1 -fp 0 -seed 0 -tool -dumpTrace json`, deadlock checking as the cfg says. Each probe has `.stdout`, `.stderr`, `.exit`, `.command`, the `-dumpTrace` JSON where TLC writes one, and SANY's output. The transcripts are generated, never edited.
+  `dev capture` runs TLC exactly as golden generation does: `-workers 1 -fp 0 -seed 0 -tool`, deadlock checking as the cfg says. Each probe has `.stdout`, `.stderr`, `.exit`, `.command`, the `-dumpTrace` JSON where TLC writes one, and SANY's output. The transcripts are generated, never edited.
+
+  The transcripts here were captured before issue #35, when the deciding run itself passed `-dumpTrace json` (their `.command` ends with it). Since then `dev capture` records a run without it, and takes the JSON from a separate, cross-checked trace pass (`.trace.command`); see the harness README, "Oracle invocation: flag audit".
 
 ## Results
 
@@ -36,10 +38,10 @@ Minimal specs that pin down how the pinned TLC counts, orders and stops its brea
 | `FilterSetOrder` | invariant (12) | 2 / 2 / 0 / 2 | 2, ends `x = 1` | The same for `x' \in {v \in S : P}` |
 | `MapSetOrder` | invariant (12) | 2 / 2 / 0 / 2 | 2, ends `x = 1` | The same for `x' \in {e : v \in S}` |
 | `StringOrderViolation` | invariant `InvZeta` (12) | 2 / 2 / 0 / 2 | 2, ends `y = "zeta"` | Set enumeration order decides which violation is reported. In TLC's intern order `"zeta"` comes before `"alpha"`, so TLC reports `InvZeta`. Lexicographic order would report `InvAlpha` |
-| `StringOrderPreinterned` | invariant `InvA` (12) | 2 / 2 / 0 / 2 | 2, ends `y = "a"` | TLC's string order is not the order of first appearance in the user's module: `a` and `b` were already interned from standard modules TLC always loads |
+| `StringOrderPreinterned` | invariant `InvB` (12) | 2 / 2 / 0 / 2 | 2, ends `y = "b"` | For a module that extends nothing, TLC's string order is the order of first appearance in it: `"b"` (in `First`) before `"a"`. Recaptured for issue #35: the earlier transcript, made with `-dumpTrace json`, reported `InvA`, because `_JsonTrace` and the modules it loads had already interned `a` and `b`. The JSON document is absent because the trace pass, which still passes `-dumpTrace json`, reports `InvA` and so cannot vouch for the clean run; `dev capture` classifies the run as `oracle-error` for that reason |
 | `ImpliedActionSeen` | action property (13) | 3 / 2 / 0 / 2 | 3, ends `x = 0` | Action properties (`[][A]_v`) are checked on every generated step, including steps into states already seen |
 
-**Which modules TLC loads.** The SANY lines of every transcript show TLC parsing `Naturals`, `_JsonTrace`, `TLC`, `TLCExt`, `Json`, `Sequences`, `FiniteSets` and `Integers` even for a module that extends nothing. `_JsonTrace` and its dependencies are there because of `-dumpTrace json`, which golden generation always passes. TLC's intern order, and so its string order under `--choose-order=tlc`, can therefore depend on TLC's command-line flags, not only on the spec. Whether a run without `-dumpTrace json` orders strings differently is not yet measured.
+**Which modules TLC loads.** Run without `-dumpTrace json`, TLC parses only the modules the spec itself extends or instantiates: for a module that extends nothing, just that module (probe `StringOrderPreinterned`, recaptured). Transcripts captured before issue #35 show TLC also parsing `Naturals`, `_JsonTrace`, `TLC`, `TLCExt`, `Json`, `Sequences`, `FiniteSets` and `Integers`: those come from `-dumpTrace json`, which `dev capture` then passed on the deciding run. They change TLC's intern order, and so its string order under `--choose-order=tlc`: `StringOrderPreinterned` reports `InvA` with the flag and `InvB` without it. Recapturing every probe without the flag changed no other probe's verdict, counts, states or JSON document.
 
 Two further facts come from the existing harness fixtures in `crates/dive-conformance/tests/fixtures/`:
 - `EvalError`: an error while expanding a state is reported as `GENERAL` (1000), then replayed and reported again as `TLC_FINGERPRINT_EXCEPTION` (2147). The trace ends at the state being expanded.
