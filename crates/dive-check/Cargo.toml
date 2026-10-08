@@ -1,0 +1,13 @@
+[package]
+name = "dive-check"
+description = "Explicit-state safety model checking"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

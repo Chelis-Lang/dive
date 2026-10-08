@@ -1,0 +1,8 @@
+/target
+/fuzz/target
+/fuzz/corpus
+/fuzz/artifacts
+# Conformance scratch output (goldens and reports under conformance/ are tracked).
+/conformance/.work
+*.profraw
+.DS_Store

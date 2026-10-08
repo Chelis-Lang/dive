@@ -1,0 +1,80 @@
+# Roadmap
+
+Milestones match the GitHub milestones on `Chelis-Lang/dive`. Each milestone ends with:
+- a review pass (a red-team agent or a human);
+- a conformance report delta;
+- ADRs for the decisions it made.
+
+The charter's soundness contract applies throughout.
+
+## M0: Foundation
+
+Delivers:
+- the workspace with one stub crate per charter component;
+- pinned toolchain, workspace lints, `cargo deny`, and crate layering enforcement;
+- lean CI (`ci.yml`): AI authorship guard plus workspace gate;
+- the commit-msg hook, `AGENTS.md`, and the charter with its corrections appendix;
+- GitHub tracking.
+
+**Exit:** CI green on `main`, and an AI-trailer commit rejected by both the hook and CI.
+
+## M1: Oracles and conformance harness
+
+Delivers:
+- pinned oracles: a snapshot of TLC 1.8.0 re-hosted in this repo's releases, plus v1.7.4; both use a Temurin JDK fetched by SHA-256;
+- pinned corpora: tlaplus/Examples, CommunityModules, ValidationTestSuite, and the tlaplus repo's own tests;
+- the `dive-conformance` harness:
+  - oracle and corpus fetch;
+  - TLC `-tool` output parsing;
+  - golden generation with provenance;
+  - per-model reports in JSON and `docs/conformance.md`;
+  - worker-count invariance runs;
+  - a cross-check against the Examples manifests;
+- the survey of oracles and adjacent work in `docs/survey/`.
+
+**Exit:** the first oracle-only report (TLC against TLC goldens and the Examples manifests) is committed, and every model's outcome is accounted for.
+
+## M2: Competitive analysis
+
+Measures tla2, tla-rs, tla-mc and tlago through harness adapters, and reads tlaplusplus's source (it is GPL, so reference only). Each is assessed on:
+- conformance, including whether it honestly refuses what it doesn't support;
+- performance: startup, states per second, memory, and scaling from 1 to 8 workers;
+- Rust ergonomics;
+- architecture.
+
+Outputs:
+- `docs/survey/competitive.md`, covering where `dive` can beat each tool;
+- an ADR on positioning and which designs to borrow;
+- baseline numbers in `dive-bench`.
+
+This is not a build-or-buy gate: `dive` is built regardless.
+
+## M3: Syntax and values
+
+- **`dive-syntax`:**
+  - a lossless lexer and CST with spans;
+  - error recovery and stable error codes;
+  - round-trip, property and fuzz tests;
+  - parse acceptance matching SANY on every corpus module.
+- **`dive parse`** with `--output json`.
+- **`dive-value`**, in parallel:
+  - canonical ordering, hashing and FP64-compatible fingerprints;
+  - property tests.
+
+## M4: Semantics and configuration
+
+- **`dive-sema`:** SANY-equivalent acceptance and rejection, covering the module system, levels and the proof-language syntax, measured against the Examples and SANY test corpora.
+- **`dive-config`:** the TLC `.cfg` format.
+
+## M5: First verdicts
+
+- **IR and evaluation:** `dive-ir`, `dive-eval` and the `dive-stdlib` core.
+- **Safety checking:** `dive-check` breadth-first safety checking with one worker, in both exact and fingerprint modes.
+- **Trace validation:** the `dive-trace` validator replays every counterexample.
+- **Conformance gate:** the standard conformance tier becomes a PR gate on a small subset.
+
+## Later
+
+- **Checking features:** parallel checking with worker invariance, then liveness and fairness, symmetry, `VIEW`, simulation, and PlusCal.
+- **Integration:** the library API with `cargo test` integration, and the LSP.
+- **Compilation:** specification compilation and the Verus export path.

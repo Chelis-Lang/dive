@@ -1,0 +1,65 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "xtask"]
+default-members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+publish = false
+repository = "https://github.com/Chelis-Lang/dive"
+# License is deliberately unset until the owner confirms it (ADR 0007).
+
+[workspace.dependencies]
+# Internal crates. Allowed edges are enforced by `cargo xtask check-layering`.
+dive-syntax = { path = "crates/dive-syntax" }
+dive-sema = { path = "crates/dive-sema" }
+dive-ir = { path = "crates/dive-ir" }
+dive-value = { path = "crates/dive-value" }
+dive-eval = { path = "crates/dive-eval" }
+dive-stdlib = { path = "crates/dive-stdlib" }
+dive-config = { path = "crates/dive-config" }
+dive-store = { path = "crates/dive-store" }
+dive-check = { path = "crates/dive-check" }
+dive-liveness = { path = "crates/dive-liveness" }
+dive-sim = { path = "crates/dive-sim" }
+dive-trace = { path = "crates/dive-trace" }
+dive-pluscal = { path = "crates/dive-pluscal" }
+dive-api = { path = "crates/dive-api" }
+dive-lsp = { path = "crates/dive-lsp" }
+dive-compile = { path = "crates/dive-compile" }
+dive-conformance = { path = "crates/dive-conformance" }
+
+# Third-party. Add here first, then reference with `workspace = true`.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[workspace.lints.rust]
+missing_docs = "deny"
+unsafe_code = "forbid"
+unexpected_cfgs = { level = "deny", check-cfg = [] }
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+unwrap_used = "deny"
+dbg_macro = "deny"
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.test]
+debug = "line-tables-only"
+
+[profile.release]
+debug = "line-tables-only"
+
+# Profiling builds: `cargo build --profile profiling`.
+[profile.profiling]
+inherits = "release"
+debug = true
