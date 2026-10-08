@@ -1,9 +1,9 @@
 //! The `dive` binary.
 //!
-//! `dive parse` is implemented, including reading a TLC model configuration
-//! with `--config`. Every other core command is recognised and refuses with
-//! an explicit `unsupported` result until its backend exists (soundness
-//! contract rule 3).
+//! `dive parse` (including reading a TLC model configuration with
+//! `--config`) and `dive analyze` are implemented. Every other core command
+//! is recognised and refuses with an explicit `unsupported` result until its
+//! backend exists (soundness contract rule 3).
 #![forbid(unsafe_code)]
 
 use std::io::Write as _;
@@ -14,12 +14,14 @@ const COMMANDS: &[&str] = &[
     "check",
     "simulate",
     "parse",
+    "analyze",
     "translate",
     "validate-trace",
     "lsp",
 ];
 
-/// Exit code when the input is rejected (for `parse`: syntax or cfg errors).
+/// Exit code when the input is rejected (`parse`: syntax or cfg errors;
+/// `analyze`: any error SANY would report).
 const EXIT_REJECTED: u8 = 1;
 /// Exit code for a malformed command line or unreadable input.
 const EXIT_USAGE: u8 = 2;
@@ -28,7 +30,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -186,6 +188,88 @@ fn parse_command(
     }
 }
 
+/// `dive analyze <file> [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
+///
+/// SANY-equivalent semantic analysis of the specification rooted at the file.
+/// Modules are found in the file's directory, the library paths, the standard
+/// modules, then the module paths.
+fn analyze_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let mut file: Option<&str> = None;
+    let mut json = false;
+    let mut opts = dive_api::AnalyzeOptions::default();
+    let mut it = args.iter();
+    while let Some(a) = it.next() {
+        match a.as_str() {
+            "--output" => match it.next().map(String::as_str) {
+                Some("json") => json = true,
+                Some("human") => json = false,
+                other => {
+                    let _ = writeln!(
+                        err,
+                        "error: --output expects `human` or `json`, got {}",
+                        other.unwrap_or("nothing")
+                    );
+                    return ExitCode::from(EXIT_USAGE);
+                }
+            },
+            "--library-path" | "--module-path" => {
+                let Some(dir) = it.next() else {
+                    let _ = writeln!(err, "error: {a} expects a directory");
+                    return ExitCode::from(EXIT_USAGE);
+                };
+                if a == "--library-path" {
+                    opts.library_paths.push(dir.into());
+                } else {
+                    opts.after_standard.push(dir.into());
+                }
+            }
+            s if s.starts_with('-') => {
+                let _ = writeln!(err, "error: unknown option `{s}` for `dive analyze`");
+                return ExitCode::from(EXIT_USAGE);
+            }
+            s => {
+                if file.replace(s).is_some() {
+                    let _ = writeln!(err, "error: `dive analyze` takes one file");
+                    return ExitCode::from(EXIT_USAGE);
+                }
+            }
+        }
+    }
+    let Some(file) = file else {
+        let _ = writeln!(err, "error: `dive analyze` needs a file\n\n{}", usage());
+        return ExitCode::from(EXIT_USAGE);
+    };
+    let report = match dive_api::analyze_file(std::path::Path::new(file), &opts) {
+        Ok(r) => r,
+        Err(e) => {
+            let _ = writeln!(err, "error: {e}");
+            return ExitCode::from(EXIT_USAGE);
+        }
+    };
+    if json {
+        let _ = writeln!(out, "{}", report.to_json());
+    } else {
+        let _ = write!(err, "{}", report.render_human());
+        if report.accepted() {
+            let _ = writeln!(
+                out,
+                "ok: {} analysed ({})",
+                file,
+                report.modules().join(", ")
+            );
+        }
+    }
+    if report.accepted() {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::from(EXIT_REJECTED)
+    }
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut stdout = std::io::stdout().lock();
@@ -201,6 +285,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
+        Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {
             let _ = writeln!(
                 stderr,

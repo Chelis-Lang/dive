@@ -1,10 +1,12 @@
 //! `dive-api`: the embeddable library API and `cargo test` integration.
 //!
 //! Implemented so far: parsing ([`parse_source`], [`parse_file`]) with a
-//! versioned JSON report ([`ParseReport::to_json`]), and reading TLC model
-//! configurations ([`parse_config_file`], [`ConfigReport`]). Everything else
-//! in the charter is still to come. Permitted internal dependencies are
-//! listed in `xtask/src/layering.rs`.
+//! versioned JSON report ([`ParseReport::to_json`]); reading TLC model
+//! configurations ([`parse_config_file`], [`ConfigReport`]); and
+//! SANY-equivalent semantic analysis ([`analyze_file`], [`analyze_source`])
+//! with its own report ([`AnalyzeReport::to_json`]). Everything else in the
+//! charter is still to come. Permitted internal dependencies are listed in
+//! `xtask/src/layering.rs`.
 //!
 //! # Example
 //!
@@ -20,6 +22,13 @@
 mod config;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};
+
+mod analyze;
+
+pub use analyze::{
+    ANALYZE_SCHEMA_VERSION, AnalyzeOptions, AnalyzeReport, analyze_file, analyze_source,
+};
+
 use dive_syntax::ast::Unit;
 use dive_syntax::diagnostics::line_col;
 use dive_syntax::{Diagnostic, Parse, Severity, SyntaxElement, SyntaxNode};
@@ -298,6 +307,9 @@ fn cst_json(root: &SyntaxNode) -> Value {
 
 /// Re-exported so API users can work with the tree directly.
 pub use dive_syntax;
+
+/// Re-exported so API users can work with the semantic model directly.
+pub use dive_sema;
 
 #[cfg(test)]
 mod tests {

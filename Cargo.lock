@@ -75,6 +75,7 @@ name = "dive-api"
 version = "0.0.0"
 dependencies = [
  "dive-config",
+ "dive-sema",
  "dive-syntax",
  "serde_json",
 ]
@@ -142,6 +143,9 @@ version = "0.0.0"
 [[package]]
 name = "dive-sema"
 version = "0.0.0"
+dependencies = [
+ "dive-syntax",
+]
 
 [[package]]
 name = "dive-sim"

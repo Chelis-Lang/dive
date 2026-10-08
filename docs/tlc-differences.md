@@ -193,7 +193,7 @@ TLC also orders non-empty sets by size before content, and tuples by length befo
 | **Kind** | Same answer, better path |
 | **Default** | Human-readable output; `--output json` gives a versioned schema |
 | **TLC behaviour** | TLC-style output conventions under `--compat=tlc` |
-| **Status** | `dive parse` implemented; `check` and the rest planned |
+| **Status** | `dive parse` and `dive analyze` implemented; `check` and the rest planned |
 
 **What TLC does.** Results come as human-oriented text, or as the `-tool` message stream meant for the Toolbox. Counterexamples are available as JSON only through `-dumpTrace json`. SANY's error messages give a location, but no stable error codes and no suggested fix. SANY's command line exits 0 on semantic errors unless you pass `-error-codes`.
 
@@ -206,7 +206,10 @@ TLC also orders non-empty sets by size before content, and tuples by length befo
 
 `--output json` gives verdicts, statistics and counterexamples as structured state sequences, along with diagnostics and an `options` block that records the active profile, options and seed. Coding agents and Rust callers can act on this programmatically. The library API (`dive-api`) gives the same results in-process, with no JVM.
 
-**Evidence.** ADR 0009, `dive parse --output json`, and probes M1 and M2 (diagnostic comparison in `docs/survey/competitive.md`).
+`dive analyze` also gives every semantic diagnostic the SANY error code it corresponds
+to (`sany_code`), so tools written against SANY's codes keep working.
+
+**Evidence.** ADR 0009, ADR 0011, `dive parse --output json`, `dive analyze --output json`, and probes M1 and M2 (diagnostic comparison in `docs/survey/competitive.md`).
 
 ---
 
@@ -222,6 +225,22 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
   - `F(+)`, where `(+)` lexes as `⊕`.
 
   dive matches SANY exactly. A future opt-in `--syntax=lenient` could accept these. The cases are in `crates/dive-syntax/tests/sany-cases/` and `docs/divergences.md`.
+- **SANY semantic-analysis artefacts.** `dive analyze` accepts and rejects exactly what
+  SANY does. A few of SANY's verdicts look like artefacts of its implementation:
+  - **Valid specifications SANY rejects:**
+    - `1 \in ℕ` with `EXTENDS Naturals` ("Unknown operator: `ℕ`");
+    - an `INSTANCE` of the file's own inner module inside a `LET` or a proof step
+      ("Multiply-defined module");
+    - a label inside an unnamed `THEOREM ASSUME ... PROVE`.
+  - **Suspicious specifications SANY accepts with only a warning or silently:**
+    - a variable or constant declared twice;
+    - two theorems or proof steps with the same name;
+    - a definition silently replaced by an `INSTANCE` that also defines it;
+    - `[]` applied to an action hidden inside a `LET`;
+    - an action and a temporal formula mixed inside `IF`.
+
+  A future opt-in lenient or strict mode could differ deliberately. The cases and SANY's
+  verdicts are in `crates/dive-sema/tests/sany-cases/` and `docs/divergences.md`.
 - **String length in UTF-16 units.** TLC's `Len`, `SubSeq` and `Tail` on strings count UTF-16 code units, not characters (tlaplus#1076). See `docs/survey/oracle-history.md`.
 - **Quirks of TLC's `.cfg` reader.** TLC's model-configuration reader accepts some files that it will later fail on, and it reads some values in ways you might not expect. Each case below was measured on the pinned TLC:
   - `CONSTANT N = -1` is not a negative number. TLC reads `-` as a model value, and then fails on the next line with "expecting = or <-" (`CFG_EXPECTED_SYMBOL`, exit 151). A cfg file has no way to write a negative integer.
@@ -239,6 +258,14 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 
 - **Extremely deep nesting** (`DIVE-S0040`). dive refuses expressions nested more than 256 levels deep, and syntax trees more than 2,048 levels high (for example a chain of thousands of `+`). SANY accepts these. No module in the corpus comes close. Removing the limit is a tracked follow-up.
 - **Very deeply nested cfg sets** (`DIVE-C0030`). dive refuses a constant value in a `.cfg` file whose sets are nested more than 1,024 deep. TLC reads them recursively, and stops with a stack overflow at a depth that depends on its `-Xss` setting. No cfg file in the corpus comes close.
+- **PlusCal re-translation during analysis.** When a module contains both a PlusCal
+  algorithm and its translation markers, SANY re-translates the algorithm to check it
+  against the translation.
+  - Two outcomes of that check reject the module: an unterminated string in the algorithm,
+    and `END TRANSLATION` without `BEGIN TRANSLATION`. `dive analyze` matches both.
+  - SANY would also reject a module whose re-translation throws an unexpected exception.
+    `dive analyze` does not re-translate (that is `dive-pluscal`'s job), so it could accept
+    such a module. No corpus module or mutant has shown this.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 
 ---

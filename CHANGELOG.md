@@ -14,6 +14,19 @@ All notable changes to this project are documented here. The project will follow
   - parse acceptance matching the pinned SANY parser;
   - stable `DIVE-S` diagnostic codes and error recovery;
   - typed AST views (ADR 0009).
+- `dive-sema` (M4): SANY-equivalent semantic analysis (ADR 0011):
+  - module resolution for `EXTENDS`/`INSTANCE`, nested modules and `LOCAL`, with
+    SANY's search order, the embedded standard modules and the root-file fallback;
+  - name resolution, arity, instances and substitutions, labels, subexpression
+    selectors, recursion, and the proof language's scoping;
+  - level checking ported from SANY;
+  - stable `DIVE-E`/`DIVE-W` codes, each cross-referencing SANY's `ErrorCode`;
+  - a resolved semantic model for `dive-ir` (`docs/sema-model.md`);
+  - acceptance identical to the pinned SANY on every corpus module, SANY's error
+    corpus, 164 minimal cases and 12,441 mutants checked
+    (`crates/dive-sema/acceptance/`).
+- `dive analyze FILE [--output human|json] [--library-path DIR]... [--module-path DIR]...`,
+  with a versioned JSON report (`schema_version` 1), through `dive_api::analyze_file`.
 - `dive parse FILE [--output human|json] [--cst]`, with a versioned JSON report
   (`schema_version` 1), through `dive_api::parse_file`.
 - `dive-config`: the TLC `.cfg` reader. It covers:

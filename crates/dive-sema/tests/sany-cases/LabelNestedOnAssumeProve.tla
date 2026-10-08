@@ -1,0 +1,3 @@
+---- MODULE LabelNestedOnAssumeProve ----
+THEOREM ASSUME TRUE, l1 :: l2 :: ASSUME TRUE PROVE TRUE PROVE TRUE
+====

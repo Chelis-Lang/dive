@@ -1,0 +1,3 @@
+---- MODULE TemporalInSet ----
+P == {[]TRUE}
+====
