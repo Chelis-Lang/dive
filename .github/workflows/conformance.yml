@@ -3,9 +3,10 @@ name: conformance
 # Standard and deep conformance tiers (ADR 0001): nightly on the small tier,
 # and on manual dispatch with a chosen tier. Runs the pinned TLC against the
 # committed goldens, with worker-count invariance (charter rule 7) and the
-# Examples manifest cross-check. Then runs dive's front end (`dive analyze`,
-# and `dive parse` against SANY's parse phase) on the modules of every module
-# corpus, and uploads the reports. Never runs on push or PR; ci.yml is the
+# Examples manifest cross-check. Then runs dive under --compat=tlc (`dive
+# analyze` on the modules of every module corpus, `dive check` on the tier's
+# models), `dive check` under dive's default profile, and `dive parse`
+# against SANY's parse phase, and uploads the reports. Never runs on push or PR; ci.yml is the
 # fast tier.
 
 on:
@@ -95,6 +96,25 @@ jobs:
             --timeout 600 \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance-dive.md"
+      # dive's default profile (ADR 0010) on the tier's models only: modules
+      # do not depend on the profile, and the step above already covers them.
+      # Owner-approved divergences (conformance/expected-divergences.toml,
+      # e.g. D-010's counts at a violation) are `expected-divergence`, so
+      # only an unregistered difference fails the step.
+      - name: Run dive (models, default profile) against committed goldens
+        if: always()
+        timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 240 || 30 }}
+        run: |
+          target/release/dive-conformance run \
+            --impl dive \
+            --impl-profile dive \
+            --corpus examples \
+            --tier "$TIER" \
+            --no-sany \
+            --jobs 2 \
+            --timeout 600 \
+            --report-dir "$RUNNER_TEMP/conformance" \
+            --summary "$RUNNER_TEMP/conformance/conformance-dive-default.md"
       - name: Run dive (modules, SANY parse phase) against committed goldens
         if: always()
         timeout-minutes: 20

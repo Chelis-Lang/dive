@@ -894,9 +894,15 @@ fn run_model(
                         })
                         .collect();
                     registry
-                        .excuse(profile.as_ref(), &active, &m.id, result.verdict)
+                        .excuse(profile.as_ref(), &active, &m.id, result.verdict, &diffs)
                         .or_else(|| {
-                            registry.excuse(profile.as_ref(), &active, &m.module, result.verdict)
+                            registry.excuse(
+                                profile.as_ref(),
+                                &active,
+                                &m.module,
+                                result.verdict,
+                                &diffs,
+                            )
                         })
                 } else {
                     None

@@ -14,14 +14,17 @@
 //!   per-feature overrides. It is never strict-tier agreement.
 //!
 //! The registry applies only under `dive`. There, a disagreement that
-//! matches an entry, with the entry's expected verdict, is reported as
+//! matches an entry, with the entry's expected verdict and with every
+//! differing field among the entry's `fields`, is reported as
 //! `expected-divergence`. It is never counted as `agree`. Any other
 //! disagreement, and every difference under `tlc` or `tlc+overrides`, is
 //! `disagree`. TLC oracles and external adapters have no profile, and the
 //! registry never applies to them.
 
+use crate::compare::FieldDiff;
 use crate::error::{Error, Result};
 use crate::tlc::result::Verdict;
+use crate::upstream::COMPARED_FIELDS;
 use crate::util::glob_match;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -110,13 +113,24 @@ pub struct ExpectedDivergence {
     /// Or the implementation option it applies to (under `dive`), e.g. `int=big`.
     #[serde(default)]
     pub option: Option<String>,
-    /// The verdict `dive` is expected to give instead of TLC's.
+    /// The verdict `dive` is expected to give. When it is the golden's own
+    /// verdict, the entry excuses differences in other fields only.
     pub expected_verdict: Verdict,
+    /// Globs of the compared fields that may differ (see
+    /// [`COMPARED_FIELDS`]). A disagreement is excused only when every
+    /// differing field matches one of them, so an entry for differing counts
+    /// never hides a differing verdict or property. Never the trace
+    /// validation fields: a counterexample must always validate.
+    pub fields: Vec<String>,
     /// Why the divergence is approved.
     pub justification: String,
     /// The entry in `docs/divergences.md`, e.g. `docs/divergences.md#integer-overflow`.
     pub link: String,
 }
+
+/// Fields no expected divergence may excuse: every counterexample must
+/// validate (charter rule 2, ADR 0016).
+const UNEXCUSABLE_FIELDS: &[&str] = &["trace.validated", "trace.invalid"];
 
 /// The parsed `conformance/expected-divergences.toml`.
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -138,7 +152,10 @@ impl Registry {
     ///   profiles);
     /// - an entry with both or neither of `profile` and `option`;
     /// - an empty justification, or a link outside `docs/divergences.md`;
-    /// - an expected verdict that is not an oracle fact.
+    /// - an expected verdict that is not an oracle fact;
+    /// - no `fields`, a field glob that matches no compared field, or one
+    ///   that matches a trace validation field (`trace.validated`,
+    ///   `trace.invalid`), which no divergence may excuse.
     pub fn parse(text: &str) -> Result<Self> {
         let reg: Self = toml::from_str(text)
             .map_err(|e| Error::Config(format!("expected-divergences.toml: {e}")))?;
@@ -174,6 +191,19 @@ impl Registry {
             if !d.expected_verdict.is_oracle_fact() {
                 return bad("expected_verdict must be a real verdict");
             }
+            if d.fields.is_empty() {
+                return bad("lists no fields");
+            }
+            for f in &d.fields {
+                if !COMPARED_FIELDS.iter().any(|k| glob_match(f, k)) {
+                    return bad(&format!("field `{f}` matches no compared field"));
+                }
+                if UNEXCUSABLE_FIELDS.iter().any(|k| glob_match(f, k)) {
+                    return bad(&format!(
+                        "field `{f}` covers trace validation, which a divergence never excuses"
+                    ));
+                }
+            }
         }
         Ok(reg)
     }
@@ -198,7 +228,8 @@ impl Registry {
     /// the `dive` profile; never under `tlc`, `tlc+overrides` or without a
     /// profile. An entry matches when its glob matches `path`, it applies to
     /// the `dive` profile or to an active option (`name` or `name=value`),
-    /// and the observed verdict is its expected verdict.
+    /// the observed verdict is its expected verdict, and every field in
+    /// `diffs` matches one of its `fields`.
     #[must_use]
     pub fn excuse(
         &self,
@@ -206,13 +237,17 @@ impl Registry {
         options: &[String],
         path: &str,
         observed: Verdict,
+        diffs: &[FieldDiff],
     ) -> Option<&ExpectedDivergence> {
-        if profile != Some(&Profile::Dive) {
+        if profile != Some(&Profile::Dive) || diffs.is_empty() {
             return None;
         }
         self.divergence.iter().find(|d| {
             glob_match(&d.pattern, path)
                 && d.expected_verdict == observed
+                && diffs
+                    .iter()
+                    .all(|x| d.fields.iter().any(|g| glob_match(g, &x.field)))
                 && match (&d.profile, &d.option) {
                     (Some(_), None) => true,
                     (None, Some(o)) => options.iter().any(|a| a == o),
@@ -232,9 +267,18 @@ id = "big-integers"
 pattern = "specifications/x/*.cfg"
 profile = "dive"
 expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.*"]
 justification = "dive uses arbitrary-precision integers by default"
 link = "docs/divergences.md#integer-overflow"
 "#;
+
+    fn diff(field: &str) -> Vec<FieldDiff> {
+        vec![FieldDiff {
+            field: field.to_owned(),
+            expected: 1.into(),
+            actual: 2.into(),
+        }]
+    }
 
     #[test]
     fn registry_validates() -> Result<()> {
@@ -256,6 +300,11 @@ link = "docs/divergences.md#integer-overflow"
                 r#"expected_verdict = "success""#,
                 r#"expected_verdict = "timeout""#,
             ),
+            (r#"fields = ["verdict", "error_class", "counts.*"]"#, "fields = []"),
+            (r#"fields = ["verdict", "error_class", "counts.*"]"#, ""),
+            (r#""counts.*""#, r#""count.depth""#),
+            (r#""counts.*""#, r#""trace.validated""#),
+            (r#""counts.*""#, r#""trace.*""#),
         ] {
             assert!(Registry::parse(&ENTRY.replace(from, to)).is_err(), "{to}");
         }
@@ -268,38 +317,35 @@ link = "docs/divergences.md#integer-overflow"
     fn excuses_only_under_dive() -> Result<()> {
         let r = Registry::parse(ENTRY)?;
         let p = "specifications/x/X.cfg";
+        let d = diff("counts.depth");
+        let dive = Some(&Profile::Dive);
+        assert!(r.excuse(dive, &[], p, Verdict::Success, &d).is_some());
         assert!(
-            r.excuse(Some(&Profile::Dive), &[], p, Verdict::Success)
-                .is_some()
-        );
-        assert!(
-            r.excuse(Some(&Profile::Tlc), &[], p, Verdict::Success)
+            r.excuse(Some(&Profile::Tlc), &[], p, Verdict::Success, &d)
                 .is_none()
         );
         let over = Profile::TlcWithOverrides(vec!["int".to_owned()]);
-        assert!(r.excuse(Some(&over), &[], p, Verdict::Success).is_none());
-        assert!(r.excuse(None, &[], p, Verdict::Success).is_none());
+        assert!(r.excuse(Some(&over), &[], p, Verdict::Success, &d).is_none());
+        assert!(r.excuse(None, &[], p, Verdict::Success, &d).is_none());
         // Wrong verdict or path: not excused.
-        assert!(
-            r.excuse(Some(&Profile::Dive), &[], p, Verdict::Overflow)
-                .is_none()
-        );
+        assert!(r.excuse(dive, &[], p, Verdict::Overflow, &d).is_none());
         let other = "specifications/y/Y.cfg";
+        assert!(r.excuse(dive, &[], other, Verdict::Success, &d).is_none());
+        // A differing field outside `fields`, alone or with listed ones: not
+        // excused. Nor is a trace that did not validate, or no difference.
         assert!(
-            r.excuse(Some(&Profile::Dive), &[], other, Verdict::Success)
+            r.excuse(dive, &[], p, Verdict::Success, &diff("violated_property"))
                 .is_none()
         );
+        let mut mixed = d.clone();
+        mixed.extend(diff("trace.validated"));
+        assert!(r.excuse(dive, &[], p, Verdict::Success, &mixed).is_none());
+        assert!(r.excuse(dive, &[], p, Verdict::Success, &[]).is_none());
         // Option-scoped entries need the option.
         let opt = Registry::parse(&ENTRY.replace(r#"profile = "dive""#, r#"option = "int=big""#))?;
-        assert!(
-            opt.excuse(Some(&Profile::Dive), &[], p, Verdict::Success)
-                .is_none()
-        );
+        assert!(opt.excuse(dive, &[], p, Verdict::Success, &d).is_none());
         let on = vec!["int=big".to_owned()];
-        assert!(
-            opt.excuse(Some(&Profile::Dive), &on, p, Verdict::Success)
-                .is_some()
-        );
+        assert!(opt.excuse(dive, &on, p, Verdict::Success, &d).is_some());
         Ok(())
     }
 

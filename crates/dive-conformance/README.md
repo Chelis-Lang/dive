@@ -230,6 +230,8 @@ pub trait Implementation: Sync {
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
+  - An entry names the model or module glob, dive's verdict, and the `fields` that may differ (globs over the compared fields). It excuses a disagreement only when every differing field is among them, so an entry for counts never hides a different verdict or property. Trace validation can never be excused.
+  - Registered today: MissionariesAndCannibals and ACP_NB_WRONG_TLC, whose counts at the violation differ under canonical exploration order (D-010). The nightly runs the default profile on the tier's models, so these must stay `expected-divergence` and anything else unregistered fails.
 
 **`dive` (`--impl dive`)** runs the `dive` binary as a black box: `target/release/dive` by default, or `--dive-bin PATH`. Build it first with `cargo build --release -p dive-cli`. The report records the binary's path, SHA-256 and version, and its module search path.
 - **Modules, full phase (default).** Each module runs `dive analyze --output json --module-path ... <file>` from the module's own directory in the corpus checkout. `accepted` decides acceptance. A rejection is `parse-error` when any error is a syntax (`DIVE-Snnnn`) or module-resolution (`DIVE-E00nn`) diagnostic, which SANY reports in its parse phase, and `semantic-error` otherwise. The exception is `DIVE-E0005` (a module defined twice, SANY 4223), which SANY reports as a semantic error. `DIVE-E0001` diagnostics give the unresolved modules. The comparison with the golden is the usual one: acceptance, verdict and unresolved modules.
@@ -325,7 +327,7 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 ## Limitations
 
 - Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite) report "not yet supported". The tlaplus repo tests (`tlaplus-tests`) and CommunityModules are `modules-only`: SANY goldens, no models.
-- `dive check` does not exist, so `--impl dive` compares modules only; models are `unsupported`.
+- `dive check` refuses features it does not implement yet (liveness, symmetry, simulation, Java-overridden modules, among others), so those models are `unsupported`.
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.

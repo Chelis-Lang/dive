@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Conformance harness (issue #48): dive's default profile now exits clean on the small
+  tier. The D-010 differences in Examples `MissionariesAndCannibals` and
+  `acp/ACP_NB_WRONG_TLC` (counts at the violation only) are registered in
+  `conformance/expected-divergences.toml` and reported as `expected-divergence`.
+  Registry entries now list the `fields` they may excuse, and never excuse trace
+  validation. The nightly conformance workflow also runs the default profile on the
+  tier's models.
 - `dive-store` and `dive check` (issue #42): the default profile's two-level state
   fingerprint combined per-value FP64 fingerprints with FP64 again, which is affine
   over GF(2), so the same change made to two variables could cancel; Examples
