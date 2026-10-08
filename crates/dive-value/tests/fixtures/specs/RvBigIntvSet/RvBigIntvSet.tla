@@ -1,0 +1,6 @@
+---- MODULE RvBigIntvSet ----
+EXTENDS Integers, TLC
+ASSUME PrintT({0..2147483646, 5..6})
+ASSUME PrintT(0..2147483646 = 0..2147483646)
+ASSUME PrintT(SUBSET (1..25) = SUBSET (1..25))
+====

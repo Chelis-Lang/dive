@@ -1,0 +1,208 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 55643] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/PrintWide/PrintWide.tla
+Parsing file $TMP/tlc-11880669453844178203/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-11880669453844178203/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-11880669453844178203/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $TMP/tlc-11880669453844178203/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-11880669453844178203/TLCExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file $TMP/tlc-11880669453844178203/_JsonTrace.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file $TMP/tlc-11880669453844178203/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-11880669453844178203/Json.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module TLCExt
+Semantic processing of module Json
+Semantic processing of module _JsonTrace
+Semantic processing of module PrintWide
+Linting of module TLCExt
+Linting of module Json
+Linting of module _JsonTrace
+Linting of module PrintWide
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 17:51:24)
+@!@!@ENDMSG 2185 @!@!@
+"#bigset"
+{ {},
+  {1},
+  {2},
+  {3},
+  {4},
+  {5},
+  {1, 2},
+  {1, 3},
+  {1, 4},
+  {1, 5},
+  {2, 3},
+  {2, 4},
+  {2, 5},
+  {3, 4},
+  {3, 5},
+  {4, 5},
+  {1, 2, 3},
+  {1, 2, 4},
+  {1, 2, 5},
+  {1, 3, 4},
+  {1, 3, 5},
+  {1, 4, 5},
+  {2, 3, 4},
+  {2, 3, 5},
+  {2, 4, 5},
+  {3, 4, 5},
+  {1, 2, 3, 4},
+  {1, 2, 3, 5},
+  {1, 2, 4, 5},
+  {1, 3, 4, 5},
+  {2, 3, 4, 5},
+  {1, 2, 3, 4, 5} }
+"#bigrecs"
+{ [qfa |-> "qsu1", qfb |-> 1],
+  [qfa |-> "qsu1", qfb |-> 2],
+  [qfa |-> "qsu1", qfb |-> 3],
+  [qfa |-> "qsu1", qfb |-> 4],
+  [qfa |-> "qsu2", qfb |-> 1],
+  [qfa |-> "qsu2", qfb |-> 2],
+  [qfa |-> "qsu2", qfb |-> 3],
+  [qfa |-> "qsu2", qfb |-> 4],
+  [qfa |-> "qsu3", qfb |-> 1],
+  [qfa |-> "qsu3", qfb |-> 2],
+  [qfa |-> "qsu3", qfb |-> 3],
+  [qfa |-> "qsu3", qfb |-> 4] }
+"#bigfcn"
+{ <<"qsv1", "qsv1", "qsv1">>,
+  <<"qsv1", "qsv1", "qsv2">>,
+  <<"qsv1", "qsv2", "qsv1">>,
+  <<"qsv1", "qsv2", "qsv2">>,
+  <<"qsv2", "qsv1", "qsv1">>,
+  <<"qsv2", "qsv1", "qsv2">>,
+  <<"qsv2", "qsv2", "qsv1">>,
+  <<"qsv2", "qsv2", "qsv2">> }
+"#bigfcn2"
+( 1 :> {"qsw1", "qsw2", "qsw3"} @@
+  7 :> {{}, {1}, {2}, {3}, {1, 2}, {1, 3}, {2, 3}, {1, 2, 3}} @@
+  9 :> <<"qsw4", "qsw5">> )
+"#bignested"
+[ qfa |-> {{}, {1}, {2}, {3}, {1, 2}, {1, 3}, {2, 3}, {1, 2, 3}},
+  qfb |-> [qfa |-> <<1, 2, 3>>, qfc |-> {{}, {4}, {5}, {4, 5}}] ]
+"#bigunderscore"
+<<mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3, mv_q3>>
+"#bigmvonly"
+{ mvq1,
+  mvq2,
+  <<mvq1, mvq2, mvq1, mvq2, mvq1, mvq2, mvq1, mvq2, mvq1, mvq2, mvq1>> }
+"#bigsetrecs"
+{ [ qfa |-> 1,
+    qfb |->
+        << 1,
+           2,
+           3,
+           4,
+           5,
+           6,
+           7,
+           8,
+           9,
+           10,
+           11,
+           12,
+           13,
+           14,
+           15,
+           16,
+           17,
+           18,
+           19,
+           20 >> ],
+  [qfa |-> 2, qfb |-> {}] }
+"#bigrecpair"
+[ qfa |->
+      << 1111111111,
+         1111111111,
+         1111111111,
+         1111111111,
+         1111111111,
+         1111111111,
+         1111111111 >> ]
+"#bigfcnkey"
+( << 1111111111,
+     1111111111,
+     1111111111,
+     1111111111,
+     1111111111,
+     1111111111,
+     1111111111 >> :>
+      1 )
+"#bigsubsetlazy"
+{ SUBSET {1, 2, 3, 4, 5, 6, 7},
+  SUBSET {11, 12, 13, 14, 15, 16, 17},
+  SUBSET {21, 22, 23, 24, 25, 26, 27} }
+"#bigtuple"
+<< {{}, {1}, {2}, {3}, {1, 2}, {1, 3}, {2, 3}, {1, 2, 3}},
+   {{}, {4}, {5}, {6}, {4, 5}, {4, 6}, {5, 6}, {4, 5, 6}} >>
+"#bigstrings"
+{ "qsx aaaaaaaaaaaaaaaaaaaa",
+  "qsx bbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "qsx cccccccccccccccccccccccccccc",
+  "qsx ddd" }
+"#bigquote"
+<<"q\"uote", 1111111111, 1111111111, 1111111111, 1111111111, 1111111111, 1111111111, 1111111111>>
+"#bigintervals"
+<< 1..1000,
+   1..1000,
+   1..1000,
+   1..1000,
+   1..1000,
+   1..1000,
+   1..1000,
+   1..1000,
+   1..1000 >>
+"#bignegint"
+<<-1..1000, -1..1000, -1..1000, -1..1000, -1..1000, -1..1000, -1..1000, -1..1000>>
+"#exact80"
+<<11111111, 11111111, 11111111, 11111111, 11111111, 11111111, 11111111, 111111>>
+"#exact81"
+<< 11111111,
+   11111111,
+   11111111,
+   11111111,
+   11111111,
+   11111111,
+   11111111,
+   1111111 >>
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 0 distinct states generated at 2026-10-08 17:51:24.
+@!@!@ENDMSG 2190 @!@!@
+@!@!@STARTMSG 2193:0 @!@!@
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 0.0
+@!@!@ENDMSG 2193 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(1) at 2026-10-08 17:51:24: 0 states generated (0 s/min), 0 distinct states found (0 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+0 states generated, 0 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 0.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 537ms at (2026-10-08 17:51:24)
+@!@!@ENDMSG 2186 @!@!@

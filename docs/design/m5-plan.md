@@ -8,7 +8,7 @@ This is the implementation plan for milestone M5 (`docs/ROADMAP.md`).
 
 | ADR | Covers |
 |---|---|
-| 0011 | values (on the `dive-value` branch) |
+| 0012 | values |
 | 0013 | IR and the `dive-model` binding stage |
 | 0014 | evaluator and standard library |
 | 0015 | deterministic parallel search and storage |
@@ -37,10 +37,10 @@ This is the implementation plan for milestone M5 (`docs/ROADMAP.md`).
 ## Prerequisites (M4, in flight)
 
 - **`dive-sema`.** The semantic model that `dive-ir` lowers from.
-- **`dive-value`.** Values, both orders and both integer modes, FP64, printing and JSON (ADR 0011).
+- **`dive-value`.** Values, both orders and both integer modes, FP64, printing and JSON (ADR 0012).
 - **`dive-config`.** The `.cfg` reader.
 
-**ADR number clash.** The `dive-value` and `dive-sema` branches both cite "ADR 0011". The lead should assign numbers when merging. This plan's ADRs start at 0013 to stay clear.
+**ADR numbers.** Semantic analysis is ADR 0011 and values are ADR 0012; this plan's ADRs start at 0013.
 
 ## Owner decisions needed early
 

@@ -39,6 +39,10 @@ proptest = { version = "1", default-features = false, features = ["std"] }
 sha2 = "0.11"
 signal-hook = { version = "0.4", default-features = false, features = ["iterator"] }
 toml = { version = "1", default-features = false, features = ["parse", "serde", "std"] }
+num-bigint = "0.5"
+num-integer = "0.1"
+num-traits = "0.2"
+divan = "0.1"
 
 [workspace.lints.rust]
 missing_docs = "deny"
