@@ -1,6 +1,6 @@
 # TLC probes for breadth-first search semantics
 
-Minimal specs that pin down how the pinned TLC counts, orders and stops its breadth-first search. They are the evidence for ADRs 0014 and 0015 and the first conformance target of `dive-check` (milestone CM0 in `docs/design/m5-plan.md`).
+Minimal specs that pin down how the pinned TLC counts, orders and stops its breadth-first search. They are the evidence for ADRs 0014 and 0015 and the first conformance target of `dive-check` (milestone CM0 in `docs/design/m5-plan.md`). `crates/dive-check/tests/probes.rs` checks every probe, and the harness's TLC fixtures, against these transcripts under `--compat=tlc` in both stores: deciding code, property, counts, depth, and every counterexample state and label.
 
 - `specs/<Name>/<Name>.tla` and `.cfg` are the probes. Each module's header comment states the question it asks.
 - `tlc-2026.10.06.014338/` holds the transcripts, captured with the conformance harness:

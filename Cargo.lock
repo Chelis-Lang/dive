@@ -137,9 +137,15 @@ dependencies = [
 name = "dive-api"
 version = "0.0.0"
 dependencies = [
+ "dive-check",
  "dive-config",
+ "dive-eval",
+ "dive-ir",
  "dive-sema",
+ "dive-stdlib",
+ "dive-store",
  "dive-syntax",
+ "dive-value",
  "serde_json",
 ]
 
@@ -150,6 +156,16 @@ version = "0.0.0"
 [[package]]
 name = "dive-check"
 version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-eval",
+ "dive-ir",
+ "dive-model",
+ "dive-sema",
+ "dive-stdlib",
+ "dive-store",
+ "dive-value",
+]
 
 [[package]]
 name = "dive-cli"
