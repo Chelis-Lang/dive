@@ -64,10 +64,12 @@ fn children<N: AstNode>(parent: &SyntaxNode) -> impl Iterator<Item = N> + use<N>
     parent.children().filter_map(N::cast)
 }
 
+/// The non-trivia tokens directly under `parent`.
 fn tokens(parent: &SyntaxNode) -> impl Iterator<Item = SyntaxToken> + use<> {
     parent
         .children_with_tokens()
         .filter_map(rowan::NodeOrToken::into_token)
+        .filter(|t| !t.kind().is_trivia())
 }
 
 fn token(parent: &SyntaxNode, kind: SyntaxKind) -> Option<SyntaxToken> {
@@ -601,6 +603,78 @@ impl QuantBound {
     }
 }
 
+/// Defines a wrapper accepting several node kinds.
+macro_rules! ast_node_multi {
+    ($(#[$m:meta])* $name:ident, [$($kind:ident),+]) => {
+        $(#[$m])*
+        #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+        pub struct $name(SyntaxNode);
+
+        impl AstNode for $name {
+            fn can_cast(kind: SyntaxKind) -> bool {
+                matches!(kind, $($kind)|+)
+            }
+            fn cast(node: SyntaxNode) -> Option<Self> {
+                Self::can_cast(node.kind()).then(|| Self(node))
+            }
+            fn syntax(&self) -> &SyntaxNode {
+                &self.0
+            }
+        }
+    };
+}
+
+ast_node!(
+    /// `LET defs IN e`.
+    LetExpr,
+    LET_EXPR
+);
+ast_node!(
+    /// `IF c THEN a ELSE b`.
+    IfExpr,
+    IF_EXPR
+);
+ast_node!(
+    /// `CASE p -> e [] ... [] OTHER -> e`.
+    CaseExpr,
+    CASE_EXPR
+);
+ast_node!(
+    /// `CHOOSE x \in S : P`.
+    ChooseExpr,
+    CHOOSE
+);
+ast_node!(
+    /// `f[a, b]`.
+    FcnAppl,
+    FCN_APPL
+);
+ast_node!(
+    /// `r.field`.
+    RecordField,
+    RECORD_FIELD
+);
+ast_node!(
+    /// `lab :: e`.
+    LabelExpr,
+    LABEL
+);
+ast_node!(
+    /// `LAMBDA x, y : e` (an operator argument, not an expression).
+    Lambda,
+    LAMBDA
+);
+ast_node_multi!(
+    /// `\A`, `\E` (bounded or not), `\AA` and `\EE`.
+    QuantExpr,
+    [BOUNDED_QUANT, UNBOUNDED_QUANT, TEMPORAL_QUANT]
+);
+ast_node_multi!(
+    /// A bulleted `/\` or `\/` list.
+    JunctionList,
+    [CONJ_LIST, DISJ_LIST]
+);
+
 /// An expression.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
@@ -614,6 +688,24 @@ pub enum Expr {
     Prefix(PrefixExpr),
     /// `e op`.
     Postfix(PostfixExpr),
+    /// `LET ... IN e`.
+    Let(LetExpr),
+    /// `IF ... THEN ... ELSE ...`.
+    If(IfExpr),
+    /// `CASE ...`.
+    Case(CaseExpr),
+    /// A quantifier.
+    Quant(QuantExpr),
+    /// `CHOOSE ...`.
+    Choose(ChooseExpr),
+    /// A bulleted conjunction or disjunction list.
+    Junction(JunctionList),
+    /// `f[args]`.
+    FcnAppl(FcnAppl),
+    /// `r.field`.
+    Field(RecordField),
+    /// `lab :: e`.
+    Label(LabelExpr),
     /// Any other expression form; see [`Expr::syntax`] and its kind.
     Other(SyntaxNode),
 }
@@ -669,6 +761,15 @@ impl Expr {
             INFIX_EXPR => Self::Infix(InfixExpr(node)),
             PREFIX_EXPR => Self::Prefix(PrefixExpr(node)),
             POSTFIX_EXPR => Self::Postfix(PostfixExpr(node)),
+            LET_EXPR => Self::Let(LetExpr(node)),
+            IF_EXPR => Self::If(IfExpr(node)),
+            CASE_EXPR => Self::Case(CaseExpr(node)),
+            BOUNDED_QUANT | UNBOUNDED_QUANT | TEMPORAL_QUANT => Self::Quant(QuantExpr(node)),
+            CHOOSE => Self::Choose(ChooseExpr(node)),
+            CONJ_LIST | DISJ_LIST => Self::Junction(JunctionList(node)),
+            FCN_APPL => Self::FcnAppl(FcnAppl(node)),
+            RECORD_FIELD => Self::Field(RecordField(node)),
+            LABEL => Self::Label(LabelExpr(node)),
             k if Self::can_cast(k) => Self::Other(node),
             _ => return None,
         })
@@ -683,8 +784,240 @@ impl Expr {
             Self::Infix(n) => &n.0,
             Self::Prefix(n) => &n.0,
             Self::Postfix(n) => &n.0,
+            Self::Let(n) => &n.0,
+            Self::If(n) => &n.0,
+            Self::Case(n) => &n.0,
+            Self::Quant(n) => &n.0,
+            Self::Choose(n) => &n.0,
+            Self::Junction(n) => &n.0,
+            Self::FcnAppl(n) => &n.0,
+            Self::Field(n) => &n.0,
+            Self::Label(n) => &n.0,
             Self::Other(n) => n,
         }
+    }
+}
+
+fn exprs(n: &SyntaxNode) -> Vec<Expr> {
+    n.children().filter_map(Expr::cast).collect()
+}
+
+impl LetExpr {
+    /// The definitions (operator, function and module definitions, and
+    /// `RECURSIVE` declarations).
+    #[must_use]
+    pub fn definitions(&self) -> Vec<Unit> {
+        self.0
+            .children()
+            .find(|n| n.kind() == LET_DEFS)
+            .map_or_else(Vec::new, |d| d.children().filter_map(Unit::cast).collect())
+    }
+
+    /// The expression after `IN`.
+    #[must_use]
+    pub fn body(&self) -> Option<Expr> {
+        last_expr(&self.0)
+    }
+}
+
+impl IfExpr {
+    /// The condition.
+    #[must_use]
+    pub fn condition(&self) -> Option<Expr> {
+        exprs(&self.0).into_iter().next()
+    }
+
+    /// The `THEN` branch.
+    #[must_use]
+    pub fn then_branch(&self) -> Option<Expr> {
+        exprs(&self.0).into_iter().nth(1)
+    }
+
+    /// The `ELSE` branch.
+    #[must_use]
+    pub fn else_branch(&self) -> Option<Expr> {
+        exprs(&self.0).into_iter().nth(2)
+    }
+}
+
+impl CaseExpr {
+    /// The `guard -> value` arms, without `OTHER`.
+    #[must_use]
+    pub fn arms(&self) -> Vec<(Option<Expr>, Option<Expr>)> {
+        self.0
+            .children()
+            .filter(|n| n.kind() == CASE_ARM)
+            .map(|a| {
+                let mut e = exprs(&a).into_iter();
+                (e.next(), e.next())
+            })
+            .collect()
+    }
+
+    /// The `OTHER` value, if present.
+    #[must_use]
+    pub fn other(&self) -> Option<Expr> {
+        self.0
+            .children()
+            .find(|n| n.kind() == OTHER_ARM)
+            .and_then(|o| first_expr(&o))
+    }
+}
+
+impl QuantExpr {
+    /// The quantifier token: `\A`, `\E`, `\AA`, `\EE` or a Unicode spelling.
+    #[must_use]
+    pub fn quantifier(&self) -> Option<SyntaxToken> {
+        tokens(&self.0).next()
+    }
+
+    /// Whether this is `\A`/`\AA` (otherwise `\E`/`\EE`).
+    #[must_use]
+    pub fn is_forall(&self) -> bool {
+        self.quantifier()
+            .is_some_and(|t| matches!(t.kind(), FORALL_KW | TEMPORAL_FORALL_KW))
+    }
+
+    /// Whether this is a temporal quantifier `\AA`/`\EE`.
+    #[must_use]
+    pub fn is_temporal(&self) -> bool {
+        self.0.kind() == TEMPORAL_QUANT
+    }
+
+    /// The bounds, for `\A x \in S : P`.
+    pub fn bounds(&self) -> impl Iterator<Item = QuantBound> + use<> {
+        children(&self.0)
+    }
+
+    /// The unbounded names, for `\A x, y : P`.
+    #[must_use]
+    pub fn unbounded_names(&self) -> Vec<String> {
+        ident_texts(&self.0)
+    }
+
+    /// The quantified expression.
+    #[must_use]
+    pub fn body(&self) -> Option<Expr> {
+        last_expr(&self.0)
+    }
+}
+
+impl ChooseExpr {
+    /// The bound name, or the names of a `<<x, y>>` pattern.
+    #[must_use]
+    pub fn names(&self) -> Vec<String> {
+        let mut v = ident_texts(&self.0);
+        if let Some(t) = self.0.children().find(|n| n.kind() == IDENT_TUPLE) {
+            v.extend(ident_texts(&t));
+        }
+        v
+    }
+
+    /// The bounding set, for `CHOOSE x \in S : P`.
+    #[must_use]
+    pub fn set(&self) -> Option<Expr> {
+        has_token(&self.0, IN_OP)
+            .then(|| exprs(&self.0).into_iter().next())
+            .flatten()
+    }
+
+    /// The condition.
+    #[must_use]
+    pub fn body(&self) -> Option<Expr> {
+        last_expr(&self.0)
+    }
+}
+
+impl JunctionList {
+    /// Whether this is a `/\` list (otherwise `\/`).
+    #[must_use]
+    pub fn is_conjunction(&self) -> bool {
+        self.0.kind() == CONJ_LIST
+    }
+
+    /// The items' expressions, in order.
+    #[must_use]
+    pub fn items(&self) -> Vec<Expr> {
+        self.0
+            .children()
+            .filter_map(|item| first_expr(&item))
+            .collect()
+    }
+}
+
+impl FcnAppl {
+    /// The function. `None` for SANY's bare `[a, b]` form, which semantic
+    /// analysis rejects.
+    #[must_use]
+    pub fn function(&self) -> Option<Expr> {
+        let first = self
+            .0
+            .children_with_tokens()
+            .find(|e| !e.kind().is_trivia())?;
+        first.into_node().and_then(Expr::cast)
+    }
+
+    /// The arguments inside the brackets.
+    #[must_use]
+    pub fn arguments(&self) -> Vec<Expr> {
+        let mut seen_bracket = false;
+        let mut out = Vec::new();
+        for e in self.0.children_with_tokens() {
+            match e {
+                rowan::NodeOrToken::Token(t) if t.kind() == L_BRACK => seen_bracket = true,
+                rowan::NodeOrToken::Node(n) if seen_bracket => out.extend(Expr::cast(n)),
+                _ => {}
+            }
+        }
+        out
+    }
+}
+
+impl RecordField {
+    /// The record expression.
+    #[must_use]
+    pub fn record(&self) -> Option<Expr> {
+        first_expr(&self.0)
+    }
+
+    /// The field name.
+    #[must_use]
+    pub fn field(&self) -> Option<String> {
+        token(&self.0, IDENT).map(|t| t.text().to_owned())
+    }
+}
+
+impl LabelExpr {
+    /// The label's name.
+    #[must_use]
+    pub fn name(&self) -> Option<String> {
+        let first = self.0.children().next()?;
+        let id = if first.kind() == OP_APPLICATION {
+            first.children().find(|n| n.kind() == GENERAL_ID)?
+        } else {
+            first
+        };
+        GeneralId::cast(id).and_then(|g| g.name())
+    }
+
+    /// The labelled expression (or `ASSUME_PROVE`).
+    #[must_use]
+    pub fn body(&self) -> Option<SyntaxNode> {
+        self.0.children().nth(1)
+    }
+}
+
+impl Lambda {
+    /// The parameter names.
+    #[must_use]
+    pub fn parameters(&self) -> Vec<String> {
+        ident_texts(&self.0)
+    }
+
+    /// The body.
+    #[must_use]
+    pub fn body(&self) -> Option<Expr> {
+        last_expr(&self.0)
     }
 }
 
