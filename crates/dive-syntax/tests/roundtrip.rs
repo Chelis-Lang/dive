@@ -170,7 +170,11 @@ fn soup() -> impl Strategy<Value = String> {
 }
 
 proptest! {
-    #![proptest_config(ProptestConfig { cases: 512, ..ProptestConfig::default() })]
+    // 512 cases by default; set PROPTEST_CASES for a longer run.
+    #![proptest_config(ProptestConfig {
+        cases: std::env::var("PROPTEST_CASES").ok().and_then(|s| s.parse().ok()).unwrap_or(512),
+        ..ProptestConfig::default()
+    })]
 
     #[test]
     fn arbitrary_text_round_trips(s in any::<String>()) {
