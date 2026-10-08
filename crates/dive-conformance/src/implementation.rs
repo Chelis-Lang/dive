@@ -171,13 +171,26 @@ pub trait Implementation: Sync {
         false
     }
 
-    /// Whether this implementation independently validated the
-    /// counterexample in `result` against the spec (charter rule 2: every
-    /// counterexample is replayed by a separate trace validator). An
-    /// implementation that is not an oracle cannot `agree` on a violation
-    /// without it. The default is `false`.
-    fn trace_validated(&self, _result: &OracleResult) -> bool {
-        false
+    /// Whether the counterexample in `result` validates against the spec
+    /// (charter rule 2: every counterexample is replayed by a separate trace
+    /// validator). The harness computes this itself with `dive-trace`
+    /// ([`crate::trace_check`]); it never takes the implementation's word.
+    /// An implementation that is not an oracle cannot `agree` on a violation
+    /// without it. `golden` is the oracle's result for the same model. The
+    /// default is `false`.
+    fn trace_validated(
+        &self,
+        _req: &ModelRequest<'_>,
+        _result: &OracleResult,
+        _golden: &OracleResult,
+    ) -> crate::trace_check::TraceCheck {
+        crate::trace_check::TraceCheck {
+            validated: false,
+            detail: format!(
+                "{} has no counterexample the harness can validate",
+                self.name()
+            ),
+        }
     }
 
     /// Parses one module (corpus-relative path) the way full SANY does:

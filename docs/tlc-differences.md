@@ -387,6 +387,32 @@ so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 
 
 ---
 
+## D-012: Counterexamples are checked by an independent validator
+
+| | |
+|---|---|
+| **Kind** | Same answer, with a stronger guarantee |
+| **Default** | Every counterexample `dive check` reports is first replayed against the specification by a separate validator. `dive validate-trace` checks any trace on demand |
+| **TLC behaviour** | Nothing to switch off: validation never changes a verdict. Under `--compat=tlc` the validator evaluates with TLC's semantics |
+| **Status** | implemented: the validator (`dive-trace`), the library API (`dive_api::trace`), `dive validate-trace` and the conformance harness. `dive check` will use it once it exists (M5) |
+
+**What TLC does.** TLC prints the counterexample its own search found, and nothing checks it independently. A bug in TLC's successor generation, or in how it rebuilds the trace, would print a trace that the specification does not allow. TLC's `-dumpTrace json` output cannot be read back reliably, even by TLC: a set and a sequence are both JSON arrays, and a string and a model value are both JSON strings. For example, for `x = {<<1, 2>>}` and `x = <<<<1, 2>>>>`, TLC writes the same `[[1, 2]]`.
+
+**What dive does.** A separate validator checks the trace *as data*. It evaluates `Init` on the first state, and the next-state relation as a predicate on each pair of states, without ever generating successors: the code that searches is not even compiled into it. It also checks that the claimed invariant or property really fails at the end, that nothing failed earlier, and that every state the search must have explored respects the `CONSTRAINT`s. A counterexample that fails is an internal error, never a verdict.
+
+```sh
+dive validate-trace DieHard.tla --trace trace.json --claim invariant:NotSolved --compat=tlc
+valid: the 7-state trace validates
+```
+
+`dive validate-trace` reads dive's own trace format, whose values are exact, and TLC's `-dumpTrace json`, which it reads by trying the interpretations of the ambiguous parts (see ADR 0016). From Rust, `dive_api::trace::SpecModel` checks a program's own recorded states against a specification.
+
+**Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Liveness counterexamples and error traces are checked step by step, but their final claim is refused for now. See *Where dive is currently more limited than TLC*.
+
+**Evidence.** ADR 0016 and its amendment 1. `dive-conformance trace-controls` runs TLC's own counterexamples through the validator: 12 of TLC's 15 safety counterexamples in the Examples goldens validate, and 3 are refused by name (two on evaluator operators not implemented yet, one whose `ALIAS` hides the variables). Every deliberately broken copy of them (a state dropped, two states swapped, a value changed, the trace cut short, the wrong invariant claimed) is rejected.
+
+---
+
 ## Under consideration
 
 These are recorded candidates. They are not decided, and nothing in dive behaves differently for them yet.
@@ -475,6 +501,14 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - evaluation errors whose exact TLC error class at that place is not reproduced yet. dive reports the error and its message, but marks TLC's class as unverified rather than claim it.
 
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
+- **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
+  - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
+  - the final claim of a liveness counterexample (the temporal property), and of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
+  - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
+  - traces whose states leave variables unassigned (partial implementation traces), which need a search;
+  - whatever the evaluator refuses (for example `TLCGet`, most CommunityModules operators).
+
+  A step label that names an operator with parameters is noted and not checked.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 - **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
   - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);

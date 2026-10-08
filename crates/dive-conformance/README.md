@@ -80,7 +80,7 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - the violated property, when the golden names one;
   - distinct, generated and queued counts, and depth;
   - the counterexample's length and how it ends (finite, lasso, stuttering).
-- The counterexample's content is never compared. An implementation that is not TLC must report it validated (`Implementation::trace_validated`), or it cannot agree on a violation: when that is the only difference, the outcome is `agree-pending-trace-validation`, otherwise `disagree`.
+- The counterexample's content is never compared with TLC's. Instead, for an implementation that is not TLC, the harness validates the counterexample itself (`Implementation::trace_validated`, `src/trace_check.rs`; ADR 0016 §3). `dive`'s counterexample document (in `OracleResult.trace.json`, dive's trace format) is read and checked in-process by `dive-trace`'s independent validator, with the model bound from the same spec, cfg, profile and module path; `dive`'s own `validation` field is ignored. A deadlock, which the validator refuses by name (ADR 0016, amendment 1), counts as validated only when every other check passed and its last state equals the last state of the golden's own counterexample. A violation whose counterexample does not validate cannot agree. When the validator refuses part of the claim by name, or no document is available, and nothing else differs, the outcome is `agree-pending-trace-validation`; when the counterexample is invalid, it is a `disagree` on `trace.invalid`. The validator's reason is in the detail.
 - Only a TLC oracle gets multi-worker leniency. With more than one worker, its counts are compared only after a complete search, and depth, queue, counterexample and property are not compared.
 - For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
 - For anything else, every worker count must match, and any variance is `disagree`.
@@ -115,6 +115,8 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 ```
 
 `run` takes several `--corpus`, into one report and one summary (default: `examples`).
+
+`trace-controls [--corpus ID]... [--tier T] [--filter GLOB]... [--golden-oracle ID]` runs the trace validator's controls (ADR 0016 §3) over every golden counterexample of the selection, under `--compat=tlc`, in-process: each TLC `-dumpTrace json` document must validate (positive controls; a deadlock may be refused by name if every other check passed), and every by-construction mutant of it (`dive_trace::mutate`) must be rejected (negative controls). Goldens with `trace.json_unavailable` or an omitted trace are skipped and counted. It prints a Markdown table and exits 1 on any finding. On the pinned goldens (`--tier all`): 17 counterexamples, 12 valid, 5 refused by name (two liveness, `MCDieHardest` and `SDP_Attack_Spec` on evaluator gaps, `EWD840_anim` on an `ALIAS` without the variables), none invalid; every mutant of a validating trace is rejected.
 
 **Common options:**
 - `--jobs N` (default `min(4, cpus/2)`): parallel oracle runs.
@@ -218,7 +220,7 @@ pub trait Implementation: Sync {
 ```
 
 **Rules for adapters:**
-- Override `trace_validated` once counterexamples are replayed by an independent validator (charter rule 2). Until then a violation verdict cannot `agree`.
+- A violation can `agree` only if the harness validates the counterexample (charter rule 2). The default `trace_validated` says no; `dive` overrides it with the in-process validator (`src/trace_check.rs`). An adapter whose tool emits counterexamples in dive's trace format can do the same.
 - Return `ImplResult::Unsupported(reason)` for anything the tool does not implement exactly. Never return a partial or approximate result.
 - Results use the oracle vocabulary. `verdict` and `error_class` must be the TLC `EC` name of the equivalent outcome; counts, depth and trace length go in their fields.
 

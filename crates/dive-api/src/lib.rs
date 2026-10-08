@@ -4,8 +4,9 @@
 //! versioned JSON report ([`ParseReport::to_json`]); reading TLC model
 //! configurations ([`parse_config_file`], [`ConfigReport`]); and
 //! SANY-equivalent semantic analysis ([`analyze_file`], [`analyze_source`])
-//! with its own report ([`AnalyzeReport::to_json`]); and safety model
-//! checking ([`check_file`], [`CheckReport`]). Everything else in the
+//! with its own report ([`AnalyzeReport::to_json`]); safety model checking
+//! ([`check_file`], [`CheckReport`]); and trace validation against a
+//! specification ([`trace`], ADR 0016). Everything else in the
 //! charter is still to come. Permitted internal dependencies are listed in
 //! `xtask/src/layering.rs`.
 //!
@@ -21,6 +22,8 @@
 #![forbid(unsafe_code)]
 
 mod config;
+
+pub mod trace;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
@@ -71,6 +74,12 @@ pub enum ApiError {
         /// The feature, named for the user.
         feature: String,
     },
+    /// The input is rejected: the specification or configuration has
+    /// errors, or the model cannot be bound (TLC's error).
+    Rejected {
+        /// What is wrong.
+        message: String,
+    },
 }
 
 impl std::fmt::Display for ApiError {
@@ -78,6 +87,7 @@ impl std::fmt::Display for ApiError {
         match self {
             Self::Io { path, error } => write!(f, "cannot read {path}: {error}"),
             Self::Unsupported { feature } => write!(f, "unsupported: {feature}"),
+            Self::Rejected { message } => f.write_str(message),
         }
     }
 }

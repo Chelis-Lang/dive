@@ -43,8 +43,12 @@ COMMANDS:
     report summarise <report.json>...
                            re-render the summary sections of existing reports into
                            --summary (default docs/conformance.md), one per implementation
+    trace-controls         run every golden counterexample through dive's independent trace
+                           validator under --compat=tlc (positive controls) and check that
+                           each by-construction mutant is rejected (negative controls;
+                           ADR 0016). Takes the selection options and --golden-oracle
 
-SELECTION (corpus list, golden generate, run):
+SELECTION (corpus list, golden generate, run, trace-controls):
     --corpus <id>          corpus (default: examples); `run` takes several, into one report
     --tier <t>             small | deep | all (default: small)
     --filter <glob>        model/module path glob; repeatable (`*`, `**`, `?`)
@@ -311,6 +315,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
         }
         ["run"] => cmd_run(&config, &cache, &root, o),
         ["report", "summarise"] => report_summarise(&root, o),
+        ["trace-controls"] => cmd_trace_controls(&config, &cache, &root, o),
         ["dev", "capture"] => {
             dev_capture(&config, &cache, o)?;
             Ok(false)
@@ -347,6 +352,34 @@ fn report_summarise(root: &Path, o: &Opts) -> Result<bool> {
         std::fs::write(&md, merged).map_err(|e| Error::Io(format!("{}: {e}", md.display())))?;
     }
     Ok(false)
+}
+
+/// `trace-controls`: the validator's positive and negative controls over
+/// the golden counterexamples (ADR 0016 §3).
+fn cmd_trace_controls(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
+    let golden_oracle = match &o.golden_oracle {
+        Some(id) => id.clone(),
+        None => config.oracles.default_oracle()?.id.clone(),
+    };
+    let corpora = if o.corpus.is_empty() {
+        vec!["examples".to_owned()]
+    } else {
+        o.corpus.clone()
+    };
+    let summary = dive_conformance::trace_check::run_controls(
+        config,
+        cache,
+        root,
+        &corpora,
+        &selection(o),
+        &golden_oracle,
+    )?;
+    out(&summary.render());
+    let findings = summary.findings();
+    for f in &findings {
+        eprintln_safe(&format!("finding: {f}"));
+    }
+    Ok(!findings.is_empty())
 }
 
 /// `--sany-phase full|parse`.

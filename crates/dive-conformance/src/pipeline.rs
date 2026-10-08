@@ -839,14 +839,20 @@ fn run_model(
                     counts_comparable: m.counts_comparable,
                 };
                 let mut diffs = diff_results_with(&golden.result, &result, ctx, policy);
-                if !imp.is_oracle() && result.trace.is_some() && !imp.trace_validated(&result) {
+                let mut trace_note = None;
+                if !imp.is_oracle() && result.trace.is_some() {
                     // Charter rule 2: a counterexample must be independently
-                    // replayed before it can count.
-                    diffs.push(FieldDiff {
-                        field: "trace.validated".to_owned(),
-                        expected: true.into(),
-                        actual: false.into(),
-                    });
+                    // replayed before it can count. The harness validates it
+                    // itself (ADR 0016 §3).
+                    let check = imp.trace_validated(&req, &result, &golden.result);
+                    if !check.validated {
+                        diffs.push(FieldDiff {
+                            field: "trace.validated".to_owned(),
+                            expected: true.into(),
+                            actual: false.into(),
+                        });
+                        trace_note = Some(format!("trace not validated: {}", check.detail));
+                    }
                 }
                 let outcome = match result.verdict {
                     Verdict::Timeout => Outcome::Timeout,
@@ -865,7 +871,10 @@ fn run_model(
                     }
                     _ => Outcome::Disagree,
                 };
-                let mut detail = result.note.clone();
+                let mut detail = match (result.note.clone(), trace_note) {
+                    (Some(n), Some(t)) => Some(format!("{n}; {t}")),
+                    (n, t) => n.or(t),
+                };
                 let excused = if outcome == Outcome::Disagree && !imp.is_oracle() {
                     let profile = imp.profile();
                     let active: Vec<String> = imp
