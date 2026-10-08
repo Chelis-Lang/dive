@@ -74,12 +74,14 @@ pub fn parallel_map<T: Sync, R: Send>(
         .collect()
 }
 
-/// `oracle fetch`: downloads and verifies every oracle artifact, the JRE for
-/// this host and the module libraries.
+/// `oracle fetch`: downloads and verifies the gating oracles (or only
+/// `selected`, which may be a reference oracle), the classpath jars, the JRE
+/// for this host and the module libraries.
 ///
 /// # Errors
-/// Fails on the first download or verification failure.
-pub fn oracle_fetch(config: &Config, cache: &Cache) -> Result<()> {
+/// Fails on the first download or verification failure, or if `selected`
+/// is not a pinned oracle.
+pub fn oracle_fetch(config: &Config, cache: &Cache, selected: Option<&str>) -> Result<()> {
     let fetcher = Fetcher::new(cache.clone());
     let report = |what: &str, status: &FetchStatus, path: &Path| {
         log(&format!(
@@ -91,7 +93,7 @@ pub fn oracle_fetch(config: &Config, cache: &Cache) -> Result<()> {
             path.display()
         ));
     };
-    for o in &config.oracles.tlc {
+    for o in config.oracles.selected_or_gating(selected)? {
         let (p, s) =
             fetcher.fetch_artifact(&format!("TLC oracle `{}`", o.id), &o.url, &o.sha256)?;
         report(&o.id, &s, &p);
@@ -608,6 +610,51 @@ fn record_from(
     }
 }
 
+/// The registries that can explain a difference, and the oracle under test.
+struct Explainers<'a> {
+    /// `conformance/expected-divergences.toml` (dive's `dive` profile only).
+    divergences: &'a crate::divergence::Registry,
+    /// `conformance/oracle-changes.toml` (TLC oracles only).
+    changes: &'a crate::upstream::Registry,
+    /// The oracle id when the implementation is a TLC oracle.
+    implementation_oracle: Option<&'a str>,
+}
+
+impl Explainers<'_> {
+    /// The registered upstream changes that explain `diffs`, joined for a
+    /// report detail, or `None`.
+    fn upstream(
+        &self,
+        subject: crate::upstream::Subject,
+        path: &str,
+        golden_oracle: &str,
+        golden: &crate::upstream::ResultFacts,
+        observed: &crate::upstream::ResultFacts,
+        diffs: &[FieldDiff],
+    ) -> Option<String> {
+        let found = self.changes.explain(&crate::upstream::Comparison {
+            subject,
+            path,
+            golden_oracle,
+            implementation_oracle: self.implementation_oracle,
+            golden,
+            observed,
+            diffs,
+        });
+        if found.is_empty() {
+            return None;
+        }
+        Some(format!(
+            "known upstream change: {}",
+            found
+                .iter()
+                .map(|c| format!("`{}` ({})", c.id, c.upstream_commit))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ))
+    }
+}
+
 /// Combines per-worker outcomes: the worst one wins, in the order
 /// oracle-error, timeout, disagree, unsupported, agree.
 fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
@@ -615,7 +662,7 @@ fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
         Outcome::OracleError => 5,
         Outcome::Timeout => 4,
         Outcome::Disagree => 3,
-        Outcome::Unsupported | Outcome::ExpectedDivergence => 2,
+        Outcome::Unsupported | Outcome::ExpectedDivergence | Outcome::KnownUpstreamChange => 2,
         Outcome::OutOfScope | Outcome::DivergenceMode => 1,
         Outcome::Agree => 0,
     };
@@ -634,9 +681,10 @@ fn run_model(
     m: &ModelEntry,
     golden_root: &Path,
     golden_sha256: &str,
-    registry: &crate::divergence::Registry,
+    explainers: &Explainers<'_>,
     opts: &RunOptions,
 ) -> ModelReport {
+    let registry = explainers.divergences;
     let mut report = ModelReport {
         corpus: corpus.id.clone(),
         model: m.id.clone(),
@@ -792,9 +840,24 @@ fn run_model(
                 } else {
                     None
                 };
+                let upstream = if outcome == Outcome::Disagree && imp.is_oracle() {
+                    explainers.upstream(
+                        crate::upstream::Subject::Model,
+                        &m.id,
+                        &opts.golden_oracle,
+                        &(&golden.result).into(),
+                        &(&result).into(),
+                        &diffs,
+                    )
+                } else {
+                    None
+                };
                 let outcome = if let Some(d) = excused {
                     detail = Some(format!("expected divergence `{}` ({})", d.id, d.link));
                     Outcome::ExpectedDivergence
+                } else if let Some(u) = upstream {
+                    detail = Some(u);
+                    Outcome::KnownUpstreamChange
                 } else {
                     outcome
                 };
@@ -839,6 +902,7 @@ fn run_module(
     module: &str,
     golden_root: &Path,
     golden_sha256: &str,
+    explainers: &Explainers<'_>,
     opts: &RunOptions,
 ) -> ModuleReport {
     let mut r = ModuleReport {
@@ -899,7 +963,21 @@ fn run_module(
                 _ if r.diffs.is_empty() => Outcome::Agree,
                 _ => Outcome::Disagree,
             };
-            r.detail = result.note;
+            r.detail.clone_from(&result.note);
+            if r.outcome == Outcome::Disagree
+                && imp.is_oracle()
+                && let Some(u) = explainers.upstream(
+                    crate::upstream::Subject::Module,
+                    module,
+                    &opts.golden_oracle,
+                    &(&golden.result).into(),
+                    &(&result).into(),
+                    &r.diffs,
+                )
+            {
+                r.outcome = Outcome::KnownUpstreamChange;
+                r.detail = Some(u);
+            }
         }
     }
     r
@@ -924,6 +1002,18 @@ pub fn run(
     let corpus = load_corpus(config, cache, &opts.corpus)?;
     let golden_oracle = config.oracles.oracle(&opts.golden_oracle)?;
     let registry = crate::divergence::Registry::load(&config.repo_root)?;
+    let changes = crate::upstream::Registry::load(&config.repo_root, &config.oracles)?;
+    let explainers = Explainers {
+        divergences: &registry,
+        changes: &changes,
+        implementation_oracle: if imp.is_oracle() {
+            imp_oracle.map(|e| e.oracle.id.as_str())
+        } else {
+            None
+        },
+    };
+    let golden_role = golden_oracle.role;
+    let implementation_role = imp_oracle.map(|e| e.oracle.role);
     let root = golden_root(&config.repo_root);
     let models = opts.selection.models(&corpus)?;
     let modules: Vec<String> = if opts.sany {
@@ -952,7 +1042,7 @@ pub fn run(
             m,
             &root,
             &golden_oracle.sha256,
-            &registry,
+            &explainers,
             opts,
         );
         let n = done.fetch_add(1, Ordering::Relaxed) + 1;
@@ -970,7 +1060,15 @@ pub fn run(
     let total = modules.len();
     let done = AtomicUsize::new(0);
     let mut module_reports = parallel_map(&modules, opts.limits.jobs, |_, module| {
-        let r = run_module(imp, &corpus, module, &root, &golden_oracle.sha256, opts);
+        let r = run_module(
+            imp,
+            &corpus,
+            module,
+            &root,
+            &golden_oracle.sha256,
+            &explainers,
+            opts,
+        );
         let n = done.fetch_add(1, Ordering::Relaxed) + 1;
         log(&format!(
             "[{n}/{total}] SANY {:<13} {module}",
@@ -1004,6 +1102,10 @@ pub fn run(
         implementation_oracle: imp_oracle.map(OracleEnv::provenance),
         golden_oracle: golden_oracle.id.clone(),
         golden_oracle_sha256: golden_oracle.sha256.clone(),
+        golden_oracle_role: Some(golden_role),
+        implementation_oracle_role: implementation_role,
+        reference: golden_role == crate::config::Role::Reference
+            || implementation_role == Some(crate::config::Role::Reference),
         corpora: vec![CorpusInfo {
             id: corpus.id.clone(),
             commit: corpus.commit.clone(),
