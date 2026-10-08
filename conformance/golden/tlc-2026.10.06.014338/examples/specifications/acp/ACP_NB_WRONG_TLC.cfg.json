@@ -1,0 +1,2042 @@
+{
+  "schema": 1,
+  "kind": "tlc-model",
+  "oracle": "tlc-2026.10.06.014338",
+  "corpus": "examples",
+  "model": {
+    "id": "specifications/acp/ACP_NB_WRONG_TLC.cfg",
+    "module": "specifications/acp/ACP_NB_WRONG_TLC.tla",
+    "mode": {
+      "kind": "exhaustive"
+    },
+    "features": [],
+    "counts_comparable": true
+  },
+  "workers": 1,
+  "result": {
+    "verdict": "safety-violation",
+    "verdict_code": 2110,
+    "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+    "exit_code": 12,
+    "exit_status": "VIOLATION_SAFETY",
+    "violated_property": "AC1",
+    "counts": {
+      "distinct_states": 11852,
+      "states_generated": 59286,
+      "states_left_on_queue": 1248,
+      "depth": 13
+    },
+    "fingerprint_collision": null,
+    "trace": {
+      "length": 13,
+      "ending": {
+        "kind": "finite"
+      },
+      "json": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": false,
+                      "p1": false
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 15,
+                  "beginLine": 100,
+                  "endColumn": 41,
+                  "endLine": 105,
+                  "module": "ACP_SB"
+                },
+                "name": "request",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                2,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": false
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": false
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 16,
+                  "beginLine": 211,
+                  "endColumn": 42,
+                  "endLine": 216,
+                  "module": "ACP_SB"
+                },
+                "name": "sendVote",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                3,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": false
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                3,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": false
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p1"
+                },
+                "location": {
+                  "beginColumn": 15,
+                  "beginLine": 100,
+                  "endColumn": 41,
+                  "endLine": 105,
+                  "module": "ACP_SB"
+                },
+                "name": "request",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                4,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                4,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": false
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p1"
+                },
+                "location": {
+                  "beginColumn": 16,
+                  "beginLine": 211,
+                  "endColumn": 42,
+                  "endLine": 216,
+                  "module": "ACP_SB"
+                },
+                "name": "sendVote",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                5,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                5,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "waiting",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 15,
+                  "beginLine": 118,
+                  "endColumn": 41,
+                  "endLine": 126,
+                  "module": "ACP_SB"
+                },
+                "name": "getVote",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                6,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                6,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "waiting"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p1"
+                },
+                "location": {
+                  "beginColumn": 15,
+                  "beginLine": 118,
+                  "endColumn": 41,
+                  "endLine": 126,
+                  "module": "ACP_SB"
+                },
+                "name": "getVote",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                7,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                7,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "undecided",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 17,
+                  "beginLine": 162,
+                  "endColumn": 43,
+                  "endLine": 169,
+                  "module": "ACP_SB"
+                },
+                "name": "makeDecision"
+              },
+              [
+                8,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                8,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 22,
+                  "beginLine": 180,
+                  "endColumn": 48,
+                  "endLine": 186,
+                  "module": "ACP_SB"
+                },
+                "name": "coordBroadcast",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                9,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                9,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 14,
+                  "beginLine": 265,
+                  "endColumn": 40,
+                  "endLine": 271,
+                  "module": "ACP_SB"
+                },
+                "name": "decide",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                10,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "commit",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                10,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": true,
+                      "decision": "commit",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p0"
+                },
+                "location": {
+                  "beginColumn": 14,
+                  "beginLine": 280,
+                  "endColumn": 40,
+                  "endLine": 284,
+                  "module": "ACP_SB"
+                },
+                "name": "parDie",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                11,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": false,
+                      "decision": "commit",
+                      "faulty": true,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                11,
+                {
+                  "coordinator": {
+                    "alive": true,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": false,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": false,
+                      "decision": "commit",
+                      "faulty": true,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 13,
+                  "beginLine": 196,
+                  "endColumn": 39,
+                  "endLine": 198,
+                  "module": "ACP_SB"
+                },
+                "name": "coordDie"
+              },
+              [
+                12,
+                {
+                  "coordinator": {
+                    "alive": false,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": true,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": false,
+                      "decision": "commit",
+                      "faulty": true,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ],
+            [
+              [
+                12,
+                {
+                  "coordinator": {
+                    "alive": false,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": true,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": false,
+                      "decision": "commit",
+                      "faulty": true,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "undecided",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ],
+              {
+                "context": {
+                  "i": "p1"
+                },
+                "location": {
+                  "beginColumn": 22,
+                  "beginLine": 95,
+                  "endColumn": 48,
+                  "endLine": 101,
+                  "module": "ACP_NB_WRONG_TLC"
+                },
+                "name": "abortOnTimeout",
+                "parameters": [
+                  "i"
+                ]
+              },
+              [
+                13,
+                {
+                  "coordinator": {
+                    "alive": false,
+                    "broadcast": {
+                      "p0": "commit",
+                      "p1": "notsent"
+                    },
+                    "decision": "commit",
+                    "faulty": true,
+                    "request": {
+                      "p0": true,
+                      "p1": true
+                    },
+                    "vote": {
+                      "p0": "yes",
+                      "p1": "yes"
+                    }
+                  },
+                  "participant": {
+                    "p0": {
+                      "alive": false,
+                      "decision": "commit",
+                      "faulty": true,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    },
+                    "p1": {
+                      "alive": true,
+                      "decision": "abort",
+                      "faulty": false,
+                      "forward": {
+                        "p0": "notsent",
+                        "p1": "notsent"
+                      },
+                      "vote": "yes",
+                      "voteSent": true
+                    }
+                  }
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": false,
+                    "p1": false
+                  },
+                  "vote": {
+                    "p0": "waiting",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  }
+                }
+              }
+            ],
+            [
+              2,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": false
+                  },
+                  "vote": {
+                    "p0": "waiting",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  }
+                }
+              }
+            ],
+            [
+              3,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": false
+                  },
+                  "vote": {
+                    "p0": "waiting",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  }
+                }
+              }
+            ],
+            [
+              4,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "waiting",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": false
+                  }
+                }
+              }
+            ],
+            [
+              5,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "waiting",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              6,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "waiting"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              7,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "undecided",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              8,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "notsent",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              9,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "commit",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              10,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "commit",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": true,
+                    "decision": "commit",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              11,
+              {
+                "coordinator": {
+                  "alive": true,
+                  "broadcast": {
+                    "p0": "commit",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": false,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": false,
+                    "decision": "commit",
+                    "faulty": true,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              12,
+              {
+                "coordinator": {
+                  "alive": false,
+                  "broadcast": {
+                    "p0": "commit",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": true,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": false,
+                    "decision": "commit",
+                    "faulty": true,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "undecided",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ],
+            [
+              13,
+              {
+                "coordinator": {
+                  "alive": false,
+                  "broadcast": {
+                    "p0": "commit",
+                    "p1": "notsent"
+                  },
+                  "decision": "commit",
+                  "faulty": true,
+                  "request": {
+                    "p0": true,
+                    "p1": true
+                  },
+                  "vote": {
+                    "p0": "yes",
+                    "p1": "yes"
+                  }
+                },
+                "participant": {
+                  "p0": {
+                    "alive": false,
+                    "decision": "commit",
+                    "faulty": true,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  },
+                  "p1": {
+                    "alive": true,
+                    "decision": "abort",
+                    "faulty": false,
+                    "forward": {
+                      "p0": "notsent",
+                      "p1": "notsent"
+                    },
+                    "vote": "yes",
+                    "voteSent": true
+                  }
+                }
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "participant",
+          "coordinator"
+        ]
+      }
+    },
+    "error_codes": [
+      2110,
+      2121
+    ],
+    "warning_codes": [],
+    "unresolved_modules": [],
+    "note": null
+  },
+  "provenance": {
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "classpath": [
+        {
+          "id": "community-modules-202610040242",
+          "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+        },
+        {
+          "id": "community-modules-deps-202610040242",
+          "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+        }
+      ],
+      "module_libraries": [
+        {
+          "id": "apalache-modules-v0.62.3",
+          "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+        },
+        {
+          "id": "tlapm-library-d8b9747",
+          "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+        }
+      ],
+      "capabilities": {
+        "dump_trace_json": true,
+        "no_generate_spec_te": true,
+        "sany_error_codes": true,
+        "names_temporal_properties": true,
+        "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+        "implementation_version": "2.0 2026-10-06"
+      },
+      "java": {
+        "source": "pinned",
+        "version": "17.0.20.1+1",
+        "sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+        "platform": "macos-aarch64",
+        "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+      }
+    },
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "command": [
+      "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+      "-XX:+UseParallelGC",
+      "-Xmx3g",
+      "-Xss8m",
+      "-Duser.home=$DIVE_CACHE_DIR/home",
+      "-Djava.io.tmpdir=$TMP",
+      "-Duser.language=en",
+      "-Duser.country=US",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar:$DIVE_CACHE_DIR/sha256/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d/CommunityModules-deps-202610040242.jar:$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla:$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+      "tlc2.TLC",
+      "specifications/acp/ACP_NB_WRONG_TLC.tla",
+      "-config",
+      "specifications/acp/ACP_NB_WRONG_TLC.cfg",
+      "-workers",
+      "1",
+      "-lncheck",
+      "final",
+      "-cleanup",
+      "-tool",
+      "-fp",
+      "0",
+      "-seed",
+      "0",
+      "-metadir",
+      "$TMP/states",
+      "-dumpTrace",
+      "json",
+      "$TMP/trace.json"
+    ],
+    "timeout_seconds": 300,
+    "reason": "Review fixes: always pin -seed 0; isolated run dirs (M1 review)",
+    "generator": "dive-conformance 0.0.0",
+    "generated_at": "2026-10-08T13:26:43Z",
+    "elapsed_ms": 3510
+  }
+}

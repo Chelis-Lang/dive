@@ -50,3 +50,10 @@ There is no refresh cadence for now. The single snapshot `tlc-2026.10.06.014338`
 - **Default choice:** goldens follow the current upstream TLC, which is also what Examples is validated against, rather than a two-year-old stable release.
 - **Drift check:** keeping v1.7.4 lets us detect oracle drift between releases.
 - **Refresh cadence** is an open owner question.
+
+## Amendments
+
+- **2026-10-08 (ADR 0003).**
+  - The classpath is now per oracle. The pinned CommunityModules jars break v1.7.4 on every spec (`TLCOverrides` references classes 1.7.4 lacks), so v1.7.4 runs without them.
+  - The TLAPS library and Apalache's modules are pinned as `[[module_library]]` git checkouts, as upstream Examples CI uses them.
+  - Fetching the private asset works only through the GitHub API asset endpoint; the browser URL answers 404 even with a token.

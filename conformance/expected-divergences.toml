@@ -1,0 +1,29 @@
+# Owner-approved divergences of dive's default profile from TLC (ADR 0010).
+#
+# dive runs under one of three profiles, recorded in every report:
+#   dive            the default; may differ from TLC where listed here
+#   tlc             pure TLC behaviour (--compat=tlc or DIVE_COMPAT=tlc);
+#                   must match TLC everywhere. Only this profile counts for
+#                   the strict tier.
+#   tlc+overrides   TLC behaviour with listed per-feature overrides; never
+#                   strict-tier agreement
+#
+# Under `dive`, a disagreement matching an entry below, with the entry's
+# expected verdict, is reported as `expected-divergence`. It is never counted
+# as `agree`. Everything else is `disagree`. The registry never applies under
+# `tlc` or `tlc+overrides`, and an entry naming them is a configuration error.
+#
+# Entry shape (every field required except one of profile/option):
+#
+# [[divergence]]
+# id = "big-integers"                         # stable, unique
+# pattern = "specifications/**/MC*.cfg"       # model or module path glob
+# profile = "dive"                            # or: option = "int=big"
+# expected_verdict = "success"                # dive's verdict where TLC differs
+# justification = "dive uses arbitrary-precision integers by default"
+# link = "docs/divergences.md#integer-overflow"
+#
+# Approved today but without corpus entries yet: big integers (TLC raises
+# TLC_MODULE_OVERFLOW at 32 bits), and refusing symmetry with liveness
+# (TLC only warns). Entries are added once dive implements them, with the
+# affected models identified.

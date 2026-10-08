@@ -1,0 +1,16 @@
+
+****** SANY2 Version 2.1 created 24 February 2014
+
+Parsing file $CWD/MissingModule.tla
+Parsing file $TMP/Naturals.tla
+
+Fatal errors while parsing TLA+ spec in file MissingModule.tla
+
+tla2sany.semantic.AbortException
+*** Abort messages: 1
+
+Unknown location
+
+Cannot find source file for module NoSuchModule imported in module MissingModule.
+
+

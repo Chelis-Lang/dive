@@ -1,0 +1,83 @@
+name: conformance
+
+# Standard and deep conformance tiers (ADR 0001): nightly on the small tier,
+# and on manual dispatch with a chosen tier. Runs the pinned TLC against the
+# committed goldens, with worker-count invariance (charter rule 7) and the
+# Examples manifest cross-check, then uploads the report. Never runs on push
+# or PR; ci.yml is the fast tier.
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: "Conformance tier"
+        type: choice
+        options: [small, deep]
+        default: small
+
+permissions:
+  # Enough to download this repository's own (private) release assets.
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  DIVE_CACHE_DIR: ${{ github.workspace }}/../dive-cache
+  TIER: ${{ inputs.tier || 'small' }}
+
+jobs:
+  conformance:
+    name: Conformance (${{ inputs.tier || 'small' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 350 || 120 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Cache oracles, JRE and corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.DIVE_CACHE_DIR }}
+          # Content-addressed and verified on every use, so a stale cache can
+          # only cost a re-download, never a wrong artifact.
+          key: dive-cache-${{ runner.os }}-${{ hashFiles('conformance/oracles.toml', 'conformance/corpora.toml') }}
+          restore-keys: dive-cache-${{ runner.os }}-
+      - name: Build harness
+        run: cargo build --release --locked -p dive-conformance
+      - name: Fetch and verify oracles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: target/release/dive-conformance oracle fetch
+      - name: Fetch corpus
+        run: target/release/dive-conformance corpus fetch --corpus examples
+      - name: Run TLC against committed goldens
+        run: |
+          mkdir -p "$RUNNER_TEMP/conformance"
+          target/release/dive-conformance run \
+            --impl tlc \
+            --tier "$TIER" \
+            --workers 1,4 \
+            --jobs 2 \
+            --xmx 5g \
+            --crosscheck-manifest \
+            --report-dir "$RUNNER_TEMP/conformance" \
+            --summary "$RUNNER_TEMP/conformance/conformance.md"
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: conformance-${{ env.TIER }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/conformance
+          if-no-files-found: warn
+          retention-days: 30
