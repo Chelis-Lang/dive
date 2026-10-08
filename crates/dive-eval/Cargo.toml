@@ -18,6 +18,13 @@ default = ["enumerate"]
 enumerate = []
 
 [dependencies]
+dive-ir.workspace = true
+dive-value.workspace = true
+
+[dev-dependencies]
+dive-sema.workspace = true
+dive-config.workspace = true
+proptest.workspace = true
 
 [lints]
 workspace = true
