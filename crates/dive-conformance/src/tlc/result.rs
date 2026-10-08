@@ -204,6 +204,14 @@ pub struct Trace {
     /// Set when the trace content was too large to store.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub omitted: Option<OmittedTrace>,
+    /// Set when TLC's `-dumpTrace json` document is unavailable although the
+    /// oracle supports it: the trace pass diverged from the clean run (issue
+    /// #35); the text gives the reason and a summary of the difference.
+    /// `json` is then absent and `steps` holds the clean run's printed
+    /// states; the document is never rebuilt or guessed. Such a trace
+    /// supports length and ending comparisons only, never trace-content ones.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub json_unavailable: Option<String>,
 }
 
 /// A stand-in for a trace too large to store in a golden file.
@@ -447,6 +455,7 @@ fn extract_trace(t: &Transcript, json_text: Option<&str>) -> (Option<Trace>, Opt
         json: None,
         steps: None,
         omitted: None,
+        json_unavailable: None,
     };
     if let Some(v) = json {
         let canonical = canonical_json(&v);

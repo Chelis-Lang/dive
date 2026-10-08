@@ -63,6 +63,7 @@ fn safety(distinct: u64, generated: u64, depth: u64, trace: u64) -> OracleResult
             json: None,
             steps: None,
             omitted: None,
+            json_unavailable: None,
         }),
         error_codes: vec![2110],
         warning_codes: vec![],

@@ -327,9 +327,10 @@ fn run_facts<'a>(
 /// JSON document, and only when its own message stream reproduces the clean
 /// run's counterexample exactly: the same verdict, deciding code and
 /// violated property, and the same trace (length, ending, and every state's
-/// label and printed value, byte for byte). Any mismatch makes the result an
-/// [`Verdict::OracleError`] naming the difference; JSON is never taken from
-/// a run that disagrees. The JSON's length is then checked against the clean
+/// label and printed value, byte for byte). On any mismatch the clean result
+/// stands as it is and only the document is marked unavailable, with the
+/// difference ([`merge_trace_pass`]); JSON is never taken from a run that
+/// disagrees. The JSON's length is otherwise checked against the clean
 /// stream by [`classify`] as before.
 ///
 /// The trace run is made only for a single-worker run of an oracle with
@@ -364,21 +365,51 @@ pub fn classify_with_trace_pass(
         &messages::parse(&traced.outcome.stdout),
         &run_facts(&traced, job.mode, None),
     );
-    if let Some(why) = trace_pass_mismatch(&result, &traced_result) {
-        let mut result = result;
-        if result.verdict.is_oracle_fact() {
-            result.verdict = Verdict::OracleError;
-        }
-        let problem = format!("the -dumpTrace json trace pass disagrees with the clean run: {why}");
-        result.note = Some(
-            result
-                .note
-                .map_or_else(|| problem.clone(), |n| format!("{n}; {problem}")),
-        );
-        return Ok((result, Some(traced)));
-    }
-    let merged = classify(&transcript, &run_facts(clean, job.mode, Some(json)));
+    let merged = merge_trace_pass(
+        &transcript,
+        &run_facts(clean, job.mode, None),
+        result,
+        &traced_result,
+        json,
+    );
     Ok((merged, Some(traced)))
+}
+
+/// Combines a clean run's result with a trace pass's JSON document.
+///
+/// `clean` is the clean run classified without JSON, and `traced` the trace
+/// pass's result, also classified without JSON. When the trace pass
+/// reproduces the clean counterexample ([`trace_pass_mismatch`] finds
+/// nothing), the clean run is reclassified with `json`, which also checks
+/// the document's state count against the clean stream. Otherwise the clean
+/// result is kept whole (verdict, counts, error, violated property, and the
+/// printed states that give the trace length), and only the document is
+/// marked unavailable in `Trace::json_unavailable`, with the reason. JSON is
+/// never taken from, or rebuilt for, a run that diverged.
+#[must_use]
+pub fn merge_trace_pass(
+    clean_transcript: &messages::Transcript,
+    clean_facts: &RunFacts<'_>,
+    clean: OracleResult,
+    traced: &OracleResult,
+    json: &str,
+) -> OracleResult {
+    if let Some(why) = trace_pass_mismatch(&clean, traced) {
+        let mut clean = clean;
+        if let Some(trace) = clean.trace.as_mut() {
+            trace.json_unavailable = Some(format!(
+                "-dumpTrace json trace pass diverged from the clean run: {why}"
+            ));
+        }
+        return clean;
+    }
+    classify(
+        clean_transcript,
+        &RunFacts {
+            trace_json: Some(json),
+            ..clean_facts.clone()
+        },
+    )
 }
 
 /// Why a trace run's result cannot vouch for the clean run's
@@ -612,6 +643,53 @@ mod tests {
     }
 
     fn violation(states: &[&str]) -> OracleResult {
+        classify(
+            &messages::parse(&violation_stream(states)),
+            &RunFacts {
+                exit_code: Some(12),
+                ..RunFacts::default()
+            },
+        )
+    }
+
+    #[test]
+    fn divergent_trace_pass_keeps_the_clean_result_without_json() -> std::result::Result<(), String>
+    {
+        let stream = violation_stream(&["x = 0", "x = 1"]);
+        let transcript = messages::parse(&stream);
+        let facts = RunFacts {
+            exit_code: Some(12),
+            ..RunFacts::default()
+        };
+        let clean = classify(&transcript, &facts);
+        let json = r#"{"counterexample":{"state":[[1,{"x":0}],[2,{"x":2}]]}}"#;
+
+        // Agreeing trace pass: its document is attached.
+        let merged = merge_trace_pass(&transcript, &facts, clean.clone(), &clean, json);
+        let t = merged.trace.as_ref().ok_or("no trace")?;
+        assert!(t.json.is_some() && t.steps.is_none() && t.json_unavailable.is_none());
+        assert_eq!(merged.verdict, Verdict::SafetyViolation);
+
+        // Diverging trace pass: the clean result stands, the document does not.
+        let traced = violation(&["x = 0", "x = 2"]);
+        let merged = merge_trace_pass(&transcript, &facts, clean.clone(), &traced, json);
+        assert_eq!(merged.verdict, clean.verdict);
+        assert_eq!(merged.verdict_code, clean.verdict_code);
+        assert_eq!(merged.violated_property, clean.violated_property);
+        assert_eq!(merged.counts, clean.counts);
+        assert_eq!(merged.note, clean.note);
+        let t = merged.trace.ok_or("no trace")?;
+        assert_eq!(t.length, 2);
+        assert!(t.json.is_none(), "no JSON from a diverging run");
+        assert_eq!(t.steps, clean.trace.and_then(|c| c.steps));
+        assert_eq!(
+            t.json_unavailable.as_deref(),
+            Some("-dumpTrace json trace pass diverged from the clean run: trace state 2 differs")
+        );
+        Ok(())
+    }
+
+    fn violation_stream(states: &[&str]) -> String {
         use std::fmt::Write as _;
         let mut out =
             "@!@!@STARTMSG 2110:1 @!@!@\nInvariant Inv is violated.\n@!@!@ENDMSG 2110 @!@!@\n"
@@ -628,13 +706,7 @@ mod tests {
                 i + 1
             );
         }
-        classify(
-            &messages::parse(&out),
-            &RunFacts {
-                exit_code: Some(12),
-                ..RunFacts::default()
-            },
-        )
+        out
     }
 
     #[test]
