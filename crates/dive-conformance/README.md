@@ -31,6 +31,8 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 - Every TLC run is classified from its `-tool` message stream, then cross-checked against the exit code.
 - An exit code that the messages do not explain is `oracle-error`, with both recorded.
 - An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept.
+- JVM resource exhaustion (out of memory, stack overflow) is `resource-limit`: never an oracle fact, never a golden.
+- Unexpected stderr, or a success without statistics, is `oracle-error`.
 - An implementation that cannot do something must answer `unsupported`.
 
 **Each model gets exactly one outcome:**
@@ -41,12 +43,20 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 - `timeout`;
 - `out-of-scope`.
 
-**Comparison rules** (ADR 0004):
-- Always compared: the verdict class and the error class (the `EC` name of the deciding message).
-- Distinct and generated counts: compared at one worker, or when the oracle searched the whole state space (success, liveness violation).
-- Depth, counterexample length, and the violated property when both sides name one: compared only at one worker.
-- The counterexample is compared by length, never by content.
+**Comparison rules** (ADR 0004 and its amendment):
+- Every implementation is compared with the single-worker golden on:
+  - the verdict class and the error class (the `EC` name of the deciding message);
+  - the violated property, when the golden names one;
+  - distinct, generated and queued counts, and depth;
+  - the counterexample's length and how it ends (finite, lasso, stuttering).
+- The counterexample's content is never compared. An implementation that is not TLC must report it validated (`Implementation::trace_validated`), or it cannot agree on a violation.
+- Only a TLC oracle gets multi-worker leniency. With more than one worker, its counts are compared only after a complete search, and depth, queue, counterexample and property are not compared.
+- For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
+- For anything else, every worker count must match, and any variance is `disagree`.
+- v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
+- Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`.
 - Simulation models compare verdict-level fields only.
+- Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The summary asserts that the totals equal the selection.
 
 ## Commands
 
@@ -65,13 +75,17 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 **Common options:**
 - `--jobs N` (default `min(4, cpus/2)`): parallel oracle runs.
 - `--xmx SIZE` (default `3g`): JVM heap per run. Four 3 GB JVMs fit an 8-core / 24 GB machine with room to spare.
-- `--timeout SECS`, or the derived default: 10 × the manifest runtime + 60 s, at least 120 s, capped by `--timeout-cap` (default 3600). Unknown runtimes get the cap. On timeout the whole process group is killed with `SIGKILL`.
+- `--timeout SECS`, or the derived default:
+  - 20 × the manifest runtime + 120 s, at least 300 s, capped by `--timeout-cap` (default 3600); unknown runtimes get the cap;
+  - in `run`, also at least 4 × the golden's recorded elapsed time + 60 s, even above the cap. Manifest runtimes were measured with several workers.
+
+  On timeout the whole process group is killed with `SIGKILL`. Ctrl-C (`SIGINT`) and `SIGTERM` kill every live oracle process group before the harness exits.
 - `--java PATH`: opts into a system Java. It is recorded in provenance as `source: system`, with the executable's SHA-256.
 - `--repo-root DIR` and `--cache-dir DIR`.
 
 **Outputs:**
 - `run` writes `conformance/reports/<run-id>.json` (schema version 1) and `docs/conformance.md`. Use `--no-summary` to skip the summary, or `--summary PATH` to put it elsewhere.
-- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes); 2 for a usage error; 3 for a harness error.
+- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
 
 **Examples:**
 
@@ -95,7 +109,8 @@ jre/<hex>/               the JRE unpacked from archive <hex> (macOS: */Contents/
 git/<id>/<commit>/       corpora and module libraries, `git init` + `fetch --depth 1 <sha>` + checkout;
                          completion marker in .git/, HEAD checked and the work tree must be clean
 home/.tlaplus/esc.txt    TLC's user.home: NO_STATISTICS (opts out of TLC telemetry)
-tmp/                     per-run scratch: TLC -metadir, java.io.tmpdir, -dumpTrace output; removed after each run
+tmp/                     per-run scratch: an isolated copy of the spec directory (the run's working
+                         directory), TLC -metadir, java.io.tmpdir, -dumpTrace output; removed after each run
 ```
 
 **Isolation.** Each jar sits alone in its own directory. That matters because `tla2tools.jar`'s manifest `Class-Path` names `CommunityModules*.jar` *relative to the jar*; isolation guarantees that only the jars on `-cp` are used.
@@ -124,6 +139,7 @@ pub trait Implementation: Sync {
 ```
 
 **Rules for adapters:**
+- Override `trace_validated` once counterexamples are replayed by an independent validator (charter rule 2). Until then a violation verdict cannot `agree`.
 - Return `ImplResult::Unsupported(reason)` for anything the tool does not implement exactly. Never return a partial or approximate result.
 - Results use the oracle vocabulary. `verdict` and `error_class` must be the TLC `EC` name of the equivalent outcome; counts, depth and trace length go in their fields.
 
@@ -176,6 +192,13 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 | With four workers, DieHard stops at 16 distinct / 84 generated / depth 9 (one worker: 14 / 73 / 7). The counterexample length stays 7, but the reported depth exceeds it | Examples `DieHard` |
 | With four workers, `MCDistributedReplicatedLog` reports "Temporal properties AllExtending and InSync were violated"; with one worker, only `InSync`. This was reproduced twice. The violated property is therefore compared at one worker only, and its variance is reported under worker invariance | Examples `FiniteMonotonic/MCDistributedReplicatedLog` |
 | `-generate` exists in `94d0c50` but is not listed in its usage text | n/a |
+| `RandomElement`/`Randomization` use TLC's seed in exhaustive search too. Without `-seed`, Examples `SpanTreeRandom` gave 40460, 1878, 240806, 65396 and 106664 distinct states; the harness always passes `-seed 0` | Examples `SpanningTree/SpanTreeRandom` |
+| At `-Xmx64m`, `94d0c50` reports `SYSTEM_OUT_OF_MEMORY_TOO_MANY_INIT` (1002, exit 255). v1.7.4 instead refuses a set of more than 1,000,000 elements as `TLC_INITIAL_STATE` (2102), and exit 75 is explained only by context code 2103, so it is unclassified | `Oom` |
+| Deep recursion reports `GENERAL` ("StackOverflowError") then 2103, exit 75. This is a `resource-limit`, and `-Xss8m` is pinned | `Stack` |
+| `PrintT("@!@!@ENDMSG 2185 @!@!@")` prints the marker text quoted and mid-line. Markers count only in TLC's own positions | `PrintMarker` |
+| A state-predicate `PROPERTY` violated by an initial state is `TLC_PROPERTY_VIOLATED_INITIAL` (2108), exit 13, with the state inside the message. It is classified as `safety-violation` | `InitProperty` |
+| `ASSUME TLCGet("config").worker = 1` makes the verdict depend on `-workers` | Examples `DieHard/MCDieHardest` |
+| Animation specs write SVG files into their working directory, hence the isolated per-run copies | Examples `*_anim` |
 | Simulation is not reproducible even with `-seed 0` and one worker. `EWD840_anim` generated 267,302, 267,196, 271,147 and 268,375 states in four runs, with the same verdict and trace length. Simulation counts are therefore kept out of the golden payload (`provenance.uncompared_counts`) | Examples `ewd840/EWD840_anim` |
 
 ## Limitations

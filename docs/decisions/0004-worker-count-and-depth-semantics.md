@@ -22,3 +22,22 @@ TLC does not provide that invariance:
 ## Consequences
 
 Generating goldens is slower, because it is single-threaded. That cost is acceptable since goldens are generated rarely. Multi-worker TLC runs remain useful as invariance probes.
+
+## Amendments
+
+**2026-10-08 (harness review).** How the harness applies this ADR:
+
+1. **The relaxation is for TLC only.** Leniency for multi-worker runs applies only when the implementation under test is itself a TLC oracle (`ComparePolicy::oracle_leniency`). It covers:
+   - counts, compared only after a complete search;
+   - depth, queue size, counterexample length and end-kind, and violated property, which are not compared.
+
+   Any other implementation, `dive` included, is compared with the single-worker golden on every field at every worker count. Any variance across its worker counts is a `disagree` (decision 3).
+2. **TLC's outcome is its single-worker comparison.** For a TLC oracle, a model's outcome is the single-worker run against the golden. Multi-worker TLC runs are reported only in the report's worker-invariance section, as oracle facts (decision 2), and never as a model `disagree`. The variance is real:
+   - with four workers TLC gives different counts and depth after a safety violation (Examples `DieHard`);
+   - it names a different set of violated temporal properties (`MCDistributedReplicatedLog`);
+   - it can even change the verdict when the spec reads the worker count (`MCDieHardest` asserts `TLCGet("config").worker = 1`, so at four workers it is an assumption failure).
+3. **Worker-introspecting specs.** A model whose module mentions `TLCGet("config")` is marked `worker_introspecting` in the report, because its behaviour may legitimately depend on `-workers`. The detection is a plain text search with whitespace ignored. `dive` is still held to the single-worker golden for these models; the flag explains a variance, it does not excuse one.
+4. **Excluded points.** Runs that time out, hit a resource limit or are unclassified are left out of the variance judgements, and are counted as `excluded`.
+5. **ADR 0010 (TLC-compatible by default, better by option).** The oracle's `-workers 1` is a golden-generation constraint, not a limit on `dive`. `dive` runs at any worker count and must equal the single-worker golden at each one.
+
+   Implementation options (`--impl-option`, e.g. `seed`) are recorded in every report. An option the implementation does not declare result-preserving (e.g. `int=big`) makes every would-be `agree` a `divergence-mode` outcome. Such runs are never counted as agreeing with TLC goldens. Comparing them against a separate expectation set is future work.

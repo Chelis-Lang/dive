@@ -18,15 +18,21 @@ Evidence gathered while building the harness (fixtures under `crates/dive-confor
   - Action-property violations exit 13, like liveness violations.
   - Parse and semantic errors both exit 150 with the same message code (3002), and are told apart only by SANY's untagged text.
 - **Nondeterminism.**
-  - TLC picks a random fingerprint polynomial (`fp`) per run, and a random simulation seed.
+  - TLC picks a random fingerprint polynomial (`fp`) per run, and a random seed. The seed matters in exhaustive search too: `RandomElement` and the `Randomization` module draw from it. Examples `SpanTreeRandom` gave 40460, 1878, 240806, 65396 and 106664 distinct states without `-seed`, and 79550 twice with `-seed 0`.
   - Multi-worker runs that stop at a safety violation stop at a scheduling-dependent point: DieHard gives 14/73/depth 7 with one worker and 16/84/depth 9 with four, and the counterexample length is unchanged.
-  - With four workers, TLC also named a different set of violated temporal properties (`MCDistributedReplicatedLog`: "AllExtending and InSync" instead of "InSync"). So, like depth and counterexample length, the violated property is compared only for single-worker runs, and its variance is reported under worker invariance.
+  - With four workers, TLC also named a different set of violated temporal properties (`MCDistributedReplicatedLog`: "AllExtending and InSync" instead of "InSync"). See the ADR 0004 amendment for how multi-worker TLC runs are reported.
   - Simulation is not reproducible even with `-seed 0` and one worker. Generated-state counts varied between runs, while the verdict and trace length did not.
 - **Version differences between the pinned oracles.**
   - v1.7.4 lacks `-dumpTrace`, `-noGenerateSpecTE` and SANY's `-error-codes`, which it rejects.
   - It omits the search depth after assertion, evaluation, overflow and liveness errors.
   - It does not name the violated temporal property ("Temporal properties were violated.").
   - It nests a complete `-tool` message inside `GENERAL` (1000) for configuration errors, for example the `ALIAS` keyword, which it does not know.
+- **Resource exhaustion depends on the machine.** Out-of-memory and stack-overflow outcomes depend on `-Xmx`, `-Xss` and the JVM.
+  - 94d0c50 at `-Xmx64m` reports `SYSTEM_OUT_OF_MEMORY_TOO_MANY_INIT`.
+  - On the same spec, v1.7.4 refuses a set with more than 1,000,000 elements instead.
+  - A deep recursion reports `GENERAL` ("StackOverflowError") followed by the context code 2103.
+- **Oracle runs write into their working directory.** Examples animation specs write SVG files; 125 were already in the cache. Examples' `.gitignore` ignores almost everything, so `git status` without `--ignored` missed them.
+- **Spec output can contain marker text.** `PrintT("@!@!@ENDMSG 2185 @!@!@")` is printed quoted and mid-line.
 - **SANY exit codes.** SANY exits 0 on semantic errors unless given `-error-codes` (which `94d0c50` supports and v1.7.4 rejects).
 - **CommunityModules and v1.7.4.** Every CommunityModules release tried (202610040242, 202405171516, 202010302007) makes v1.7.4 fail on every spec with `NoClassDefFoundError`/`IncompatibleClassChangeError`. `tlc2.overrides.TLCOverrides` references classes that v1.7.4 lacks, because v1.7.4 branched from upstream master on 2020-04-25.
 - **Module libraries.** Upstream Examples CI puts the TLAPS library (tlapm `library/`) and Apalache's modules on the classpath. About 71 Examples modules `EXTEND` TLAPS-library modules and cannot be parsed without them.
@@ -38,11 +44,12 @@ Evidence gathered while building the harness (fixtures under `crates/dive-confor
 conformance/golden/<oracle-id>/<corpus-id>/<model-path>.json         TLC, one per model
 conformance/golden/<oracle-id>/<corpus-id>/sany/<module-path>.json   SANY, one per module
 ```
-Paths keep the corpus-relative directory structure, with each component sanitised to `[A-Za-z0-9._-]`.
+Paths keep the corpus-relative directory structure. Bytes outside `[A-Za-z0-9._-]` are percent-encoded, so the mapping is injective. Generation also refuses two inputs whose golden paths collide case-insensitively.
 
 **Format.**
 - Pretty-printed JSON with a fixed key order (struct order; JSON objects inside, such as the trace, use sorted keys) and a trailing newline.
 - Top-level keys: `schema` (1), `kind` (`tlc-model` or `sany-module`), `oracle`, `corpus`, `model` or `module`, `workers` (always 1), `result`, `provenance`.
+- Every golden struct is read with `deny_unknown_fields`, so a renamed field is an error rather than a silently missing value.
 - Everything except `provenance` is the **payload**. It is deterministic: no timestamps, timings or machine paths. Only the payload is ever compared, and regeneration with an unchanged oracle and corpus reproduces it byte for byte.
 - The TLC `result` is the typed `OracleResult`:
   - the verdict class;
@@ -72,27 +79,40 @@ Paths keep the corpus-relative directory structure, with each component sanitise
 - the manifest entry it describes has changed;
 - the golden itself is `oracle-error`, `unclassified` or `timeout`.
 
+This applies to SANY goldens too, including the jar SHA-256 check. A selected module or model without a golden is reported as `oracle-error`; it never vanishes. Every selected model and module gets exactly one outcome, and the report's summary asserts that the totals equal the selection.
+
 **Invocation.**
 - **Upstream Examples CI** is mirrored: working directory, `-XX:+UseParallelGC`, `-lncheck final -cleanup`, `-Dtlc2.tool.impl.Tool.cdot=true` for `action composition`, deadlock checking left at TLC's default, and `-simulate num=N` in simulation.
 - **Additions:**
   - `-tool`;
   - `-workers 1`;
-  - `-fp 0`, and `-seed 0` in simulation;
+  - `-fp 0` and `-seed 0`, always (both modes; v1.7.4 accepts `-seed` in breadth-first mode, which the capability probe confirms);
   - a unique `-metadir`;
   - `-dumpTrace json` where supported;
-  - a configurable `-Xmx`;
+  - a configurable `-Xmx`, and `-Xss8m` pinned so deep recursion behaves the same on every machine;
   - a pinned JVM locale, encoding and temporary directory.
 - **Telemetry and TE specs:**
   - The harness does not copy upstream's `-Dutil.ExecutionStatisticsCollector.id`, which reports usage under upstream CI's identifier.
   - TLC's `user.home` is a harness directory whose `.tlaplus/esc.txt` opts out of statistics collection.
   - `-noGenerateSpecTE` is not passed: v1.7.4 rejects it, and in `94d0c50` `-tool` already disables trace-exploration specs.
 - **Capabilities** are probed per oracle and recorded, so missing features show up as data.
-- **Integrity:** after every oracle run the harness checks that the corpus checkout is unmodified.
+- **Isolation:** every TLC and SANY job runs in a fresh scratch copy of the spec directory (for Examples, `specifications/<spec>/`, which no spec reaches outside of), so nothing a spec or TLC writes can reach the cached corpus.
+- **Integrity:** after every oracle run the harness checks that the corpus checkout is unmodified, using `git status --untracked-files=all --ignored`.
+- **Timeouts:** the derived timeout is `20 × manifest runtime + 120 s`, at least 300 s and capped by `--timeout-cap`. Once a golden exists, it is also at least `4 × golden elapsed + 60 s`, which may exceed the cap. Manifest runtimes were measured with several workers: Examples `BufferedRandomAccessFile` records 9 s but took 102 s with one worker.
 
 **Classification.**
 - The `-tool` stream decides; the exit code cross-checks. The rules are in `crates/dive-conformance/src/tlc/result.rs`.
 - An exit code that no error message explains is `oracle-error`, with both recorded.
-- An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept.
+- An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept. So is an exit code that only a context message (2103, 2121, 2264) explains.
+- **Resource limits.** JVM resource exhaustion is `resource-limit`, which is never an oracle fact and never written as a golden. It covers:
+  - `SYSTEM_OUT_OF_MEMORY*` (1001–1003) and `SYSTEM_STACK_OVERFLOW` (1005);
+  - `GENERAL` naming `OutOfMemoryError` or `StackOverflowError`;
+  - either name on stderr.
+- **Other oracle errors.** These turn a would-be fact into `oracle-error`, with the stderr kept:
+  - a success without state statistics;
+  - any stderr line outside a narrow allowlist. The allowlist currently holds only v1.7.4's resolver diagnostic `File does not exist: ...`; normal runs print nothing on stderr.
+- **Markers are positional.** Message markers count only where TLC prints them: a `STARTMSG` header followed by a newline, and an `ENDMSG` at the start of a line. Marker text inside spec output is ordinary text.
+- **2108.** `TLC_PROPERTY_VIOLATED_INITIAL` (a state-predicate `PROPERTY` violated by an initial state) is a `safety-violation`. TLC exits 13 for it, as for liveness, but the counterexample is one initial state.
 - SANY accepts a module only if it exits 0 *and* prints no error marker.
 
 **Classpath per oracle.**
