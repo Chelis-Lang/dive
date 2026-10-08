@@ -45,6 +45,18 @@ The charter's appendix records factual corrections made since it was written.
     `--seed` reproduce the run exactly.
   - **Register every handcuff you find** in `docs/divergences.md`, with
     minimal-spec evidence, before or alongside the implementation.
+  - **Keep `docs/tlc-differences.md` current.** This is the user-facing log of
+    every place where TLC does something wrong or suboptimal and dive does
+    something different. In the same PR as the registry change or the code:
+    - Each registry row in `docs/divergences.md` gets a stable `D-NNN` entry.
+    - The entry contains a minimal example, what TLC does (measured on the pinned
+      oracle, with numbers), why it is wrong or suboptimal, dive's default, the
+      switch that restores TLC behaviour, and the status and evidence.
+    - Update the status as the code moves from planned to implemented to default.
+    - Never reuse an ID. Mark withdrawn entries as *withdrawn*.
+    - Record dive's own limitations relative to TLC there too, as honest
+      refusals.
+    - Write for TLA+ users, not for dive developers.
 - **Divergences** from TLC are opt-in, named, documented in `docs/divergences.md`,
   and tested in both modes.
 - **Decisions** go in numbered ADRs in `docs/decisions/` (copy `0000-template.md`).
