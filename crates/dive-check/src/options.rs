@@ -18,14 +18,12 @@ pub struct CheckOptions {
     pub fp_index: usize,
     /// Whether to key the fingerprint set on TLC's own state fingerprints in
     /// TLC's variable order (`StateFingerprinter::tlc`), or on dive's cheaper
-    /// two-level fingerprints (`StateFingerprinter::new`).
-    ///
-    /// **Both profiles use TLC's.** The two-level scheme combines per-value
-    /// FP64 fingerprints with FP64 again; both steps are linear over GF(2),
-    /// so distinct states collide systematically, not with the probability
-    /// the collision bound assumes: on Examples `MCWriteThroughCache` 64 of
-    /// 5,196 states collide (swapping `p1` and `p2` in two variables). It
-    /// stays selectable only for work on its replacement (issue #42).
+    /// two-level fingerprints (`StateFingerprinter::new`: cached FP64 value
+    /// fingerprints combined by a non-linear, position-keyed mixer chain,
+    /// ADR 0015 §5). TLC setting: `true`, which `--compat=tlc` uses so that
+    /// the fingerprint set and the "actual" collision figure are TLC's; the
+    /// default profile uses dive's. Result-preserving: only a collision could
+    /// tell them apart.
     pub tlc_fingerprints: bool,
     /// The run's seed (always reported, D-002).
     pub seed: i64,
@@ -61,7 +59,7 @@ impl CheckOptions {
             eval: Options::dive(),
             store: StoreMode::Fingerprint,
             fp_index: 0,
-            tlc_fingerprints: true,
+            tlc_fingerprints: false,
             seed,
             no_deadlock: false,
             workers: 1,

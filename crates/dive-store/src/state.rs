@@ -10,7 +10,9 @@
 //! - [`state_key`] is the canonical exact-store key: within one run, two states have
 //!   equal keys exactly when they are equal.
 //!
-//! [`StateFingerprinter`] computes the two-level FP64 fingerprint of ADR 0015 §5.
+//! [`StateFingerprinter`] computes the state fingerprint of ADR 0015 §5: dive's
+//! two-level fingerprint (FP64 value fingerprints combined by [`combine`]), or
+//! TLC's own.
 
 use dive_value::fp64::{Fingerprinter, TlcFingerprint};
 use dive_value::{Atom, Ctx, Interner, Value, codec};
@@ -113,12 +115,15 @@ impl<'a> StateDecoder<'a> {
 
 /// The state fingerprint (ADR 0015 §5), in one of two schemes.
 ///
-/// - **dive's** ([`StateFingerprinter::new`], the default profile): FP64, under
-///   the run's polynomial, over the FP64 fingerprints of the variables' values in
-///   the IR's variable order. Value fingerprints are cached in shared compound
-///   values ([`TlcFingerprint::fingerprint_cached`]), so a successor pays only
-///   for the variables whose values it changed; combining costs eight table
-///   steps per variable.
+/// - **dive's** ([`StateFingerprinter::new`], the default profile): each
+///   variable's value is fingerprinted with FP64 under the run's polynomial,
+///   and the value fingerprints are combined, in the IR's variable order, by a
+///   non-linear keyed chain ([`combine`]): every value fingerprint is mixed
+///   with its position's key by a 64-bit bijective mixer ([`mix64`]), and the
+///   chain mixes again after each one. Value fingerprints are cached in shared
+///   compound values ([`TlcFingerprint::fingerprint_cached`]), so a successor
+///   pays only for the variables whose values it changed; combining costs two
+///   mixer calls per variable.
 /// - **TLC's** ([`StateFingerprinter::tlc`], `--compat=tlc`):
 ///   `TLCStateMut.fingerPrint` without `VIEW` or symmetry, one FP64 stream over
 ///   the values in TLC's variable order. It equals TLC's fingerprint bit for
@@ -131,6 +136,16 @@ impl<'a> StateDecoder<'a> {
 ///
 /// The scheme decides only which fingerprints are produced. Verdicts and
 /// counts are the same under both, except through a collision.
+///
+/// **Why the combination is not FP64.** FP64 is affine over GF(2), so FP64
+/// over FP64 value fingerprints is affine in every value's bytes: the same
+/// change made to two variables cancels whenever its two positional factors
+/// agree modulo the polynomial, and such states collide with certainty
+/// (issue #42). The mixed chain has no such structure. For two states that
+/// differ in exactly one variable whose value fingerprints differ, the chain
+/// cannot collide at all (each step is a bijection); otherwise a collision
+/// needs the mixer outputs to agree, which for unrelated inputs happens with
+/// probability about `2^-64`, the per-pair figure TLC's estimates assume.
 #[derive(Clone, Debug)]
 pub struct StateFingerprinter {
     values: TlcFingerprint,
@@ -224,13 +239,11 @@ impl StateFingerprinter {
         if self.tlc_scheme {
             return self.tlc_fingerprint(vars, ctx);
         }
-        let f = self.values.fp64();
-        let mut fp = f.empty();
+        let mut chain = Chain::new();
         for v in vars {
-            let vf = self.values.fingerprint_cached(v, ctx)?;
-            fp = f.extend_i64(fp, i64::from_le_bytes(vf.to_le_bytes()));
+            chain.push(self.values.fingerprint_cached(v, ctx)?);
         }
-        Ok(fp)
+        Ok(chain.finish())
     }
 
     /// TLC's own state fingerprint (`TLCStateMut.fingerPrint` without `VIEW` or
@@ -259,4 +272,86 @@ impl StateFingerprinter {
         }
         Ok(fp)
     }
+}
+
+/// The key of variable position `i`: `(i + 1)` times the 64-bit golden ratio,
+/// so every position has a distinct, dense key.
+const fn position_key(i: u64) -> u64 {
+    0x9E37_79B9_7F4A_7C15_u64.wrapping_mul(i.wrapping_add(1))
+}
+
+/// The chain's starting value (the first 64 bits of π's fraction).
+const CHAIN_SEED: u64 = 0x243F_6A88_85A3_08D3;
+
+/// `SplitMix64`'s output function (Steele, Lea and Flood, 2014; the constants of
+/// David Stafford's "Mix13"), as in Sebastiano Vigna's public-domain
+/// `splitmix64.c`: a bijection of `u64` with full avalanche.
+///
+/// ```
+/// use dive_store::state::mix64;
+/// assert_eq!(mix64(0), 0);
+/// assert_eq!(mix64(1), 0x5692_161D_100B_05E5);
+/// // `splitmix64.c`'s first output from seed 0 (state `0x9E3779B97F4A7C15`).
+/// assert_eq!(mix64(0x9E37_79B9_7F4A_7C15), 0xE220_A839_7B1D_CDAF);
+/// ```
+#[must_use]
+#[inline]
+pub const fn mix64(mut z: u64) -> u64 {
+    z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+    z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+    z ^ (z >> 31)
+}
+
+/// The running state of [`combine`].
+#[derive(Clone, Copy, Debug)]
+struct Chain {
+    h: u64,
+    pos: u64,
+}
+
+impl Chain {
+    const fn new() -> Self {
+        Self {
+            h: CHAIN_SEED,
+            pos: 0,
+        }
+    }
+
+    #[inline]
+    fn push(&mut self, value_fp: u64) {
+        let term = mix64(value_fp ^ position_key(self.pos));
+        self.h = mix64(self.h ^ term);
+        self.pos += 1;
+    }
+
+    const fn finish(self) -> u64 {
+        self.h
+    }
+}
+
+/// dive's combination of per-variable value fingerprints into a state
+/// fingerprint (ADR 0015 §5), in variable order:
+///
+/// ```text
+/// h₀ = SEED;  hᵢ₊₁ = mix64(hᵢ ⊕ mix64(fpᵢ ⊕ Kᵢ));  result hₙ
+/// ```
+///
+/// where `Kᵢ` is a distinct key per position and [`mix64`] is `SplitMix64`'s
+/// bijective output function. It is not affine over GF(2) (nor over the
+/// integers modulo `2^64`), so equal changes in two variables do not cancel,
+/// and it is a bijection in each `fpᵢ` when the others are fixed.
+///
+/// ```
+/// use dive_store::state::combine;
+/// // Position-keyed: swapping two variables' values changes the fingerprint.
+/// assert_ne!(combine([1, 2]), combine([2, 1]));
+/// assert_ne!(combine([7]), combine([7, 7]));
+/// ```
+#[must_use]
+pub fn combine(value_fps: impl IntoIterator<Item = u64>) -> u64 {
+    let mut chain = Chain::new();
+    for fp in value_fps {
+        chain.push(fp);
+    }
+    chain.finish()
 }
