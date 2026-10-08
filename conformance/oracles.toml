@@ -1,0 +1,59 @@
+# Pinned conformance oracles. See docs/decisions/0002-oracle-pinning.md.
+#
+# Every artifact is verified by SHA-256 before use; a mismatch is a hard error.
+# `default = true` marks the oracle goldens are generated from unless
+# `--oracle` says otherwise. Changing a pin requires regenerating goldens with
+# a recorded reason.
+
+[[tlc]]
+id = "tlc-2026.10.06.014338"
+default = true
+description = "TLC 1.8.0 rolling build at upstream commit 94d0c50 (CalVer tag 2026.10.06.014338), re-hosted"
+upstream_commit = "94d0c5070852b37b801bb8998c436383ab7ee37b"
+# Private release asset on this repo; fetch needs a GitHub token (GH_TOKEN,
+# GITHUB_TOKEN, or `gh auth token`).
+url = "https://github.com/Chelis-Lang/dive/releases/download/oracle-tlc-2026.10.06.014338/tla2tools.jar"
+sha256 = "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+
+[[tlc]]
+id = "tlc-1.7.4"
+default = false
+description = "TLC 1.7.4 (Xenophanes), latest upstream stable release, 2024-08-05"
+upstream_commit = "v1.7.4"
+url = "https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar"
+# Upstream publishes no digest for this release; recorded by dive on 2026-10-08.
+sha256 = "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+
+# Extra classpath entries used alongside every TLC oracle. Examples specs use
+# CommunityModules operators with Java overrides; upstream Examples CI puts
+# these jars on the classpath too.
+[[classpath]]
+id = "community-modules-202610040242"
+url = "https://github.com/tlaplus/CommunityModules/releases/download/202610040242/CommunityModules-202610040242.jar"
+sha256 = "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+
+[[classpath]]
+id = "community-modules-deps-202610040242"
+url = "https://github.com/tlaplus/CommunityModules/releases/download/202610040242/CommunityModules-deps-202610040242.jar"
+sha256 = "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+
+# Java runtime: Eclipse Temurin JRE 17.0.20.1+1. TLC requires Java 11+; the
+# 1.8.0 jar was built with Temurin 17. No system Java is needed.
+[jre]
+version = "17.0.20.1+1"
+
+[jre.platforms.linux-x86_64]
+url = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_x64_linux_hotspot_17.0.20.1_1.tar.gz"
+sha256 = "0b2b640e3046b64c8ec504de0ab9d91bb5610182bda21fad454681ce54d45a62"
+
+[jre.platforms.linux-aarch64]
+url = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.20.1_1.tar.gz"
+sha256 = "b8efcd5acc9109fe8d35bed132499643048a257b4f6042906ece37d03c839d77"
+
+[jre.platforms.macos-aarch64]
+url = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_aarch64_mac_hotspot_17.0.20.1_1.tar.gz"
+sha256 = "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05"
+
+[jre.platforms.macos-x86_64]
+url = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_x64_mac_hotspot_17.0.20.1_1.tar.gz"
+sha256 = "333cb81123c36568586646c73c8fa2326dab8badc43f5ea388a90fff59c9df27"
