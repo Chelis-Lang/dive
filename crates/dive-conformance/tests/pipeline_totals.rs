@@ -261,6 +261,7 @@ fn write_success_golden(repo: &Path, config: &Config) -> TestResult {
             },
             corpus_commit: corpus.commit.clone(),
             command: vec![],
+            trace_command: None,
             timeout_seconds: 1,
             reason: None,
             generator: "test".to_owned(),

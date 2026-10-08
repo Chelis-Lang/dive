@@ -3,9 +3,11 @@
 //! Port of the integer semantics of `tlc2.module.Naturals` and `tlc2.module.Integers`
 //! (tlaplus `94d0c50`): which operations overflow, the overflow messages, floored
 //! `\div`, non-negative `%`, and the rejection of literals above `2^31 - 1`
-//! (`tlc2.tool.impl.SpecProcessor`, `NumeralKind`). TLC uses `Integers.Divide` even
-//! for specs that extend only `Naturals` (verified against the oracle, fixture
-//! `NatDiv` in the survey notes).
+//! (`tlc2.tool.impl.SpecProcessor`, `NumeralKind`). [`Int::div`] is
+//! `Integers.Divide`; [`Int::div_naturals`] is `Naturals.Divide`, which TLC uses for
+//! a specification that loads `Naturals` but not `Integers` (fixture `RvNatDiv`).
+//! An earlier note here said TLC always uses `Integers.Divide`: that was measured
+//! with `-dumpTrace json`, which itself loads `Integers` (issue #35).
 
 use std::cmp::Ordering;
 use std::fmt;
@@ -255,6 +257,45 @@ impl Int {
                 }
                 _ => Self::from_big(self.to_big().div_floor(&other.to_big())),
             }),
+        }
+    }
+
+    /// `a \div b` as `Naturals.Divide` computes it, for specifications that load
+    /// `Naturals` but not `Integers`.
+    ///
+    /// In TLC mode this ports `tlc2.module.Naturals.Divide` (tlaplus `94d0c50`):
+    /// Java's truncating `int` division, decremented when the quotient is
+    /// *negative* and inexact. A quotient that truncates to `0` is therefore
+    /// never decremented, so `-1 \div 2` and `1 \div -2` are `0`, not the floored
+    /// `-1`; and `-2147483648 \div -1` wraps to `-2147483648` instead of
+    /// overflowing. In big mode it is floored division, like [`Int::div`].
+    ///
+    /// ```
+    /// use dive_value::{Int, IntMode};
+    /// let q = |a: i64, b: i64| Int::from(a).div_naturals(&Int::from(b), IntMode::Tlc);
+    /// assert_eq!(q(-1, 2)?, Int::from(0_i64));
+    /// assert_eq!(q(-7, 2)?, Int::from(-4_i64));
+    /// assert_eq!(q(-2_147_483_648, -1)?, Int::from(-2_147_483_648_i64));
+    /// assert_eq!(Int::from(-1_i64).div(&Int::from(2_i64), IntMode::Tlc)?, Int::from(-1_i64));
+    /// # Ok::<(), dive_value::ValueError>(())
+    /// ```
+    ///
+    /// # Errors
+    /// [`ErrorKind::DivisionByZero`] when `b = 0`.
+    pub fn div_naturals(&self, other: &Self, mode: IntMode) -> Result<Self> {
+        match mode {
+            IntMode::Tlc => {
+                if other.is_zero() {
+                    return self.div(other, mode);
+                }
+                let (a, b) = (self.tlc_operand()?, other.tlc_operand()?);
+                let mut q = a.wrapping_div(b);
+                if q < 0 && q.wrapping_mul(b) != a {
+                    q -= 1;
+                }
+                Ok(Self::Small(i64::from(q)))
+            }
+            IntMode::Big => self.div(other, mode),
         }
     }
 

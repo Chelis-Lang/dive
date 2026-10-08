@@ -12,8 +12,9 @@
 //!    context, including the ones `M` extends. Modules are processed in
 //!    dependency order and a later match overwrites an earlier one, so in a
 //!    specification that loads `Integers`, `Integers`' methods replace
-//!    `Naturals`' for the operators they share. (They differ: only
-//!    `Integers.Divide` checks for `-2147483648 \div -1`.)
+//!    `Naturals`' for the operators they share. (`Divide` differs: only
+//!    `Integers.Divide` checks for `-2147483648 \div -1`, and only it rounds
+//!    a negative quotient that truncates to 0 down to -1.)
 //! 2. **Annotated methods** ([`Phase::Annotated`]: `@TLAPlusOperator`,
 //!    `@Evaluation`, `@TLAPlusCallable`) of the classes listed by
 //!    `tlc2.module.TLCBuiltInOverrides`, then by the `CommunityModules`'

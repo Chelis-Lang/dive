@@ -105,15 +105,12 @@
       "-seed",
       "0",
       "-metadir",
-      "$TMP/states",
-      "-dumpTrace",
-      "json",
-      "$TMP/trace.json"
+      "$TMP/states"
     ],
     "timeout_seconds": 420,
-    "reason": "Review fixes: always pin -seed 0; isolated run dirs (M1 review)",
+    "reason": "Issue #35: goldens from unperturbed TLC (no -dumpTrace side effects)",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-08T13:23:02Z",
-    "elapsed_ms": 124561
+    "generated_at": "2026-10-08T19:52:28Z",
+    "elapsed_ms": 56452
   }
 }

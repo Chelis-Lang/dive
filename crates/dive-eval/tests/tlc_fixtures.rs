@@ -32,17 +32,15 @@ const REFUSED: &[(&str, &str)] = &[("PrintFp", "TLCExt!TLCFP")];
 /// Known disagreements, each with its cause. They are reported, never counted
 /// as agreeing.
 ///
-/// The harness runs TLC with `-dumpTrace json`, which makes TLC load
-/// `_JsonTrace` and with it `Integers`; `Integers`' Java overrides then
-/// replace `Naturals`' even in a specification that extends only `Naturals`.
-/// The two differ in `>=`'s message and in `-2147483648 \div -1`. Which
-/// overrides apply is decided by the binding stage from the loaded modules
-/// (WP-A1/B1), not by the evaluator.
-const KNOWN: &[(&str, &str)] = &[
-    ("ErGeqNaturals", "-dumpTrace json loads Integers"),
-    ("ErPlusNonIntNaturals", "-dumpTrace json loads Integers"),
-    ("RvNatDiv", "-dumpTrace json loads Integers"),
-];
+/// There are none. The three there were (`ErGeqNaturals`,
+/// `ErPlusNonIntNaturals`, `RvNatDiv`) came from the old, perturbed capture
+/// setup: `dev capture` passed `-dumpTrace json`, which makes TLC load
+/// `_JsonTrace` and with it `Integers`, whose Java overrides then replaced
+/// `Naturals`' in specifications that extend only `Naturals` (issue #35).
+/// Recaptured without it, the first two agree with dive as they were, and
+/// `RvNatDiv` agrees once `\div` follows `Naturals.Divide`
+/// (`Int::div_naturals`), which the old transcript had hidden.
+const KNOWN: &[(&str, &str)] = &[];
 
 fn fixtures() -> PathBuf {
     std::env::var_os("DIVE_EVAL_FIXTURES").map_or_else(

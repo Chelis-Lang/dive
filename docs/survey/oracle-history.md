@@ -88,7 +88,7 @@ Data gathered 2026-10-08 from a blob-filtered clone of `tlaplus/tlaplus`.
 | **Y** | Can change a verdict, count or code on ordinary specs. |
 | **E** | Edge construct only. Needs a minimal conformance spec. |
 | **O** | Message text or format only. |
-| **–** | No effect under our golden flags (`-tool -workers 1 -fp 0 -lncheck final -noGenerateSpecTE -dumpTrace json`, no distributed mode). |
+| **–** | No effect under our golden flags (`-tool -workers 1 -fp 0 -seed 0 -lncheck final -cleanup`, no distributed mode; `-dumpTrace json` only in the separate trace pass, see §7). |
 
 **In 1.7.4?** "no" unless noted.
 
@@ -230,3 +230,12 @@ Data gathered 2026-10-08 from a blob-filtered clone of `tlaplus/tlaplus`.
 | ADR 0002 addendum, bullet 2; `oracles.md` finding 3 and `:269-270` | "`94d0c50` … rolling builds change semantics, e.g. master counts `Len`, `Tail`, `SubSeq` in UTF-16 units." | `94d0c50` changes only a test file and adds `@Ignore`d tests. UTF-16 counting is long-standing and identical in 1.7.4. The general point ("rolling builds change semantics") is true. Cite `35d40c91a`, `4260e4712`, `d17f1d35e` or `bdf9e1415` instead. |
 | `oracles.md:68-72` | "60 such tags" | Correct. The "about 120" in the task brief is not; there are 60 tags over 53 commits. |
 | ADR 0002 Consequences | "Keeping v1.7.4 lets us detect oracle drift between releases." | 1.7.4 is not on the 1.8.x line: it is a 2020 fork with selected backports. Disagreements with it mix drift and known 1.7.4 bugs (★ rows with "no"). It cannot measure drift *within* 1.8.x. |
+
+## 7. Effects of the harness's own invocation
+
+Not upstream changes, but oracle facts that depend on how dive runs the pin.
+
+| Found | Flag | Effect | Goldens |
+|---|---|---|---|
+| 2026-10-08 (issue #35) | `-dumpTrace json` | `ParameterizedSpecObj` makes the root module extend `_JsonTrace`, which loads `TLC`, `TLCExt`, `Json`, `Sequences`, `FiniteSets`, `Naturals` and, through `TLCExt`, `Integers`. Their Java overrides are installed, so `Integers`' replace `Naturals`' in a spec that extends only `Naturals`: `"a" >= 1` reports `>=` instead of `>`, `-2147483648 \div -1` overflows instead of wrapping, and `(0 - 1) \div 2` is `-1` instead of `0` (fixtures `ErGeqNaturals`, `ErPlusNonIntNaturals`, `RvNatDiv`). The extra modules are also lexed first, which moves names in TLC's intern order and so its string order: probe `StringOrderPreinterned` reports `InvA` with the flag and `InvB` without it. | Since #35 the deciding run omits the flag, and only a cross-checked trace pass uses it for the JSON document (ADR 0003 amendment; flag audit in the harness README). Regenerating all 141 Examples goldens without it changed no payload. Recapturing all 292 `dev capture` transcripts without it changed only the four above (and `Oom`, captured at a different `-Xmx`). |
+

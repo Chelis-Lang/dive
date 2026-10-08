@@ -5,6 +5,18 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+### Fixed
+- Conformance harness (issue #35): goldens and `dev capture` no longer record TLC as
+  perturbed by `-dumpTrace json`, which loads `Integers` and its Java overrides into
+  every spec. The deciding run omits it; a counterexample's JSON document comes from a
+  separate trace pass that must reproduce the clean counterexample exactly. Provenance
+  gains `trace_command`. The flag audit is in the harness README. All 141 Examples TLC
+  goldens were regenerated with byte-identical payloads.
+- `dive-eval` and `dive-value`: under TLC's 32-bit integers, `\div` in a spec that loads
+  `Naturals` but not `Integers` follows `Naturals.Divide` (`Int::div_naturals`):
+  `(0 - 1) \div 2` is `0`. The recaptured fixtures `ErGeqNaturals`,
+  `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
+
 ### Added
 - `dive-eval` (M5, WP-C1): the interpreter over the IR (ADR 0014 and its amendment):
   - every expression form with TLC's evaluation order, laziness (thunks under

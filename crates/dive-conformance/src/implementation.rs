@@ -19,7 +19,7 @@ pub use crate::dive::DiveImplementation;
 
 use crate::corpus::{ModelEntry, ModelMode};
 use crate::error::{Error, Result};
-use crate::oracle::{CheckMode, OracleEnv, TlcJob};
+use crate::oracle::{CheckMode, Invocation, OracleEnv, TlcJob};
 use crate::sany::{self, ParseVerdict, SanyResult};
 use crate::tlc::messages;
 use crate::tlc::result::{OracleResult, RunFacts, Verdict, classify};
@@ -238,14 +238,42 @@ pub fn run_oracle_model(
     env: &OracleEnv,
     req: &ModelRequest<'_>,
 ) -> Result<ImplResult<OracleResult>> {
+    Ok(run_oracle_model_traced(env, req)?.result)
+}
+
+/// One model run on an oracle: the result, and the command line of the
+/// trace pass if one ran (recorded in golden provenance).
+#[derive(Debug, Clone)]
+pub struct OracleModelRun {
+    /// The classified result. Its `command` and `elapsed` are the clean
+    /// run's.
+    pub result: ImplResult<OracleResult>,
+    /// The `-dumpTrace json` trace pass's command line, if it ran.
+    pub trace_command: Option<Vec<String>>,
+}
+
+/// [`run_oracle_model`], also returning the trace pass's command line.
+///
+/// The model is run *without* `-dumpTrace`, and that run alone decides the
+/// verdict, counts, errors and the counterexample's states (issue #35).
+/// Only when it ends with a counterexample is the model run again with
+/// `-dumpTrace json`, for the JSON document; see
+/// [`classify_with_trace_pass`].
+///
+/// # Errors
+/// Only for harness failures.
+pub fn run_oracle_model_traced(env: &OracleEnv, req: &ModelRequest<'_>) -> Result<OracleModelRun> {
     let mode = match req.model.mode {
         ModelMode::Exhaustive => CheckMode::Exhaustive,
         ModelMode::Simulate { traces } => CheckMode::Simulate { traces },
         ModelMode::Generate | ModelMode::Symbolic => {
-            return Ok(ImplResult::Unsupported(format!(
-                "{:?} models are out of scope",
-                req.model.mode
-            )));
+            return Ok(OracleModelRun {
+                result: ImplResult::Unsupported(format!(
+                    "{:?} models are out of scope",
+                    req.model.mode
+                )),
+                trace_command: None,
+            });
         }
     };
     let job = TlcJob {
@@ -258,24 +286,177 @@ pub fn run_oracle_model(
         timeout: req.timeout,
         xmx: req.xmx,
         seed: 0,
+        dump_trace: false,
     };
     let inv = env.run_tlc(&job)?;
-    let transcript = messages::parse(&inv.outcome.stdout);
-    let result = classify(
-        &transcript,
-        &RunFacts {
-            exit_code: inv.outcome.exit_code,
-            timed_out: inv.outcome.timed_out,
-            trace_json: inv.trace_json.as_deref(),
-            simulate: matches!(mode, CheckMode::Simulate { .. }),
-            stderr: Some(&inv.outcome.stderr),
+    let (result, trace) = classify_with_trace_pass(env, &job, &inv)?;
+    Ok(OracleModelRun {
+        result: ImplResult::Completed {
+            result,
+            command: inv.command,
+            elapsed: inv.outcome.elapsed,
         },
-    );
-    Ok(ImplResult::Completed {
-        result,
-        command: inv.command,
-        elapsed: inv.outcome.elapsed,
+        trace_command: trace.map(|t| t.command),
     })
+}
+
+fn run_facts<'a>(
+    inv: &'a Invocation,
+    mode: CheckMode,
+    trace_json: Option<&'a str>,
+) -> RunFacts<'a> {
+    RunFacts {
+        exit_code: inv.outcome.exit_code,
+        timed_out: inv.outcome.timed_out,
+        trace_json,
+        simulate: matches!(mode, CheckMode::Simulate { .. }),
+        stderr: Some(&inv.outcome.stderr),
+    }
+}
+
+/// Classifies a clean run (`clean`, made from `job` without `-dumpTrace`)
+/// and, when it ends with a counterexample, attaches TLC's `-dumpTrace json`
+/// document from a second, *trace* run. Returns the result and the trace
+/// run, if one was made.
+///
+/// Why two runs (issue #35, ADR 0003 amendment): `-dumpTrace json` makes TLC
+/// extend the root module with `_JsonTrace`, which loads `TLCExt`, `Json`
+/// and `Integers`, so `Integers`' Java overrides replace `Naturals`' and the
+/// run no longer shows TLC as users run it. Everything in the result
+/// therefore comes from the clean run. The trace run contributes only the
+/// JSON document, and only when its own message stream reproduces the clean
+/// run's counterexample exactly: the same verdict, deciding code and
+/// violated property, and the same trace (length, ending, and every state's
+/// label and printed value, byte for byte). On any mismatch the clean result
+/// stands as it is and only the document is marked unavailable, with the
+/// difference ([`merge_trace_pass`]); JSON is never taken from a run that
+/// disagrees. The JSON's length is otherwise checked against the clean
+/// stream by [`classify`] as before.
+///
+/// The trace run is made only for a single-worker run of an oracle with
+/// `-dumpTrace` whose clean result is an oracle fact with a counterexample.
+/// When TLC writes no JSON for it (assertion, evaluation and overflow
+/// errors), the clean run's states from the message stream are kept.
+///
+/// # Errors
+/// Only for harness failures of the trace run.
+pub fn classify_with_trace_pass(
+    env: &OracleEnv,
+    job: &TlcJob<'_>,
+    clean: &Invocation,
+) -> Result<(OracleResult, Option<Invocation>)> {
+    let transcript = messages::parse(&clean.outcome.stdout);
+    let result = classify(&transcript, &run_facts(clean, job.mode, None));
+    let wants_trace = env.capabilities.dump_trace_json
+        && job.workers == 1
+        && result.trace.is_some()
+        && result.verdict.is_oracle_fact();
+    if !wants_trace {
+        return Ok((result, None));
+    }
+    let traced = env.run_tlc(&TlcJob {
+        dump_trace: true,
+        ..job.clone()
+    })?;
+    let Some(json) = traced.trace_json.as_deref() else {
+        return Ok((result, Some(traced)));
+    };
+    let traced_result = classify(
+        &messages::parse(&traced.outcome.stdout),
+        &run_facts(&traced, job.mode, None),
+    );
+    let merged = merge_trace_pass(
+        &transcript,
+        &run_facts(clean, job.mode, None),
+        result,
+        &traced_result,
+        json,
+    );
+    Ok((merged, Some(traced)))
+}
+
+/// Combines a clean run's result with a trace pass's JSON document.
+///
+/// `clean` is the clean run classified without JSON, and `traced` the trace
+/// pass's result, also classified without JSON. When the trace pass
+/// reproduces the clean counterexample ([`trace_pass_mismatch`] finds
+/// nothing), the clean run is reclassified with `json`, which also checks
+/// the document's state count against the clean stream. Otherwise the clean
+/// result is kept whole (verdict, counts, error, violated property, and the
+/// printed states that give the trace length), and only the document is
+/// marked unavailable in `Trace::json_unavailable`, with the reason. JSON is
+/// never taken from, or rebuilt for, a run that diverged.
+#[must_use]
+pub fn merge_trace_pass(
+    clean_transcript: &messages::Transcript,
+    clean_facts: &RunFacts<'_>,
+    clean: OracleResult,
+    traced: &OracleResult,
+    json: &str,
+) -> OracleResult {
+    if let Some(why) = trace_pass_mismatch(&clean, traced) {
+        let mut clean = clean;
+        if let Some(trace) = clean.trace.as_mut() {
+            trace.json_unavailable = Some(format!(
+                "-dumpTrace json trace pass diverged from the clean run: {why}"
+            ));
+        }
+        return clean;
+    }
+    classify(
+        clean_transcript,
+        &RunFacts {
+            trace_json: Some(json),
+            ..clean_facts.clone()
+        },
+    )
+}
+
+/// Why a trace run's result cannot vouch for the clean run's
+/// counterexample, if it cannot. Both results must be classified without
+/// JSON, so that their traces carry the printed states.
+#[must_use]
+pub fn trace_pass_mismatch(clean: &OracleResult, traced: &OracleResult) -> Option<String> {
+    if clean.verdict != traced.verdict {
+        return Some(format!(
+            "verdict {} vs {}",
+            clean.verdict.as_str(),
+            traced.verdict.as_str()
+        ));
+    }
+    if clean.verdict_code != traced.verdict_code {
+        return Some(format!(
+            "deciding code {:?} vs {:?}",
+            clean.verdict_code, traced.verdict_code
+        ));
+    }
+    if clean.violated_property != traced.violated_property {
+        return Some(format!(
+            "violated property {:?} vs {:?}",
+            clean.violated_property, traced.violated_property
+        ));
+    }
+    match (&clean.trace, &traced.trace) {
+        (Some(a), Some(b)) if a.length != b.length => {
+            Some(format!("trace length {} vs {}", a.length, b.length))
+        }
+        (Some(a), Some(b)) if a.ending != b.ending => {
+            Some(format!("trace ending {:?} vs {:?}", a.ending, b.ending))
+        }
+        (Some(a), Some(b)) if a != b => Some(
+            a.steps
+                .iter()
+                .flatten()
+                .zip(b.steps.iter().flatten())
+                .position(|(x, y)| x != y)
+                .map_or_else(
+                    || "trace content differs".to_owned(),
+                    |i| format!("trace state {} differs", i + 1),
+                ),
+        ),
+        (Some(_), Some(_)) | (None, None) => None,
+        (a, b) => Some(format!("trace present {} vs {}", a.is_some(), b.is_some())),
+    }
 }
 
 /// Runs SANY on one module of an oracle.
@@ -459,5 +640,96 @@ mod tests {
         )?;
         assert!(ExternalAdapter::load(&p).is_err());
         Ok(())
+    }
+
+    fn violation(states: &[&str]) -> OracleResult {
+        classify(
+            &messages::parse(&violation_stream(states)),
+            &RunFacts {
+                exit_code: Some(12),
+                ..RunFacts::default()
+            },
+        )
+    }
+
+    #[test]
+    fn divergent_trace_pass_keeps_the_clean_result_without_json() -> std::result::Result<(), String>
+    {
+        let stream = violation_stream(&["x = 0", "x = 1"]);
+        let transcript = messages::parse(&stream);
+        let facts = RunFacts {
+            exit_code: Some(12),
+            ..RunFacts::default()
+        };
+        let clean = classify(&transcript, &facts);
+        let json = r#"{"counterexample":{"state":[[1,{"x":0}],[2,{"x":2}]]}}"#;
+
+        // Agreeing trace pass: its document is attached.
+        let merged = merge_trace_pass(&transcript, &facts, clean.clone(), &clean, json);
+        let t = merged.trace.as_ref().ok_or("no trace")?;
+        assert!(t.json.is_some() && t.steps.is_none() && t.json_unavailable.is_none());
+        assert_eq!(merged.verdict, Verdict::SafetyViolation);
+
+        // Diverging trace pass: the clean result stands, the document does not.
+        let traced = violation(&["x = 0", "x = 2"]);
+        let merged = merge_trace_pass(&transcript, &facts, clean.clone(), &traced, json);
+        assert_eq!(merged.verdict, clean.verdict);
+        assert_eq!(merged.verdict_code, clean.verdict_code);
+        assert_eq!(merged.violated_property, clean.violated_property);
+        assert_eq!(merged.counts, clean.counts);
+        assert_eq!(merged.note, clean.note);
+        let t = merged.trace.ok_or("no trace")?;
+        assert_eq!(t.length, 2);
+        assert!(t.json.is_none(), "no JSON from a diverging run");
+        assert_eq!(t.steps, clean.trace.and_then(|c| c.steps));
+        assert_eq!(
+            t.json_unavailable.as_deref(),
+            Some("-dumpTrace json trace pass diverged from the clean run: trace state 2 differs")
+        );
+        Ok(())
+    }
+
+    fn violation_stream(states: &[&str]) -> String {
+        use std::fmt::Write as _;
+        let mut out =
+            "@!@!@STARTMSG 2110:1 @!@!@\nInvariant Inv is violated.\n@!@!@ENDMSG 2110 @!@!@\n"
+                .to_owned();
+        for (i, s) in states.iter().enumerate() {
+            let label = if i == 0 {
+                "<Initial predicate>"
+            } else {
+                "<Next>"
+            };
+            let _ = write!(
+                out,
+                "@!@!@STARTMSG 2217:4 @!@!@\n{}: {label}\n{s}\n@!@!@ENDMSG 2217 @!@!@\n",
+                i + 1
+            );
+        }
+        out
+    }
+
+    #[test]
+    fn trace_pass_must_reproduce_the_clean_counterexample() {
+        let clean = violation(&["x = 0", "x = 1"]);
+        assert_eq!(
+            trace_pass_mismatch(&clean, &violation(&["x = 0", "x = 1"])),
+            None
+        );
+        assert_eq!(
+            trace_pass_mismatch(&clean, &violation(&["x = 0"])).as_deref(),
+            Some("trace length 2 vs 1")
+        );
+        assert_eq!(
+            trace_pass_mismatch(&clean, &violation(&["x = 0", "x = 2"])).as_deref(),
+            Some("trace state 2 differs")
+        );
+        let mut other = violation(&["x = 0", "x = 1"]);
+        other.violated_property = Some("Other".to_owned());
+        assert!(
+            trace_pass_mismatch(&clean, &other).is_some_and(|w| w.starts_with("violated property"))
+        );
+        other.verdict = Verdict::Deadlock;
+        assert!(trace_pass_mismatch(&clean, &other).is_some_and(|w| w.starts_with("verdict")));
     }
 }
