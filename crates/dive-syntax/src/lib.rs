@@ -42,6 +42,7 @@ mod kind;
 mod lexer;
 pub mod ops;
 mod parser;
+pub mod tokens;
 mod tree;
 
 pub use diagnostics::{Code, Diagnostic, Severity};

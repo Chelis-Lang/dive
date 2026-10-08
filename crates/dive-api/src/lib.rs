@@ -1,9 +1,10 @@
 //! `dive-api`: the embeddable library API and `cargo test` integration.
 //!
 //! Implemented so far: parsing ([`parse_source`], [`parse_file`]) with a
-//! versioned JSON report ([`ParseReport::to_json`]). Everything else in the
-//! charter is still to come. Permitted internal dependencies are listed in
-//! `xtask/src/layering.rs`.
+//! versioned JSON report ([`ParseReport::to_json`]), and reading TLC model
+//! configurations ([`parse_config_file`], [`ConfigReport`]). Everything else
+//! in the charter is still to come. Permitted internal dependencies are
+//! listed in `xtask/src/layering.rs`.
 //!
 //! # Example
 //!
@@ -16,6 +17,9 @@
 //! ```
 #![forbid(unsafe_code)]
 
+mod config;
+
+pub use config::{ConfigReport, parse_config_file, parse_config_source};
 use dive_syntax::ast::Unit;
 use dive_syntax::diagnostics::line_col;
 use dive_syntax::{Diagnostic, Parse, Severity, SyntaxElement, SyntaxNode};
@@ -46,12 +50,19 @@ pub enum ApiError {
         /// The underlying error.
         error: std::io::Error,
     },
+    /// The request needs a feature dive does not implement yet. No result
+    /// is produced (soundness contract rule 3).
+    Unsupported {
+        /// The feature, named for the user.
+        feature: String,
+    },
 }
 
 impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Io { path, error } => write!(f, "cannot read {path}: {error}"),
+            Self::Unsupported { feature } => write!(f, "unsupported: {feature}"),
         }
     }
 }
