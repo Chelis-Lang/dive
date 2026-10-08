@@ -83,7 +83,7 @@ Never bypass the hook with `--no-verify`.
 
 **Current mode: PR mode.** This mode has applied since 2026-10-08, once parallel agent work began.
 
-`main` is protected. Every change lands through a squash-merged PR, and the PR must pass two required checks: `No AI authorship markers` and `Workspace gate`. Admins are not exempt.
+`main` is protected. Every change lands through a squash-merged PR, and the PR must pass three required checks: `No AI authorship markers`, `Workspace gate` and `Conformance gate`. The conformance gate runs `dive check --compat=tlc` against the TLC goldens for the models in `conformance/gates/cm1.txt`, at 1 and 4 workers. Admins are not exempt.
 
 **Keep `main` green.**
 - Run the full local gate (see Gates) before you push.
@@ -158,8 +158,9 @@ cargo deny --locked check
 **Testing tiers** (charter §Engineering practice):
 - *Fast:* the gate above. It runs on every push and PR.
 - *Standard:* `.github/workflows/conformance.yml` runs nightly and on manual
-  dispatch, over the small-model corpus. It becomes a PR gate on a small subset
-  once `dive` produces verdicts.
+  dispatch, over the small-model corpus. Its PR-gating subset is
+  `conformance/gates/cm1.txt`, run by the required `Conformance gate` job
+  (`scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4`).
 - *Deep:* the same workflow with `tier=deep`, run on manual dispatch and before
   releases.
 - *Not in CI:* benchmarks, profiling and long fuzzing. Run them by hand with
