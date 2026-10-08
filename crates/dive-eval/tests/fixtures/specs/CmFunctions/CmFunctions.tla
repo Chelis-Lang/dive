@@ -1,0 +1,22 @@
+---- MODULE CmFunctions ----
+EXTENDS Integers, Sequences, FiniteSets, TLC, Functions, FiniteSetsExt
+ASSUME PrintT(IsInjective(<<1, 2, 3>>))
+ASSUME PrintT(IsInjective(<<1, 2, 1>>))
+ASSUME PrintT(IsInjective([a |-> 1, b |-> 2]))
+ASSUME PrintT(IsInjective([a |-> 1, b |-> 1]))
+ASSUME PrintT(IsInjective([x \in {1, 2, 3} |-> x * 2]))
+ASSUME PrintT(IsInjective(<<>>))
+ASSUME PrintT(IsInjective("a" :> 1 @@ "b" :> 1))
+ASSUME PrintT(AntiFunction([a |-> 1, b |-> 0, c |-> 1]))
+ASSUME PrintT(AntiFunction(<<"x", "y">>))
+ASSUME PrintT(AntiFunction(<<>>))
+ASSUME PrintT(FoldFunction(LAMBDA x, y: x + y, 0, [x \in 1..4 |-> x * x]))
+ASSUME PrintT(FoldFunction(LAMBDA x, acc: acc \o <<x>>, <<>>, [a |-> 1, b |-> 2]))
+ASSUME PrintT(FoldFunctionOnSet(LAMBDA x, y: x + y, 0, <<10, 20, 30>>, {1, 3}))
+ASSUME PrintT(FoldFunctionOnSet(LAMBDA x, acc: acc \o <<x>>, <<>>, <<10, 20, 30>>, {3, 1}))
+ASSUME PrintT(FoldSet(LAMBDA x, y: x + y, 0, 1..10))
+ASSUME PrintT(FoldSet(LAMBDA x, acc: Append(acc, x), <<>>, {3, 1, 2}))
+ASSUME PrintT(FoldSet(LAMBDA x, y: x + y, 0, {}))
+ASSUME PrintT(Quantify(1..10, LAMBDA x: x % 3 = 0))
+ASSUME PrintT(Quantify({}, LAMBDA x: TRUE))
+====

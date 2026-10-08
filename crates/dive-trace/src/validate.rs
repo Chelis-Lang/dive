@@ -7,8 +7,10 @@
 //! not even compiled into this crate (ADR 0016 §2).
 
 use std::collections::BTreeSet;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicI64, Ordering};
 
-use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, St};
+use dive_eval::{AssumptionOutcome, ErrorClass, EvalError, Host, St, StateRef};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -157,14 +159,25 @@ enum Goal {
 /// TLC reader uses it to compare interpretations of a lossy document.
 pub(crate) struct Run<'a> {
     model: &'a Model,
+    host: Arc<TraceHost>,
+    /// The host installed before the run, restored after it.
+    inner: Option<Arc<dyn Host>>,
     pub(crate) passed: u64,
     pub(crate) notes: BTreeSet<String>,
 }
 
 impl<'a> Run<'a> {
     pub(crate) fn new(model: &'a Model) -> Self {
+        let inner = model.evaluator.host();
+        let host = Arc::new(TraceHost {
+            level: AtomicI64::new(0),
+            inner: inner.clone(),
+        });
+        model.evaluator.set_host(host.clone());
         Self {
             model,
+            host,
+            inner,
             passed: 0,
             notes: BTreeSet::new(),
         }
@@ -497,6 +510,16 @@ impl<'a> Run<'a> {
 
     fn holds(&self, pred: &Pred, st: &St, k: usize, check: Check) -> Result<bool, Stop> {
         let m = self.model;
+        // TLC's level of `s0`: state k (numbered from 0) is at level k + 1;
+        // a step into state k is evaluated with the state before it as s0.
+        let level = if matches!(st.s1, StateRef::Vals(_)) {
+            k
+        } else {
+            k + 1
+        };
+        self.host
+            .level
+            .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
         match m.eval(pred, st) {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(v) => Err(invalid(
@@ -536,6 +559,35 @@ fn refused(e: &EvalError) -> Stop {
     })
 }
 
+impl Drop for Run<'_> {
+    fn drop(&mut self) {
+        let _ = self.model.evaluator.replace_host(self.inner.take());
+    }
+}
+
+/// What the validator provides of a checking run: the level of the state
+/// being checked (`TLCGet("level")`), and `TLCGet("config")` from the host
+/// the model was bound with, if any. Registers are the evaluator's own and
+/// follow the trace's history: a register a specification writes while
+/// checking depends on the order of TLC's search, so the validator sees the
+/// values the trace's own steps wrote. Randomness and the live counters
+/// depend on the search, not on the trace, so they are refused by name.
+#[derive(Debug)]
+struct TraceHost {
+    level: AtomicI64,
+    inner: Option<Arc<dyn Host>>,
+}
+
+impl Host for TraceHost {
+    fn level(&self) -> Option<i64> {
+        Some(self.level.load(Ordering::Relaxed))
+    }
+
+    fn config(&self) -> Option<dive_eval::RunConfig> {
+        self.inner.as_ref().and_then(|h| h.config())
+    }
+}
+
 /// Validates a trace already read against `model`.
 #[must_use]
 pub fn validate(model: &Model, trace: &Trace) -> Report {
@@ -543,7 +595,7 @@ pub fn validate(model: &Model, trace: &Trace) -> Report {
     let validation = run.validate(trace);
     Report {
         validation,
-        notes: run.notes.into_iter().collect(),
+        notes: std::mem::take(&mut run.notes).into_iter().collect(),
         length: trace.states.len(),
     }
 }

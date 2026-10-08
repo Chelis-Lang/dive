@@ -29,7 +29,7 @@ use crate::env::{Env, Ev, OpVal, St};
 use crate::error::{Ec, EvalError, Result};
 
 /// An evaluated argument of a value override.
-enum StdArg {
+pub(crate) enum StdArg {
     V(Value),
     Op(OpVal),
 }
@@ -66,14 +66,16 @@ impl Core {
                     .map(Ev::V)
                     .map_err(|err| self.wrap_override(op, err))
             }
-            StdKind::Evaluating => self.call_evaluating_op(env, st, op, args, e),
+            StdKind::Evaluating => self
+                .call_evaluating_op(env, st, op, args, e)
+                .map_err(|err| self.wrap_evaluating(op, err)),
             StdKind::Callable => Err(refuse(op)),
         }
     }
 
     /// `MethodValue.eval`: an error that is not an `EvalException` becomes
     /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`.
-    fn wrap_override(&self, op: StdOp, err: EvalError) -> EvalError {
+    pub(crate) fn wrap_override(&self, op: StdOp, err: EvalError) -> EvalError {
         if err.passes_override() {
             return err;
         }
@@ -87,6 +89,29 @@ impl Core {
             Ec::JavaMethodOverride,
             format!(
                 "Attempted to apply the operator overridden by the Java method\n{sig},\nbut it produced the following error:\n{}",
+                err.tool_text()
+            ),
+        )
+    }
+
+    /// `EvaluatingValue.eval`: every exception, an `EvalException` too, and
+    /// including one raised while evaluating the arguments or the TLA+
+    /// definition it falls back to, becomes
+    /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE` (fixtures `ErCmTlcGet*`).
+    fn wrap_evaluating(&self, op: StdOp, err: EvalError) -> EvalError {
+        if !err.is_eval() {
+            return err;
+        }
+        let Some(method) = evaluating_method(op) else {
+            return EvalError::unsupported(format!(
+                "an error inside {} (its Java signature is not recorded)",
+                op.qualified_name()
+            ));
+        };
+        EvalError::coded(
+            Ec::JavaMethodOverride,
+            format!(
+                "Attempted to apply the operator overridden by the Java method\npublic static tlc2.value.impl.Value {method}(tlc2.tool.impl.Tool,tla2sany.semantic.ExprOrOpArgNode[],tlc2.util.Context,tlc2.tool.TLCState,tlc2.tool.TLCState,int,tlc2.tool.coverage.CostModel),\nbut it produced the following error:\n{}",
                 err.tool_text()
             ),
         )
@@ -409,7 +434,19 @@ impl Core {
                 Ok(Value::tuple(out))
             }
             StdOp::TlcPermutations => self.permutations(v(0)?),
-            _ => Err(refuse(op)),
+            StdOp::TlcTLCSet => self.tlc_set(v(0)?, v(1)?),
+            StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets => {
+                let vals: Vec<Value> = (0..args.len())
+                    .map(|k| v(k).cloned())
+                    .collect::<Result<_>>()?;
+                self.call_random(op, &vals)
+            }
+            _ => match self.call_ext(env, st, op, args, e) {
+                Some(r) => r,
+                None => Err(refuse(op)),
+            },
         }
     }
 
@@ -419,7 +456,7 @@ impl Core {
         st: &St,
         op: StdOp,
         args: &[Arg],
-        _e: ExprId,
+        e: ExprId,
     ) -> Result<Ev> {
         match op {
             StdOp::TlcTLCEval => {
@@ -430,6 +467,10 @@ impl Core {
                 };
                 let v = self.eval_v(env, st, *expr)?;
                 Ok(Ev::V(self.tlc_eval_convert(v)?))
+            }
+            StdOp::TlcTLCGet => self.tlc_get(env, st, args, e),
+            StdOp::SequencesExtReplaceFirstSubSeq | StdOp::SequencesExtReplaceAllSubSeqs => {
+                self.replace_sub_seq(env, st, op, args, e)
             }
             _ => Err(refuse(op)),
         }
@@ -455,7 +496,7 @@ impl Core {
 
     /// Applies an operator value to already evaluated arguments (`OpValue.eval`
     /// from a Java override).
-    fn apply_op_values(
+    pub(crate) fn apply_op_values(
         self: &Arc<Self>,
         env: &mut Env,
         st: &St,
@@ -559,7 +600,7 @@ impl Core {
         }
     }
 
-    fn one_arg_error(&self, op: &str, what: &str, v: &Value) -> EvalError {
+    pub(crate) fn one_arg_error(&self, op: &str, what: &str, v: &Value) -> EvalError {
         EvalError::eval_exception(
             Ec::OneArgumentError,
             format!(
@@ -569,7 +610,7 @@ impl Core {
         )
     }
 
-    fn arg_error(&self, which: &str, op: &str, what: &str, v: &Value) -> EvalError {
+    pub(crate) fn arg_error(&self, which: &str, op: &str, what: &str, v: &Value) -> EvalError {
         EvalError::eval_exception(
             Ec::ArgumentError,
             format!(
@@ -842,7 +883,18 @@ fn java_substring(text: &str, begin: usize, end: Option<usize>) -> String {
     String::from_utf16_lossy(&units[begin..end])
 }
 
-fn refuse(op: StdOp) -> EvalError {
+/// The class and name of an evaluating override's Java method.
+fn evaluating_method(op: StdOp) -> Option<&'static str> {
+    Some(match op {
+        StdOp::TlcTLCGet => "tlc2.module.TLCGetSet.TLCGetEval",
+        StdOp::TlcTLCEval => "tlc2.module.TLCEval.tlcEval",
+        StdOp::SequencesExtReplaceFirstSubSeq => "tlc2.overrides.SequencesExt.replaceFirstSubSeq",
+        StdOp::SequencesExtReplaceAllSubSeqs => "tlc2.overrides.SequencesExt.replaceAllSubSeq",
+        _ => return None,
+    })
+}
+
+pub(crate) fn refuse(op: StdOp) -> EvalError {
     let why = match op.support() {
         StdSupport::Core => "not implemented in dive's evaluator yet",
         other => other.describe(),
@@ -853,7 +905,7 @@ fn refuse(op: StdOp) -> EvalError {
 /// `Method.toString()` of the Java method TLC installs, for
 /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE` messages.
 #[allow(clippy::too_many_lines, reason = "a table")]
-fn java_signature(op: StdOp) -> Option<&'static str> {
+pub(crate) fn java_signature(op: StdOp) -> Option<&'static str> {
     Some(match op {
         StdOp::NaturalsPlus => {
             "public static tlc2.value.impl.IntValue tlc2.module.Naturals.Plus(tlc2.value.impl.IntValue,tlc2.value.impl.IntValue)"
@@ -981,6 +1033,6 @@ fn java_signature(op: StdOp) -> Option<&'static str> {
         StdOp::TlcPermutations => {
             "public static tlc2.value.impl.Value tlc2.module.TLC.Permutations(tlc2.value.impl.Value)"
         }
-        _ => return None,
+        _ => return crate::community::java_signature(op),
     })
 }

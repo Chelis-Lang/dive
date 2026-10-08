@@ -313,7 +313,10 @@ pub fn run_spec(
     opts: Options,
 ) -> Result<(Evaluator, Vec<String>, AssumptionOutcome), String> {
     let tla = dir.join(name).join(format!("{name}.tla"));
-    let loaded = load(&tla, &[])?;
+    // The CommunityModules' `.tla` files of the pinned jar, which TLC finds
+    // on its classpath after the standard modules.
+    let community = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/community-modules");
+    let loaded = load(&tla, &[community])?;
     let cfg_path = dir.join(name).join(format!("{name}.cfg"));
     let cfg = match std::fs::read_to_string(&cfg_path) {
         Ok(text) => {

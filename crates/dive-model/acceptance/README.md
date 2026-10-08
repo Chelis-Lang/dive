@@ -93,6 +93,11 @@ than two minutes.
 | constant operators given values in the cfg (`OpRcdValue`) | 0 | 1 |
 | a message dive cannot reproduce (a variable as a conjunct of `SPECIFICATION`; an unimplemented operator while evaluating a substituted definition) | 0 | 2 |
 
+This table predates WP-C3. Since then, of the CommunityModules operators listed, only
+`FiniteSetsExt!kSubset` is still refused; `Bags!SetToBag` is implemented; and
+`RandomElement` and `RandomSubset` draw from the run's random stream when a checker
+provides one (`BindOptions::host`), and are refused by name otherwise.
+
 **Names.** Every model value has TLC's token: 382 of 382 in the Examples, 265 of 265 in the
 tests, all in the repository models. No name both tables hold is out of TLC's relative
 order: 0 of 74,945 in the Examples, 0 of 193,598 in the tests, 0 of 26,111 in the
