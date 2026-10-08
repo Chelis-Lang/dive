@@ -58,6 +58,11 @@ pub struct TraceOptions {
     pub compat_tlc: bool,
     /// TLC's `-deadlock` flag: the model does not check for deadlock.
     pub no_deadlock: bool,
+    /// The checking run's `-seed` and `-fp` index, when known (the TLC
+    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
+    /// constant definitions and `ASSUME`s draw from the run's start-up
+    /// stream. Without them, both are refused by name.
+    pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
     /// Modules searched after the standard modules (TLC's classpath).
@@ -130,8 +135,20 @@ impl SpecModel {
             feature: e.to_string(),
         })?;
         let ir = Arc::new(ir);
+        let host = opts.run.map(|(seed, _)| {
+            let mode = if opts.compat_tlc {
+                dive_stdlib::random::RandomMode::Tlc
+            } else {
+                dive_stdlib::random::RandomMode::Dive
+            };
+            Arc::new(dive_stdlib::host::RunHost::new(
+                dive_stdlib::random::Streams::new(seed, mode),
+                None,
+            ))
+        });
         let bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
+            host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
             ..if opts.compat_tlc {
                 dive_model::BindOptions::tlc()
             } else {
@@ -140,6 +157,20 @@ impl SpecModel {
         };
         let model_values = cfg.model_values.clone();
         let bound = on_big_stack(move || dive_model::bind(ir, &cfg, &bind_opts))?;
+        if let (Ok(model), Some(h), Some((seed, fp_index))) = (&bound, &host, opts.run) {
+            model.evaluator.intern_checker_names();
+            #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
+            let fingerprint = dive_value::fp64::POLYS.get(fp_index).copied().unwrap_or(0) as i64;
+            h.set_config(Some(dive_eval::RunConfig {
+                deadlock: model.settings.check_deadlock,
+                workers: 1,
+                seed,
+                fingerprint,
+                install: std::env::current_exe()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_default(),
+            }));
+        }
         match bound {
             Ok(model) => Ok(Self {
                 model,

@@ -62,12 +62,14 @@ pub enum Phase {
 /// Whether dive plans to implement an override, and if not, why.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum StdSupport {
-    /// In the scope of `dive-stdlib`'s core (M5 plan, WP-C3): the standard
-    /// modules, `TLC`, `Randomization`, `Json`'s `ToJson` family and the basic
-    /// `TLCExt` operators.
+    /// In the scope of dive's standard library (M5 plan, WP-C3): the standard
+    /// modules, `TLC`, `Randomization`, `Json`'s `ToJson` family, the basic
+    /// `TLCExt` operators, and the CommunityModules operators dive implements.
+    /// An operator of this kind that the evaluator does not implement yet is
+    /// refused where it is evaluated.
     Core,
-    /// A `CommunityModules` or other optional operator, implemented on demand
-    /// in order of corpus use. Refused until then.
+    /// A `CommunityModules` or other optional operator dive does not
+    /// implement yet (implemented on demand, in order of corpus use). Refused.
     Extension,
     /// Reads the model checker's own state: the current trace, the
     /// counterexample, the successor being generated. Refused.
@@ -257,34 +259,34 @@ std_ops! {
     TlcTraceTLCTraceSerialize = ("_TLCTrace", "_TLCTraceSerialize", 2, Value, Annotated, Io, true, "tlc2.module._TLCTrace.ioSerialize");
     TlcTraceTLCTraceDeserialize = ("_TLCTrace", "_TLCTraceDeserialize", 1, Value, Annotated, Io, true, "tlc2.module._TLCTrace.ioDeserialize");
     TlcTraceTLCState = ("_TLCTrace", "_TLCState", -1, Evaluating, Annotated, Introspection, true, "tlc2.module._TLCTrace.tlcState");
-    BagsExtFoldBag = ("BagsExt", "FoldBag", 3, Value, Annotated, Extension, false, "tlc2.overrides.BagsExt.foldBag");
-    BitwiseAnd = ("Bitwise", "And", 4, Value, Annotated, Extension, false, "tlc2.overrides.Bitwise.And");
-    BitwiseOr = ("Bitwise", "Or", 4, Value, Annotated, Extension, false, "tlc2.overrides.Bitwise.Or");
-    BitwiseXor = ("Bitwise", "Xor", 4, Value, Annotated, Extension, false, "tlc2.overrides.Bitwise.Xor");
-    BitwiseNot = ("Bitwise", "Not", 1, Value, Annotated, Extension, false, "tlc2.overrides.Bitwise.NotR");
-    BitwiseShiftR = ("Bitwise", "shiftR", 2, Value, Annotated, Extension, false, "tlc2.overrides.Bitwise.shiftR");
+    BagsExtFoldBag = ("BagsExt", "FoldBag", 3, Value, Annotated, Core, false, "tlc2.overrides.BagsExt.foldBag");
+    BitwiseAnd = ("Bitwise", "And", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.And");
+    BitwiseOr = ("Bitwise", "Or", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.Or");
+    BitwiseXor = ("Bitwise", "Xor", 4, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.Xor");
+    BitwiseNot = ("Bitwise", "Not", 1, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.NotR");
+    BitwiseShiftR = ("Bitwise", "shiftR", 2, Value, Annotated, Core, false, "tlc2.overrides.Bitwise.shiftR");
     CsvCSVWriteRecord = ("CSV", "CSVWriteRecord", 4, Value, Annotated, Io, true, "tlc2.overrides.CSV.writeRecord");
     CsvCSVWrite = ("CSV", "CSVWrite", 3, Value, Annotated, Io, true, "tlc2.overrides.CSV.write");
     CsvCSVRead = ("CSV", "CSVRead", 3, Value, Annotated, Io, true, "tlc2.overrides.CSV.read");
     CsvCSVRecords = ("CSV", "CSVRecords", 1, Value, Annotated, Io, true, "tlc2.overrides.CSV.records");
     CombinatoricsFactorial = ("Combinatorics", "factorial", 1, Value, Annotated, Extension, false, "tlc2.overrides.Combinatorics.fact");
     CombinatoricsChoose = ("Combinatorics", "choose", 2, Value, Annotated, Extension, false, "tlc2.overrides.Combinatorics.chse");
-    DyadicRationalsReduce = ("DyadicRationals", "Reduce", 1, Value, Annotated, Extension, false, "tlc2.overrides.DyadicRationals.reduce");
-    FiniteSetsExtQuantify = ("FiniteSetsExt", "Quantify", 2, Value, Annotated, Extension, false, "tlc2.overrides.FiniteSetsExt.quantify");
+    DyadicRationalsReduce = ("DyadicRationals", "Reduce", 1, Value, Annotated, Core, false, "tlc2.overrides.DyadicRationals.reduce");
+    FiniteSetsExtQuantify = ("FiniteSetsExt", "Quantify", 2, Value, Annotated, Core, false, "tlc2.overrides.FiniteSetsExt.quantify");
     FiniteSetsExtKSubset = ("FiniteSetsExt", "kSubset", 2, Value, Annotated, Extension, false, "tlc2.overrides.FiniteSetsExt.kSubset");
-    FiniteSetsExtFoldSet = ("FiniteSetsExt", "FoldSet", 3, Value, Annotated, Extension, false, "tlc2.overrides.FiniteSetsExt.foldSet");
-    FunctionsIsInjective = ("Functions", "IsInjective", 1, Value, Annotated, Extension, false, "tlc2.overrides.Functions.IsInjective");
-    FunctionsAntiFunction = ("Functions", "AntiFunction", 1, Value, Annotated, Extension, false, "tlc2.overrides.Functions.antiFunction");
-    FunctionsFoldFunction = ("Functions", "FoldFunction", 3, Value, Annotated, Extension, false, "tlc2.overrides.Functions.foldFunction");
-    FunctionsFoldFunctionOnSet = ("Functions", "FoldFunctionOnSet", 4, Value, Annotated, Extension, false, "tlc2.overrides.Functions.foldFunctionOnSet");
+    FiniteSetsExtFoldSet = ("FiniteSetsExt", "FoldSet", 3, Value, Annotated, Core, false, "tlc2.overrides.FiniteSetsExt.foldSet");
+    FunctionsIsInjective = ("Functions", "IsInjective", 1, Value, Annotated, Core, false, "tlc2.overrides.Functions.IsInjective");
+    FunctionsAntiFunction = ("Functions", "AntiFunction", 1, Value, Annotated, Core, false, "tlc2.overrides.Functions.antiFunction");
+    FunctionsFoldFunction = ("Functions", "FoldFunction", 3, Value, Annotated, Core, false, "tlc2.overrides.Functions.foldFunction");
+    FunctionsFoldFunctionOnSet = ("Functions", "FoldFunctionOnSet", 4, Value, Annotated, Core, false, "tlc2.overrides.Functions.foldFunctionOnSet");
     GraphVizDotDiGraph = ("GraphViz", "DotDiGraph", 3, Value, Annotated, Extension, false, "tlc2.overrides.GraphViz.dotDiGraph");
-    GraphsSimplePath = ("Graphs", "SimplePath", 1, Value, Annotated, Extension, false, "tlc2.overrides.Graphs.simplePath");
-    GraphsAreConnectedIn = ("Graphs", "AreConnectedIn", 3, Value, Annotated, Extension, false, "tlc2.overrides.Graphs.areConnectedIn");
-    GraphsIsStronglyConnected = ("Graphs", "IsStronglyConnected", 1, Value, Annotated, Extension, false, "tlc2.overrides.Graphs.isStronglyConnected");
+    GraphsSimplePath = ("Graphs", "SimplePath", 1, Value, Annotated, Core, false, "tlc2.overrides.Graphs.simplePath");
+    GraphsAreConnectedIn = ("Graphs", "AreConnectedIn", 3, Value, Annotated, Core, false, "tlc2.overrides.Graphs.areConnectedIn");
+    GraphsIsStronglyConnected = ("Graphs", "IsStronglyConnected", 1, Value, Annotated, Core, false, "tlc2.overrides.Graphs.isStronglyConnected");
     IoUtilsIODeserialize = ("IOUtils", "IODeserialize", 2, Value, Annotated, Io, true, "tlc2.overrides.IOUtils.ioDeserialize");
     IoUtilsIOSerialize = ("IOUtils", "IOSerialize", 3, Value, Annotated, Io, true, "tlc2.overrides.IOUtils.ioSerialize");
     IoUtilsDeserialize = ("IOUtils", "Deserialize", -1, Evaluating, Annotated, Io, true, "tlc2.overrides.IOUtils.textDeserialize");
-    IoUtilsAtoi = ("IOUtils", "atoi", 1, Value, Annotated, Extension, false, "tlc2.overrides.IOUtils.atoi");
+    IoUtilsAtoi = ("IOUtils", "atoi", 1, Value, Annotated, Core, false, "tlc2.overrides.IOUtils.atoi");
     IoUtilsIOEnv = ("IOUtils", "IOEnv", 0, Value, Annotated, Io, true, "tlc2.overrides.IOUtils.ioEnv");
     IoUtilsIOExec = ("IOUtils", "IOExec", 1, Value, Annotated, Io, true, "tlc2.overrides.IOUtils.ioExec");
     IoUtilsIOEnvExec = ("IOUtils", "IOEnvExec", 2, Value, Annotated, Io, true, "tlc2.overrides.IOUtils.ioEnvExec");
@@ -294,30 +296,30 @@ std_ops! {
     SvgNodeOfRingNetwork = ("SVG", "NodeOfRingNetwork", 5, Value, Annotated, Extension, false, "tlc2.overrides.SVG.ringNetwork");
     SvgNodesOfDirectedMultiGraph = ("SVG", "NodesOfDirectedMultiGraph", 3, Value, Annotated, Extension, false, "tlc2.overrides.SVG.directedMultiGraph");
     SvgPointOnLine = ("SVG", "PointOnLine", 3, Value, Annotated, Extension, false, "tlc2.overrides.SVG.pointOnLine");
-    SequencesExtSetToSeq = ("SequencesExt", "SetToSeq", 1, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.SetToSeq");
-    SequencesExtSetToSeqs = ("SequencesExt", "SetToSeqs", 1, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.SetToSeqs");
-    SequencesExtContains = ("SequencesExt", "Contains", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.Contains");
-    SequencesExtLongestCommonPrefix = ("SequencesExt", "LongestCommonPrefix", 1, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.longestCommonPrefix");
-    SequencesExtFoldSeq = ("SequencesExt", "FoldSeq", 3, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.foldSeq");
-    SequencesExtFoldLeft = ("SequencesExt", "FoldLeft", 3, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.foldLeft");
-    SequencesExtFoldRight = ("SequencesExt", "FoldRight", 3, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.foldRight");
-    SequencesExtFoldLeftDomain = ("SequencesExt", "FoldLeftDomain", 3, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.foldLeftDomain");
-    SequencesExtFoldRightDomain = ("SequencesExt", "FoldRightDomain", 3, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.foldRightDomain");
-    SequencesExtReplaceFirstSubSeq = ("SequencesExt", "ReplaceFirstSubSeq", -1, Evaluating, Annotated, Extension, false, "tlc2.overrides.SequencesExt.replaceFirstSubSeq");
-    SequencesExtReplaceAllSubSeqs = ("SequencesExt", "ReplaceAllSubSeqs", -1, Evaluating, Annotated, Extension, false, "tlc2.overrides.SequencesExt.replaceAllSubSeq");
-    SequencesExtIsPrefix = ("SequencesExt", "IsPrefix", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.isPrefix");
-    SequencesExtSelectInSeq = ("SequencesExt", "SelectInSeq", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.selectInSeq");
-    SequencesExtSelectInSubSeq = ("SequencesExt", "SelectInSubSeq", 4, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.SelectInSubSeq");
-    SequencesExtSelectLastInSeq = ("SequencesExt", "SelectLastInSeq", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.selectLastInSeq");
-    SequencesExtSelectLastInSubSeq = ("SequencesExt", "SelectLastInSubSeq", 4, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.SelectLastInSubSeq");
-    SequencesExtRemoveFirst = ("SequencesExt", "RemoveFirst", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.removeFirst");
-    SequencesExtRemoveFirstMatch = ("SequencesExt", "RemoveFirstMatch", 2, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.removeFirstMatch");
-    SequencesExtSuffixes = ("SequencesExt", "Suffixes", 1, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.Suffixes");
-    SequencesExtAllSubSeqs = ("SequencesExt", "AllSubSeqs", 1, Value, Annotated, Extension, false, "tlc2.overrides.SequencesExt.AllSubSeqs");
+    SequencesExtSetToSeq = ("SequencesExt", "SetToSeq", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SetToSeq");
+    SequencesExtSetToSeqs = ("SequencesExt", "SetToSeqs", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SetToSeqs");
+    SequencesExtContains = ("SequencesExt", "Contains", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.Contains");
+    SequencesExtLongestCommonPrefix = ("SequencesExt", "LongestCommonPrefix", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.longestCommonPrefix");
+    SequencesExtFoldSeq = ("SequencesExt", "FoldSeq", 3, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.foldSeq");
+    SequencesExtFoldLeft = ("SequencesExt", "FoldLeft", 3, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.foldLeft");
+    SequencesExtFoldRight = ("SequencesExt", "FoldRight", 3, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.foldRight");
+    SequencesExtFoldLeftDomain = ("SequencesExt", "FoldLeftDomain", 3, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.foldLeftDomain");
+    SequencesExtFoldRightDomain = ("SequencesExt", "FoldRightDomain", 3, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.foldRightDomain");
+    SequencesExtReplaceFirstSubSeq = ("SequencesExt", "ReplaceFirstSubSeq", -1, Evaluating, Annotated, Core, false, "tlc2.overrides.SequencesExt.replaceFirstSubSeq");
+    SequencesExtReplaceAllSubSeqs = ("SequencesExt", "ReplaceAllSubSeqs", -1, Evaluating, Annotated, Core, false, "tlc2.overrides.SequencesExt.replaceAllSubSeq");
+    SequencesExtIsPrefix = ("SequencesExt", "IsPrefix", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.isPrefix");
+    SequencesExtSelectInSeq = ("SequencesExt", "SelectInSeq", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.selectInSeq");
+    SequencesExtSelectInSubSeq = ("SequencesExt", "SelectInSubSeq", 4, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SelectInSubSeq");
+    SequencesExtSelectLastInSeq = ("SequencesExt", "SelectLastInSeq", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.selectLastInSeq");
+    SequencesExtSelectLastInSubSeq = ("SequencesExt", "SelectLastInSubSeq", 4, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.SelectLastInSubSeq");
+    SequencesExtRemoveFirst = ("SequencesExt", "RemoveFirst", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.removeFirst");
+    SequencesExtRemoveFirstMatch = ("SequencesExt", "RemoveFirstMatch", 2, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.removeFirstMatch");
+    SequencesExtSuffixes = ("SequencesExt", "Suffixes", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.Suffixes");
+    SequencesExtAllSubSeqs = ("SequencesExt", "AllSubSeqs", 1, Value, Annotated, Core, false, "tlc2.overrides.SequencesExt.AllSubSeqs");
     StatisticsChiSquare = ("Statistics", "ChiSquare", 3, Value, Annotated, Extension, false, "tlc2.overrides.Statistics.chiSquare");
-    UndirectedGraphsSimplePath = ("UndirectedGraphs", "SimplePath", 1, Value, Annotated, Extension, false, "tlc2.overrides.UndirectedGraphs.simplePath");
-    UndirectedGraphsAreConnectedIn = ("UndirectedGraphs", "AreConnectedIn", 3, Value, Annotated, Extension, false, "tlc2.overrides.UndirectedGraphs.areConnectedIn");
-    UndirectedGraphsConnectedComponents = ("UndirectedGraphs", "ConnectedComponents", 1, Value, Annotated, Extension, false, "tlc2.overrides.UndirectedGraphs.connectedComponents");
+    UndirectedGraphsSimplePath = ("UndirectedGraphs", "SimplePath", 1, Value, Annotated, Core, false, "tlc2.overrides.UndirectedGraphs.simplePath");
+    UndirectedGraphsAreConnectedIn = ("UndirectedGraphs", "AreConnectedIn", 3, Value, Annotated, Core, false, "tlc2.overrides.UndirectedGraphs.areConnectedIn");
+    UndirectedGraphsConnectedComponents = ("UndirectedGraphs", "ConnectedComponents", 1, Value, Annotated, Core, false, "tlc2.overrides.UndirectedGraphs.connectedComponents");
     VectorClocksCausalOrder = ("VectorClocks", "CausalOrder", 4, Value, Annotated, Extension, false, "tlc2.overrides.VectorClocks.causalOrder");
 }
 

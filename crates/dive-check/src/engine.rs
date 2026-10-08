@@ -32,6 +32,10 @@ use dive_store::trace::{StateId, TraceLog};
 use dive_store::{ExactSet, FpSet, StateSet, StoreError, StoreMode, collision};
 use dive_value::{Ctx, Value};
 
+use dive_eval::{Counter, RunConfig};
+use dive_stdlib::host::RunHost;
+use dive_stdlib::random::{RandomMode, Streams};
+
 use crate::options::CheckOptions;
 use crate::result::{Collision, Counterexample, ErrorSite, Stats, TraceState, Verdict};
 use dive_model::{Model, Named};
@@ -118,6 +122,98 @@ impl Store {
     }
 }
 
+/// The run's host (ADR 0014 §7): the random streams of `--seed`, TLC's
+/// under `--compat=tlc` and dive's replayable ones otherwise (D-002), the
+/// level, and the counters.
+pub(crate) fn run_host(opts: &CheckOptions) -> RunHost {
+    let mode = match opts.profile {
+        dive_eval::Profile::Tlc => RandomMode::Tlc,
+        dive_eval::Profile::Dive => RandomMode::Dive,
+    };
+    RunHost::new(Streams::new(opts.seed, mode), None)
+}
+
+/// `TLCGet("config")` (`AbstractChecker.createConfig`). The worker count is
+/// the logical one, 1, by default and the requested one under
+/// `--compat=tlc`, as TLC reports `-workers` (D-011); the install location
+/// is dive's executable.
+pub(crate) fn run_config(opts: &CheckOptions, deadlock: bool) -> RunConfig {
+    #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
+    let fingerprint = dive_value::fp64::POLYS
+        .get(opts.fp_index)
+        .copied()
+        .unwrap_or(0) as i64;
+    RunConfig {
+        deadlock,
+        workers: match opts.profile {
+            dive_eval::Profile::Tlc => i64::try_from(opts.workers).unwrap_or(i64::MAX),
+            dive_eval::Profile::Dive => 1,
+        },
+        seed: opts.seed,
+        fingerprint,
+        install: std::env::current_exe()
+            .map(|p| p.display().to_string())
+            .unwrap_or_default(),
+    }
+}
+
+/// The counters while TLC checks assumptions: no state yet, diameter 1
+/// (measured on the pinned TLC, fixture `TgAssume`).
+pub(crate) fn startup_counters(host: &RunHost) {
+    for c in [
+        Counter::Generated,
+        Counter::Distinct,
+        Counter::Queue,
+        Counter::Initial,
+    ] {
+        host.set_counter(c, Some(0));
+    }
+    host.set_counter(Counter::Diameter, Some(1));
+}
+
+/// During the search the live counters are not provided: reading one is
+/// refused rather than answered with a count TLC may not report at that
+/// point.
+fn search_counters(host: &RunHost) {
+    for c in [
+        Counter::Generated,
+        Counter::Distinct,
+        Counter::Queue,
+        Counter::Initial,
+        Counter::Diameter,
+        Counter::DurationSecs,
+    ] {
+        host.set_counter(c, None);
+    }
+}
+
+/// Whether the specification refers to a random operator, so that expanded
+/// states need their own random stream.
+fn uses_random(ir: &dive_ir::Ir) -> bool {
+    use dive_ir::{OpRef, StdOp};
+    let random = |op: StdOp| {
+        matches!(
+            op,
+            StdOp::TlcRandomElement
+                | StdOp::RandomizationRandomSubset
+                | StdOp::RandomizationRandomSetOfSubsets
+                | StdOp::RandomizationRandomSubsetSet
+        )
+    };
+    ir.nodes().iter().any(|n| {
+        n.expr.op_refs().into_iter().any(|r| match r {
+            OpRef::Std(op) => random(*op),
+            OpRef::Def(d) => ir.def(*d).std.is_some_and(random),
+            _ => false,
+        })
+    })
+}
+
+/// TLC's level of a state at BFS level `n` (initial states are level 1).
+fn level_of(n: u64) -> i64 {
+    i64::try_from(n).unwrap_or(i64::MAX)
+}
+
 /// What stopped the search, and how to print its counterexample.
 struct Stop {
     verdict: Verdict,
@@ -175,6 +271,12 @@ fn values(s: &[Option<Value>]) -> Option<Vec<Value>> {
 
 struct Search<'a> {
     m: &'a Model,
+    host: &'a RunHost,
+    /// TLC's state fingerprint, which seeds each expanded state's random
+    /// stream.
+    seeder: StateFingerprinter,
+    /// Whether the specification uses a random operator at all.
+    random: bool,
     ctx: Ctx,
     store: Store,
     log: TraceLog,
@@ -230,7 +332,28 @@ impl<'a> Search<'a> {
         new_level: u64,
         next: &mut Vec<(StateVals, StateId)>,
     ) -> Option<(Verdict, bool)> {
+        let r = self.on_state_checks(parent, succ, new_level, next);
+        // Back to the level of the state being expanded.
+        self.host.set_level(level_of(new_level - 1));
+        r
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "the phases of one successor, in TLC's order"
+    )]
+    fn on_state_checks(
+        &mut self,
+        parent: Option<(&StateVals, StateId)>,
+        succ: &Successor<'_>,
+        new_level: u64,
+        next: &mut Vec<(StateVals, StateId)>,
+    ) -> Option<(Verdict, bool)> {
         self.generated += 1;
+        // `TLCGet("level")`: the successor's level in state checks, the
+        // expanded state's in action checks.
+        let (here, from) = (level_of(new_level), level_of(new_level - 1));
+        self.host.set_level(here);
         let initial = parent.is_none();
         let m = self.m;
         if !succ.complete() {
@@ -259,6 +382,7 @@ impl<'a> Search<'a> {
             }
         }
         if in_model && let Some(st) = &st_step {
+            self.host.set_level(from);
             for c in &m.action_constraints {
                 match self.holds(c, st, ErrorSite::ActionConstraint) {
                     Ok(true) => {}
@@ -270,6 +394,7 @@ impl<'a> Search<'a> {
                 }
             }
         }
+        self.host.set_level(here);
         let mut fresh = true;
         let mut new_id = None;
         if in_model {
@@ -339,6 +464,7 @@ impl<'a> Search<'a> {
             }
         }
         if let Some(st) = &st_step {
+            self.host.set_level(from);
             for c in &m.implied_actions {
                 match self.holds(c, st, ErrorSite::ImpliedAction) {
                     Ok(true) => {}
@@ -367,7 +493,9 @@ impl<'a> Search<'a> {
         let m = self.m;
         let mut next: Vec<(StateVals, StateId)> = Vec::new();
         let mut stop: Option<Stop> = None;
-        // Initial states: `DoInitFunctor`.
+        search_counters(self.host);
+        // Initial states: `DoInitFunctor`, on the start-up stream that the
+        // constant definitions and assumptions drew from.
         let r = ev.init_states(&m.init_actions, &mut |succ: &Successor<'_>| match self
             .on_state(None, succ, 1, &mut next)
         {
@@ -422,7 +550,25 @@ impl<'a> Search<'a> {
             let current = std::mem::take(&mut next);
             let count = current.len();
             for (i, (s0, id)) in current.iter().enumerate() {
+                if self.host.exit_requested() {
+                    // `TLCSet("exit", TRUE)`: TLC's `stop()` ends the search
+                    // as a success once the state that asked is done.
+                    let left = (count - i) + next.len();
+                    return (None, self.stats(left as u64));
+                }
                 let before = self.generated;
+                if let Err(v) = self.seed_state(s0) {
+                    stop = Some(Stop {
+                        verdict: v,
+                        in_init: false,
+                        path: Some((*id, s0.clone())),
+                        then: None,
+                    });
+                    let left = (count - i - 1) + next.len();
+                    let stats = self.stats(left as u64);
+                    return (stop, stats);
+                }
+                self.host.set_level(level_of(level));
                 let r = ev.successors(&m.actions, s0, &mut |succ: &Successor<'_>| match self
                     .on_state(Some((s0, *id)), succ, level + 1, &mut next)
                 {
@@ -472,6 +618,21 @@ impl<'a> Search<'a> {
         (None, self.stats(0))
     }
 
+    /// Switches the host to the random stream of expanding `s0`: TLC reseeds
+    /// with `fingerprint(s0) ^ seed` (`RandomEnumerableValues`).
+    fn seed_state(&self, s0: &StateVals) -> Result<(), Verdict> {
+        if !self.random {
+            return Ok(());
+        }
+        let vals = values(s0).unwrap_or_default();
+        let fp = self
+            .seeder
+            .fingerprint(&vals, self.ctx)
+            .map_err(|e| store_verdict(&e))?;
+        self.host.expand(fp);
+        Ok(())
+    }
+
     fn stats(&self, left_on_queue: u64) -> Stats {
         Stats {
             generated: self.generated,
@@ -488,7 +649,8 @@ impl<'a> Search<'a> {
         let path = self.log.path(id).map_err(|e| e.to_string())?;
         let mut out: Vec<TraceState> = Vec::new();
         let mut current: Option<StateVals> = None;
-        for step in path {
+        // Step k expands the state at level k (initial states are level 1).
+        for (level, step) in (0u64..).zip(path) {
             let want = u64::from(step.ordinal);
             let mut found: Option<(StateVals, TraceState)> = None;
             let mut sink = |succ: &Successor<'_>| {
@@ -502,9 +664,19 @@ impl<'a> Search<'a> {
                     Flow::Continue
                 }
             };
+            // TLC replays with the same seeding: a fresh start-up stream for
+            // the initial states, then each predecessor's own (D-002).
             let r = match &current {
-                None => ev.init_states(&self.m.init_actions, &mut sink),
-                Some(s) => ev.successors(&self.m.actions, s, &mut sink),
+                None => {
+                    self.host.restart();
+                    ev.init_states(&self.m.init_actions, &mut sink)
+                }
+                Some(s) => {
+                    self.seed_state(s)
+                        .map_err(|v| format!("replay failed: {v:?}"))?;
+                    self.host.set_level(level_of(level));
+                    ev.successors(&self.m.actions, s, &mut sink)
+                }
             };
             if let Err(e) = r
                 && found.is_none()
@@ -589,7 +761,11 @@ fn postconditions(m: &Model) -> Option<Verdict> {
 }
 
 /// Runs the search over `m` (assumptions already checked).
-pub(crate) fn search(m: &Model, opts: &CheckOptions) -> Outcome {
+#[allow(
+    clippy::too_many_lines,
+    reason = "the search and its outcome, in order"
+)]
+pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
     let mut notes = Vec::new();
     let tlc_order: Vec<usize> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
     let store = match Store::new(opts, &tlc_order) {
@@ -606,8 +782,27 @@ pub(crate) fn search(m: &Model, opts: &CheckOptions) -> Outcome {
             };
         }
     };
+    let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
+        return Outcome {
+            verdict: Verdict::InternalError {
+                message: format!(
+                    "fingerprint polynomial index {} out of range",
+                    opts.fp_index
+                ),
+            },
+            stats: None,
+            tlc_prints_stats: false,
+            counterexample: None,
+            collision: None,
+            output: Vec::new(),
+            notes,
+        };
+    };
     let mut s = Search {
         m,
+        host,
+        seeder,
+        random: uses_random(&m.ir),
         ctx: opts.eval.ctx,
         store,
         log: TraceLog::new(),
@@ -651,6 +846,16 @@ pub(crate) fn search(m: &Model, opts: &CheckOptions) -> Outcome {
     let _ = m.take_output();
     let (verdict, counterexample) = match cx {
         Ok(c) => (stop.verdict, c),
+        Err(message) if s.random => {
+            // TLC rebuilds the trace the same way, from a fresh start-up
+            // stream, and loses it too when draws made before `Init`
+            // (constant definitions, `ASSUME`s, constant-level invariants)
+            // shift the initial states (D-002, fixture `TmRandom`).
+            notes.push(format!(
+                "The counterexample cannot be rebuilt: the specification draws random values before Init, and the initial states regenerated from a fresh start-up stream differ, so TLC prints no trace either (D-002). ({message})"
+            ));
+            (stop.verdict, None)
+        }
         Err(message) => (Verdict::InternalError { message }, None),
     };
     if matches!(&m.postconditions, Ok(l) if !l.is_empty()) {
