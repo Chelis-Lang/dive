@@ -687,7 +687,10 @@ fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
         Outcome::OracleError => 5,
         Outcome::Timeout => 4,
         Outcome::Disagree => 3,
-        Outcome::Unsupported | Outcome::ExpectedDivergence | Outcome::KnownUpstreamChange => 2,
+        Outcome::Unsupported
+        | Outcome::ExpectedDivergence
+        | Outcome::KnownUpstreamChange
+        | Outcome::AgreePendingTraceValidation => 2,
         Outcome::OutOfScope | Outcome::DivergenceMode => 1,
         Outcome::Agree => 0,
     };
@@ -854,6 +857,12 @@ fn run_model(
                     }
                     _ if imp.options().iter().any(|o| o.result_changing) => Outcome::DivergenceMode,
                     _ if diffs.is_empty() => Outcome::Agree,
+                    // Everything compared agrees; only the independent
+                    // validation of the counterexample is missing (WP-E1).
+                    // Not an agreement until the validator vouches for it.
+                    _ if diffs.iter().all(|d| d.field == "trace.validated") => {
+                        Outcome::AgreePendingTraceValidation
+                    }
                     _ => Outcome::Disagree,
                 };
                 let mut detail = result.note.clone();
@@ -923,7 +932,13 @@ fn run_model(
             || inv.counts_invariant == Some(false)
             || inv.depth_varies
             || inv.property_varies;
-        if !imp.is_oracle() && varies && report.outcome == Outcome::Agree {
+        if !imp.is_oracle()
+            && varies
+            && matches!(
+                report.outcome,
+                Outcome::Agree | Outcome::AgreePendingTraceValidation
+            )
+        {
             report.outcome = Outcome::Disagree;
             report.detail = Some("result varies with the worker count".to_owned());
         }
@@ -1286,7 +1301,13 @@ pub fn run(
     write_atomic(&path, to_pretty(&report)?.as_bytes())?;
     log(&format!("report: {}", path.display()));
     if let Some(md) = &opts.summary_path {
-        write_atomic(md, render_markdown(&report)?.as_bytes())?;
+        let existing = std::fs::read_to_string(md).ok();
+        let merged = crate::report::merge_summary(
+            existing.as_deref(),
+            &crate::report::summary_key(&report),
+            &render_markdown(&report)?,
+        );
+        write_atomic(md, merged.as_bytes())?;
         log(&format!("summary: {}", md.display()));
     }
     Ok(report)

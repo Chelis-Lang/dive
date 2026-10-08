@@ -1,0 +1,40 @@
+# Milestone CM1 (docs/design/m5-plan.md): 20 small Examples models with
+# standard modules only and a safety-only configuration, checked by
+# `dive check --compat=tlc` at 1 worker against the committed TLC goldens.
+# A PR-gate candidate: `scripts/conformance-gate.sh conformance/gates/cm1.txt`.
+# Not wired into ci.yml (the lead decides).
+#
+# Frozen by WP-D2 from the plan's candidate list. Replaced, because their
+# configurations use a feature refused in M5:
+#   tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg  -> acp/ACP_NB_WRONG_TLC.cfg
+#       (module Bits is overridden by a Java class)
+#   DiningPhilosophers/DiningPhilosophers.cfg    -> SpecifyingSystems/HourClock/HourClock2.cfg
+#   CoffeeCan/CoffeeCan100Beans.cfg              -> Stones/Stones.cfg
+#   chang_roberts/MCChangRoberts.cfg             -> SpecifyingSystems/CachingMemory/MCInternalMemory.cfg
+#   Moving_Cat_Puzzle/CatEvenBoxes.cfg           -> MultiCarElevator/ElevatorSafetySmall.cfg
+#       (temporal properties: liveness)
+#   Paxos/MCVoting.cfg                           -> PaxosHowToWinATuringAward/MCVoting.cfg
+#       (SYMMETRY)
+#
+# Violations
+specifications/DieHard/DieHard.cfg
+specifications/DieHard/MCDieHarder.cfg
+specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
+specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+specifications/spanning/MC_spanning.cfg
+specifications/acp/ACP_NB_WRONG_TLC.cfg
+# Successes
+specifications/CigaretteSmokers/CigaretteSmokers.cfg
+specifications/SpecifyingSystems/HourClock/HourClock.cfg
+specifications/SpecifyingSystems/HourClock/HourClock2.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg
+specifications/TwoPhase/MCTwoPhase.cfg
+specifications/transaction_commit/TCommit.cfg
+specifications/transaction_commit/TwoPhase.cfg
+specifications/PaxosHowToWinATuringAward/MCVoting.cfg
+specifications/locks_auxiliary_vars/Peterson.cfg
+specifications/echo/MCEcho.cfg
+specifications/Stones/Stones.cfg
+specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg
+specifications/MultiCarElevator/ElevatorSafetySmall.cfg

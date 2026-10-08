@@ -77,21 +77,22 @@ jobs:
             --crosscheck-manifest \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance.md"
-      # dive's front end against the SANY goldens of every module corpus
-      # (dive parse/analyze). Models stay `unsupported` until `dive check`
-      # exists; `unsupported` is not a finding, so only a `disagree`,
-      # `oracle-error` or `timeout` fails the step (exit 1). The tier only
-      # selects models; every module is run.
-      - name: Run dive (modules, full SANY) against committed goldens
+      # dive against the committed goldens, under --compat=tlc: its front end
+      # against the SANY goldens of every module corpus (dive analyze), and
+      # the tier's models with `dive check` (M5 WP-D2). `unsupported` and
+      # `agree-pending-trace-validation` are not findings, so only a
+      # `disagree`, `oracle-error` or `timeout` fails the step (exit 1).
+      - name: Run dive (modules, full SANY; models) against committed goldens
         if: always()
-        timeout-minutes: 20
+        timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 240 || 60 }}
         run: |
           target/release/dive-conformance run \
             --impl dive \
+            --impl-profile tlc \
             --corpus examples --corpus tlaplus-tests --corpus community-modules \
             --tier "$TIER" \
             --jobs 2 \
-            --timeout 120 \
+            --timeout 600 \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance-dive.md"
       - name: Run dive (modules, SANY parse phase) against committed goldens

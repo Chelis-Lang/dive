@@ -9,6 +9,19 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+dive-ir.workspace = true
+dive-value.workspace = true
+# The successor enumerator (`dive_eval::next`) is the checker's engine.
+dive-eval = { workspace = true, features = ["enumerate"] }
+dive-config.workspace = true
+dive-store.workspace = true
+dive-stdlib.workspace = true
+dive-model.workspace = true
+
+[dev-dependencies]
+# The probe tests load their specifications; dev-dependencies are outside the
+# layering (`xtask/src/layering.rs`).
+dive-sema.workspace = true
 
 [lints]
 workspace = true

@@ -58,6 +58,12 @@ pub enum Outcome {
     /// A disagreement listed in `conformance/expected-divergences.toml` for
     /// the `dive` profile (ADR 0010). Never counted as `agree`.
     ExpectedDivergence,
+    /// Every compared field agrees, but the counterexample has not been
+    /// validated by an independent trace validator (charter rule 2,
+    /// ADR 0016), which does not exist yet (WP-E1). Never counted as
+    /// `agree`; it becomes `agree` only once the validator vouches for the
+    /// trace.
+    AgreePendingTraceValidation,
     /// A difference between two TLC oracles that changes registered in
     /// `conformance/oracle-changes.toml` fully explain (ADR 0002). Only for
     /// TLC oracles under test. Never counted as `agree`.
@@ -66,8 +72,9 @@ pub enum Outcome {
 
 impl Outcome {
     /// All outcomes, in report order.
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 10] = [
         Self::Agree,
+        Self::AgreePendingTraceValidation,
         Self::Disagree,
         Self::Unsupported,
         Self::OracleError,
@@ -83,6 +90,7 @@ impl Outcome {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Agree => "agree",
+            Self::AgreePendingTraceValidation => "agree-pending-trace-validation",
             Self::Disagree => "disagree",
             Self::Unsupported => "unsupported",
             Self::OracleError => "oracle-error",
