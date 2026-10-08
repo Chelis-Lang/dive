@@ -225,14 +225,29 @@ Randomness replays exactly, because generation is seeded per state (ADR 0014 §7
 - In phase 2, candidates are sorted by key, so probes walk the table in near-sequential order.
 
 **The fingerprint function.**
-- **Default profile: two levels.** A state's fingerprint is FP64 over the per-variable FP64 value fingerprints (`dive-value`'s TLC-compatible FP64), in the IR's variable order, under the reported polynomial index (`StateFingerprinter::new`).
+- **Default profile: two levels.** Each variable's value is fingerprinted with FP64 (`dive-value`'s TLC-compatible FP64) under the reported polynomial index, and the value fingerprints are combined in the IR's variable order by a non-linear, position-keyed chain (`StateFingerprinter::new`, `dive_store::state::combine`; amended for issue #42, see below):
+
+  ```text
+  h₀ = SEED;  hᵢ₊₁ = mix64(hᵢ ⊕ mix64(fpᵢ ⊕ Kᵢ));  fingerprint = hₙ
+  ```
+
+  `mix64` is SplitMix64's output function (a bijection of `u64` with full avalanche), `Kᵢ = (i + 1) · 0x9E3779B97F4A7C15` keys each position, and `SEED` is a fixed constant. Combining costs two `mix64` calls (four multiplications) per variable.
 - **Caching.** Value fingerprints are cached in shared compound values, so a successor that keeps most of its parent's values reuses their fingerprints. The cost of fingerprinting is proportional to what changed.
 - **Not TLC's bits.** These are not TLC's fingerprints: TLC hashes every value's bytes in one stream, in TLC's variable order. Fingerprint values are not part of any compared result.
 - **Under `--compat=tlc`: TLC's own.** The store keys on TLC's state fingerprint, bit for bit: `TLCStateMut.fingerPrint`, one FP64 stream over the values in TLC's variable order (`StateFingerprinter::tlc`, given `Ir::tlc_var_order`). It cannot reuse cached value fingerprints, so it costs more per state. The fingerprint set, and therefore the "actual" collision figure and any collision, are then TLC's. TLC's fingerprints are also what TLC semantics observe:
   - for each *expanded* state, to seed randomness under `--compat=tlc` (ADR 0014 §7);
   - for each distinct state, to print TLC's "actual" probability under `--compat=tlc`.
-- **What the scheme changes.** Only which fingerprints are produced. Verdicts, counts and traces are the same under both schemes, except through a collision. The default profile keeps the cheaper two-level scheme in the IR's order; nothing found while implementing WP-A3 argues for changing that.
-- **Finding of WP-D2 (2026-10-08): the two-level scheme as built collides systematically.** FP64 is affine over GF(2), and so is FP64 over FP64 values, so the same change in two variables can cancel: on Examples `MCWriteThroughCache`, 64 of 5,196 states collide with another one (issue #42). Until the combination is made non-linear, `dive check` keys the set on TLC's single-stream fingerprint in both profiles. That is correct, but forgoes the cached-value speedup of §8.
+- **What the scheme changes.** Only which fingerprints are produced. Verdicts, counts and traces are the same under both schemes, except through a collision. The default profile keeps the cheaper two-level scheme in the IR's order; nothing found while implementing WP-A3 argues for changing that (but see issue #42 below for how the levels are combined).
+- **Finding of WP-D2 (2026-10-08): the first two-level scheme collided systematically.** It combined the value fingerprints with FP64 again. FP64 is affine over GF(2), and so is FP64 over FP64 values, so the same change in two variables cancelled whenever the two changes' positional factors agreed modulo the polynomial: when the later variable's change lay 8 bytes per position further from the end of its value's stream. On Examples `MCWriteThroughCache` 64 of 5,196 states collided (5,132 distinct and 27,594 generated, against TLC's 5,196 and 28,170; issue #42), and `MCBakery`, `ElevatorSafetySmall` and `MCPaxosTiny` lost states too. Meanwhile `dive check` keyed the set on TLC's single-stream fingerprint in both profiles.
+- **Amendment (issue #42, 2026-10-08): a non-linear combination.** The chain above replaces the outer FP64. The per-value FP64 cache, which gives the speed, is unchanged, and `dive check` keys the default profile on it again (`CheckOptions::tlc_fingerprints` is `false` in the default profile and `true` under `--compat=tlc`).
+  - **Why it does not cancel.** The chain is not affine over GF(2), nor over the integers modulo `2^64`: a difference in one variable passes through a multiply-xorshift mixer before it can meet a difference in another, so structured changes have no algebraic way to cancel. It is position-keyed, so swapping values between variables changes the result.
+  - **Per-pair collision argument.** Take two distinct states. If they differ in exactly one variable, they collide only if that variable's two values have equal FP64 fingerprints: every chain step is a bijection in its input, so the chain cannot merge them. That is the per-pair event Rabin's argument covers, as for TLC's single stream (over a value's bytes rather than the whole state's). If they differ in two or more variables, either every differing value pair collides under FP64 (probability about `ε^k` for `k` variables, where `ε ≈ 2^-64` is the FP64 per-pair figure) or at least one differs and the chain must map two distinct inputs to one output. Under the standard heuristic that `mix64` behaves as a random function on unrelated inputs, that has probability about `2^-64`. So the per-pair collision probability is about `2^-64` in every case: the figure TLC's optimistic estimate assumes.
+  - **What is assumed, and where it is stated.** The mixer is not keyed by a secret, so the `2^-64` is a heuristic, not a theorem: an adversary who knows the scheme could build colliding states. The same is true of TLC's FP64 with a published polynomial table, whose Rabin guarantee holds only for a randomly chosen polynomial. Both reported figures therefore stay TLC's formulas over the run's own fingerprints, with the same stated assumption ("fingerprints behave as random 64-bit values"), and the JSON report now names the scheme (`collision.scheme`: `dive` or `tlc`). The "actual" figure is computed over dive's fingerprints in the default profile, and over TLC's under `--compat=tlc`.
+  - **Evidence.**
+    - `crates/dive-store/tests/state_fingerprint.rs`: the former combination's 8 colliding paddings of `<<p, …>>` in two variables, all distinct now; property tests for equal changes in two variables (half of them aligned as the former scheme needed), swaps between variables, and permutations of model values across a state; 200,000 random `MCWriteThroughCache`-shaped states (144,984 distinct) on which fingerprint and exact membership agree exactly, where the former combination merged 16. Every one of these fails against the former combination except the swap property, which it also satisfied.
+    - `crates/dive-check/tests/fingerprints.rs`: `MCWriteThroughCache` (vendored) in the default profile finds TLC's 5,196 distinct and 28,170 generated states; with the former combination the test reports 5,132 and 27,594.
+    - Harness, default profile: `MCWriteThroughCache`, `MCBakery`, `ElevatorSafetySmall` and `MCPaxosTiny` all agree with TLC's goldens (5,196/28,170; 655,200/3,403,584; 4,122/14,296; 3,921/23,563), and the whole small tier (report `conformance/reports/20261008T221407122-dive-small.json`) gives exactly the outcomes and counts of the earlier default-profile run keyed on TLC's fingerprints: every one of the 59 complete searches finds TLC's distinct and generated counts. The only two disagreements are the known canonical-order violations of D-010 (`MissionariesAndCannibals`, `ACP_NB_WRONG_TLC`), unchanged.
+    - Cost (Apple M3, 8 cores, shared at load average 30 to 70, so indicative): `cargo bench -p dive-store --bench store` gives 48 ns for the four-variable sample state with cached values (37 ns with one variable changed), against 83 ns (71 ns) for the former FP64-over-FP64 combination and 1.5 µs for TLC's single stream. A whole `MCBakery` run (655,200 distinct, 3,403,584 generated) in the default profile used 23.5 to 23.8 s of user CPU keyed on dive's fingerprints and 25.1 to 25.7 s keyed on TLC's, about 7% less; evaluation dominates that model, and wall-clock times on the loaded machine varied by more than the difference.
 - **`VIEW` and symmetry.** With `VIEW`, TLC fingerprints only the view's value (`val.fingerPrint(FP64.New())`, `TLCStateMut.java:262-270`), so the variable order does not enter. With `SYMMETRY`, it does twice: the smallest permuted state is chosen by comparing values in variable order, then fingerprinted in that order.
 - **The polynomial index.**
   - In the default profile it is fixed at 0 and reported, so identical inputs give identical runs. `--fp N` selects another.
@@ -265,7 +280,7 @@ So the order depends on the variables' names, on how many keys the context ends 
 - **Where it appears:**
   - human output prints it where TLC does (on success);
   - JSON always carries it, with `store: "fingerprint"` and the polynomial index.
-- dive also states plainly that the bound is an estimate assuming fingerprints behave as random 64-bit values. That is TLC's assumption too.
+- dive also states plainly that the bound is an estimate assuming fingerprints behave as random 64-bit values. That is TLC's assumption too. In the default profile it rests on the mixer argument of the issue #42 amendment above; JSON names the scheme (`collision.scheme`).
 
 **Exact mode (`--store exact`).**
 - **Storage.** Shards hold full states in a canonical key encoding (`dive_value::codec::encode_canonical`): within a run, two states have equal keys exactly when they are equal, whatever the representation of their values (`1..3` and `{1, 2, 3}` have one key). A 64-bit hash of the key bytes indexes them, independent of the fingerprint function, and byte comparison decides equality.
@@ -339,7 +354,7 @@ Targets are ADR 0006's, at one and eight workers. Ingredients:
 - The encoding is compact: varints, interned atom ids, tagged values. It comes in two forms. The frontier, disk spill and checkpoints use the lossless form, which keeps each value's representation, because TLC's printing and comparability depend on it. The exact store uses the canonical key form (§5).
 
 **Fingerprints.**
-- Two-level FP64 with cached value fingerprints (§5).
+- Two-level fingerprints over cached FP64 value fingerprints, combined by a mixer chain (§5).
 - Successors outside the model are never fingerprinted.
 - Duplicates already in the set are filtered in phase 1 by a lock-free read.
 
@@ -407,7 +422,7 @@ average about 15), so treat these divan medians as indicative.
 | Trace log | 12 bytes |
 | Phase-1 lookup, fingerprint set of 2^20 | 30 ns, one thread |
 | Sequential insert | 34 ns |
-| Two-level fingerprint, four variables, compound values cached | 75 ns (TLC's single stream, uncached: 1.6 µs) |
+| Two-level fingerprint, four variables, compound values cached | 75 ns (TLC's single stream, uncached: 1.6 µs). With the issue #42 mixer chain: 48 ns (single stream 1.5 µs), measured under heavier load |
 | Encode, decode of that state (121 bytes) | 0.7 µs, 2.9 µs |
 
 Against ADR 0006's baselines for `CoffeeCan1000Beans`: at one worker TLC spends about 11 µs per generated state (22.2 s for 2,000,002), and at eight workers its peak RSS is about 2.6 KB per distinct state (1287 MB), against about 550 bytes for tla-mc (277 MB). The store's share in dive is about 29 bytes of fingerprint set and trace log per state, or 15 MB in all, and about 0.15 µs per generated successor at one thread.

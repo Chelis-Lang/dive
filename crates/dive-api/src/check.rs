@@ -335,7 +335,7 @@ impl CheckReport {
     ///                       "states": [ { "index", "label", "action",
     ///                                     "values": { var: TLC JSON }, "text" } ],
     ///                       "trace": dive-trace document | null } | null,
-    ///   "collision": { "store", "optimistic", "actual" } | null,
+    ///   "collision": { "store", "scheme", "optimistic", "actual", "assumption" } | null,
     ///   "output": [ string ], "warnings": [ { "code", "message" } ],
     ///   "diagnostics": [ ... ], "notes": [ string ],
     ///   "options": { "profile", "int", "choose_order", "explore_order",
@@ -458,6 +458,7 @@ impl CheckReport {
                 if let Some(c) = &r.collision {
                     doc["collision"] = json!({
                         "store": "fingerprint",
+                        "scheme": if r.tlc_fingerprints { "tlc" } else { "dive" },
                         "optimistic": c.optimistic,
                         "actual": c.actual,
                         "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
