@@ -42,6 +42,7 @@
         "dump_trace_json": true,
         "no_generate_spec_te": true,
         "sany_error_codes": true,
+        "names_temporal_properties": true,
         "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
         "implementation_version": "2.0 2026-10-06"
       },
@@ -58,6 +59,7 @@
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
       "-Xmx1g",
+      "-Xss8m",
       "-Duser.home=$DIVE_CACHE_DIR/home",
       "-Djava.io.tmpdir=$TMP",
       "-Duser.language=en",
@@ -70,9 +72,9 @@
       "DieHard.tla"
     ],
     "timeout_seconds": 300,
-    "reason": null,
+    "reason": "Review fixes: always pin -seed 0; isolated run dirs (M1 review)",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-08T12:37:15Z",
-    "elapsed_ms": 499
+    "generated_at": "2026-10-08T13:30:25Z",
+    "elapsed_ms": 350
   }
 }

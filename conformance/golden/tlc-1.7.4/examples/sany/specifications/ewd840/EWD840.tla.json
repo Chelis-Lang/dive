@@ -33,6 +33,7 @@
         "dump_trace_json": false,
         "no_generate_spec_te": false,
         "sany_error_codes": false,
+        "names_temporal_properties": false,
         "git_revision": "5a47802b5c391f59ecdd44117981f4ff8c0656ba",
         "implementation_version": "2.0 2024-08-08"
       },
@@ -49,6 +50,7 @@
       "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
       "-XX:+UseParallelGC",
       "-Xmx1g",
+      "-Xss8m",
       "-Duser.home=$DIVE_CACHE_DIR/home",
       "-Djava.io.tmpdir=$TMP",
       "-Duser.language=en",
@@ -60,9 +62,9 @@
       "EWD840.tla"
     ],
     "timeout_seconds": 300,
-    "reason": null,
+    "reason": "Review fixes: always pin -seed 0; isolated run dirs (M1 review)",
     "generator": "dive-conformance 0.0.0",
-    "generated_at": "2026-10-08T12:37:36Z",
-    "elapsed_ms": 503
+    "generated_at": "2026-10-08T14:00:27Z",
+    "elapsed_ms": 164
   }
 }
