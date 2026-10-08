@@ -39,6 +39,9 @@ pub enum ErrorKind {
     NotFingerprintable,
     /// A value that cannot be converted to TLC's JSON form.
     Json,
+    /// Bytes that are not a valid value encoding ([`crate::codec`]). This is an
+    /// internal error, never a property of the spec: dive only decodes what it encoded.
+    Codec,
     /// A dive-only limit, such as a big-integer result too large to allocate.
     /// TLC has no counterpart (it would have overflowed long before).
     DiveLimit,
@@ -63,6 +66,7 @@ impl ErrorKind {
             | Self::Duplicate
             | Self::NotFingerprintable
             | Self::Json
+            | Self::Codec
             | Self::DiveLimit => 1000,
         }
     }
@@ -101,6 +105,7 @@ impl ErrorKind {
             Self::NotFingerprintable => "DIVE-V0023",
             Self::Json => "DIVE-V0024",
             Self::DiveLimit => "DIVE-V0030",
+            Self::Codec => "DIVE-V0040",
         }
     }
 }

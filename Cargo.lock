@@ -221,6 +221,12 @@ version = "0.0.0"
 [[package]]
 name = "dive-store"
 version = "0.0.0"
+dependencies = [
+ "divan",
+ "dive-value",
+ "proptest",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-syntax"

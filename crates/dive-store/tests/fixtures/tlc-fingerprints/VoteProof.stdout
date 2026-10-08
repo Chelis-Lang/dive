@@ -1,0 +1,80 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 62960] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/specifications/byzpaxos/VoteProof.tla
+Parsing file $TMP/tlc-2791990394379345431/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library/NaturalsInduction.tla
+Parsing file $TMP/tlc-2791990394379345431/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library/FiniteSetTheorems.tla
+Parsing file $DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library/WellFoundedInduction.tla
+Parsing file $TMP/tlc-2791990394379345431/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library/TLAPS.tla
+Parsing file $TMP/tlc-2791990394379345431/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-2791990394379345431/Functions.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Functions.tla)
+Parsing file $TMP/tlc-2791990394379345431/Folds.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Folds.tla)
+Parsing file $CWD/specifications/byzpaxos/Consensus.tla
+Parsing file $TMP/tlc-2791990394379345431/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module NaturalsInduction
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module WellFoundedInduction
+Semantic processing of module FiniteSetTheorems
+Semantic processing of module TLC
+Semantic processing of module TLAPS
+Semantic processing of module Consensus
+Semantic processing of module VoteProof
+Linting of module NaturalsInduction
+Linting of module Folds
+Linting of module Functions
+Linting of module WellFoundedInduction
+Linting of module FiniteSetTheorems
+Linting of module TLAPS
+Linting of module Consensus
+Linting of module VoteProof
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 19:42:03)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-10-08 19:42:03.
+@!@!@ENDMSG 2190 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(7) at 2026-10-08 19:42:06: 90,492 states generated (90,492 s/min), 3,518 distinct states found (3,518 ds/min), 1,478 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2193:0 @!@!@
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+  calculated (optimistic):  val = 1.2E-10
+  based on the actual fingerprints:  val = 8.6E-12
+@!@!@ENDMSG 2193 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(14) at 2026-10-08 19:42:12: 318,877 states generated (2,067,720 s/min), 6,962 distinct states found (45,144 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+318877 states generated, 6962 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 14.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2268:0 @!@!@
+The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 15 and the 95th percentile is 4).
+@!@!@ENDMSG 2268 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 9256ms at (2026-10-08 19:42:12)
+@!@!@ENDMSG 2186 @!@!@
