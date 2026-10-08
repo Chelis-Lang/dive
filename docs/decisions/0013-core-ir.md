@@ -1,6 +1,6 @@
 # 0013: Core IR (`dive-ir`)
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-08
 
 ## Context
@@ -75,40 +75,48 @@ TLC paths below are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus 
 
 | Id | Indexes |
 |---|---|
-| `DefId` | operator, function and theorem definitions, including instantiated (`I!Op`), `LET`-local and `LAMBDA` definitions |
+| `DefId` | operator, function, theorem and assumption definitions (named or not), including instantiated (`I!Op`), `LET`-local and `LAMBDA` definitions |
 | `ExprId` | expression nodes |
-| `VarId` | state variables of the root module, in declaration order |
-| `ConstId` | `CONSTANT` declarations of the root module and of instantiated modules |
-| `Slot` | a position in a definition's frame (parameters, bound variables, `LET` locals, substitution bindings) |
+| `VarId` | state variables of the root module, in the root context's order (TLC's own order is WP-A3) |
+| `ConstId` | `CONSTANT` declarations of every module (TLC binds the configuration's constants by name in all of them) |
+| `DeclId` | `CONSTANT` and `VARIABLE` declarations of every module |
+| `Slot` | a position in a definition's frame (parameters, bound variables, `LET` locals, recursive function names) |
 | `StdOp` | an operator that TLC overrides in Java (§5) |
 
-Ids are dense `u32`s assigned by a deterministic traversal: modules in dependency order, definitions in source order. Lowering the same input always gives the same ids. Ids are not stable across edits; §7 covers caching.
+Ids are dense `u32`s assigned by a deterministic traversal: modules in dependency order (each file's inner modules first), the symbols of each module's context in SANY's insertion order, then its assumptions and theorems; definitions reached only through uses get ids when first reached. Lowering the same input always gives the same ids. Ids are not stable across edits; §7 covers caching.
 
 ### 2. Expressions
 
-Expression kinds are explicit Rust enum variants, not SANY's `$`-names. A spec SANY accepts lowers to no error nodes.
+Expression kinds are explicit Rust enum variants, not SANY's `$`-names. A spec SANY accepts lowers to no error nodes. (`Unbound` and `Unevaluable` below are not errors: they are places where TLC itself raises an evaluation error, kept so that dive raises the same one.)
 
 | Group | Variants |
 |---|---|
-| Literals | `Bool`, `Num` (the numeral's text; the integer mode decides at binding time whether it is too big, `TLC_INTEGER_TOO_BIG` under `--int=tlc`), `Str` (unescaped as SANY does) |
-| References | `Var { var, primed }`, `Const(ConstId)`, `Local(Slot)`, `SubstRef { slot, primed }`, `Def(DefId)` (zero-arity use) |
-| Application | `Apply { callee, args }`, where `callee` is `Def(DefId)`, `Param(Slot)` (an operator parameter), `Std(StdOp)` or `Lambda(DefId)`, and each argument is an expression or an operator reference |
+| Literals | `Bool`, `Num` (the numeral's text; the integer mode decides at binding time whether it is too big, `TLC_INTEGER_TOO_BIG` under `--int=tlc`), `Decimal` (TLC refuses it at start-up, `TLC_CANT_HANDLE_REAL_NUMBERS`), `Str` (unescaped as SANY does) |
+| References | `Var { var, primed }` and `Const(ConstId)` for declarations no instance substitutes; `Local(LocalRef)`, a slot of the current frame or an enclosing one (`LocalRef { up, slot }`); `SubstRef { decl, primed }` for declarations some instance substitutes, looked up dynamically (§3); `Def(DefId)` (zero-arity use); `Unbound(name)` for a name TLC's context cannot reach (only through subexpression selectors; TLC raises `TLC_CONFIG_UNDEFINED_OR_NO_OPERATOR`) |
+| Application | `Apply { callee, args }`, where `callee` is an `OpRef`: `Def(DefId)` (including `LAMBDA`s), `Param(LocalRef)` (an operator parameter), `Std(StdOp)`, `Builtin(BuiltinOp)` (a built-in passed as an argument), `Const(ConstId)` or `Subst(DeclId)` (a constant operator), or `Unbound`. Each argument is an expression with its laziness (`Pass`, §3) or an operator reference. The set and equality built-ins are `Builtin { op, args }` |
 | Logic | `Junction { kind: And/Or, bulleted: bool, items }` (n-ary, item order kept), `Not`, `Implies`, `Equiv`, `If`, `Case { arms, other }` |
 | Binders | `Quant { kind: Exists/Forall/Choose, bounds, body }`, where each bound is a single slot or a tuple pattern with an optional domain (unbounded forms are kept so that evaluation can raise TLC's error); `SetFilter`, `SetMap`, `FcnCons`, `RecFcn` (recursive function definitions `f[x \in S] == e`) |
 | Data | `SetEnum`, `Tuple`, `Record`, `RecordSet`, `FcnSet`, `Cartesian`, `FcnApply`, `Except { base, updates }` with `ExceptAt` for `@`, plus the set operators as `Std` or language built-ins |
 | Scoping | `Let { defs, body }`; `Subst { bindings, body }` for instance substitutions; `Label { name, body }` (transparent, kept for diagnostics) |
 | Actions | `Prime(e)` for primed non-variables, `Unchanged(e)`, `StepBox { action, sub }` (`[A]_v`), `StepAngle { action, sub }` (`<A>_v`), `Enabled(e)`, `Cdot(a, b)` |
-| Temporal | `Always`, `Eventually`, `LeadsTo`, `Wf`, `Sf`, `TemporalExists`, `TemporalForall` |
+| Temporal | `Always`, `Eventually`, `LeadsTo`, `WhilePlus` (`-+->`), `Wf`, `Sf`, `TemporalQuant` (`\EE`/`\AA`) |
+| Not evaluable | `Unevaluable` (an `ASSUME`/`PROVE` used as a theorem name's body, proof constructs): TLC's "cannot be evaluated" error |
 
 **Every expression node carries:**
-- `origin`: file, text range and module, plus the instance chain for instantiated definitions;
+- `origin`: file, byte range, SANY's line and column of both ends, and the instantiated definition (`I!Op`) it was lowered under;
 - `level`: SANY's level (constant, state, action, temporal), taken from `dive-sema`;
 - `effects` (§6).
 
 **Frames.**
-- Each definition owns a frame layout: parameters, then bound variables, `LET` locals and substitution bindings, each with a fixed slot.
-- `LET` definitions with parameters, and `LAMBDA`s, are separate `DefId`s marked `Local { parent }`. They capture their parent's frame.
-- Nothing is looked up by name after lowering.
+- Each definition owns a frame layout: parameters, then bound variables, zero-arity `LET` definitions (thunks) and recursive function names, each with a fixed slot. Substitutions have no slots: they are dynamic (§3).
+- Where a definition sits is its `DefScope`:
+  - `TopLevel`: its own frame, no parent;
+  - `Local { parent }`: a `LET` operator with parameters, with its own frame whose parent is the frame the `LET` was evaluated in;
+  - `LetValue { parent, slot, pass }`: a zero-arity `LET` definition, a thunk in `slot` of the parent's frame, whose body is evaluated in that frame;
+  - `Inline { parent }`: a `LAMBDA`, or a `LET` definition reached through a subexpression selector from outside its `LET` (`COp(1)!(2)!G(3)`), lowered at its single point of use with a frame whose parent is the frame of the use. TLC finds neither in its context and evaluates the body in the context of the use, so names the selector's generated `LAMBDA` binds are visible in it (tlaplus `test-model/suite/test206.tla`).
+- A local reference is `LocalRef { up, slot }`: `up` frames out from the current one. A slot is rebound on each iteration of its binder, so an evaluator with mutable frames must snapshot a frame when a closure captures it (a thunk, a lazy function, a lazy set filter).
+- Nothing is looked up by name after lowering, except substitutions (§3).
+- Unnamed `ASSUME`s and `THEOREM`s are definitions too, so that every expression belongs to a frame. TLC processes the literals of theorem statements at start-up (`SpecProcessor.processConstants`), so they are lowered; an `ASSUME`/`PROVE` statement is `Unevaluable`.
 
 ### 3. Laziness, `INSTANCE` and recursion
 
@@ -118,12 +126,15 @@ Expression kinds are explicit Rust enum variants, not SANY's `$`-names. A spec S
   - `Subst` bindings.
 
   The evaluator implements TLC's caching rule at those points (ADR 0014).
-  - Lowering marks an argument or binding `Strict` only when the effects analysis shows it is pure and cannot fail: a literal, a variable, a bound name, or a tuple or record of these.
+  - Lowering marks an argument or binding `Strict` only when it is pure and cannot fail: a literal, a bound variable, or a tuple or record of these. Every other point is `Lazy`. Arguments of built-ins and Java overrides are `Direct`: not laziness points.
   - Evaluating such a node eagerly is indistinguishable from TLC.
+  - A state variable is *not* strict. It can be unassigned (in `Init`, or primed while successors are generated), and TLC's enumerator sees through a lazy argument to the variable it names (`SymbolNodeValueLookupProvider.getVar`): `F(v) == v \in S` used as `Init == F(x)` assigns `x`. Evaluating `x` eagerly would fail instead.
 - **`INSTANCE` is not expanded by textual substitution.**
   - An instantiated definition `I!Op` is a `DefId` whose body is the original body under a `Subst` node binding the instance's substitutions. Priming a substituted variable (`x <- e`, then `x'`) lowers to `SubstRef { primed: true }`, meaning `e` evaluated in the primed context.
+  - **Substitutions are dynamic, as in TLC.** `I!Op`'s body calls the instantiated module's *other* definitions (`Op2`), which SANY does not copy: their references to the module's constants and variables must see `I`'s substitutions. TLC gets this from its single dynamic context: `Subst` bindings are consed onto the context (`Tool.evalImplSubstInKind`, `Tool.java:1864-1873`), operator bodies are evaluated in the caller's context extended with their parameters (`getOpContext`), and a declaration is looked up in the context before its configured value (`SymbolNodeValueLookupProvider.lookup`). So every reference to a substituted declaration, wherever it is, is `SubstRef { decl, primed }` (or `OpRef::Subst(decl)` for a constant operator): the evaluator takes the innermost active binding of `decl`, and only if there is none falls back to the declaration's own meaning (a root variable or a configured constant). Under `ENABLED`, TLC stops that lookup at the `ENABLED` for variables (`Context.branch`, cut-off lookup). A declaration no instance substitutes keeps the direct `Var`/`Const`.
+  - **Parameters, bound variables and `LET` values are lexical slots.** TLC looks them up dynamically too, but the two agree: a closure over a parameter could only see a different binding if it were applied inside a newer activation of the definition that binds it, which needs a recursive operator with an operator parameter, and SANY rejects those (a `RECURSIVE` declaration cannot declare operator parameters). The one case where TLC's dynamic lookup reaches names the lexical scope does not have is the selector case of `DefScope::Inline` above.
   - This keeps TLC's lazy, cached substitution semantics. It also avoids the blow-up of copying bodies per instance, and keeps the `ENABLED`-under-substitution cases fixed upstream in `8a23cb1dc` expressible.
-  - The pass `inline_pure_substitutions` replaces a binding by its expression when the expression is pure and cannot fail. That is semantics-preserving, and it lets the evaluator and compiler see through common refinement mappings.
+  - The pass `inline_pure_substitutions` (WP-A4) replaces a binding by its expression when the expression is pure and cannot fail. That is semantics-preserving, and it lets the evaluator and compiler see through common refinement mappings.
 - **Recursion.**
   - `RECURSIVE` operators are ordinary definitions marked `recursive`. The call graph may be cyclic only through them.
   - Recursive functions are `RecFcn` nodes.
@@ -131,13 +142,22 @@ Expression kinds are explicit Rust enum variants, not SANY's `$`-names. A spec S
 
 ### 4. Actions
 
-**The action tree.** `dive_ir::actions::split(expr) -> ActionTree` mirrors `Tool.getActions` exactly. Its nodes:
-- `Disj(children)`;
-- `ExistsSplit { bounds, body }`: a `\E` whose domains are constant-level;
-- `Inline { def, args, body }`: a user operator with constant-level arguments;
-- `Leaf(ExprId)`.
+**The action tree.** `dive_ir::actions::split(ir, root, name, frame, redirects) -> Split` mirrors `Tool.getActions` and `getActionsAppl` exactly. Its nodes:
+- `Disj { children }`: `\/` and bulleted `\/` lists;
+- `Exists { name, body }`: a bounded `\E` (`OPCODE_be`). Its domains are enumerated in the empty state; whether they evaluate is decided then, not by level, since a state-level domain that does not read a variable evaluates;
+- `Inline { def, constant_args }`: a use of a user definition, which TLC inlines when every argument has constant level (`getLevel`, including operator arguments, whose level `Arg::Op` carries);
+- `Scope { body }`: `LET`, labels and substitution-free `Subst`s, which are transparent;
+- `Leaf { name }`: one action;
+- `Throws`: TLC throws while splitting here;
+- `Configured`: a constant or constant operator, which depends on the configuration.
 
-`LET`, labels and substitution-free `Subst`s are transparent. A `Subst` with substitutions is a leaf.
+A definition's subtree is shared (`Split::defs`), so recursive operators give a finite graph. The rules the implementation had to make explicit, each checked against TLC (below):
+- **Names.** An action is named after the innermost operator inlined around it. An application that is not inlined is one action named after the operator applied (`(OpDefNode) opNode`), including a Java override.
+- **`LET` definitions are not bound while splitting.** A `LET` value used as a disjunct is found by name and inlined, under its own name.
+- **Exceptions.** An operator whose lookup is not a definition, and is not one itself, makes TLC's cast to `OpDefNode` throw `ClassCastException`: a parameter or bound variable bound to a value, a declaration, a theorem name, an operator parameter. So does an expression that is not boolean at all. The nearest enclosing `Inline` catches it, keeps the actions already added, and adds the whole application as one action. An enclosing `Exists` catches it, removes what its body added, and becomes one action. At the top it is TLC's error.
+- **A `Subst` with substitutions is a leaf.** For an instantiated `SPECIFICATION`, TLC wraps the `A` of `[][A]_v` in a new substitution (`Specs.addSubsts`) whose location is the `INSTANCE`'s, and that wrapper is the one action.
+- **Selected subexpressions** (`Op!1`, SANY's `$Nop`) are leaves (`Expr::Selected`).
+- **Overrides.** The configuration's `<-` replacements of definitions come first in TLC's lookup, so `split` takes them as redirects: a use of `Op` inlines `Other`, under `Other`'s name.
 
 **From tree to actions.** Expanding `ExistsSplit` needs values, so it happens when the model is built (§8). The result is the flat, ordered action list TLC uses. Each action has:
 - a leaf expression;
@@ -155,7 +175,9 @@ If a split domain fails to evaluate or is empty, the whole `\E` becomes one acti
 - `[A]_v`, `<A>_v`, `IF`, `CASE`, `\E`, `\A`, `=>`;
 - application of a function-valued lambda.
 
-**The `ActionShape` view.** `dive_ir::actions::shape(action)` returns an `ActionShape` for export and diagnostics:
+**Labels.** `dive_ir::actions::label` formats TLC's `<Name(v1,v2) location>` (`Action.getLocation`). The values are those of the named definition's parameters bound by inlining, joined with `,` and no space. The location is the leaf predicate's. An unnamed action prints as `Action`.
+
+**The `ActionShape` view.** `dive_ir::actions::shape(ir, leaf)` returns an `ActionShape` for export and diagnostics:
 - `name`;
 - `params` (split variables and their domains);
 - `guards` (state-level conjuncts);
@@ -178,7 +200,14 @@ The TLA+ body is kept for documentation, but nothing evaluates it unless `dive-s
 
 **Matching and refusal.**
 - Matching is by module and definition, as TLC's own matching is. A user module's definition that has the same name is not a `StdOp`.
-- An overridden operator that dive does not implement is refused as `unsupported` when the model is built, if it is reachable from any role (§8). It is never evaluated through its placeholder body.
+- Lowering reproduces both of TLC's installation phases (`SpecProcessor.processModuleOverrides`, `SpecProcessor.java:2114-2324`):
+  1. for each loaded file-level module `M` with a class `tlc2.module.M`, every unannotated public static method is matched by name (after `TLARegistry.mapName`) against the definitions in `M`'s context, including extended ones, modules in dependency order, a later match overwriting an earlier one;
+  2. then every annotated method (`@TLAPlusOperator`, `@Evaluation`, `@TLAPlusCallable`) of the index classes, `tlc2.module.TLCBuiltInOverrides` and then the CommunityModules' `tlc2.overrides.TLCOverrides`, names a module and a definition.
+
+  The match is by module *name* (a user module called `Sequences` is overridden too), and the override is attached to the definition's body, so instantiated copies (`S!Len`) share it.
+- **Last write wins matters.** `Naturals` and `Integers` both have classes, and `Integers EXTENDS Naturals`, so in a specification that loads `Integers` the shared operators are `Integers`' methods, otherwise `Naturals`'. They differ: only `Integers.Divide` checks `-2147483648 \div -1`. `StdOp` therefore has one variant per *method* (`NaturalsDiv`, `IntegersDiv`), and the variant a definition gets depends on the modules loaded.
+- **The table is extracted, not transcribed.** `StdOp` (158 entries) was generated from the class files of the pinned `tla2tools.jar` and `CommunityModules-202610040242.jar`: access flags, parameter counts and annotation values (`docs/provenance.md`). Each variant records how TLC calls it (`StdKind`: value, evaluating, callable) and whether dive plans to implement it (`StdSupport`): `Core` (WP-C3's scope), `Extension` (CommunityModules, on demand), `Introspection` (reads checker state: `TLCExt!Trace`, `CounterExample`, `ToTrace`, `PickSuccessor`, `TLCDefer`, `_TLCState`, `_Counts`) or `Io` (files, processes, environment).
+- Lowering records a `Refusal`, naming the operator, at every use of a non-`Core` override, outside the bodies of other overrides. An overridden operator that dive does not implement is refused as `unsupported` when the model is built, if it is reachable from any role (§8; `Ir::reachable_defs`). `dive-model` also refuses `Core` operators `dive-stdlib` has not implemented yet. An override is never evaluated through its placeholder body.
 
 ### 6. Effects analysis
 
@@ -190,6 +219,9 @@ Lowering computes, bottom-up over expressions and to a fixed point over definiti
 | `live_tlcget` | `TLCGet` of `"generated"`, `"distinct"`, `"queue"`, `"diameter"`, `"duration"`, `"stats"`, `"all"`, `"all:named"` or an integer or `"s:"` register |
 | `may_fail` | conservatively, anything that can raise an evaluation error |
 | `uses_enabled`, `temporal` | `ENABLED` and temporal operators |
+| `open` | reading or applying a constant, which the configuration may bind to a definition with `<-`; `dive-model` completes the analysis once it knows the binding |
+
+`TLCGet` with a key that is not a literal is `impure` and `live_tlcget`. An application of an operator parameter has the effects of every operator passed as an argument anywhere in the specification (a closed-world bound). A use of a `LET` value has the effects of its definition.
 
 The analyses decide:
 - strict versus lazy points (§3);
@@ -200,12 +232,12 @@ The analyses decide:
 ### 7. Origins, stable identities and serialization
 
 - **Origins.**
-  - Every node's origin maps to file, line and column for diagnostics, using `dive-syntax`'s SANY column rules.
-  - It also gives the TLC-format location string used in counterexample labels and in the `-dumpTrace` JSON `location` objects.
+  - Every node's origin maps to file, line and column for diagnostics, using SANY's (`JavaCC`'s) column rules: one column per UTF-16 unit, tabs to the next multiple of 8, `\n`, `\r` and `\r\n` ending lines, end column inclusive.
+  - It also gives the TLC-format location string used in counterexample labels and in the `-dumpTrace` JSON `location` objects: `line L, col C to line L2, col C2 of module M`, where `M` is the file-level module of the file, as SANY names locations also inside inner modules.
 - **Structural hashes.**
-  - Each definition has a hash of its lowered body that ignores origins. `dive-compile` uses it for its build cache, and IR caching uses it for invalidation.
+  - Each definition has a hash of its lowered body that ignores origins and ids (definitions, declarations and overrides are hashed by name). It is 64-bit FNV-1a, whose output is fixed across platforms and Rust versions. `dive-compile` uses it for its build cache, and IR caching uses it for invalidation.
 - **Serialization.**
-  - The IR derives `serde` serialization behind a version constant `IR_SCHEMA`.
+  - The IR derives `serde` serialization behind a version constant `IR_SCHEMA`. The on-disk format and the cache itself are WP-A4; the corpus tests already check that a JSON round trip gives an equal `Ir`.
   - The on-disk cache is keyed by SHA-256 over: dive's version, `IR_SCHEMA`, the bytes of every loaded module, the search path and the lowering options.
   - A cache hit must give an `Ir` equal to a fresh lowering; a test asserts this for the corpus.
   - Caching is an optimisation. The ADR 0006 start-up target (≤ 10 ms for a trivial spec) is met without it.
@@ -236,7 +268,7 @@ The IR is value-free and configuration-free. Constants, overrides and roles are 
 
 **Why a separate crate.** The binding stage needs `dive-config`, `dive-value`, `dive-eval` (to precompute constants and expand splits) and `dive-stdlib`. `dive-ir` may use none of them, and `dive-eval` may not use `dive-config`. The checker, the simulator, the liveness checker and the trace validator all need the same binding. Duplicating a `SpecProcessor` port in each would be a soundness hazard.
 
-**Proposed layering change** (an owner decision; `layering.rs` is not edited here):
+**Layering change** (accepted by the lead on 2026-10-08, open question 11; in `xtask/src/layering.rs`):
 - add `("dive-model", &["dive-ir", "dive-value", "dive-config", "dive-eval", "dive-stdlib"])`;
 - add `dive-model` to the allowed dependencies of:
   - `dive-check`, `dive-liveness` and `dive-sim`;
@@ -265,3 +297,16 @@ Each of these can change evaluation order, error behaviour or side effects, so e
   - when the Verus exporter starts (type hints);
   - when `dive-compile` starts (whether frames need more structure);
   - if profiling shows substitution frames dominate evaluation.
+
+## Amendments
+
+**2026-10-08, WP-A1 and WP-A2 (lowering and the action tree).** Implementing them over every corpus module showed five details of the original text to be wrong or incomplete. The sections above now say what was built; the evidence is:
+
+1. **Substitutions are dynamic (§2, §3).** The original `SubstRef { slot, primed }` bound substitutions to slots of the instantiated definition's frame. That cannot work: `I!Op`'s body calls the instantiated module's other definitions, which SANY does not copy, and their references to the module's declarations must resolve to `I`'s substitutions. TLC resolves them through its dynamic context (`Tool.evalImplSubstInKind`, `getOpContext`, `SymbolNodeValueLookupProvider.lookup`). `SubstRef` and `OpRef::Subst` now name the declaration and are looked up dynamically; `Subst` bindings have no slots.
+2. **Variables are not strict (§3).** The original list of strict shapes included variables. An unassigned variable fails, and TLC's enumerator relies on a lazy argument naming a variable to assign it (`getVar`), so a variable argument stays lazy.
+3. **Selectors reach `LET` definitions out of scope (§2).** A subexpression selector such as `COp(1, 2)!(3)!++(4, 5)` (tlaplus `test-model/suite/test206.tla`, which SANY accepts) applies a `LET` operator outside its `LET`, inside the `LAMBDA` SANY generates. TLC finds the operator by node, not in its context, and evaluates its body in the context of the use, where the `LAMBDA` binds the names the body needs. Lowering it as a separate top-level definition left 31 unresolved references in the tlaplus tests; lowering it inline, like a `LAMBDA` (`DefScope::Inline`), leaves none.
+4. **Overrides depend on which modules are loaded (§5).** `Naturals` and `Integers` both override the arithmetic operators, with different code, and TLC's last write wins. `StdOp` has one variant per Java method, and matching reproduces TLC's order.
+
+5. **The action tree needs more node kinds than the four first listed (§4).** TLC's split depends on exceptions as well as values. An operator its lookup cannot cast to a definition throws; the nearest inlining or `\E` catches it, and the two treat the actions already added differently. `LET` definitions are not bound while splitting. Configuration overrides redirect the split. The tree therefore has `Scope`, `Throws` and `Configured` nodes, and `split` takes the overrides. It was checked against TLC's own `Tool.getActions()` on the 141 small-tier Examples models: 1,994 actions with every name, parameter and label in order. It was also checked on 44 repository models, including 7 fixtures written to pin each rule (`crates/dive-ir/acceptance/README.md`).
+
+Smaller additions: `LocalRef { up, slot }` for closures over enclosing frames; `Decimal`, `WhilePlus`, `Unbound` and `Unevaluable` nodes; `OpRef::Builtin`, `Const` and `Subst` callees, with `LAMBDA` folded into `Def`; definitions for unnamed assumptions and theorems; the `open` effect; `DeclId`; `lower` returns `Result<Ir, LowerError>`, failing only on rejected input or an internal bug, with refusals recorded in the IR.

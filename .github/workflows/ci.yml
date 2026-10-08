@@ -81,6 +81,10 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
         run: cargo doc --workspace --no-deps --locked
+      - name: dive-trace standalone (no feature unification)
+        # Features unify only across the packages selected, so this build
+        # fails if dive-trace reaches dive-eval's enumerator (ADR 0016 §2).
+        run: cargo build -p dive-trace --locked
       - name: crate layering
         run: cargo xtask check-layering
       - name: cargo-deny

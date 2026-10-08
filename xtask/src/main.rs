@@ -1,6 +1,7 @@
 //! Repository automation. Run as `cargo xtask <command>`.
 #![forbid(unsafe_code)]
 
+mod features;
 mod layering;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -11,7 +12,8 @@ const USAGE: &str = "usage: cargo xtask <command>
 
 commands:
     install-hooks   copy tracked git hooks into the shared hooks directory
-    check-layering  verify internal crate dependencies follow the charter DAG
+    check-layering  verify internal crate dependencies follow the charter DAG, and
+                    that dive-trace builds without dive-eval/enumerate
     protect-main    apply branch protection to main on GitHub (PR mode)
 ";
 
@@ -140,6 +142,14 @@ fn check_layering() -> Result<()> {
             if dep_name.starts_with("dive-") && !is_dev && !permitted.contains(dep_name) {
                 violations.push(format!("{name} -> {dep_name} is not a permitted edge"));
             }
+        }
+    }
+    for root in layering::ENUMERATE_FREE {
+        if features::enables(packages, root, "dive-eval", "enumerate") {
+            violations.push(format!(
+                "{root} enables dive-eval/enumerate (directly or through a dependency); \
+                 the successor enumerator must stay out of it (ADR 0016 §2)"
+            ));
         }
     }
     for name in allowed.keys() {

@@ -6,6 +6,27 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Added
+- `dive-ir` (M5, WP-A1): the core IR and its lowering from `dive-sema` (ADR 0013):
+  - every expression and operator form as an explicit variant, with SANY's level, an
+    origin with SANY's line and column, and effects (`impure`, `live_tlcget`, `may_fail`,
+    `uses_enabled`, `temporal`, `open`);
+  - explicit laziness points (operator arguments, zero-arity `LET` definitions,
+    substitutions), `INSTANCE` kept as dynamic substitutions, explicit recursion;
+  - recognition of TLC's Java overrides (`StdOp`, extracted from the pinned jars) and a
+    refusal, naming the operator, at every use of one dive does not implement;
+  - deterministic ids, structural hashes, `serde` serialization (`IR_SCHEMA` 1), a
+    debug dump and an invariant checker;
+  - every module SANY accepts in Examples, the tlaplus tests and CommunityModules lowers
+    (`crates/dive-ir/acceptance/README.md`).
+- `dive-ir` action tree (M5, WP-A2): `actions::split` reproduces TLC's split of the
+  next-state relation into actions (`Tool.getActions`), including its exception paths,
+  configuration overrides and TLC's action labels; `actions::shape` gives the
+  guards-and-updates view. On the 141 small-tier Examples models it reproduces TLC's own
+  action list (names, parameters, labels, order and count) for every model.
+- `dive-model`, the configuration-binding stage (stub), and `dive-eval`'s `enumerate`
+  feature (stub). `cargo xtask check-layering` rejects a standalone `dive-trace` build
+  that enables the enumerator, and the workspace gate builds `dive-trace` on its own
+  (ADRs 0013 and 0016, accepted).
 - Cargo workspace with one crate per charter component, workspace lints,
   pinned toolchain, crate layering enforcement and lean CI.
 - AI authorship protection: commit-msg hook, CI check and agent configuration.
