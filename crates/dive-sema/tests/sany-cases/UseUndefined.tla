@@ -1,0 +1,3 @@
+---- MODULE UseUndefined ----
+USE Undefined
+====

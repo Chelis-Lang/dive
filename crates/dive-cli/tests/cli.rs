@@ -157,3 +157,75 @@ fn parse_missing_file_is_usage_error() {
         Some(2)
     );
 }
+
+#[test]
+fn analyze_accepts_and_reports_levels() {
+    let path = temp_file(
+        "Counter.tla",
+        "---- MODULE Counter ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\n====\n",
+    );
+    let out = dive(&["analyze", &path.to_string_lossy(), "--output", "json"]);
+    assert!(out.status.success());
+    let v: serde_json::Value = match serde_json::from_slice(&out.stdout) {
+        Ok(v) => v,
+        Err(e) => unreachable!("invalid JSON: {e}"),
+    };
+    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["command"], "analyze");
+    assert_eq!(v["accepted"], true);
+    assert_eq!(v["module"], "Counter");
+    assert_eq!(v["modules"], serde_json::json!(["Naturals", "Counter"]));
+    let levels: Vec<(String, String)> = v["definitions"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .map(|d| (d["name"].to_string(), d["level"].to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+    assert!(levels.contains(&("\"Init\"".to_owned(), "\"state\"".to_owned())));
+    assert!(levels.contains(&("\"Next\"".to_owned(), "\"action\"".to_owned())));
+}
+
+#[test]
+fn analyze_rejects_with_codes_and_sany_cross_reference() {
+    let path = temp_file("Undef.tla", "---- MODULE Undef ----\nInit == y = 0\n====\n");
+    let out = dive(&["analyze", &path.to_string_lossy(), "--output", "json"]);
+    assert_eq!(out.status.code(), Some(1));
+    let v: serde_json::Value = match serde_json::from_slice(&out.stdout) {
+        Ok(v) => v,
+        Err(e) => unreachable!("invalid JSON: {e}"),
+    };
+    assert_eq!(v["accepted"], false);
+    assert_eq!(v["diagnostics"][0]["code"], "DIVE-E0100");
+    assert_eq!(v["diagnostics"][0]["sany_code"], 4200);
+    assert_eq!(v["diagnostics"][0]["span"]["line"], 2);
+    let human = dive(&["analyze", &path.to_string_lossy()]);
+    assert!(String::from_utf8_lossy(&human.stderr).contains("error[DIVE-E0100] (SANY 4200)"));
+}
+
+#[test]
+fn analyze_finds_modules_on_the_library_path() {
+    let lib = temp_file("Lib.tla", "---- MODULE Lib ----\nk == 1\n====\n");
+    let root = temp_file(
+        "UsesLib.tla",
+        "---- MODULE UsesLib ----\nEXTENDS Lib\nz == k\n====\n",
+    );
+    let dir = lib
+        .parent()
+        .map(|p| p.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    assert_eq!(
+        dive(&["analyze", &root.to_string_lossy()]).status.code(),
+        Some(1)
+    );
+    for flag in ["--library-path", "--module-path"] {
+        let out = dive(&["analyze", &root.to_string_lossy(), flag, &dir]);
+        assert!(out.status.success(), "{flag}");
+    }
+    assert_eq!(dive(&["analyze"]).status.code(), Some(2));
+    assert_eq!(
+        dive(&["analyze", "x.tla", "--library-path"]).status.code(),
+        Some(2)
+    );
+}

@@ -77,3 +77,25 @@ They are recorded so that a future opt-in `--syntax=lenient` (result-changing) c
 | `LexStepInExpr` | `3 <4> 5` is rejected because `<4>` lexes as a proof-step token. |
 | `BadJunctionLexeme` | `a./\` lexes as a token that no grammar rule accepts. |
 | `OpArgPlus` | `F(+)` lexes `(+)` as `⊕`. |
+
+## SANY semantic-analysis artefacts (candidates)
+
+`dive-sema` matches SANY's semantic acceptance exactly by default: zero disagreements on
+the corpora, the error corpus and 12,441 mutants (`crates/dive-sema/acceptance/README.md`).
+The cases below are places where SANY's verdict looks like an artefact of its
+implementation rather than of TLA+. Each has a minimal spec with SANY's recorded verdict
+in `crates/dive-sema/tests/sany-cases/`.
+
+They are recorded so that future opt-in options could deliberately differ: a lenient mode
+for valid specifications SANY rejects, and a strict mode for suspicious ones SANY accepts.
+None is implemented.
+
+| Case | SANY behaviour | Possible option |
+|---|---|---|
+| `UnicodeNat` | `1 \in ℕ` with `EXTENDS Naturals` is "Unknown operator: `ℕ`": `ℕ`, `ℤ` and `ℝ` lex as identifiers that no standard module defines. | lenient: read them as `Nat`, `Int`, `Real` |
+| `LetInstanceInner`, `ProofInstanceStep` | An `INSTANCE` of an inner module inside a `LET` or proof step makes the loader read the inner module a second time from the root file's text (`MonolithSpecExtractor`), then reject "Multiply-defined module". | lenient: resolve the inner module |
+| `LabelOnAssumeProve` | A label inside an *unnamed* `THEOREM ASSUME ... PROVE` is "not in definition or proof step". | lenient |
+| `DupVariable`, `DupConstant`, `DupTheoremName`, `DupStepNames` | Declaring a variable or constant twice, or reusing a theorem or step name, is only a warning (4801). | strict: reject |
+| `UnnamedInstanceConflict` | `z == 2` then `INSTANCE P` with `P` defining `z == 1` is a warning; the instantiated `z` is silently dropped. | strict: reject |
+| `BoxLetAction` | `[](LET y == 1 IN x' = x + y)` is accepted; the stuttering check on `[]A` looks only at a bare operator application. | strict: reject |
+| `TemporalInIf` | `IF []TRUE THEN x' = x ELSE TRUE` is accepted; the mixed action/temporal check covers `/\`, `\/`, `=>`, `<=>` and junction lists, not `IF` or `CASE`. | strict: reject |

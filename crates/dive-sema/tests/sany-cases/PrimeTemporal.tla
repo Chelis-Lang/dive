@@ -1,0 +1,3 @@
+---- MODULE PrimeTemporal ----
+P == ([]TRUE)'
+====
