@@ -139,6 +139,9 @@ pub struct Evaluator<'a> {
     pub names: &'a Interner,
     pub ctx: Ctx,
     pub constants: Vec<String>,
+    /// `\div` is `Naturals.Divide` (the module loads `Naturals` but not
+    /// `Integers`), not `Integers.Divide`.
+    pub naturals_div: bool,
 }
 
 struct P<'a, 'b> {
@@ -305,6 +308,7 @@ impl P<'_, '_> {
             let b = self.unary()?;
             a = Value::int(match op.as_str() {
                 "*" => int(&a).mul(&int(&b), m)?,
+                "\\div" if self.ev.naturals_div => int(&a).div_naturals(&int(&b), m)?,
                 "\\div" => int(&a).div(&int(&b), m)?,
                 _ => int(&a).rem(&int(&b), m)?,
             });

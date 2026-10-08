@@ -123,6 +123,8 @@ fn evaluator<'a>(names: &'a dive_value::Interner, module: &str, ctx: Ctx) -> Eva
         names,
         ctx,
         constants: constants(module),
+        // `Integers` is loaded by `EXTENDS Integers` or through `TLCExt`.
+        naturals_div: !module.contains("Integers") && !module.contains("TLCExt"),
     }
 }
 

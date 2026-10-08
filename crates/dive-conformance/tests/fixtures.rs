@@ -468,6 +468,7 @@ fn golden_for(result: OracleResult, generated_at: &str) -> ModelGolden {
             },
             corpus_commit: "c".repeat(40),
             command: vec!["java".to_owned()],
+            trace_command: None,
             timeout_seconds: 60,
             reason: None,
             generator: "test".to_owned(),

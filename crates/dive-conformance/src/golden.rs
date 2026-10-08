@@ -34,6 +34,11 @@ pub struct Provenance {
     /// The exact command line, with machine paths as placeholders
     /// (`$DIVE_CACHE_DIR`, `$TMP`, `$CWD`).
     pub command: Vec<String>,
+    /// The command line of the `-dumpTrace json` trace pass, when one ran.
+    /// That run supplies only the counterexample's JSON document; `command`
+    /// is the clean run that decides everything else (issue #35, ADR 0003).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub trace_command: Option<Vec<String>>,
     /// The harness timeout in seconds.
     pub timeout_seconds: u64,
     /// The recorded reason for (re)generation, if given.
