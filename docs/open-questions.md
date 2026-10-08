@@ -28,7 +28,7 @@ Each question is open until it is answered here or recorded in an ADR.
     - **The proposal.** Report the *logical* worker count, 1, at every `--workers` setting. dive's parallel search is by construction TLC's single-worker search (ADR 0015), and the harness holds dive to the single-worker golden. `MCDieHardest` asserts `worker = 1`. The physical count is in dive's own output.
     - **The alternative.** Report the physical count, as TLC does for its own workers. A spec could then fail at `--workers 8` exactly as TLC fails at `-workers 8`.
     - **Recommended:** logical.
-11. **Layering change for M5** (ADRs 0013 §8 and 0016 §2). Approve:
+11. ~~**Layering change for M5**~~ **Resolved by lead 2026-10-08: accepted.** `dive-model` is in `xtask/src/layering.rs`, `dive-eval` has the `enumerate` feature, `check-layering` rejects a `dive-trace` build that enables it, and the workspace gate builds `dive-trace` standalone. ADRs 0013 and 0016 are accepted. Original question (ADRs 0013 §8 and 0016 §2): Approve:
     - a new crate, `dive-model`, which ports TLC's `SpecProcessor` and binds the configuration. It would depend on `dive-ir`, `dive-value`, `dive-config`, `dive-eval` and `dive-stdlib`, and `dive-check`, `dive-liveness`, `dive-sim`, `dive-trace`, `dive-compile` and `dive-api` would depend on it;
     - `dive-eval`'s successor enumerator behind a cargo feature, `enumerate`, which `dive-trace` keeps off. It would be enforced by a standalone `dive-trace` build in the workspace gate and a `check-layering` rule.
 

@@ -1,6 +1,6 @@
 # 0016: Trace validator independence (`dive-trace`)
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-08
 
 ## Context
@@ -88,10 +88,10 @@ The validator parses values with its own reader (`dive-value`'s JSON form). It n
 
 **Enforcement.**
 - **The `enumerate` feature.** `dive-eval`'s enumerator sits behind a cargo feature, `enumerate`. `dive-trace` depends on `dive-eval` and `dive-model` with that feature off. `dive-model` must itself never need the feature: action splitting evaluates domains as predicates and values (ADR 0013 §4).
-- **A standalone build in CI.** CI builds and tests `dive-trace` on its own (`cargo check -p dive-trace --all-targets` and `cargo test -p dive-trace`). Features are unified only across the packages selected, so a stray call into the enumerator fails to compile there, even though the full workspace build enables the feature through `dive-check`.
-- **Proposed layering change** (an owner decision; `layering.rs` is not edited here):
+- **A standalone build in CI.** The workspace gate builds `dive-trace` on its own (`cargo build -p dive-trace --locked`). Dev-dependencies are not part of that build, so the check covers the validator itself, not its tests. Features are unified only across the packages selected, so a stray call into the enumerator fails to compile there, even though the full workspace build enables the feature through `dive-check`.
+- **Layering change** (accepted by the lead on 2026-10-08, open question 11; implemented):
   - allow `dive-trace → dive-model`;
-  - extend `cargo xtask check-layering` to check that `dive-trace`'s manifest does not enable `dive-eval/enumerate`, directly or through `dive-model`;
+  - extend `cargo xtask check-layering` to check that a standalone `dive-trace` build does not enable `dive-eval/enumerate`, directly or through any internal dependency (`xtask/src/features.rs` resolves the features from the manifests, since `cargo metadata` reports them unified across the workspace);
   - add the standalone `dive-trace` build to the workspace gate.
 
 **What is shared, and why that is acceptable.**
