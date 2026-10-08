@@ -77,7 +77,7 @@ TLC paths below are relative to `tlatools/org.lamport.tlatools/src/` at tlaplus 
 |---|---|
 | `DefId` | operator, function, theorem and assumption definitions (named or not), including instantiated (`I!Op`), `LET`-local and `LAMBDA` definitions |
 | `ExprId` | expression nodes |
-| `VarId` | state variables of the root module, in the root context's order (TLC's own order is WP-A3) |
+| `VarId` | state variables of the root module, in the root context's insertion order; TLC's order (`varLoc`) is the permutation `Ir::tlc_var_order` (ADR 0015 §5) |
 | `ConstId` | `CONSTANT` declarations of every module (TLC binds the configuration's constants by name in all of them) |
 | `DeclId` | `CONSTANT` and `VARIABLE` declarations of every module |
 | `Slot` | a position in a definition's frame (parameters, bound variables, `LET` locals, recursive function names) |

@@ -114,6 +114,7 @@ struct Lowerer<'a> {
     decls: Vec<Decl>,
     decl_ids: HashMap<NodeId, DeclId>,
     vars: Vec<DeclId>,
+    tlc_vars: Vec<VarId>,
     consts: Vec<DeclId>,
     substituted: HashSet<NodeId>,
     std_bodies: HashMap<NodeId, StdOp>,
@@ -155,6 +156,7 @@ impl<'a> Lowerer<'a> {
             decls: Vec::new(),
             decl_ids: HashMap::new(),
             vars: Vec::new(),
+            tlc_vars: Vec::new(),
             consts: Vec::new(),
             substituted: HashSet::new(),
             std_bodies: HashMap::new(),
@@ -211,6 +213,16 @@ impl<'a> Lowerer<'a> {
                 }
             }
         }
+        // TLC's order of the same variables (`ModuleNode.getVariableDecls`).
+        self.tlc_vars = self
+            .m
+            .variable_decls(root)
+            .into_iter()
+            .filter_map(|node| {
+                let decl = self.decl_ids.get(&node)?;
+                self.decls.get(decl.index())?.var
+            })
+            .collect();
         self.match_overrides(&file_level);
     }
 
@@ -1688,6 +1700,7 @@ impl<'a> Lowerer<'a> {
             exprs: self.exprs,
             decls: self.decls,
             vars: self.vars,
+            tlc_vars: self.tlc_vars,
             consts: self.consts,
             refusals: self.refusals,
             sema_nodes: self.sema_nodes,

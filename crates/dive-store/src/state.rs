@@ -111,29 +111,85 @@ impl<'a> StateDecoder<'a> {
     }
 }
 
-/// dive's state fingerprint (ADR 0015 §5): FP64, under the run's polynomial, over the
-/// FP64 fingerprints of the variables' values in variable order.
+/// The state fingerprint (ADR 0015 §5), in one of two schemes.
 ///
-/// Value fingerprints are cached in shared compound values
-/// ([`TlcFingerprint::fingerprint_cached`]), so a successor pays only for the
-/// variables whose values it changed; combining costs eight table steps per
-/// variable.
+/// - **dive's** ([`StateFingerprinter::new`], the default profile): FP64, under
+///   the run's polynomial, over the FP64 fingerprints of the variables' values in
+///   the IR's variable order. Value fingerprints are cached in shared compound
+///   values ([`TlcFingerprint::fingerprint_cached`]), so a successor pays only
+///   for the variables whose values it changed; combining costs eight table
+///   steps per variable.
+/// - **TLC's** ([`StateFingerprinter::tlc`], `--compat=tlc`):
+///   `TLCStateMut.fingerPrint` without `VIEW` or symmetry, one FP64 stream over
+///   the values in TLC's variable order. It equals TLC's fingerprint bit for
+///   bit, so the fingerprint set, and the "actual" collision figure computed
+///   from it, are TLC's. It cannot reuse cached value fingerprints.
 ///
-/// These are not TLC's state fingerprints, which hash every value's bytes in one
-/// stream in TLC's variable order. Fingerprint values never appear in compared
-/// results; [`StateFingerprinter::tlc_fingerprint`] computes TLC's own where TLC
-/// semantics observe it.
+/// Both take a state in the IR's variable order. TLC's order is a permutation
+/// of it (`dive_ir::Ir::tlc_var_order`), passed in as IR variable indices:
+/// `order[i]` is the IR index of the variable whose TLC `varLoc` is `i`.
+///
+/// The scheme decides only which fingerprints are produced. Verdicts and
+/// counts are the same under both, except through a collision.
 #[derive(Clone, Debug)]
 pub struct StateFingerprinter {
     values: TlcFingerprint,
     index: usize,
+    /// TLC's variable order, or `None` for the IR's order.
+    tlc_order: Option<Box<[usize]>>,
+    /// Whether [`StateFingerprinter::fingerprint`] is TLC's fingerprint.
+    tlc_scheme: bool,
 }
 
 impl StateFingerprinter {
-    /// Fingerprints with TLC's polynomial `index` (`-fp index`, `0..131`).
+    /// dive's two-level fingerprint with TLC's polynomial `index` (`-fp index`,
+    /// `0..131`): the default profile. Its [`StateFingerprinter::tlc_fingerprint`]
+    /// takes the variables in the order given.
     #[must_use]
     pub fn new(index: usize) -> Option<Self> {
-        TlcFingerprint::new(index).map(|values| Self { values, index })
+        TlcFingerprint::new(index).map(|values| Self {
+            values,
+            index,
+            tlc_order: None,
+            tlc_scheme: false,
+        })
+    }
+
+    /// TLC's own state fingerprint with polynomial `index`: the scheme of
+    /// `--compat=tlc`. `tlc_order` is TLC's variable order as IR variable
+    /// indices (`tlc_order[varLoc]` is an IR index). `None` when `index` is out
+    /// of range or `tlc_order` is not a permutation of `0..n`.
+    ///
+    /// ```
+    /// use dive_store::state::StateFingerprinter;
+    /// use dive_value::{Ctx, Value};
+    /// let ctx = Ctx::tlc();
+    /// // The IR's order is (x, y); TLC's is (y, x).
+    /// let f = StateFingerprinter::tlc(0, &[1, 0]).ok_or("a permutation")?;
+    /// let identity = StateFingerprinter::tlc(0, &[0, 1]).ok_or("a permutation")?;
+    /// let x_y = [Value::Int(1), Value::Int(2)];
+    /// let y_x = [Value::Int(2), Value::Int(1)];
+    /// assert_eq!(f.fingerprint(&x_y, ctx)?, identity.fingerprint(&y_x, ctx)?);
+    /// assert_ne!(f.fingerprint(&x_y, ctx)?, identity.fingerprint(&x_y, ctx)?);
+    /// assert!(StateFingerprinter::tlc(0, &[0, 0]).is_none());
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    #[must_use]
+    pub fn tlc(index: usize, tlc_order: &[usize]) -> Option<Self> {
+        let mut seen = vec![false; tlc_order.len()];
+        for &i in tlc_order {
+            let slot = seen.get_mut(i)?;
+            if *slot {
+                return None;
+            }
+            *slot = true;
+        }
+        TlcFingerprint::new(index).map(|values| Self {
+            values,
+            index,
+            tlc_order: Some(tlc_order.into()),
+            tlc_scheme: true,
+        })
     }
 
     /// The polynomial index, to report with every fingerprint-mode result.
@@ -142,7 +198,14 @@ impl StateFingerprinter {
         self.index
     }
 
-    /// The two-level fingerprint of a state.
+    /// Whether [`StateFingerprinter::fingerprint`] computes TLC's fingerprint.
+    #[must_use]
+    pub const fn is_tlc(&self) -> bool {
+        self.tlc_scheme
+    }
+
+    /// A state's fingerprint in this fingerprinter's scheme; `vars` is in the
+    /// IR's variable order.
     ///
     /// ```
     /// use dive_store::state::StateFingerprinter;
@@ -158,6 +221,9 @@ impl StateFingerprinter {
     /// # Errors
     /// TLC's fingerprinting errors, such as a variable holding `Nat`.
     pub fn fingerprint(&self, vars: &[Value], ctx: Ctx) -> Result<u64, StoreError> {
+        if self.tlc_scheme {
+            return self.tlc_fingerprint(vars, ctx);
+        }
         let f = self.values.fp64();
         let mut fp = f.empty();
         for v in vars {
@@ -168,12 +234,29 @@ impl StateFingerprinter {
     }
 
     /// TLC's own state fingerprint (`TLCStateMut.fingerPrint` without `VIEW` or
-    /// symmetry): one FP64 stream over the values. `vars` must be in **TLC's**
-    /// variable order (WP-A3) for the result to equal TLC's.
+    /// symmetry), whatever the scheme: one FP64 stream over the values of `vars`,
+    /// given in the IR's variable order and taken in TLC's. Without a TLC order
+    /// ([`StateFingerprinter::new`]) the values are taken as given.
     ///
     /// # Errors
-    /// TLC's fingerprinting errors.
+    /// TLC's fingerprinting errors; [`StoreError::VarCount`] when `vars` does not
+    /// have one value per variable of the order.
     pub fn tlc_fingerprint(&self, vars: &[Value], ctx: Ctx) -> Result<u64, StoreError> {
-        Ok(self.values.fingerprint_state(vars, ctx)?)
+        let Some(order) = &self.tlc_order else {
+            return Ok(self.values.fingerprint_state(vars, ctx)?);
+        };
+        let count = StoreError::VarCount {
+            expected: order.len(),
+            found: vars.len(),
+        };
+        if vars.len() != order.len() {
+            return Err(count);
+        }
+        let mut fp = self.values.fp64().empty();
+        for &i in order {
+            let v = vars.get(i).ok_or_else(|| count.clone())?;
+            fp = self.values.extend(fp, v, ctx)?;
+        }
+        Ok(fp)
     }
 }

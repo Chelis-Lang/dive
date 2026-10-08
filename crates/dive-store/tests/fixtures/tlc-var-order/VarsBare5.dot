@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+2971137070422360597 [label="/\\ msgs = 10\n/\\ x = 50\n/\\ y = <<3, \"t\", FALSE>>\n/\\ z = \"s2_0\"\n/\\ pc = FALSE",style = filled]
+2971137070422360597 -> 5725553768689036394 [label="",color="black",fontcolor="black"];
+5725553768689036394 [label="/\\ msgs = 11\n/\\ x = 51\n/\\ y = <<4, \"t\", TRUE>>\n/\\ z = \"s2_1\"\n/\\ pc = TRUE",tooltip="/\\ msgs = 11\n/\\ x = 51\n/\\ y = <<4, \"t\", TRUE>>\n/\\ z = \"s2_1\"\n/\\ pc = TRUE"];
+5725553768689036394 -> 3958041705261519409 [label="",color="black",fontcolor="black"];
+3958041705261519409 [label="/\\ msgs = 12\n/\\ x = 52\n/\\ y = <<5, \"t\", FALSE>>\n/\\ z = \"s2_2\"\n/\\ pc = FALSE",tooltip="/\\ msgs = 12\n/\\ x = 52\n/\\ y = <<5, \"t\", FALSE>>\n/\\ z = \"s2_2\"\n/\\ pc = FALSE"];
+3958041705261519409 -> 4125919956777985168 [label="",color="black",fontcolor="black"];
+4125919956777985168 [label="/\\ msgs = 13\n/\\ x = 53\n/\\ y = <<6, \"t\", TRUE>>\n/\\ z = \"s2_3\"\n/\\ pc = TRUE",tooltip="/\\ msgs = 13\n/\\ x = 53\n/\\ y = <<6, \"t\", TRUE>>\n/\\ z = \"s2_3\"\n/\\ pc = TRUE"];
+{rank = same; 2971137070422360597;}
+{rank = same; 5725553768689036394;}
+{rank = same; 3958041705261519409;}
+}
+}

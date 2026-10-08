@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-5729925403217301009 [label="/\\ a1 = 50\n/\\ state = FALSE\n/\\ msgs = <<7, \"t\", FALSE>>\n/\\ rmState = FALSE\n/\\ Q = \"s6_0\"\n/\\ x = <<11, \"t\", FALSE>>\n/\\ y = \"s10_0\"\n/\\ z = FALSE\n/\\ pc = 90\n/\\ b_2 = <<3, \"t\", FALSE>>\n/\\ tmPrepared = 10\n/\\ votes = \"s2_0\"",style = filled]
+-5729925403217301009 -> -4412604043041199420 [label="",color="black",fontcolor="black"];
+-4412604043041199420 [label="/\\ a1 = 51\n/\\ state = TRUE\n/\\ msgs = <<8, \"t\", TRUE>>\n/\\ rmState = TRUE\n/\\ Q = \"s6_1\"\n/\\ x = <<12, \"t\", TRUE>>\n/\\ y = \"s10_1\"\n/\\ z = TRUE\n/\\ pc = 91\n/\\ b_2 = <<4, \"t\", TRUE>>\n/\\ tmPrepared = 11\n/\\ votes = \"s2_1\"",tooltip="/\\ a1 = 51\n/\\ state = TRUE\n/\\ msgs = <<8, \"t\", TRUE>>\n/\\ rmState = TRUE\n/\\ Q = \"s6_1\"\n/\\ x = <<12, \"t\", TRUE>>\n/\\ y = \"s10_1\"\n/\\ z = TRUE\n/\\ pc = 91\n/\\ b_2 = <<4, \"t\", TRUE>>\n/\\ tmPrepared = 11\n/\\ votes = \"s2_1\""];
+-4412604043041199420 -> 1656415281164552507 [label="",color="black",fontcolor="black"];
+1656415281164552507 [label="/\\ a1 = 52\n/\\ state = FALSE\n/\\ msgs = <<9, \"t\", FALSE>>\n/\\ rmState = FALSE\n/\\ Q = \"s6_2\"\n/\\ x = <<13, \"t\", FALSE>>\n/\\ y = \"s10_2\"\n/\\ z = FALSE\n/\\ pc = 92\n/\\ b_2 = <<5, \"t\", FALSE>>\n/\\ tmPrepared = 12\n/\\ votes = \"s2_2\"",tooltip="/\\ a1 = 52\n/\\ state = FALSE\n/\\ msgs = <<9, \"t\", FALSE>>\n/\\ rmState = FALSE\n/\\ Q = \"s6_2\"\n/\\ x = <<13, \"t\", FALSE>>\n/\\ y = \"s10_2\"\n/\\ z = FALSE\n/\\ pc = 92\n/\\ b_2 = <<5, \"t\", FALSE>>\n/\\ tmPrepared = 12\n/\\ votes = \"s2_2\""];
+1656415281164552507 -> 7514630845636667205 [label="",color="black",fontcolor="black"];
+7514630845636667205 [label="/\\ a1 = 53\n/\\ state = TRUE\n/\\ msgs = <<10, \"t\", TRUE>>\n/\\ rmState = TRUE\n/\\ Q = \"s6_3\"\n/\\ x = <<14, \"t\", TRUE>>\n/\\ y = \"s10_3\"\n/\\ z = TRUE\n/\\ pc = 93\n/\\ b_2 = <<6, \"t\", TRUE>>\n/\\ tmPrepared = 13\n/\\ votes = \"s2_3\"",tooltip="/\\ a1 = 53\n/\\ state = TRUE\n/\\ msgs = <<10, \"t\", TRUE>>\n/\\ rmState = TRUE\n/\\ Q = \"s6_3\"\n/\\ x = <<14, \"t\", TRUE>>\n/\\ y = \"s10_3\"\n/\\ z = TRUE\n/\\ pc = 93\n/\\ b_2 = <<6, \"t\", TRUE>>\n/\\ tmPrepared = 13\n/\\ votes = \"s2_3\""];
+{rank = same; -5729925403217301009;}
+{rank = same; -4412604043041199420;}
+{rank = same; 1656415281164552507;}
+}
+}

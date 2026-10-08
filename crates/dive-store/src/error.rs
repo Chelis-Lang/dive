@@ -39,6 +39,14 @@ pub enum StoreError {
     UnknownState(u64),
     /// A frontier state larger than a frontier chunk can hold (1 GiB).
     StateTooLarge(usize),
+    /// A state fingerprinted with a variable order over another number of
+    /// variables.
+    VarCount {
+        /// The variable order's length.
+        expected: usize,
+        /// The state's number of values.
+        found: usize,
+    },
 }
 
 impl StoreError {
@@ -52,6 +60,7 @@ impl StoreError {
             Self::BadParent { .. } => "DIVE-S0101",
             Self::UnknownState(_) => "DIVE-S0102",
             Self::StateTooLarge(_) => "DIVE-S0103",
+            Self::VarCount { .. } => "DIVE-S0105",
         }
     }
 }
@@ -83,6 +92,11 @@ impl fmt::Display for StoreError {
             Self::StateTooLarge(n) => write!(
                 f,
                 "{}: internal error: an encoded state of {n} bytes exceeds the frontier chunk size",
+                self.code()
+            ),
+            Self::VarCount { expected, found } => write!(
+                f,
+                "{}: internal error: a state of {found} values fingerprinted with a variable order over {expected}",
                 self.code()
             ),
         }

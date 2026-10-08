@@ -232,6 +232,8 @@ name = "dive-store"
 version = "0.0.0"
 dependencies = [
  "divan",
+ "dive-ir",
+ "dive-sema",
  "dive-value",
  "proptest",
  "serde_json",
