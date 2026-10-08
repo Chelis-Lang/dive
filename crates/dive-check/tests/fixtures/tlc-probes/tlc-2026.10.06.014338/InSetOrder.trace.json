@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":10,"beginColumn":9,"endLine":10,"endColumn":24,"module":"InSetOrder"}},[2,{"x":1}]]],"state":[[1,{"x":0}],[2,{"x":1}]]},"vars":["x"]}

@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"y":"init"}],{"name":"Next","location":{"beginLine":11,"beginColumn":37,"endLine":11,"endColumn":42,"module":"StringOrderViolation"}},[2,{"y":"zeta"}]]],"state":[[1,{"y":"init"}],[2,{"y":"zeta"}]]},"vars":["y"]}
