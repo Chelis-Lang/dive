@@ -190,6 +190,11 @@ version = "0.0.0"
 [[package]]
 name = "dive-ir"
 version = "0.0.0"
+dependencies = [
+ "dive-sema",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-liveness"
@@ -197,6 +202,10 @@ version = "0.0.0"
 
 [[package]]
 name = "dive-lsp"
+version = "0.0.0"
+
+[[package]]
+name = "dive-model"
 version = "0.0.0"
 
 [[package]]

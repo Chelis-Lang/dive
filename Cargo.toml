@@ -25,6 +25,7 @@ dive-check = { path = "crates/dive-check" }
 dive-liveness = { path = "crates/dive-liveness" }
 dive-sim = { path = "crates/dive-sim" }
 dive-trace = { path = "crates/dive-trace" }
+dive-model = { path = "crates/dive-model" }
 dive-pluscal = { path = "crates/dive-pluscal" }
 dive-api = { path = "crates/dive-api" }
 dive-lsp = { path = "crates/dive-lsp" }

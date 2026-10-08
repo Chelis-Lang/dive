@@ -114,7 +114,11 @@ scripts/             small shell helpers used by hooks and CI
 dependency edges, and `cargo xtask check-layering` enforces it in CI. One
 structural rule matters for soundness: `dive-trace` (the independent trace
 validator) must not depend on `dive-check`, `dive-liveness`, `dive-sim` or
-`dive-store`.
+`dive-store`. It must also build without `dive-eval`'s `enumerate` feature, the
+successor enumerator. `check-layering` resolves the features a standalone
+`dive-trace` build enables, and the gate builds `dive-trace` on its own so that
+workspace feature unification cannot hide a violation (ADR 0016 §2).
+`dive-model`, the binding stage (ADR 0013 §8), is shared by every backend.
 
 ## Rust conventions
 
@@ -147,6 +151,7 @@ cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked
 cargo xtask check-layering
+cargo build -p dive-trace --locked              # standalone: no feature unification
 cargo deny --locked check
 ```
 
