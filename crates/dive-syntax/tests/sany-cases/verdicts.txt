@@ -135,6 +135,8 @@ ProofBoxAssume.tla	accept
 ProofCaseArrow.tla	reject
 ProofCaseStep.tla	accept
 ProofDeeper.tla	accept
+ProofDepth100.tla	accept
+ProofDepth101.tla	reject
 ProofHaveWithProof.tla	reject
 ProofImplicit.tla	accept
 ProofLabelAssume.tla	accept
