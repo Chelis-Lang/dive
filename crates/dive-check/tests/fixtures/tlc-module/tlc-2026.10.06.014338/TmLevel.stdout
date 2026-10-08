@@ -1,0 +1,97 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 41698] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/TmLevel/TmLevel.tla
+Parsing file $TMP/tlc-11228949434480891596/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-11228949434480891596/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-11228949434480891596/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-11228949434480891596/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module TmLevel
+Linting of module TmLevel
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 23:09:25)
+@!@!@ENDMSG 2185 @!@!@
+<<"assume", 0>>
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+<<"init", 0>>
+<<"con", 0, 1>>
+<<"inv", 0, 1>>
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-10-08 23:09:25.
+@!@!@ENDMSG 2190 @!@!@
+<<"next", 0, 1>>
+<<"con", 1, 2>>
+<<"act", 0, 1, 1>>
+<<"inv", 1, 2>>
+<<"act", 0, 1, 1>>
+<<"next", 1, 2>>
+<<"con", 2, 3>>
+<<"act", 1, 2, 2>>
+<<"inv", 2, 3>>
+<<"act", 1, 2, 2>>
+<<"next", 2, 3>>
+<<"con", 3, 4>>
+<<"act", 2, 3, 3>>
+<<"inv", 3, 4>>
+<<"act", 2, 3, 3>>
+@!@!@STARTMSG 2114:1 @!@!@
+Deadlock reached.
+@!@!@ENDMSG 2114 @!@!@
+<<"init", 0>>
+<<"next", 0, 1>>
+<<"next", 1, 2>>
+@!@!@STARTMSG 2121:1 @!@!@
+The behavior up to this point is:
+@!@!@ENDMSG 2121 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+1: <Initial predicate>
+x = 0
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+2: <Next line 6, col 9 to line 6, col 69 of module TmLevel>
+x = 1
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+3: <Next line 6, col 9 to line 6, col 69 of module TmLevel>
+x = 2
+
+@!@!@ENDMSG 2217 @!@!@
+<<"next", 2, 3>>
+@!@!@STARTMSG 2217:4 @!@!@
+4: <Next line 6, col 9 to line 6, col 69 of module TmLevel>
+x = 3
+
+@!@!@ENDMSG 2217 @!@!@
+<<"init", 0>>
+<<"next", 0, 1>>
+<<"next", 1, 2>>
+<<"next", 2, 3>>
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(4) at 2026-10-08 23:09:25: 4 states generated (607 s/min), 4 distinct states found (607 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+4 states generated, 4 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 4.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 395ms at (2026-10-08 23:09:25)
+@!@!@ENDMSG 2186 @!@!@

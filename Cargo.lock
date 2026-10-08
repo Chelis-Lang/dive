@@ -264,6 +264,8 @@ version = "0.0.0"
 name = "dive-stdlib"
 version = "0.0.0"
 dependencies = [
+ "dive-eval",
+ "dive-ir",
  "dive-value",
  "num-bigint",
  "num-traits",

@@ -39,10 +39,12 @@
 //! `ENABLED`.
 #![forbid(unsafe_code)]
 
+mod community;
 mod core;
 mod env;
 mod error;
 mod eval;
+mod host;
 mod lazy;
 #[cfg(feature = "enumerate")]
 pub mod next;
@@ -50,7 +52,6 @@ mod options;
 mod scope;
 mod std;
 mod tla_cmp;
-#[cfg(feature = "enumerate")]
 mod tlc_enum;
 
 /// Without the successor enumerator, `ENABLED` (which searches for a
@@ -80,6 +81,7 @@ use dive_value::{Interner, Value};
 pub use crate::core::{CollectSink, PrintSink};
 pub use crate::env::{St, StateRef};
 pub use crate::error::{Ec, ErrorClass, EvalError, Result};
+pub use crate::host::{Counter, Host, HostError, RunConfig, TLCGET_NAMES};
 pub use crate::lazy::LazyFcn;
 pub use crate::options::{
     Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile, RECOMMENDED_STACK,
@@ -189,6 +191,42 @@ impl Evaluator {
         Self {
             core: Arc::new(Core::new(model, opts, sink)),
             collected: None,
+        }
+    }
+
+    /// Installs the run hosting the evaluator (see [`Host`]): the model
+    /// checker's live state, its random streams and `TLCSet("exit")`.
+    /// Replaces any host installed before.
+    pub fn set_host(&self, host: Arc<dyn Host>) {
+        let _ = self.replace_host(Some(host));
+    }
+
+    /// Installs `host` (or none) and returns the host installed before.
+    pub fn replace_host(&self, host: Option<Arc<dyn Host>>) -> Option<Arc<dyn Host>> {
+        ::std::mem::replace(
+            &mut *self
+                .core
+                .host
+                .host
+                .lock()
+                .unwrap_or_else(::std::sync::PoisonError::into_inner),
+            host,
+        )
+    }
+
+    /// The installed host, if any.
+    #[must_use]
+    pub fn host(&self) -> Option<Arc<dyn Host>> {
+        self.core.host.get()
+    }
+
+    /// Interns the names TLC interns when it creates its model checker
+    /// ([`TLCGET_NAMES`]), in TLC's order. A driver that reproduces TLC's
+    /// name order calls it after the binding stage and before checking the
+    /// assumptions, where TLC creates its `ModelChecker`.
+    pub fn intern_checker_names(&self) {
+        for n in TLCGET_NAMES {
+            self.core.names.intern(n);
         }
     }
 

@@ -37,7 +37,7 @@
 //!
 //! Anything not reproduced exactly is `unsupported`, naming the feature:
 //! whatever `dive-model` lists in `Model::unsupported` (temporal properties,
-//! `SYMMETRY`, operators dive does not implement such as `RandomElement`),
+//! `SYMMETRY`, operators dive does not implement such as `IOUtils`),
 //! and whatever the evaluator refuses during the search. Errors whose TLC
 //! error class is not reproduced yet are reported as errors with an
 //! unverified class ([`TlcClass::verified`]).
@@ -194,9 +194,11 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             opts.workers
         ));
     }
+    let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {
         eval: opts.eval,
         no_deadlock: opts.no_deadlock,
+        host: Some(host.clone()),
     };
     let m = match dive_model::bind(ir.clone(), cfg, &bind_opts) {
         Ok(m) => m,
@@ -216,6 +218,11 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         r.notes = notes;
         return r;
     }
+    // TLC creates its model checker here: `TLCGet("config")` and the
+    // checker's names exist from now on, and the counters read 0.
+    m.evaluator.intern_checker_names();
+    host.set_config(Some(engine::run_config(opts, m.settings.check_deadlock)));
+    engine::startup_counters(&host);
     let assumptions = m.check_assumptions();
     r.output.extend(m.take_output());
     match assumptions {
@@ -239,7 +246,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             return r;
         }
     }
-    let outcome = engine::search(&m, opts);
+    let outcome = engine::search(&m, opts, &host);
     r.verdict = outcome.verdict;
     r.stats = outcome.stats;
     r.tlc_prints_stats = outcome.tlc_prints_stats;

@@ -1,0 +1,83 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 41921] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/TmRandom/TmRandom.tla
+Parsing file $TMP/tlc-10942084658102350226/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-10942084658102350226/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-10942084658102350226/Randomization.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Randomization.tla)
+Parsing file $TMP/tlc-10942084658102350226/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-10942084658102350226/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Randomization
+Semantic processing of module TmRandom
+Linting of module TmRandom
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 23:09:32)
+@!@!@ENDMSG 2185 @!@!@
+"c"
+@!@!@STARTMSG 2149:3 @!@!@
+The invariant Inv is a constant-level formula (i.e., it contains no variables, primes, or temporal operators) and evaluates to TRUE. To assert constant-level formulas in your spec, use ASSUME ConstInv. If you optionally want to give the assumption a name, write ASSUME YourAssumption == ConstInv instead. See https://explain.tlapl.us/assumptions-and-invariants for additional details.
+@!@!@ENDMSG 2149 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-10-08 23:09:33.
+@!@!@ENDMSG 2190 @!@!@
+<<241, 0, {3, 8}>>
+<<241, 0, {8, 10}>>
+<<674, 1, {7, 10}>>
+<<674, 1, {1, 8}>>
+<<874, 1, {6, 7}>>
+<<874, 1, {1, 8}>>
+<<629, 2, {2, 9}>>
+<<629, 2, {4, 9}>>
+<<729, 2, {1, 9}>>
+<<729, 2, {3, 4}>>
+<<591, 2, {2, 7}>>
+<<591, 2, {5, 10}>>
+<<836, 2, {7, 8}>>
+<<836, 2, {4, 7}>>
+<<347, 3, {2, 9}>>
+<<347, 3, {1, 2}>>
+<<849, 3, {4, 7}>>
+<<849, 3, {1, 3}>>
+<<292, 3, {2, 7}>>
+<<292, 3, {8, 9}>>
+<<433, 3, {1, 3}>>
+<<433, 3, {6, 8}>>
+<<418, 3, {3, 10}>>
+<<418, 3, {3, 10}>>
+<<437, 3, {4, 7}>>
+<<437, 3, {1, 8}>>
+<<66, 3, {1, 8}>>
+<<66, 3, {8, 9}>>
+<<559, 3, {8, 10}>>
+<<559, 3, {3, 6}>>
+@!@!@STARTMSG 2114:1 @!@!@
+Deadlock reached.
+@!@!@ENDMSG 2114 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(5) at 2026-10-08 23:09:33: 31 states generated (2,039 s/min), 31 distinct states found (2,039 ds/min), 15 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+31 states generated, 31 distinct states found, 15 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 5.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 913ms at (2026-10-08 23:09:33)
+@!@!@ENDMSG 2186 @!@!@

@@ -676,7 +676,7 @@ impl Search<'_> {
             validation,
             score: (init_true, run.passed),
             trace: Some(trace),
-            notes: run.notes.into_iter().collect(),
+            notes: std::mem::take(&mut run.notes).into_iter().collect(),
         }
     }
 }

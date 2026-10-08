@@ -98,6 +98,7 @@ pub fn bind_model(loaded: &Loaded, cfg: &ModelConfig, opts: Options) -> Result<B
     let bind_opts = dive_model::BindOptions {
         eval: opts,
         no_deadlock: false,
+        host: None,
     };
     let model =
         dive_model::bind(loaded.ir.clone(), cfg, &bind_opts).map_err(|f| match &f.error.kind {

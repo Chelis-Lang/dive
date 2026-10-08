@@ -86,6 +86,8 @@ pub(crate) struct Core {
     /// use of the definition sees this value.
     pub(crate) startup: Vec<OnceLock<Value>>,
     pub(crate) sink: Arc<dyn PrintSink>,
+    /// The run hosting the evaluator, and TLC's register file.
+    pub(crate) host: crate::host::HostSlot,
 }
 
 impl std::fmt::Debug for Core {
@@ -159,6 +161,7 @@ impl Core {
             warned: Mutex::default(),
             startup,
             sink,
+            host: crate::host::HostSlot::default(),
         }
     }
 
