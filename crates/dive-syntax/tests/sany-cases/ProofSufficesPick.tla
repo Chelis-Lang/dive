@@ -1,0 +1,10 @@
+---- MODULE ProofSufficesPick ----
+THEOREM TRUE
+<1>1. SUFFICES ASSUME TRUE PROVE TRUE
+  OBVIOUS
+<1>2. PICK y \in {} : TRUE
+<1>3. TAKE a, b
+<1>4. WITNESS 1, 2
+<1> DEFINE z == 1
+<1>5. QED
+====

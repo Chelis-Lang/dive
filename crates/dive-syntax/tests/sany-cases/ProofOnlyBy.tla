@@ -1,0 +1,4 @@
+---- MODULE ProofOnlyBy ----
+THEOREM TRUE
+PROOF BY ONLY DEF x
+====

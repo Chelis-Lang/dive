@@ -8,6 +8,8 @@ publish.workspace = true
 repository.workspace = true
 
 [dependencies]
+dive-syntax = { workspace = true }
+serde_json = { workspace = true }
 
 [lints]
 workspace = true

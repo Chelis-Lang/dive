@@ -1,0 +1,3 @@
+---- MODULE StringBadEscape ----
+x == "\q"
+====
