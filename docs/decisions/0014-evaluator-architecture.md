@@ -1,7 +1,9 @@
 # 0014: Evaluator architecture (`dive-eval`, `dive-stdlib`)
 
-- **Status:** proposed
+- **Status:** accepted (2026-10-08)
 - **Date:** 2026-10-08
+
+- **Owner decisions (2026-10-08):** TLA+ comparisons by default (D-009; open question 12). The logical worker count for `TLCGet("config").worker` (D-011; open question 10).
 
 ## Context
 
