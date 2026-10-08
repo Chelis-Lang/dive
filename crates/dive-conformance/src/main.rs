@@ -134,6 +134,7 @@ struct Opts {
     dive_bin: Option<PathBuf>,
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
+    seed: Option<i64>,
     positional: Vec<String>,
 }
 
@@ -189,6 +190,13 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--dive-bin" => o.dive_bin = Some(args.value(&a)?.into()),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
+            // `next()`, not `value()`: a seed may be negative (`--seed -3`).
+            "--seed" => {
+                let v = args
+                    .next()
+                    .ok_or_else(|| Error::Usage("--seed needs a value".to_owned()))?;
+                o.seed = Some(parse_num(&a, &v)?);
+            }
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
             _ => o.positional.push(a),
         }
@@ -452,10 +460,11 @@ fn eprintln_safe(s: &str) {
     let _ = writeln!(std::io::stderr().lock(), "{s}");
 }
 
-/// `dev capture --oracle <id> --specs <dir> --out <dir> [NAME...]`: runs the
-/// oracle exactly as the harness does on `<dir>/<NAME>/<NAME>.tla` (+`.cfg`)
-/// and records stdout, stderr, exit code and the JSON trace as test
-/// fixtures, plus SANY's output on the module.
+/// `dev capture --oracle <id> --specs <dir> --out <dir> [--seed N] [NAME...]`:
+/// runs the oracle exactly as the harness does on `<dir>/<NAME>/<NAME>.tla`
+/// (+`.cfg`) and records stdout, stderr, exit code and the JSON trace as test
+/// fixtures, plus SANY's output on the module. `--seed` replaces the harness's
+/// `-seed 0` (for randomization fixtures).
 fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
     let specs = o
         .specs
@@ -487,6 +496,7 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
             workers: 1,
             timeout: Duration::from_secs(300),
             xmx: &lim.xmx,
+            seed: o.seed.unwrap_or(0),
         })?;
         let write = |suffix: &str, text: &str| {
             let p = dir.join(format!("{name}.{suffix}"));

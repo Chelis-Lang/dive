@@ -142,7 +142,7 @@ dive-conformance run --impl dive --tier all --corpus examples --corpus tlaplus-t
 dive-conformance run --impl dive --sany-phase parse --corpus tlaplus-tests   # dive parse vs SANY's parse phase
 ```
 
-**`dev capture`** (`--oracle ID --specs DIR --out DIR NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way.
+**`dev capture`** (`--oracle ID --specs DIR --out DIR [--seed N] NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way. `--seed N` replaces the harness's `-seed 0`; the randomization fixtures in `crates/dive-stdlib/tests/fixtures/random/` use it.
 
 ## Cache layout
 
