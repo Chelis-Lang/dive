@@ -54,6 +54,8 @@ pub struct Options {
     /// Run semantic analysis after loading (SANY without `-s`). When off,
     /// only module resolution and parsing are checked.
     pub semantic: bool,
+    /// Level-check after semantic analysis (SANY without `-l`).
+    pub level_check: bool,
 }
 
 impl Default for Options {
@@ -61,6 +63,7 @@ impl Default for Options {
         Self {
             search: SearchPath::default(),
             semantic: true,
+            level_check: true,
         }
     }
 }
@@ -166,7 +169,7 @@ fn analyze(root: SourceFile, file_name: Option<&str>, options: &Options) -> Anal
     let mut diagnostics = loaded.diagnostics.clone();
     let mut model = Model::default();
     if loaded.ok() && options.semantic {
-        semantic_analysis(&loaded, &mut model, &mut diagnostics);
+        semantic_analysis(&loaded, &mut model, &mut diagnostics, options.level_check);
     }
     Analysis {
         files: loaded.files,
@@ -251,6 +254,7 @@ fn semantic_analysis(
     loaded: &loader::Loaded,
     model: &mut Model,
     diagnostics: &mut Vec<Diagnostic>,
+    level_check: bool,
 ) {
     let global = init_builtins(model);
     let marker_name = model.names.intern("$$InAssume");
@@ -295,6 +299,17 @@ fn semantic_analysis(
         }
         shared.ext.insert(name, (id, ctx));
         model.modules.push(id);
+        if level_check && shared.errors == 0 {
+            let mut errors = 0usize;
+            let itr = model.node(id).level.checked + 1;
+            let mut lv = level::Lv {
+                m: model,
+                diags: diagnostics,
+                errors: &mut errors,
+            };
+            lv.check_module(id, itr);
+            shared.errors += errors;
+        }
     }
     model.root = model.modules.last().copied();
 }
