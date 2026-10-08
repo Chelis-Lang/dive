@@ -113,7 +113,7 @@ This applies to SANY goldens too, including the jar SHA-256 check. A selected mo
   - any stderr line outside a narrow allowlist. The allowlist currently holds only v1.7.4's resolver diagnostic `File does not exist: ...`; normal runs print nothing on stderr.
 - **Markers are positional.** Message markers count only where TLC prints them: a `STARTMSG` header followed by a newline, and an `ENDMSG` at the start of a line. Marker text inside spec output is ordinary text.
 - **2108.** `TLC_PROPERTY_VIOLATED_INITIAL` (a state-predicate `PROPERTY` violated by an initial state) is a `safety-violation`. TLC exits 13 for it, as for liveness, but the counterexample is one initial state.
-- SANY accepts a module only if it exits 0 *and* prints no error marker.
+- SANY accepts a module only if it exits 0 *and* prints no error marker. A `Semantic errors:` header alone is not a marker: v1.7.4 prints it above warnings-only lists. Only `*** Errors:`, `*** Abort messages:` and the parse markers count.
 
 **Classpath per oracle.**
 - Each `[[tlc]]` lists its classpath jars. `94d0c50` gets CommunityModules 202610040242; v1.7.4 gets none.
