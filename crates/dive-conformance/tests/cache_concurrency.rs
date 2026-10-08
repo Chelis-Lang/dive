@@ -90,7 +90,10 @@ fn two_concurrent_fetches_share_one_cache() -> TestResult {
                 assert!(err.contains("Cached corpus `c`"), "round {round}: {err}");
             }
         }
-        assert_eq!(downloaded, 1, "round {round}: exactly one process checks out");
+        assert_eq!(
+            downloaded, 1,
+            "round {round}: exactly one process checks out"
+        );
         let checkout = Cache::new(cache_dir.clone()).checkout_dir("c", &commit);
         verified_checkout(&checkout, &commit, "corpus `c`")?;
         assert!(checkout.join("specifications/x/M199.tla").is_file());
