@@ -413,3 +413,71 @@ impl Thunk {
         });
     }
 }
+
+/// Whether `env` holds, directly or through the values it binds, a cached
+/// thunk or a lazy function whose expression has side effects
+/// (`Effects::IMPURE`). See `Evaluator::scope_shares_side_effects`.
+pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
+    let mut seen = std::collections::HashSet::new();
+    let mut frames: Vec<&Arc<Frame>> = vec![&env.frame];
+    let mut svs: Vec<&Sv> = Vec::new();
+    let mut dyns: Vec<&Dyn> = vec![&env.dynamic];
+    let impure = |e: ExprId| {
+        ir.nodes()
+            .get(e.index())
+            .is_some_and(|n| n.effects.intersects(dive_ir::Effects::IMPURE))
+    };
+    loop {
+        if let Some(f) = frames.pop() {
+            if seen.insert(Arc::as_ptr(f) as usize) {
+                svs.extend(f.slots.iter());
+                if let Some(p) = &f.parent {
+                    frames.push(p);
+                }
+            }
+        } else if let Some(d) = dyns.pop() {
+            let mut cur = d.subst.as_deref();
+            while let Some(link) = cur {
+                if !seen.insert(std::ptr::from_ref(link) as usize) {
+                    break;
+                }
+                svs.push(&link.val);
+                cur = link.next.as_deref();
+            }
+        } else if let Some(sv) = svs.pop() {
+            match sv {
+                Sv::Thunk(t) => {
+                    if seen.insert(Arc::as_ptr(t) as usize) {
+                        if t.cachable && impure(t.expr) {
+                            return true;
+                        }
+                        frames.push(&t.env.frame);
+                        dyns.push(&t.env.dynamic);
+                    }
+                }
+                Sv::Fcn(f) => {
+                    if seen.insert(Arc::as_ptr(f) as usize) {
+                        if impure(f.body) {
+                            return true;
+                        }
+                        frames.push(&f.env.frame);
+                        dyns.push(&f.env.dynamic);
+                    }
+                }
+                Sv::Op(OpVal::Def {
+                    parent, dynamic, ..
+                }) => {
+                    if let Some(p) = parent {
+                        frames.push(p);
+                    }
+                    if let Some(d) = dynamic {
+                        dyns.push(d);
+                    }
+                }
+                Sv::Unset | Sv::Val(_) | Sv::Op(_) => {}
+            }
+        } else {
+            return false;
+        }
+    }
+}

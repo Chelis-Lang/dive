@@ -360,6 +360,39 @@ pub struct CheckResult {
     pub warnings: Vec<(u32, String)>,
     /// Notes for the user: anything that qualifies the result.
     pub notes: Vec<String>,
+    /// The worker threads requested and used. Thread fields: the only part
+    /// of a result, with [`CheckResult::elapsed`], that may differ between
+    /// worker counts.
+    pub workers: Workers,
     /// Wall-clock time of the check (binding and search).
     pub elapsed: Duration,
+}
+
+/// Worker threads requested and used (ADR 0015 §6).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Workers {
+    /// Requested (`--workers`).
+    pub requested: usize,
+    /// Used for the search: at most the requested count, 1 in sequential
+    /// mode, fewer if the system would not start more threads, 0 when the
+    /// run ended before the search.
+    pub used: usize,
+    /// Whether the search ran in sequential mode: every level inline, with
+    /// one logical worker evaluating in TLC's order.
+    pub sequential: bool,
+    /// Why fewer workers were used than requested.
+    pub reason: Option<String>,
+}
+
+impl Workers {
+    /// One worker, as requested.
+    #[must_use]
+    pub const fn one() -> Self {
+        Self {
+            requested: 1,
+            used: 1,
+            sequential: false,
+            reason: None,
+        }
+    }
 }

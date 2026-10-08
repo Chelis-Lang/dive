@@ -87,14 +87,16 @@ fn tlc(stdout: &str) -> Outcome {
     }
 }
 
-fn dive(dir: &Path, name: &str) -> Outcome {
+fn dive(dir: &Path, name: &str, workers: usize) -> Outcome {
     let tla = dir.join(format!("{name}.tla"));
     let cfg_text = std::fs::read_to_string(dir.join(format!("{name}.cfg"))).expect("cfg");
     let analysis = dive_sema::analyze_file(&tla, &dive_sema::Options::default()).expect("reads");
     assert!(analysis.accepted(), "{name}: rejected");
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lowers"));
     let cfg = dive_config::parse(&cfg_text).into_config().expect("cfg");
-    let r = check(&ir, &cfg, &CheckOptions::tlc(0, 0));
+    let mut opts = CheckOptions::tlc(0, 0);
+    opts.workers = workers;
+    let r = check(&ir, &cfg, &opts);
     let code = match &r.verdict {
         Verdict::Success => 2193,
         Verdict::Deadlock => 2114,
@@ -124,15 +126,28 @@ fn tlc_module_operators_agree() {
             .expect("transcript");
         let want = tlc(&stdout);
         let dir = specs.join(name);
-        let n = name.clone();
-        let got = std::thread::Builder::new()
-            .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn(move || dive(&dir, &n))
-            .expect("thread")
-            .join()
-            .expect("no panic");
-        if got != want {
-            failures.push(format!("{name}:\n  TLC  {want:?}\n  dive {got:?}"));
+        let tla = std::fs::read_to_string(dir.join(format!("{name}.tla"))).expect("spec");
+        // Under `--compat=tlc`, `TLCGet("config").worker` is the requested
+        // count (D-011), so a spec reading it differs at 4 workers as TLC's
+        // does; every other result is the same at every worker count.
+        let counts: &[usize] = if tla.contains("\"config\"") {
+            &[1]
+        } else {
+            &[1, 4]
+        };
+        for &workers in counts {
+            let (dir, n) = (dir.clone(), name.clone());
+            let got = std::thread::Builder::new()
+                .stack_size(dive_eval::RECOMMENDED_STACK)
+                .spawn(move || dive(&dir, &n, workers))
+                .expect("thread")
+                .join()
+                .expect("no panic");
+            if got != want {
+                failures.push(format!(
+                    "{name} ({workers} workers):\n  TLC  {want:?}\n  dive {got:?}"
+                ));
+            }
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));

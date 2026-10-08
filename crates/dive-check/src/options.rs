@@ -30,9 +30,20 @@ pub struct CheckOptions {
     /// TLC's `-deadlock` flag: do not check deadlock, whatever the
     /// configuration says.
     pub no_deadlock: bool,
-    /// Workers requested. The engine is sequential until the parallel
-    /// engine (WP-D3) lands; it runs every level inline and says so.
+    /// Worker threads (`--workers`). Results are identical at every count
+    /// (ADR 0015). TLC setting: 1, TLC's default; a spec that depends on
+    /// TLC's sequential side effects runs with one logical worker whatever
+    /// this says (sequential mode, ADR 0015 §6), and the result says so.
     pub workers: usize,
+    /// Run every level inline on one thread, as sequential mode does, even
+    /// when the specification does not need it. For tests and diagnosis
+    /// (`--sequential`); results are identical either way.
+    pub sequential: bool,
+    /// Test-only chaos (`--chaos SEED`, hidden): randomize block sizes, the
+    /// order in which workers claim blocks and shards, the split of narrow
+    /// levels, whether small phases run inline, and insert random yields.
+    /// Results must not change; any change is a determinism bug.
+    pub chaos: Option<u64>,
 }
 
 impl CheckOptions {
@@ -48,6 +59,8 @@ impl CheckOptions {
             seed,
             no_deadlock: false,
             workers: 1,
+            sequential: false,
+            chaos: None,
         }
     }
 
@@ -63,6 +76,8 @@ impl CheckOptions {
             seed,
             no_deadlock: false,
             workers: 1,
+            sequential: false,
+            chaos: None,
         }
     }
 }
