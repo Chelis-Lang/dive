@@ -81,6 +81,7 @@ Whenever an agent finds a TLC handcuff, it:
 - **Arbitrary-precision integers** are the intended default. TLC's 32-bit integers with its overflow error are built as `--int=tlc` (included in `--compat=tlc`), and full conformance to TLC is proven in that mode. The default flips to big integers once both modes pass the harness.
 - **Symmetry with liveness:** the default is **refuse**, with an explicit diagnostic. TLC instead warns and proceeds, and can miss violations. TLC's behaviour is built as `--symmetry-liveness=tlc` (included in `--compat=tlc`), and the harness proves it matches.
 - **`CHOOSE` order:** the default is a **canonical**, text-independent order (open question 8, answered 2026-10-08). TLC's interning-dependent order is built as `--choose-order=tlc` (included in `--compat=tlc`) and proven to match. The charter's metamorphic tests hold in the default profile; under `--compat=tlc` they exempt string and model-value `CHOOSE`.
+- **Comparisons:** TLA+ answers by default (D-009). **Exploration order:** canonical by default (D-010). **`TLCGet("config").worker`:** logical, 1 (D-011). TLC's behaviour for each is under `--compat=tlc` (owner decisions, 2026-10-08).
 
 ## Consequences
 

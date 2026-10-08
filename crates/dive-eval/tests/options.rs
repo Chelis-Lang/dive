@@ -43,16 +43,27 @@ fn tlc_profile_explores_and_chooses_in_tlc_order() {
 }
 
 #[test]
-fn default_profile_chooses_canonically_but_explores_in_tlc_order() {
-    // Open question 9 is pending: exploration keeps TLC's order by default,
-    // while CHOOSE follows the owner-approved canonical order.
+fn default_profile_chooses_and_explores_canonically() {
+    // Open question 9, option (a) (owner decision 2026-10-08): the default
+    // profile explores in the canonical order as well as choosing in it.
     let (out, _) = run(&module(ORDER), Options::dive());
+    assert_eq!(out, ["\"a\"", "\"b\"", "\"a\""]);
+}
+
+#[test]
+fn exploration_can_keep_tlc_order() {
+    // `--explore-order=tlc`, part of `--compat=tlc`.
+    let opts = Options {
+        exploration: ExplorationOrder::Tlc,
+        ..Options::dive()
+    };
+    let (out, _) = run(&module(ORDER), opts);
     assert_eq!(out, ["\"b\"", "\"a\"", "\"a\""]);
 }
 
 #[test]
-fn exploration_can_follow_the_value_order() {
-    // Option (a) of open question 9.
+fn exploration_follows_the_value_order() {
+    // The default profile's setting, stated explicitly.
     let opts = Options {
         exploration: ExplorationOrder::Value,
         ..Options::dive()

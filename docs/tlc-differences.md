@@ -242,15 +242,14 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 
 ---
 
-## D-009: Comparisons that TLC refuses although TLA+ answers them (proposal)
+## D-009: Comparisons that TLC refuses although TLA+ answers them
 
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | TLC's comparability rules in both profiles. They are exact under `--compat=tlc`; the default profile differs in one corner, described below. The proposal below is **not adopted**. |
-| **Proposed option** | `--comparisons=tla`: answer `=` and `\in` between functions, records, tuples and sets as TLA+ defines them |
+| **Default** | **TLA+ answers** for `=` and `\in` between functions, records, tuples and sets (`--comparisons=tla`; owner decision 2026-10-08). The error is kept only where TLA+ leaves the answer unspecified, such as `1 = "a"`. Set construction still follows TLC's rules. |
 | **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
-| **Status** | proposed (open question 12), built but not the default. TLC's behaviour is implemented and matched in `dive-value` and `dive-eval`. The proposed rules for `=` and `\in` are built in `dive-eval` (`Comparisons::Tla`); set construction still follows TLC's rules under that option. |
+| **Status** | default in `dive-eval` (`Comparisons::Tla`). TLC's behaviour is implemented and matched in `dive-value` and `dive-eval` under `--compat=tlc`. |
 
 **What TLC does.** TLC refuses to compare values of different kinds, which catches real mistakes such as `1 = "a"`. But it also refuses comparisons whose answer TLA+ defines, and its refusals are asymmetric and depend on the order in which elements are written. Measured on the pinned TLC:
 
@@ -295,15 +294,14 @@ In TLA+, tuples and records are functions. Two functions with different domains 
 
 ---
 
-## D-010: The order in which sets are explored (proposal)
+## D-010: The order in which sets are explored
 
 | | |
 |---|---|
 | **Kind** | Different answer, only at a violation |
-| **Default** | TLC's order in both profiles, until the owner decides (open question 9) |
-| **Proposed option** | `--explore-order=value`: explore sets in the run's value order, which is canonical in the default profile (D-006) |
+| **Default** | **Canonical order** (`--explore-order=value`; owner decision 2026-10-08): sets are explored in the run's value order, which is canonical in the default profile (D-006). Runs where the two orders would have stopped differently are flagged. |
 | **TLC behaviour** | `--explore-order=tlc`, part of `--compat=tlc` |
-| **Status** | proposed (open question 9), built in `dive-eval` (`ExplorationOrder::Value`), not the default |
+| **Status** | default in `dive-eval` (`ExplorationOrder::Value`). The checker's flagging of runs where the order mattered is planned with D2/D3. |
 
 **What TLC does.** TLC explores the elements of a set in its internal value order: the elements of `\E x \in S`, `\A x \in S`, `{x \in S : P}`, `{e : x \in S}`, `[x \in S |-> e]` and `x' \in S`. For strings and model values, that order is the order in which names first appear in the module (D-006). So the module text decides which successor TLC generates first, and with it which of two violations at the same depth TLC reports:
 
@@ -318,9 +316,33 @@ InvZeta == y # "zeta"
 
 With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 states generated, because `"zeta"` appears in the text before `"alpha"`. Exploring in the canonical order reports `InvAlpha`, also after 2 states.
 
-**What dive does.** dive's `CHOOSE` follows the canonical order (D-006). Its exploration keeps TLC's order in both profiles, so it reports the same first violation as TLC. Canonical exploration is built (`ExplorationOrder::Value` in the library). It would make the whole default profile independent of the module text. Complete searches give the same states, totals and depth either way. Which to make the default is open question 9.
+**What dive does.** In the default profile, dive explores sets in the canonical order, as it does for `CHOOSE` (D-006), so the whole default profile is independent of the module text. Complete searches give the same states, totals and depth as TLC. Only *which* of several violations at the same depth is reported first, and the counts at that stop, can differ. dive flags runs where that happened. `--explore-order=tlc` (part of `--compat=tlc`) reproduces TLC's order exactly.
 
 **Evidence.** Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`; `crates/dive-eval/tests/options.rs`.
+
+---
+
+## D-011: `TLCGet("config").worker` reports the logical worker count
+
+| | |
+|---|---|
+| **Kind** | Different answer (only for specs that read it) |
+| **Default** | `1`, the *logical* worker count, at every `--workers` setting (owner decision 2026-10-08) |
+| **TLC behaviour** | Under `--compat=tlc`, the physical worker count, as TLC reports it. `--compat=tlc` also defaults to 1 worker, as TLC does |
+| **Status** | planned (`dive-stdlib`, with the parallel engine D3) |
+
+**What TLC does.** `TLCGet("config").worker` returns the number of worker threads. Specs read it to protect themselves from TLC's approximate multi-worker breadth-first search (D-001). For example, Examples `DieHard/MCDieHardest` declares:
+
+```tla
+ASSUME /\ TLCGet("config").mode = "bfs"
+       /\ TLCGet("config").worker = 1
+```
+
+so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 4`, TLC fails that assumption, and the spec refuses to run.
+
+**What dive does.** dive's parallel search is, by construction, TLC's single-worker search executed in parallel (D-001, ADR 0015). So by default dive reports the logical worker count, 1, at any `--workers` setting. Specs like `MCDieHardest` therefore run at full parallel speed and get exactly the guarantee they ask for. dive's own output still reports the physical thread count.
+
+**Evidence.** Harness worker-invariance report (`MCDieHardest`), ADR 0014 §7, ADR 0015.
 
 ---
 
