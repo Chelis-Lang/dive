@@ -16,6 +16,7 @@
 //! - [`mod@print`]: TLC's value printing and pretty-printer.
 //! - [`fp64`]: TLC's FP64 fingerprints.
 //! - [`json`]: TLC's JSON form of values.
+//! - [`codec`]: compact, deterministic byte encodings of values for state storage.
 //!
 //! ```
 //! use dive_value::{Ctx, Interner, Value, print::print_value, tlc};
@@ -37,6 +38,7 @@
 #![forbid(unsafe_code)]
 
 mod atom;
+pub mod codec;
 mod ctx;
 mod depth;
 mod enumerate;

@@ -156,7 +156,14 @@ pub(crate) const fn mix64(mut z: u64) -> u64 {
 /// ```
 #[derive(Default)]
 pub struct Interner {
-    table: Mutex<HashMap<Box<str>, Atom>>,
+    table: Mutex<Table>,
+}
+
+#[derive(Default)]
+struct Table {
+    by_text: HashMap<Box<str>, Atom>,
+    /// `by_tok[t]` is the atom with token `t`.
+    by_tok: Vec<Atom>,
 }
 
 impl Interner {
@@ -169,20 +176,42 @@ impl Interner {
     /// Returns the atom for `text`, interning it with the next token if it is new.
     pub fn intern(&self, text: &str) -> Atom {
         let mut table = self.table.lock().unwrap_or_else(PoisonError::into_inner);
-        if let Some(atom) = table.get(text) {
+        if let Some(atom) = table.by_text.get(text) {
             return atom.clone();
         }
-        let tok = u32::try_from(table.len()).unwrap_or(u32::MAX);
+        let tok = u32::try_from(table.by_tok.len()).unwrap_or(u32::MAX);
         let atom = Atom::new(text, tok);
-        table.insert(text.into(), atom.clone());
+        table.by_text.insert(text.into(), atom.clone());
+        table.by_tok.push(atom.clone());
         atom
+    }
+
+    /// Returns the atom with token `tok`, if one has been interned.
+    ///
+    /// This is the inverse of [`Atom::tok`] for this table. State encodings store
+    /// names by token ([`crate::codec`]), and decoding resolves them here.
+    ///
+    /// ```
+    /// use dive_value::Interner;
+    /// let names = Interner::new();
+    /// let a = names.intern("a");
+    /// assert_eq!(names.resolve(a.tok()), Some(a));
+    /// assert_eq!(names.resolve(7), None);
+    /// ```
+    #[must_use]
+    pub fn resolve(&self, tok: u32) -> Option<Atom> {
+        let table = self.table.lock().unwrap_or_else(PoisonError::into_inner);
+        usize::try_from(tok)
+            .ok()
+            .and_then(|t| table.by_tok.get(t))
+            .cloned()
     }
 
     /// Returns the atom for `text` if it has been interned.
     #[must_use]
     pub fn get(&self, text: &str) -> Option<Atom> {
         let table = self.table.lock().unwrap_or_else(PoisonError::into_inner);
-        table.get(text).cloned()
+        table.by_text.get(text).cloned()
     }
 
     /// The number of interned names.
@@ -191,6 +220,7 @@ impl Interner {
         self.table
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
+            .by_tok
             .len()
     }
 

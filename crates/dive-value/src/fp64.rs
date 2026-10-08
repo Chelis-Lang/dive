@@ -9,8 +9,10 @@
 //!
 //! The [`Fingerprinter`] trait leaves room for another fingerprint function.
 
-use crate::atom::Atom;
-use crate::ctx::Ctx;
+use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
+
+use crate::atom::{Atom, mix64};
+use crate::ctx::{Ctx, IntMode, ValueOrder};
 use crate::error::{ErrorKind, Result, ValueError};
 use crate::print::{ppr, to_tlc_string_lenient};
 use crate::stream::{Elems, elems_in, slice_stream, stream};
@@ -273,6 +275,56 @@ pub trait Fingerprinter: Send + Sync {
     fn fingerprint_state(&self, vars: &[Value], ctx: Ctx) -> Result<u64>;
 }
 
+/// A compound value's cached fingerprint (of the value alone), tagged with the
+/// fingerprint function and context it was computed under.
+///
+/// The first successful computation wins and is never replaced. A lookup under any
+/// other tag misses, so values shared between runs with different polynomials or
+/// contexts stay correct; they just recompute. Errors are never cached.
+///
+/// The protocol needs no `unsafe` and no lock: a writer claims the empty tag with a
+/// compare-and-swap, stores the fingerprint, then publishes its tag with `Release`. A
+/// reader that sees its tag with `Acquire` therefore sees the fingerprint.
+pub(crate) struct FpCache {
+    tag: AtomicU64,
+    fp: AtomicU64,
+}
+
+/// The tag of an empty cache.
+const FP_EMPTY: u64 = 0;
+/// The tag of a cache whose writer is storing the fingerprint.
+const FP_BUSY: u64 = 1;
+
+impl FpCache {
+    pub(crate) const fn new() -> Self {
+        Self {
+            tag: AtomicU64::new(FP_EMPTY),
+            fp: AtomicU64::new(0),
+        }
+    }
+
+    fn get(&self, tag: u64) -> Option<u64> {
+        (self.tag.load(AtomicOrdering::Acquire) == tag)
+            .then(|| self.fp.load(AtomicOrdering::Relaxed))
+    }
+
+    fn set(&self, tag: u64, fp: u64) {
+        if self
+            .tag
+            .compare_exchange(
+                FP_EMPTY,
+                FP_BUSY,
+                AtomicOrdering::Acquire,
+                AtomicOrdering::Relaxed,
+            )
+            .is_ok()
+        {
+            self.fp.store(fp, AtomicOrdering::Relaxed);
+            self.tag.store(tag, AtomicOrdering::Release);
+        }
+    }
+}
+
 /// TLC's value fingerprints (`fingerPrint(long)` of each `tlc2.value.impl` class).
 #[derive(Clone, Debug)]
 pub struct TlcFingerprint {
@@ -290,6 +342,58 @@ impl TlcFingerprint {
     #[must_use]
     pub const fn fp64(&self) -> &Fp64 {
         &self.fp
+    }
+
+    /// The fingerprint of `v` alone, as [`Fingerprinter::fingerprint`], cached in `v`
+    /// when it is a set or a function.
+    ///
+    /// The cache lives in the shared compound value, so every state that shares the
+    /// value (a successor that keeps a variable unchanged, say) reuses it, at the cost
+    /// of one atomic load. The result always equals [`Fingerprinter::fingerprint`]. A
+    /// hit skips the traversal, and with it the normalization of unnormalized sets
+    /// that fingerprinting performs (ADR 0012); the traversal that filled the cache
+    /// already performed it.
+    ///
+    /// ```
+    /// use dive_value::fp64::{Fingerprinter, TlcFingerprint};
+    /// use dive_value::{Ctx, Value};
+    /// let f = TlcFingerprint::new(0).ok_or("index 0 exists")?;
+    /// let ctx = Ctx::tlc();
+    /// let v = Value::tuple(vec![Value::Int(1), Value::Int(2)]);
+    /// assert_eq!(f.fingerprint_cached(&v, ctx)?, f.fingerprint(&v, ctx)?);
+    /// assert_eq!(f.fingerprint_cached(&v, ctx)?, f.fingerprint(&v, ctx)?);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// # Errors
+    /// As [`Fingerprinter::fingerprint`].
+    pub fn fingerprint_cached(&self, v: &Value, ctx: Ctx) -> Result<u64> {
+        let cache = match v {
+            Value::Set(s) => &s.0.fp,
+            Value::Fcn(f) => &f.0.fp,
+            _ => return self.fingerprint(v, ctx),
+        };
+        let tag = self.cache_tag(ctx);
+        if let Some(fp) = cache.get(tag) {
+            return Ok(fp);
+        }
+        let fp = self.fingerprint(v, ctx)?;
+        cache.set(tag, fp);
+        Ok(fp)
+    }
+
+    /// The cache tag for this polynomial under `ctx`; never `FP_EMPTY` or `FP_BUSY`.
+    fn cache_tag(&self, ctx: Ctx) -> u64 {
+        let order = match ctx.order {
+            ValueOrder::Tlc => 1u64,
+            ValueOrder::Canonical => 2,
+        };
+        let mode = match ctx.int_mode {
+            IntMode::Tlc => 4u64,
+            IntMode::Big => 8,
+        };
+        let tag = mix64(self.fp.irred ^ mix64(order | mode));
+        if tag <= FP_BUSY { tag + 2 } else { tag }
     }
 }
 
@@ -339,16 +443,8 @@ impl TlcFingerprint {
                 f.extend_i32(fp, i32::try_from(a.tok()).unwrap_or(i32::MAX))
             }
             Value::Set(s) => {
-                if matches!(s.repr(), SetRepr::Nat | SetRepr::Int | SetRepr::Strings)
-                    || (matches!(s.repr(), SetRepr::Seq(_)) && s.is_infinite())
-                {
-                    return Err(ValueError::new(
-                        ErrorKind::NotFingerprintable,
-                        format!(
-                            "TLC has found a state in which the value of a variable contains {}",
-                            ppr(&to_tlc_string_lenient(v, ctx))
-                        ),
-                    ));
+                if !is_fingerprintable(s) {
+                    return Err(not_fingerprintable(v, ctx));
                 }
                 // TLC normalizes (and sizes) the set before fingerprinting it.
                 let n = s.size(ctx)?;
@@ -434,6 +530,24 @@ impl Fingerprinter for TlcFingerprint {
         vars.iter()
             .try_fold(self.fp.empty(), |fp, v| self.extend(fp, v, ctx))
     }
+}
+
+/// Whether TLC can fingerprint the set: not `Nat`, `Int`, `STRING` or an infinite
+/// `Seq(S)`, whose `fingerPrint` methods fail.
+pub(crate) fn is_fingerprintable(s: &crate::Set) -> bool {
+    !(matches!(s.repr(), SetRepr::Nat | SetRepr::Int | SetRepr::Strings)
+        || (matches!(s.repr(), SetRepr::Seq(_)) && s.is_infinite()))
+}
+
+/// TLC's error for a state containing a set it cannot fingerprint.
+pub(crate) fn not_fingerprintable(v: &Value, ctx: Ctx) -> ValueError {
+    ValueError::new(
+        ErrorKind::NotFingerprintable,
+        format!(
+            "TLC has found a state in which the value of a variable contains {}",
+            ppr(&to_tlc_string_lenient(v, ctx))
+        ),
+    )
 }
 
 fn len_i32(n: usize) -> i32 {

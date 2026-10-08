@@ -238,15 +238,16 @@ Randomness replays exactly, because generation is seeded per state (ADR 0014 §7
 
 **The collision bound.** Every fingerprint-mode result reports it.
 - **Optimistic:** `distinct × (generated − distinct) / 2^64`, TLC's formula (`AbstractChecker.java:206-208`).
-- **Actual:** `1 / (minimum gap between sorted fingerprints)`, TLC's `checkFPs` (`DiskFPSet.java:624-648`). Phase 2 already sorts, so the minimum gap is maintained per shard as a by-product.
+- **Actual:** `1 / (minimum gap between sorted fingerprints)`, rounded half-up to two significant digits, TLC's `checkFPs` (`DiskFPSet.java:624-648`). TLC's default set is a `MultiFPSet` of two sub-sets split by the top bit (`fpBits` = 1), and each sub-set computes its own minimum (`MultiFPSet.checkFPs`), so pairs that straddle the split do not count. This is observable: on `nbacg_guer01` the closest pair straddles it, and TLC prints `1.5E-11`, not `1.7E-10` (fixture `crates/dive-store/tests/fixtures/tlc-fingerprints`).
+- **When:** TLC computes and prints the actual figure only when the optimistic one is at least `1E-10` (`ModelChecker.reportSuccess`). The shards hold contiguous fingerprint ranges, so the gap is computed at the end by sorting each shard in turn.
 - **Where it appears:**
   - human output prints it where TLC does (on success);
   - JSON always carries it, with `store: "fingerprint"` and the polynomial index.
 - dive also states plainly that the bound is an estimate assuming fingerprints behave as random 64-bit values. That is TLC's assumption too.
 
 **Exact mode (`--store exact`).**
-- **Storage.** Shards hold full states in a canonical encoding. Equal values have equal bytes, because `dive-value` values are canonical under a fixed `Ctx`. A 64-bit hash indexes them, and byte comparison decides equality.
-- **Memory.** About the encoded state plus 16 bytes per state.
+- **Storage.** Shards hold full states in a canonical key encoding (`dive_value::codec::encode_canonical`): within a run, two states have equal keys exactly when they are equal, whatever the representation of their values (`1..3` and `{1, 2, 3}` have one key). A 64-bit hash of the key bytes indexes them, independent of the fingerprint function, and byte comparison decides equality.
+- **Memory.** The key, a one-byte length, and a 16-byte slot at a load factor of 3/8 to 3/4. Measured at about 36 bytes per state on top of the key.
 - **Exhaustiveness.** Results say `store: "exact"` and claim exhaustiveness unconditionally (charter rule 4).
 - **Equivalence with fingerprint mode.** Both modes use the same 𝒪 and the same merge. Their results are identical unless fingerprint mode had a collision. The harness runs both on the standard tier, and any difference is reported as a collision finding.
 
@@ -313,7 +314,7 @@ Targets are ADR 0006's, at one and eight workers. Ingredients:
 
 **Sharing without contention.**
 - Frontier blocks are encoded. Each worker decodes a private copy, so hot shared values are not reference-counted across cores. tla-mc measured spilled, encoded frontiers faster than shared in-memory trees (tla-mc `store.rs:584-589`).
-- The encoding is canonical and compact: varints, interned atom ids, tagged values. The same codec is used for the frontier, exact mode, disk and checkpoints.
+- The encoding is compact: varints, interned atom ids, tagged values. It comes in two forms. The frontier, disk spill and checkpoints use the lossless form, which keeps each value's representation, because TLC's printing and comparability depend on it. The exact store uses the canonical key form (§5).
 
 **Fingerprints.**
 - Two-level FP64 with cached value fingerprints (§5).
@@ -364,3 +365,27 @@ Each would need its own ADR, an isolated module, a safety argument, Miri tests a
   - when symmetry is implemented (representative selection and its probes);
   - when liveness needs the behaviour graph (its edges come from phase 1);
   - after the first benchmark round (block sizing, shard count, the encoded-frontier trade-off).
+
+### Store measurements (D1)
+
+Measured on an Apple M3 (8 cores, 24 GB), rustc 1.99.0, with
+`cargo bench -p dive-store --bench store` and
+`cargo run -p dive-store --release --example memory`. The machine was shared (load
+average about 15), so treat these divan medians as indicative.
+
+| Operation | 1 thread | 2 | 4 | 8 |
+|---|---|---|---|---|
+| Fingerprint resolve, 2^21 candidates into 2^20 states (M candidates/s) | 22 | 31 | 46 | 59 |
+| Exact resolve, 2^19 candidates with 48-byte keys (M candidates/s) | 10 | 17 | 22 | 28 |
+
+| Per state | Cost |
+|---|---|
+| Fingerprint set | 13–18 bytes (16.7 at `CoffeeCan1000Beans`'s 501,500 states) |
+| Exact store, 48-byte keys | 85 bytes |
+| Trace log | 12 bytes |
+| Phase-1 lookup, fingerprint set of 2^20 | 30 ns, one thread |
+| Sequential insert | 34 ns |
+| Two-level fingerprint, four variables, compound values cached | 75 ns (TLC's single stream, uncached: 1.6 µs) |
+| Encode, decode of that state (121 bytes) | 0.7 µs, 2.9 µs |
+
+Against ADR 0006's baselines for `CoffeeCan1000Beans`: at one worker TLC spends about 11 µs per generated state (22.2 s for 2,000,002), and at eight workers its peak RSS is about 2.6 KB per distinct state (1287 MB), against about 550 bytes for tla-mc (277 MB). The store's share in dive is about 29 bytes of fingerprint set and trace log per state, or 15 MB in all, and about 0.15 µs per generated successor at one thread.
