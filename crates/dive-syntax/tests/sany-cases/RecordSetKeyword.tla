@@ -1,0 +1,3 @@
+---- MODULE RecordSetKeyword ----
+x == [ELSE : {}]
+====

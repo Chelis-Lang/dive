@@ -1,0 +1,3 @@
+---- MODULE PrecSetminusChain ----
+x == {} \ {} \ {}
+====

@@ -1,0 +1,3 @@
+---- MODULE PrecNotNot ----
+x == ~ ~ TRUE
+====

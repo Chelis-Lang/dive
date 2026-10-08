@@ -1,0 +1,3 @@
+---- MODULE ProofLabelAssume ----
+THEOREM ASSUME lab :: ASSUME TRUE PROVE TRUE PROVE TRUE
+====
