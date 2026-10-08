@@ -24,6 +24,7 @@ Each question is open until it is answered here or recorded in an ADR.
      - **(b)** Keep TLC's order for exploration in both profiles, and use canonical order only for `CHOOSE`. Then adding an unused definition can again change which violation is reported.
    - **Recommended:** (a).
    - `--compat=tlc` is unaffected either way.
+   - **Built both ways.** `dive-eval` implements both orders (`ExplorationOrder`, D-010). Until this is answered, the default profile explores in TLC's order, option (b); answering (a) changes one line of `Options::dive`.
 10. **`TLCGet("config").worker`** (ADR 0014 §7).
     - **The proposal.** Report the *logical* worker count, 1, at every `--workers` setting. dive's parallel search is by construction TLC's single-worker search (ADR 0015), and the harness holds dive to the single-worker golden. `MCDieHardest` asserts `worker = 1`. The physical count is in dive's own output.
     - **The alternative.** Report the physical count, as TLC does for its own workers. A spec could then fail at `--workers 8` exactly as TLC fails at `-workers 8`.
@@ -40,3 +41,5 @@ Each question is open until it is answered here or recorded in an ADR.
    - `1 \in {1, "a"}` is `TRUE` while `"a" \in {1, 2}` is an error, because TLC normalizes set literals lazily.
 
    **Proposal:** an opt-in `--comparisons=tla` (TLC mode `=tlc`, part of `--compat=tlc`). It answers `=` and `\in` between functions, records, tuples and sets as TLA+ defines them, symmetrically and independently of element order. It keeps the error only where TLA+ leaves the answer unspecified, such as `1 = "a"` or `{1} = 1`, where an error is the sound response. This is result-changing: specs that TLC rejects with an evaluation error would get a verdict. Should it become the default, stay opt-in, or not be built? Today dive matches TLC exactly in both profiles. See D-009 in `docs/tlc-differences.md`.
+
+   The `=` and `\in` rules are built in `dive-eval` (`Comparisons::Tla`, tested in `crates/dive-eval/tests/options.rs`) but off by default; making them the default changes one line of `Options::dive`.
