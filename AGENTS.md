@@ -152,15 +152,21 @@ cargo deny --locked check
 ## Conformance harness
 
 See `crates/dive-conformance/README.md` and `docs/decisions/0002`–`0005`. In
-short, the harness:
-- fetches the pinned JDK, `tla2tools.jar` and corpora, verifying each by SHA-256,
-  into `$DIVE_CACHE_DIR` (default `~/.cache/dive`);
-- generates goldens from TLC and SANY;
-- runs an implementation (TLC itself, `dive`, or an external tool through an
-  adapter) against the goldens;
-- emits a JSON report and `docs/conformance.md`.
+short, the harness (`cargo run -p dive-conformance --release -- <command>`):
+- fetches the pinned Temurin JRE, the `tla2tools.jar` oracles, the
+  CommunityModules jars, the TLAPS and Apalache module libraries and the corpora
+  into `$DIVE_CACHE_DIR` (default `~/.cache/dive`). Jars and archives are
+  verified by SHA-256 on every use; checkouts by commit (`oracle fetch`,
+  `corpus fetch`);
+- generates goldens from TLC and SANY (`golden generate`). Overwriting a golden
+  needs `--reason`;
+- runs an implementation against the goldens (`run --impl tlc|tlc:<id>|dive|adapter:<toml>`).
+  The implementation is TLC itself, `dive`, or an external tool through an adapter;
+- emits `conformance/reports/<run-id>.json` and `docs/conformance.md`.
 
-No system Java is needed.
+No system Java is needed; `--java <path>` opts into one and is recorded in
+provenance. The private oracle asset needs `GH_TOKEN`, `GITHUB_TOKEN` or
+`gh auth login`.
 
 ## Tracking
 

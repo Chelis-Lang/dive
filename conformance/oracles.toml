@@ -14,6 +14,8 @@ upstream_commit = "94d0c5070852b37b801bb8998c436383ab7ee37b"
 # GITHUB_TOKEN, or `gh auth token`).
 url = "https://github.com/Chelis-Lang/dive/releases/download/oracle-tlc-2026.10.06.014338/tla2tools.jar"
 sha256 = "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d"
+# `[[classpath]]` ids put on `-cp` after the jar, in this order.
+classpath = ["community-modules-202610040242", "community-modules-deps-202610040242"]
 
 [[tlc]]
 id = "tlc-1.7.4"
@@ -23,10 +25,16 @@ upstream_commit = "v1.7.4"
 url = "https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar"
 # Upstream publishes no digest for this release; recorded by dive on 2026-10-08.
 sha256 = "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+# No CommunityModules: every CommunityModules release tried (202610040242,
+# 202405171516, 202010302007) makes 1.7.4 fail on *every* spec, because
+# `tlc2.overrides.TLCOverrides` references classes 1.7.4 lacks (1.7.4 branched
+# from upstream master on 2020-04-25). Specs that need CommunityModules
+# therefore fail to parse on this oracle. See ADR 0003.
+classpath = []
 
-# Extra classpath entries used alongside every TLC oracle. Examples specs use
-# CommunityModules operators with Java overrides; upstream Examples CI puts
-# these jars on the classpath too.
+# Extra classpath jars, selected per oracle by the `classpath` lists above.
+# Examples specs use CommunityModules operators with Java overrides; upstream
+# Examples CI puts these jars on the classpath too.
 [[classpath]]
 id = "community-modules-202610040242"
 url = "https://github.com/tlaplus/CommunityModules/releases/download/202610040242/CommunityModules-202610040242.jar"
@@ -36,6 +44,26 @@ sha256 = "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
 id = "community-modules-deps-202610040242"
 url = "https://github.com/tlaplus/CommunityModules/releases/download/202610040242/CommunityModules-deps-202610040242.jar"
 sha256 = "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+
+# TLA+ module libraries put on the classpath of every oracle (TLC and SANY),
+# after the classpath jars, as directories of `.tla` files. Upstream Examples
+# CI puts the TLAPS library (tlapm `library/`) and Apalache's modules on the
+# classpath; without them ~71 Examples modules that EXTEND TLAPS,
+# NaturalsInduction, FiniteSetTheorems, ... or Apalache cannot be parsed.
+# Fetched with git at the pinned commit, which content-addresses them.
+[[module_library]]
+id = "apalache-modules-v0.62.3"
+repo = "https://github.com/apalache-mc/apalache"
+commit = "3eb15b253482005222fabbf50bb7aae501eb9f8d" # tag v0.62.3, 2026-10-01
+subdir = "src/tla"
+license = "Apache-2.0"
+
+[[module_library]]
+id = "tlapm-library-d8b9747"
+repo = "https://github.com/tlaplus/tlapm"
+commit = "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37" # main, 2026-10-06
+subdir = "library"
+license = "BSD-2-Clause"
 
 # Java runtime: Eclipse Temurin JRE 17.0.20.1+1. TLC requires Java 11+; the
 # 1.8.0 jar was built with Temurin 17. No system Java is needed.

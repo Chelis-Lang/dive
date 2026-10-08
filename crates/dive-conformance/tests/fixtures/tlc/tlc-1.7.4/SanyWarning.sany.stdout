@@ -1,0 +1,20 @@
+
+****** SANY2 Version 2.1 created 24 February 2014
+
+Parsing file $CWD/SanyWarning.tla
+Parsing file $TMP/Naturals.tla
+Parsing file $CWD/SanyWarningBase.tla
+Semantic processing of module Naturals
+Semantic processing of module SanyWarningBase
+Semantic processing of module SanyWarning
+Semantic errors:
+
+*** Warnings: 1
+
+line 5, col 1 to line 5, col 24 of module SanyWarning
+
+Multiple declarations or definitions for symbol Foo.  
+This duplicates the one at line 4, col 1 to line 4, col 8 of module SanyWarning.
+
+
+

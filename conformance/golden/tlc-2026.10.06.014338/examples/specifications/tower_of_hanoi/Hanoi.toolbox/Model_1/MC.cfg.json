@@ -1,0 +1,1447 @@
+{
+  "schema": 1,
+  "kind": "tlc-model",
+  "oracle": "tlc-2026.10.06.014338",
+  "corpus": "examples",
+  "model": {
+    "id": "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+    "module": "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.tla",
+    "mode": {
+      "kind": "exhaustive"
+    },
+    "features": [],
+    "counts_comparable": true
+  },
+  "workers": 1,
+  "result": {
+    "verdict": "safety-violation",
+    "verdict_code": 2110,
+    "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+    "exit_code": 12,
+    "exit_status": "VIOLATION_SAFETY",
+    "violated_property": "NotSolved",
+    "counts": {
+      "distinct_states": 233,
+      "states_generated": 768,
+      "states_left_on_queue": 26,
+      "depth": 32
+    },
+    "fingerprint_collision": null,
+    "trace": {
+      "length": 32,
+      "ending": {
+        "kind": "finite"
+      },
+      "json": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "towers": [
+                    31,
+                    0,
+                    0
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                2,
+                {
+                  "towers": [
+                    30,
+                    0,
+                    1
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "towers": [
+                    30,
+                    0,
+                    1
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                3,
+                {
+                  "towers": [
+                    28,
+                    2,
+                    1
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                3,
+                {
+                  "towers": [
+                    28,
+                    2,
+                    1
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                4,
+                {
+                  "towers": [
+                    28,
+                    3,
+                    0
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                4,
+                {
+                  "towers": [
+                    28,
+                    3,
+                    0
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                5,
+                {
+                  "towers": [
+                    24,
+                    3,
+                    4
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                5,
+                {
+                  "towers": [
+                    24,
+                    3,
+                    4
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                6,
+                {
+                  "towers": [
+                    25,
+                    2,
+                    4
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                6,
+                {
+                  "towers": [
+                    25,
+                    2,
+                    4
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                7,
+                {
+                  "towers": [
+                    25,
+                    0,
+                    6
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                7,
+                {
+                  "towers": [
+                    25,
+                    0,
+                    6
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                8,
+                {
+                  "towers": [
+                    24,
+                    0,
+                    7
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                8,
+                {
+                  "towers": [
+                    24,
+                    0,
+                    7
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                9,
+                {
+                  "towers": [
+                    16,
+                    8,
+                    7
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                9,
+                {
+                  "towers": [
+                    16,
+                    8,
+                    7
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                10,
+                {
+                  "towers": [
+                    16,
+                    9,
+                    6
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                10,
+                {
+                  "towers": [
+                    16,
+                    9,
+                    6
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                11,
+                {
+                  "towers": [
+                    18,
+                    9,
+                    4
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                11,
+                {
+                  "towers": [
+                    18,
+                    9,
+                    4
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                12,
+                {
+                  "towers": [
+                    19,
+                    8,
+                    4
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                12,
+                {
+                  "towers": [
+                    19,
+                    8,
+                    4
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                13,
+                {
+                  "towers": [
+                    19,
+                    12,
+                    0
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                13,
+                {
+                  "towers": [
+                    19,
+                    12,
+                    0
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                14,
+                {
+                  "towers": [
+                    18,
+                    12,
+                    1
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                14,
+                {
+                  "towers": [
+                    18,
+                    12,
+                    1
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                15,
+                {
+                  "towers": [
+                    16,
+                    14,
+                    1
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                15,
+                {
+                  "towers": [
+                    16,
+                    14,
+                    1
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                16,
+                {
+                  "towers": [
+                    16,
+                    15,
+                    0
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                16,
+                {
+                  "towers": [
+                    16,
+                    15,
+                    0
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                17,
+                {
+                  "towers": [
+                    0,
+                    15,
+                    16
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                17,
+                {
+                  "towers": [
+                    0,
+                    15,
+                    16
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                18,
+                {
+                  "towers": [
+                    1,
+                    14,
+                    16
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                18,
+                {
+                  "towers": [
+                    1,
+                    14,
+                    16
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                19,
+                {
+                  "towers": [
+                    1,
+                    12,
+                    18
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                19,
+                {
+                  "towers": [
+                    1,
+                    12,
+                    18
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                20,
+                {
+                  "towers": [
+                    0,
+                    12,
+                    19
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                20,
+                {
+                  "towers": [
+                    0,
+                    12,
+                    19
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                21,
+                {
+                  "towers": [
+                    4,
+                    8,
+                    19
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                21,
+                {
+                  "towers": [
+                    4,
+                    8,
+                    19
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                22,
+                {
+                  "towers": [
+                    4,
+                    9,
+                    18
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                22,
+                {
+                  "towers": [
+                    4,
+                    9,
+                    18
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                23,
+                {
+                  "towers": [
+                    6,
+                    9,
+                    16
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                23,
+                {
+                  "towers": [
+                    6,
+                    9,
+                    16
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                24,
+                {
+                  "towers": [
+                    7,
+                    8,
+                    16
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                24,
+                {
+                  "towers": [
+                    7,
+                    8,
+                    16
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                25,
+                {
+                  "towers": [
+                    7,
+                    0,
+                    24
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                25,
+                {
+                  "towers": [
+                    7,
+                    0,
+                    24
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                26,
+                {
+                  "towers": [
+                    6,
+                    0,
+                    25
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                26,
+                {
+                  "towers": [
+                    6,
+                    0,
+                    25
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                27,
+                {
+                  "towers": [
+                    4,
+                    2,
+                    25
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                27,
+                {
+                  "towers": [
+                    4,
+                    2,
+                    25
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                28,
+                {
+                  "towers": [
+                    4,
+                    3,
+                    24
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                28,
+                {
+                  "towers": [
+                    4,
+                    3,
+                    24
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                29,
+                {
+                  "towers": [
+                    0,
+                    3,
+                    28
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                29,
+                {
+                  "towers": [
+                    0,
+                    3,
+                    28
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                30,
+                {
+                  "towers": [
+                    1,
+                    2,
+                    28
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                30,
+                {
+                  "towers": [
+                    1,
+                    2,
+                    28
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                31,
+                {
+                  "towers": [
+                    1,
+                    0,
+                    30
+                  ]
+                }
+              ]
+            ],
+            [
+              [
+                31,
+                {
+                  "towers": [
+                    1,
+                    0,
+                    30
+                  ]
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 38,
+                  "beginLine": 89,
+                  "endColumn": 34,
+                  "endLine": 91,
+                  "module": "Hanoi"
+                },
+                "name": "Next"
+              },
+              [
+                32,
+                {
+                  "towers": [
+                    0,
+                    0,
+                    31
+                  ]
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "towers": [
+                  31,
+                  0,
+                  0
+                ]
+              }
+            ],
+            [
+              2,
+              {
+                "towers": [
+                  30,
+                  0,
+                  1
+                ]
+              }
+            ],
+            [
+              3,
+              {
+                "towers": [
+                  28,
+                  2,
+                  1
+                ]
+              }
+            ],
+            [
+              4,
+              {
+                "towers": [
+                  28,
+                  3,
+                  0
+                ]
+              }
+            ],
+            [
+              5,
+              {
+                "towers": [
+                  24,
+                  3,
+                  4
+                ]
+              }
+            ],
+            [
+              6,
+              {
+                "towers": [
+                  25,
+                  2,
+                  4
+                ]
+              }
+            ],
+            [
+              7,
+              {
+                "towers": [
+                  25,
+                  0,
+                  6
+                ]
+              }
+            ],
+            [
+              8,
+              {
+                "towers": [
+                  24,
+                  0,
+                  7
+                ]
+              }
+            ],
+            [
+              9,
+              {
+                "towers": [
+                  16,
+                  8,
+                  7
+                ]
+              }
+            ],
+            [
+              10,
+              {
+                "towers": [
+                  16,
+                  9,
+                  6
+                ]
+              }
+            ],
+            [
+              11,
+              {
+                "towers": [
+                  18,
+                  9,
+                  4
+                ]
+              }
+            ],
+            [
+              12,
+              {
+                "towers": [
+                  19,
+                  8,
+                  4
+                ]
+              }
+            ],
+            [
+              13,
+              {
+                "towers": [
+                  19,
+                  12,
+                  0
+                ]
+              }
+            ],
+            [
+              14,
+              {
+                "towers": [
+                  18,
+                  12,
+                  1
+                ]
+              }
+            ],
+            [
+              15,
+              {
+                "towers": [
+                  16,
+                  14,
+                  1
+                ]
+              }
+            ],
+            [
+              16,
+              {
+                "towers": [
+                  16,
+                  15,
+                  0
+                ]
+              }
+            ],
+            [
+              17,
+              {
+                "towers": [
+                  0,
+                  15,
+                  16
+                ]
+              }
+            ],
+            [
+              18,
+              {
+                "towers": [
+                  1,
+                  14,
+                  16
+                ]
+              }
+            ],
+            [
+              19,
+              {
+                "towers": [
+                  1,
+                  12,
+                  18
+                ]
+              }
+            ],
+            [
+              20,
+              {
+                "towers": [
+                  0,
+                  12,
+                  19
+                ]
+              }
+            ],
+            [
+              21,
+              {
+                "towers": [
+                  4,
+                  8,
+                  19
+                ]
+              }
+            ],
+            [
+              22,
+              {
+                "towers": [
+                  4,
+                  9,
+                  18
+                ]
+              }
+            ],
+            [
+              23,
+              {
+                "towers": [
+                  6,
+                  9,
+                  16
+                ]
+              }
+            ],
+            [
+              24,
+              {
+                "towers": [
+                  7,
+                  8,
+                  16
+                ]
+              }
+            ],
+            [
+              25,
+              {
+                "towers": [
+                  7,
+                  0,
+                  24
+                ]
+              }
+            ],
+            [
+              26,
+              {
+                "towers": [
+                  6,
+                  0,
+                  25
+                ]
+              }
+            ],
+            [
+              27,
+              {
+                "towers": [
+                  4,
+                  2,
+                  25
+                ]
+              }
+            ],
+            [
+              28,
+              {
+                "towers": [
+                  4,
+                  3,
+                  24
+                ]
+              }
+            ],
+            [
+              29,
+              {
+                "towers": [
+                  0,
+                  3,
+                  28
+                ]
+              }
+            ],
+            [
+              30,
+              {
+                "towers": [
+                  1,
+                  2,
+                  28
+                ]
+              }
+            ],
+            [
+              31,
+              {
+                "towers": [
+                  1,
+                  0,
+                  30
+                ]
+              }
+            ],
+            [
+              32,
+              {
+                "towers": [
+                  0,
+                  0,
+                  31
+                ]
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "towers"
+        ]
+      }
+    },
+    "error_codes": [
+      2110,
+      2121
+    ],
+    "warning_codes": [],
+    "unresolved_modules": [],
+    "note": null
+  },
+  "provenance": {
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "classpath": [
+        {
+          "id": "community-modules-202610040242",
+          "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+        },
+        {
+          "id": "community-modules-deps-202610040242",
+          "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+        }
+      ],
+      "module_libraries": [
+        {
+          "id": "apalache-modules-v0.62.3",
+          "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+        },
+        {
+          "id": "tlapm-library-d8b9747",
+          "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+        }
+      ],
+      "capabilities": {
+        "dump_trace_json": true,
+        "no_generate_spec_te": true,
+        "sany_error_codes": true,
+        "names_temporal_properties": true,
+        "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+        "implementation_version": "2.0 2026-10-06"
+      },
+      "java": {
+        "source": "pinned",
+        "version": "17.0.20.1+1",
+        "sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+        "platform": "macos-aarch64",
+        "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+      }
+    },
+    "corpus_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+    "command": [
+      "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+      "-XX:+UseParallelGC",
+      "-Xmx3g",
+      "-Xss8m",
+      "-Duser.home=$DIVE_CACHE_DIR/home",
+      "-Djava.io.tmpdir=$TMP",
+      "-Duser.language=en",
+      "-Duser.country=US",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar:$DIVE_CACHE_DIR/sha256/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d/CommunityModules-deps-202610040242.jar:$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla:$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+      "tlc2.TLC",
+      "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.tla",
+      "-config",
+      "specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg",
+      "-workers",
+      "1",
+      "-lncheck",
+      "final",
+      "-cleanup",
+      "-tool",
+      "-fp",
+      "0",
+      "-seed",
+      "0",
+      "-metadir",
+      "$TMP/states",
+      "-dumpTrace",
+      "json",
+      "$TMP/trace.json"
+    ],
+    "timeout_seconds": 300,
+    "reason": "Review fixes: always pin -seed 0; isolated run dirs (M1 review)",
+    "generator": "dive-conformance 0.0.0",
+    "generated_at": "2026-10-08T13:30:17Z",
+    "elapsed_ms": 1208
+  }
+}
