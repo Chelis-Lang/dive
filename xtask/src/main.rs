@@ -171,14 +171,15 @@ fn check_layering() -> Result<()> {
 }
 
 /// Applies the org-standard branch protection to `main`: PRs required,
-/// required checks `No AI authorship markers` and `Workspace gate`, admins
+/// required checks `No AI authorship markers`, `Workspace gate` and
+/// `Conformance gate`, admins
 /// included, no force pushes. Run once when the project switches to
 /// PR-focused development (see AGENTS.md).
 fn protect_main() -> Result<()> {
     let body = serde_json::json!({
         "required_status_checks": {
             "strict": false,
-            "contexts": ["No AI authorship markers", "Workspace gate"]
+            "contexts": ["No AI authorship markers", "Workspace gate", "Conformance gate"]
         },
         "enforce_admins": true,
         "required_pull_request_reviews": {
