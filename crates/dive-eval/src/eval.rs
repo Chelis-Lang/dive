@@ -21,7 +21,7 @@ use dive_value::{DeferredKind, Int, Value, ops, tlc};
 
 use crate::ConstBinding;
 use crate::core::{Core, Lit, is_enumerable, is_reducible, kind_string};
-use crate::env::{Dyn, Env, Ev, OpVal, St, StateRef, SubstLink, Sv, Thunk, control};
+use crate::env::{Dyn, Env, Ev, OpVal, St, StateRef, Sv, Thunk, control};
 use crate::error::{Ec, EvalError, Result};
 use crate::lazy::{BoundVal, Except, Filter, LazyFcn, SetOp};
 use crate::options::Comparisons;
@@ -71,7 +71,7 @@ impl Core {
         }
     }
 
-    fn kind_of(&self, ev: &Ev) -> &'static str {
+    pub(crate) fn kind_of(&self, ev: &Ev) -> &'static str {
         match ev {
             Ev::V(v) => kind_string(v),
             Ev::F(_) => "a function of the form  [x \\in S |-> expr]",
@@ -447,11 +447,7 @@ impl Core {
                         },
                         Arg::Op { op: o, .. } => Sv::Op(self.op_value(&outer, o)?),
                     };
-                    dynamic.subst = Some(Arc::new(SubstLink {
-                        decl: b.decl,
-                        val,
-                        next: dynamic.subst.take(),
-                    }));
+                    dynamic.push(b.decl, val);
                 }
                 let saved = std::mem::replace(&mut env.dynamic, dynamic);
                 let r = self.eval(env, st, *body);
@@ -526,9 +522,7 @@ impl Core {
                 let same = self.equals(&v0, &v1)?;
                 Ok(Ev::V(Value::Bool(if angle { !same } else { same })))
             }
-            Expr::Enabled(_) => Err(EvalError::unsupported(
-                "ENABLED (needs the successor enumerator)",
-            )),
+            Expr::Enabled(a) => self.eval_enabled(env, st, *a, e),
             Expr::Cdot(..) => Err(EvalError::general(format!(
                 "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",
                 self.loc(e)
@@ -580,7 +574,7 @@ impl Core {
     // Names: slots, constants, substitutions, definitions
     // -----------------------------------------------------------------------------
 
-    fn slot<'a>(&self, env: &'a Env, lr: LocalRef) -> Result<&'a Sv> {
+    pub(crate) fn slot<'a>(&self, env: &'a Env, lr: LocalRef) -> Result<&'a Sv> {
         env.frame_up(lr.up)
             .and_then(|f| f.slots.get(lr.slot.index()))
             .ok_or_else(|| EvalError::bug(format!("unbound slot {lr:?}")))
@@ -656,11 +650,20 @@ impl Core {
         e: ExprId,
     ) -> Result<Ev> {
         let d = self.ir.decl(decl);
-        let found = if env.dynamic.cut && d.variable {
-            None
-        } else {
-            env.dynamic.lookup(decl).cloned()
-        };
+        // `Tool.evalAppl` looks a name up with `cutoff = isPrimed(control)`;
+        // under `ENABLED` that hides substitutions of variables made outside
+        // it (`Context.branch`).
+        let cutoff = d.variable && (st.is(control::PRIMED) || (primed && st.is(control::ENABLED)));
+        let found = env.dynamic.lookup_cut(decl, cutoff).cloned();
+        if found.is_none() && cutoff && d.var.is_none() {
+            // The lookup falls back to the declaration itself, and TLC reads
+            // the state by the variable's name.
+            let s = if primed { &st.s1 } else { &st.s0 };
+            return match self.root_var_named(&d.name).and_then(|i| s.get(i)) {
+                Some(v) => Ok(Ev::V(v.clone())),
+                None => Err(self.undefined(&d.name, e)),
+            };
+        }
         if let Some(sv) = found {
             if primed {
                 // `x'` with `x <- e`: OPCODE_prime evaluates the substitute in the
@@ -699,7 +702,16 @@ impl Core {
         Err(self.undefined(&d.name, e))
     }
 
-    fn redirect(&self, d: dive_ir::DefId) -> dive_ir::DefId {
+    /// The root variable TLC finds by `name` (`TLCState.lookup` by the
+    /// `UniqueString`'s variable location).
+    pub(crate) fn root_var_named(&self, name: &str) -> Option<usize> {
+        self.ir
+            .vars()
+            .iter()
+            .position(|&v| self.ir.decl(v).name == name)
+    }
+
+    pub(crate) fn redirect(&self, d: dive_ir::DefId) -> dive_ir::DefId {
         let mut d = d;
         for _ in 0..64 {
             match self.redirects.get(&d) {
@@ -747,7 +759,7 @@ impl Core {
     /// `SpecProcessor.processConstantDefns` does: zero arity, constant level,
     /// top level, and not from a module that is instantiated (whose
     /// definitions depend on the instance's substitutions).
-    fn cacheable(&self, d: dive_ir::DefId) -> bool {
+    pub(crate) fn cacheable(&self, d: dive_ir::DefId) -> bool {
         let def = self.ir.def(d);
         def.params.is_empty()
             && def.level == dive_ir::Level::Constant
@@ -757,9 +769,8 @@ impl Core {
                 dive_ir::DefKind::Operator | dive_ir::DefKind::Function
             )
             && !self.ir.module(def.module).instantiated
-            && !def
-                .effects
-                .intersects(dive_ir::Effects::IMPURE.union(dive_ir::Effects::OPEN))
+            && !def.effects.intersects(dive_ir::Effects::IMPURE)
+            && (self.open_ok || !def.effects.intersects(dive_ir::Effects::OPEN))
     }
 
     /// Calls a user definition: a new frame with the arguments bound
@@ -773,6 +784,21 @@ impl Core {
         args: &[Arg],
         e: ExprId,
     ) -> Result<Ev> {
+        let mut callee = self.callee_env(caller, st, d, parent, args)?;
+        let _g = self.enter(e)?;
+        self.eval(&mut callee, st, self.ir.def(d).body)
+    }
+
+    /// The environment a call of `d` evaluates its body in: a new frame with
+    /// the arguments bound (`getOpContext`), in the caller's dynamic context.
+    pub(crate) fn callee_env(
+        self: &Arc<Self>,
+        caller: &mut Env,
+        st: &St,
+        d: dive_ir::DefId,
+        parent: Option<Arc<crate::env::Frame>>,
+        args: &[Arg],
+    ) -> Result<Env> {
         let def = self.ir.def(d);
         if args.len() != def.params.len() {
             return Err(EvalError::bug(format!(
@@ -807,12 +833,11 @@ impl Core {
             let sv = self.arg_value(caller, st, a)?;
             callee.bind(i, sv);
         }
-        let _g = self.enter(e)?;
-        self.eval(&mut callee, st, def.body)
+        Ok(callee)
     }
 
     /// What an argument binds a parameter to.
-    fn arg_value(self: &Arc<Self>, caller: &mut Env, st: &St, a: &Arg) -> Result<Sv> {
+    pub(crate) fn arg_value(self: &Arc<Self>, caller: &mut Env, st: &St, a: &Arg) -> Result<Sv> {
         Ok(match a {
             Arg::Expr { expr, pass } => match pass {
                 Pass::Lazy => Sv::Thunk(Thunk::new(*expr, caller.clone(), true)),
@@ -1049,7 +1074,7 @@ impl Core {
 
     /// Binds one element to a group's variables (a tuple pattern
     /// destructures it).
-    fn bind_one(
+    pub(crate) fn bind_one(
         &self,
         env: &mut Env,
         slots: &[usize],
@@ -1085,7 +1110,7 @@ impl Core {
     /// `Tool.contexts` and `ContextEnumerator`: evaluates every group's
     /// domain in order, then calls `body` for each binding, the first
     /// variable varying fastest. `body` returns `false` to stop.
-    fn for_each_context(
+    pub(crate) fn for_each_context(
         self: &Arc<Self>,
         env: &mut Env,
         st: &St,
@@ -1393,9 +1418,21 @@ impl Core {
             return Err(self.filter_not_enumerable(f));
         }
         let elems = self.explore_unsized(s)?;
+        self.filter_elements_of(f, &elems)
+    }
+
+    /// The elements of `elems` the filter keeps, in order.
+    pub(crate) fn filter_elements_of(
+        self: &Arc<Self>,
+        f: &Filter,
+        elems: &[Value],
+    ) -> Result<Vec<Value>> {
+        if !is_enumerable(&f.in_val) {
+            return Err(self.filter_not_enumerable(f));
+        }
         let mut env = f.env.clone();
         let mut out = Vec::new();
-        for x in elems.iter() {
+        for x in elems {
             if f.tuple {
                 match x {
                     Value::Fcn(t) if t.as_tuple().is_some_and(|t| t.len() == f.slots.len()) => {
@@ -1793,7 +1830,11 @@ impl Core {
     }
 
     /// `FcnLambdaValue.select`.
-    fn select_lazy(self: &Arc<Self>, f: &Arc<LazyFcn>, arg: &Value) -> Result<Option<Ev>> {
+    pub(crate) fn select_lazy(
+        self: &Arc<Self>,
+        f: &Arc<LazyFcn>,
+        arg: &Value,
+    ) -> Result<Option<Ev>> {
         if let Some(v) = f.materialized.get() {
             return self.select(&Ev::V(v.clone()), arg);
         }
@@ -1919,10 +1960,21 @@ impl Core {
     }
 
     /// Prints a TLC warning message.
+    /// As `MP.printWarning`, only while warnings are on, and each distinct
+    /// message once per run.
     pub(crate) fn warn(&self, code: u32, text: &str) {
-        self.print(format!(
-            "@!@!@STARTMSG {code}:3 @!@!@\n{text}\n@!@!@ENDMSG {code} @!@!@"
-        ));
+        if !self.opts.warnings {
+            return;
+        }
+        let msg = format!("@!@!@STARTMSG {code}:3 @!@!@\n{text}\n@!@!@ENDMSG {code} @!@!@");
+        let fresh = self
+            .warned
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(msg.clone());
+        if fresh {
+            self.print(msg);
+        }
     }
 
     /// `takeExcept` along a path whose every step exists.
@@ -2165,11 +2217,7 @@ impl Core {
                 )?;
                 Value::Bool(self.equals(&v0, &v1)?)
             }
-            BuiltinOp::Enabled => {
-                return Err(EvalError::unsupported(
-                    "ENABLED (needs the successor enumerator)",
-                ));
-            }
+            BuiltinOp::Enabled => return self.eval_enabled(env, st, arg(0)?, e),
             BuiltinOp::Cdot => {
                 return Err(EvalError::general(format!(
                     "The current version of TLC does not support action composition.  An incomplete implementation can be enabled via the tlc2.tool.impl.Tool.cdot=true java property.\n{}",

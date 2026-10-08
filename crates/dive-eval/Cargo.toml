@@ -13,7 +13,7 @@ repository.workspace = true
 # keeps it off so the independent trace validator cannot call it (ADR 0016 §2);
 # `cargo xtask check-layering` enforces that. `dive-model` and `dive-trace`
 # must therefore depend on `dive-eval` with `default-features = false`.
-# Currently a stub: the enumerator is WP-C2.
+# Without it, `ENABLED` (which searches for a successor) is refused.
 default = ["enumerate"]
 enumerate = []
 
@@ -25,6 +25,20 @@ dive-value.workspace = true
 dive-sema.workspace = true
 dive-config.workspace = true
 proptest.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true
+
+# The successor generator's tests and corpus runner need it.
+[[test]]
+name = "next_probes"
+required-features = ["enumerate"]
+
+[[test]]
+name = "next_examples"
+required-features = ["enumerate"]
+
+[[example]]
+name = "next_corpus"
+required-features = ["enumerate"]

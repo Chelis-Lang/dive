@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"f":[0,0]}],{"name":"Next","location":{"beginLine":7,"beginColumn":9,"endLine":7,"endColumn":64,"module":"NxInLazyFilter"}},[2,{"f":[1,0]}]]],"state":[[1,{"f":[0,0]}],[2,{"f":[1,0]}]]},"vars":["f"]}

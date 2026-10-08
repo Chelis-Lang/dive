@@ -163,6 +163,10 @@ impl DeferredSet for Filter {
     fn key(&self) -> Vec<Value> {
         vec![self.in_val.clone(), Value::Int(i64::from(self.pred.0))]
     }
+
+    fn as_any(&self) -> Option<&dyn std::any::Any> {
+        Some(self)
+    }
 }
 
 /// `S \cup T`, `S \cap T`, `S \ T` of sets TLC keeps lazy.
@@ -223,5 +227,9 @@ impl DeferredSet for SetOp {
 
     fn key(&self) -> Vec<Value> {
         vec![self.a.clone(), self.b.clone()]
+    }
+
+    fn as_any(&self) -> Option<&dyn std::any::Any> {
+        Some(self)
     }
 }

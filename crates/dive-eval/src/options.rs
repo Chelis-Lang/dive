@@ -68,6 +68,12 @@ pub struct Options {
     /// applications and set constructions). Exceeding it is a resource limit
     /// naming the construct, never a stack overflow.
     pub max_depth: u32,
+    /// TLC's warning switch (`TLCGlobals.warn`; `-nowarning` turns it off).
+    /// Besides printing warnings, it enables TLC's all-assigned fast path in
+    /// successor generation (`Tool.getNextStatesAllAssigned`), which changes
+    /// how many successors are generated, so it is part of the semantics.
+    /// `true` in both profiles, as in TLC.
+    pub warnings: bool,
 }
 
 /// The stack size evaluation needs at [`DEFAULT_MAX_DEPTH`], with room to
@@ -88,6 +94,7 @@ impl Options {
             exploration: ExplorationOrder::Tlc,
             comparisons: Comparisons::Tlc,
             max_depth: DEFAULT_MAX_DEPTH,
+            warnings: true,
         }
     }
 
@@ -103,6 +110,7 @@ impl Options {
             exploration: ExplorationOrder::Value,
             comparisons: Comparisons::Tla,
             max_depth: DEFAULT_MAX_DEPTH,
+            warnings: true,
         }
     }
 

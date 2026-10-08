@@ -251,6 +251,12 @@ pub trait DeferredSet: Send + Sync + fmt::Debug {
     fn key(&self) -> Vec<Value> {
         Vec::new()
     }
+    /// The source as [`std::any::Any`], so that its owner can recover its
+    /// own type (the evaluator reproduces TLC's unnormalized enumeration of
+    /// its lazy sets). The default, `None`, hides it.
+    fn as_any(&self) -> Option<&dyn std::any::Any> {
+        None
+    }
 }
 
 /// See [`DeferredSet::kind`].

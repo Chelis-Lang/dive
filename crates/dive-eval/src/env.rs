@@ -233,6 +233,8 @@ pub(crate) struct Frame {
 pub(crate) struct SubstLink {
     pub(crate) decl: DeclId,
     pub(crate) val: Sv,
+    /// The number of links up to and including this one.
+    pub(crate) depth: usize,
     pub(crate) next: Option<Arc<SubstLink>>,
 }
 
@@ -241,21 +243,50 @@ pub(crate) struct SubstLink {
 pub(crate) struct Dyn {
     pub(crate) subst: Option<Arc<SubstLink>>,
     pub(crate) at: Option<Value>,
-    /// Inside `ENABLED`, TLC's `Context.branch` hides substitutions of
-    /// variables from lookups.
-    pub(crate) cut: bool,
+    /// `ENABLED` evaluates its body in `Context.branch(c)`: a lookup with
+    /// TLC's `cutoff` flag (primed evaluation of a variable, and the
+    /// enumerator's `getVar`) stops there, so substitutions made outside the
+    /// `ENABLED`, those at depth `<=` this, are hidden from it.
+    pub(crate) cut: Option<usize>,
 }
 
 impl Dyn {
     pub(crate) fn lookup(&self, decl: DeclId) -> Option<&Sv> {
+        self.lookup_cut(decl, false)
+    }
+
+    /// `Context.lookup(var, cutoff)`.
+    pub(crate) fn lookup_cut(&self, decl: DeclId, cutoff: bool) -> Option<&Sv> {
+        let floor = if cutoff { self.cut.unwrap_or(0) } else { 0 };
         let mut cur = self.subst.as_deref();
         while let Some(link) = cur {
+            if link.depth <= floor {
+                return None;
+            }
             if link.decl == decl {
                 return Some(&link.val);
             }
             cur = link.next.as_deref();
         }
         None
+    }
+
+    /// Conses a substitution onto the context.
+    pub(crate) fn push(&mut self, decl: DeclId, val: Sv) {
+        let next = self.subst.take();
+        let depth = next.as_ref().map_or(0, |l| l.depth) + 1;
+        self.subst = Some(Arc::new(SubstLink {
+            decl,
+            val,
+            depth,
+            next,
+        }));
+    }
+
+    /// `Context.branch`: marks the current depth.
+    #[cfg(feature = "enumerate")]
+    pub(crate) fn branch(&mut self) {
+        self.cut = Some(self.subst.as_ref().map_or(0, |l| l.depth));
     }
 }
 
