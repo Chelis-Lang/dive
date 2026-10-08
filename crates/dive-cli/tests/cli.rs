@@ -9,6 +9,23 @@ fn dive(args: &[&str]) -> std::process::Output {
     }
 }
 
+/// Writes `contents` to a fresh file named `name` and returns its path.
+fn temp_file(name: &str, contents: &str) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!(
+        "dive-cli-test-{}-{}",
+        std::process::id(),
+        name.replace('.', "-")
+    ));
+    if let Err(e) = std::fs::create_dir_all(&dir) {
+        unreachable!("cannot create {}: {e}", dir.display());
+    }
+    let path = dir.join(name);
+    if let Err(e) = std::fs::write(&path, contents) {
+        unreachable!("cannot write {}: {e}", path.display());
+    }
+    path
+}
+
 #[test]
 fn version_succeeds() {
     let out = dive(&["--version"]);
@@ -18,14 +35,7 @@ fn version_succeeds() {
 
 #[test]
 fn unimplemented_commands_refuse_explicitly() {
-    for cmd in [
-        "check",
-        "simulate",
-        "parse",
-        "translate",
-        "validate-trace",
-        "lsp",
-    ] {
+    for cmd in ["check", "simulate", "translate", "validate-trace", "lsp"] {
         let out = dive(&[cmd]);
         assert_eq!(out.status.code(), Some(3), "{cmd}");
         assert!(
@@ -38,4 +48,69 @@ fn unimplemented_commands_refuse_explicitly() {
 #[test]
 fn unknown_command_is_usage_error() {
     assert_eq!(dive(&["frobnicate"]).status.code(), Some(2));
+}
+
+#[test]
+fn parse_without_file_is_usage_error() {
+    assert_eq!(dive(&["parse"]).status.code(), Some(2));
+    assert_eq!(
+        dive(&["parse", "--output", "xml", "x.tla"]).status.code(),
+        Some(2)
+    );
+}
+
+#[test]
+fn parse_accepts_a_valid_module() {
+    let path = temp_file("Good.tla", "---- MODULE Good ----\nx == 1\n====\n");
+    let out = dive(&["parse", &path.to_string_lossy()]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(String::from_utf8_lossy(&out.stdout).starts_with("ok:"));
+}
+
+#[test]
+fn parse_json_reports_diagnostics() {
+    let path = temp_file("Bad.tla", "---- MODULE Bad ----\nx == 1 * -2\n====\n");
+    let out = dive(&["parse", &path.to_string_lossy(), "--output", "json"]);
+    assert_eq!(out.status.code(), Some(1));
+    let v: serde_json::Value = match serde_json::from_slice(&out.stdout) {
+        Ok(v) => v,
+        Err(e) => unreachable!("invalid JSON: {e}"),
+    };
+    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["accepted"], false);
+    assert_eq!(v["module"], "Bad");
+    assert_eq!(v["diagnostics"][0]["code"], "DIVE-S0012");
+    assert!(v.get("cst").is_none());
+}
+
+#[test]
+fn parse_json_can_include_the_cst() {
+    let path = temp_file("Cst.tla", "---- MODULE Cst ----\nx == 1\n====\n");
+    let out = dive(&[
+        "parse",
+        &path.to_string_lossy(),
+        "--output",
+        "json",
+        "--cst",
+    ]);
+    assert!(out.status.success());
+    let v: serde_json::Value = match serde_json::from_slice(&out.stdout) {
+        Ok(v) => v,
+        Err(e) => unreachable!("invalid JSON: {e}"),
+    };
+    assert_eq!(v["cst"]["kind"], "SOURCE_FILE");
+}
+
+#[test]
+fn parse_missing_file_is_usage_error() {
+    assert_eq!(
+        dive(&["parse", "/nonexistent/dive/Missing.tla"])
+            .status
+            .code(),
+        Some(2)
+    );
 }

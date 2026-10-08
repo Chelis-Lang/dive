@@ -12,6 +12,10 @@ name = "dive"
 path = "src/main.rs"
 
 [dependencies]
+dive-api = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
 
 [lints]
 workspace = true

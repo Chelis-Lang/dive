@@ -1,0 +1,23 @@
+[package]
+name = "dive-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+description = "cargo-fuzz targets for dive (nightly only; not a workspace member, not run in CI)"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+dive-syntax = { path = "../crates/dive-syntax" }
+
+[[bin]]
+name = "parse"
+path = "fuzz_targets/parse.rs"
+test = false
+doc = false
+bench = false
+
+# Keep this crate out of the main workspace.
+[workspace]
