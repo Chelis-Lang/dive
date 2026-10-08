@@ -7,9 +7,11 @@
 //!
 //! The parser accepts exactly what the pinned SANY parser accepts. That
 //! includes SANY's syntactic restrictions, such as operator precedence
-//! conflicts (`a * -b` is rejected) and junction-list alignment. It never
-//! panics, and it always produces a tree; after an error it recovers at the
-//! next module-level unit so editors keep working.
+//! conflicts (`a * -b` is rejected) and junction-list alignment. The one
+//! exception is pathologically deep nesting, which `dive` refuses with
+//! `DIVE-S0040` (see ADR 0009). It never panics, and it always produces a
+//! tree; after an error it recovers at the next module-level unit so editors
+//! keep working.
 //!
 //! Semantic analysis (name resolution, arity, levels) is not done here;
 //! that is `dive-sema`.
