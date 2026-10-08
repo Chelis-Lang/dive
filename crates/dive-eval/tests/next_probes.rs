@@ -18,13 +18,6 @@ use harness::model::{Checked, Verdict, bfs, bind_model, on_big_stack};
 
 const ORACLE: &str = "tlc-2026.10.06.014338";
 
-/// Probes whose expected result depends on something outside the
-/// enumerator, with the reason. They are reported, never counted as agreeing.
-const KNOWN: &[(&str, &str)] = &[(
-    "StringOrderPreinterned",
-    "TLC's string order depends on names its JVM interned before parsing the specification (WP-B1/C4: the run's intern table)",
-)];
-
 fn probes() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-check/tests/fixtures/tlc-probes")
 }
@@ -232,7 +225,7 @@ fn run_set(root: &Path, known: &[(&str, &str)], refused: &[(&str, &str)]) -> usi
 
 #[test]
 fn probes_match_tlc() {
-    assert_eq!(run_set(&probes(), KNOWN, &[]), 18);
+    assert_eq!(run_set(&probes(), &[], &[]), 19);
 }
 
 /// The enumerator's own rule fixtures (`tests/fixtures/next/`), each pinning

@@ -2,44 +2,27 @@
 TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 3596] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 33425] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
 Parsing file $CWD/NxEnabled/NxEnabled.tla
-Parsing file $TMP/tlc-9855119799218502383/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Parsing file $TMP/tlc-9855119799218502383/_JsonTrace.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
-Parsing file $TMP/tlc-9855119799218502383/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
-Parsing file $TMP/tlc-9855119799218502383/TLCExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
-Parsing file $TMP/tlc-9855119799218502383/Json.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
-Parsing file $TMP/tlc-9855119799218502383/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
-Parsing file $TMP/tlc-9855119799218502383/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
-Parsing file $TMP/tlc-9855119799218502383/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-2892004748540121416/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
 Semantic processing of module Naturals
-Semantic processing of module Sequences
-Semantic processing of module FiniteSets
-Semantic processing of module TLC
-Semantic processing of module Integers
-Semantic processing of module TLCExt
-Semantic processing of module Json
-Semantic processing of module _JsonTrace
 Semantic processing of module NxEnabled
-Linting of module TLCExt
-Linting of module Json
-Linting of module _JsonTrace
 Linting of module NxEnabled
 @!@!@STARTMSG 2219:0 @!@!@
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 21:14:27)
+Starting... (2026-10-08 21:46:23)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 21:14:27.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 21:46:23.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2110:1 @!@!@
 Invariant Inv is violated.
@@ -67,9 +50,8 @@ x = 2
 x = 3
 
 @!@!@ENDMSG 2217 @!@!@
-"CounterExample written: $TMP/trace.json"
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(4) at 2026-10-08 21:14:27: 4 states generated (345 s/min), 4 distinct states found (345 ds/min), 0 states left on queue.
+Progress(4) at 2026-10-08 21:46:23: 4 states generated (875 s/min), 4 distinct states found (875 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 4 states generated, 4 distinct states found, 0 states left on queue.
@@ -78,5 +60,5 @@ Progress(4) at 2026-10-08 21:14:27: 4 states generated (345 s/min), 4 distinct s
 The depth of the complete state graph search is 4.
 @!@!@ENDMSG 2194 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 695ms at (2026-10-08 21:14:27)
+Finished in 275ms at (2026-10-08 21:46:23)
 @!@!@ENDMSG 2186 @!@!@

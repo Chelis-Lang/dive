@@ -42,13 +42,17 @@ impl Core {
     /// in TLC's order and multiplicity (`Enumerable.elements()`). Under
     /// `--explore-order=value` the run's value order instead.
     pub(crate) fn in_elements(self: &Arc<Self>, set: &dive_value::Set) -> Result<Arc<[Value]>> {
-        if self.opts.exploration == ExplorationOrder::Value || clean(set) {
+        if clean(set) {
             return self.explore(set);
         }
         let raw = self.tlc_raw(&Value::Set(set.clone()))?;
         let mut norm = raw.clone();
         norm.sort_by(|a, b| a.cmp_with(b, TLC_ORDER));
         norm.dedup_by(|a, b| a.cmp_with(b, TLC_ORDER) == Ordering::Equal);
+        if self.opts.exploration == ExplorationOrder::Value && raw.len() == norm.len() {
+            // The order is the run's (D-010); the multiplicity is TLC's.
+            return self.explore(set);
+        }
         let same = raw.len() == norm.len()
             && raw
                 .iter()

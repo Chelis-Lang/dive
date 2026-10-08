@@ -29,14 +29,13 @@ All notable changes to this project are documented here. The project will follow
   - the interface the checker drives: `Action`, `Scope`, `init_states`, `successors`,
     `next_states`, `Successor` (state, action, ordinal, completeness), `Flow`,
     `NextError`;
-  - agreement with TLC on 18 of the 19 probes (the other needs TLC's run-wide intern
-    table), on 18 new rule fixtures captured from the pinned TLC, and, through a test-only
+  - agreement with TLC on all 19 probes, on 18 new rule fixtures captured from the pinned
+    TLC, and, through a test-only
     binding and single-worker search, on every small-tier Examples model it can bind:
     verdicts, counts, depth and counterexample lengths (`tests/next_examples.rs` commits
     22 of them).
 - `dive-value`: `DeferredSet::as_any`, so the evaluator can enumerate its own lazy sets in
   TLC's unnormalized order.
-
 - `dive-eval` (M5, WP-C1): the interpreter over the IR (ADR 0014 and its amendment):
   - every expression form with TLC's evaluation order, laziness (thunks under
     `LazyValue`'s caching rule), lazy sets and lazy functions, `CHOOSE` in the run's
