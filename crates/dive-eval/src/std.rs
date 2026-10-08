@@ -22,7 +22,7 @@
 use std::sync::Arc;
 
 use dive_ir::{Arg, ExprId, StdKind, StdOp, StdSupport};
-use dive_value::{Int, IntMode, SetKind, Value, print, tlc};
+use dive_value::{Int, SetKind, Value, print, tlc};
 
 use crate::core::{Core, is_enumerable, java_class};
 use crate::env::{Env, Ev, OpVal, St};
@@ -127,17 +127,14 @@ impl Core {
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
                 Ok(Value::int(a.mul(&b, mode)?))
             }
-            StdOp::NaturalsDiv | StdOp::IntegersDiv => {
+            StdOp::NaturalsDiv => {
+                // `Naturals.Divide` rounds a negative quotient that truncates to
+                // 0 up to 0, and wraps `-2147483648 \div -1` (fixture `RvNatDiv`).
                 let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
-                // `Naturals.Divide` does not check `-2147483648 \div -1`: Java's
-                // int division wraps to `-2147483648`.
-                if op == StdOp::NaturalsDiv
-                    && mode == IntMode::Tlc
-                    && a == Int::Small(i64::from(i32::MIN))
-                    && b == Int::Small(-1)
-                {
-                    return Ok(Value::Int(i64::from(i32::MIN)));
-                }
+                Ok(Value::int(a.div_naturals(&b, mode)?))
+            }
+            StdOp::IntegersDiv => {
+                let (a, b) = self.int_args(op, v(0)?, v(1)?)?;
                 Ok(Value::int(a.div(&b, mode)?))
             }
             StdOp::NaturalsMod | StdOp::IntegersMod => {

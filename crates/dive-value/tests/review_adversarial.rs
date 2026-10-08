@@ -86,6 +86,7 @@ fn fp64_state_fingerprints_match_tlc_in_all_64_bits() {
         names: &names,
         ctx,
         constants: Vec::new(),
+        naturals_div: false,
     };
     let fp = TlcFingerprint::new(0).unwrap();
     let mut bad = Vec::new();
