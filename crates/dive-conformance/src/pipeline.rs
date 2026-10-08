@@ -871,7 +871,7 @@ fn run_model(
                     _ if imp.options().iter().any(|o| o.result_changing) => Outcome::DivergenceMode,
                     _ if diffs.is_empty() => Outcome::Agree,
                     // Everything compared agrees; only the independent
-                    // validation of the counterexample is missing (WP-E1).
+                    // validation could not confirm the counterexample.
                     // Not an agreement until the validator vouches for it.
                     _ if diffs.iter().all(|d| d.field == "trace.validated") => {
                         Outcome::AgreePendingTraceValidation

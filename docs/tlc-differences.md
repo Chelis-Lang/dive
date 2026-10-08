@@ -394,7 +394,7 @@ so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 
 | **Kind** | Same answer, with a stronger guarantee |
 | **Default** | Every counterexample `dive check` reports is first replayed against the specification by a separate validator. `dive validate-trace` checks any trace on demand |
 | **TLC behaviour** | Nothing to switch off: validation never changes a verdict. Under `--compat=tlc` the validator evaluates with TLC's semantics |
-| **Status** | implemented: the validator (`dive-trace`), the library API (`dive_api::trace`), `dive validate-trace` and the conformance harness. `dive check` will use it once it exists (M5) |
+| **Status** | implemented: the validator (`dive-trace`), the library API (`dive_api::trace`), `dive validate-trace` and the conformance harness, which validates every `dive check` counterexample. `dive check` emits the document (`counterexample.trace`) but does not yet validate it itself before reporting (M5) |
 
 **What TLC does.** TLC prints the counterexample its own search found, and nothing checks it independently. A bug in TLC's successor generation, or in how it rebuilds the trace, would print a trace that the specification does not allow. TLC's `-dumpTrace json` output cannot be read back reliably, even by TLC: a set and a sequence are both JSON arrays, and a string and a model value are both JSON strings. For example, for `x = {<<1, 2>>}` and `x = <<<<1, 2>>>>`, TLC writes the same `[[1, 2]]`.
 

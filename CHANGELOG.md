@@ -71,7 +71,12 @@ All notable changes to this project are documented here. The project will follow
   counterexample. New command `trace-controls` runs the positive and negative controls over
   the golden counterexamples: 12 of the 15 TLC safety counterexamples validate, 3 are refused
   by name (`TLCGet`, `Bitwise!Xor`, an `ALIAS` without the variables), none is invalid, and
-  every mutant is rejected (D-012).
+  every mutant is rejected (D-012). Under `--compat=tlc` the small tier goes from 59 agree
+  and 9 agree-pending-trace-validation to 68 agree; `agree-pending-trace-validation` now
+  means the validator could not confirm the trace, and an invalid trace is a disagreement.
+  `scripts/conformance-gate.sh` accepts only `agree`.
+- `dive check --output json`: `counterexample.trace`, the counterexample in `dive-trace`'s
+  lossless format, which `dive validate-trace` and the harness read.
 - `dive-eval`: `Evaluator::redirected` and `Evaluator::is_value_override`.
 - `dive-eval` (M5, WP-C2): the successor generator `dive_eval::next`, behind the
   `enumerate` feature (ADR 0014 §3 and its WP-C2 amendment):

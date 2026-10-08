@@ -38,7 +38,7 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 
 **Each model gets exactly one outcome:**
 - `agree`;
-- `agree-pending-trace-validation`: every compared field agrees, but the counterexample has not been validated by an independent trace validator (charter rule 2, ADR 0016), which does not exist yet (WP-E1). It is never counted as `agree` and is not a finding;
+- `agree-pending-trace-validation`: every compared field agrees, but the harness's independent trace validator (charter rule 2, ADR 0016) could not confirm the counterexample: it refused part of the claim by name, or there was no document. It is never counted as `agree` and is not a finding (the PR conformance gate fails on it);
 - `disagree`, with a field-by-field diff;
 - `unsupported`;
 - `oracle-error`;
@@ -251,7 +251,7 @@ pub trait Implementation: Sync {
   - `unsupported` and `resource-limit` reports (exit 3) are `unsupported`, naming the feature; an error whose TLC class dive does not claim yet (`tlc.verified: false`) is `unsupported` too, with dive's own finding in the detail;
   - `internal-error`, or a report that contradicts itself, is `unclassified`, which is a `disagree`.
 
-  dive's counterexamples are not validated independently yet (WP-E1), so a violation is at best `agree-pending-trace-validation`.
+  dive's counterexample document (`counterexample.trace`) is validated by the harness in-process with `dive-trace`; a violation agrees only if it validates.
 - **Robustness.** A run whose exit code contradicts `accepted` (0 if accepted, 1 if rejected), a crash, missing or unparsable JSON, or a `schema_version` other than 1 is `unclassified`, which is a `disagree`. Exit 3 (`dive` refusing) is `unsupported`. Every run must leave the corpus checkout unmodified.
 - **Profiles.** `--impl-profile` and `DIVE_COMPAT=tlc` are recorded. `dive parse` and `dive analyze` have no profile-dependent behaviour yet. The harness passes `DIVE_COMPAT=tlc` to `dive` under the pure `tlc` profile, and removes it otherwise. A result-changing `--impl-option` makes module outcomes `divergence-mode`, as it does for models.
 
