@@ -4,7 +4,7 @@
 
 The standard is an **unimpeachably sound port**. Every result is verified continuously against the canonical Java tools. Where `dive` cannot match TLC exactly, it refuses with an explicit `unsupported` result instead of approximating.
 
-> **Status: early development.** The workspace, CI and conformance infrastructure are being built. No `dive` command produces verdicts yet. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> **Status: early development.** The workspace, CI and conformance infrastructure are being built. `dive parse` checks syntax exactly as SANY's parser does (ADR 0009); no other command produces verdicts yet. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Documentation
 
