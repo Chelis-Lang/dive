@@ -132,6 +132,8 @@ pub fn load_model(
 ) -> Result<SpecModel, String> {
     let opts = TraceOptions {
         compat_tlc,
+        // The goldens' runs: `-seed 0 -fp 0`.
+        run: Some((0, 0)),
         module_paths: module_path.to_vec(),
         ..TraceOptions::default()
     };

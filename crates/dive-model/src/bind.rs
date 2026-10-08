@@ -27,6 +27,11 @@ pub struct BindOptions {
     /// TLC's `-deadlock` command-line flag: do not check for deadlock,
     /// whatever `CHECK_DEADLOCK` says.
     pub no_deadlock: bool,
+    /// The run hosting the evaluator ([`dive_eval::Host`]), installed before
+    /// TLC's start-up evaluation, so that constant definitions and `ASSUME`s
+    /// draw from the run's random stream and see its registers. `None`: no
+    /// host; operators that need one are refused by name.
+    pub host: Option<std::sync::Arc<dyn dive_eval::Host>>,
 }
 
 impl BindOptions {
@@ -36,6 +41,7 @@ impl BindOptions {
         Self {
             eval: Options::tlc(),
             no_deadlock: false,
+            host: None,
         }
     }
 
@@ -45,6 +51,7 @@ impl BindOptions {
         Self {
             eval: Options::dive(),
             no_deadlock: false,
+            host: None,
         }
     }
 }
@@ -504,6 +511,9 @@ impl<'a> Binder<'a> {
             }
         }
         let ev = Evaluator::new(model, self.opts.eval);
+        if let Some(h) = &self.opts.host {
+            ev.set_host(h.clone());
+        }
         self.t.set_evaluator(ev);
     }
 

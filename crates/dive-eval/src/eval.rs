@@ -798,7 +798,7 @@ impl Core {
 
     /// Calls a user definition: a new frame with the arguments bound
     /// (`getOpContext`: every expression argument is a `LazyValue`).
-    fn call_def(
+    pub(crate) fn call_def(
         self: &Arc<Self>,
         caller: &mut Env,
         st: &St,

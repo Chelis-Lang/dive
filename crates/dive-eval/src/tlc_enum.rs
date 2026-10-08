@@ -42,6 +42,17 @@ impl Core {
     /// in TLC's order and multiplicity (`Enumerable.elements()`). Under
     /// `--explore-order=value` the run's value order instead.
     pub(crate) fn in_elements(self: &Arc<Self>, set: &dive_value::Set) -> Result<Arc<[Value]>> {
+        self.tlc_elements(set, "x' \\in S")
+    }
+
+    /// TLC's `Enumerable.elements()` order and multiplicity for `set`, walked
+    /// by `what` (a Java override such as `FoldSet`, or `x' \in S`); under
+    /// `--explore-order=value` the run's value order instead.
+    pub(crate) fn tlc_elements(
+        self: &Arc<Self>,
+        set: &dive_value::Set,
+        what: &str,
+    ) -> Result<Arc<[Value]>> {
         if clean(set) {
             return self.explore(set);
         }
@@ -60,7 +71,7 @@ impl Core {
                 .all(|(a, b)| a.cmp_with(b, TLC_ORDER) == Ordering::Equal);
         if !same {
             return Err(EvalError::unsupported(format!(
-                "enumerating the lazily represented set {} for x' \\in S: TLC's unnormalized enumeration of it ({} elements) differs from its normalized one ({} elements), and which one TLC uses depends on whether it has already compared, sized or fingerprinted the same set object",
+                "enumerating the lazily represented set {} for {what}: TLC's unnormalized enumeration of it ({} elements) differs from its normalized one ({} elements), and which one TLC uses depends on whether it has already compared, sized or fingerprinted the same set object",
                 self.ppr(&Value::Set(set.clone())),
                 raw.len(),
                 norm.len()

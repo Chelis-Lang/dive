@@ -66,41 +66,30 @@ each root, run twice).
 evaluates them either.
 
 **Refusals.** Lowering refuses no language construct. It refuses only Java-overridden
-operators outside dive's standard-library core (`StdSupport`). In Examples, 52 of the 424
-specifications can reach at least one. Uses reachable from the root module, by feature:
+operators dive does not implement (`StdSupport` other than `Core`). Since WP-C3
+implemented the `Bags` overrides and the CommunityModules operators the corpus uses
+(`SequencesExt`, `Functions`, `FiniteSetsExt!FoldSet`, `Bitwise`, `Graphs`,
+`UndirectedGraphs`, `DyadicRationals`, `IOUtils!atoi`, ...), 19 of the 424 Examples
+specifications can reach one (52 before). Uses reachable from the root module, by feature
+(2026-10-08):
 
 | Operator | Why refused | Uses | Specifications |
 |---|---|---|---|
-| `SequencesExt!IsPrefix` | CommunityModules, not implemented yet | 88 | 8 |
-| `Functions!FoldFunctionOnSet` | CommunityModules | 40 | 18 |
-| `Functions!IsInjective` | CommunityModules | 28 | 12 |
 | `IOUtils!IOEnv` | I/O (environment) | 18 | 7 |
 | `CSV!CSVWrite` | I/O (files) | 9 | 6 |
-| `Functions!FoldFunction` | CommunityModules | 7 | 5 |
-| `FiniteSetsExt!FoldSet` | CommunityModules | 6 | 2 |
-| `Functions!AntiFunction` | CommunityModules | 5 | 3 |
-| `IOUtils!atoi` | CommunityModules | 5 | 2 |
-| `SVG!SVGElemToString` | CommunityModules | 5 | 5 |
-| `SVG!NodeOfRingNetwork` | CommunityModules | 8 | 2 |
-| `Bitwise!Xor` | CommunityModules | 4 | 2 |
-| `DyadicRationals!Reduce` | CommunityModules | 4 | 3 |
+| `SVG!NodeOfRingNetwork` | CommunityModules, not implemented | 8 | 2 |
+| `SVG!SVGElemToString` | CommunityModules, not implemented | 5 | 5 |
 | `TLCExt!Trace` | reads TLC's checker state | 4 | 3 |
-| `Graphs!AreConnectedIn` | CommunityModules | 3 | 3 |
 | `IOUtils!IOEnvExec` | I/O (process) | 3 | 2 |
-| `SequencesExt!FoldLeft` | CommunityModules | 3 | 3 |
-| `SequencesExt!SetToSeq` | CommunityModules | 3 | 3 |
-| `SVG!PointOnLine` | CommunityModules | 3 | 1 |
-| `UndirectedGraphs!ConnectedComponents` | CommunityModules | 3 | 3 |
+| `SVG!PointOnLine` | CommunityModules, not implemented | 3 | 1 |
 | `CSV!CSVRecords` | I/O (files) | 2 | 2 |
 | `IOUtils!IOExec` | I/O (process) | 2 | 2 |
 | `IOUtils!IOExecTemplate` | I/O (process) | 2 | 2 |
 | `Json!JsonSerialize` | I/O (files) | 2 | 2 |
-| `SequencesExt!SetToSeqs` | CommunityModules | 2 | 2 |
 | `Json!ndJsonDeserialize` | I/O (files) | 1 | 1 |
-| `SequencesExt!LongestCommonPrefix` | CommunityModules | 1 | 1 |
-| `Statistics!ChiSquare` | CommunityModules | 1 | 1 |
-| `SVG!NodesOfDirectedMultiGraph` | CommunityModules | 1 | 1 |
-| `VectorClocks!CausalOrder` | CommunityModules | 1 | 1 |
+| `Statistics!ChiSquare` | CommunityModules, not implemented | 1 | 1 |
+| `SVG!NodesOfDirectedMultiGraph` | CommunityModules, not implemented | 1 | 1 |
+| `VectorClocks!CausalOrder` | CommunityModules, not implemented | 1 | 1 |
 
 Whether a refusal affects a *model* depends on whether a role of its configuration reaches
 it. `dive-model` (WP-B1) decides that. Many of these uses sit in animation, trace-export
@@ -111,7 +100,11 @@ In the tlaplus tests, the refused operators that can be reached also include:
   `_Possible!_Counts` (checker state);
 - `IOUtils!IODeserialize`, `CSV!CSVWriteRecord`, `Json!JsonDeserialize`,
   `Json!ndJsonSerialize` (I/O);
-- `FiniteSetsExt!kSubset` (CommunityModules).
+- `FiniteSetsExt!kSubset` (CommunityModules, not implemented).
+
+Operators in dive's core that the evaluator does not implement yet (`Json!ToJson`,
+`TLCExt!AssertError`, `TLC!JavaTime`, `Randomization!RandomSubsetSet`, ...) are not
+refused by lowering; the evaluator refuses them by name where it evaluates them.
 
 ## The action split (WP-A2)
 

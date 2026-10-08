@@ -78,6 +78,10 @@ pub enum Ec {
     ExpectedExpressionInComputing2,
     /// `TLC_ENABLED_WRONG_FORMULA` (2260).
     EnabledWrongFormula,
+    /// `TLC_MODULE_TLCGET_UNDEFINED` (2145).
+    TlcGetUndefined,
+    /// `TLC_MODULE_BAG_UNION1` (2177).
+    BagUnion1,
 }
 
 impl Ec {
@@ -111,6 +115,8 @@ impl Ec {
             Self::ExpectedExpressionInComputing => 2247,
             Self::ExpectedExpressionInComputing2 => 2248,
             Self::EnabledWrongFormula => 2260,
+            Self::TlcGetUndefined => 2145,
+            Self::BagUnion1 => 2177,
         }
     }
 
@@ -144,6 +150,8 @@ impl Ec {
             Self::ExpectedExpressionInComputing => "TLC_EXPECTED_EXPRESSION_IN_COMPUTING",
             Self::ExpectedExpressionInComputing2 => "TLC_EXPECTED_EXPRESSION_IN_COMPUTING2",
             Self::EnabledWrongFormula => "TLC_ENABLED_WRONG_FORMULA",
+            Self::TlcGetUndefined => "TLC_MODULE_TLCGET_UNDEFINED",
+            Self::BagUnion1 => "TLC_MODULE_BAG_UNION1",
         }
     }
 
@@ -174,8 +182,16 @@ impl Ec {
             2247 => Self::ExpectedExpressionInComputing,
             2248 => Self::ExpectedExpressionInComputing2,
             2260 => Self::EnabledWrongFormula,
+            2145 => Self::TlcGetUndefined,
+            2177 => Self::BagUnion1,
             _ => Self::General,
         }
+    }
+
+    /// The code for a numeric TLC code (`GENERAL` for one evaluation does
+    /// not raise).
+    pub(crate) fn from_tlc_code(code: u32) -> Self {
+        Self::from_code(code)
     }
 }
 

@@ -1,0 +1,61 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 30996] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/ErCmGraphMember/ErCmGraphMember.tla
+Parsing file $TMP/tlc-15549169854738049322/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-15549169854738049322/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-15549169854738049322/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $TMP/tlc-15549169854738049322/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-15549169854738049322/Graphs.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Graphs.tla)
+Parsing file $TMP/tlc-15549169854738049322/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-15549169854738049322/SequencesExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/SequencesExt.tla)
+Parsing file $TMP/tlc-15549169854738049322/Relation.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Relation.tla)
+Parsing file $TMP/tlc-15549169854738049322/FiniteSetsExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/FiniteSetsExt.tla)
+Parsing file $TMP/tlc-15549169854738049322/Folds.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Folds.tla)
+Parsing file $TMP/tlc-15549169854738049322/Functions.tla (jar:file:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar!/Functions.tla)
+Parsing file $TMP/tlc-15549169854738049322/Bags.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Bags.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module Folds
+Semantic processing of module Functions
+Semantic processing of module FiniteSetsExt
+Semantic processing of module Bags
+Semantic processing of module SequencesExt
+Semantic processing of module Relation
+Semantic processing of module Graphs
+Semantic processing of module ErCmGraphMember
+Linting of module Folds
+Linting of module Functions
+Linting of module FiniteSetsExt
+Linting of module SequencesExt
+Linting of module Relation
+Linting of module Graphs
+Linting of module ErCmGraphMember
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 23:06:10)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2105:1 @!@!@
+Evaluating assumption line 3, col 8 to line 3, col 67 of module ErCmGraphMember failed.
+@!@!@STARTMSG 2154:0 @!@!@
+Attempted to apply the operator overridden by the Java method
+public static tlc2.value.impl.Value tlc2.overrides.Graphs.areConnectedIn(tlc2.value.impl.Value,tlc2.value.impl.Value,tlc2.value.impl.Value),
+but it produced the following error:
+Attempted to compare string "a" with non-string:
+2
+@!@!@ENDMSG 2154 @!@!@
+@!@!@ENDMSG 2105 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 1808ms at (2026-10-08 23:06:10)
+@!@!@ENDMSG 2186 @!@!@

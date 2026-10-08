@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":6,"beginColumn":9,"endLine":6,"endColumn":103,"module":"TmRegistersAll"}},[2,{"x":1}]],[[2,{"x":1}],{"name":"Next","location":{"beginLine":6,"beginColumn":9,"endLine":6,"endColumn":103,"module":"TmRegistersAll"}},[3,{"x":2}]]],"state":[[1,{"x":0}],[2,{"x":1}],[3,{"x":2}]]},"vars":["x"]}

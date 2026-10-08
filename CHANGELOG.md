@@ -16,6 +16,8 @@ All notable changes to this project are documented here. The project will follow
   the scheme. Regression tests: `MCWriteThroughCache` in the default profile
   (`crates/dive-check/tests/fingerprints.rs`) and collision properties
   (`crates/dive-store/tests/state_fingerprint.rs`).
+- `dive-eval`: an error inside `TLCEval` (including its argument) is reported wrapped in
+  `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`, as TLC's `EvaluatingValue` reports it.
 - Conformance harness (issue #35): goldens and `dev capture` no longer record TLC as
   perturbed by `-dumpTrace json`, which loads `Integers` and its Java overrides into
   every spec. The deciding run omits it; a counterexample's JSON document comes from a
@@ -28,6 +30,30 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Standard library breadth (M5, WP-C3), each operator a port of the Java method TLC
+  runs, with its errors:
+  - the `Bags` overrides, and the CommunityModules operators that corpus models use:
+    `SequencesExt` (`IsPrefix`, `FoldLeft`, `FoldRight`, `SetToSeq`, `SetToSeqs`,
+    `LongestCommonPrefix`, `Contains`, `SelectInSeq` and friends, `RemoveFirst`,
+    `Suffixes`, `AllSubSeqs`, `ReplaceFirstSubSeq`, `ReplaceAllSubSeqs`), `Functions`
+    (`IsInjective`, `AntiFunction`, `FoldFunction`, `FoldFunctionOnSet`),
+    `FiniteSetsExt` (`FoldSet`, `Quantify`), `Bitwise`, `BagsExt!FoldBag`, `Graphs` and
+    `UndirectedGraphs` (`AreConnectedIn`, `SimplePath`, `IsStronglyConnected`,
+    `ConnectedComponents`), `DyadicRationals`' `Reduce` and `IOUtils!atoi`;
+  - `TLCGet` and `TLCSet`: registers (one logical register file), `"level"`,
+    `"config"`, `"all"`, `"all:named"`, the counters while assumptions are checked, and
+    `TLCSet("exit", TRUE)`;
+  - `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` in `dive check`, drawing
+    from the `--seed` streams (TLC's bit for bit under `--compat=tlc`; D-002);
+  - `dive_eval::Host`, the interface through which the engine provides the level, the
+    random stream, the counters and `TLCGet("config")`, and `dive_stdlib::host::RunHost`;
+  - `dive validate-trace` and the harness's trace controls see `TLCGet("level")` and,
+    when the run's `-seed`/`-fp` are known, `TLCGet("config")`.
+
+  CommunityModules' `AllTests`: 651 of 767 assumptions agree (233 before), 116 refused
+  by name, none wrong. Examples `DieHard/MCDieHardest`,
+  `MisraReachability/MCReachabilityTestRandomGraphs` and `ewd998/EWD998PCal` now agree
+  with TLC under `--compat=tlc`.
 - `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
   level engine run inline with one logical worker, over `dive-model`'s bound model:
   - initial states, invariants (on new and out-of-model states), implied initial
