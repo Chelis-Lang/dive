@@ -1,0 +1,4 @@
+---- MODULE JunctionParenLeft ----
+x == /\ (TRUE
+)
+====

@@ -1,0 +1,5 @@
+---- MODULE ProofAssumeProve ----
+THEOREM ASSUME NEW c \in {}, NEW VARIABLE v, NEW ACTION A, TRUE
+        PROVE TRUE
+OBVIOUS
+====
