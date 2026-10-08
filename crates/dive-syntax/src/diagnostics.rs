@@ -69,6 +69,9 @@ pub enum Code {
     InputTooLarge,
     /// `DIVE-S0006`: the top-level module's name differs from the file name.
     ModuleNameMismatch,
+    /// `DIVE-S0007` (warning): the file is not valid UTF-8; invalid bytes were
+    /// read as U+FFFD, as SANY's UTF-8 reader does.
+    InvalidUtf8,
 }
 
 impl Code {
@@ -102,6 +105,7 @@ impl Code {
             Self::NestingTooDeep => "DIVE-S0040",
             Self::InputTooLarge => "DIVE-S0041",
             Self::ModuleNameMismatch => "DIVE-S0006",
+            Self::InvalidUtf8 => "DIVE-S0007",
         }
     }
 }
@@ -203,6 +207,7 @@ mod tests {
             Code::NestingTooDeep,
             Code::InputTooLarge,
             Code::ModuleNameMismatch,
+            Code::InvalidUtf8,
         ];
         let mut seen = std::collections::BTreeSet::new();
         for c in all {

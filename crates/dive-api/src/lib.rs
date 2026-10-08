@@ -46,18 +46,12 @@ pub enum ApiError {
         /// The underlying error.
         error: std::io::Error,
     },
-    /// The file is not valid UTF-8.
-    NotUtf8 {
-        /// The file.
-        path: String,
-    },
 }
 
 impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Io { path, error } => write!(f, "cannot read {path}: {error}"),
-            Self::NotUtf8 { path } => write!(f, "{path} is not valid UTF-8"),
         }
     }
 }
@@ -85,19 +79,41 @@ pub fn parse_source(file: &str, source: &str) -> ParseReport {
 
 /// Reads and parses a TLA+ file.
 ///
+/// Like SANY, which reads files as UTF-8 and replaces malformed bytes, a file
+/// that is not valid UTF-8 is decoded with U+FFFD replacement characters and
+/// parsed anyway, with a `DIVE-S0007` warning. The CST is then lossless with
+/// respect to the decoded text.
+///
 /// # Errors
 ///
-/// [`ApiError`] if the file cannot be read or is not UTF-8.
+/// [`ApiError`] if the file cannot be read.
 pub fn parse_file(path: &Path) -> Result<ParseReport, ApiError> {
     let shown = path.display().to_string();
     let bytes = std::fs::read(path).map_err(|error| ApiError::Io {
         path: shown.clone(),
         error,
     })?;
-    let source = String::from_utf8(bytes).map_err(|_| ApiError::NotUtf8 {
-        path: shown.clone(),
-    })?;
-    Ok(parse_source(&shown, &source))
+    match String::from_utf8(bytes) {
+        Ok(source) => Ok(parse_source(&shown, &source)),
+        Err(e) => {
+            let valid_up_to = e.utf8_error().valid_up_to();
+            let source = String::from_utf8_lossy(e.as_bytes()).into_owned();
+            let mut report = parse_source(&shown, &source);
+            let at = dive_syntax::TextSize::try_from(valid_up_to).unwrap_or_default();
+            report.diagnostics.insert(
+                0,
+                Diagnostic {
+                    code: dive_syntax::Code::InvalidUtf8,
+                    severity: Severity::Warning,
+                    message: "the file is not valid UTF-8; invalid bytes were read as U+FFFD"
+                        .to_owned(),
+                    range: dive_syntax::TextRange::empty(at),
+                    help: Some("save the file as UTF-8".to_owned()),
+                },
+            );
+            Ok(report)
+        }
+    }
 }
 
 impl ParseReport {
@@ -291,6 +307,25 @@ mod tests {
         let r = parse_source("dir/B.tla", "---- MODULE A ----\n====\n");
         assert!(!r.accepted());
         assert_eq!(r.diagnostics()[0].code.as_str(), "DIVE-S0006");
+    }
+
+    #[test]
+    fn invalid_utf8_is_read_like_sany() {
+        let dir = std::env::temp_dir().join(format!("dive-api-utf8-{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let path = dir.join("Latin.tla");
+        // `\xe9` (Latin-1 e-acute) inside a comment: SANY reads it as U+FFFD.
+        let bytes = b"---- MODULE Latin ----\n(* caf\xe9 *)\nx == 1\n====\n";
+        if let Err(e) = std::fs::write(&path, bytes) {
+            unreachable!("cannot write {}: {e}", path.display());
+        }
+        let r = match parse_file(&path) {
+            Ok(r) => r,
+            Err(e) => unreachable!("{e}"),
+        };
+        assert!(r.accepted());
+        assert_eq!(r.diagnostics()[0].code.as_str(), "DIVE-S0007");
+        assert!(!r.diagnostics()[0].is_error());
     }
 
     #[test]
