@@ -35,7 +35,7 @@ fn version_succeeds() {
 
 #[test]
 fn unimplemented_commands_refuse_explicitly() {
-    for cmd in ["simulate", "translate", "validate-trace", "lsp"] {
+    for cmd in ["simulate", "translate", "lsp"] {
         let out = dive(&[cmd]);
         assert_eq!(out.status.code(), Some(3), "{cmd}");
         assert!(
@@ -43,6 +43,58 @@ fn unimplemented_commands_refuse_explicitly() {
             "{cmd}"
         );
     }
+}
+
+#[test]
+fn validate_trace_checks_a_trace_against_the_spec() {
+    let spec = temp_file(
+        "Counter.tla",
+        "---- MODULE Counter ----\nEXTENDS Naturals\nVARIABLE n\nInit == n = 0\nNext == n' = n + 1\nInv == n < 2\n====\n",
+    );
+    let cfg = spec.with_extension("cfg");
+    if let Err(e) = std::fs::write(&cfg, "INIT Init\nNEXT Next\nINVARIANT Inv\n") {
+        unreachable!("cannot write {}: {e}", cfg.display());
+    }
+    let spec = spec.to_string_lossy().into_owned();
+    // TLC's -dumpTrace json form, which carries no claim.
+    let tlc = temp_file(
+        "tlc.json",
+        r#"{"vars":["n"],"counterexample":{"state":[[1,{"n":0}],[2,{"n":1}],[3,{"n":2}]],"action":[]}}"#,
+    );
+    let tlc = tlc.to_string_lossy().into_owned();
+    let run = |extra: &[&str]| {
+        let mut args = vec![
+            "validate-trace",
+            spec.as_str(),
+            "--trace",
+            tlc.as_str(),
+            "--compat=tlc",
+        ];
+        args.extend_from_slice(extra);
+        dive(&args)
+    };
+    let out = run(&["--claim", "invariant:Inv"]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stdout)
+    );
+    assert!(String::from_utf8_lossy(&out.stdout).starts_with("valid:"));
+    // A claim that does not hold is invalid, with the failing state.
+    // Claiming deadlock: the invariant fails in the last state first.
+    let out = run(&["--claim", "deadlock", "--output", "json"]);
+    assert_eq!(out.status.code(), Some(1));
+    let out = run(&["--claim", "invariant:Missing", "--output", "json"]);
+    assert_eq!(out.status.code(), Some(1));
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+    assert_eq!(v["result"], "invalid");
+    assert_eq!(v["failure"]["check"], "ending");
+    // A TLC document needs a claim; a missing trace is a usage error.
+    assert_eq!(run(&[]).status.code(), Some(1));
+    assert_eq!(
+        dive(&["validate-trace", spec.as_str()]).status.code(),
+        Some(2)
+    );
 }
 
 #[test]

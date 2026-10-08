@@ -9,9 +9,10 @@
 # fetched oracles and Examples corpus (the harness's `oracle fetch` and
 # `corpus fetch --corpus examples`). It never runs TLC.
 #
-# A model passes when its outcome is `agree`, or `agree-pending-trace-validation`
-# while the independent trace validator (WP-E1) does not exist. Anything else,
-# including `unsupported`, fails the gate.
+# A model passes only when its outcome is `agree`. Every counterexample is
+# validated by the harness with the independent trace validator (WP-E1,
+# ADR 0016), so `agree-pending-trace-validation` (a counterexample the
+# validator could not confirm) fails, like `unsupported` and everything else.
 set -euo pipefail
 
 list="${1:?usage: conformance-gate.sh <model-list> [run args...]}"
@@ -41,7 +42,7 @@ elapsed=$(($(date +%s) - start))
 
 seen=$(grep -cE '^\[[0-9]+/[0-9]+\] ' "$out/log" || true)
 bad=$(grep -E '^\[[0-9]+/[0-9]+\] ' "$out/log" |
-  grep -vE '^\[[0-9]+/[0-9]+\] (agree|agree-pending-trace-validation) ' || true)
+  grep -vE '^\[[0-9]+/[0-9]+\] agree ' || true)
 echo "gate: $seen of $expected models run in ${elapsed}s"
 if [ "$status" -ne 0 ] || [ "$seen" -ne "$expected" ] || [ -n "$bad" ]; then
   [ -n "$bad" ] && printf 'gate: not agreeing:\n%s\n' "$bad"
