@@ -40,6 +40,10 @@ The charter calls for pinning `tla2tools.jar` by release version and SHA-256, an
 - **TLC's `-fp` is random per run unless pinned.** The harness pins it.
 - **SANY exits 0 on semantic errors** unless it is passed `-error-codes`, which v1.7.4 rejects. The harness reads SANY output as well as the exit code.
 
+## Owner decision on refresh (2026-10-08)
+
+There is no refresh cadence for now. The single snapshot `tlc-2026.10.06.014338` is the oracle until the owner decides otherwise. Moving it remains a deliberate decision, made with regenerated goldens and a recorded reason.
+
 ## Consequences
 
 - The private release asset needs a GitHub token to fetch. CI has one; locally the harness uses `gh auth token`.
