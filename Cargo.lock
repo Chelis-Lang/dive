@@ -192,6 +192,7 @@ dependencies = [
  "dive-sema",
  "dive-value",
  "proptest",
+ "serde_json",
 ]
 
 [[package]]

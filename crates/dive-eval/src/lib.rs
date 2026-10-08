@@ -29,10 +29,14 @@
 //!
 //! # How the successor generator plugs in
 //!
-//! `dive_eval::next` (WP-C2, behind the `enumerate` feature) ports TLC's
-//! `getInitStates`/`getNextStates`. It evaluates the non-action parts of an
-//! action through this interpreter with [`St::action`] (or the partial
-//! successor it is building) and uses [`EvalError`] for the error classes.
+//! `dive_eval::next` (behind the `enumerate` feature, on by default) ports
+//! TLC's `getInitStates`, `getNextStates`, `getActions` and `enabled`: it
+//! generates initial states and successors in TLC's order, duplicates
+//! included, evaluating the non-action parts of an action through this
+//! interpreter against the partial successor it is building, and uses
+//! [`EvalError`] for the error classes. `ENABLED` goes through it too, so a
+//! build without the feature (the independent trace validator) refuses
+//! `ENABLED`.
 #![forbid(unsafe_code)]
 
 mod core;
@@ -40,9 +44,31 @@ mod env;
 mod error;
 mod eval;
 mod lazy;
+#[cfg(feature = "enumerate")]
+pub mod next;
 mod options;
 mod std;
 mod tla_cmp;
+#[cfg(feature = "enumerate")]
+mod tlc_enum;
+
+/// Without the successor enumerator, `ENABLED` (which searches for a
+/// successor with TLC's `enabled`) is refused.
+#[cfg(not(feature = "enumerate"))]
+impl Core {
+    pub(crate) fn eval_enabled(
+        self: &Arc<Self>,
+        _env: &mut Env,
+        _st: &St,
+        _a: ExprId,
+        e: ExprId,
+    ) -> Result<Ev> {
+        Err(EvalError::unsupported(format!(
+            "ENABLED without the successor enumerator (the `enumerate` feature) ({})",
+            self.loc(e)
+        )))
+    }
+}
 
 use ::std::collections::HashMap;
 use ::std::sync::Arc;

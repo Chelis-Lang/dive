@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"r":{"a":0,"b":0}}],{"name":"Next","location":{"beginLine":7,"beginColumn":9,"endLine":7,"endColumn":39,"module":"NxInRcdOrder"}},[2,{"r":{"a":1,"b":2}}]]],"state":[[1,{"r":{"a":0,"b":0}}],[2,{"r":{"a":1,"b":2}}]]},"vars":["r"]}
