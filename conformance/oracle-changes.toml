@@ -1,0 +1,94 @@
+# Known upstream changes between pinned TLC builds (ADR 0002, ADR 0003).
+#
+# When one TLC oracle runs against another oracle's goldens
+# (`run --impl tlc:<id> --golden-oracle <other>`), a difference that the
+# entries below fully explain is reported as `known-upstream-change`. It is
+# never counted as `agree`, and it is not a finding. Any difference no entry
+# explains stays `disagree`. The registry never applies to `dive` or to
+# external adapters.
+#
+# Each entry is a fact from docs/survey/oracle-history.md (or an ADR):
+#   id               stable, unique
+#   upstream_commit  the commit that made the change, or <from>..<to> when it
+#                    is not attributed to one commit
+#   description      what changed
+#   link             where it is recorded (under docs/)
+#   absent_in        pinned oracle ids whose builds lack the change
+#   present_in       pinned oracle ids whose builds have it
+#   models, modules  path globs of the models (TLC) and modules (SANY) covered
+#   fields           globs of the compared fields the change may alter:
+#                    verdict, error_class, violated_property, counts.*,
+#                    trace.*, accepted, unresolved_modules
+#   absent_result    optional conditions on the result of the build lacking
+#   present_result   the change / having it: verdict = [...],
+#                    error_class = [...], unresolved_modules = [...] (all of
+#                    the result's unresolved modules must be listed here or by
+#                    another applicable entry), distinct_states = N
+#
+# Seeded from the v1.7.4-vs-pin cross-oracle report
+# conformance/reports/20261008T141040972-tlc_tlc-1.7.4-small.json. Not
+# registered, and so still `disagree` there:
+#   - Examples MCRealTimeHourClock: v1.7.4 omits the search depth after a
+#     liveness violation. The register attributes this to no commit yet.
+#   - Examples braf/BufferedRandomAccessFile.tla (SANY): v1.7.4 cannot
+#     resolve `EXTENDS Common`, a module nested later in the same file. Not
+#     in the register yet.
+
+[[change]]
+id = "community-modules-need-newer-tlc"
+upstream_commit = "eb3ff99d16..94d0c50"
+description = "The pinned CommunityModules jars need TLC classes added on master after the 1.7.x branch point (eb3ff99d16, v1.7.0), so v1.7.4 runs without them and every module they provide is unresolved"
+link = "docs/decisions/0003-golden-format-and-provenance.md"
+absent_in = ["tlc-1.7.4"]
+present_in = ["tlc-2026.10.06.014338"]
+models = ["specifications/**"]
+modules = ["specifications/**"]
+fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.*", "accepted", "unresolved_modules"]
+absent_result = { verdict = ["parse-error"], unresolved_modules = [
+  "BagsExt", "Bitwise", "Combinatorics", "CSV", "DifferentialEquations", "DyadicRationals",
+  "FiniteSetsExt", "FiniteSetsExtTheorems", "FiniteSetsExtTheorems_proofs", "Folds",
+  "FoldsTheorems", "FoldsTheorems_proofs", "Functions", "FunctionTheorems",
+  "FunctionTheorems_proofs", "Graphs", "GraphTheorems", "GraphTheorems_proofs", "GraphViz",
+  "HTML", "IOUtils", "Quorum", "QuorumTheorems", "QuorumTheorems_proofs", "Relation",
+  "SequencesExt", "SequencesExtTheorems", "SequencesExtTheorems_proofs", "ShiViz",
+  "Statistics", "SVG", "UndirectedGraphs", "VectorClocks",
+] }
+
+[[change]]
+id = "tlcext-json-standard-modules"
+upstream_commit = "856398af6"
+description = "TLCExt and Json graduated from CommunityModules to TLC's standard modules (2021-01-30); v1.7.4 cannot resolve them"
+link = "docs/survey/oracle-history.md"
+absent_in = ["tlc-1.7.4"]
+present_in = ["tlc-2026.10.06.014338"]
+models = ["specifications/**"]
+modules = ["specifications/**"]
+fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.*", "accepted", "unresolved_modules"]
+absent_result = { verdict = ["parse-error"], unresolved_modules = ["TLCExt", "Json"] }
+
+[[change]]
+id = "alias-keyword"
+upstream_commit = "f5306c601"
+description = "The ALIAS cfg keyword (2020-07-08). v1.7.4 rejects it, either as a nested config error inside GENERAL or by reading ALIAS as a property name"
+link = "docs/survey/oracle-history.md"
+absent_in = ["tlc-1.7.4"]
+present_in = ["tlc-2026.10.06.014338"]
+# The small-tier models whose cfg uses ALIAS and that v1.7.4 fails on.
+models = [
+  "specifications/braf/BufferedRandomAccessFile.cfg",
+  "specifications/ewd426/TokenRing.cfg",
+  "specifications/tower_of_hanoi/Hanoi_anim.cfg",
+]
+fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.*"]
+absent_result = { error_class = ["GENERAL", "TLC_CONFIG_SPECIFIED_NOT_DEFINED"] }
+
+[[change]]
+id = "depth-zero-states"
+upstream_commit = "508aaf05f"
+description = "TLC reported a search depth of 1 when no state was generated (constant-only models); it now reports 0 (2021-07-29)"
+link = "docs/survey/oracle-history.md"
+absent_in = ["tlc-1.7.4"]
+present_in = ["tlc-2026.10.06.014338"]
+models = ["specifications/**"]
+fields = ["counts.depth"]
+present_result = { distinct_states = 0 }

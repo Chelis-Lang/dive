@@ -10,15 +10,42 @@ use serde::Deserialize;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
+/// What an oracle is for (ADR 0002, revision "the 1.8.x line is the oracle").
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, serde::Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Role {
+    /// Its goldens and runs decide conformance; disagreements are findings.
+    Gating,
+    /// Kept for comparison only. It never gates: the harness touches it only
+    /// when it is named explicitly (`--oracle`, `--golden-oracle`,
+    /// `--impl tlc:<id>`), its runs never produce failing findings, and
+    /// reports mark it as reference.
+    Reference,
+}
+
+impl Role {
+    /// The kebab-case name.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Gating => "gating",
+            Self::Reference => "reference",
+        }
+    }
+}
+
 /// One pinned TLC oracle (`[[tlc]]`).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct TlcOracle {
     /// Stable oracle id, e.g. `tlc-1.7.4`. Goldens live under this id.
     pub id: String,
-    /// Whether goldens are generated from this oracle by default.
+    /// Whether goldens are generated from this oracle by default. Only a
+    /// gating oracle may be the default.
     #[serde(default)]
     pub default: bool,
+    /// `gating` or `reference`; required, so no oracle gates by accident.
+    pub role: Role,
     /// Human description.
     pub description: String,
     /// Upstream commit or tag the jar was built from.
@@ -202,6 +229,16 @@ impl OraclesFile {
                 "exactly one [[tlc]] must have default = true (found {defaults})"
             )));
         }
+        if let Some(o) = self
+            .tlc
+            .iter()
+            .find(|o| o.default && o.role != Role::Gating)
+        {
+            return Err(Error::Config(format!(
+                "tlc `{}`: the default oracle must have role = \"gating\"",
+                o.id
+            )));
+        }
         let classpath_ids: BTreeSet<&str> = self.classpath.iter().map(|a| a.id.as_str()).collect();
         for o in &self.tlc {
             check_digest(&format!("tlc `{}`", o.id), &o.sha256)?;
@@ -246,6 +283,19 @@ impl OraclesFile {
             .iter()
             .find(|o| o.default)
             .ok_or_else(|| Error::Config("no default oracle".to_owned()))
+    }
+
+    /// The oracles a command touches when none is named: the gating ones,
+    /// or exactly `selected` when given (a reference oracle runs only when
+    /// selected explicitly).
+    ///
+    /// # Errors
+    /// Fails if `selected` names no pinned oracle.
+    pub fn selected_or_gating(&self, selected: Option<&str>) -> Result<Vec<&TlcOracle>> {
+        match selected {
+            Some(id) => Ok(vec![self.oracle(id)?]),
+            None => Ok(self.tlc.iter().filter(|o| o.role == Role::Gating).collect()),
+        }
     }
 
     /// The oracle with id `id`.
@@ -384,6 +434,21 @@ mod tests {
             Vec::<String>::new()
         );
         assert!(cfg.oracles.jre.platforms.contains_key("linux-x86_64"));
+        assert_eq!(cfg.oracles.oracle("tlc-1.7.4")?.role, Role::Reference);
+        assert_eq!(
+            cfg.oracles.default_oracle()?.role,
+            Role::Gating,
+            "the default oracle gates"
+        );
+        let implicit: Vec<&str> = cfg
+            .oracles
+            .selected_or_gating(None)?
+            .iter()
+            .map(|o| o.id.as_str())
+            .collect();
+        assert_eq!(implicit, ["tlc-2026.10.06.014338"]);
+        let named = cfg.oracles.selected_or_gating(Some("tlc-1.7.4"))?;
+        assert_eq!(named[0].role, Role::Reference);
         assert_eq!(
             cfg.corpora.corpus("examples")?.layout,
             Layout::ExamplesManifest
@@ -397,6 +462,7 @@ mod tests {
 [[tlc]]
 id = "a"
 default = true
+role = "gating"
 description = "d"
 upstream_commit = "x"
 url = "https://example.invalid/a.jar"
@@ -413,5 +479,14 @@ version = "1"
         assert!(OraclesFile::parse(&unknown).is_err());
         let bad_cp = good.replace("classpath = []", "classpath = [\"nope\"]");
         assert!(OraclesFile::parse(&bad_cp).is_err());
+        let no_role = good.replace("role = \"gating\"\n", "");
+        assert!(OraclesFile::parse(&no_role).is_err(), "role is required");
+        let bad_role = good.replace("role = \"gating\"", "role = \"advisory\"");
+        assert!(OraclesFile::parse(&bad_role).is_err());
+        let reference_default = good.replace("role = \"gating\"", "role = \"reference\"");
+        assert!(
+            OraclesFile::parse(&reference_default).is_err(),
+            "a reference oracle cannot be the default"
+        );
     }
 }

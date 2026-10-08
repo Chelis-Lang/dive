@@ -41,7 +41,36 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 - `unsupported`;
 - `oracle-error`;
 - `timeout`;
-- `out-of-scope`.
+- `out-of-scope`;
+- `divergence-mode` and `expected-divergence`: for `dive` and adapters, see "Profiles, options and expected divergences" below;
+- `known-upstream-change`: for TLC oracles only, see "Oracle roles and known upstream changes" below.
+
+None of the last three ever counts as `agree`, and none is a finding.
+
+## Oracle roles and known upstream changes
+
+**Roles.** Every `[[tlc]]` in `conformance/oracles.toml` has a required `role` (ADR 0002):
+- `gating`: its goldens and runs decide conformance. The default oracle must be gating. Today the only gating oracle is `tlc-2026.10.06.014338`.
+- `reference`: kept for comparison only. Today this is `tlc-1.7.4`. A reference oracle never gates:
+  - the harness uses it only when it is named: `oracle fetch|verify --oracle <id>`, `golden generate --oracle <id>`, `run --impl tlc:<id>` or `run --golden-oracle <id>`. Without `--oracle`, `oracle fetch` and `oracle verify` cover gating oracles only;
+  - a `run` in which it takes part, on either side, exits 0 even with findings. It prints how many there were;
+  - the report records `golden_oracle_role`, `implementation_oracle_role` and `reference: true`, and the Markdown summary says "Reference run".
+
+**Known upstream changes.** `conformance/oracle-changes.toml` is the machine-readable side of `docs/survey/oracle-history.md`. When a TLC oracle runs against another oracle's goldens, a difference that registered changes fully explain is reported as `known-upstream-change`, with the change ids and upstream commits in the detail. A difference that no entry explains stays `disagree`.
+
+An entry applies when all of these hold:
+- the two oracles are one from `absent_in` and one from `present_in`, in either role;
+- the model or module path matches its `models` or `modules` globs;
+- its optional `absent_result` and `present_result` conditions hold (verdict, error class, unresolved modules, distinct-state count).
+
+A difference is explained only if every differing field matches the `fields` globs of an applicable entry. Unresolved modules must be covered by the applicable entries together.
+
+The registry never applies to `dive` or to external adapters, and it never turns a difference into `agree`. Entries are validated when loaded:
+- every oracle id must be pinned;
+- every field glob must match a compared field;
+- the upstream commit must be a SHA or a `<from>..<to>` range.
+
+The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/`Json`, `ALIAS`, and depth 1 for constant-only models. Two differences there are not attributed to a commit and stay `disagree`; the file's header lists them.
 
 **Comparison rules** (ADR 0004 and its amendment):
 - Every implementation is compared with the single-worker golden on:
@@ -63,8 +92,8 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 ```sh
 cargo run -p dive-conformance --release -- <command>      # or target/release/dive-conformance
 
-oracle fetch                    # download + verify oracles, classpath jars, the host JRE, module libraries
-oracle verify                   # re-verify the cache and print each oracle's probed capabilities
+oracle fetch [--oracle ID]       # download + verify gating oracles (or ID), classpath jars, the host JRE, module libraries
+oracle verify [--oracle ID]      # re-verify the cache and print the gating oracles' (or ID's) probed capabilities
 corpus fetch [--corpus ID]      # git checkout of pinned corpora; submodules are recorded, not fetched
 corpus list  [--tier small|deep|all] [--filter GLOB]
 golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only]
@@ -85,14 +114,14 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 
 **Outputs:**
 - `run` writes `conformance/reports/<run-id>.json` (schema version 1) and `docs/conformance.md`. Use `--no-summary` to skip the summary, or `--summary PATH` to put it elsewhere.
-- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
+- Exit status: 0 for success; 1 for findings (unwritten goldens, or `disagree`, `oracle-error` or `timeout` outcomes, except in runs involving a reference oracle); 2 for a usage error, including an empty selection or stray arguments; 3 for a harness error.
 
 **Examples:**
 
 ```sh
 dive-conformance golden generate --tier small                     # all small models + SANY goldens
 dive-conformance run --impl tlc --crosscheck-manifest              # self-consistency + manifest drift
-dive-conformance run --impl tlc:tlc-1.7.4 --no-summary             # cross-oracle diff vs default goldens
+dive-conformance run --impl tlc:tlc-1.7.4 --no-summary             # cross-oracle diff vs default goldens (reference: never gates)
 dive-conformance run --impl tlc --workers 1,4 --filter 'specifications/ewd840/*'
 ```
 

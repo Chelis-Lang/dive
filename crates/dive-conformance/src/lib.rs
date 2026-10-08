@@ -39,6 +39,7 @@ pub mod process;
 pub mod report;
 pub mod sany;
 pub mod tlc;
+pub mod upstream;
 pub mod util;
 
 pub use error::{Error, Result};
