@@ -183,7 +183,15 @@ short, the harness (`cargo run -p dive-conformance --release -- <command>`):
 - emits `conformance/reports/<run-id>.json` and `docs/conformance.md`.
 
 No system Java is needed; `--java <path>` opts into one and is recorded in
-provenance. The private oracle asset needs `GH_TOKEN`, `GITHUB_TOKEN` or
+provenance.
+
+**Parallel agents use their own cache.** Concurrent harness runs on one cache
+are safe (cache entries are created under advisory file locks), but a shared
+checkout is still shared state. Each worktree sets its own `DIVE_CACHE_DIR`,
+seeded by copying the shared cache, e.g.
+`rsync -a --exclude tmp ~/.cache/dive/ "$DIVE_CACHE_DIR/"`; the harness
+verifies the copy before using it. Never write into a cache checkout by hand.
+See the harness README, "Cache layout". The private oracle asset needs `GH_TOKEN`, `GITHUB_TOKEN` or
 `gh auth login`.
 
 ## Tracking

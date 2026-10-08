@@ -187,10 +187,28 @@ sha256/<hex>/<file>      one directory per artifact digest (jars, JRE archive). 
 jre/<hex>/               the JRE unpacked from archive <hex> (macOS: */Contents/Home/bin/java)
 git/<id>/<commit>/       corpora and module libraries, `git init` + `fetch --depth 1 <sha>` + checkout;
                          completion marker in .git/, HEAD checked and the work tree must be clean
+jar-modules/<hex>/       root-level .tla files of the classpath jar <hex>, for `--impl dive`
 home/.tlaplus/esc.txt    TLC's user.home: NO_STATISTICS (opts out of TLC telemetry)
 tmp/                     per-run scratch: an isolated copy of the spec directory (the run's working
                          directory), TLC -metadir, java.io.tmpdir, -dumpTrace output; removed after each run
+locks/<entry>.lock       advisory locks, one per cache entry (never deleted)
 ```
+
+**Concurrent runs.** Several harness processes may share one cache (issue #46).
+- Every step that creates an entry (download, JRE unpacking, checkout, jar module extraction) holds that entry's exclusive advisory lock (`std::fs::File::lock`, `flock(2)`) and checks again under the lock whether another process finished it meanwhile. A process that has to wait says so on stderr.
+- Entries appear only when complete: downloads are renamed into place after verification, unpacked trees are renamed from a staging directory, and a checkout's completion marker is written last. So readers take no lock: they see a complete entry or none, and verify it before every use. Per-run scratch directories are unique per process and run.
+- `tests/cache_concurrency.rs` starts two `corpus fetch` processes together against an empty cache; one checks out, the other waits and finds it cached.
+- The locks coordinate processes on one machine. Do not put the cache on a network file system.
+
+**Parallel agents and worktrees.** Locking makes a shared cache safe, but a checkout is still shared state: anything that writes into it by hand (a stray `ln -s`, an editor) breaks every run that uses it, and the harness then refuses to run until the checkout is deleted and fetched again. Agents working in parallel should therefore each use their own cache, seeded from the shared one:
+
+```sh
+export DIVE_CACHE_DIR="$PWD/.dive-cache"                 # per worktree; or a scratch directory
+rsync -a --exclude tmp ~/.cache/dive/ "$DIVE_CACHE_DIR/"   # optional: copy instead of downloading
+dive-conformance oracle fetch && dive-conformance corpus fetch   # verifies the copy, fetches what is missing
+```
+
+A copied cache is verified exactly like a downloaded one: artifacts by SHA-256, checkouts by commit and a clean work tree.
 
 **Isolation.** Each jar sits alone in its own directory. That matters because `tla2tools.jar`'s manifest `Class-Path` names `CommunityModules*.jar` *relative to the jar*; isolation guarantees that only the jars on `-cp` are used.
 

@@ -249,6 +249,11 @@ pub fn jar_modules(cache: &Cache, jar: &Path, sha256: &str) -> Result<Option<Pat
     if marker.is_file() {
         return Ok(Some(dir));
     }
+    let _lock = cache.lock(&format!("jar-modules-{sha256}"))?;
+    if marker.is_file() {
+        // Another process extracted it while this one waited.
+        return Ok(Some(dir));
+    }
     let parent = cache.root().join("jar-modules");
     std::fs::create_dir_all(&parent).map_err(|e| Error::io(&parent, &e))?;
     let tmp = TempDir::new_in(&parent, "extract")?;

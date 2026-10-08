@@ -13,6 +13,10 @@ All notable changes to this project are documented here. The project will follow
   Registry entries now list the `fields` they may excuse, and never excuse trace
   validation. The nightly conformance workflow also runs the default profile on the
   tier's models.
+- Conformance harness (issue #46): concurrent harness processes can share one
+  `DIVE_CACHE_DIR`. Downloads, JRE unpacking, checkouts and jar module extraction run
+  under a per-entry advisory file lock (`locks/` in the cache) and re-check under it.
+  The README and `AGENTS.md` document a per-worktree `DIVE_CACHE_DIR` for parallel agents.
 - `dive-store` and `dive check` (issue #42): the default profile's two-level state
   fingerprint combined per-value FP64 fingerprints with FP64 again, which is affine
   over GF(2), so the same change made to two variables could cancel; Examples
