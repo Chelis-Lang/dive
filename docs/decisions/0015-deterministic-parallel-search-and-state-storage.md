@@ -232,6 +232,7 @@ Randomness replays exactly, because generation is seeded per state (ADR 0014 §7
   - for each *expanded* state, to seed randomness under `--compat=tlc` (ADR 0014 §7);
   - for each distinct state, to print TLC's "actual" probability under `--compat=tlc`.
 - **What the scheme changes.** Only which fingerprints are produced. Verdicts, counts and traces are the same under both schemes, except through a collision. The default profile keeps the cheaper two-level scheme in the IR's order; nothing found while implementing WP-A3 argues for changing that.
+- **Finding of WP-D2 (2026-10-08): the two-level scheme as built collides systematically.** FP64 is affine over GF(2), and so is FP64 over FP64 values, so the same change in two variables can cancel: on Examples `MCWriteThroughCache`, 64 of 5,196 states collide with another one (issue #42). Until the combination is made non-linear, `dive check` keys the set on TLC's single-stream fingerprint in both profiles. That is correct, but forgoes the cached-value speedup of §8.
 - **`VIEW` and symmetry.** With `VIEW`, TLC fingerprints only the view's value (`val.fingerPrint(FP64.New())`, `TLCStateMut.java:262-270`), so the variable order does not enter. With `SYMMETRY`, it does twice: the smallest permuted state is chosen by comparing values in variable order, then fingerprinted in that order.
 - **The polynomial index.**
   - In the default profile it is fixed at 0 and reported, so identical inputs give identical runs. `--fp N` selects another.

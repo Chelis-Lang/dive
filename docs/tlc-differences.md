@@ -28,7 +28,7 @@ In every case below:
 | **Kind** | Same answer, better path |
 | **Default** | Deterministic parallel search; workers on by default |
 | **TLC behaviour** | `--workers 1` reproduces TLC's exact breadth-first results |
-| **Status** | planned (M5 architecture requirement) |
+| **Status** | the search itself is implemented (`dive check`, M5 WP-D2): one logical worker, TLC's exact single-worker results under `--compat=tlc`. The parallel engine is planned (WP-D3); until then `--workers N` runs sequentially and says so in its output. |
 
 **What TLC does.** With more than one worker, TLC's breadth-first search is only approximately breadth-first (`tlc2/tool/TLCTrace.java`; tlaplus#883). Three things change from run to run and with the worker count:
 
@@ -58,7 +58,7 @@ On Examples `DieHard` with 4 workers, TLC reports depth 9 for a 7-state countere
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
 | **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
 | **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
-| **Status** | implemented in the operator library (`dive-stdlib`), in both modes, and verified against TLC. The `--seed` flag, seed reporting and the checker's use of the streams follow with `dive check` (M5). |
+| **Status** | implemented in the operator library (`dive-stdlib`), in both modes, and verified against TLC. `dive check` accepts `--seed` and always reports the seed (and the fingerprint polynomial). The evaluator does not draw from the streams yet, so `dive check` refuses `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` by name. |
 
 **What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
@@ -244,7 +244,7 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 | **Kind** | Same answer, with a stronger guarantee |
 | **Default** | Fingerprint mode, as in TLC, always reporting its collision bound |
 | **Better option** | `--store exact`: full states, with an unconditional claim that every state was checked |
-| **Status** | planned (M5) |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Disk spill is planned. |
 
 **What TLC does.** TLC stores 64-bit fingerprints of states, not the states themselves. A collision between two distinct states would silently skip part of the state space. TLC prints a probabilistic estimate of this at the end of a run, but the "no error found" verdict itself is probabilistic.
 
@@ -261,9 +261,11 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 | **Kind** | Same answer, better path |
 | **Default** | Human-readable output; `--output json` gives a versioned schema |
 | **TLC behaviour** | TLC-style output conventions under `--compat=tlc` |
-| **Status** | `dive parse` and `dive analyze` implemented; `check` and the rest planned |
+| **Status** | `dive parse`, `dive analyze` and `dive check` implemented; the rest planned |
 
 **What TLC does.** Results come as human-oriented text, or as the `-tool` message stream meant for the Toolbox. Counterexamples are available as JSON only through `-dumpTrace json`. SANY's error messages give a location, but no stable error codes and no suggested fix. SANY's command line exits 0 on semantic errors unless you pass `-error-codes`.
+
+**`dive check` exit codes.** Under `--compat=tlc` a verdict exits with TLC's status (0, 10 to 14, 75 to 77, 150, 151, 255). dive's default profile uses its own, documented in `dive --help`: 0 no error, 1 rejected input, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation error. In both profiles 2 is a usage error, 3 a refusal or resource limit (no verdict) and 4 an internal error.
 
 **What dive does.** Every diagnostic has:
 
@@ -340,7 +342,7 @@ In TLA+, tuples and records are functions. Two functions with different domains 
 | **Kind** | Different answer, only at a violation |
 | **Default** | **Canonical order** (`--explore-order=value`; owner decision 2026-10-08): sets are explored in the run's value order, which is canonical in the default profile (D-006). Runs where the two orders would have stopped differently are flagged. |
 | **TLC behaviour** | `--explore-order=tlc`, part of `--compat=tlc` |
-| **Status** | default in `dive-eval` (`ExplorationOrder::Value`). The checker's flagging of runs where the order mattered is planned with D2/D3. |
+| **Status** | default in `dive-eval` (`ExplorationOrder::Value`). `dive check` in the default profile notes, at every stop at a violation, deadlock or error, that the result may differ under `--compat=tlc`. Detecting whether the order actually mattered in a run is planned. |
 
 **What TLC does.** TLC explores the elements of a set in its internal value order: the elements of `\E x \in S`, `\A x \in S`, `{x \in S : P}`, `{e : x \in S}`, `[x \in S |-> e]` and `x' \in S`. For strings and model values, that order is the order in which names first appear in the module (D-006). So the module text decides which successor TLC generates first, and with it which of two violations at the same depth TLC reports:
 
@@ -466,6 +468,13 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - applying, as an action, a lazily evaluated function that has pending `EXCEPT`s or an argument outside its domain;
   - a built-in operator passed as an operator argument and applied as an action (`Op(\/)`);
   - `x' \subseteq S` where `S` is not a set.
+- **`dive check` refusals.** The checker refuses, naming the feature, rather than give an answer it cannot vouch for:
+  - temporal properties (liveness checking is not implemented yet) and `SYMMETRY`;
+  - simulation mode and action composition (`\cdot`);
+  - anything the binding stage or the evaluator refuses (for example `TLCGet`, `RandomElement`, `IOUtils`);
+  - evaluation errors whose exact TLC error class at that place is not reproduced yet. dive reports the error and its message, but marks TLC's class as unverified rather than claim it.
+
+  Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 - **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
   - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);
