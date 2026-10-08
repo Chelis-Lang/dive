@@ -270,6 +270,10 @@ dive's fingerprint is TLC's FP64.
 
 **A future speed-up.** FP64 is linear over GF(2), so a later optimization can cache per-value sub-fingerprints and combine them by multiplying by `x^(8n)`. The result would not change.
 
+**Cached value fingerprints.** Each set and function caches its own fingerprint (`TlcFingerprint::fingerprint_cached`), tagged with the polynomial and `Ctx` it was computed under, so states that share a value fingerprint it once. `dive-store`'s two-level state fingerprint is built on it (ADR 0015 §5). The cache is two atomics per compound value, filled once and never replaced; errors are not cached.
+
+**Byte encodings.** `codec` encodes values for state storage (ADR 0015 §5, §8). The lossless form keeps each value's representation, including `isNorm` and the record-literal bit. The canonical form is the exact-store key: equal values, and only equal values, have equal keys within a run. Names are written as intern tokens and resolved with `Interner::resolve`.
+
 ### 7. Printing and JSON
 
 **`print::to_tlc_string`** ports every `toString`, including the expansion rules.
