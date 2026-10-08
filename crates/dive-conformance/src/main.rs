@@ -11,7 +11,7 @@ use dive_conformance::implementation::{
 };
 use dive_conformance::oracle::{CheckMode, Java, OracleEnv, TlcJob};
 use dive_conformance::pipeline::{self, GenerateOptions, Limits, RunOptions, Selection};
-use dive_conformance::sany;
+use dive_conformance::sany::{self, SanyPhase};
 use dive_conformance::tlc::messages;
 use dive_conformance::tlc::result::{RunFacts, classify};
 use std::io::Write as _;
@@ -43,7 +43,7 @@ COMMANDS:
     run                    run an implementation against the goldens and write a report
 
 SELECTION (corpus list, golden generate, run):
-    --corpus <id>          corpus (default: examples)
+    --corpus <id>          corpus (default: examples); `run` takes several, into one report
     --tier <t>             small | deep | all (default: small)
     --filter <glob>        model/module path glob; repeatable (`*`, `**`, `?`)
 
@@ -58,6 +58,10 @@ RUN:
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
     --no-sany              skip SANY goldens
+    --sany-phase <p>       full (default): compare full SANY (dive: `dive analyze`);
+                           parse: compare SANY's parse-phase verdict of each module's own
+                           file, derived from the same goldens (dive: `dive parse`)
+    --dive-bin <path>      the dive binary for --impl dive (default: target/release/dive)
     --impl-profile P       dive profile: dive (default) | tlc | tlc+overrides=<f>,... (ADR 0010);
                            DIVE_COMPAT=tlc selects tlc when not given
     --impl-option N[=V]    run dive/adapter under an option (repeatable; ADR 0010). Options
@@ -126,6 +130,8 @@ struct Opts {
     java: Option<PathBuf>,
     impl_options: Vec<String>,
     impl_profile: Option<String>,
+    sany_phase: Option<String>,
+    dive_bin: Option<PathBuf>,
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
     positional: Vec<String>,
@@ -179,6 +185,8 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--java" => o.java = Some(args.value(&a)?.into()),
             "--impl-option" => o.impl_options.push(args.value(&a)?),
             "--impl-profile" => o.impl_profile = Some(args.value(&a)?),
+            "--sany-phase" => o.sany_phase = Some(args.value(&a)?),
+            "--dive-bin" => o.dive_bin = Some(args.value(&a)?.into()),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
@@ -303,6 +311,20 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
     }
 }
 
+/// `--sany-phase full|parse`.
+fn sany_phase(o: &Opts) -> Result<SanyPhase> {
+    match o.sany_phase.as_deref() {
+        None | Some("full") => Ok(SanyPhase::Full),
+        Some("parse") if o.no_sany => Err(Error::Usage(
+            "--sany-phase parse and --no-sany conflict".to_owned(),
+        )),
+        Some("parse") => Ok(SanyPhase::Parse),
+        Some(other) => Err(Error::Usage(format!(
+            "--sany-phase must be full or parse (got `{other}`)"
+        ))),
+    }
+}
+
 /// `run`: returns whether there were findings.
 fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
     let imp_spec = o
@@ -313,8 +335,18 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         Some(id) => id.clone(),
         None => config.oracles.default_oracle()?.id.clone(),
     };
+    if o.dive_bin.is_some() && imp_spec != "dive" {
+        return Err(Error::Usage(
+            "--dive-bin applies to --impl dive only".to_owned(),
+        ));
+    }
     let opts = RunOptions {
-        corpus: corpus_id(o)?,
+        corpora: if o.corpus.is_empty() {
+            vec!["examples".to_owned()]
+        } else {
+            o.corpus.clone()
+        },
+        sany_phase: sany_phase(o)?,
         golden_oracle: golden_oracle.clone(),
         selection: selection(o),
         workers: o.workers.clone().unwrap_or_else(|| vec![1]),
@@ -350,7 +382,12 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         let imp = TlcImplementation { env };
         pipeline::run(config, cache, &imp, Some(&imp.env), &opts)?
     } else if imp_spec == "dive" {
-        let mut imp = DiveImplementation::default();
+        let bin = o.dive_bin.clone().unwrap_or_else(|| {
+            root.join("target")
+                .join("release")
+                .join(format!("dive{}", std::env::consts::EXE_SUFFIX))
+        });
+        let mut imp = DiveImplementation::prepare(config, cache, &golden_oracle, &bin)?;
         imp.profile = match &o.impl_profile {
             Some(p) => Profile::parse(p)?,
             None => Profile::from_env()?.unwrap_or_default(),
@@ -369,6 +406,11 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     } else {
         return Err(Error::Usage(format!("unknown --impl `{imp_spec}`")));
     };
+    Ok(print_and_gate(&report))
+}
+
+/// Prints the run's summary and returns whether its findings gate (exit 1).
+fn print_and_gate(report: &dive_conformance::report::Report) -> bool {
     let s = &report.summary;
     out(&format!(
         "{}\n",
@@ -382,6 +424,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             "worker_counts_variant": s.worker_counts_variant,
             "worker_depth_variant": s.worker_depth_variant,
             "worker_property_variant": s.worker_property_variant,
+            "by_corpus": s.by_corpus,
         }))
         .unwrap_or_default()
     ));
@@ -396,9 +439,9 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
                 "reference run: {findings} finding(s) reported, not gating"
             ));
         }
-        return Ok(false);
+        return false;
     }
-    Ok(findings > 0)
+    findings > 0
 }
 
 fn parse_impl_options(texts: &[String], imp: &dyn Implementation) -> Result<Vec<ImplOption>> {

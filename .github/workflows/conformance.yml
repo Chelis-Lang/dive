@@ -3,8 +3,10 @@ name: conformance
 # Standard and deep conformance tiers (ADR 0001): nightly on the small tier,
 # and on manual dispatch with a chosen tier. Runs the pinned TLC against the
 # committed goldens, with worker-count invariance (charter rule 7) and the
-# Examples manifest cross-check, then uploads the report. Never runs on push
-# or PR; ci.yml is the fast tier.
+# Examples manifest cross-check. Then runs dive's front end (`dive analyze`,
+# and `dive parse` against SANY's parse phase) on the modules of every module
+# corpus, and uploads the reports. Never runs on push or PR; ci.yml is the
+# fast tier.
 
 on:
   schedule:
@@ -35,7 +37,7 @@ jobs:
   conformance:
     name: Conformance (${{ inputs.tier || 'small' }})
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 350 || 120 }}
+    timeout-minutes: ${{ (inputs.tier || 'small') == 'deep' && 355 || 160 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -53,14 +55,16 @@ jobs:
           # only cost a re-download, never a wrong artifact.
           key: dive-cache-${{ runner.os }}-${{ hashFiles('conformance/oracles.toml', 'conformance/corpora.toml') }}
           restore-keys: dive-cache-${{ runner.os }}-
-      - name: Build harness
-        run: cargo build --release --locked -p dive-conformance
+      - name: Build harness and dive
+        run: cargo build --release --locked -p dive-conformance -p dive-cli
       - name: Fetch and verify oracles
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: target/release/dive-conformance oracle fetch
-      - name: Fetch corpus
-        run: target/release/dive-conformance corpus fetch --corpus examples
+      - name: Fetch corpora
+        run: |
+          target/release/dive-conformance corpus fetch \
+            --corpus examples --corpus tlaplus-tests --corpus community-modules
       - name: Run TLC against committed goldens
         run: |
           mkdir -p "$RUNNER_TEMP/conformance"
@@ -73,6 +77,36 @@ jobs:
             --crosscheck-manifest \
             --report-dir "$RUNNER_TEMP/conformance" \
             --summary "$RUNNER_TEMP/conformance/conformance.md"
+      # dive's front end against the SANY goldens of every module corpus
+      # (dive parse/analyze). Models stay `unsupported` until `dive check`
+      # exists; `unsupported` is not a finding, so only a `disagree`,
+      # `oracle-error` or `timeout` fails the step (exit 1). The tier only
+      # selects models; every module is run.
+      - name: Run dive (modules, full SANY) against committed goldens
+        if: always()
+        timeout-minutes: 20
+        run: |
+          target/release/dive-conformance run \
+            --impl dive \
+            --corpus examples --corpus tlaplus-tests --corpus community-modules \
+            --tier "$TIER" \
+            --jobs 2 \
+            --timeout 120 \
+            --report-dir "$RUNNER_TEMP/conformance" \
+            --summary "$RUNNER_TEMP/conformance/conformance-dive.md"
+      - name: Run dive (modules, SANY parse phase) against committed goldens
+        if: always()
+        timeout-minutes: 20
+        run: |
+          target/release/dive-conformance run \
+            --impl dive \
+            --sany-phase parse \
+            --corpus examples --corpus tlaplus-tests --corpus community-modules \
+            --tier "$TIER" \
+            --jobs 2 \
+            --timeout 120 \
+            --report-dir "$RUNNER_TEMP/conformance" \
+            --summary "$RUNNER_TEMP/conformance/conformance-dive-parse.md"
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
