@@ -240,6 +240,8 @@ pub struct TlcJob<'a> {
     pub timeout: Duration,
     /// `-Xmx` value, e.g. `3g`.
     pub xmx: &'a str,
+    /// `-seed`. Goldens always use 0; `dev capture --seed` sets others.
+    pub seed: i64,
 }
 
 /// The raw outcome of one oracle invocation.
@@ -461,9 +463,8 @@ impl OracleEnv {
             cmd.args(["-simulate", &format!("num={traces}")]);
         }
         cmd.args(["-workers", &job.workers.to_string()])
-            .args([
-                "-lncheck", "final", "-cleanup", "-tool", "-fp", "0", "-seed", "0",
-            ])
+            .args(["-lncheck", "final", "-cleanup", "-tool", "-fp", "0"])
+            .args(["-seed", &job.seed.to_string()])
             .arg("-metadir")
             .arg(scratch.path().join("states"));
         let trace_file = scratch.path().join("trace.json");

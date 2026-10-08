@@ -56,22 +56,57 @@ On Examples `DieHard` with 4 workers, TLC reports depth 9 for a 7-state countere
 | | |
 |---|---|
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
-| **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` replays a run exactly |
-| **TLC behaviour** | TLC's seeding, under `--compat=tlc` |
-| **Status** | planned |
+| **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
+| **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
+| **Status** | implemented in the operator library (`dive-stdlib`), in both modes, and verified against TLC. The `--seed` flag, seed reporting and the checker's use of the streams follow with `dive check` (M5). |
 
-**What TLC does.** `RandomElement`, `RandomSubset` and the `Randomization` module draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
+**What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
 | Spec | What we measured on the pinned TLC |
 |---|---|
 | Examples `SpanningTree/SpanTreeRandom` | 1,878 / 40,460 / 65,396 / 106,664 / 240,806 distinct states across runs with identical flags |
-| `RandomElement(1..1000000)` (probe P9) | 599,378, then 344,064, then 43,074 |
+| `RandomElement(1..1000000)` in `Init` (probe P9) | 599,378, then 344,064, then 43,074. With `-seed 7`: 730,700 three times |
 
-The seed is not shown in the normal results, so a surprising run cannot easily be reproduced.
+The seed is not shown in the normal results, so a surprising run cannot easily be reproduced. Even `-seed` is not always enough:
 
-**What dive does.** dive also draws a fresh seed by default, and always reports it in both human and JSON output. `--seed S` reproduces the run exactly, at any worker count. A dive run that cannot be reproduced from its reported inputs is a bug.
+- **`-seed` alone does not replay draws made in `Next`.** TLC draws in `Next` from a generator seeded with *the state's fingerprint* XOR the seed, and TLC picks the fingerprint polynomial at random unless you also pass `-fp`. With an action that draws `RandomElement(1..1000000)` from the state `x = 0`, three runs with `-seed 7` drew 560,481 (polynomial 71), 618,858 (55) and 37,068 (1). With `-seed 7 -fp 0` the draw is always 772,259.
+- **A draw before `Init` can lose the counterexample.** TLC draws constant definitions, `ASSUME`s and `Init` from one generator. To print a counterexample it evaluates `Init` again with a reset generator, so an `ASSUME` that drew first shifts every draw of `Init`. When the violation comes from an initial state that the second evaluation no longer produces, TLC reports the violation and exits with code 12, but prints no trace at all:
 
-**Evidence.** Harness review finding M5, probe P9, ADR 0010 §4.
+  ```tla
+  ASSUME PrintT(RandomElement(1..1000000))
+  VARIABLES x, y
+  Init == x \in {RandomElement(1..1000000), RandomElement(1..1000000)} /\ y = 0
+  Next == y' = y + 1 /\ x' = x
+  Inv == y < 3
+  ```
+
+  With `-seed 7` the trace is missing; with `-seed 0` it is printed. It depends on which initial state reaches the violation first.
+- **A `LET` does not fix a random value.** In `Init` and in actions, TLC draws a `LET`-bound `RandomElement` again in each conjunct that uses it, so the value printed is not the value assigned. With `Twice(y) == <<y, y>>`, this `Init`:
+
+  ```tla
+  Init == LET d == RandomElement(1..1000000) IN
+          /\ PrintT(<<"init", d, Twice(d)>>)
+          /\ x = d
+          /\ PrintT(<<"init-x", x, d>>)
+  ```
+
+  printed `<<"init", 749170, <<348310, 348310>>>>` and then `<<"init-x", 897278, 708178>>` (with `-seed 7`, after an `ASSUME` had drawn once). Within one constant-level expression, such as an `ASSUME`, the value is drawn once.
+
+**What dive does.** dive also draws a fresh seed by default, and always reports it in both human and JSON output. `--seed S` reproduces the run exactly, at any worker count:
+- each random stream depends only on the seed, a key, and how many values have been drawn from it. The key is the expanded state's fingerprint for draws in `Next`, a fixed key for constants, `ASSUME`s and `Init`, and the trace number in simulation;
+- dive's state fingerprint is fixed, so the seed alone is enough;
+- counterexamples come from the stored trace, not from evaluating `Init` again, so they cannot be lost.
+
+The operators choose with TLC's algorithms (which element, which subset); only the source of randomness differs. A dive run that cannot be reproduced from its reported inputs is a bug.
+
+Under `--compat=tlc` dive reproduces TLC's choices exactly for a given `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding, and TLC's algorithm for each operator. Draws in `Next` also need TLC's own state fingerprints, which depend on TLC's variable order (ADR 0014), and the evaluator must re-evaluate `LET`s exactly where TLC does. Until both are built, dive refuses a spec that draws in `Next` under `--compat=tlc`, naming the feature. Draws in constants, `ASSUME`s and `Init` need neither.
+
+**Evidence.**
+- Harness review finding M5, probe P9, ADR 0010 §4.
+- TLC runs captured with the harness at seeds 0, 7, −3, 1234567890123, 2^63−1 and −2^63 (`crates/dive-stdlib/tests/fixtures/random/`). dive reproduces all 728 values TLC printed, and the text of all 10 error cases (`tests/tlc_random.rs`). The fixtures `RndTraceAssume` and `RndLetRedraw` are the two examples above.
+- `java.util.Random` and TLC's `RandomGenerator` match bit for bit (`tests/java_random.rs`).
+- The first six draws of `-seed 0` reproduce the Examples golden of `SpanTreeRandom`: 79,550 distinct states and 1,357,252 generated (`tests/examples_random.rs`).
+- dive's streams replay identically at 1 to 8 threads and in any processing order (`tests/dive_mode.rs`).
 
 ---
 
@@ -82,13 +117,17 @@ The seed is not shown in the normal results, so a surprising run cannot easily b
 | **Kind** | Different answer only when you fix a seed |
 | **Default** | Seed reported; `--seed S` gives bit-identical simulation at any worker count |
 | **TLC behaviour** | Under `--compat=tlc` |
-| **Status** | planned |
+| **Status** | the random streams are implemented in `dive-stdlib`: TLC's worker seeding, and dive's per-trace streams. Simulation itself is planned (`dive-sim`). |
 
 **What TLC does.** Even with `-seed 0` and one worker, the number of states TLC generates in simulation varies between runs. On Examples `EWD840_anim` it ranged from about 267k to 271k.
 
-**What dive does.** The same seed gives the same simulation, at any worker count. This makes simulation usable in tests and in CI.
+From TLC's source, its simulation uses two kinds of generator, and neither is tied to the trace being generated:
+- each worker chooses initial states, actions and successors with its own generator. That generator's seed is the next value of a generator seeded with `-seed` and advanced by `-aril`;
+- each worker evaluates `RandomElement` and the `Randomization` operators with a generator seeded with `-seed` itself, and never reseeded, so every worker draws the same sequence of values. What a trace draws depends on which worker generated it and on what that worker generated before.
 
-**Evidence.** Harness notes in `crates/dive-conformance/README.md` and the registry in `docs/divergences.md`.
+**What dive does.** The same seed gives the same simulation, at any worker count. Each trace has one random stream, keyed by the seed and the trace number. It drives both the choice of states and actions and the operators' draws, so a trace is the same whichever worker generates it. This makes simulation usable in tests and in CI.
+
+**Evidence.** Harness notes in `crates/dive-conformance/README.md` and the registry in `docs/divergences.md`. TLC's worker seeds are reproduced bit for bit (`crates/dive-stdlib/tests/java_random.rs`); the independence of trace streams is tested in `tests/dive_mode.rs`. TLC's simulation draws are read from its source (`Simulator.java`, `SimulationWorker.java`, `RandomEnumerableValues.java`) and not yet measured.
 
 ---
 

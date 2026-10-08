@@ -156,3 +156,26 @@ All notable changes to this project are documented here. The project will follow
 - `conformance/oracles.toml`:
   - per-oracle classpath (v1.7.4 runs without CommunityModules);
   - pinned TLAPS-library and Apalache module libraries.
+- `dive-stdlib::random` (M5 work package C5; D-002, D-003):
+  - `java.util.Random` ported bit for bit (`JavaRandom`), with TLC's
+    `RandomGenerator.nextPrime` and `-aril`;
+  - TLC's seeding (`Streams`, `RandomMode::Tlc`): one start-up stream for constant
+    definitions, `ASSUME`s and `Init`, and one stream per expanded state seeded with
+    `fingerprint XOR seed`; TLC's simulation worker seeds;
+  - dive's replayable seeding (`RandomMode::Dive`): counter-based streams keyed by
+    seed, state fingerprint or trace number, and position, identical at any worker
+    count;
+  - `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` over `dive-value`
+    values, drawing exactly as TLC's Java overrides, with TLC's error messages;
+  - `-seed` parsing as TLC's `Long.parseLong`, and a fresh reported seed;
+  - TLC fixtures at six seeds; dive reproduces all 728 printed values, the error
+    messages, and the `SpanTreeRandom` golden's state counts from `-seed 0`.
+- `dive-value`: `Set::as_fcn_set`, `as_rcd_set` and `as_product`.
+- `dive-conformance dev capture --seed N`, for fixtures with a seed other than 0.
+
+### Fixed
+- `dive-value`: Rust `==`, `Hash`, `Debug` and `cmp_with` on an unnormalized set
+  whose elements TLC cannot compare no longer mark nested unnormalized sets as
+  normalized (issue #32). These operations now run in a quiet mode that records no
+  TLC-observable side effect, and an element list computed that way is not cached,
+  so a later TLC operation still normalizes the nested sets as TLC does.
