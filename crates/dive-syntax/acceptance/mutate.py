@@ -41,10 +41,24 @@ VOCAB = OPS + ["(", ")", "[", "]", "{", "}", "<<", ">>", ",", ":", "::", ".", "!
                "----", "====", "\\b101", "\\h1F", "lab", "-|-", "(* c *)", "\\* c\n"]
 
 
-def mutate(src, rng):
+def mutate(src, rng, kinds=None):
     lines = src.split("\n")
-    kind = rng.choice(["delete", "delete", "duplicate", "swap", "replace-op", "replace-op",
-                       "replace-op", "insert", "insert", "indent", "indent", "indent", "join"])
+    kind = rng.choice(kinds or ["delete", "delete", "duplicate", "swap", "replace-op",
+                                "replace-op", "replace-op", "insert", "insert", "indent",
+                                "indent", "indent", "join"])
+    if kind == "crlf":
+        return src.replace("\r\n", "\n").replace("\n", rng.choice(["\r\n", "\r"]))
+    if kind == "tab":
+        # Replace a run of leading spaces by tabs on one line (column changes
+        # depend on JavaCC's tab rule).
+        idx = [i for i, l in enumerate(lines) if l.startswith("  ")]
+        if not idx:
+            return None
+        i = rng.choice(idx)
+        k = len(lines[i]) - len(lines[i].lstrip(" "))
+        n = rng.randint(1, k)
+        lines[i] = "\t" * rng.randint(1, 2) + lines[i][n:]
+        return "\n".join(lines)
     if kind in ("indent", "join"):
         idx = [i for i, l in enumerate(lines) if l.strip() and not l.startswith("----")
                and not l.startswith("====")]
@@ -94,27 +108,43 @@ def mutate(src, rng):
 
 def main():
     out, seed, per = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+    files = sys.argv[4:]
+    layout = False
+    if files and files[0] == "--layout":
+        # Layout wave: tabs and line-ending changes plus up to three mutations.
+        layout = True
+        files = files[1:]
     rng = random.Random(seed)
     n = 0
-    for f in sys.argv[4:]:
+    for f in files:
         try:
-            src = open(f, encoding="utf-8").read()
+            src = open(f, encoding="utf-8", newline="").read()
         except (UnicodeDecodeError, OSError):
             continue
         made = 0
         tries = 0
         while made < per and tries < per * 5:
             tries += 1
-            m = mutate(src, rng)
+            if layout:
+                m = mutate(src, rng, ["tab", "tab", "indent", "crlf"])
+                for _ in range(rng.randint(0, 2)):
+                    m2 = mutate(m, rng) if m else None
+                    if m2:
+                        m = m2
+                if m and rng.random() < 0.5:
+                    m = mutate(m, rng, ["crlf"]) or m
+            else:
+                m = mutate(src, rng)
+                if m is not None and rng.random() < 0.3:
+                    m2 = mutate(m, rng)
+                    if m2:
+                        m = m2
             if m is None or m == src:
                 continue
-            if rng.random() < 0.3:
-                m2 = mutate(m, rng)
-                if m2:
-                    m = m2
             d = os.path.join(out, "%05d" % n)
             os.makedirs(d, exist_ok=True)
-            with open(os.path.join(d, os.path.basename(f)), "w", encoding="utf-8") as fh:
+            with open(os.path.join(d, os.path.basename(f)), "w", encoding="utf-8",
+                      newline="") as fh:
                 fh.write(m)
             n += 1
             made += 1

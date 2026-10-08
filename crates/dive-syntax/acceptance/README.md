@@ -89,12 +89,13 @@ Clone these the same way:
   regenerates the verdicts.
 
 **Mutation campaign.**
-- `python3 -I mutate.py OUT SEED N FILE...` writes `N` mutants per file:
+- `python3 -I mutate.py OUT SEED N [--layout] FILE...` writes `N` mutants per file:
   - token deletion, duplication and swap;
   - operator replacement and insertion;
   - re-indentation and line joining.
 
-  The module header is never mutated.
+  The module header is never mutated. `--layout` favours tab substitution and CRLF/CR
+  line endings, which change JavaCC's column counting, and stacks up to three edits.
 - Run steps 1 to 4 on the mutants.
 
 ## Results (2026-10-08, pinned oracle)
@@ -108,6 +109,7 @@ Clone these the same way:
 | `tests/sany-cases` | 174 | 110 | 64 | 0 | 0 |
 | Mutants, wave 1 (corpus + small test modules; seeds 11, 22, 33) | 3,483 | 1,290 | 2,193 | 0 | 0 |
 | Mutants, wave 2 (corpus + Examples/CommunityModules under 30 KB; seeds 44, 55, 66) | 4,758 | 2,422 | 2,336 | 0 | 0 |
+| Mutants, layout wave (`--layout`: tabs, CRLF/CR, indentation, up to three edits; seeds 77, 88) | 3,176 | 2,095 | 1,081 | 0 | 0 |
 
 No SANY run crashed.
 
