@@ -1,0 +1,58 @@
+probe,tool,workers_or_args,run,exit_code,verdict,distinct_at_stop,trace_states,random_value
+P8ParallelDet,tlc,1,0,12,safety failure,63251,46,
+P8ParallelDet,tlc,1,1,12,safety failure,63251,46,
+P8ParallelDet,tlc,1,2,12,safety failure,63251,46,
+P8ParallelDet,tlc,8,0,12,safety failure,64416,46,
+P8ParallelDet,tlc,8,1,12,safety failure,67497,46,
+P8ParallelDet,tlc,8,2,12,safety failure,65409,46,
+P9Random,tlc,default,0,12,,,,599378
+P9Random,tlc,default,1,12,,,,344064
+P9Random,tlc,default,2,12,,,,43074
+P9Random,tlc,-seed 7,0,12,,,,730700
+P9Random,tlc,-seed 7,1,12,,,,730700
+P9Random,tlc,-seed 7,2,12,,,,730700
+P8ParallelDet,tla-mc,1,0,12,safety failure,63251,46,
+P8ParallelDet,tla-mc,1,1,12,safety failure,63251,46,
+P8ParallelDet,tla-mc,1,2,12,safety failure,63251,46,
+P8ParallelDet,tla-mc,8,0,12,safety failure,63399,46,
+P8ParallelDet,tla-mc,8,1,12,safety failure,63364,46,
+P8ParallelDet,tla-mc,8,2,12,safety failure,63379,46,
+P9Random,tla-mc,default,0,2,,,,
+P9Random,tla-mc,default,1,2,,,,
+P9Random,tla-mc,default,2,2,,,,
+P8ParallelDet,tla-rs,1,0,1,safety failure,63251,46,
+P8ParallelDet,tla-rs,1,1,1,safety failure,63251,46,
+P8ParallelDet,tla-rs,1,2,1,safety failure,63251,46,
+P8ParallelDet,tla-rs,8,0,1,safety failure,63251,46,
+P8ParallelDet,tla-rs,8,1,1,safety failure,63251,46,
+P8ParallelDet,tla-rs,8,2,1,safety failure,63251,46,
+P9Random,tla-rs,default,0,1,,,,602628
+P9Random,tla-rs,default,1,1,,,,602628
+P9Random,tla-rs,default,2,1,,,,602628
+P8ParallelDet,tlaplusplus,1,0,1,safety failure,64252,46,
+P8ParallelDet,tlaplusplus,1,1,1,safety failure,64252,46,
+P8ParallelDet,tlaplusplus,1,2,1,safety failure,64252,46,
+P8ParallelDet,tlaplusplus,8,0,1,safety failure,65377,47,
+P8ParallelDet,tlaplusplus,8,1,1,safety failure,65227,48,
+P8ParallelDet,tlaplusplus,8,2,1,safety failure,65358,47,
+P9Random,tlaplusplus,default,0,1,,,,1
+P9Random,tlaplusplus,default,1,1,,,,1
+P9Random,tlaplusplus,default,2,1,,,,1
+P8ParallelDet,tlago,1,0,12,safety failure,63251,46,
+P8ParallelDet,tlago,1,1,12,safety failure,63251,46,
+P8ParallelDet,tlago,1,2,12,safety failure,63251,46,
+P8ParallelDet,tlago,8,0,12,safety failure,63773,46,
+P8ParallelDet,tlago,8,1,12,safety failure,63943,46,
+P8ParallelDet,tlago,8,2,12,safety failure,63887,46,
+P9Random,tlago,default,0,12,,,,128512
+P9Random,tlago,default,1,12,,,,212733
+P9Random,tlago,default,2,12,,,,280531
+P8ParallelDet,tla2,1,0,1,safety failure,63251,46,
+P8ParallelDet,tla2,1,1,1,safety failure,63251,46,
+P8ParallelDet,tla2,1,2,1,safety failure,63251,46,
+P8ParallelDet,tla2,8,0,1,safety failure,63406,,
+P8ParallelDet,tla2,8,1,1,safety failure,62960,,
+P8ParallelDet,tla2,8,2,1,safety failure,63429,,
+P9Random,tla2,default,0,1,,,,223055
+P9Random,tla2,default,1,1,,,,223055
+P9Random,tla2,default,2,1,,,,223055

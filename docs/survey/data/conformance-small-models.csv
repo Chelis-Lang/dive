@@ -1,0 +1,841 @@
+model,tool,manifest_result,manifest_distinct,tool_verdict,tool_distinct,category,exit_code,wall_s
+Bakery-Boulangerie/MCBakery.cfg,tla-mc,success,655200,success,655200,agree,0,11.54
+Bakery-Boulangerie/MCBakery.cfg,tla-rs,success,655200,timeout,,timeout,,180.12
+Bakery-Boulangerie/MCBakery.cfg,tla2,success,655200,success,655200,agree,0,23.93
+Bakery-Boulangerie/MCBakery.cfg,tlago,success,655200,success,655200,agree,0,195.18
+Bakery-Boulangerie/MCBakery.cfg,tlaplusplus,success,655200,crash,22387,crash,137,93.09
+Bakery-Boulangerie/MCBakery.cfg,tlc,success,655200,success,655200,agree,0,14.48
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tla-mc,success,0,success,0,agree,0,0.06
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tla-rs,success,0,error,,error,1,0.01
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tla2,success,0,error,0,error,1,0.26
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tlago,success,0,success,0,agree,0,0.16
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tlaplusplus,success,0,success,0,agree,0,1.14
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg,tlc,success,0,success,0,agree,0,1.23
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tla-mc,success,0,success,0,agree,0,0.54
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tla-rs,success,0,error,,error,1,0.24
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tla2,success,0,error,0,error,1,0.31
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tlago,success,0,success,0,agree,0,5.82
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tlaplusplus,success,0,success,0,agree,0,4.64
+CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg,tlc,success,0,success,0,agree,0,3.65
+Chameneos/Chameneos.cfg,tla-mc,success,34534,success,34534,agree,0,0.17
+Chameneos/Chameneos.cfg,tla-rs,success,34534,error,,error,1,0.01
+Chameneos/Chameneos.cfg,tla2,success,34534,success,34534,agree,0,0.67
+Chameneos/Chameneos.cfg,tlago,success,34534,success,34534,agree,0,11.62
+Chameneos/Chameneos.cfg,tlaplusplus,success,34534,error-as-violation,81,error-as-violation,1,1.08
+Chameneos/Chameneos.cfg,tlc,success,34534,success,34534,agree,0,2.64
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tla-mc,safety failure,,safety failure,87689,agree,12,5.82
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tla-rs,safety failure,,error,,error,1,0.01
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tla2,safety failure,,timeout,,timeout,,180.12
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tlago,safety failure,,timeout,64731,timeout,,300.06
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tlaplusplus,safety failure,,error-as-violation,1,error-as-violation,1,1.05
+CheckpointCoordination/MCCheckpointCoordinationFailure.cfg,tlc,safety failure,,safety failure,104585,agree,12,38.06
+CigaretteSmokers/CigaretteSmokers.cfg,tla-mc,success,6,success,6,agree,0,0.01
+CigaretteSmokers/CigaretteSmokers.cfg,tla-rs,success,6,success,6,agree,0,0.0
+CigaretteSmokers/CigaretteSmokers.cfg,tla2,success,6,success,6,agree,0,0.32
+CigaretteSmokers/CigaretteSmokers.cfg,tlago,success,6,success,6,agree,0,0.11
+CigaretteSmokers/CigaretteSmokers.cfg,tlaplusplus,success,6,success,6,agree,0,1.04
+CigaretteSmokers/CigaretteSmokers.cfg,tlc,success,6,success,6,agree,0,6.97
+CoffeeCan/CoffeeCan1000Beans.cfg,tla-mc,success,501500,success,501500,agree,0,4.87
+CoffeeCan/CoffeeCan1000Beans.cfg,tla-rs,success,501500,error,,error,1,0.0
+CoffeeCan/CoffeeCan1000Beans.cfg,tla2,success,501500,error,,error,137,14.87
+CoffeeCan/CoffeeCan1000Beans.cfg,tlago,success,501500,timeout,501500,timeout,,300.01
+CoffeeCan/CoffeeCan1000Beans.cfg,tlaplusplus,success,501500,crash,501500,crash,137,56.39
+CoffeeCan/CoffeeCan1000Beans.cfg,tlc,success,501500,success,501500,agree,0,61.22
+CoffeeCan/CoffeeCan100Beans.cfg,tla-mc,success,5150,success,5150,agree,0,0.04
+CoffeeCan/CoffeeCan100Beans.cfg,tla-rs,success,5150,success,5150,agree,0,0.12
+CoffeeCan/CoffeeCan100Beans.cfg,tla2,success,5150,success,5150,agree,0,0.55
+CoffeeCan/CoffeeCan100Beans.cfg,tlago,success,5150,success,5150,agree,0,3.01
+CoffeeCan/CoffeeCan100Beans.cfg,tlaplusplus,success,5150,success,5150,agree,0,1.09
+CoffeeCan/CoffeeCan100Beans.cfg,tlc,success,5150,success,5150,agree,0,1.72
+DieHard/DieHard.cfg,tla-mc,safety failure,,safety failure,14,agree,12,0.0
+DieHard/DieHard.cfg,tla-rs,safety failure,,safety failure,14,agree,1,0.01
+DieHard/DieHard.cfg,tla2,safety failure,,safety failure,15,agree,1,0.26
+DieHard/DieHard.cfg,tlago,safety failure,,safety failure,16,agree,12,0.17
+DieHard/DieHard.cfg,tlaplusplus,safety failure,,safety failure,14,agree,1,1.05
+DieHard/DieHard.cfg,tlc,safety failure,,safety failure,16,agree,12,0.88
+DieHard/MCDieHarder.cfg,tla-mc,safety failure,,safety failure,14,agree,12,0.0
+DieHard/MCDieHarder.cfg,tla-rs,safety failure,,safety failure,14,agree,1,0.0
+DieHard/MCDieHarder.cfg,tla2,safety failure,,safety failure,13,agree,1,0.24
+DieHard/MCDieHarder.cfg,tlago,safety failure,,safety failure,16,agree,12,0.19
+DieHard/MCDieHarder.cfg,tlaplusplus,safety failure,,safety failure,15,agree,1,1.02
+DieHard/MCDieHarder.cfg,tlc,safety failure,,safety failure,16,agree,12,0.75
+DieHard/MCDieHardest.cfg,tla-mc,safety failure,,error,,error,2,0.0
+DieHard/MCDieHardest.cfg,tla-rs,safety failure,,error,,error,1,0.01
+DieHard/MCDieHardest.cfg,tla2,safety failure,,timeout,,timeout,,180.03
+DieHard/MCDieHardest.cfg,tlago,safety failure,,safety failure,11566,agree,12,2.51
+DieHard/MCDieHardest.cfg,tlaplusplus,safety failure,,timeout,239758,timeout,,180.02
+DieHard/MCDieHardest.cfg,tlc,safety failure,,safety failure,11566,agree,12,1.26
+DiningPhilosophers/DiningPhilosophers.cfg,tla-mc,success,67,success,67,agree,0,0.01
+DiningPhilosophers/DiningPhilosophers.cfg,tla-rs,success,67,success,67,agree,0,0.01
+DiningPhilosophers/DiningPhilosophers.cfg,tla2,success,67,success,67,agree,0,0.29
+DiningPhilosophers/DiningPhilosophers.cfg,tlago,success,67,success,67,agree,0,0.58
+DiningPhilosophers/DiningPhilosophers.cfg,tlaplusplus,success,67,success,67,agree,0,1.05
+DiningPhilosophers/DiningPhilosophers.cfg,tlc,success,67,success,67,agree,0,0.74
+Disruptor/MCDisruptor_MPMC.cfg,tla-mc,success,112929,success,112929,agree,0,1.46
+Disruptor/MCDisruptor_MPMC.cfg,tla-rs,success,112929,error,,error,1,0.01
+Disruptor/MCDisruptor_MPMC.cfg,tla2,success,112929,success,112929,agree,0,17.34
+Disruptor/MCDisruptor_MPMC.cfg,tlago,success,112929,success,112929,agree,0,46.45
+Disruptor/MCDisruptor_MPMC.cfg,tlaplusplus,success,112929,success,112929,agree,0,45.45
+Disruptor/MCDisruptor_MPMC.cfg,tlc,success,112929,success,112929,agree,0,2.41
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tla-mc,success,14365,success,14365,agree,0,0.77
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tla-rs,success,14365,error,,error,1,0.01
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tla2,success,14365,success,14365,agree,0,13.26
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tlago,success,14365,success,14365,agree,0,28.41
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tlaplusplus,success,14365,success,14365,agree,0,7.17
+Disruptor/MCDisruptor_MPMC_liveliness.cfg,tlc,success,14365,success,14365,agree,0,1.98
+Disruptor/MCDisruptor_SPMC.cfg,tla-mc,success,8496,success,8496,agree,0,0.36
+Disruptor/MCDisruptor_SPMC.cfg,tla-rs,success,8496,error,,error,1,0.01
+Disruptor/MCDisruptor_SPMC.cfg,tla2,success,8496,success,8496,agree,0,4.63
+Disruptor/MCDisruptor_SPMC.cfg,tlago,success,8496,success,8496,agree,0,11.89
+Disruptor/MCDisruptor_SPMC.cfg,tlaplusplus,success,8496,success,8496,agree,0,4.07
+Disruptor/MCDisruptor_SPMC.cfg,tlc,success,8496,success,8496,agree,0,1.72
+FiniteMonotonic/MCCRDT.cfg,tla-mc,success,25000,unsupported,,unsupported,2,0.01
+FiniteMonotonic/MCCRDT.cfg,tla-rs,success,25000,error,,error,1,0.01
+FiniteMonotonic/MCCRDT.cfg,tla2,success,25000,assumption failure,0,disagree,1,0.02
+FiniteMonotonic/MCCRDT.cfg,tlago,success,25000,assumption failure,,disagree,10,0.63
+FiniteMonotonic/MCCRDT.cfg,tlaplusplus,success,25000,success,25000,agree,0,57.1
+FiniteMonotonic/MCCRDT.cfg,tlc,success,25000,success,25000,agree,0,8.57
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tla-mc,liveness failure,,unsupported,,unsupported,2,0.02
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tla-rs,liveness failure,,error,,error,1,0.0
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tla2,liveness failure,,liveness failure,37,agree,1,0.21
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tlago,liveness failure,,liveness failure,37,agree,13,0.82
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tlaplusplus,liveness failure,,crash,43263,crash,137,89.95
+FiniteMonotonic/MCDistributedReplicatedLog.cfg,tlc,liveness failure,,liveness failure,37,agree,13,0.74
+FiniteMonotonic/MCReplicatedLog.cfg,tla-mc,success,1363,unsupported,,unsupported,2,0.01
+FiniteMonotonic/MCReplicatedLog.cfg,tla-rs,success,1363,error,,error,1,0.01
+FiniteMonotonic/MCReplicatedLog.cfg,tla2,success,1363,assumption failure,0,disagree,1,0.03
+FiniteMonotonic/MCReplicatedLog.cfg,tlago,success,1363,assumption failure,,disagree,10,0.15
+FiniteMonotonic/MCReplicatedLog.cfg,tlaplusplus,success,1363,success,1363,agree,0,1.04
+FiniteMonotonic/MCReplicatedLog.cfg,tlc,success,1363,success,1363,agree,0,1.31
+FlashProtocol/MCFlashWithMutex.cfg,tla-mc,success,2024,success,2024,agree,0,0.06
+FlashProtocol/MCFlashWithMutex.cfg,tla-rs,success,2024,success,8096,wrong-count-claimed-success,0,3.01
+FlashProtocol/MCFlashWithMutex.cfg,tla2,success,2024,success,2024,agree,0,0.46
+FlashProtocol/MCFlashWithMutex.cfg,tlago,success,2024,success,2024,agree,0,9.09
+FlashProtocol/MCFlashWithMutex.cfg,tlaplusplus,success,2024,error,,error,1,0.03
+FlashProtocol/MCFlashWithMutex.cfg,tlc,success,2024,success,2024,agree,0,1.07
+FlashProtocol/MCFlashWithMutexLive.cfg,tla-mc,success,8096,success,8096,agree,0,0.4
+FlashProtocol/MCFlashWithMutexLive.cfg,tla-rs,success,8096,success,8096,agree,0,5.13
+FlashProtocol/MCFlashWithMutexLive.cfg,tla2,success,8096,success,8096,agree,0,23.97
+FlashProtocol/MCFlashWithMutexLive.cfg,tlago,success,8096,success,8096,agree,0,227.86
+FlashProtocol/MCFlashWithMutexLive.cfg,tlaplusplus,success,8096,error,,error,1,0.03
+FlashProtocol/MCFlashWithMutexLive.cfg,tlc,success,8096,success,8096,agree,0,13.22
+GameOfLife/GameOfLife.cfg,tla-mc,success,65536,success,65536,agree,0,28.77
+GameOfLife/GameOfLife.cfg,tla-rs,success,65536,error,,error,1,0.01
+GameOfLife/GameOfLife.cfg,tla2,success,65536,success,65536,agree,0,42.77
+GameOfLife/GameOfLife.cfg,tlago,success,65536,success,65536,agree,0,199.13
+GameOfLife/GameOfLife.cfg,tlaplusplus,success,65536,success,65536,agree,0,49.43
+GameOfLife/GameOfLife.cfg,tlc,success,65536,success,65536,agree,0,4.53
+GermanProtocol/MCGermanCMPWithMutex.cfg,tla-mc,success,1107,success,1107,agree,0,0.03
+GermanProtocol/MCGermanCMPWithMutex.cfg,tla-rs,success,1107,success,1539,wrong-count-claimed-success,0,0.11
+GermanProtocol/MCGermanCMPWithMutex.cfg,tla2,success,1107,success,1107,agree,0,0.3
+GermanProtocol/MCGermanCMPWithMutex.cfg,tlago,success,1107,success,1107,agree,0,0.41
+GermanProtocol/MCGermanCMPWithMutex.cfg,tlaplusplus,success,1107,success,1107,agree,0,1.09
+GermanProtocol/MCGermanCMPWithMutex.cfg,tlc,success,1107,success,1107,agree,0,0.64
+GermanProtocol/MCGermanControl.cfg,tla-mc,success,735,success,735,agree,0,0.03
+GermanProtocol/MCGermanControl.cfg,tla-rs,success,735,error,,error,1,0.01
+GermanProtocol/MCGermanControl.cfg,tla2,success,735,success,735,agree,0,0.28
+GermanProtocol/MCGermanControl.cfg,tlago,success,735,success,735,agree,0,0.64
+GermanProtocol/MCGermanControl.cfg,tlaplusplus,success,735,success,735,agree,0,1.07
+GermanProtocol/MCGermanControl.cfg,tlc,success,735,success,735,agree,0,0.62
+GermanProtocol/MCGermanData.cfg,tla-mc,success,852,success,852,agree,0,0.06
+GermanProtocol/MCGermanData.cfg,tla-rs,success,852,error,,error,1,0.01
+GermanProtocol/MCGermanData.cfg,tla2,success,852,success,852,agree,0,0.37
+GermanProtocol/MCGermanData.cfg,tlago,success,852,success,852,agree,0,1.35
+GermanProtocol/MCGermanData.cfg,tlaplusplus,success,852,success,852,agree,0,2.06
+GermanProtocol/MCGermanData.cfg,tlc,success,852,success,852,agree,0,0.73
+LearnProofs/MCFindHighest.cfg,tla-mc,success,742,success,742,agree,0,0.07
+LearnProofs/MCFindHighest.cfg,tla-rs,success,742,error,,error,1,0.01
+LearnProofs/MCFindHighest.cfg,tla2,success,742,success,742,agree,0,0.75
+LearnProofs/MCFindHighest.cfg,tlago,success,742,success,742,agree,0,0.34
+LearnProofs/MCFindHighest.cfg,tlaplusplus,success,742,success,1367,wrong-count-claimed-success,0,1.09
+LearnProofs/MCFindHighest.cfg,tlc,success,742,success,742,agree,0,0.67
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tla-mc,success,8554,success,8554,agree,0,0.27
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tla-rs,success,8554,unsupported,,unsupported,1,0.01
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tla2,success,8554,success,8554,agree,0,0.2
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tlago,success,8554,success,8554,agree,0,5.5
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tlaplusplus,success,8554,success,8554,agree,0,3.1
+LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg,tlc,success,8554,success,8554,agree,0,1.2
+LoopInvariance/MCBinarySearch.cfg,tla-mc,success,27953,success,27953,agree,0,1.51
+LoopInvariance/MCBinarySearch.cfg,tla-rs,success,27953,error,,error,1,0.01
+LoopInvariance/MCBinarySearch.cfg,tla2,success,27953,success,27953,agree,0,3.76
+LoopInvariance/MCBinarySearch.cfg,tlago,success,27953,success,27953,agree,0,23.46
+LoopInvariance/MCBinarySearch.cfg,tlaplusplus,success,27953,success,27953,agree,0,8.22
+LoopInvariance/MCBinarySearch.cfg,tlc,success,27953,success,27953,agree,0,3.97
+LoopInvariance/MCQuicksort.cfg,tla-mc,success,4548,success,4548,agree,0,4.46
+LoopInvariance/MCQuicksort.cfg,tla-rs,success,4548,error,,error,1,0.01
+LoopInvariance/MCQuicksort.cfg,tla2,success,4548,timeout,,timeout,,180.07
+LoopInvariance/MCQuicksort.cfg,tlago,success,4548,crash,,crash,255,0.75
+LoopInvariance/MCQuicksort.cfg,tlaplusplus,success,4548,error-as-violation,125,error-as-violation,1,1.18
+LoopInvariance/MCQuicksort.cfg,tlc,success,4548,success,4548,agree,0,4.74
+Majority/MCMajority.cfg,tla-mc,success,2733,success,2733,agree,0,0.11
+Majority/MCMajority.cfg,tla-rs,success,2733,error,,error,1,0.0
+Majority/MCMajority.cfg,tla2,success,2733,success,2733,agree,0,1.7
+Majority/MCMajority.cfg,tlago,success,2733,success,2733,agree,0,1.21
+Majority/MCMajority.cfg,tlaplusplus,success,2733,success,2733,agree,0,1.13
+Majority/MCMajority.cfg,tlc,success,2733,success,2733,agree,0,2.25
+MisraReachability/MCParReach.cfg,tla-mc,success,393,unsupported,,unsupported,2,0.11
+MisraReachability/MCParReach.cfg,tla-rs,success,393,error,,error,1,0.05
+MisraReachability/MCParReach.cfg,tla2,success,393,unsupported,393,unsupported,1,0.15
+MisraReachability/MCParReach.cfg,tlago,success,393,success,393,agree,0,72.43
+MisraReachability/MCParReach.cfg,tlaplusplus,success,393,success,7655,wrong-count-claimed-success,0,57.3
+MisraReachability/MCParReach.cfg,tlc,success,393,success,393,agree,0,16.88
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tla-mc,success,0,error,,error,2,0.04
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tla-rs,success,0,error,,error,1,0.01
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tla2,success,0,error,0,error,1,0.1
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tlago,success,0,crash,,crash,255,0.23
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tlaplusplus,success,0,success,0,agree,0,1.05
+MisraReachability/MCReachabilityTestAllGraphs.cfg,tlc,success,0,success,0,agree,0,13.04
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tla-mc,success,0,error,,error,2,0.03
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tla-rs,success,0,error,,error,1,0.0
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tla2,success,0,error,0,error,1,0.26
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tlago,success,0,crash,,crash,255,0.25
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tlaplusplus,success,0,success,0,agree,0,1.03
+MisraReachability/MCReachabilityTestRandomGraphs.cfg,tlc,success,0,success,0,agree,0,4.97
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tla-mc,safety failure,,safety failure,61,agree,12,0.06
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tla-rs,safety failure,,safety failure,61,agree,1,0.01
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tla2,safety failure,,safety failure,61,agree,1,0.27
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tlago,safety failure,,safety failure,61,agree,12,0.19
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tlaplusplus,safety failure,,safety failure,61,agree,1,1.02
+MissionariesAndCannibals/MissionariesAndCannibals.cfg,tlc,safety failure,,safety failure,61,agree,12,1.83
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tla-mc,success,48,success,48,agree,0,0.03
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tla-rs,success,48,error,,error,1,0.0
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tla2,success,48,success,48,agree,0,0.23
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tlago,success,48,success,48,agree,0,0.15
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tlaplusplus,success,48,success,48,agree,0,1.02
+Moving_Cat_Puzzle/CatEvenBoxes.cfg,tlc,success,48,success,48,agree,0,1.09
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tla-mc,success,30,success,30,agree,0,0.02
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tla-rs,success,30,error,,error,1,0.0
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tla2,success,30,success,30,agree,0,0.17
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tlago,success,30,success,30,agree,0,0.14
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tlaplusplus,success,30,success,30,agree,0,1.02
+Moving_Cat_Puzzle/CatOddBoxes.cfg,tlc,success,30,success,30,agree,0,1.47
+MultiCarElevator/ElevatorLivenessMedium.cfg,tla-mc,success,4122,success,4122,agree,0,0.25
+MultiCarElevator/ElevatorLivenessMedium.cfg,tla-rs,success,4122,error,,error,1,0.01
+MultiCarElevator/ElevatorLivenessMedium.cfg,tla2,success,4122,success,4122,agree,0,24.54
+MultiCarElevator/ElevatorLivenessMedium.cfg,tlago,success,4122,success,4122,agree,0,146.55
+MultiCarElevator/ElevatorLivenessMedium.cfg,tlaplusplus,success,4122,success,4122,agree,0,3.03
+MultiCarElevator/ElevatorLivenessMedium.cfg,tlc,success,4122,success,4122,agree,0,11.15
+MultiCarElevator/ElevatorSafetySmall.cfg,tla-mc,success,4122,success,4122,agree,0,0.09
+MultiCarElevator/ElevatorSafetySmall.cfg,tla-rs,success,4122,error,,error,1,0.01
+MultiCarElevator/ElevatorSafetySmall.cfg,tla2,success,4122,success,4122,agree,0,0.83
+MultiCarElevator/ElevatorSafetySmall.cfg,tlago,success,4122,success,4122,agree,0,4.05
+MultiCarElevator/ElevatorSafetySmall.cfg,tlaplusplus,success,4122,success,4122,agree,0,2.04
+MultiCarElevator/ElevatorSafetySmall.cfg,tlc,success,4122,success,4122,agree,0,2.12
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tla-mc,success,343796,success,343796,agree,0,17.81
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tla-rs,success,343796,timeout,,timeout,,180.09
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tla2,success,343796,success,343796,agree,0,57.4
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tlago,success,343796,timeout,59480,timeout,,300.09
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tlaplusplus,success,343796,crash,162962,crash,137,102.18
+MultiPaxos-SMR/MultiPaxos_MC_small.cfg,tlc,success,343796,success,343796,agree,0,14.74
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tla-mc,safety failure,,safety failure,40,agree,12,0.02
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tla-rs,safety failure,,error,,error,1,0.0
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tla2,safety failure,,safety failure,44,agree,1,0.23
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tlago,safety failure,,safety failure,41,agree,12,0.62
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tlaplusplus,safety failure,,safety failure,67,agree,1,1.25
+N-Queens/Queens.toolbox/FourQueens/MC.cfg,tlc,safety failure,,safety failure,77,agree,12,1.02
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tla-mc,safety failure,,safety failure,30,agree,12,0.02
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tla-rs,safety failure,,error,,error,1,0.0
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tla2,safety failure,,safety failure,40,agree,1,0.28
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tlago,safety failure,,safety failure,40,agree,12,0.76
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tlaplusplus,safety failure,,safety failure,88,agree,1,1.12
+N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg,tlc,safety failure,,safety failure,59,agree,12,0.92
+NanoBlockchain/MCNanoMedium.cfg,tla-mc,success,530587,error,,error,2,0.03
+NanoBlockchain/MCNanoMedium.cfg,tla-rs,success,530587,error,,error,1,0.01
+NanoBlockchain/MCNanoMedium.cfg,tla2,success,530587,success,530587,agree,0,149.5
+NanoBlockchain/MCNanoMedium.cfg,tlago,success,530587,error,0,error,75,0.91
+NanoBlockchain/MCNanoMedium.cfg,tlaplusplus,success,530587,timeout,128569,timeout,,180.06
+NanoBlockchain/MCNanoMedium.cfg,tlc,success,530587,success,530587,agree,0,12.76
+NanoBlockchain/MCNanoSmall.cfg,tla-mc,success,3003,error,,error,2,0.01
+NanoBlockchain/MCNanoSmall.cfg,tla-rs,success,3003,error,,error,1,0.0
+NanoBlockchain/MCNanoSmall.cfg,tla2,success,3003,success,3003,agree,0,0.78
+NanoBlockchain/MCNanoSmall.cfg,tlago,success,3003,error,0,error,75,1.06
+NanoBlockchain/MCNanoSmall.cfg,tlaplusplus,success,3003,success,1563,wrong-count-claimed-success,0,3.04
+NanoBlockchain/MCNanoSmall.cfg,tlc,success,3003,success,3003,agree,0,0.9
+Paxos/MCConsensus.cfg,tla-mc,success,4,success,4,agree,0,0.01
+Paxos/MCConsensus.cfg,tla-rs,success,4,error,,error,1,0.01
+Paxos/MCConsensus.cfg,tla2,success,4,success,4,agree,0,0.16
+Paxos/MCConsensus.cfg,tlago,success,4,crash,,crash,255,1.49
+Paxos/MCConsensus.cfg,tlaplusplus,success,4,error-as-violation,4,error-as-violation,1,1.03
+Paxos/MCConsensus.cfg,tlc,success,4,success,4,agree,0,0.69
+Paxos/MCPaxos.cfg,tla-mc,success,25,success,25,agree,0,0.05
+Paxos/MCPaxos.cfg,tla-rs,success,25,unsupported,,unsupported,1,0.0
+Paxos/MCPaxos.cfg,tla2,success,25,success,25,agree,0,0.19
+Paxos/MCPaxos.cfg,tlago,success,25,crash,,crash,255,1.42
+Paxos/MCPaxos.cfg,tlaplusplus,success,25,error-as-violation,1,error-as-violation,1,1.02
+Paxos/MCPaxos.cfg,tlc,success,25,success,25,agree,0,0.82
+Paxos/MCVoting.cfg,tla-mc,success,77,success,77,agree,0,0.04
+Paxos/MCVoting.cfg,tla-rs,success,77,error,,error,1,0.0
+Paxos/MCVoting.cfg,tla2,success,77,success,77,agree,0,0.12
+Paxos/MCVoting.cfg,tlago,success,77,crash,,crash,255,1.13
+Paxos/MCVoting.cfg,tlaplusplus,success,77,success,599,wrong-count-claimed-success,0,1.02
+Paxos/MCVoting.cfg,tlc,success,77,success,77,agree,0,1.05
+PaxosHowToWinATuringAward/MCConsensus.cfg,tla-mc,success,4,success,4,agree,0,0.02
+PaxosHowToWinATuringAward/MCConsensus.cfg,tla-rs,success,4,error,,error,1,0.01
+PaxosHowToWinATuringAward/MCConsensus.cfg,tla2,success,4,success,4,agree,0,0.2
+PaxosHowToWinATuringAward/MCConsensus.cfg,tlago,success,4,crash,,crash,255,0.83
+PaxosHowToWinATuringAward/MCConsensus.cfg,tlaplusplus,success,4,error-as-violation,1,error-as-violation,1,1.03
+PaxosHowToWinATuringAward/MCConsensus.cfg,tlc,success,4,success,4,agree,0,0.75
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tla-mc,success,3921,success,3921,agree,0,0.72
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tla-rs,success,3921,unsupported,,unsupported,1,0.0
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tla2,success,3921,success,3921,agree,0,1.86
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tlago,success,3921,crash,,crash,255,1.28
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tlaplusplus,success,3921,error-as-violation,1,error-as-violation,1,1.02
+PaxosHowToWinATuringAward/MCPaxosTiny.cfg,tlc,success,3921,success,3921,agree,0,2.39
+PaxosHowToWinATuringAward/MCVoting.cfg,tla-mc,success,6752,success,6752,agree,0,0.64
+PaxosHowToWinATuringAward/MCVoting.cfg,tla-rs,success,6752,error,,error,1,0.01
+PaxosHowToWinATuringAward/MCVoting.cfg,tla2,success,6752,success,6752,agree,0,4.36
+PaxosHowToWinATuringAward/MCVoting.cfg,tlago,success,6752,crash,,crash,255,0.79
+PaxosHowToWinATuringAward/MCVoting.cfg,tlaplusplus,success,6752,success,6752,agree,0,5.04
+PaxosHowToWinATuringAward/MCVoting.cfg,tlc,success,6752,success,6752,agree,0,2.68
+Prisoners/Prisoners.cfg,tla-mc,success,214,success,214,agree,0,0.02
+Prisoners/Prisoners.cfg,tla-rs,success,214,success,214,agree,0,0.01
+Prisoners/Prisoners.cfg,tla2,success,214,success,214,agree,0,0.16
+Prisoners/Prisoners.cfg,tlago,success,214,success,214,agree,0,0.7
+Prisoners/Prisoners.cfg,tlaplusplus,success,214,success,214,agree,0,1.03
+Prisoners/Prisoners.cfg,tlc,success,214,success,214,agree,0,0.61
+Prisoners_Single_Switch/Prisoner.cfg,tla-mc,success,16,success,16,agree,0,0.02
+Prisoners_Single_Switch/Prisoner.cfg,tla-rs,success,16,error,,error,1,0.0
+Prisoners_Single_Switch/Prisoner.cfg,tla2,success,16,success,16,agree,0,0.16
+Prisoners_Single_Switch/Prisoner.cfg,tlago,success,16,success,16,agree,0,0.32
+Prisoners_Single_Switch/Prisoner.cfg,tlaplusplus,success,16,success,16,agree,0,1.02
+Prisoners_Single_Switch/Prisoner.cfg,tlc,success,16,success,16,agree,0,0.61
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tla-mc,success,62,success,62,agree,0,0.01
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tla-rs,success,62,error,,error,1,0.0
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tla2,success,62,success,62,agree,0,0.13
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tlago,success,62,success,62,agree,0,0.6
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tlaplusplus,success,62,success,62,agree,0,1.02
+Prisoners_Single_Switch/PrisonerLightUnknown.cfg,tlc,success,62,success,62,agree,0,0.61
+Prisoners_Single_Switch/PrisonerSolo.cfg,tla-mc,success,2,success,2,agree,0,0.01
+Prisoners_Single_Switch/PrisonerSolo.cfg,tla-rs,success,2,error,,error,1,0.0
+Prisoners_Single_Switch/PrisonerSolo.cfg,tla2,success,2,success,2,agree,0,0.09
+Prisoners_Single_Switch/PrisonerSolo.cfg,tlago,success,2,success,2,agree,0,0.38
+Prisoners_Single_Switch/PrisonerSolo.cfg,tlaplusplus,success,2,success,2,agree,0,1.02
+Prisoners_Single_Switch/PrisonerSolo.cfg,tlc,success,2,success,2,agree,0,0.6
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tla-mc,success,4,success,4,agree,0,0.01
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tla-rs,success,4,error,,error,1,0.0
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tla2,success,4,success,4,agree,0,0.14
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tlago,success,4,success,4,agree,0,0.2
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tlaplusplus,success,4,success,4,agree,0,1.02
+Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg,tlc,success,4,success,4,agree,0,0.49
+ReadersWriters/MC.cfg,tla-mc,success,21527,success,21527,agree,0,0.44
+ReadersWriters/MC.cfg,tla-rs,success,21527,error,,error,1,0.0
+ReadersWriters/MC.cfg,tla2,success,21527,success,21527,agree,0,8.5
+ReadersWriters/MC.cfg,tlago,success,21527,success,21527,agree,0,28.13
+ReadersWriters/MC.cfg,tlaplusplus,success,21527,success,21527,agree,0,1.03
+ReadersWriters/MC.cfg,tlc,success,21527,success,21527,agree,0,2.3
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tla-mc,success,2881,error,,error,2,0.01
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tla-rs,success,2881,error,,error,1,0.01
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tla2,success,2881,success,2881,agree,0,7.97
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tlago,success,2881,success,2881,agree,0,18.35
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tlaplusplus,success,2881,success,145,wrong-count-claimed-success,0,1.04
+SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg,tlc,success,2881,success,2881,agree,0,2.54
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tla-mc,safety failure,,error,,error,2,0.01
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tla-rs,safety failure,,error,,error,1,0.01
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tla2,safety failure,,safety failure,515,agree,1,0.23
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tlago,safety failure,,safety failure,531,agree,12,4.44
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tlaplusplus,safety failure,,success,279,wrong-verdict-claimed-success,0,1.04
+SDP_Verification/SDP_Attack_Spec/MC.cfg,tlc,safety failure,,safety failure,573,agree,12,1.65
+SimplifiedFastPaxos/FastPaxos.cfg,tla-mc,success,25617,success,25617,agree,0,51.1
+SimplifiedFastPaxos/FastPaxos.cfg,tla-rs,success,25617,error,,error,1,0.01
+SimplifiedFastPaxos/FastPaxos.cfg,tla2,success,25617,success,25617,agree,0,68.81
+SimplifiedFastPaxos/FastPaxos.cfg,tlago,success,25617,success,25617,agree,0,166.0
+SimplifiedFastPaxos/FastPaxos.cfg,tlaplusplus,success,25617,timeout,23557,timeout,,180.02
+SimplifiedFastPaxos/FastPaxos.cfg,tlc,success,25617,success,25617,agree,0,17.76
+SimplifiedFastPaxos/Paxos.cfg,tla-mc,success,1207,success,1207,agree,0,0.98
+SimplifiedFastPaxos/Paxos.cfg,tla-rs,success,1207,error,,error,1,0.0
+SimplifiedFastPaxos/Paxos.cfg,tla2,success,1207,success,1207,agree,0,3.78
+SimplifiedFastPaxos/Paxos.cfg,tlago,success,1207,success,1207,agree,0,3.54
+SimplifiedFastPaxos/Paxos.cfg,tlaplusplus,success,1207,success,1207,agree,0,10.06
+SimplifiedFastPaxos/Paxos.cfg,tlc,success,1207,success,1207,agree,0,1.97
+SingleLaneBridge/MC.cfg,tla-mc,success,3605,success,3605,agree,0,0.29
+SingleLaneBridge/MC.cfg,tla-rs,success,3605,success,3605,agree,0,2.34
+SingleLaneBridge/MC.cfg,tla2,success,3605,liveness failure,3605,disagree,1,1.24
+SingleLaneBridge/MC.cfg,tlago,success,3605,success,3605,agree,0,198.62
+SingleLaneBridge/MC.cfg,tlaplusplus,success,3605,success,3605,agree,0,2.04
+SingleLaneBridge/MC.cfg,tlc,success,3605,success,3605,agree,0,3.1
+SlidingPuzzles/SlidingPuzzles.cfg,tla-mc,safety failure,,safety failure,23992,agree,12,0.73
+SlidingPuzzles/SlidingPuzzles.cfg,tla-rs,safety failure,,safety failure,24005,agree,1,4.44
+SlidingPuzzles/SlidingPuzzles.cfg,tla2,safety failure,,safety failure,23161,agree,1,30.74
+SlidingPuzzles/SlidingPuzzles.cfg,tlago,safety failure,,safety failure,24025,agree,12,74.31
+SlidingPuzzles/SlidingPuzzles.cfg,tlaplusplus,safety failure,,safety failure,24049,agree,1,23.07
+SlidingPuzzles/SlidingPuzzles.cfg,tlc,safety failure,,safety failure,24188,agree,12,1.94
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tla-mc,safety failure,,safety failure,24043,agree,12,1.05
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tla-rs,safety failure,,safety failure,24005,agree,1,4.37
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tla2,safety failure,,safety failure,20877,agree,1,28.33
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tlago,safety failure,,safety failure,24018,agree,12,86.71
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tlaplusplus,safety failure,,safety failure,23949,agree,1,29.11
+SlidingPuzzles/SlidingPuzzles_anim.cfg,tlc,safety failure,,safety failure,24181,agree,12,3.41
+SlushProtocol/SlushSmall.cfg,tla-mc,success,274678,success,274678,agree,0,3.39
+SlushProtocol/SlushSmall.cfg,tla-rs,success,274678,error,,error,1,0.01
+SlushProtocol/SlushSmall.cfg,tla2,success,274678,success,274678,agree,0,19.14
+SlushProtocol/SlushSmall.cfg,tlago,success,274678,timeout,190504,timeout,,300.1
+SlushProtocol/SlushSmall.cfg,tlaplusplus,success,274678,error-as-violation,1,error-as-violation,1,1.06
+SlushProtocol/SlushSmall.cfg,tlc,success,274678,success,274678,agree,0,6.24
+SpanningTree/SpanTree.cfg,tla-mc,success,1236,success,1236,agree,0,0.07
+SpanningTree/SpanTree.cfg,tla-rs,success,1236,success,1236,agree,0,0.1
+SpanningTree/SpanTree.cfg,tla2,success,1236,success,1236,agree,0,1.24
+SpanningTree/SpanTree.cfg,tlago,success,1236,success,1236,agree,0,3.76
+SpanningTree/SpanTree.cfg,tlaplusplus,success,1236,success,1236,agree,0,1.05
+SpanningTree/SpanTree.cfg,tlc,success,1236,success,1236,agree,0,1.16
+SpanningTree/SpanTreeRandom.cfg,tla-mc,success,,error,,error,2,0.01
+SpanningTree/SpanTreeRandom.cfg,tla-rs,success,,unsupported,,unsupported,1,0.01
+SpanningTree/SpanTreeRandom.cfg,tla2,success,,success,27242,agree,0,62.14
+SpanningTree/SpanTreeRandom.cfg,tlago,success,,timeout,13809,timeout,,300.05
+SpanningTree/SpanTreeRandom.cfg,tlaplusplus,success,,timeout,92954,timeout,,180.03
+SpanningTree/SpanTreeRandom.cfg,tlc,success,,success,49074,agree,0,8.3
+SpanningTree/SpanTreeTest4Nodes.cfg,tla-mc,success,3984,error,,error,2,0.0
+SpanningTree/SpanTreeTest4Nodes.cfg,tla-rs,success,3984,error,,error,1,0.01
+SpanningTree/SpanTreeTest4Nodes.cfg,tla2,success,3984,success,3984,agree,0,1.1
+SpanningTree/SpanTreeTest4Nodes.cfg,tlago,success,3984,success,3984,agree,0,8.22
+SpanningTree/SpanTreeTest4Nodes.cfg,tlaplusplus,success,3984,success,3984,agree,0,3.28
+SpanningTree/SpanTreeTest4Nodes.cfg,tlc,success,3984,success,3984,agree,0,1.5
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tla-mc,success,3528,success,3528,agree,0,0.11
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tla-rs,success,3528,success,3528,agree,0,1.06
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tla2,success,3528,success,3528,agree,0,1.23
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tlago,success,3528,success,3528,agree,0,14.23
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tlaplusplus,success,3528,error-as-violation,87,error-as-violation,1,1.04
+SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg,tlc,success,3528,success,3528,agree,0,2.09
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tla-mc,success,12,success,12,agree,0,0.0
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tla-rs,success,12,success,12,agree,0,0.01
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tla2,success,12,success,12,agree,0,0.2
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tlago,success,12,success,12,agree,0,0.62
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tlaplusplus,success,12,success,12,agree,0,1.02
+SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg,tlc,success,12,success,12,agree,0,0.72
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tla-mc,success,12,success,12,agree,0,0.01
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tla-rs,success,12,success,12,agree,0,0.01
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tla2,success,12,success,12,agree,0,0.14
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tlago,success,12,success,12,agree,0,0.3
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tlaplusplus,success,12,success,12,agree,0,1.02
+SpecifyingSystems/AsynchronousInterface/Channel.cfg,tlc,success,12,success,12,agree,0,0.64
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tla-mc,success,0,success,0,agree,0,0.0
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tla-rs,success,0,error,,error,1,0.01
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tla2,success,0,error,0,error,1,0.14
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tlago,success,0,success,0,agree,0,0.45
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tlaplusplus,success,0,success,0,agree,0,1.02
+SpecifyingSystems/AsynchronousInterface/PrintValues.cfg,tlc,success,0,success,0,agree,0,0.65
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tla-mc,success,4408,success,4408,agree,0,0.03
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tla-rs,success,4408,error,,error,1,0.01
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tla2,success,4408,success,4408,agree,0,0.37
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tlago,success,4408,success,4408,agree,0,1.72
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tlaplusplus,success,4408,error-as-violation,8,error-as-violation,1,1.02
+SpecifyingSystems/CachingMemory/MCInternalMemory.cfg,tlc,success,4408,success,4408,agree,0,0.85
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tla-mc,success,5196,success,5196,agree,0,0.13
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tla-rs,success,5196,error,,error,1,0.01
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tla2,success,5196,success,5196,agree,0,0.88
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tlago,success,5196,success,5196,agree,0,13.94
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tlaplusplus,success,5196,error-as-violation,2,error-as-violation,1,1.02
+SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg,tlc,success,5196,success,5196,agree,0,1.85
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tla-mc,success,3864,success,3864,agree,0,0.02
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tla-rs,success,3864,success,3864,agree,0,0.07
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tla2,success,3864,success,3864,agree,0,0.24
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tlago,success,3864,success,3864,agree,0,0.86
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tlaplusplus,success,3864,success,3864,agree,0,1.03
+SpecifyingSystems/FIFO/MCInnerFIFO.cfg,tlc,success,3864,success,3864,agree,0,0.92
+SpecifyingSystems/HourClock/HourClock.cfg,tla-mc,success,12,success,12,agree,0,0.01
+SpecifyingSystems/HourClock/HourClock.cfg,tla-rs,success,12,success,12,agree,0,0.02
+SpecifyingSystems/HourClock/HourClock.cfg,tla2,success,12,success,12,agree,0,0.12
+SpecifyingSystems/HourClock/HourClock.cfg,tlago,success,12,success,12,agree,0,0.52
+SpecifyingSystems/HourClock/HourClock.cfg,tlaplusplus,success,12,success,12,agree,0,1.03
+SpecifyingSystems/HourClock/HourClock.cfg,tlc,success,12,success,12,agree,0,0.75
+SpecifyingSystems/HourClock/HourClock2.cfg,tla-mc,success,12,success,12,agree,0,0.0
+SpecifyingSystems/HourClock/HourClock2.cfg,tla-rs,success,12,success,12,agree,0,0.01
+SpecifyingSystems/HourClock/HourClock2.cfg,tla2,success,12,success,12,agree,0,0.19
+SpecifyingSystems/HourClock/HourClock2.cfg,tlago,success,12,success,12,agree,0,0.47
+SpecifyingSystems/HourClock/HourClock2.cfg,tlaplusplus,success,12,success,12,agree,0,1.02
+SpecifyingSystems/HourClock/HourClock2.cfg,tlc,success,12,success,12,agree,0,0.51
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tla-mc,success,12,unsupported,,unsupported,2,0.0
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tla-rs,success,12,success,12,agree,0,0.01
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tla2,success,12,success,12,agree,0,0.16
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tlago,success,12,success,12,agree,0,0.36
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tlaplusplus,success,12,success,12,agree,0,1.02
+SpecifyingSystems/Liveness/LiveHourClock.cfg,tlc,success,12,success,12,agree,0,0.54
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tla-mc,success,4408,unsupported,,unsupported,2,0.01
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tla-rs,success,4408,error,,error,1,0.01
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tla2,success,4408,success,4408,agree,0,1.23
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tlago,success,4408,success,4408,agree,0,10.67
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tlaplusplus,success,4408,success,4700,wrong-count-claimed-success,0,1.1
+SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg,tlc,success,4408,success,4408,agree,0,1.54
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tla-mc,success,5196,unsupported,,unsupported,2,0.01
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tla-rs,success,5196,error,,error,1,0.02
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tla2,success,5196,unsupported,5196,unsupported,1,0.19
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tlago,success,5196,success,5196,agree,0,29.67
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tlaplusplus,success,5196,success,7024,wrong-count-claimed-success,0,1.04
+SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg,tlc,success,5196,success,5196,agree,0,2.0
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tla-mc,liveness failure,,error,,error,2,0.01
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tla-rs,liveness failure,,liveness failure,216,agree,1,0.01
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tla2,liveness failure,,liveness failure,216,agree,1,0.19
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tlago,liveness failure,,liveness failure,216,agree,13,0.35
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tlaplusplus,liveness failure,,liveness failure,216,agree,1,2.04
+SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg,tlc,liveness failure,,liveness failure,216,agree,13,0.66
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tla-mc,success,0,success,0,agree,0,0.01
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tla-rs,success,0,error,,error,1,0.01
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tla2,success,0,error,0,error,1,0.16
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tlago,success,0,success,0,agree,0,0.39
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tlaplusplus,success,0,success,0,agree,0,1.02
+SpecifyingSystems/SimpleMath/SimpleMath.cfg,tlc,success,0,success,0,agree,0,0.52
+SpecifyingSystems/TLC/ABCorrectness.cfg,tla-mc,success,20,success,20,agree,0,0.01
+SpecifyingSystems/TLC/ABCorrectness.cfg,tla-rs,success,20,success,20,agree,0,0.01
+SpecifyingSystems/TLC/ABCorrectness.cfg,tla2,success,20,success,20,agree,0,0.16
+SpecifyingSystems/TLC/ABCorrectness.cfg,tlago,success,20,success,20,agree,0,0.39
+SpecifyingSystems/TLC/ABCorrectness.cfg,tlaplusplus,success,20,success,20,agree,0,1.02
+SpecifyingSystems/TLC/ABCorrectness.cfg,tlc,success,20,success,20,agree,0,0.58
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tla-mc,success,240,unsupported,,unsupported,2,0.0
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tla-rs,success,240,error,,error,1,0.01
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tla2,success,240,success,240,agree,0,0.22
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tlago,success,240,success,240,agree,0,1.14
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tlaplusplus,success,240,success,240,agree,0,1.02
+SpecifyingSystems/TLC/MCAlternatingBit.cfg,tlc,success,240,success,240,agree,0,1.06
+Stones/Stones.cfg,tla-mc,success,0,success,0,agree,0,0.03
+Stones/Stones.cfg,tla-rs,success,0,error,,error,1,0.07
+Stones/Stones.cfg,tla2,success,0,error,0,error,1,0.14
+Stones/Stones.cfg,tlago,success,0,success,0,agree,0,0.79
+Stones/Stones.cfg,tlaplusplus,success,0,success,0,agree,0,1.05
+Stones/Stones.cfg,tlc,success,0,success,0,agree,0,0.71
+TLC/TestGraphs.cfg,tla-mc,success,2590,error,,error,2,0.01
+TLC/TestGraphs.cfg,tla-rs,success,2590,error,,error,1,0.01
+TLC/TestGraphs.cfg,tla2,success,2590,error,,error,2,0.09
+TLC/TestGraphs.cfg,tlago,success,2590,success,2590,agree,0,13.51
+TLC/TestGraphs.cfg,tlaplusplus,success,2590,error,,error,1,0.02
+TLC/TestGraphs.cfg,tlc,success,2590,success,2590,agree,0,2.48
+TeachingConcurrency/Simple.cfg,tla-mc,success,723,success,723,agree,0,0.03
+TeachingConcurrency/Simple.cfg,tla-rs,success,723,success,723,agree,0,0.04
+TeachingConcurrency/Simple.cfg,tla2,success,723,success,723,agree,0,0.22
+TeachingConcurrency/Simple.cfg,tlago,success,723,success,723,agree,0,0.41
+TeachingConcurrency/Simple.cfg,tlaplusplus,success,723,success,362,wrong-count-claimed-success,0,1.02
+TeachingConcurrency/Simple.cfg,tlc,success,723,success,723,agree,0,1.88
+TeachingConcurrency/SimpleRegular.cfg,tla-mc,success,277726,success,277726,agree,0,4.76
+TeachingConcurrency/SimpleRegular.cfg,tla-rs,success,277726,success,277726,agree,0,29.16
+TeachingConcurrency/SimpleRegular.cfg,tla2,success,277726,success,277726,agree,0,9.24
+TeachingConcurrency/SimpleRegular.cfg,tlago,success,277726,success,277726,agree,0,93.85
+TeachingConcurrency/SimpleRegular.cfg,tlaplusplus,success,277726,success,169166,wrong-count-claimed-success,0,17.41
+TeachingConcurrency/SimpleRegular.cfg,tlc,success,277726,success,277726,agree,0,4.8
+TransitiveClosure/TransitiveClosure.cfg,tla-mc,success,0,error,,error,2,0.04
+TransitiveClosure/TransitiveClosure.cfg,tla-rs,success,0,error,,error,1,0.01
+TransitiveClosure/TransitiveClosure.cfg,tla2,success,0,error,0,error,1,0.13
+TransitiveClosure/TransitiveClosure.cfg,tlago,success,0,success,0,agree,0,3.55
+TransitiveClosure/TransitiveClosure.cfg,tlaplusplus,success,0,success,0,agree,0,1.03
+TransitiveClosure/TransitiveClosure.cfg,tlc,success,0,success,0,agree,0,1.44
+TwoPhase/MCTwoPhase.cfg,tla-mc,success,4,success,4,agree,0,0.03
+TwoPhase/MCTwoPhase.cfg,tla-rs,success,4,error,,error,1,0.01
+TwoPhase/MCTwoPhase.cfg,tla2,success,4,success,4,agree,0,0.1
+TwoPhase/MCTwoPhase.cfg,tlago,success,4,success,4,agree,0,0.41
+TwoPhase/MCTwoPhase.cfg,tlaplusplus,success,4,success,4,agree,0,1.02
+TwoPhase/MCTwoPhase.cfg,tlc,success,4,success,4,agree,0,0.68
+YoYo/MCYoYoNoPruning.cfg,tla-mc,success,60,error,,error,2,0.01
+YoYo/MCYoYoNoPruning.cfg,tla-rs,success,60,error,,error,1,0.01
+YoYo/MCYoYoNoPruning.cfg,tla2,success,60,error,0,error,1,0.07
+YoYo/MCYoYoNoPruning.cfg,tlago,success,60,success,60,agree,0,1.47
+YoYo/MCYoYoNoPruning.cfg,tlaplusplus,success,60,success,60,agree,0,1.02
+YoYo/MCYoYoNoPruning.cfg,tlc,success,60,success,60,agree,0,1.25
+YoYo/MCYoYoPruning.cfg,tla-mc,success,102,error,,error,2,0.05
+YoYo/MCYoYoPruning.cfg,tla-rs,success,102,error,,error,1,0.01
+YoYo/MCYoYoPruning.cfg,tla2,success,102,error,0,error,1,0.12
+YoYo/MCYoYoPruning.cfg,tlago,success,102,success,102,agree,0,1.98
+YoYo/MCYoYoPruning.cfg,tlaplusplus,success,102,success,102,agree,0,1.02
+YoYo/MCYoYoPruning.cfg,tlc,success,102,success,102,agree,0,1.56
+YoYo/YoYoAllGraphs.cfg,tla-mc,success,26731,error,0,error,12,0.03
+YoYo/YoYoAllGraphs.cfg,tla-rs,success,26731,error,,error,1,0.01
+YoYo/YoYoAllGraphs.cfg,tla2,success,26731,error,,error,2,0.06
+YoYo/YoYoAllGraphs.cfg,tlago,success,26731,success,26731,agree,0,135.89
+YoYo/YoYoAllGraphs.cfg,tlaplusplus,success,26731,success,26731,agree,0,21.6
+YoYo/YoYoAllGraphs.cfg,tlc,success,26731,success,26731,agree,0,5.36
+acp/ACP_NB_TLC.cfg,tla-mc,success,4284,success,4284,agree,0,0.16
+acp/ACP_NB_TLC.cfg,tla-rs,success,4284,success,4284,agree,0,2.15
+acp/ACP_NB_TLC.cfg,tla2,success,4284,success,4284,agree,0,1.05
+acp/ACP_NB_TLC.cfg,tlago,success,4284,success,4284,agree,0,16.01
+acp/ACP_NB_TLC.cfg,tlaplusplus,success,4284,success,4284,agree,0,2.05
+acp/ACP_NB_TLC.cfg,tlc,success,4284,success,4284,agree,0,1.78
+acp/ACP_NB_WRONG_TLC.cfg,tla-mc,safety failure,,safety failure,11859,agree,12,0.11
+acp/ACP_NB_WRONG_TLC.cfg,tla-rs,safety failure,,safety failure,12645,agree,1,3.58
+acp/ACP_NB_WRONG_TLC.cfg,tla2,safety failure,,safety failure,11642,agree,1,0.51
+acp/ACP_NB_WRONG_TLC.cfg,tlago,safety failure,,safety failure,12708,agree,12,3.81
+acp/ACP_NB_WRONG_TLC.cfg,tlaplusplus,safety failure,,safety failure,13449,agree,1,4.05
+acp/ACP_NB_WRONG_TLC.cfg,tlc,safety failure,,safety failure,12748,agree,12,1.78
+acp/ACP_SB_TLC.cfg,tla-mc,success,54944,success,54944,agree,0,0.42
+acp/ACP_SB_TLC.cfg,tla-rs,success,54944,success,54944,agree,0,9.56
+acp/ACP_SB_TLC.cfg,tla2,success,54944,success,54944,agree,0,1.33
+acp/ACP_SB_TLC.cfg,tlago,success,54944,success,54944,agree,0,9.54
+acp/ACP_SB_TLC.cfg,tlaplusplus,success,54944,success,54944,agree,0,8.07
+acp/ACP_SB_TLC.cfg,tlc,success,54944,success,54944,agree,0,1.6
+allocator/AllocatorImplementation.cfg,tla-mc,success,17701,unsupported,,unsupported,2,0.01
+allocator/AllocatorImplementation.cfg,tla-rs,success,17701,error,,error,1,0.02
+allocator/AllocatorImplementation.cfg,tla2,success,17701,unsupported,17701,unsupported,1,7.81
+allocator/AllocatorImplementation.cfg,tlago,success,17701,success,17701,agree,0,178.45
+allocator/AllocatorImplementation.cfg,tlaplusplus,success,17701,success,17701,agree,0,10.22
+allocator/AllocatorImplementation.cfg,tlc,success,17701,success,17701,agree,0,5.41
+allocator/AllocatorRefinement.cfg,tla-mc,success,1690,unsupported,,unsupported,2,0.01
+allocator/AllocatorRefinement.cfg,tla-rs,success,1690,error,,error,1,0.19
+allocator/AllocatorRefinement.cfg,tla2,success,1690,unsupported,1690,unsupported,1,0.47
+allocator/AllocatorRefinement.cfg,tlago,success,1690,success,1690,agree,0,5.25
+allocator/AllocatorRefinement.cfg,tlaplusplus,success,1690,success,1690,agree,0,2.03
+allocator/AllocatorRefinement.cfg,tlc,success,1690,success,1690,agree,0,1.53
+allocator/SchedulingAllocator.cfg,tla-mc,success,1690,success,1690,agree,0,0.08
+allocator/SchedulingAllocator.cfg,tla-rs,success,1690,crash,,crash,137,1.5
+allocator/SchedulingAllocator.cfg,tla2,success,1690,success,1690,agree,0,4.95
+allocator/SchedulingAllocator.cfg,tlago,success,1690,success,1690,agree,0,26.81
+allocator/SchedulingAllocator.cfg,tlaplusplus,success,1690,success,1690,agree,0,1.04
+allocator/SchedulingAllocator.cfg,tlc,success,1690,success,1690,agree,0,2.16
+allocator/SimpleAllocator.cfg,tla-mc,success,400,success,400,agree,0,0.03
+allocator/SimpleAllocator.cfg,tla-rs,success,400,success,400,agree,0,0.12
+allocator/SimpleAllocator.cfg,tla2,success,400,success,400,agree,0,1.06
+allocator/SimpleAllocator.cfg,tlago,success,400,success,400,agree,0,5.79
+allocator/SimpleAllocator.cfg,tlaplusplus,success,400,success,400,agree,0,1.03
+allocator/SimpleAllocator.cfg,tlc,success,400,success,400,agree,0,1.18
+barriers/Barrier.cfg,tla-mc,success,64,success,64,agree,0,0.01
+barriers/Barrier.cfg,tla-rs,success,64,success,64,agree,0,0.01
+barriers/Barrier.cfg,tla2,success,64,success,64,agree,0,0.16
+barriers/Barrier.cfg,tlago,success,64,success,64,agree,0,0.13
+barriers/Barrier.cfg,tlaplusplus,success,64,success,64,agree,0,1.03
+barriers/Barrier.cfg,tlc,success,64,success,64,agree,0,0.47
+barriers/Barriers.cfg,tla-mc,success,29279,success,29279,agree,0,1.09
+barriers/Barriers.cfg,tla-rs,success,29279,error,,error,1,0.02
+barriers/Barriers.cfg,tla2,success,29279,success,29279,agree,0,6.3
+barriers/Barriers.cfg,tlago,success,29279,crash,,crash,255,0.92
+barriers/Barriers.cfg,tlaplusplus,success,29279,success,29279,agree,0,8.04
+barriers/Barriers.cfg,tlc,success,29279,success,29279,agree,0,2.53
+bcastByz/bcastByz.cfg,tla-mc,success,14424,unsupported,,unsupported,2,0.01
+bcastByz/bcastByz.cfg,tla-rs,success,14424,error,,error,1,0.06
+bcastByz/bcastByz.cfg,tla2,success,14424,success,14424,agree,0,14.27
+bcastByz/bcastByz.cfg,tlago,success,14424,crash,,crash,255,1.37
+bcastByz/bcastByz.cfg,tlaplusplus,success,14424,error-as-violation,64,error-as-violation,1,1.03
+bcastByz/bcastByz.cfg,tlc,success,14424,success,14424,agree,0,7.7
+bcastByz/bcastByzNoBcast.cfg,tla-mc,success,45,unsupported,,unsupported,2,0.01
+bcastByz/bcastByzNoBcast.cfg,tla-rs,success,45,error,,error,1,0.01
+bcastByz/bcastByzNoBcast.cfg,tla2,success,45,success,45,agree,0,0.16
+bcastByz/bcastByzNoBcast.cfg,tlago,success,45,crash,,crash,255,1.43
+bcastByz/bcastByzNoBcast.cfg,tlaplusplus,success,45,error-as-violation,256,error-as-violation,1,4.13
+bcastByz/bcastByzNoBcast.cfg,tlc,success,45,success,45,agree,0,0.86
+braf/BufferedRandomAccessFile.cfg,tla-mc,success,3316,error,,error,2,0.01
+braf/BufferedRandomAccessFile.cfg,tla-rs,success,3316,error,,error,1,0.01
+braf/BufferedRandomAccessFile.cfg,tla2,success,3316,unsupported,3316,unsupported,1,51.96
+braf/BufferedRandomAccessFile.cfg,tlago,success,3316,timeout,1807,timeout,,300.06
+braf/BufferedRandomAccessFile.cfg,tlaplusplus,success,3316,safety failure,48,disagree,1,1.04
+braf/BufferedRandomAccessFile.cfg,tlc,success,3316,success,3316,agree,0,18.66
+btree/MCbtree.cfg,tla-mc,success,374727,success,374727,agree,0,16.39
+btree/MCbtree.cfg,tla-rs,success,374727,error,,error,1,0.01
+btree/MCbtree.cfg,tla2,success,374727,safety failure,85940,disagree,1,8.27
+btree/MCbtree.cfg,tlago,success,374727,timeout,229935,timeout,,300.07
+btree/MCbtree.cfg,tlaplusplus,success,374727,timeout,356091,timeout,,180.0
+btree/MCbtree.cfg,tlc,success,374727,success,374727,agree,0,16.28
+btree/kvstore.cfg,tla-mc,success,2641,success,2641,agree,0,0.03
+btree/kvstore.cfg,tla-rs,success,2641,success,2641,agree,0,0.26
+btree/kvstore.cfg,tla2,success,2641,success,2641,agree,0,0.12
+btree/kvstore.cfg,tlago,success,2641,success,2641,agree,0,1.11
+btree/kvstore.cfg,tlaplusplus,success,2641,success,2641,agree,0,3.29
+btree/kvstore.cfg,tlc,success,2641,success,2641,agree,0,0.74
+byihive/VoucherCancel.cfg,tla-mc,success,4199,success,4199,agree,0,0.17
+byihive/VoucherCancel.cfg,tla-rs,success,4199,success,4199,agree,0,1.63
+byihive/VoucherCancel.cfg,tla2,success,4199,success,4199,agree,0,0.48
+byihive/VoucherCancel.cfg,tlago,success,4199,success,4199,agree,0,4.79
+byihive/VoucherCancel.cfg,tlaplusplus,success,4199,success,4199,agree,0,4.19
+byihive/VoucherCancel.cfg,tlc,success,4199,success,4199,agree,0,0.96
+byihive/VoucherIssue.cfg,tla-mc,success,4199,success,4199,agree,0,0.18
+byihive/VoucherIssue.cfg,tla-rs,success,4199,error,,error,1,0.01
+byihive/VoucherIssue.cfg,tla2,success,4199,success,4199,agree,0,0.67
+byihive/VoucherIssue.cfg,tlago,success,4199,success,4199,agree,0,10.23
+byihive/VoucherIssue.cfg,tlaplusplus,success,4199,success,4199,agree,0,4.2
+byihive/VoucherIssue.cfg,tlc,success,4199,success,4199,agree,0,1.18
+byihive/VoucherLifeCycle.cfg,tla-mc,success,64,success,64,agree,0,0.01
+byihive/VoucherLifeCycle.cfg,tla-rs,success,64,success,64,agree,0,0.01
+byihive/VoucherLifeCycle.cfg,tla2,success,64,success,64,agree,0,0.03
+byihive/VoucherLifeCycle.cfg,tlago,success,64,success,64,agree,0,0.33
+byihive/VoucherLifeCycle.cfg,tlaplusplus,success,64,success,64,agree,0,1.2
+byihive/VoucherLifeCycle.cfg,tlc,success,64,success,64,agree,0,0.46
+byihive/VoucherRedeem.cfg,tla-mc,success,4199,success,4199,agree,0,0.17
+byihive/VoucherRedeem.cfg,tla-rs,success,4199,success,4199,agree,0,1.78
+byihive/VoucherRedeem.cfg,tla2,success,4199,success,4199,agree,0,0.47
+byihive/VoucherRedeem.cfg,tlago,success,4199,success,4199,agree,0,5.3
+byihive/VoucherRedeem.cfg,tlaplusplus,success,4199,success,4199,agree,0,2.41
+byihive/VoucherRedeem.cfg,tlc,success,4199,success,4199,agree,0,0.93
+byihive/VoucherTransfer.cfg,tla-mc,success,4197,success,4197,agree,0,0.14
+byihive/VoucherTransfer.cfg,tla-rs,success,4197,success,4197,agree,0,1.66
+byihive/VoucherTransfer.cfg,tla2,success,4197,success,4197,agree,0,0.5
+byihive/VoucherTransfer.cfg,tlago,success,4197,success,4197,agree,0,5.79
+byihive/VoucherTransfer.cfg,tlaplusplus,success,4197,success,4197,agree,0,6.25
+byihive/VoucherTransfer.cfg,tlc,success,4197,success,4197,agree,0,1.42
+byzpaxos/Consensus.cfg,tla-mc,success,4,success,4,agree,0,0.01
+byzpaxos/Consensus.cfg,tla-rs,success,4,error,,error,1,0.01
+byzpaxos/Consensus.cfg,tla2,success,4,success,4,agree,0,0.03
+byzpaxos/Consensus.cfg,tlago,success,4,crash,,crash,255,0.66
+byzpaxos/Consensus.cfg,tlaplusplus,success,4,error-as-violation,1,error-as-violation,1,1.98
+byzpaxos/Consensus.cfg,tlc,success,4,success,4,agree,0,1.13
+byzpaxos/VoteProof.cfg,tla-mc,success,6962,success,6962,agree,0,0.73
+byzpaxos/VoteProof.cfg,tla-rs,success,6962,error,,error,1,0.01
+byzpaxos/VoteProof.cfg,tla2,success,6962,success,6962,agree,0,4.77
+byzpaxos/VoteProof.cfg,tlago,success,6962,crash,,crash,255,1.99
+byzpaxos/VoteProof.cfg,tlaplusplus,success,6962,success,13858,wrong-count-claimed-success,0,22.59
+byzpaxos/VoteProof.cfg,tlc,success,6962,success,6962,agree,0,5.57
+chang_roberts/MCChangRoberts.cfg,tla-mc,success,137,unsupported,,unsupported,2,0.01
+chang_roberts/MCChangRoberts.cfg,tla-rs,success,137,error,,error,1,0.0
+chang_roberts/MCChangRoberts.cfg,tla2,success,137,success,137,agree,0,0.03
+chang_roberts/MCChangRoberts.cfg,tlago,success,137,success,137,agree,0,0.71
+chang_roberts/MCChangRoberts.cfg,tlaplusplus,success,137,success,137,agree,0,1.3
+chang_roberts/MCChangRoberts.cfg,tlc,success,137,success,137,agree,0,0.54
+dag-consensus/BlockDagTest.cfg,tla-mc,success,,error,,error,2,0.01
+dag-consensus/BlockDagTest.cfg,tla-rs,success,,error,,error,1,0.01
+dag-consensus/BlockDagTest.cfg,tla2,success,,error,0,error,1,0.02
+dag-consensus/BlockDagTest.cfg,tlago,success,,success,0,agree,0,0.49
+dag-consensus/BlockDagTest.cfg,tlaplusplus,success,,success,0,agree,0,1.16
+dag-consensus/BlockDagTest.cfg,tlc,success,,success,0,agree,0,0.48
+dag-consensus/TLCSailfish1.cfg,tla-mc,success,109604,error,,error,2,0.0
+dag-consensus/TLCSailfish1.cfg,tla-rs,success,109604,error,,error,1,0.0
+dag-consensus/TLCSailfish1.cfg,tla2,success,109604,error,,error,2,0.01
+dag-consensus/TLCSailfish1.cfg,tlago,success,109604,timeout,11254,timeout,,300.06
+dag-consensus/TLCSailfish1.cfg,tlaplusplus,success,109604,success,976,wrong-count-claimed-success,0,3.19
+dag-consensus/TLCSailfish1.cfg,tlc,success,109604,success,109604,agree,0,17.23
+echo/MCEcho.cfg,tla-mc,success,75,success,75,agree,0,0.23
+echo/MCEcho.cfg,tla-rs,success,75,error,,error,1,0.01
+echo/MCEcho.cfg,tla2,success,75,success,75,agree,0,0.03
+echo/MCEcho.cfg,tlago,success,75,success,75,agree,0,0.88
+echo/MCEcho.cfg,tlaplusplus,success,75,error-as-violation,1,error-as-violation,1,1.24
+echo/MCEcho.cfg,tlc,success,75,success,75,agree,0,0.64
+ewd426/TokenRing.cfg,tla-mc,success,46656,success,46656,agree,0,0.55
+ewd426/TokenRing.cfg,tla-rs,success,46656,success,46656,agree,0,1.53
+ewd426/TokenRing.cfg,tla2,success,46656,success,46656,agree,0,2.27
+ewd426/TokenRing.cfg,tlago,success,46656,success,46656,agree,0,26.95
+ewd426/TokenRing.cfg,tlaplusplus,success,46656,success,46656,agree,0,3.83
+ewd426/TokenRing.cfg,tlc,success,46656,success,46656,agree,0,1.62
+ewd840/EWD840.cfg,tla-mc,success,302,unsupported,,unsupported,2,0.01
+ewd840/EWD840.cfg,tla-rs,success,302,error,,error,1,0.01
+ewd840/EWD840.cfg,tla2,success,302,unsupported,302,unsupported,1,0.07
+ewd840/EWD840.cfg,tlago,success,302,success,302,agree,0,1.12
+ewd840/EWD840.cfg,tlaplusplus,success,302,success,302,agree,0,1.17
+ewd840/EWD840.cfg,tlc,success,302,success,302,agree,0,0.76
+ewd840/EWD840_json.cfg,tla-mc,success,1566,error,,error,2,0.01
+ewd840/EWD840_json.cfg,tla-rs,success,1566,error,,error,1,0.01
+ewd840/EWD840_json.cfg,tla2,success,1566,success,1566,agree,0,0.06
+ewd840/EWD840_json.cfg,tlago,success,1566,success,1566,agree,0,0.87
+ewd840/EWD840_json.cfg,tlaplusplus,success,1566,success,1566,agree,0,2.32
+ewd840/EWD840_json.cfg,tlc,success,1566,success,1566,agree,0,0.82
+ewd840/SyncTerminationDetection.cfg,tla-mc,success,129,unsupported,,unsupported,2,0.01
+ewd840/SyncTerminationDetection.cfg,tla-rs,success,129,success,129,agree,0,0.02
+ewd840/SyncTerminationDetection.cfg,tla2,success,129,success,129,agree,0,0.04
+ewd840/SyncTerminationDetection.cfg,tlago,success,129,success,129,agree,0,0.53
+ewd840/SyncTerminationDetection.cfg,tlaplusplus,success,129,success,129,agree,0,1.36
+ewd840/SyncTerminationDetection.cfg,tlc,success,129,success,129,agree,0,0.58
+ewd998/AsyncTerminationDetection.cfg,tla-mc,success,4097,unsupported,,unsupported,2,0.01
+ewd998/AsyncTerminationDetection.cfg,tla-rs,success,4097,success,4097,agree,0,0.38
+ewd998/AsyncTerminationDetection.cfg,tla2,success,4097,success,4097,agree,0,0.33
+ewd998/AsyncTerminationDetection.cfg,tlago,success,4097,success,4097,agree,0,3.29
+ewd998/AsyncTerminationDetection.cfg,tlaplusplus,success,4097,success,4097,agree,0,3.16
+ewd998/AsyncTerminationDetection.cfg,tlc,success,4097,success,4097,agree,0,0.96
+ewd998/EWD998ChanID.cfg,tla-mc,success,14,unsupported,,unsupported,2,0.02
+ewd998/EWD998ChanID.cfg,tla-rs,success,14,error,,error,1,0.01
+ewd998/EWD998ChanID.cfg,tla2,success,14,unsupported,14,unsupported,1,2.72
+ewd998/EWD998ChanID.cfg,tlago,success,14,success,14,agree,0,5.43
+ewd998/EWD998ChanID.cfg,tlaplusplus,success,14,error,,error,1,0.09
+ewd998/EWD998ChanID.cfg,tlc,success,14,success,14,agree,0,1.2
+ewd998/EWD998ChanTrace.cfg,tla-mc,success,,unsupported,,unsupported,2,0.02
+ewd998/EWD998ChanTrace.cfg,tla-rs,success,,unsupported,,unsupported,1,0.03
+ewd998/EWD998ChanTrace.cfg,tla2,success,,error,0,error,1,0.03
+ewd998/EWD998ChanTrace.cfg,tlago,success,,assumption failure,,disagree,10,1.82
+ewd998/EWD998ChanTrace.cfg,tlaplusplus,success,,error,,error,1,0.03
+ewd998/EWD998ChanTrace.cfg,tlc,success,,assumption failure,,disagree,10,0.68
+ewd998/EWD998PCal.cfg,tla-mc,success,321370,success,321370,agree,0,27.92
+ewd998/EWD998PCal.cfg,tla-rs,success,321370,error,,error,1,0.0
+ewd998/EWD998PCal.cfg,tla2,success,321370,success,321370,agree,0,56.64
+ewd998/EWD998PCal.cfg,tlago,success,321370,timeout,90528,timeout,,300.08
+ewd998/EWD998PCal.cfg,tlaplusplus,success,321370,success,321370,agree,0,121.89
+ewd998/EWD998PCal.cfg,tlc,success,321370,success,321370,agree,0,14.48
+glowingRaccoon/clean.cfg,tla-mc,success,63,success,63,agree,0,0.03
+glowingRaccoon/clean.cfg,tla-rs,success,63,error,,error,1,0.01
+glowingRaccoon/clean.cfg,tla2,success,63,success,63,agree,0,0.03
+glowingRaccoon/clean.cfg,tlago,success,63,success,63,agree,0,0.44
+glowingRaccoon/clean.cfg,tlaplusplus,success,63,success,63,agree,0,1.05
+glowingRaccoon/clean.cfg,tlc,success,63,success,63,agree,0,0.46
+glowingRaccoon/product.cfg,tla-mc,success,305,unsupported,,unsupported,2,0.0
+glowingRaccoon/product.cfg,tla-rs,success,305,error,,error,1,0.01
+glowingRaccoon/product.cfg,tla2,success,305,unsupported,305,unsupported,1,0.06
+glowingRaccoon/product.cfg,tlago,success,305,success,305,agree,0,2.85
+glowingRaccoon/product.cfg,tlaplusplus,success,305,success,305,agree,0,1.04
+glowingRaccoon/product.cfg,tlc,success,305,success,305,agree,0,0.75
+glowingRaccoon/stages.cfg,tla-mc,success,83,success,83,agree,0,0.02
+glowingRaccoon/stages.cfg,tla-rs,success,83,error,,error,1,0.01
+glowingRaccoon/stages.cfg,tla2,success,83,success,83,agree,0,0.03
+glowingRaccoon/stages.cfg,tlago,success,83,success,83,agree,0,0.5
+glowingRaccoon/stages.cfg,tlaplusplus,success,83,success,83,agree,0,1.06
+glowingRaccoon/stages.cfg,tlc,success,83,success,83,agree,0,0.59
+lamport_mutex/MCLamportMutex.cfg,tla-mc,success,724274,success,724274,agree,0,11.62
+lamport_mutex/MCLamportMutex.cfg,tla-rs,success,724274,timeout,,timeout,,180.04
+lamport_mutex/MCLamportMutex.cfg,tla2,success,724274,success,724274,agree,0,30.87
+lamport_mutex/MCLamportMutex.cfg,tlago,success,724274,timeout,251771,timeout,,300.09
+lamport_mutex/MCLamportMutex.cfg,tlaplusplus,success,724274,error-as-violation,4,error-as-violation,1,1.03
+lamport_mutex/MCLamportMutex.cfg,tlc,success,724274,success,724274,agree,0,10.59
+locks_auxiliary_vars/Lock.cfg,tla-mc,success,12,success,12,agree,0,0.02
+locks_auxiliary_vars/Lock.cfg,tla-rs,success,12,success,12,agree,0,0.01
+locks_auxiliary_vars/Lock.cfg,tla2,success,12,success,12,agree,0,0.03
+locks_auxiliary_vars/Lock.cfg,tlago,success,12,success,12,agree,0,0.44
+locks_auxiliary_vars/Lock.cfg,tlaplusplus,success,12,success,12,agree,0,1.03
+locks_auxiliary_vars/Lock.cfg,tlc,success,12,success,12,agree,0,0.62
+locks_auxiliary_vars/LockHS.cfg,tla-mc,success,28,success,28,agree,0,0.02
+locks_auxiliary_vars/LockHS.cfg,tla-rs,success,28,error,,error,1,0.02
+locks_auxiliary_vars/LockHS.cfg,tla2,success,28,success,28,agree,0,0.04
+locks_auxiliary_vars/LockHS.cfg,tlago,success,28,crash,,crash,255,0.74
+locks_auxiliary_vars/LockHS.cfg,tlaplusplus,success,28,success,1,wrong-count-claimed-success,0,1.04
+locks_auxiliary_vars/LockHS.cfg,tlc,success,28,success,28,agree,0,0.74
+locks_auxiliary_vars/Peterson.cfg,tla-mc,success,42,success,42,agree,0,0.03
+locks_auxiliary_vars/Peterson.cfg,tla-rs,success,42,error,,error,1,0.01
+locks_auxiliary_vars/Peterson.cfg,tla2,success,42,success,42,agree,0,0.03
+locks_auxiliary_vars/Peterson.cfg,tlago,success,42,success,42,agree,0,0.49
+locks_auxiliary_vars/Peterson.cfg,tlaplusplus,success,42,success,42,agree,0,1.04
+locks_auxiliary_vars/Peterson.cfg,tlc,success,42,success,42,agree,0,0.69
+nbacc_ray97/nbacc_ray97.cfg,tla-mc,success,3016,success,3016,agree,0,0.06
+nbacc_ray97/nbacc_ray97.cfg,tla-rs,success,3016,success,3016,agree,0,1.11
+nbacc_ray97/nbacc_ray97.cfg,tla2,success,3016,success,3016,agree,0,0.25
+nbacc_ray97/nbacc_ray97.cfg,tlago,success,3016,success,3016,agree,0,3.24
+nbacc_ray97/nbacc_ray97.cfg,tlaplusplus,success,3016,success,3016,agree,0,1.04
+nbacc_ray97/nbacc_ray97.cfg,tlc,success,3016,success,3016,agree,0,0.83
+nbacg_guer01/nbacg_guer01.cfg,tla-mc,success,24922,unsupported,,unsupported,2,0.04
+nbacg_guer01/nbacg_guer01.cfg,tla-rs,success,24922,success,24922,agree,0,3.45
+nbacg_guer01/nbacg_guer01.cfg,tla2,success,24922,success,24922,agree,0,2.14
+nbacg_guer01/nbacg_guer01.cfg,tlago,success,24922,success,24922,agree,0,80.57
+nbacg_guer01/nbacg_guer01.cfg,tlaplusplus,success,24922,success,24922,agree,0,5.55
+nbacg_guer01/nbacg_guer01.cfg,tlc,success,24922,success,24922,agree,0,2.37
+spanning/MC_spanning.cfg,tla-mc,safety failure,,safety failure,5,agree,12,0.02
+spanning/MC_spanning.cfg,tla-rs,safety failure,,safety failure,5,agree,1,0.01
+spanning/MC_spanning.cfg,tla2,safety failure,,safety failure,4,agree,1,0.03
+spanning/MC_spanning.cfg,tlago,safety failure,,safety failure,6,agree,12,0.18
+spanning/MC_spanning.cfg,tlaplusplus,safety failure,,safety failure,6,agree,1,1.04
+spanning/MC_spanning.cfg,tlc,safety failure,,safety failure,7,agree,12,0.7
+sums_even/MC_sums_even.cfg,tla-mc,success,0,error,,error,2,0.04
+sums_even/MC_sums_even.cfg,tla-rs,success,0,error,,error,1,0.11
+sums_even/MC_sums_even.cfg,tla2,success,0,error,0,error,1,0.02
+sums_even/MC_sums_even.cfg,tlago,success,0,success,0,agree,0,3.09
+sums_even/MC_sums_even.cfg,tlaplusplus,success,0,success,0,agree,0,1.02
+sums_even/MC_sums_even.cfg,tlc,success,0,success,0,agree,0,0.79
+tcp/MCtcp.cfg,tla-mc,success,1182,unsupported,,unsupported,2,0.01
+tcp/MCtcp.cfg,tla-rs,success,1182,unsupported,,unsupported,1,0.02
+tcp/MCtcp.cfg,tla2,success,1182,success,1182,agree,0,0.32
+tcp/MCtcp.cfg,tlago,success,1182,success,1182,agree,0,5.44
+tcp/MCtcp.cfg,tlaplusplus,success,1182,success,1182,agree,0,1.04
+tcp/MCtcp.cfg,tlc,success,1182,success,1182,agree,0,1.16
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tla-mc,safety failure,,safety failure,235,agree,12,0.02
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tla-rs,safety failure,,safety failure,233,agree,1,0.11
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tla2,safety failure,,safety failure,241,agree,1,0.07
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tlago,safety failure,,safety failure,243,agree,12,1.27
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tlaplusplus,safety failure,,safety failure,243,agree,1,1.04
+tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg,tlc,safety failure,,safety failure,243,agree,12,0.63
+tower_of_hanoi/Hanoi_anim.cfg,tla-mc,safety failure,,safety failure,27,agree,12,0.02
+tower_of_hanoi/Hanoi_anim.cfg,tla-rs,safety failure,,safety failure,25,agree,1,0.03
+tower_of_hanoi/Hanoi_anim.cfg,tla2,safety failure,,safety failure,25,agree,1,0.04
+tower_of_hanoi/Hanoi_anim.cfg,tlago,safety failure,,safety failure,27,agree,12,0.81
+tower_of_hanoi/Hanoi_anim.cfg,tlaplusplus,safety failure,,safety failure,27,agree,1,1.03
+tower_of_hanoi/Hanoi_anim.cfg,tlc,safety failure,,safety failure,27,agree,12,0.72
+transaction_commit/2PCwithBTM.cfg,tla-mc,success,1245,success,1245,agree,0,0.02
+transaction_commit/2PCwithBTM.cfg,tla-rs,success,1245,error,,error,1,0.01
+transaction_commit/2PCwithBTM.cfg,tla2,success,1245,success,1245,agree,0,0.05
+transaction_commit/2PCwithBTM.cfg,tlago,success,1245,success,1245,agree,0,0.66
+transaction_commit/2PCwithBTM.cfg,tlaplusplus,success,1245,success,1245,agree,0,1.03
+transaction_commit/2PCwithBTM.cfg,tlc,success,1245,success,1245,agree,0,0.7
+transaction_commit/TCommit.cfg,tla-mc,success,34,success,34,agree,0,0.02
+transaction_commit/TCommit.cfg,tla-rs,success,34,success,34,agree,0,0.01
+transaction_commit/TCommit.cfg,tla2,success,34,success,34,agree,0,0.03
+transaction_commit/TCommit.cfg,tlago,success,34,success,34,agree,0,0.29
+transaction_commit/TCommit.cfg,tlaplusplus,success,34,success,34,agree,0,1.04
+transaction_commit/TCommit.cfg,tlc,success,34,success,34,agree,0,0.49
+transaction_commit/TwoPhase.cfg,tla-mc,success,288,success,288,agree,0,0.02
+transaction_commit/TwoPhase.cfg,tla-rs,success,288,success,288,agree,0,0.02
+transaction_commit/TwoPhase.cfg,tla2,success,288,success,288,agree,0,0.03
+transaction_commit/TwoPhase.cfg,tlago,success,288,success,288,agree,0,0.32
+transaction_commit/TwoPhase.cfg,tlaplusplus,success,288,success,288,agree,0,1.03
+transaction_commit/TwoPhase.cfg,tlc,success,288,success,288,agree,0,0.54
