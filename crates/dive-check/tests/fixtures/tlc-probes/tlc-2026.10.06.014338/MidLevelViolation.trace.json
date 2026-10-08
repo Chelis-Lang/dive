@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"A","location":{"beginLine":11,"beginColumn":6,"endLine":11,"endColumn":33,"module":"MidLevelViolation"}},[2,{"x":2}]]],"state":[[1,{"x":0}],[2,{"x":2}]]},"vars":["x"]}
