@@ -43,12 +43,14 @@ mod analysis;
 pub mod effects;
 pub mod expr;
 pub mod ids;
+mod intern;
 mod lower;
 pub mod origin;
 mod pretty;
 pub mod std_op;
 pub mod validate;
 
+pub use dive_sema::hashtable;
 pub use effects::Effects;
 pub use expr::{
     Arg, Bound, BuiltinOp, CaseArm, ExceptUpdate, Expr, Field, JunctionKind, LocalRef, OpRef, Pass,
@@ -87,7 +89,7 @@ impl From<dive_sema::Level> for Level {
 
 /// The version of the IR's serialized form. Bump it whenever a serialized
 /// type changes; the on-disk cache (ADR 0013 §7) keys on it.
-pub const IR_SCHEMA: u32 = 2;
+pub const IR_SCHEMA: u32 = 3;
 
 /// One lowered specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -103,6 +105,9 @@ pub struct Ir {
     pub(crate) tlc_vars: Vec<VarId>,
     pub(crate) consts: Vec<DeclId>,
     pub(crate) refusals: Vec<Refusal>,
+    /// The names SANY's lexer interns, first occurrences, in parse order
+    /// ([`Ir::lexical_names`]).
+    pub(crate) lexical_names: Vec<Box<str>>,
     /// For each expression, the index of the `dive-sema` node it was lowered
     /// from (`dive_sema::NodeId::index`).
     pub(crate) sema_nodes: Vec<u32>,
@@ -148,6 +153,14 @@ pub struct Module {
     /// The `THEOREM` statements, including extended ones, in order. TLC never
     /// evaluates them, but it does process their literals at start-up.
     pub theorems: Vec<DefId>,
+    /// For each of [`Module::assumptions`], whether it is written `AXIOM`.
+    /// TLC never checks those (`Tool.checkAssumptions`, `getAssumptionIsAxiom`).
+    pub axioms: Vec<bool>,
+    /// The module's `CONSTANT` declarations, including extended and
+    /// instantiated ones, in SANY's order (`ModuleNode.getConstantDecls`):
+    /// the order in which TLC binds and processes them
+    /// (`SpecProcessor.processSpec`, `processConstantDefns`).
+    pub tlc_constants: Vec<DeclId>,
 }
 
 /// What a name in a module's context denotes.
@@ -465,6 +478,20 @@ impl Ir {
     #[must_use]
     pub fn tlc_var_order(&self) -> &[VarId] {
         &self.tlc_vars
+    }
+
+    /// The token images SANY's lexer interns while it parses the
+    /// specification, each at its first occurrence, in the order the files
+    /// were parsed (the root module first, then each module as the loader
+    /// finds it). Comments and whitespace are not interned; a string literal's
+    /// image keeps its quotes, because SANY interns the token, not the string.
+    ///
+    /// TLC orders strings, model values and record fields by intern token
+    /// (ADR 0012), so this is the part of TLC's encounter order that the front
+    /// end decides. `dive-model` builds the run's interner from it.
+    #[must_use]
+    pub fn lexical_names(&self) -> &[Box<str>] {
+        &self.lexical_names
     }
 
     /// The constants of every module, by [`ConstId`].

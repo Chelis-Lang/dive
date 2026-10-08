@@ -1,7 +1,183 @@
-//! `dive-model`: The binding stage between the IR and every backend. It ports TLC's `SpecProcessor`: it binds the configuration's constants, model values and `<-` overrides, precomputes constant definitions, extracts the initial predicates, next-state actions and every other role, and reports configuration errors with TLC's codes (ADR 0013 §8). The checker, liveness checker, simulator, trace validator, compiler and API share it, so the binding is ported once.
+//! `dive-model`: binding a specification to its TLC model configuration
+//! (ADR 0013 §8).
 //!
-//! Status: placeholder. See `docs/ROADMAP.md` for when this crate is built
-//! and `docs/CHARTER.md` for its responsibilities. Permitted internal
-//! dependencies are listed in `xtask/src/layering.rs`. It must never need
-//! `dive-eval`'s `enumerate` feature (ADR 0016 §2).
+//! This is a port of TLC's `tlc2.tool.impl.SpecProcessor` (tlaplus
+//! `94d0c50`), with the parts of `Spec` and `Tool` that finish setting up a
+//! model. [`bind`] takes the lowered specification and the parsed
+//! configuration and does what TLC does before it checks the assumptions, in
+//! TLC's order:
+//!
+//! 1. **Literals** (`processConstants`): a numeral too big for `--int=tlc` or
+//!    a decimal stops TLC first.
+//! 2. **Names** ([`mod@intern`]): the run's name table is filled in TLC's
+//!    encounter order, so that strings and model values order and
+//!    fingerprint as in TLC.
+//! 3. **Constants and overrides** (`processSpec`): every root constant must be
+//!    assigned (`C = v`) or substituted (`C <- D`); `Op = v` and `Op <- D`
+//!    replace definitions; `[M]` entries replace definitions of module `M`.
+//!    Errors carry TLC's codes ([`Ec`]).
+//! 4. **Constant definitions** (`processConstantDefns`): every zero-arity
+//!    definition TLC's level bound ([`mod@level`]) finds constant is
+//!    evaluated at start-up, module by module, and its value is used from
+//!    then on. `Print` output appears here, as in TLC.
+//! 5. **Roles** (`processConfig`): invariants, the behavior specification
+//!    (`INIT`/`NEXT` or `SPECIFICATION`, split into initial predicates, the
+//!    next-state relation and temporal formulas), properties (split into
+//!    invariants, implied initial predicates, implied actions and temporal
+//!    properties), constraints, `VIEW`.
+//! 6. **Actions** (`Tool.getActions`): the next-state relation split into
+//!    TLC's actions, with their labels, as `dive_eval::next` actions (with
+//!    the default `enumerate` feature).
+//!
+//! The result is a [`Model`]: an [`dive_eval::Evaluator`] with everything
+//! bound, and every role as a [`Pred`] (an expression and the scope TLC
+//! evaluates it in). Features dive does not check yet (liveness, `SYMMETRY`,
+//! operators it does not implement) are listed in [`Model::unsupported`];
+//! the checker refuses such a model by name. Anything this stage cannot do
+//! exactly is an [`ErrorKind::Unsupported`] error.
+//!
+//! # Java overrides and loaded modules
+//!
+//! Which Java implementation TLC uses for a standard operator depends on the
+//! modules loaded: `Integers`' methods replace `Naturals`' when both are
+//! loaded. The IR records the active override of every definition, computed
+//! from the loaded modules (`dive_ir::std_op`). TLC's `-dumpTrace json`
+//! loads `_JsonTrace`, and with it `Integers`, without extending the root
+//! module; `dive_sema::Options::extra_root_extendees` reproduces that for
+//! oracle comparison (see [`DUMP_TRACE_JSON_MODULES`]).
+//!
+//! # Example
+//!
+//! ```
+//! use std::sync::Arc;
+//! use dive_model::{bind, BindOptions};
+//!
+//! let src = "---- MODULE M ----\nEXTENDS Naturals, TLC\nCONSTANT N\nVARIABLE x\n\
+//!            Max == Print(N, N * 2)\nInit == x = 0\nNext == x < Max /\\ x' = x + 1\n\
+//!            Inv == x <= Max\n====\n";
+//! let analysis = dive_sema::analyze_source("M.tla", src, &dive_sema::Options::default());
+//! let ir = Arc::new(dive_ir::lower(&analysis).unwrap());
+//! let cfg = dive_config::parse("CONSTANT N = 3\nINIT Init\nNEXT Next\nINVARIANT Inv\n")
+//!     .into_config()
+//!     .unwrap();
+//! let model = bind(ir, &cfg, &BindOptions::tlc()).unwrap();
+//! // `Max` is evaluated once, at start-up, as TLC does.
+//! assert_eq!(model.output, [dive_model::Message::Print("3  6".to_owned())]);
+//! assert_eq!(model.invariants[0].name, "Inv");
+//! assert_eq!(model.actions.len(), 1);
+//! assert!(model.actions[0].label().starts_with("<Next line 7, col 9 to line 7, col"));
+//! ```
 #![forbid(unsafe_code)]
+
+#[cfg(feature = "enumerate")]
+mod actions;
+mod bind;
+mod error;
+pub mod intern;
+pub mod level;
+mod model;
+mod reach;
+mod spec;
+mod tables;
+mod tlc_names;
+mod walk;
+
+use std::sync::Arc;
+
+use dive_config::ModelConfig;
+use dive_ir::Ir;
+
+pub use bind::BindOptions;
+pub use error::{BindError, Ec, ErrorKind, Failure, Message};
+pub use model::{Init, Model, Named, Pred, Settings, Unsupported};
+
+/// The modules TLC's `-dumpTrace json <file>` loads in addition to the
+/// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and
+/// `ParameterizedSpecObj` makes SANY load `_JsonTrace` as if the root module
+/// extended it). Pass it as `dive_sema::Options::extra_root_extendees` to
+/// reproduce the conformance harness's TLC runs, which use `-dumpTrace json`:
+/// it changes which Java overrides are active (`Integers` replaces
+/// `Naturals`' arithmetic) and the encounter order of names. TLC as users
+/// run it, and so `--compat=tlc`, does not load them. Oracle reproduction
+/// only, until the goldens are regenerated without `-dumpTrace` (issue #35).
+pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
+
+/// Binds `ir` to `cfg` as TLC does (see the crate documentation).
+///
+/// # Errors
+/// TLC's error for the model, with what TLC printed before it; or an
+/// unsupported feature or an internal error, which are never verdicts.
+pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
+    let walk = {
+        let t = tables::Tables::new(ir.clone());
+        walk::process_constants(&t, opts.eval.ctx.int_mode)
+    };
+    let ir: Arc<Ir> = ir;
+    if let Some(error) = walk.error {
+        return Err(Box::new(Failure {
+            error,
+            output: Vec::new(),
+        }));
+    }
+    let names = Arc::new(intern::feed(&ir, cfg));
+    let mut b = bind::Binder::new(ir, cfg, opts, names);
+    let result = run(&mut b);
+    b.drain_prints();
+    match result {
+        Ok(model) => Ok(model),
+        Err(error) => Err(Box::new(Failure {
+            error,
+            output: std::mem::take(&mut b.output),
+        })),
+    }
+}
+
+fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
+    b.process_spec()?;
+    b.build_evaluator();
+    b.process_constant_defns()?;
+    b.process_config()?;
+    let view = b.process_view()?;
+    #[cfg(feature = "enumerate")]
+    let (init_actions, actions) = (b.init_actions(), b.expand_actions()?);
+    b.drain_prints();
+    let ir = b.t.ir.clone();
+    let root = ir.module(ir.root());
+    let assumptions = root
+        .assumptions
+        .iter()
+        .zip(root.axioms.iter().chain(std::iter::repeat(&false)))
+        .filter(|(_, ax)| !**ax)
+        .map(|(d, _)| *d)
+        .collect();
+    let mut model = Model {
+        ir: ir.clone(),
+        evaluator: b.ev().clone(),
+        names: b.names.clone(),
+        output: std::mem::take(&mut b.output),
+        init: std::mem::take(&mut b.init),
+        next: b.next.clone(),
+        #[cfg(feature = "enumerate")]
+        init_actions,
+        #[cfg(feature = "enumerate")]
+        actions,
+        invariants: std::mem::take(&mut b.invariants),
+        implied_inits: std::mem::take(&mut b.implied_inits),
+        implied_actions: std::mem::take(&mut b.implied_actions),
+        temporals: std::mem::take(&mut b.temporals),
+        implied_temporals: std::mem::take(&mut b.implied_temporals),
+        constraints: std::mem::take(&mut b.constraints),
+        action_constraints: std::mem::take(&mut b.action_constraints),
+        view,
+        alias: b.process_alias(),
+        postconditions: b.process_postconditions(),
+        symmetry: b.cfg.symmetry.as_ref().map(|n| n.text.clone()),
+        settings: model::Settings {
+            check_deadlock: b.cfg.checks_deadlock() && !b.opts.no_deadlock,
+        },
+        assumptions,
+        unsupported: Vec::new(),
+    };
+    model.unsupported = reach::unsupported(b, &model);
+    Ok(model)
+}

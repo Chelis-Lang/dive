@@ -9,6 +9,23 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+dive-ir.workspace = true
+dive-value.workspace = true
+dive-config.workspace = true
+# The successor enumerator stays off: the trace validator depends on this
+# crate and must build without it (ADR 0016 §2).
+dive-eval = { path = "../dive-eval", default-features = false }
+
+[features]
+# The next-state relation split into the successor generator's actions
+# (`Model::actions`), which needs `dive-eval`'s enumerator. The trace
+# validator builds this crate without it (ADR 0016 §2).
+default = ["enumerate"]
+enumerate = ["dive-eval/enumerate"]
+
+[dev-dependencies]
+dive-sema.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

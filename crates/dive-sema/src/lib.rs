@@ -57,6 +57,17 @@ pub struct Options {
     pub semantic: bool,
     /// Level-check after semantic analysis (SANY without `-l`).
     pub level_check: bool,
+    /// Modules loaded as if the root module extended them, without entering
+    /// the root module's context.
+    ///
+    /// TLC does this for some command-line options: `-dumpTrace json <file>`
+    /// makes `tlc2.tool.impl.ParameterizedSpecObj` add `_JsonTrace` to the
+    /// root module's relatives (`getRelatives().addExtendee`), so SANY loads
+    /// and analyses it, and the modules it uses, before the root module. The
+    /// root module's own `EXTENDS`, and so its context, are unchanged, but the
+    /// set of loaded modules, which decides TLC's Java overrides, is not.
+    /// Empty by default: TLC as users run it.
+    pub extra_root_extendees: Vec<String>,
 }
 
 impl Default for Options {
@@ -65,6 +76,7 @@ impl Default for Options {
             search: SearchPath::default(),
             semantic: true,
             level_check: true,
+            extra_root_extendees: Vec::new(),
         }
     }
 }
@@ -158,7 +170,12 @@ pub fn analyze_source(file_name: &str, text: &str, options: &Options) -> Analysi
 }
 
 fn analyze(root: SourceFile, file_name: Option<&str>, options: &Options) -> Analysis {
-    let loaded = loader::load(root, file_name, &options.search);
+    let loaded = loader::load(
+        root,
+        file_name,
+        &options.search,
+        &options.extra_root_extendees,
+    );
     let mut syntax = Vec::new();
     for &f in &loaded.parse_failed {
         if let Some(file) = loaded.files.get(f.index()) {

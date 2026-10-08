@@ -319,14 +319,15 @@ Property tests cover:
 
 ### For the front end
 
-TLC's order needs the right feed. `--choose-order=tlc` is exact only when `dive-sema`/`dive-eval` intern names in SANY/TLC's encounter order. Measured so far:
+TLC's order needs the right feed. Measured on the pinned jar by reading `util.UniqueString`'s table after TLC has processed a model (`crates/dive-model/acceptance/ModelDump.java`, 721 models), the table is filled in this order:
 
-1. a set of names pre-interned before parsing;
-2. identifiers in lexing order, root module first;
-3. string-literal contents;
-4. strings created at run time.
+1. the configuration's values, model values and strings alike, in the order TLC's `ModelConfig.parse` reads them: TLC reads the `.cfg` before SANY parses anything. Token 0 is never used, so the first value has token 1. Model values therefore have the same tokens in every model with the same configuration, whatever the specification;
+2. a fixed set of 236 names SANY creates before it parses (built-in operators and the lexer's operator symbols, ASCII and Unicode);
+3. the image of every token SANY's lexer reads, file by file in parse order (the root module first, then each module as the loader finds it), with SANY's 126 syntax-node kind names after the root module's header line, and some operator forms the parser creates (`\in.`) interleaved;
+4. names semantic analysis creates, then the contents of string literals as it builds their `StringNode`s, module by module in semantic-analysis order and in source order within a module. (`processConstants` creates the `StringValue`s later, but the contents are already interned);
+5. names and strings TLC creates while it starts up and runs.
 
-Reproducing the full sequence, including the pre-interned set, standard modules, cfg values and model values, is a tracked task for `dive-sema` and `dive-config`. With several workers, TLC's run-time interning order is itself nondeterministic. dive's canonical order has none of these problems.
+`dive-model` builds the run's `Interner` in this order (`dive_model::intern`), from the configuration, the IR's `lexical_names` and the IR's string literals. On the 141 Examples models and the 415 tlaplus test models that bind, every model value gets TLC's exact token (382/382 and 265/265), and none of the 268,543 names both tables hold is out of TLC's relative order. Absolute tokens of other names are not claimed: the parser's operator forms and some of SANY's internal names are not reproduced, and they never reach a value. With several workers, TLC's run-time interning order is itself nondeterministic. dive's canonical order has none of these problems.
 
 ### Known gaps
 
