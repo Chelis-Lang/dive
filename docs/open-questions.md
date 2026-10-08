@@ -14,7 +14,7 @@ Each question is open until it is answered here or recorded in an ADR.
    Either way the decision is recorded.
 7. ~~**Module library pins.**~~ **Resolved 2026-10-08:** they move together with the oracle as one bundle (ADR 0002 revision). Original question: The TLAPS library (tlapm `library/`) and Apalache's modules are now pinned by commit, as upstream Examples CI uses them unpinned. Should they follow the same refresh policy as the oracle, which is currently a single snapshot (ADR 0002)?
 8. ~~**Canonical `CHOOSE` order.**~~ **Answered 2026-10-08: (a)**, canonical order by default, with TLC's order under `--choose-order=tlc` / `--compat=tlc` (ADR 0010). Original question: TLC's `CHOOSE` over strings follows the interning order of string tokens in the module text, so adding an unused definition can change a `CHOOSE` result (probes P2 and P7 in `docs/survey/competitive.md`). This breaks the charter's metamorphic rule. Should `--choose-order=canonical` become the default, with TLC's order under `--compat=tlc`? Or should TLC's order stay the default? The metamorphic tests would then need to exempt string `CHOOSE`.
-9. **Exploration order in the default profile** (ADR 0015 §7).
+9. ~~**Exploration order in the default profile**~~ **Answered 2026-10-08: (a)**, canonical exploration by default, with TLC's order under `--compat=tlc` (D-010). Original question (ADR 0015 §7):
    - **What canonical order changes.** Under the approved canonical value order, sets of strings and model values are also *enumerated* canonically: in `\E`, `x' \in S`, filters and maps.
      - Complete searches are unaffected: the same states, totals and depth.
      - At a violation, the default profile can stop at a different event than TLC. It may report a different violated property among violations at the same depth, different counts at the stop, or a different shortest counterexample of the same length.
@@ -25,7 +25,7 @@ Each question is open until it is answered here or recorded in an ADR.
    - **Recommended:** (a).
    - `--compat=tlc` is unaffected either way.
    - **Built both ways.** `dive-eval` implements both orders (`ExplorationOrder`, D-010). Until this is answered, the default profile explores in TLC's order, option (b); answering (a) changes one line of `Options::dive`.
-10. **`TLCGet("config").worker`** (ADR 0014 §7).
+10. ~~**`TLCGet("config").worker`**~~ **Answered 2026-10-08: logical** (1 at any `--workers`), with the physical count under `--compat=tlc` (D-011). Original question (ADR 0014 §7):
     - **The proposal.** Report the *logical* worker count, 1, at every `--workers` setting. dive's parallel search is by construction TLC's single-worker search (ADR 0015), and the harness holds dive to the single-worker golden. `MCDieHardest` asserts `worker = 1`. The physical count is in dive's own output.
     - **The alternative.** Report the physical count, as TLC does for its own workers. A spec could then fail at `--workers 8` exactly as TLC fails at `-workers 8`.
     - **Recommended:** logical.
@@ -34,7 +34,7 @@ Each question is open until it is answered here or recorded in an ADR.
     - `dive-eval`'s successor enumerator behind a cargo feature, `enumerate`, which `dive-trace` keeps off. It would be enforced by a standalone `dive-trace` build in the workspace gate and a `check-layering` rule.
 
     The trace-independence rule is kept: `dive-trace` still does not depend on `dive-check`, `dive-liveness`, `dive-sim` or `dive-store`.
-12. **Comparisons TLC refuses but TLA+ answers.** TLC raises an error for some `=` and `\in` tests whose answer TLA+ defines, and its errors are asymmetric and order-dependent (ADR 0011; fixtures `Asym*`, `ErrMemRcdTuple` and `ErrMemProductRec` in `crates/dive-value/tests/fixtures/`):
+12. ~~**Comparisons TLC refuses but TLA+ answers.**~~ **Answered 2026-10-08: TLA+ comparisons by default**, with TLC's rules under `--compat=tlc` (D-009). Original question: TLC raises an error for some `=` and `\in` tests whose answer TLA+ defines, and its errors are asymmetric and order-dependent (ADR 0011; fixtures `Asym*`, `ErrMemRcdTuple` and `ErrMemProductRec` in `crates/dive-value/tests/fixtures/`):
    - `[a |-> 1, b |-> 1] = <<1>>` is an error, but `<<1>> = [a |-> 1, b |-> 1]` is `FALSE`. Both are functions with different domains, so TLA+ says `FALSE`.
    - `<<1>> \in [a : {1}]` and `[a |-> 1] \in {1} \X {2}` are errors. TLA+ says `FALSE`.
    - `{[a |-> 1, b |-> 1], <<1>>}` is a set, but `{<<1>>, [a |-> 1, b |-> 1]}` is an error.

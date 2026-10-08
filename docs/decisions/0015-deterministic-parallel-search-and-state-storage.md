@@ -1,7 +1,9 @@
 # 0015: Deterministic parallel search and state storage (`dive-check`, `dive-store`)
 
-- **Status:** proposed
+- **Status:** accepted (2026-10-08)
 - **Date:** 2026-10-08
+
+- **Owner decision (2026-10-08):** canonical exploration order in the default profile, and TLC's order under `--compat=tlc` (D-010; open question 9).
 
 ## Context
 

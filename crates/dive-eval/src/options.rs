@@ -19,11 +19,10 @@ pub enum Profile {
 /// constructors and (in `dive_eval::next`) `x' \in S`.
 ///
 /// `CHOOSE` always follows the run's [`ValueOrder`] (owner decision, open
-/// question 8). Exploration order is open question 9: whether the default
-/// profile explores in the canonical order too (option (a)) or keeps TLC's
-/// order (option (b)). Until the owner answers, the default is TLC's order in
-/// both profiles, so the default profile reports the same first violation as
-/// TLC. Changing [`Options::dive`]'s `exploration` is the one-line switch.
+/// question 8). Exploration follows it too in the default profile (owner
+/// decision on open question 9, option (a), 2026-10-08), so the default
+/// profile is independent of the module text; `--compat=tlc` keeps TLC's
+/// order (D-010).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum ExplorationOrder {
     /// TLC's normalized order (names by intern token), whatever the run's
@@ -31,7 +30,7 @@ pub enum ExplorationOrder {
     #[default]
     Tlc,
     /// The run's [`ValueOrder`] (canonical in the default profile):
-    /// `--explore-order=value`. Open question 9, option (a).
+    /// `--explore-order=value`. The default profile's setting (D-010).
     Value,
 }
 
@@ -39,11 +38,10 @@ pub enum ExplorationOrder {
 /// question 12).
 ///
 /// TLC's rules are asymmetric and order-dependent: `[a |-> 1, b |-> 1] =
-/// <<1>>` is an error while `<<1>> = [a |-> 1, b |-> 1]` is `FALSE`. The
-/// proposal `--comparisons=tla` answers such tests as TLA+ defines them. It is
-/// result-changing and not adopted: the default is TLC's rules in both
-/// profiles until the owner answers. Changing [`Options::dive`]'s
-/// `comparisons` is the one-line switch.
+/// <<1>>` is an error while `<<1>> = [a |-> 1, b |-> 1]` is `FALSE`.
+/// `--comparisons=tla` answers such tests as TLA+ defines them. It is
+/// result-changing and is the default profile's setting (owner decision on
+/// open question 12, 2026-10-08); `--compat=tlc` keeps TLC's rules.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
 pub enum Comparisons {
     /// TLC's checked `equals` and `member`, with TLC's errors.
@@ -53,7 +51,7 @@ pub enum Comparisons {
     /// TLA+'s answers for `=` and `\in` between functions (including records
     /// and tuples) and sets: symmetric and independent of element order. The
     /// error is kept only where TLA+ leaves the answer unspecified (`1 = "a"`,
-    /// `{1} = 1`). `--comparisons=tla` (proposed, D-009).
+    /// `{1} = 1`). `--comparisons=tla`; the default profile's setting (D-009).
     Tla,
 }
 
@@ -96,14 +94,14 @@ impl Options {
     /// dive's default profile.
     ///
     /// - Big integers and canonical `CHOOSE` order (owner-approved, ADR 0010).
-    /// - Exploration in TLC's order, pending open question 9.
-    /// - TLC's comparison rules, pending open question 12.
+    /// - Exploration in the canonical order (owner decision, D-010).
+    /// - TLA+ comparison answers (owner decision, D-009).
     #[must_use]
     pub const fn dive() -> Self {
         Self {
             ctx: Ctx::dive(),
-            exploration: ExplorationOrder::Tlc,
-            comparisons: Comparisons::Tlc,
+            exploration: ExplorationOrder::Value,
+            comparisons: Comparisons::Tla,
             max_depth: DEFAULT_MAX_DEPTH,
         }
     }
@@ -154,9 +152,13 @@ mod tests {
     }
 
     #[test]
-    fn pending_owner_questions_default_to_tlc() {
-        // Open questions 9 and 12: TLC's behaviour until the owner answers.
-        assert_eq!(Options::dive().exploration, ExplorationOrder::Tlc);
-        assert_eq!(Options::dive().comparisons, Comparisons::Tlc);
+    fn owner_decisions_set_the_default_profile() {
+        // Open questions 9 and 12, answered 2026-10-08: canonical
+        // exploration (D-010) and TLA+ comparisons (D-009) by default;
+        // `--compat=tlc` keeps TLC's behaviour.
+        assert_eq!(Options::dive().exploration, ExplorationOrder::Value);
+        assert_eq!(Options::dive().comparisons, Comparisons::Tla);
+        assert_eq!(Options::tlc().exploration, ExplorationOrder::Tlc);
+        assert_eq!(Options::tlc().comparisons, Comparisons::Tlc);
     }
 }
