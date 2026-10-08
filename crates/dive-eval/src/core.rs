@@ -74,6 +74,13 @@ pub(crate) struct Core {
     /// (TLC precomputes them at start-up; only successes are kept, so a
     /// failing definition stays lazy, as in `SpecProcessor.processConstantDefns`).
     pub(crate) def_cache: Vec<OnceLock<Value>>,
+    /// Whether the configuration's `<-` bindings keep constant definitions
+    /// constant: every definition a constant or definition is bound to is
+    /// constant-level and pure. Then a definition that reads a constant
+    /// (`Effects::OPEN`) is still computed once, as TLC does at start-up.
+    pub(crate) open_ok: bool,
+    /// The warnings printed so far (`MP.warningHistory`).
+    pub(crate) warned: Mutex<std::collections::HashSet<String>>,
     pub(crate) sink: Arc<dyn PrintSink>,
 }
 
@@ -117,6 +124,15 @@ impl Core {
             });
         }
         let def_cache = (0..ir.defs().len()).map(|_| OnceLock::new()).collect();
+        let constant_pure = |d: &DefId| {
+            let def = ir.def(*d);
+            def.level == dive_ir::Level::Constant
+                && !def.effects.intersects(dive_ir::Effects::IMPURE)
+        };
+        let open_ok = model.constants.iter().flatten().all(|b| match b {
+            ConstBinding::Def(d) => constant_pure(d),
+            ConstBinding::Value(_) => true,
+        }) && model.redirects.values().all(constant_pure);
         let std_redirects = model
             .redirects
             .iter()
@@ -134,6 +150,8 @@ impl Core {
             lits,
             fields,
             def_cache,
+            open_ok,
+            warned: Mutex::default(),
             sink,
         }
     }

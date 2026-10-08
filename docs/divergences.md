@@ -70,6 +70,20 @@ where TLC accepts input that it will later fail to resolve. A future opt-in, res
 | `CfgSetTrailingComma` | `{1,}}` is a set containing the model value `}`. |
 | `CfgStringRaw` | cfg strings keep escapes verbatim (`"a\nb"` has four characters), unlike TLA+ strings. |
 
+## Successor-generation artefacts (candidates)
+
+`dive-eval`'s successor generator reproduces TLC's enumeration rule by rule
+(`crates/dive-eval/src/next.rs`). These TLC behaviours look like artefacts rather than
+intended semantics. dive matches TLC on each, or refuses where TLC's answer depends on
+history it does not track. Nothing different is implemented. Fixtures and TLC's
+transcripts are in `crates/dive-eval/tests/fixtures/next/`.
+
+| Case | TLC behaviour |
+|---|---|
+| `NxInLazyCup` | `r' \in [a : {1}] \cup [a : {1, 2}]` generates `[a \|-> 1]` twice per state (10 generated, 3 distinct; 7 for `[a : {1, 2}]`). The count also depends on whether TLC already normalized and cached the same lazy set object. dive refuses the case. |
+| `NxFastPath` | The all-assigned shortcut runs only while warnings are on, so `-nowarning` changes "states generated": 7 by default, 37 with `-nowarning` (4 distinct either way). |
+| `NxForallOrder` | `\A` in an action visits its first binding, then the others last first. |
+
 ## SANY acceptance artefacts (candidates)
 
 `dive-syntax` matches SANY's parser acceptance exactly by default. Zero disagreements were found across 13,646 modules; see ADR 0009. SANY rejects the inputs below, and they look like artefacts of its JavaCC implementation rather than TLA+ semantics. Each has a minimal spec with SANY's recorded verdict in `crates/dive-syntax/tests/sany-cases/`.

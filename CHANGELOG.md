@@ -18,6 +18,24 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- `dive-eval` (M5, WP-C2): the successor generator `dive_eval::next`, behind the
+  `enumerate` feature (ADR 0014 §3 and its WP-C2 amendment):
+  - ports of TLC's `getInitStates`, `getNextStates`, `processUnchanged`, `getActions` and
+    `enabled`, rule by rule, generating initial states and successors in TLC's order with
+    duplicates, including the all-assigned shortcut (`Options::warnings`), `x' \in S` in
+    TLC's `elements()` order, lazy arguments that name a variable, lazy functions applied
+    as actions, and TLC's error and warning texts;
+  - `ENABLED`, the last C1 refusal (refused in a build without the feature);
+  - the interface the checker drives: `Action`, `Scope`, `init_states`, `successors`,
+    `next_states`, `Successor` (state, action, ordinal, completeness), `Flow`,
+    `NextError`;
+  - agreement with TLC on all 19 probes, on 18 new rule fixtures captured from the pinned
+    TLC, and, through a test-only
+    binding and single-worker search, on every small-tier Examples model it can bind:
+    verdicts, counts, depth and counterexample lengths (`tests/next_examples.rs` commits
+    22 of them).
+- `dive-value`: `DeferredSet::as_any`, so the evaluator can enumerate its own lazy sets in
+  TLC's unnormalized order.
 - `dive-eval` (M5, WP-C1): the interpreter over the IR (ADR 0014 and its amendment):
   - every expression form with TLC's evaluation order, laziness (thunks under
     `LazyValue`'s caching rule), lazy sets and lazy functions, `CHOOSE` in the run's
@@ -191,3 +209,8 @@ All notable changes to this project are documented here. The project will follow
   normalized (issue #32). These operations now run in a quiet mode that records no
   TLC-observable side effect, and an element list computed that way is not cached,
   so a later TLC operation still normalizes the nested sets as TLC does.
+
+### Changed
+- `dive-eval`: constant definitions that read a configured constant are computed once, as
+  TLC precomputes them, when every `<-` binding is constant-level and pure. TLC warnings
+  are printed once each, and not at all with warnings off.
