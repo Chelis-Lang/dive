@@ -48,3 +48,7 @@ Generating goldens is slower, because it is single-threaded. That cost is accept
    - `tlc+overrides=<features>`.
 
    It also records `strict_tier`, which is true only for pure `tlc` without result-changing options. Under `dive`, a disagreement listed in `conformance/expected-divergences.toml` (glob, profile or option, expected verdict, justification, link into `docs/divergences.md`) is `expected-divergence`, never `agree`. Under `tlc` and `tlc+overrides` the registry never applies, and an entry claiming those profiles is a configuration error.
+
+## Amendment: correctness, not just depth (2026-10-08)
+
+Single-worker goldens are also required for *correctness*. The pinned TLC has a multi-worker race in value normalisation (tlaplus#1445), which can produce bogus states and liveness counterexamples. Multi-worker TLC runs remain useful only as invariance probes, and their results are never goldens. See `docs/survey/oracle-history.md`.
