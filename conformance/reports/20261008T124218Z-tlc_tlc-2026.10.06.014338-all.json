@@ -1,0 +1,952 @@
+{
+  "schema_version": 1,
+  "run_id": "20261008T124218Z-tlc_tlc-2026.10.06.014338-all",
+  "generated_at": "2026-10-08T12:42:18Z",
+  "generator": "dive-conformance 0.0.0",
+  "implementation": "tlc:tlc-2026.10.06.014338",
+  "implementation_oracle": {
+    "id": "tlc-2026.10.06.014338",
+    "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+    "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+    "classpath": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      }
+    ],
+    "module_libraries": [
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ],
+    "capabilities": {
+      "dump_trace_json": true,
+      "no_generate_spec_te": true,
+      "sany_error_codes": true,
+      "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "implementation_version": "2.0 2026-10-06"
+    },
+    "java": {
+      "source": "pinned",
+      "version": "17.0.20.1+1",
+      "sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+      "platform": "macos-aarch64",
+      "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+    }
+  },
+  "golden_oracle": "tlc-2026.10.06.014338",
+  "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "corpora": [
+    {
+      "id": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "unfetched_submodules": [
+        "specifications/BlockingQueue",
+        "specifications/CCF",
+        "specifications/azure-cosmos-tla",
+        "specifications/microwave"
+      ]
+    }
+  ],
+  "host": {
+    "os": "macos",
+    "arch": "aarch64",
+    "kernel": "Darwin 25.5.0",
+    "cpus": 8,
+    "memory_bytes": 25769803776
+  },
+  "settings": {
+    "tier": "all",
+    "filters": [
+      "specifications/DieHard/DieHard.cfg",
+      "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+      "specifications/CigaretteSmokers/CigaretteSmokers.cfg",
+      "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "specifications/Chameneos/Chameneos.cfg",
+      "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "specifications/FiniteMonotonic/MCCRDT.cfg",
+      "specifications/ewd840/EWD840.cfg",
+      "specifications/ewd840/EWD840_anim.cfg",
+      "specifications/ewd840/APEWD840.cfg",
+      "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg"
+    ],
+    "workers": [
+      1,
+      4
+    ],
+    "jobs": 4,
+    "xmx": "3g",
+    "timeout_policy": "10 x recorded runtime + 60 s, min 120 s, cap 3600 s (cap when unknown)",
+    "crosscheck_manifest": true
+  },
+  "summary": {
+    "models": {
+      "agree": 11,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 1
+    },
+    "modules": {
+      "agree": 12,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0
+    },
+    "models_with_oracle_drift": 0,
+    "oracle_drift_findings": 0,
+    "informational_drift_findings": 1,
+    "worker_verdict_variant": 0,
+    "worker_counts_variant": 0,
+    "worker_depth_variant": 1,
+    "worker_property_variant": 1
+  },
+  "models": [
+    {
+      "corpus": "examples",
+      "model": "specifications/Chameneos/Chameneos.cfg",
+      "module": "specifications/Chameneos/Chameneos.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 34534,
+          "states_generated": 104697,
+          "depth": 13,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 2272,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 34534,
+          "states_generated": 104697,
+          "depth": 13,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 2813,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 34534,
+            "states_generated": 104697,
+            "depth": 13,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 34534,
+            "states_generated": 104697,
+            "depth": 13,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/CigaretteSmokers/CigaretteSmokers.cfg",
+      "module": "specifications/CigaretteSmokers/CigaretteSmokers.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 6,
+          "states_generated": 15,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 1203,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 6,
+          "states_generated": 15,
+          "depth": 2,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 917,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 6,
+            "states_generated": 15,
+            "depth": 2,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 6,
+            "states_generated": 15,
+            "depth": 2,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/DieHard/DieHard.cfg",
+      "module": "specifications/DieHard/DieHard.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 14,
+          "states_generated": 73,
+          "depth": 7,
+          "trace_length": 7,
+          "diffs": [],
+          "elapsed_ms": 745,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 14,
+          "states_generated": 73,
+          "depth": 7,
+          "trace_length": 7,
+          "diffs": [],
+          "elapsed_ms": 954,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7,
+            "violated_property": "NotSolved"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 14,
+            "states_generated": 73,
+            "depth": 7,
+            "violated_property": "NotSolved"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "module": "specifications/DiningPhilosophers/DiningPhilosophers.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 67,
+          "states_generated": 336,
+          "depth": 29,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 1448,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 67,
+          "states_generated": 336,
+          "depth": 29,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 1196,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 67,
+            "states_generated": 336,
+            "depth": 29,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 67,
+            "states_generated": 336,
+            "depth": 29,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/FiniteMonotonic/MCCRDT.cfg",
+      "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 25000,
+          "states_generated": 1350001,
+          "depth": 16,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 15258,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 25000,
+          "states_generated": 1350001,
+          "depth": 16,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 4630,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 25000,
+            "states_generated": 1350001,
+            "depth": 16,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 25000,
+            "states_generated": 1350001,
+            "depth": 16,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "module": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "liveness-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "liveness-violation",
+          "verdict_code": 2116,
+          "exit_code": 13,
+          "distinct_states": 37,
+          "states_generated": 271,
+          "depth": 4,
+          "trace_length": 6,
+          "diffs": [],
+          "elapsed_ms": 1468,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "liveness-violation",
+          "verdict_code": 2116,
+          "exit_code": 13,
+          "distinct_states": 37,
+          "states_generated": 271,
+          "depth": 4,
+          "trace_length": 4,
+          "diffs": [],
+          "elapsed_ms": 1598,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "liveness-violation",
+            "distinct_states": 37,
+            "states_generated": 271,
+            "depth": 4,
+            "violated_property": "InSync"
+          },
+          {
+            "workers": 4,
+            "verdict": "liveness-violation",
+            "distinct_states": 37,
+            "states_generated": 271,
+            "depth": 4,
+            "violated_property": "AllExtending and InSync"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": true
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg",
+      "module": "specifications/MissionariesAndCannibals/MissionariesAndCannibals.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 61,
+          "states_generated": 225,
+          "depth": 12,
+          "trace_length": 12,
+          "diffs": [],
+          "elapsed_ms": 1504,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 61,
+          "states_generated": 261,
+          "depth": 12,
+          "trace_length": 12,
+          "diffs": [],
+          "elapsed_ms": 1011,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 61,
+            "states_generated": 225,
+            "depth": 12,
+            "violated_property": "Solution"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 61,
+            "states_generated": 261,
+            "depth": 12,
+            "violated_property": "Solution"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+      "module": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 40,
+          "states_generated": 62,
+          "depth": 5,
+          "trace_length": 5,
+          "diffs": [],
+          "elapsed_ms": 1127,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 66,
+          "states_generated": 111,
+          "depth": 6,
+          "trace_length": 5,
+          "diffs": [],
+          "elapsed_ms": 939,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": 40,
+            "states_generated": 62,
+            "depth": 5,
+            "violated_property": "NoSolutions"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": 66,
+            "states_generated": 111,
+            "depth": 6,
+            "violated_property": "NoSolutions"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": true,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "module": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "liveness-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "liveness-violation",
+          "verdict_code": 2116,
+          "exit_code": 13,
+          "distinct_states": 216,
+          "states_generated": 696,
+          "depth": 2,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 1030,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "liveness-violation",
+          "verdict_code": 2116,
+          "exit_code": 13,
+          "distinct_states": 216,
+          "states_generated": 696,
+          "depth": 2,
+          "trace_length": 3,
+          "diffs": [],
+          "elapsed_ms": 974,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "liveness-violation",
+            "distinct_states": 216,
+            "states_generated": 696,
+            "depth": 2,
+            "violated_property": "ErrorTemporal"
+          },
+          {
+            "workers": 4,
+            "verdict": "liveness-violation",
+            "distinct_states": 216,
+            "states_generated": 696,
+            "depth": 2,
+            "violated_property": "ErrorTemporal"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd840/APEWD840.cfg",
+      "module": "specifications/ewd840/APEWD840.tla",
+      "tier": "deep",
+      "outcome": "out-of-scope",
+      "detail": "symbolic (Apalache) model; Apalache-style checking is out of scope (charter)",
+      "golden_verdict": null,
+      "runs": [],
+      "worker_invariance": null,
+      "manifest_drift": []
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd840/EWD840.cfg",
+      "module": "specifications/ewd840/EWD840.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 302,
+          "states_generated": 2001,
+          "depth": 9,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 1709,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 302,
+          "states_generated": 2001,
+          "depth": 9,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 1116,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "success",
+            "distinct_states": 302,
+            "states_generated": 2001,
+            "depth": 9,
+            "violated_property": null
+          },
+          {
+            "workers": 4,
+            "verdict": "success",
+            "distinct_states": 302,
+            "states_generated": 2001,
+            "depth": 9,
+            "violated_property": null
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": true,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": [
+        {
+          "field": "stateDepth",
+          "manifest": 10,
+          "golden": 9,
+          "informational": true
+        }
+      ]
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd840/EWD840_anim.cfg",
+      "module": "specifications/ewd840/EWD840_anim.tla",
+      "tier": "deep",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": 268281,
+          "depth": null,
+          "trace_length": 42,
+          "diffs": [],
+          "elapsed_ms": 1430,
+          "detail": null
+        },
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": null,
+          "states_generated": 282474,
+          "depth": null,
+          "trace_length": 42,
+          "diffs": [],
+          "elapsed_ms": 1540,
+          "detail": null
+        }
+      ],
+      "worker_invariance": {
+        "points": [
+          {
+            "workers": 1,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": 268281,
+            "depth": null,
+            "violated_property": "AnimInv"
+          },
+          {
+            "workers": 4,
+            "verdict": "safety-violation",
+            "distinct_states": null,
+            "states_generated": 282474,
+            "depth": null,
+            "violated_property": "AnimInv"
+          }
+        ],
+        "verdict_invariant": true,
+        "counts_invariant": null,
+        "depth_varies": false,
+        "property_varies": false
+      },
+      "manifest_drift": []
+    }
+  ],
+  "modules": [
+    {
+      "corpus": "examples",
+      "module": "specifications/Chameneos/Chameneos.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/CigaretteSmokers/CigaretteSmokers.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/DieHard/DieHard.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/DiningPhilosophers/DiningPhilosophers.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/FiniteMonotonic/MCCRDT.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/MissionariesAndCannibals/MissionariesAndCannibals.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/ewd840/APEWD840.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/ewd840/EWD840.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    },
+    {
+      "corpus": "examples",
+      "module": "specifications/ewd840/EWD840_anim.tla",
+      "outcome": "agree",
+      "golden_verdict": "accept",
+      "verdict": "accept",
+      "diffs": [],
+      "detail": null
+    }
+  ]
+}
