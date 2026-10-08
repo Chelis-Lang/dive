@@ -99,9 +99,9 @@ The seed is not shown in the normal results, so a surprising run cannot easily b
 | **Kind** | Different answer |
 | **Default** | Arbitrary-precision integers |
 | **TLC behaviour** | `--int=tlc` (included in `--compat=tlc`): 32-bit integers with TLC's overflow error |
-| **Status** | planned. The default switches once both modes pass the conformance harness. |
+| **Status** | implemented in the value layer (`dive-value`, ADR 0011), in both modes. The CLI switch and the default flip follow once both modes pass the conformance harness. |
 
-**What TLC does.** TLA+ defines integers as the mathematical integers, but TLC stores them in 32 bits. Anything above 2,147,483,647 stops the run:
+**What TLC does.** TLA+ defines integers as the mathematical integers, but TLC stores them in 32 bits. Anything outside −2,147,483,648 … 2,147,483,647 stops the run:
 
 ```tla
 VARIABLE x
@@ -109,13 +109,23 @@ Init == x = 2147483646
 Next == x' = x + 1
 ```
 
-TLC reports an error ("can't handle a number this big") as soon as `x` would exceed 2^31−1. Integer literals above 2^31−1 are also rejected.
+Measured on the pinned TLC:
 
-**What dive does.** dive computes with unbounded integers, as the language intends. Small numbers still use a fast path. When a run would have stopped with TLC's overflow error, dive's output says so, so the difference is never silent.
+| Expression | TLC's report |
+|---|---|
+| `2147483647 + 1` | `Overflow when computing 2147483647+1` (`EC.TLC_MODULE_OVERFLOW`; exit 255 during model checking) |
+| `65536 * 32768`, `2 ^ 31`, `-(-2147483647 - 1)` | `Overflow when computing 65536*32768`, `… 2^31`, `… --2147483648` |
+| `(-2147483647 - 1) \div (-1)` | `Overflow when computing -2147483648 \div -1` |
+| `2147483648` | `TLC can't handle a number this big.` (`EC.TLC_INTEGER_TOO_BIG`, exit 255) |
+| `-2147483648` | also rejected, although the value fits, because the literal under the minus does not |
+| `Cardinality(SUBSET (1..31))` | `Overflow when computing the number of elements in: SUBSET (1..31)` |
+| `Cardinality(-2147483647..2147483647)` | `Size of interval value exceeds the maximum representable size (32bits)` |
+
+**What dive does.** dive computes with unbounded integers, as the language intends. Small numbers still use an inline 64-bit fast path. With `--int=tlc` every one of the reports above is reproduced word for word. When a run would have stopped with TLC's overflow error, dive's output says so, so the difference is never silent.
 
 **Why it matters.** Four of the five other Rust or Go TLA+ checkers we measured widen integers silently, with no TLC mode and no indication in their output. dive does better by default and is TLC-exact on request.
 
-**Evidence.** Probe P1, harness fixture `Overflow`, ADR 0010 (owner decision of 2026-10-08).
+**Evidence.** Probe P1, harness fixture `Overflow`, ADR 0010 (owner decision of 2026-10-08), ADR 0011. The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte.
 
 ---
 
@@ -143,7 +153,7 @@ TLC reports an error ("can't handle a number this big") as soon as `x` would exc
 | **Kind** | Different answer |
 | **Default** | A canonical order, independent of the module text |
 | **TLC behaviour** | `--choose-order=tlc` (included in `--compat=tlc`): TLC's order, including string interning order |
-| **Status** | planned (`dive-value`) |
+| **Status** | implemented in the value layer (`dive-value`, ADR 0011), in both orders. `--choose-order=tlc` also needs the parser to record names in TLC's encounter order; that part is pending. |
 
 **What TLC does.** `CHOOSE x \in S : P` picks the first element of `S` that satisfies `P`, in TLC's internal value order. For strings, that order is the order in which each string *first appears in the module text*, not alphabetical order. So adding an unused definition can change what `CHOOSE` returns, and can flip a verdict:
 
@@ -161,11 +171,30 @@ SLex == s = "alpha"   \* checked as an invariant
 | Without `Unused` | `"zeta"` | **fails** |
 | With `Unused` | `"alpha"` | holds |
 
-TLC also orders non-empty sets by size before content, and tuples by length before content.
+The same order decides how TLC *prints* values, in `Print`, error messages and counterexamples. Measured on the pinned TLC:
 
-**What dive does.** dive uses a canonical order that does not depend on the module text. Reordering or adding definitions never changes a result. This is one of the charter's metamorphic guarantees.
+- **Names** (strings, model values and record field names) are ordered by when TLC first stored the name.
+  - A few names are stored before parsing starts, such as `TRUE`, `x`, `S`, `a`, `b`, `c`, `y` and `z`.
+  - The parser then stores identifiers in source order.
+  - String contents are stored after that.
+  - So `{"a", "b", "zebra", "Init", "c"}` prints in exactly that order, and `[qfb |-> 1, qfa |-> {1}]` prints `qfb` first when `qfb` appears first in the module.
+- **Sets** order by size first, then element by element: `{{}, {1}, {2}, {0, 5}, {1, 2}}`.
+- **Tuples and other functions** order by length (domain size) first, then by domain, then by values: `{<<>>, <<1>>, <<2>>, <<0, 9>>, <<1, 2>>}`.
+- **Kinds:**
+  - untyped model values come before every other value;
+  - `FALSE` comes before `TRUE`;
+  - comparing other kinds is an error (D-009).
+- **Equal elements keep the first form written.** `{1..3, {1, 2, 3}}` prints as `{1..3}`, while `{{1, 2, 3}, 1..3}` prints as `{{1, 2, 3}}`.
 
-**Evidence.** Probes P2 and P7 in `docs/survey/competitive.md`, ADR 0010 (owner decision of 2026-10-08).
+**What dive does.** dive uses a canonical order that does not depend on the module text: names in the lexicographic order of their characters (Unicode code points), and everything else structured exactly as TLC orders it. Reordering or adding definitions never changes a result. This is one of the charter's metamorphic guarantees. With `--choose-order=tlc`, the order and the printing match TLC's.
+
+**Evidence.**
+
+- Probes P2 and P7 in `docs/survey/competitive.md`.
+- ADR 0010 (owner decision of 2026-10-08) and ADR 0011.
+- In `crates/dive-value/tests/fixtures/`:
+  - `ChooseIntern` and `ChooseInternUnused` (this example);
+  - `PrintChoose`, `PrintSets` and `PrintFcns` (122 printed values in all, matched byte for byte).
 
 ---
 
@@ -213,6 +242,37 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 
 ---
 
+## D-009: Comparisons that TLC refuses although TLA+ answers them (proposal)
+
+| | |
+|---|---|
+| **Kind** | Different answer |
+| **Default** | TLC's behaviour exactly, in both profiles. The proposal below is **not adopted**. |
+| **Proposed option** | `--comparisons=tla`: answer `=` and `\in` between functions, records, tuples and sets as TLA+ defines them |
+| **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
+| **Status** | proposed (open question 9). TLC's behaviour is implemented and matched in `dive-value`. |
+
+**What TLC does.** TLC refuses to compare values of different kinds, which catches real mistakes such as `1 = "a"`. But it also refuses comparisons whose answer TLA+ defines, and its refusals are asymmetric and depend on the order in which elements are written. Measured on the pinned TLC:
+
+| Expression | TLC |
+|---|---|
+| `<<1>> = [a \|-> 1, b \|-> 1]` | `FALSE` |
+| `[a \|-> 1, b \|-> 1] = <<1>>` | error: `Attempted to check equality of record: … with non-record <<1>>` |
+| `{[a \|-> 1, b \|-> 1], <<1>>}` | a set of two elements |
+| `{<<1>>, [a \|-> 1, b \|-> 1]}` | error: `Attempted to compare record: … with non-record <<1>>` |
+| `<<1>> \in [a : {1}]` | error: `Attempted to check if non-record <<1>> is in the set of records` |
+| `[a \|-> 1] \in {1} \X {2}` | error: `Attempted to check if non-tuple …` |
+| `1 \in {1, "a"}` | `TRUE`, because TLC sorts a written set only when it must |
+| `"a" \in {1, 2}` | error |
+
+In TLA+, tuples and records are functions. Two functions with different domains are unequal, and a function is not a member of a set of functions with another domain. So each error above has a defined answer, `FALSE`. And `=` should not depend on which side a value is written on.
+
+**What we propose.** An option that answers these as TLA+ defines them, symmetrically and independently of element order. It would keep the error where TLA+ leaves the answer unspecified (`1 = "a"`, `{1} = 1`), because an error is the sound response there. It changes results: specs that TLC stops with an evaluation error would get a verdict. So it awaits the owner's decision. Until then dive reproduces TLC exactly, including the asymmetry.
+
+**Evidence.** ADR 0011. The fixtures `AsymSetRecFirst`, `AsymSetTupleFirst`, `AsymEqTupleRec`, `AsymEqRecTuple`, `ErrMemRcdTuple`, `ErrMemProductRec`, `ErrMemEnumStr` and `PrintMember` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts.
+
+---
+
 ## Under consideration
 
 These are recorded candidates. They are not decided, and nothing in dive behaves differently for them yet.
@@ -241,6 +301,7 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
 
   A future opt-in lenient or strict mode could differ deliberately. The cases and SANY's
   verdicts are in `crates/dive-sema/tests/sany-cases/` and `docs/divergences.md`.
+- **Line breaking of printed values.** TLC wraps long values at 80 columns by re-parsing their printed form. It gives up, and prints the whole value on one line, when the value contains a model value with `_` in its name, a negative interval such as `-1..1000`, or a string with an escaped quote (fixture `PrintWide` in `crates/dive-value/tests/fixtures/`). dive's printer matches TLC exactly. A future option could wrap these too. It would change only human-readable output, never a result.
 - **String length in UTF-16 units.** TLC's `Len`, `SubSeq` and `Tail` on strings count UTF-16 code units, not characters (tlaplus#1076). See `docs/survey/oracle-history.md`.
 - **Quirks of TLC's `.cfg` reader.** TLC's model-configuration reader accepts some files that it will later fail on, and it reads some values in ways you might not expect. Each case below was measured on the pinned TLC:
   - `CONSTANT N = -1` is not a negative number. TLC reads `-` as a model value, and then fails on the next line with "expecting = or <-" (`CFG_EXPECTED_SYMBOL`, exit 151). A cfg file has no way to write a negative integer.

@@ -33,3 +33,10 @@ Each question is open until it is answered here or recorded in an ADR.
     - `dive-eval`'s successor enumerator behind a cargo feature, `enumerate`, which `dive-trace` keeps off. It would be enforced by a standalone `dive-trace` build in the workspace gate and a `check-layering` rule.
 
     The trace-independence rule is kept: `dive-trace` still does not depend on `dive-check`, `dive-liveness`, `dive-sim` or `dive-store`.
+12. **Comparisons TLC refuses but TLA+ answers.** TLC raises an error for some `=` and `\in` tests whose answer TLA+ defines, and its errors are asymmetric and order-dependent (ADR 0011; fixtures `Asym*`, `ErrMemRcdTuple` and `ErrMemProductRec` in `crates/dive-value/tests/fixtures/`):
+   - `[a |-> 1, b |-> 1] = <<1>>` is an error, but `<<1>> = [a |-> 1, b |-> 1]` is `FALSE`. Both are functions with different domains, so TLA+ says `FALSE`.
+   - `<<1>> \in [a : {1}]` and `[a |-> 1] \in {1} \X {2}` are errors. TLA+ says `FALSE`.
+   - `{[a |-> 1, b |-> 1], <<1>>}` is a set, but `{<<1>>, [a |-> 1, b |-> 1]}` is an error.
+   - `1 \in {1, "a"}` is `TRUE` while `"a" \in {1, 2}` is an error, because TLC normalizes set literals lazily.
+
+   **Proposal:** an opt-in `--comparisons=tla` (TLC mode `=tlc`, part of `--compat=tlc`). It answers `=` and `\in` between functions, records, tuples and sets as TLA+ defines them, symmetrically and independently of element order. It keeps the error only where TLA+ leaves the answer unspecified, such as `1 = "a"` or `{1} = 1`, where an error is the sound response. This is result-changing: specs that TLC rejects with an evaluation error would get a verdict. Should it become the default, stay opt-in, or not be built? Today dive matches TLC exactly in both profiles. See D-009 in `docs/tlc-differences.md`.
