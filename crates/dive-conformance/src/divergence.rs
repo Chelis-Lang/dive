@@ -300,7 +300,10 @@ link = "docs/divergences.md#integer-overflow"
                 r#"expected_verdict = "success""#,
                 r#"expected_verdict = "timeout""#,
             ),
-            (r#"fields = ["verdict", "error_class", "counts.*"]"#, "fields = []"),
+            (
+                r#"fields = ["verdict", "error_class", "counts.*"]"#,
+                "fields = []",
+            ),
             (r#"fields = ["verdict", "error_class", "counts.*"]"#, ""),
             (r#""counts.*""#, r#""count.depth""#),
             (r#""counts.*""#, r#""trace.validated""#),
@@ -310,6 +313,14 @@ link = "docs/divergences.md#integer-overflow"
         }
         assert!(Registry::parse(&format!("{ENTRY}{ENTRY}")).is_err());
         assert!(Registry::parse(&format!("{ENTRY}\nextra = 1\n")).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn repository_registry_loads() -> Result<()> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let r = Registry::load(&root)?;
+        assert!(r.divergence.iter().any(|d| d.id == "d010-acp-nb-wrong-tlc"));
         Ok(())
     }
 
@@ -325,7 +336,10 @@ link = "docs/divergences.md#integer-overflow"
                 .is_none()
         );
         let over = Profile::TlcWithOverrides(vec!["int".to_owned()]);
-        assert!(r.excuse(Some(&over), &[], p, Verdict::Success, &d).is_none());
+        assert!(
+            r.excuse(Some(&over), &[], p, Verdict::Success, &d)
+                .is_none()
+        );
         assert!(r.excuse(None, &[], p, Verdict::Success, &d).is_none());
         // Wrong verdict or path: not excused.
         assert!(r.excuse(dive, &[], p, Verdict::Overflow, &d).is_none());

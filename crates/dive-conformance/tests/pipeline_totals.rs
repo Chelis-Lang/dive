@@ -295,7 +295,7 @@ fn registry_excuses_only_under_the_dive_profile() -> TestResult {
     overflow.error_class = Some("TLC_MODULE_OVERFLOW".to_owned());
     std::fs::write(
         repo.join("conformance/expected-divergences.toml"),
-        "[[divergence]]\nid = \"test\"\npattern = \"specifications/x/*\"\nprofile = \"dive\"\nexpected_verdict = \"overflow\"\njustification = \"test\"\nlink = \"docs/divergences.md#test\"\n",
+        "[[divergence]]\nid = \"test\"\npattern = \"specifications/x/*\"\nprofile = \"dive\"\nexpected_verdict = \"overflow\"\nfields = [\"verdict\", \"error_class\"]\njustification = \"test\"\nlink = \"docs/divergences.md#test\"\n",
     )?;
     let mut opts = options(&repo, vec!["specifications/x/X.cfg".to_owned()]);
     opts.sany = false;
@@ -317,6 +317,12 @@ fn registry_excuses_only_under_the_dive_profile() -> TestResult {
     let over = run(Some(Profile::TlcWithOverrides(vec!["int".to_owned()])))?;
     assert_eq!(over.models[0].outcome, Outcome::Disagree);
     assert_eq!(over.settings.strict_tier, Some(false));
+    // An entry narrowed to other fields does not excuse the verdict.
+    std::fs::write(
+        repo.join("conformance/expected-divergences.toml"),
+        "[[divergence]]\nid = \"counts\"\npattern = \"specifications/x/*\"\nprofile = \"dive\"\nexpected_verdict = \"overflow\"\nfields = [\"counts.*\"]\njustification = \"test\"\nlink = \"docs/divergences.md#test\"\n",
+    )?;
+    assert_eq!(run(Some(Profile::Dive))?.models[0].outcome, Outcome::Disagree);
     // A registry entry claiming to apply under the tlc profile is refused.
     std::fs::write(
         repo.join("conformance/expected-divergences.toml"),
