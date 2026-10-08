@@ -75,6 +75,7 @@ name = "dive-api"
 version = "0.0.0"
 dependencies = [
  "dive-config",
+ "dive-sema",
  "dive-syntax",
  "serde_json",
 ]
