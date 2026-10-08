@@ -128,10 +128,163 @@ pub fn classify(outcome: &ProcessOutcome) -> SanyResult {
     }
 }
 
+/// Which SANY verdict a module run compares (`run --sany-phase`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum SanyPhase {
+    /// Full SANY: parsing, semantic analysis and level checking
+    /// (`dive analyze`).
+    #[default]
+    Full,
+    /// SANY's parse phase for the module's own file only (`dive parse`;
+    /// SANY `-s`, with a failure attributed only to the file that printed
+    /// it).
+    Parse,
+}
+
+/// SANY's parse-phase verdict on one file, attributed as the syntax
+/// acceptance procedure does (`crates/dive-syntax/acceptance/`): a failure
+/// counts only for the file whose parse SANY reported failing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParseVerdict {
+    /// The file parses (later failures, in dependencies or in semantic
+    /// analysis, are not its parse failures).
+    Accept,
+    /// The file parses, but its module's name differs from the file name
+    /// (SANY `MODULE_NAME_DIFFERENT_FROM_FILE_NAME`, dive `DIVE-S0006`).
+    NameMismatch,
+    /// SANY printed `Could not parse module <M> from file <F>` for this
+    /// file: a syntax or lexical error.
+    Reject,
+}
+
+/// The file stem of a corpus-relative module path (`a/B.tla` -> `B`).
+#[must_use]
+pub fn module_stem(module: &str) -> &str {
+    let file = module.rsplit('/').next().unwrap_or(module);
+    file.strip_suffix(".tla").unwrap_or(file)
+}
+
+/// Derives the parse-phase verdict of `module`'s own file from a full SANY
+/// result, as recorded in a golden.
+///
+/// This is sound because SANY parses the root file first and aborts at the
+/// first parse-phase failure, and because the golden's `error_text` keeps
+/// everything from the first error marker on, which includes SANY's
+/// attribution line:
+/// - `accept` and `semantic-error` mean every file parsed;
+/// - a `parse-error` is the root's own if SANY printed
+///   `Could not parse module <stem> from file` (a dependency's failure
+///   names the dependency), or a name mismatch if it printed
+///   `File name '<stem>' does not match`;
+/// - a `parse-error` attributed to a dependency (another module that could
+///   not be parsed, could not be found, or has a mismatched name), or a
+///   circular dependency (which SANY detects only once every file of the
+///   cycle has parsed), means the root parsed.
+///
+/// # Errors
+/// Returns why when the result does not determine the verdict (an
+/// unclassified or timed-out run, or a parse error without a recognised
+/// attribution). The harness reports that as `oracle-error`, never a guess.
+pub fn parse_phase(result: &SanyResult, module: &str) -> std::result::Result<ParseVerdict, String> {
+    let stem = module_stem(module);
+    match result.verdict {
+        SanyVerdict::Accept | SanyVerdict::SemanticError => Ok(ParseVerdict::Accept),
+        SanyVerdict::Unclassified | SanyVerdict::Timeout => Err(format!(
+            "SANY verdict {:?} does not determine the parse-phase verdict",
+            result.verdict
+        )),
+        SanyVerdict::ParseError => {
+            let text = result.error_text.as_deref().unwrap_or_default();
+            if text.contains(&format!("Could not parse module {stem} from file ")) {
+                Ok(ParseVerdict::Reject)
+            } else if text.contains(&format!("File name '{stem}' does not match the name")) {
+                Ok(ParseVerdict::NameMismatch)
+            } else if text.contains("Could not parse module ")
+                || text.contains("Cannot find source file for module ")
+                || text.contains("File name '")
+                || text.contains("Circular dependency among .tla files")
+            {
+                Ok(ParseVerdict::Accept)
+            } else {
+                Err(format!(
+                    "SANY's parse error is not attributed to `{stem}` or to a dependency in the recorded text"
+                ))
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::time::Duration;
+
+    #[test]
+    fn parse_phase_attribution() {
+        let rej = |text: &str| SanyResult {
+            verdict: SanyVerdict::ParseError,
+            accepted: false,
+            exit_code: Some(255),
+            exit_code_reflects_errors: true,
+            error_text: Some(text.to_owned()),
+            unresolved_modules: Vec::new(),
+            note: None,
+        };
+        let m = "dir/ParseError.tla";
+        assert_eq!(module_stem(m), "ParseError");
+        assert_eq!(
+            parse_phase(
+                &rej(
+                    "***Parse Error***\nCould not parse module ParseError from file ParseError.tla"
+                ),
+                m
+            ),
+            Ok(ParseVerdict::Reject)
+        );
+        // A dependency's failure: the root parsed.
+        assert_eq!(
+            parse_phase(
+                &rej(
+                    "***Parse Error***\nCould not parse module ParseErrorDep from file ParseErrorDep.tla"
+                ),
+                m
+            ),
+            Ok(ParseVerdict::Accept)
+        );
+        assert_eq!(
+            parse_phase(
+                &rej("Cannot find source file for module SVG imported in module ParseError."),
+                m
+            ),
+            Ok(ParseVerdict::Accept)
+        );
+        assert_eq!(
+            parse_phase(
+                &rej(
+                    "File name 'ParseError' does not match the name 'Other' of the top level module it contains."
+                ),
+                m
+            ),
+            Ok(ParseVerdict::NameMismatch)
+        );
+        assert_eq!(
+            parse_phase(
+                &rej(
+                    "Fatal errors while parsing TLA+ spec in file ParseError.tla\n\nUnknown location\n\nCircular dependency among .tla files; dependency cycle is:"
+                ),
+                m
+            ),
+            Ok(ParseVerdict::Accept)
+        );
+        assert!(parse_phase(&rej("Fatal errors while parsing TLA+ spec"), m).is_err());
+        let mut sem = rej("Semantic errors:");
+        sem.verdict = SanyVerdict::SemanticError;
+        assert_eq!(parse_phase(&sem, m), Ok(ParseVerdict::Accept));
+        sem.verdict = SanyVerdict::Unclassified;
+        assert!(parse_phase(&sem, m).is_err());
+    }
 
     fn outcome(exit: i32, stdout: &str) -> ProcessOutcome {
         ProcessOutcome {

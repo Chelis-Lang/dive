@@ -54,6 +54,27 @@ All notable changes to this project are documented here. The project will follow
   It matches TLC's own reader on 886 corpus cfg files and 99 mutants.
 - `dive parse [FILE.tla] --config FILE.cfg` reports cfg diagnostics, and adds a `config`
   object to the JSON report (`dive_api::parse_config_file`).
+- `dive-conformance run --impl dive` now runs dive's front end against the SANY
+  goldens:
+  - `dive analyze` against full SANY (default), and `dive parse` against SANY's
+    parse-phase verdict of each file (`--sany-phase parse`), derived from the same
+    goldens;
+  - the module search path is derived from `oracles.toml` like the oracle classpath;
+  - models stay `unsupported` until `dive check` exists;
+  - `run` takes several `--corpus` into one report, and the summary breaks outcomes
+    down per corpus;
+  - the report records the dive binary (SHA-256, version), its module path, the
+    profile and options.
+
+  Results on 2026-10-08: all 1,309 runnable modules agree in both phases (Examples
+  424, tlaplus tests 807, CommunityModules 78).
+- Corpora `tlaplus-tests` (tlaplus `test/**` and `test-model/**`, 808 modules) and
+  `community-modules` (78 modules, including `.smoke/`) have committed SANY goldens.
+  `modules-only` corpora take `include` globs and `[[corpus.exclude]]` entries with
+  reasons; excluded modules are reported as `out-of-scope`. One module that crashes
+  SANY is excluded.
+- The nightly `conformance` workflow builds dive and runs it on the modules of all
+  three corpora, in both phases.
 - `dive-syntax`: `tokens::tokenize_spec`, SANY's `SPEC`-state lexer as a public API.
 - `dive-conformance`: the differential harness. It covers:
   - oracle and corpus fetching with SHA-256 verification;

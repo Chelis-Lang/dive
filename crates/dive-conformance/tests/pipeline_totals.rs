@@ -106,7 +106,8 @@ fn setup(tmp: &Path) -> Result<(PathBuf, Cache), Box<dyn std::error::Error>> {
 
 fn options(repo: &Path, filters: Vec<String>) -> RunOptions {
     RunOptions {
-        corpus: "examples".to_owned(),
+        corpora: vec!["examples".to_owned()],
+        sany_phase: dive_conformance::sany::SanyPhase::Full,
         golden_oracle: "tlc-2026.10.06.014338".to_owned(),
         selection: Selection {
             tier: "all".to_owned(),
