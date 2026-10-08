@@ -25,6 +25,21 @@ All notable changes to this project are documented here. The project will follow
     so deep nesting and huge intervals are safe;
   - differential fixtures from the pinned TLC, the red-team review's adversarial
     tests, property tests and benchmarks.
+- `dive-store` in memory (ADR 0015, M5 work package D1):
+  - a sharded 64-bit fingerprint set and an exact store of canonical state
+    encodings, both with a level-synchronous resolve in which the earliest position
+    of each new state wins, giving identical results at any thread count and
+    schedule, without `unsafe`;
+  - dive's two-level FP64 state fingerprint over cached value fingerprints;
+  - per-level frontiers of encoded states, split into blocks for workers;
+  - a 12-byte-per-state trace log of parents and successor ordinals for
+    counterexample replay;
+  - TLC's two collision-probability estimates, reproducing every figure in the
+    conformance goldens and the "actual" figure from TLC's own fingerprints;
+  - property tests under randomized schedules, and benchmarks.
+- `dive-value`: a lossless value codec and a canonical exact-store key
+  (`codec`), cached value fingerprints (`TlcFingerprint::fingerprint_cached`) and
+  `Interner::resolve`.
 - `dive-syntax`:
   - a TLA+ lexer and parser with a lossless rowan CST, including the proof language;
   - parse acceptance matching the pinned SANY parser;

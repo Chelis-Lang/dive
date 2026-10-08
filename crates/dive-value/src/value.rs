@@ -222,6 +222,8 @@ pub(crate) struct SetInner {
     /// only by the operations that normalize in TLC, never by hashing, `==` or
     /// formatting.
     pub(crate) tlc_norm: AtomicBool,
+    /// The cached FP64 fingerprint of this set alone (see [`crate::fp64::FpCache`]).
+    pub(crate) fp: crate::fp64::FpCache,
     pub(crate) repr: SetRepr,
 }
 
@@ -310,12 +312,13 @@ pub enum SetKind {
 }
 
 impl Set {
-    fn new(order: ValueOrder, repr: SetRepr) -> Self {
+    pub(crate) fn new(order: ValueOrder, repr: SetRepr) -> Self {
         Self(Arc::new(SetInner {
             order,
             hash: OnceLock::new(),
             elems: OnceLock::new(),
             tlc_norm: AtomicBool::new(false),
+            fp: crate::fp64::FpCache::new(),
             repr,
         }))
     }
@@ -490,6 +493,9 @@ pub(crate) struct FcnInner {
     pub(crate) order: ValueOrder,
     /// TLC `RecordValue` (a record literal) rather than a string-domain `FcnRcdValue`.
     pub(crate) literal: bool,
+    /// The cached FP64 fingerprint of this function alone (see
+    /// [`crate::fp64::FpCache`]).
+    pub(crate) fp: crate::fp64::FpCache,
     pub(crate) repr: FcnRepr,
 }
 
@@ -528,6 +534,7 @@ impl Fcn {
             hash,
             order: ValueOrder::default(),
             literal: false,
+            fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::Tuple(elems.into_boxed_slice()),
         }))
     }
@@ -541,6 +548,7 @@ impl Fcn {
             hash,
             order,
             literal,
+            fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::Record(fields.into_boxed_slice()),
         }))
     }
@@ -551,6 +559,7 @@ impl Fcn {
             hash,
             order,
             literal: false,
+            fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::General(pairs.into_boxed_slice()),
         }))
     }
