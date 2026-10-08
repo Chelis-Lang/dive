@@ -1,0 +1,36 @@
+# tlaplusplus, as measured in docs/survey/competitive.md ("Method", per-tool
+# invocations). GPL-3.0: run as an external program only, never linked or
+# copied. For reproducible re-measurement with
+# `dive-conformance run --impl adapter:conformance/adapters/tlaplusplus.toml`.
+# Not run in CI; adapters are parsed and validated, and executed from M2.
+# Assumes `tlaplusplus` on PATH, run from the spec directory. Its tuning
+# features are switched off so that the run is a plain exhaustive search.
+name = "tlaplusplus"
+source = "zoratu/tlaplusplus @ 2884162 (GPL-3.0)"
+check = [
+  "tlaplusplus", "run-tla", "--module", "{module}", "--config", "{config}",
+  "--workers", "{workers}",
+  "--bloom-auto-switch", "false", "--minimize-trace", "false", "--auto-tune", "false",
+  "--numa-pinning", "false", "--skip-system-checks", "--trace-parents",
+  "--work-dir", "{scratch}/work", "--clean-work-dir", "true",
+]
+library = "env"
+
+[env]
+TLA_LIBRARY_PATH = "{library}"
+
+# It exits 1 for both violations and errors, and reports evaluation errors as
+# violations, so the evaluation-error rule comes first.
+[exit_codes]
+
+[[rules]]
+pattern = "message: failed evaluating"
+verdict = "evaluation-error"
+
+[[rules]]
+pattern = "^violation=true"
+verdict = "safety-violation"
+
+[[rules]]
+pattern = "^violation=false"
+verdict = "success"

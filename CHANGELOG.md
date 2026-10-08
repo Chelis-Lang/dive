@@ -68,6 +68,21 @@ All notable changes to this project are documented here. The project will follow
   by name, none wrong. Examples `DieHard/MCDieHardest`,
   `MisraReachability/MCReachabilityTestRandomGraphs` and `ewd998/EWD998PCal` now agree
   with TLC under `--compat=tlc`.
+- Conformance (issue #18): the competitive-analysis probes (P1–P9, M1–M2) are the
+  dive-owned corpus `probes` (`conformance/corpus/probes/`, Examples layout), with TLC
+  and SANY goldens from the gating oracle. In-repository corpora are pinned by the
+  SHA-256 of their files (ADR 0005, amendment 1). Under `--compat=tlc`, `dive check`
+  agrees on 10 of the 14 models at 1 and 4 workers and refuses 4 by name (`Json!ToJson`,
+  `TLCSet`, liveness, `RandomElement`). The default profile's answers for P1 (unbounded
+  integers, D-004) and P2's string case (canonical `CHOOSE`, D-006) are registered
+  expected divergences. The nightly runs the corpus.
+- Conformance: the competitors' measured invocations are external adapters in
+  `conformance/adapters/`. The adapter schema gains provenance, library modes, a worker
+  limit, environment templates, refusal exit codes, ordered output rules and count
+  extractors.
+- `dive check` claims TLC's class for a spec SANY would reject (`TLC_PARSING_FAILED`,
+  3002, exit 150) in both profiles, verified against the harness fixtures and the M1/M2
+  probe goldens; the harness compares it.
 - `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
   level engine run inline with one logical worker, over `dive-model`'s bound model:
   - initial states, invariants (on new and out-of-model states), implied initial

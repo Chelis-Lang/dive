@@ -99,6 +99,9 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
 - `tbd`: not yet enumerated.
 
+**In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. Today there is one:
+- `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
+
 ## Commands
 
 ```sh
@@ -269,6 +272,7 @@ pub trait Implementation: Sync {
   - the statistics are taken only where TLC prints them (`reported_by_tlc`; none for a stop while generating initial states);
   - the counterexample's length and printed states (label and text) form the trace, ending `finite`;
   - `unsupported` and `resource-limit` reports (exit 3) are `unsupported`, naming the feature; an error whose TLC class dive does not claim yet (`tlc.verified: false`) is `unsupported` too, with dive's own finding in the detail;
+  - a rejected spec is `config-error`, `parse-error` or `semantic-error` by its diagnostics' codes (as for modules), with TLC's class (`TLC_PARSING_FAILED` for SANY's rejections) only where dive claims it; under `--impl-profile tlc` the exit code must be TLC's;
   - `internal-error`, or a report that contradicts itself, is `unclassified`, which is a `disagree`.
 
   dive's counterexample document (`counterexample.trace`) is validated by the harness in-process with `dive-trace`; a violation agrees only if it validates.
@@ -279,14 +283,31 @@ pub trait Implementation: Sync {
 
 ```toml
 name = "tla2"
+source = "joweeba/tla2 @ 5e828d3 (Apache-2.0)"     # optional provenance
+# Placeholders: {module} {config} {workers} {corpus} {library} {scratch}
 check = ["tla2", "check", "{module}", "--config", "{config}", "--workers", "{workers}"]
-parse = ["tla2", "parse", "{module}"]     # optional
+parse = ["tla2", "parse", "{module}"]              # optional
+library = "env"                                    # optional: flag | env | classpath | copy-beside-spec
+max_workers = 1                                    # optional: a single-threaded tool
+refused_exit_codes = [2]                           # optional: refusals and errors without a verdict
+[env]                                              # optional, values are templates
+TLA_PATH = "{library}"
 [exit_codes]
 0 = "success"
 12 = "safety-violation"
+[[rules]]                                          # optional; the first match wins, before exit_codes
+pattern = "^Error: Invariant"                      # a line regex (stream = stdout|stderr|any), or
+verdict = "safety-violation"                       #   json = "/pointer" with equals = "value";
+                                                   #   and verdict = ... or refused = true
+[counts]                                           # optional: distinct_states, states_generated, depth
+distinct_states = { pattern = '([0-9,]+) distinct states found' }   # or { json = "/pointer" }
 ```
 
-The description is parsed and validated today, but adapters are **not executed yet**: every request answers `unsupported`. Executing them, and mapping their output into `OracleResult`, is M2 work.
+A result that no rule or exit code explains is unclassified, never a guess. Loading validates placeholders, exit codes, rules, counts and the library mode.
+
+`conformance/adapters/` holds the invocations measured in `docs/survey/competitive.md`: `tla-mc.toml`, `tla-rs.toml`, `tlaplusplus.toml`, `tlago.toml` and `tla2.toml`. A unit test loads every one. They are not run in CI; they exist for reproducible re-measurement.
+
+The descriptions are parsed and validated today, but adapters are **not executed yet**: every request answers `unsupported`. Executing them, and mapping their output into `OracleResult`, is M2 work.
 
 ## Regenerating goldens
 
@@ -304,7 +325,8 @@ Goldens are generated, never edited (charter rule 6; ADR 0003).
 - for the gating oracle:
   - 141 Examples model goldens (the small tier and more) and SANY goldens for all 424 Examples modules;
   - SANY goldens for `tlaplus-tests` (807 of 808 modules; one SANY crash is excluded in `corpora.toml`);
-  - SANY goldens for `community-modules` (78 modules).
+  - SANY goldens for `community-modules` (78 modules);
+  - for the `probes` corpus, 14 model goldens and 12 SANY goldens.
 
 ## Oracle behaviour notes
 

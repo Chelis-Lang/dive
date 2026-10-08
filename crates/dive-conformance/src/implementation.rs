@@ -11,8 +11,8 @@
 //! - [`DiveImplementation`] runs the `dive` binary: `dive analyze` and
 //!   `dive parse` for modules, `dive check` for models (see [`crate::dive`]).
 //! - [`ExternalAdapter`] is the shape for external tools (M2): a TOML file
-//!   with a command template and an exit-code map. It is parsed and
-//!   validated, but not executed yet; every request is refused.
+//!   with a command template, an exit-code map and output rules. It is
+//!   parsed and validated, but not executed yet; every request is refused.
 
 pub use crate::dive::DiveImplementation;
 
@@ -535,58 +535,268 @@ impl Implementation for TlcImplementation {
     }
 }
 
-/// An external tool described by a TOML file:
+/// An external tool described by a TOML file (`conformance/adapters/` holds
+/// the competitors measured in `docs/survey/competitive.md`):
 ///
 /// ```toml
 /// name = "tla2"
-/// # Placeholders: {module} {config} {workers} {corpus}
+/// source = "joweeba/tla2 @ 5e828d3 (Apache-2.0)"   # optional provenance
+/// # Placeholders: {module} {config} {workers} {corpus} {library} {scratch}
 /// check = ["tla2", "check", "{module}", "--config", "{config}", "--workers", "{workers}"]
 /// parse = ["tla2", "parse", "{module}"]          # optional
+/// library = "env"                                  # optional: flag | env | classpath | copy-beside-spec
+/// max_workers = 1                                  # optional: single-threaded tools
+/// refused_exit_codes = [2]                         # optional: exit codes that mean "refused or error"
+/// [env]                                            # optional, values are templates
+/// TLA_PATH = "{library}"
 /// [exit_codes]                                     # exit code -> verdict
 /// 0 = "success"
 /// 12 = "safety-violation"
+/// [[rules]]                                        # optional; first match wins, before exit_codes
+/// pattern = "^Error: Invariant"                    # a regex over output lines, or:
+/// # json = "/result/error_type"  equals = "runtime_error"
+/// stream = "stdout"                                # stdout | stderr | any (default)
+/// verdict = "safety-violation"                     # or: refused = true
+/// [counts]                                         # optional
+/// distinct_states = { pattern = '([0-9,]+) distinct states found' }
 /// ```
+///
+/// The verdict is taken from the first matching rule, else from
+/// `exit_codes`; an exit code in `refused_exit_codes` is a refusal, and
+/// anything else is unclassified, never a guess.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ExternalAdapter {
     /// Tool name.
     pub name: String,
+    /// Where the tool comes from (repository, commit, licence).
+    #[serde(default)]
+    pub source: Option<String>,
     /// Command template for model checking.
     pub check: Vec<String>,
     /// Command template for parsing.
     #[serde(default)]
     pub parse: Option<Vec<String>>,
+    /// How the tool finds module libraries (CommunityModules, TLAPS).
+    #[serde(default)]
+    pub library: Option<LibraryMode>,
+    /// The most workers the tool can use; larger requests are refused.
+    #[serde(default)]
+    pub max_workers: Option<u32>,
+    /// Environment variables to set, as templates.
+    #[serde(default)]
+    pub env: BTreeMap<String, String>,
     /// Exit code to verdict map.
     pub exit_codes: BTreeMap<String, Verdict>,
+    /// Exit codes that mean the tool refused or failed without a verdict.
+    #[serde(default)]
+    pub refused_exit_codes: Vec<i32>,
+    /// Output rules, tried in order before `exit_codes`.
+    #[serde(default)]
+    pub rules: Vec<OutputRule>,
+    /// How to read state counts from the output.
+    #[serde(default)]
+    pub counts: BTreeMap<String, Extract>,
     /// Options the tool runs under (`--impl-option`); not part of the TOML.
     #[serde(skip)]
     pub options: Vec<ImplOption>,
+}
+
+/// How an external tool finds module libraries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LibraryMode {
+    /// A command-line flag naming `{library}` (in `check`).
+    Flag,
+    /// An environment variable naming `{library}` (in `env`).
+    Env,
+    /// A Java classpath, as TLC.
+    Classpath,
+    /// None: library modules are copied beside the spec.
+    CopyBesideSpec,
+}
+
+/// Which output stream a rule reads.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Stream {
+    /// Standard output.
+    Stdout,
+    /// Standard error.
+    Stderr,
+    /// Either.
+    #[default]
+    Any,
+}
+
+/// Where a value is read from: a regex over output lines (its first capture
+/// group, for counts), or a JSON pointer into the tool's JSON output.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Extract {
+    /// A regular expression over output lines.
+    #[serde(default)]
+    pub pattern: Option<String>,
+    /// A JSON pointer (RFC 6901) into the tool's JSON output.
+    #[serde(default)]
+    pub json: Option<String>,
+}
+
+/// One output rule of an [`ExternalAdapter`].
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OutputRule {
+    /// The stream `pattern` reads.
+    #[serde(default)]
+    pub stream: Stream,
+    /// A regular expression over output lines.
+    #[serde(default)]
+    pub pattern: Option<String>,
+    /// A JSON pointer into the tool's JSON output.
+    #[serde(default)]
+    pub json: Option<String>,
+    /// With `json`: the value the pointer must hold.
+    #[serde(default)]
+    pub equals: Option<String>,
+    /// The verdict the rule gives.
+    #[serde(default)]
+    pub verdict: Option<Verdict>,
+    /// The rule means the tool refused or failed without a verdict.
+    #[serde(default)]
+    pub refused: bool,
+}
+
+/// Placeholders a command or environment template may use.
+const PLACEHOLDERS: &[&str] = &[
+    "module", "config", "workers", "corpus", "library", "scratch",
+];
+
+/// Counts an adapter may extract, named as in [`crate::tlc::result::Counts`].
+const COUNT_FIELDS: &[&str] = &["distinct_states", "states_generated", "depth"];
+
+/// Fails unless every `{...}` in `template` is a known placeholder.
+fn check_template(template: &str) -> std::result::Result<(), String> {
+    let mut rest = template;
+    while let Some(i) = rest.find('{') {
+        let after = &rest[i + 1..];
+        let j = after
+            .find('}')
+            .ok_or_else(|| format!("unclosed `{{` in `{template}`"))?;
+        let name = &after[..j];
+        if !PLACEHOLDERS.contains(&name) {
+            return Err(format!("unknown placeholder `{{{name}}}` in `{template}`"));
+        }
+        rest = &after[j + 1..];
+    }
+    Ok(())
+}
+
+fn check_source(
+    what: &str,
+    pattern: Option<&String>,
+    json: Option<&String>,
+) -> std::result::Result<(), String> {
+    match (pattern, json) {
+        (Some(p), None) if !p.is_empty() => Ok(()),
+        (None, Some(j)) if j.starts_with('/') => Ok(()),
+        (None, Some(j)) => Err(format!("{what}: JSON pointer `{j}` must start with `/`")),
+        _ => Err(format!(
+            "{what}: give exactly one of a non-empty `pattern` or `json`"
+        )),
+    }
 }
 
 impl ExternalAdapter {
     /// Loads and validates an adapter description.
     ///
     /// # Errors
-    /// Fails on unreadable or invalid files.
+    /// Fails on unreadable or invalid files: an empty `check`, an unknown
+    /// placeholder, a non-integer exit code, a code both mapped and refused,
+    /// a malformed rule (it needs one of `pattern` or `json`, `equals` only
+    /// with `json`, and one of `verdict` or `refused = true`), an unknown
+    /// count, or a library mode whose `{library}` placeholder is missing.
     pub fn load(path: &Path) -> Result<Self> {
         let text = std::fs::read_to_string(path).map_err(|e| Error::io(path, &e))?;
         let a: Self =
             toml::from_str(&text).map_err(|e| Error::Config(format!("{}: {e}", path.display())))?;
-        if a.check.is_empty() {
-            return Err(Error::Config(format!(
-                "{}: `check` is empty",
-                path.display()
-            )));
-        }
-        for k in a.exit_codes.keys() {
-            k.parse::<i32>().map_err(|_| {
-                Error::Config(format!(
-                    "{}: exit code `{k}` is not an integer",
-                    path.display()
-                ))
-            })?;
-        }
+        a.validate()
+            .map_err(|why| Error::Config(format!("{}: {why}", path.display())))?;
         Ok(a)
+    }
+
+    fn validate(&self) -> std::result::Result<(), String> {
+        if self.check.is_empty() {
+            return Err("`check` is empty".to_owned());
+        }
+        for t in self
+            .check
+            .iter()
+            .chain(self.parse.iter().flatten())
+            .chain(self.env.values())
+        {
+            check_template(t)?;
+        }
+        if self.parse.as_ref().is_some_and(Vec::is_empty) {
+            return Err("`parse` is empty".to_owned());
+        }
+        for k in self.exit_codes.keys() {
+            let code = k
+                .parse::<i32>()
+                .map_err(|_| format!("exit code `{k}` is not an integer"))?;
+            if self.refused_exit_codes.contains(&code) {
+                return Err(format!("exit code {code} is both mapped and refused"));
+            }
+        }
+        for (i, r) in self.rules.iter().enumerate() {
+            let what = format!("rule {}", i + 1);
+            check_source(&what, r.pattern.as_ref(), r.json.as_ref())?;
+            if r.equals.is_some() && r.json.is_none() {
+                return Err(format!("{what}: `equals` applies to `json` rules only"));
+            }
+            if r.json.is_some() && r.equals.is_none() {
+                return Err(format!("{what}: a `json` rule needs `equals`"));
+            }
+            if r.json.is_some() && r.stream != Stream::Any {
+                return Err(format!("{what}: `stream` applies to `pattern` rules only"));
+            }
+            match (r.verdict, r.refused) {
+                (Some(v), false) if v.is_oracle_fact() => {}
+                (Some(_), false) => return Err(format!("{what}: not a real verdict")),
+                (None, true) => {}
+                _ => return Err(format!("{what}: give one of `verdict` or `refused = true`")),
+            }
+        }
+        for (k, e) in &self.counts {
+            if !COUNT_FIELDS.contains(&k.as_str()) {
+                return Err(format!(
+                    "unknown count `{k}` (known: {})",
+                    COUNT_FIELDS.join(", ")
+                ));
+            }
+            check_source(&format!("count `{k}`"), e.pattern.as_ref(), e.json.as_ref())?;
+        }
+        let uses = |needle: &str| {
+            self.check
+                .iter()
+                .chain(self.env.values())
+                .any(|t| t.contains(needle))
+        };
+        match self.library {
+            Some(LibraryMode::Flag) if !self.check.iter().any(|t| t.contains("{library}")) => {
+                return Err("library = \"flag\" needs `{library}` in `check`".to_owned());
+            }
+            Some(LibraryMode::Env) if !self.env.values().any(|t| t.contains("{library}")) => {
+                return Err("library = \"env\" needs `{library}` in `env`".to_owned());
+            }
+            Some(LibraryMode::CopyBesideSpec) | None if uses("{library}") => {
+                return Err("`{library}` is used but no library mode passes it".to_owned());
+            }
+            _ => {}
+        }
+        if self.max_workers == Some(0) {
+            return Err("`max_workers` must be at least 1".to_owned());
+        }
+        Ok(())
     }
 }
 
@@ -648,6 +858,76 @@ mod tests {
             "name = \"x\"\ncheck = [\"x\"]\n[exit_codes]\nzero = \"success\"\n",
         )?;
         assert!(ExternalAdapter::load(&p).is_err());
+        Ok(())
+    }
+
+    const FULL: &str = r#"
+name = "t"
+source = "o/t @ 0000000 (MIT)"
+check = ["t", "-lib", "{library}", "-w", "{workers}", "{module}", "{config}"]
+library = "flag"
+refused_exit_codes = [2]
+[exit_codes]
+0 = "success"
+[[rules]]
+pattern = "^Error: Invariant"
+verdict = "safety-violation"
+[[rules]]
+json = "/result/error_type"
+equals = "runtime_error"
+refused = true
+[counts]
+distinct_states = { pattern = '([0-9,]+) distinct states found' }
+"#;
+
+    #[test]
+    fn adapter_schema_validates() -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = crate::util::TempDir::new("adapter-schema")?;
+        let p = dir.path().join("a.toml");
+        std::fs::write(&p, FULL)?;
+        let a = ExternalAdapter::load(&p)?;
+        assert_eq!(a.rules.len(), 2);
+        assert_eq!(a.library, Some(LibraryMode::Flag));
+        for (from, to) in [
+            ("{workers}", "{threads}"),
+            ("{module}", "{module"),
+            ("refused_exit_codes = [2]", "refused_exit_codes = [0]"),
+            ("verdict = \"safety-violation\"", "verdict = \"timeout\""),
+            ("verdict = \"safety-violation\"", ""),
+            ("refused = true", "refused = true\nverdict = \"success\""),
+            ("equals = \"runtime_error\"\n", ""),
+            ("json = \"/result/error_type\"", "json = \"result\""),
+            (
+                "pattern = \"^Error: Invariant\"",
+                "pattern = \"^E\"\njson = \"/x\"",
+            ),
+            ("distinct_states = {", "distinct = {"),
+            ("\"-lib\", \"{library}\", ", ""),
+            ("library = \"flag\"", "library = \"env\""),
+            ("library = \"flag\"", "library = \"nfs\""),
+            ("source =", "origin ="),
+        ] {
+            assert!(FULL.contains(from), "{from}");
+            std::fs::write(&p, FULL.replace(from, to))?;
+            assert!(ExternalAdapter::load(&p).is_err(), "{from} -> {to}");
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn repository_adapters_parse() -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../conformance/adapters");
+        let mut names = Vec::new();
+        for entry in std::fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().is_some_and(|e| e == "toml") {
+                let a = ExternalAdapter::load(&path)?;
+                assert!(a.source.is_some(), "{} records its source", path.display());
+                names.push(a.name);
+            }
+        }
+        names.sort();
+        assert_eq!(names, ["tla-mc", "tla-rs", "tla2", "tlago", "tlaplusplus"]);
         Ok(())
     }
 

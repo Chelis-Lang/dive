@@ -129,6 +129,13 @@ pub fn corpus_fetch(config: &Config, cache: &Cache, ids: &[String]) -> Result<()
         if !ids.is_empty() && !ids.contains(&c.id) {
             continue;
         }
+        if let Some(path) = &c.path {
+            log(&format!(
+                "corpus `{}` is in this repository ({path}); nothing to fetch",
+                c.id
+            ));
+            continue;
+        }
         let (dir, status) = fetcher.fetch_checkout(&c.id, &c.repo, &c.commit)?;
         log(&format!(
             "{:?} corpus `{}` @ {} -> {}",
@@ -151,9 +158,25 @@ pub fn corpus_fetch(config: &Config, cache: &Cache, ids: &[String]) -> Result<()
 /// Fails if the corpus is missing, modified or cannot be enumerated.
 pub fn load_corpus(config: &Config, cache: &Cache, id: &str) -> Result<CorpusIndex> {
     let c = config.corpora.corpus(id)?;
-    let dir = cache.checkout_dir(&c.id, &c.commit);
-    verified_checkout(&dir, &c.commit, &format!("corpus `{id}`"))?;
-    let index = enumerate(c, &dir)?;
+    let index = if let Some(path) = &c.path {
+        // A dive-owned corpus in this repository: identified by the digest
+        // of its files, which goldens record in place of a commit.
+        let dir = config.repo_root.join(path);
+        if !dir.is_dir() {
+            return Err(Error::Config(format!(
+                "corpus `{id}`: {} is not a directory",
+                dir.display()
+            )));
+        }
+        let digest = crate::corpus::tree_digest(&dir)?;
+        let mut index = enumerate(c, &dir)?;
+        index.commit = digest;
+        index
+    } else {
+        let dir = cache.checkout_dir(&c.id, &c.commit);
+        verified_checkout(&dir, &c.commit, &format!("corpus `{id}`"))?;
+        enumerate(c, &dir)?
+    };
     if !index.uncovered.is_empty() {
         log(&format!(
             "warning: {} path(s) in corpus `{id}` are not covered by any manifest (no goldens): {}{}",
@@ -341,6 +364,18 @@ fn provenance(
 
 /// Checks that oracle runs left the corpus checkout untouched.
 fn assert_pristine(corpus: &CorpusIndex) -> Result<()> {
+    if corpus.in_repo {
+        let now = crate::corpus::tree_digest(&corpus.root)?;
+        return if now == corpus.commit {
+            Ok(())
+        } else {
+            Err(Error::Command(format!(
+                "the in-repository corpus {} changed during the run ({} -> {now})",
+                corpus.root.display(),
+                corpus.commit
+            )))
+        };
+    }
     let dirty = dirty_paths(&corpus.root)?;
     if dirty.is_empty() {
         Ok(())

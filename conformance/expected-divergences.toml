@@ -60,3 +60,24 @@ fields = [
 ]
 justification = "Canonical exploration order (D-010) reaches the same AC1 violation at the same depth after 12645 distinct / 64357 generated / 970 queued states (TLC: 11852 / 59286 / 1248)"
 link = "docs/divergences.md#registry"
+
+# Probes (conformance/corpus/probes; docs/survey/competitive.md) whose default
+# profile answer differs from TLC's by owner-approved design.
+
+[[divergence]]
+id = "d004-p1-overflow"
+pattern = "specifications/P1Overflow/P1Overflow.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.*"]
+justification = "Unbounded integers (D-004): x reaches 2147483648, where TLC's 32-bit integers raise TLC_INTEGER_TOO_BIG; in TLA+ the invariant holds and the search ends after 3 states, as dive reports"
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d006-p2-choose-str"
+pattern = "specifications/P2Choose/P2Choose_str.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.length", "trace.ending"]
+justification = "Canonical CHOOSE order (D-006): CHOOSE e \\in {\"zeta\", \"alpha\", \"mid\"} : TRUE is \"alpha\" in the canonical order and \"zeta\" in TLC's interning order. TLA+ fixes neither, so SLex holds under dive's default and is violated under TLC's"
+link = "docs/divergences.md#registry"

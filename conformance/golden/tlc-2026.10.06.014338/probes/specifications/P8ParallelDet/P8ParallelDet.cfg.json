@@ -1,0 +1,1794 @@
+{
+  "schema": 1,
+  "kind": "tlc-model",
+  "oracle": "tlc-2026.10.06.014338",
+  "corpus": "probes",
+  "model": {
+    "id": "specifications/P8ParallelDet/P8ParallelDet.cfg",
+    "module": "specifications/P8ParallelDet/P8ParallelDet.tla",
+    "mode": {
+      "kind": "exhaustive"
+    },
+    "features": [],
+    "counts_comparable": true
+  },
+  "workers": 1,
+  "result": {
+    "verdict": "safety-violation",
+    "verdict_code": 2110,
+    "error_class": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+    "exit_code": 12,
+    "exit_status": "VIOLATION_SAFETY",
+    "violated_property": "Inv",
+    "counts": {
+      "distinct_states": 63251,
+      "states_generated": 362605,
+      "states_left_on_queue": 1133,
+      "depth": 46
+    },
+    "fingerprint_collision": null,
+    "trace": {
+      "length": 46,
+      "ending": {
+        "kind": "finite"
+      },
+      "json": {
+        "counterexample": {
+          "action": [
+            [
+              [
+                1,
+                {
+                  "a": 0,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                2,
+                {
+                  "a": 2,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                2,
+                {
+                  "a": 2,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                3,
+                {
+                  "a": 4,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                3,
+                {
+                  "a": 4,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                4,
+                {
+                  "a": 6,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                4,
+                {
+                  "a": 6,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                5,
+                {
+                  "a": 8,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                5,
+                {
+                  "a": 8,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                6,
+                {
+                  "a": 10,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                6,
+                {
+                  "a": 10,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                7,
+                {
+                  "a": 12,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                7,
+                {
+                  "a": 12,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                8,
+                {
+                  "a": 14,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                8,
+                {
+                  "a": 14,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                9,
+                {
+                  "a": 16,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                9,
+                {
+                  "a": 16,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                10,
+                {
+                  "a": 18,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                10,
+                {
+                  "a": 18,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                11,
+                {
+                  "a": 20,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                11,
+                {
+                  "a": 20,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                12,
+                {
+                  "a": 22,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                12,
+                {
+                  "a": 22,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                13,
+                {
+                  "a": 24,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                13,
+                {
+                  "a": 24,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                14,
+                {
+                  "a": 26,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                14,
+                {
+                  "a": 26,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                15,
+                {
+                  "a": 28,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                15,
+                {
+                  "a": 28,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 10,
+                  "endColumn": 76,
+                  "endLine": 10,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                16,
+                {
+                  "a": 30,
+                  "b": 0,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                16,
+                {
+                  "a": 30,
+                  "b": 0,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                17,
+                {
+                  "a": 30,
+                  "b": 2,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                17,
+                {
+                  "a": 30,
+                  "b": 2,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                18,
+                {
+                  "a": 30,
+                  "b": 4,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                18,
+                {
+                  "a": 30,
+                  "b": 4,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                19,
+                {
+                  "a": 30,
+                  "b": 6,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                19,
+                {
+                  "a": 30,
+                  "b": 6,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                20,
+                {
+                  "a": 30,
+                  "b": 8,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                20,
+                {
+                  "a": 30,
+                  "b": 8,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                21,
+                {
+                  "a": 30,
+                  "b": 10,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                21,
+                {
+                  "a": 30,
+                  "b": 10,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                22,
+                {
+                  "a": 30,
+                  "b": 12,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                22,
+                {
+                  "a": 30,
+                  "b": 12,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                23,
+                {
+                  "a": 30,
+                  "b": 14,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                23,
+                {
+                  "a": 30,
+                  "b": 14,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                24,
+                {
+                  "a": 30,
+                  "b": 16,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                24,
+                {
+                  "a": 30,
+                  "b": 16,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                25,
+                {
+                  "a": 30,
+                  "b": 18,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                25,
+                {
+                  "a": 30,
+                  "b": 18,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                26,
+                {
+                  "a": 30,
+                  "b": 20,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                26,
+                {
+                  "a": 30,
+                  "b": 20,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                27,
+                {
+                  "a": 30,
+                  "b": 22,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                27,
+                {
+                  "a": 30,
+                  "b": 22,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                28,
+                {
+                  "a": 30,
+                  "b": 24,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                28,
+                {
+                  "a": 30,
+                  "b": 24,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                29,
+                {
+                  "a": 30,
+                  "b": 26,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                29,
+                {
+                  "a": 30,
+                  "b": 26,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                30,
+                {
+                  "a": 30,
+                  "b": 28,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                30,
+                {
+                  "a": 30,
+                  "b": 28,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 11,
+                  "endColumn": 76,
+                  "endLine": 11,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                31,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 0
+                }
+              ]
+            ],
+            [
+              [
+                31,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 0
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                32,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 2
+                }
+              ]
+            ],
+            [
+              [
+                32,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 2
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                33,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 4
+                }
+              ]
+            ],
+            [
+              [
+                33,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 4
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                34,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 6
+                }
+              ]
+            ],
+            [
+              [
+                34,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 6
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                35,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 8
+                }
+              ]
+            ],
+            [
+              [
+                35,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 8
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                36,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 10
+                }
+              ]
+            ],
+            [
+              [
+                36,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 10
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                37,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 12
+                }
+              ]
+            ],
+            [
+              [
+                37,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 12
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                38,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 14
+                }
+              ]
+            ],
+            [
+              [
+                38,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 14
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                39,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 16
+                }
+              ]
+            ],
+            [
+              [
+                39,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 16
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                40,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 18
+                }
+              ]
+            ],
+            [
+              [
+                40,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 18
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                41,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 20
+                }
+              ]
+            ],
+            [
+              [
+                41,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 20
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                42,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 22
+                }
+              ]
+            ],
+            [
+              [
+                42,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 22
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                43,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 24
+                }
+              ]
+            ],
+            [
+              [
+                43,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 24
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                44,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 26
+                }
+              ]
+            ],
+            [
+              [
+                44,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 26
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                45,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 28
+                }
+              ]
+            ],
+            [
+              [
+                45,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 28
+                }
+              ],
+              {
+                "location": {
+                  "beginColumn": 30,
+                  "beginLine": 12,
+                  "endColumn": 76,
+                  "endLine": 12,
+                  "module": "P8ParallelDet"
+                },
+                "name": "Next"
+              },
+              [
+                46,
+                {
+                  "a": 30,
+                  "b": 30,
+                  "c": 30
+                }
+              ]
+            ]
+          ],
+          "state": [
+            [
+              1,
+              {
+                "a": 0,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              2,
+              {
+                "a": 2,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              3,
+              {
+                "a": 4,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              4,
+              {
+                "a": 6,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              5,
+              {
+                "a": 8,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              6,
+              {
+                "a": 10,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              7,
+              {
+                "a": 12,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              8,
+              {
+                "a": 14,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              9,
+              {
+                "a": 16,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              10,
+              {
+                "a": 18,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              11,
+              {
+                "a": 20,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              12,
+              {
+                "a": 22,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              13,
+              {
+                "a": 24,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              14,
+              {
+                "a": 26,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              15,
+              {
+                "a": 28,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              16,
+              {
+                "a": 30,
+                "b": 0,
+                "c": 0
+              }
+            ],
+            [
+              17,
+              {
+                "a": 30,
+                "b": 2,
+                "c": 0
+              }
+            ],
+            [
+              18,
+              {
+                "a": 30,
+                "b": 4,
+                "c": 0
+              }
+            ],
+            [
+              19,
+              {
+                "a": 30,
+                "b": 6,
+                "c": 0
+              }
+            ],
+            [
+              20,
+              {
+                "a": 30,
+                "b": 8,
+                "c": 0
+              }
+            ],
+            [
+              21,
+              {
+                "a": 30,
+                "b": 10,
+                "c": 0
+              }
+            ],
+            [
+              22,
+              {
+                "a": 30,
+                "b": 12,
+                "c": 0
+              }
+            ],
+            [
+              23,
+              {
+                "a": 30,
+                "b": 14,
+                "c": 0
+              }
+            ],
+            [
+              24,
+              {
+                "a": 30,
+                "b": 16,
+                "c": 0
+              }
+            ],
+            [
+              25,
+              {
+                "a": 30,
+                "b": 18,
+                "c": 0
+              }
+            ],
+            [
+              26,
+              {
+                "a": 30,
+                "b": 20,
+                "c": 0
+              }
+            ],
+            [
+              27,
+              {
+                "a": 30,
+                "b": 22,
+                "c": 0
+              }
+            ],
+            [
+              28,
+              {
+                "a": 30,
+                "b": 24,
+                "c": 0
+              }
+            ],
+            [
+              29,
+              {
+                "a": 30,
+                "b": 26,
+                "c": 0
+              }
+            ],
+            [
+              30,
+              {
+                "a": 30,
+                "b": 28,
+                "c": 0
+              }
+            ],
+            [
+              31,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 0
+              }
+            ],
+            [
+              32,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 2
+              }
+            ],
+            [
+              33,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 4
+              }
+            ],
+            [
+              34,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 6
+              }
+            ],
+            [
+              35,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 8
+              }
+            ],
+            [
+              36,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 10
+              }
+            ],
+            [
+              37,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 12
+              }
+            ],
+            [
+              38,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 14
+              }
+            ],
+            [
+              39,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 16
+              }
+            ],
+            [
+              40,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 18
+              }
+            ],
+            [
+              41,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 20
+              }
+            ],
+            [
+              42,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 22
+              }
+            ],
+            [
+              43,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 24
+              }
+            ],
+            [
+              44,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 26
+              }
+            ],
+            [
+              45,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 28
+              }
+            ],
+            [
+              46,
+              {
+                "a": 30,
+                "b": 30,
+                "c": 30
+              }
+            ]
+          ]
+        },
+        "vars": [
+          "a",
+          "b",
+          "c"
+        ]
+      }
+    },
+    "error_codes": [
+      2110,
+      2121
+    ],
+    "warning_codes": [],
+    "unresolved_modules": [],
+    "note": null
+  },
+  "provenance": {
+    "oracle": {
+      "id": "tlc-2026.10.06.014338",
+      "sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+      "upstream_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+      "classpath": [
+        {
+          "id": "community-modules-202610040242",
+          "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+        },
+        {
+          "id": "community-modules-deps-202610040242",
+          "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+        }
+      ],
+      "module_libraries": [
+        {
+          "id": "apalache-modules-v0.62.3",
+          "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+        },
+        {
+          "id": "tlapm-library-d8b9747",
+          "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+        }
+      ],
+      "capabilities": {
+        "dump_trace_json": true,
+        "no_generate_spec_te": true,
+        "sany_error_codes": true,
+        "names_temporal_properties": true,
+        "git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+        "implementation_version": "2.0 2026-10-06"
+      },
+      "java": {
+        "source": "pinned",
+        "version": "17.0.20.1+1",
+        "sha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05",
+        "platform": "macos-aarch64",
+        "version_line": "openjdk version \"17.0.20.1\" 2026-08-18"
+      }
+    },
+    "corpus_commit": "sha256:a15ccbed4f892c331d3c652b3ed1a4d81ee9fcd85e68122c4b00a48154797eac",
+    "command": [
+      "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+      "-XX:+UseParallelGC",
+      "-Xmx3g",
+      "-Xss8m",
+      "-Duser.home=$DIVE_CACHE_DIR/home",
+      "-Djava.io.tmpdir=$TMP",
+      "-Duser.language=en",
+      "-Duser.country=US",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar:$DIVE_CACHE_DIR/sha256/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d/CommunityModules-deps-202610040242.jar:$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla:$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+      "tlc2.TLC",
+      "specifications/P8ParallelDet/P8ParallelDet.tla",
+      "-config",
+      "specifications/P8ParallelDet/P8ParallelDet.cfg",
+      "-workers",
+      "1",
+      "-lncheck",
+      "final",
+      "-cleanup",
+      "-tool",
+      "-fp",
+      "0",
+      "-seed",
+      "0",
+      "-metadir",
+      "$TMP/states"
+    ],
+    "trace_command": [
+      "$DIVE_CACHE_DIR/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+      "-XX:+UseParallelGC",
+      "-Xmx3g",
+      "-Xss8m",
+      "-Duser.home=$DIVE_CACHE_DIR/home",
+      "-Djava.io.tmpdir=$TMP",
+      "-Duser.language=en",
+      "-Duser.country=US",
+      "-Dfile.encoding=UTF-8",
+      "-cp",
+      "$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar:$DIVE_CACHE_DIR/sha256/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad/CommunityModules-202610040242.jar:$DIVE_CACHE_DIR/sha256/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d/CommunityModules-deps-202610040242.jar:$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla:$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+      "tlc2.TLC",
+      "specifications/P8ParallelDet/P8ParallelDet.tla",
+      "-config",
+      "specifications/P8ParallelDet/P8ParallelDet.cfg",
+      "-workers",
+      "1",
+      "-lncheck",
+      "final",
+      "-cleanup",
+      "-tool",
+      "-fp",
+      "0",
+      "-seed",
+      "0",
+      "-metadir",
+      "$TMP/states",
+      "-dumpTrace",
+      "json",
+      "$TMP/trace.json"
+    ],
+    "timeout_seconds": 300,
+    "reason": "issue #18: import the competitive-analysis probes (docs/survey/competitive.md, P1-P9, M1-M2) as the dive-owned probes corpus",
+    "generator": "dive-conformance 0.0.0",
+    "generated_at": "2026-10-08T23:03:23Z",
+    "elapsed_ms": 2917
+  }
+}

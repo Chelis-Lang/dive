@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "docs/survey/competitive.md#appendix-probe-specs"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/P3ActionConstraint/P3ActionConstraint.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/P3ActionConstraint/P3ActionConstraint.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success",
+          "distinctStates": 5
+        }
+      ]
+    }
+  ]
+}
