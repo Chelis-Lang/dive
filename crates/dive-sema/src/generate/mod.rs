@@ -1987,17 +1987,33 @@ impl<'a> Gen<'a> {
 }
 
 /// The `CONSTANT` (or `VARIABLE`) declarations in a module's context, in
-/// SANY's order (`ModuleNode.getConstantDecls`).
+/// SANY's order (`ModuleNode.getConstantDecls`, `getVariableDecls`): the
+/// reverse of the context `Hashtable`'s enumeration order
+/// ([`crate::hashtable`]). The entries are fed in insertion order, except that
+/// SANY inserted the copied built-ins newest first, which cannot change the
+/// declarations' order (see the module's documentation).
 pub(crate) fn decls_in(m: &Model, module: NodeId, variables: bool) -> Vec<NodeId> {
     let NodeKind::Module(d) = &m.node(module).kind else {
         return Vec::new();
     };
-    m.context(d.ctx)
-        .entries()
-        .filter(|(_, v)| {
-            matches!(&m.node(*v).kind, NodeKind::OpDecl(od)
-                if od.decl == if variables { DeclKind::Variable } else { DeclKind::Constant })
+    let ctx = m.context(d.ctx);
+    let keys: Vec<(Key, NodeId)> = ctx.entries().collect();
+    let hashes: Vec<i32> = keys
+        .iter()
+        .map(|(k, _)| match k {
+            Key::Sym(n) | Key::Module(n) => crate::hashtable::java_string_hash(m.name(*n)),
         })
-        .map(|(_, v)| v)
-        .collect()
+        .collect();
+    let want = if variables {
+        DeclKind::Variable
+    } else {
+        DeclKind::Constant
+    };
+    let mut out: Vec<NodeId> = crate::hashtable::enumeration_order(&hashes)
+        .into_iter()
+        .filter_map(|i| keys.get(i).map(|e| e.1))
+        .filter(|v| matches!(&m.node(*v).kind, NodeKind::OpDecl(od) if od.decl == want))
+        .collect();
+    out.reverse();
+    out
 }

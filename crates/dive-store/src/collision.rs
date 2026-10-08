@@ -31,8 +31,9 @@
 //!
 //! Both are estimates that assume fingerprints behave like independent random 64-bit
 //! values; dive says so wherever it reports them. The actual figure equals TLC's only
-//! when computed over TLC's own fingerprints (TLC's variable order and value
-//! fingerprints; ADR 0015 §5).
+//! when computed over TLC's own fingerprints, which
+//! [`StateFingerprinter::tlc`](crate::state::StateFingerprinter::tlc) produces
+//! (ADR 0015 §5).
 
 /// TLC's `Long.MAX_VALUE`, the minimum gap of a set with no two fingerprints in one
 /// sub-set.

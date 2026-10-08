@@ -33,6 +33,7 @@
 pub mod builtins;
 pub mod diagnostics;
 mod generate;
+pub mod hashtable;
 mod level;
 pub mod loader;
 pub mod model;

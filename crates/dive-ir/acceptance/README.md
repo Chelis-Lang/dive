@@ -200,3 +200,63 @@ The split-rule fixtures pin down the rules that the Examples exercise least:
   inlined by name (`SplitLet`);
 - `INSTANCE` substitutions stop the split (`SplitSubst`);
 - `<-` overrides redirect it (`SplitOverride`).
+
+## TLC's variable order (WP-A3)
+
+`Ir::tlc_var_order` gives the root module's state variables in TLC's order: the `varLoc`
+order that `TLCStateMut` stores, fingerprints and prints a state in. It comes from
+`dive_sema::Model::variable_decls`, a port of SANY's `ModuleNode.getVariableDecls`: the
+reverse of the iteration order of the module context's Java `Hashtable`
+(`crates/dive-sema/src/hashtable.rs`; ADR 0015 §5 has the algorithm).
+
+**The oracle.** `VarOrderDump.java` reads the order out of the pinned jar and
+reimplements nothing. Given a cfg, it constructs TLC's `FastTool` as `tlc2.TLC` does and
+prints `SpecProcessor.getVariablesNodes()`, checking that each variable's
+`UniqueString.getVarLoc()` is its index. Without one, it runs SANY as `SpecProcessor`
+does and prints the root module's `getVariableDecls()`. It also prints the number of
+keys in the root context (`keys`), read by reflection, for diagnosis.
+`dump_var_order.sh` runs one JVM per module, in the module's directory, from a TSV of
+`id`, directory, module and optional cfg.
+
+```sh
+python3 -I acceptance/var_order_specs.py tests/fixtures/var-order/specs
+# one line per spec: <name> TAB <dir> TAB <name>.tla TAB <name>.cfg
+acceptance/dump_var_order.sh <tla2tools.jar> <javac> <pinned java> "" < specs.tsv \
+  > tests/fixtures/var-order/tlc-2026.10.06.014338/specs.jsonl
+# one line per .tla file, the id relative to the repository (or the corpus), no cfg
+acceptance/dump_var_order.sh ... "$LIBS" < repo.tsv > tests/fixtures/var-order/tlc-2026.10.06.014338/repo.jsonl
+acceptance/dump_var_order.sh ... "$LIBS" < examples.tsv > tests/fixtures/var-order/tlc-2026.10.06.014338/examples.jsonl
+```
+
+`$LIBS` is the rest of the harness classpath (the CommunityModules jars, the Apalache and
+TLAPS library directories). `repo.jsonl` covers the `.tla` files under
+`crates/dive-sema/tests`, `crates/dive-check/tests/fixtures`,
+`crates/dive-conformance/tests/fixtures` (without `UsesCommunityModules`, as for the
+action split), `crates/dive-config/tests/fixtures`, `crates/dive-ir/tests/fixtures/actions`
+and `crates/dive-value/tests/fixtures/specs`. The dumps are generated, never edited.
+
+`tests/var_order.rs` compares `specs.jsonl` and `repo.jsonl` in CI, through both
+`Model::variable_decls` and `Ir::tlc_var_order`. `examples/var_order_oracle.rs` compares
+the Examples:
+
+```sh
+cargo run --release -p dive-ir --example var_order_oracle -- --corpus <examples-checkout> \
+  --dump tests/fixtures/var-order/tlc-2026.10.06.014338/examples.jsonl \
+  --after "$CM_TLA_DIR" --after "$APALACHE_DIR" --after "$TLAPS_LIBRARY_DIR"
+```
+
+### Results (2026-10-08, `tlc-2026.10.06.014338`, Examples `6a7b26a`)
+
+| Modules | Compared | Two or more variables | Match | Mismatch |
+|---|---|---|---|---|
+| Generated (`tests/fixtures/var-order/specs/`, through `FastTool`) | 29 | 26 | 29 | 0 |
+| Repository fixtures SANY accepts | 234 | 3 | 234 | 0 |
+| Examples, every `.tla` file | 424 | 303 (1,639 variables, at most 40) | 424 | 0 |
+
+The generated specifications have 1, 2, 5, 11, 12, 13, 25 and 50 variables, each with no
+standard module, with `Naturals`, and with five standard modules. They also include
+names with equal Java hashes in both declaration orders (`Collide`, `CollideRev`),
+variables inserted two `Hashtable` resizes apart (`Epochs`), an `EXTENDS` diamond
+(`Extends`), and named, unnamed and `LOCAL` instances with an inner module (`Instances`).
+`dive-store`'s `tests/tlc_state_fingerprints.rs` checks the state fingerprints that
+follow from this order against TLC's `-dump dot` output for the same specifications.

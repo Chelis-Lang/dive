@@ -728,6 +728,55 @@ impl Model {
         &self.builtins
     }
 
+    /// A module's `VARIABLE` declarations, including extended ones, in SANY's
+    /// order (`ModuleNode.getVariableDecls`). For the root module this is
+    /// TLC's state-variable order: the `i`-th declaration's `varLoc` is `i`
+    /// (`SpecProcessor.processSpec`), and `TLCStateMut.fingerPrint` walks the
+    /// values in this order.
+    ///
+    /// SANY computes the array on first use and caches it; so does this, when
+    /// analysis asked for it. Otherwise it is computed from the final context.
+    /// It is the reverse of the context `Hashtable`'s enumeration order
+    /// ([`crate::hashtable`]), so besides the declarations' names it depends on
+    /// how many keys the context has and when each declaration was inserted.
+    ///
+    /// ```
+    /// use dive_sema::{analyze_source, Options};
+    /// let src = "---- MODULE M ----\nVARIABLES x, y, z\n====\n";
+    /// let a = analyze_source("M.tla", src, &Options::default());
+    /// let m = a.model();
+    /// let vars: Vec<&str> = m
+    ///     .variable_decls(m.root().unwrap())
+    ///     .into_iter()
+    ///     .filter_map(|v| m.symbol_name(v))
+    ///     .collect();
+    /// assert_eq!(vars, ["x", "y", "z"]);
+    /// ```
+    #[must_use]
+    pub fn variable_decls(&self, module: NodeId) -> Vec<NodeId> {
+        match &self.node(module).kind {
+            NodeKind::Module(d) => d
+                .variable_decls
+                .clone()
+                .unwrap_or_else(|| crate::generate::decls_in(self, module, true)),
+            _ => Vec::new(),
+        }
+    }
+
+    /// A module's `CONSTANT` declarations, including extended ones, in SANY's
+    /// order (`ModuleNode.getConstantDecls`), computed and cached as
+    /// [`Model::variable_decls`].
+    #[must_use]
+    pub fn constant_decls(&self, module: NodeId) -> Vec<NodeId> {
+        match &self.node(module).kind {
+            NodeKind::Module(d) => d
+                .constant_decls
+                .clone()
+                .unwrap_or_else(|| crate::generate::decls_in(self, module, false)),
+            _ => Vec::new(),
+        }
+    }
+
     /// The external module with this name, if loaded.
     #[must_use]
     pub fn module_by_name(&self, name: &str) -> Option<NodeId> {

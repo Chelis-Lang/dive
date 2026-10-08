@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+6329229137266889557 [label="/\\ msgs = \"s2_0\"\n/\\ x = 10\n/\\ y = 50\n/\\ pc = \"s6_0\"\n/\\ AaAa = FALSE\n/\\ BBBB = <<3, \"t\", FALSE>>\n/\\ AaBB = FALSE",style = filled]
+6329229137266889557 -> 2815232954799334742 [label="",color="black",fontcolor="black"];
+2815232954799334742 [label="/\\ msgs = \"s2_1\"\n/\\ x = 11\n/\\ y = 51\n/\\ pc = \"s6_1\"\n/\\ AaAa = TRUE\n/\\ BBBB = <<4, \"t\", TRUE>>\n/\\ AaBB = TRUE",tooltip="/\\ msgs = \"s2_1\"\n/\\ x = 11\n/\\ y = 51\n/\\ pc = \"s6_1\"\n/\\ AaAa = TRUE\n/\\ BBBB = <<4, \"t\", TRUE>>\n/\\ AaBB = TRUE"];
+2815232954799334742 -> -2252287397333607892 [label="",color="black",fontcolor="black"];
+-2252287397333607892 [label="/\\ msgs = \"s2_2\"\n/\\ x = 12\n/\\ y = 52\n/\\ pc = \"s6_2\"\n/\\ AaAa = FALSE\n/\\ BBBB = <<5, \"t\", FALSE>>\n/\\ AaBB = FALSE",tooltip="/\\ msgs = \"s2_2\"\n/\\ x = 12\n/\\ y = 52\n/\\ pc = \"s6_2\"\n/\\ AaAa = FALSE\n/\\ BBBB = <<5, \"t\", FALSE>>\n/\\ AaBB = FALSE"];
+-2252287397333607892 -> 1096277844212241987 [label="",color="black",fontcolor="black"];
+1096277844212241987 [label="/\\ msgs = \"s2_3\"\n/\\ x = 13\n/\\ y = 53\n/\\ pc = \"s6_3\"\n/\\ AaAa = TRUE\n/\\ BBBB = <<6, \"t\", TRUE>>\n/\\ AaBB = TRUE",tooltip="/\\ msgs = \"s2_3\"\n/\\ x = 13\n/\\ y = 53\n/\\ pc = \"s6_3\"\n/\\ AaAa = TRUE\n/\\ BBBB = <<6, \"t\", TRUE>>\n/\\ AaBB = TRUE"];
+{rank = same; 6329229137266889557;}
+{rank = same; 2815232954799334742;}
+{rank = same; -2252287397333607892;}
+}
+}
