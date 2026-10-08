@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Next","location":{"beginLine":11,"beginColumn":9,"endLine":11,"endColumn":52,"module":"NxForallOrder"}},[2,{"x":3}]]],"state":[[1,{"x":0}],[2,{"x":3}]]},"vars":["x"]}

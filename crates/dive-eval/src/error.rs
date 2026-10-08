@@ -70,6 +70,14 @@ pub enum Ec {
     ArgumentMismatch,
     /// `TLC_MODULE_APPLYING_TO_WRONG_VALUE` (2176).
     ApplyingToWrongValue,
+    /// `TLC_EXPECTED_EXPRESSION_IN_COMPUTING` (2247): the successor
+    /// generator met a non-boolean where it expected a predicate.
+    ExpectedExpressionInComputing,
+    /// `TLC_EXPECTED_EXPRESSION_IN_COMPUTING2` (2248): the same for a
+    /// function application.
+    ExpectedExpressionInComputing2,
+    /// `TLC_ENABLED_WRONG_FORMULA` (2260).
+    EnabledWrongFormula,
 }
 
 impl Ec {
@@ -100,6 +108,9 @@ impl Ec {
             Self::NotCompletelySpecifiedLive => 2148,
             Self::ArgumentMismatch => 2170,
             Self::ApplyingToWrongValue => 2176,
+            Self::ExpectedExpressionInComputing => 2247,
+            Self::ExpectedExpressionInComputing2 => 2248,
+            Self::EnabledWrongFormula => 2260,
         }
     }
 
@@ -130,6 +141,9 @@ impl Ec {
             Self::NotCompletelySpecifiedLive => "TLC_STATE_NOT_COMPLETELY_SPECIFIED_LIVE",
             Self::ArgumentMismatch => "TLC_ARGUMENT_MISMATCH",
             Self::ApplyingToWrongValue => "TLC_MODULE_APPLYING_TO_WRONG_VALUE",
+            Self::ExpectedExpressionInComputing => "TLC_EXPECTED_EXPRESSION_IN_COMPUTING",
+            Self::ExpectedExpressionInComputing2 => "TLC_EXPECTED_EXPRESSION_IN_COMPUTING2",
+            Self::EnabledWrongFormula => "TLC_ENABLED_WRONG_FORMULA",
         }
     }
 
@@ -157,6 +171,9 @@ impl Ec {
             2148 => Self::NotCompletelySpecifiedLive,
             2170 => Self::ArgumentMismatch,
             2176 => Self::ApplyingToWrongValue,
+            2247 => Self::ExpectedExpressionInComputing,
+            2248 => Self::ExpectedExpressionInComputing2,
+            2260 => Self::EnabledWrongFormula,
             _ => Self::General,
         }
     }
