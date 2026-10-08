@@ -621,7 +621,7 @@ impl Value {
     /// `1 \in {1, "a"}` is `TRUE` while `{1, "a"} = {}` is an error, as in TLC.
     #[must_use]
     pub fn set_raw(elems: Vec<Self>, ctx: Ctx) -> Self {
-        if elems.len() <= 1 {
+        if elems.is_empty() {
             return Self::Set(Set::from_sorted(ctx.order, elems));
         }
         Self::Set(Set::new(ctx.order, SetRepr::Raw(elems.into_boxed_slice())))

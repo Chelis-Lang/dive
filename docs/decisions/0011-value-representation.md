@@ -244,7 +244,7 @@ dive's fingerprint is TLC's FP64.
 All of the following is verified without Java (`crates/dive-value/tests/tlc_differential.rs`):
 
 - 122 printed values;
-- 53 error messages, byte for byte, covering comparison, equality, membership, overflow, size and literal errors;
+- 55 error messages, byte for byte, covering comparison, equality, membership, overflow, size and literal errors;
 - 4 order-dependent outcomes;
 - the counterexample states and their JSON.
 

@@ -90,9 +90,9 @@ enum Tok {
 }
 
 fn lex(src: &str) -> Vec<Tok> {
-    const OPS: [&str; 22] = [
-        "|->", "<<", ">>", "..", ":>", "@@", "->", "\\in", "\\X", "\\div", "{", "}", "(", ")", "[",
-        "]", ",", ":", "=", "+", "-", "*",
+    const OPS: [&str; 24] = [
+        "\\cup", "\\cap", "|->", "<<", ">>", "..", ":>", "@@", "->", "\\in", "\\X", "\\div", "{",
+        "}", "(", ")", "[", "]", ",", ":", "=", "+", "-", "*",
     ];
     let mut out = Vec::new();
     let b = src.as_bytes();
@@ -223,13 +223,30 @@ impl P<'_, '_> {
     }
 
     fn colon(&mut self) -> Eval {
-        let d = self.range()?;
+        let d = self.setop()?;
         if self.is_op(":>") {
             self.pos += 1;
-            let v = self.range()?;
+            let v = self.setop()?;
             return Value::fcn(vec![(d, v)], self.ctx());
         }
         Ok(d)
+    }
+
+    fn setop(&mut self) -> Eval {
+        let mut a = self.range()?;
+        loop {
+            if self.is_op("\\cup") {
+                self.pos += 1;
+                let b = self.range()?;
+                a = ops::union(&a, &b, self.ctx())?;
+            } else if self.is_op("\\cap") {
+                self.pos += 1;
+                let b = self.range()?;
+                a = ops::intersect(&a, &b, self.ctx())?;
+            } else {
+                return Ok(a);
+            }
+        }
     }
 
     fn range(&mut self) -> Eval {
