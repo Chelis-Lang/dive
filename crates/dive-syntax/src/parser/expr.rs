@@ -210,8 +210,13 @@ impl Parser<'_> {
         st.push(top);
     }
 
-    fn op_name(o: &OpInfo) -> &'static str {
-        o.canonical
+    /// An operator's name for messages (`-.` is SANY's name for prefix `-`).
+    fn op_name(o: &OpInfo) -> String {
+        if o.canonical == "-." {
+            "prefix `-`".to_owned()
+        } else {
+            format!("`{}`", o.canonical)
+        }
     }
 
     fn conflict(&self, at: VPos, l: &OpInfo, r: &OpInfo) -> PErr {
@@ -219,7 +224,7 @@ impl Parser<'_> {
             at,
             Code::PrecedenceConflict,
             format!(
-                "precedence conflict between operators `{}` and `{}`",
+                "precedence conflict between operators {} and {}",
                 Self::op_name(l),
                 Self::op_name(r)
             ),
