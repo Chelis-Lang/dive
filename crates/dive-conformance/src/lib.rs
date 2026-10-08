@@ -40,6 +40,7 @@ pub mod process;
 pub mod report;
 pub mod sany;
 pub mod tlc;
+pub mod trace_check;
 pub mod upstream;
 pub mod util;
 

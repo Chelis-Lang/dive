@@ -58,11 +58,10 @@ pub enum Outcome {
     /// A disagreement listed in `conformance/expected-divergences.toml` for
     /// the `dive` profile (ADR 0010). Never counted as `agree`.
     ExpectedDivergence,
-    /// Every compared field agrees, but the counterexample has not been
-    /// validated by an independent trace validator (charter rule 2,
-    /// ADR 0016), which does not exist yet (WP-E1). Never counted as
-    /// `agree`; it becomes `agree` only once the validator vouches for the
-    /// trace.
+    /// Every compared field agrees, but the independent trace validator
+    /// (charter rule 2, ADR 0016) could not confirm the counterexample: it
+    /// refused part of the claim by name, or there was no document. Never
+    /// counted as `agree`. A counterexample shown invalid is `disagree`.
     AgreePendingTraceValidation,
     /// A difference between two TLC oracles that changes registered in
     /// `conformance/oracle-changes.toml` fully explain (ADR 0002). Only for

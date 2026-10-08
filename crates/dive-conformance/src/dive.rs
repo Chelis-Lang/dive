@@ -11,8 +11,10 @@
 //!   statistics are taken only where TLC prints them, and the
 //!   counterexample's length and printed states are kept. A refusal, a
 //!   resource limit, or an error whose TLC class dive does not claim yet is
-//!   `unsupported`, naming it. dive's counterexamples are not yet validated
-//!   by an independent trace validator (WP-E1), so a violation is at best
+//!   `unsupported`, naming it. dive's counterexample document
+//!   (`counterexample.trace`) is validated by the harness itself with
+//!   `dive-trace`, in-process ([`crate::trace_check`]); a violation whose
+//!   counterexample the validator cannot confirm is at best
 //!   `agree-pending-trace-validation` (ADR 0016).
 //!
 //! **Module search path.** SANY goldens are generated with the oracle's
@@ -93,6 +95,36 @@ pub struct DiveImplementation {
     cache_root: PathBuf,
 }
 
+/// The module search path equivalent to the classpath `golden_oracle`'s
+/// goldens were generated with (see the module documentation), in order.
+///
+/// # Errors
+/// Fails if a classpath jar or module library is not in the cache (run
+/// `oracle fetch`).
+pub fn module_search_path(
+    config: &Config,
+    cache: &Cache,
+    golden_oracle: &str,
+) -> Result<Vec<ClasspathEntry>> {
+    let oracle = config.oracles.oracle(golden_oracle)?;
+    let mut module_path = Vec::new();
+    for id in &oracle.classpath {
+        let a = config.oracles.classpath_artifact(id)?;
+        let jar = cache.verified_artifact(&format!("classpath jar `{id}`"), &a.url, &a.sha256)?;
+        if let Some(dir) = jar_modules(cache, &jar, &a.sha256)? {
+            module_path.push(ClasspathEntry {
+                id: a.id.clone(),
+                pin: a.sha256.clone(),
+                path: dir,
+            });
+        }
+    }
+    for lib in &config.oracles.module_library {
+        module_path.push(library_entry(cache, lib)?);
+    }
+    Ok(module_path)
+}
+
 impl DiveImplementation {
     /// Resolves the `dive` binary and the module search path equivalent to
     /// the classpath that `golden_oracle`'s SANY goldens were generated
@@ -107,23 +139,7 @@ impl DiveImplementation {
         golden_oracle: &str,
         bin: &Path,
     ) -> Result<Self> {
-        let oracle = config.oracles.oracle(golden_oracle)?;
-        let mut module_path = Vec::new();
-        for id in &oracle.classpath {
-            let a = config.oracles.classpath_artifact(id)?;
-            let jar =
-                cache.verified_artifact(&format!("classpath jar `{id}`"), &a.url, &a.sha256)?;
-            if let Some(dir) = jar_modules(cache, &jar, &a.sha256)? {
-                module_path.push(ClasspathEntry {
-                    id: a.id.clone(),
-                    pin: a.sha256.clone(),
-                    path: dir,
-                });
-            }
-        }
-        for lib in &config.oracles.module_library {
-            module_path.push(library_entry(cache, lib)?);
-        }
+        let module_path = module_search_path(config, cache, golden_oracle)?;
         if !bin.is_file() {
             return Err(Error::Config(format!(
                 "the dive binary {} does not exist; build it with `cargo build --release -p dive-cli` or pass --dive-bin",
@@ -610,7 +626,12 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             Trace {
                 length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
                 ending: TraceEnding::Finite,
-                json: None,
+                // dive's own document (`counterexample.trace`, dive-trace's
+                // format), which the harness validates itself (ADR 0016 §3).
+                json: v["counterexample"]
+                    .get("trace")
+                    .filter(|t| !t.is_null())
+                    .cloned(),
                 steps: Some(steps),
                 omitted: None,
                 json_unavailable: None,
@@ -676,6 +697,33 @@ impl Implementation for DiveImplementation {
 
     fn dive_provenance(&self) -> Option<DiveProvenance> {
         self.provenance.clone()
+    }
+
+    /// Validates dive's counterexample in-process with `dive-trace`, under
+    /// the profile dive ran in, with the same module search path. dive's own
+    /// `counterexample.validation` is ignored (ADR 0016 §3).
+    fn trace_validated(
+        &self,
+        req: &ModelRequest<'_>,
+        result: &OracleResult,
+        golden: &OracleResult,
+    ) -> crate::trace_check::TraceCheck {
+        let compat_tlc = match self.profile {
+            Profile::Tlc => true,
+            Profile::Dive => false,
+            Profile::TlcWithOverrides(_) => {
+                return crate::trace_check::TraceCheck::no(
+                    "the validator has no tlc+overrides profile",
+                );
+            }
+        };
+        let paths: Vec<PathBuf> = self.module_path.iter().map(|e| e.path.clone()).collect();
+        match crate::trace_check::load_model(req.corpus_root, req.model, &paths, compat_tlc) {
+            Ok(spec) => crate::trace_check::validate_counterexample(&spec, result, golden),
+            Err(e) => crate::trace_check::TraceCheck::no(format!(
+                "the validator cannot bind the model: {e}"
+            )),
+        }
     }
 
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>> {

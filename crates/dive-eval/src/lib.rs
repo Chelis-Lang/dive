@@ -289,6 +289,19 @@ impl Evaluator {
         }
     }
 
+    /// The definition the configuration makes `def` stand for, following
+    /// `Op <- Other` overrides; `def` itself when it is not overridden.
+    #[must_use]
+    pub fn redirected(&self, def: DefId) -> DefId {
+        self.core.redirect(def)
+    }
+
+    /// Whether the configuration assigns `def` a value (`Op = v`).
+    #[must_use]
+    pub fn is_value_override(&self, def: DefId) -> bool {
+        self.core.def_values.contains_key(&def)
+    }
+
     /// The error TLC raises while processing the specification, before
     /// checking assumptions: a numeral too big for `--int=tlc`
     /// (`TLC_INTEGER_TOO_BIG`) or a decimal (`TLC_CANT_HANDLE_REAL_NUMBERS`).
