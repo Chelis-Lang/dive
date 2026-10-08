@@ -88,6 +88,11 @@ struct Flat {
 }
 
 impl AnalyzeReport {
+    /// A report of an analysis made elsewhere (`dive check`).
+    pub(crate) fn from_analysis(file: String, analysis: Analysis) -> Self {
+        Self { file, analysis }
+    }
+
     /// Whether SANY would accept the specification.
     #[must_use]
     pub fn accepted(&self) -> bool {

@@ -18,6 +18,38 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
+  level engine run inline with one logical worker, over `dive-model`'s bound model:
+  - initial states, invariants (on new and out-of-model states), implied initial
+    predicates, implied actions (on every step, including into seen states),
+    `CONSTRAINT`, `ACTION_CONSTRAINT`, deadlock (no successor generated at all), `VIEW`,
+    `ASSUME`s, and `POSTCONDITION`s after a complete search;
+  - stops at the first event in TLC's order with ADR 0015 §3's counts; an error keeps the
+    counts up to it; an initial-state stop reports no TLC statistics;
+  - counterexamples rebuilt by replay from the trace log, with TLC's action labels;
+  - fingerprint mode (TLC's own fingerprints under `--compat=tlc`) and exact mode
+    (`--store exact`, D-007); TLC's collision figures on success;
+  - refusals by name: temporal properties, `SYMMETRY`, whatever the binding stage or the
+    evaluator refuses; an error whose TLC class is not reproduced yet is reported with
+    the class marked unverified.
+
+  `dive check Spec.tla [--config X.cfg] [--compat=tlc] [--store fp|exact] [--seed N]
+  [--fp N] [--workers N|auto] [-deadlock] [--output human|json]`: TLC-style text or a
+  versioned JSON report (verdict, statistics, counterexample as structured states,
+  diagnostics, notes, and an `options` block with profile, options, polynomial and
+  seed). TLC's exit codes under `--compat=tlc`, dive's own otherwise (`dive --help`).
+  `--workers N` runs sequentially until the parallel engine (WP-D3) and says so.
+  All 19 TLC probes and 11 harness fixtures agree with TLC in both stores, including
+  every counterexample state and label (milestone CM0, `crates/dive-check/tests/probes.rs`).
+- Conformance harness: `run --impl dive` checks models with `dive check` and maps its
+  report to the oracle vocabulary. A violation whose only difference is the missing
+  independent trace validation is `agree-pending-trace-validation`, never `agree`.
+  `docs/conformance.md` keeps one section per implementation and profile (issue #27).
+  `conformance/gates/cm1.txt` and `scripts/conformance-gate.sh`: the CM1 model list as a
+  PR-gate candidate (not in CI yet; about 3 s per run). Small tier under
+  `--compat=tlc`: 59 agree, 9 agree pending trace validation, 72 unsupported,
+  0 disagree. Default profile, for information: 59, 7, 72, and 2 disagree, both at a
+  violation under canonical exploration order (D-010).
 - `dive-eval` (M5, WP-C2): the successor generator `dive_eval::next`, behind the
   `enumerate` feature (ADR 0014 §3 and its WP-C2 amendment):
   - ports of TLC's `getInitStates`, `getNextStates`, `processUnchanged`, `getActions` and

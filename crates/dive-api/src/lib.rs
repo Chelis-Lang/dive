@@ -4,7 +4,8 @@
 //! versioned JSON report ([`ParseReport::to_json`]); reading TLC model
 //! configurations ([`parse_config_file`], [`ConfigReport`]); and
 //! SANY-equivalent semantic analysis ([`analyze_file`], [`analyze_source`])
-//! with its own report ([`AnalyzeReport::to_json`]). Everything else in the
+//! with its own report ([`AnalyzeReport::to_json`]); and safety model
+//! checking ([`check_file`], [`CheckReport`]). Everything else in the
 //! charter is still to come. Permitted internal dependencies are listed in
 //! `xtask/src/layering.rs`.
 //!
@@ -24,6 +25,11 @@ mod config;
 pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
+mod check;
+
+pub use check::{CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, Store, check_file, exit};
+/// Parses a seed as TLC's `-seed` does (`dive check --seed`).
+pub use dive_stdlib::random::parse_seed;
 
 pub use analyze::{
     ANALYZE_SCHEMA_VERSION, AnalyzeOptions, AnalyzeReport, analyze_file, analyze_source,

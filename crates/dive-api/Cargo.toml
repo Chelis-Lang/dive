@@ -12,6 +12,12 @@ repository.workspace = true
 dive-config = { workspace = true }
 dive-sema = { workspace = true }
 dive-syntax = { workspace = true }
+dive-ir = { workspace = true }
+dive-value = { workspace = true }
+dive-eval = { workspace = true }
+dive-stdlib = { workspace = true }
+dive-store = { workspace = true }
+dive-check = { workspace = true }
 serde_json = { workspace = true }
 
 [lints]
