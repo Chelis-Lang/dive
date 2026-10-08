@@ -189,6 +189,7 @@ version = "0.0.0"
 dependencies = [
  "dive-config",
  "dive-ir",
+ "dive-model",
  "dive-sema",
  "dive-value",
  "proptest",
@@ -200,6 +201,7 @@ name = "dive-ir"
 version = "0.0.0"
 dependencies = [
  "dive-sema",
+ "dive-syntax",
  "serde",
  "serde_json",
 ]
@@ -215,6 +217,14 @@ version = "0.0.0"
 [[package]]
 name = "dive-model"
 version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-eval",
+ "dive-ir",
+ "dive-sema",
+ "dive-value",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-pluscal"

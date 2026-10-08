@@ -47,6 +47,7 @@ mod lazy;
 #[cfg(feature = "enumerate")]
 pub mod next;
 mod options;
+mod scope;
 mod std;
 mod tla_cmp;
 #[cfg(feature = "enumerate")]
@@ -83,6 +84,7 @@ pub use crate::lazy::LazyFcn;
 pub use crate::options::{
     Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile, RECOMMENDED_STACK,
 };
+pub use crate::scope::{Scope, SlotView};
 
 use crate::core::Core;
 use crate::env::{Dyn, Env, Ev};

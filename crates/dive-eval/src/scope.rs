@@ -1,0 +1,559 @@
+//! Scopes: where the binding stage's predicates are evaluated.
+//!
+//! TLC keeps every role of a model (an initial predicate, an action, an
+//! invariant, an implied action, a constraint) as an `Action`: an expression
+//! with the `Context` it is evaluated in (`tlc2.tool.Action`). The context is
+//! what `SpecProcessor.processConfigSpec` and `Tool.getActions` built while
+//! they walked down to the expression: the parameters of operators they
+//! inlined (`getOpContext`, lazily), the values of the `\E` variables they
+//! split on, and the instance substitutions they passed (`Specs.addSubsts`).
+//!
+//! A [`Scope`] is that context over dive's environments: a frame of the
+//! definition the expression belongs to (with its parents) and the dynamic
+//! substitutions. The binding stage builds scopes with the methods on
+//! [`crate::Evaluator`] below and hands each role to the checker as an
+//! expression plus a scope.
+
+use std::sync::Arc;
+
+use dive_ir::{Arg, DefId, DefScope, Expr, ExprId, LocalRef, OpRef, Pass, Slot};
+use dive_value::Value;
+
+use crate::Evaluator;
+use crate::env::{Dyn, Env, Ev, St, Sv, Thunk};
+use crate::error::{EvalError, Result};
+
+/// TLC's `Context` of a role (see the module documentation). Cheap to clone.
+#[derive(Clone, Debug)]
+pub struct Scope {
+    pub(crate) env: Env,
+    /// The innermost substitution entered, whose location labels the
+    /// actions found under it.
+    pub(crate) wrapper: Option<ExprId>,
+}
+
+impl Scope {
+    /// The definition whose frame the scope's expressions are evaluated in.
+    #[must_use]
+    pub fn def(&self) -> DefId {
+        self.env.frame.def
+    }
+}
+
+/// What a slot of a scope holds, as the binding stage needs to see it.
+#[derive(Clone, Debug)]
+pub enum SlotView {
+    /// Nothing is bound.
+    Unset,
+    /// A value.
+    Value(Value),
+    /// A lazy argument (`LazyValue`): the expression and the scope it is
+    /// evaluated in.
+    Lazy(ExprId, Scope),
+    /// An operator argument or a lazy function: not an expression.
+    Other,
+}
+
+impl Evaluator {
+    /// Enters an application of `def` to `args` in `scope`, as TLC's
+    /// `getOpContext` does: each expression argument is bound lazily (a
+    /// `LazyValue` over `scope`), each operator argument to the operator.
+    ///
+    /// # Errors
+    /// An arity mismatch or a missing enclosing frame (bugs), or an operator
+    /// argument TLC cannot look up.
+    pub fn scope_apply(&self, scope: &Scope, def: DefId, args: &[Arg]) -> Result<Scope> {
+        let core = &self.core;
+        let d = core.ir.def(def);
+        if args.len() != d.params.len() {
+            return Err(EvalError::bug(format!(
+                "{} applied to {} arguments, expects {}",
+                d.name,
+                args.len(),
+                d.params.len()
+            )));
+        }
+        let parent = match d.scope {
+            DefScope::Local { .. } | DefScope::Inline { .. } => Some(
+                scope
+                    .env
+                    .frame_at_depth(d.depth.saturating_sub(1))
+                    .cloned()
+                    .ok_or_else(|| EvalError::bug(format!("no enclosing frame for {}", d.name)))?,
+            ),
+            _ => None,
+        };
+        let mut callee = Env::new(
+            def,
+            d.depth,
+            d.frame.len(),
+            parent,
+            scope.env.dynamic.clone(),
+        );
+        for (i, a) in args.iter().enumerate() {
+            let sv = match a {
+                Arg::Expr { expr, .. } => Sv::Thunk(Thunk::new(*expr, scope.env.clone(), true)),
+                Arg::Op { op, .. } => Sv::Op(core.op_value(&scope.env, op)?),
+            };
+            callee.bind(i, sv);
+        }
+        Ok(Scope {
+            env: callee,
+            wrapper: scope.wrapper,
+        })
+    }
+
+    /// Enters an application of an operator parameter: the definition TLC's
+    /// lookup of the parameter gives (the operator passed for it), entered as
+    /// [`Evaluator::scope_apply`] enters a definition. `None` if the
+    /// parameter is not bound to a user definition.
+    ///
+    /// # Errors
+    /// As [`Evaluator::scope_apply`].
+    #[must_use]
+    pub fn scope_apply_param(
+        &self,
+        scope: &Scope,
+        r: LocalRef,
+        args: &[Arg],
+    ) -> Option<Result<(DefId, Scope)>> {
+        let core = &self.core;
+        let frame = scope.env.frame_up(r.up)?;
+        let Some(Sv::Op(crate::env::OpVal::Def {
+            def,
+            parent,
+            dynamic,
+        })) = frame.slots.get(r.slot.index())
+        else {
+            return None;
+        };
+        let def = *def;
+        let d = core.ir.def(def);
+        if args.len() != d.params.len() || core.ir.def(def).std.is_some() {
+            return None;
+        }
+        let parent = match d.scope {
+            DefScope::Local { .. } | DefScope::Inline { .. } => parent.clone(),
+            _ => None,
+        };
+        let mut callee = Env::new(
+            def,
+            d.depth,
+            d.frame.len(),
+            parent,
+            dynamic.clone().unwrap_or_else(|| scope.env.dynamic.clone()),
+        );
+        for (i, a) in args.iter().enumerate() {
+            let sv = match a {
+                Arg::Expr { expr, .. } => Sv::Thunk(Thunk::new(*expr, scope.env.clone(), true)),
+                Arg::Op { op, .. } => match core.op_value(&scope.env, op) {
+                    Ok(v) => Sv::Op(v),
+                    Err(e) => return Some(Err(e)),
+                },
+            };
+            callee.bind(i, sv);
+        }
+        Some(Ok((
+            def,
+            Scope {
+                env: callee,
+                wrapper: scope.wrapper,
+            },
+        )))
+    }
+
+    /// The scope of `def`'s body with none of its parameters bound, as TLC's
+    /// `getLevelBound` sees the body of an operator it looks into: a
+    /// parameter it meets is not in the context. A `LET` operator or `LAMBDA`
+    /// keeps `scope`'s frame as its parent; a zero-arity `LET` definition is
+    /// evaluated in `scope` itself.
+    #[must_use]
+    pub fn scope_unbound(&self, scope: &Scope, def: DefId) -> Scope {
+        let d = self.core.ir.def(def);
+        match d.scope {
+            DefScope::LetValue { .. } => scope.clone(),
+            DefScope::TopLevel => self.scope(def),
+            DefScope::Local { .. } | DefScope::Inline { .. } => {
+                let parent = scope.env.frame_at_depth(d.depth.saturating_sub(1)).cloned();
+                Scope {
+                    env: Env::new(
+                        def,
+                        d.depth,
+                        d.frame.len(),
+                        parent,
+                        scope.env.dynamic.clone(),
+                    ),
+                    wrapper: scope.wrapper,
+                }
+            }
+        }
+    }
+
+    /// Enters an application of `def` whose parameters are bound to values, as
+    /// `Tool.getActionsAppl` does when it inlines an operator
+    /// (`con1.cons(formals[i], aval)`).
+    ///
+    /// # Errors
+    /// An arity mismatch or a missing enclosing frame (bugs).
+    pub fn scope_call_values(
+        &self,
+        scope: &Scope,
+        def: DefId,
+        values: Vec<Value>,
+    ) -> Result<Scope> {
+        let d = self.core.ir.def(def);
+        if values.len() != d.params.len() {
+            return Err(EvalError::bug(format!(
+                "{} inlined with {} values, expects {}",
+                d.name,
+                values.len(),
+                d.params.len()
+            )));
+        }
+        let mut s = match d.scope {
+            DefScope::LetValue { .. } => return Ok(scope.clone()),
+            _ => self.scope_unbound(scope, def),
+        };
+        if matches!(d.scope, DefScope::TopLevel) {
+            s.env.dynamic = scope.env.dynamic.clone();
+        }
+        for (i, v) in values.into_iter().enumerate() {
+            s.env.bind(i, Sv::Val(v));
+        }
+        Ok(s)
+    }
+
+    /// The scope of a zero-arity `LET` definition's body (`DefScope::LetValue`
+    /// evaluates in its parent's frame) or of a definition with no parameters
+    /// entered from `scope`.
+    ///
+    /// # Errors
+    /// As [`Evaluator::scope_apply`].
+    pub fn scope_enter(&self, scope: &Scope, def: DefId) -> Result<Scope> {
+        if matches!(self.core.ir.def(def).scope, DefScope::LetValue { .. }) {
+            return Ok(scope.clone());
+        }
+        self.scope_apply(scope, def, &[])
+    }
+
+    /// A fresh frame of the top-level definition `def`: the context in which
+    /// `SpecProcessor` finds a configured formula's parts.
+    #[must_use]
+    pub fn scope(&self, def: DefId) -> Scope {
+        let d = self.core.ir.def(def);
+        Scope {
+            env: Env::new(def, d.depth, d.frame.len(), None, Dyn::default()),
+            wrapper: None,
+        }
+    }
+
+    /// `scope` under the substitutions of `subst`, an [`Expr::Subst`] node of
+    /// its frame, as TLC wraps a formula found under an `INSTANCE` in a
+    /// substitution (`Specs.addSubsts`) that the generator then evaluates as
+    /// uncached lazy values (`Tool.java:960-990`, `:488-498`). Labels of
+    /// actions in the result name the substitution's location, as TLC's
+    /// wrapper does.
+    ///
+    /// # Errors
+    /// A bug if `subst` is not a substitution; an evaluation error of a
+    /// binding TLC evaluates eagerly (none: every expression binding is lazy).
+    pub fn scope_subst(&self, scope: &Scope, subst: ExprId) -> Result<Scope> {
+        let Expr::Subst { bindings, .. } = &self.core.ir.node(subst).expr else {
+            return Err(EvalError::bug(
+                "scope_subst on a node that is not a substitution",
+            ));
+        };
+        let env = self
+            .core
+            .bind_subst(&scope.env, &St::default(), bindings, false)?;
+        Ok(Scope {
+            env,
+            wrapper: Some(subst),
+        })
+    }
+
+    /// The context of a call `apply` (an application of a user definition)
+    /// made in `scope`: a fresh frame of the definition with its arguments
+    /// bound as uncached lazy values (`getOpContext(..., false)`, as
+    /// `SpecProcessor.processConfigSpec` inlines a parameterized formula).
+    /// Returns the definition called.
+    ///
+    /// # Errors
+    /// A bug if `apply` is not such an application.
+    pub fn scope_call(&self, scope: &Scope, apply: ExprId) -> Result<(Scope, DefId)> {
+        let (d, args): (&DefId, &[Arg]) = match &self.core.ir.node(apply).expr {
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } => (d, args),
+            Expr::Def(d) => (d, &[]),
+            _ => return Err(EvalError::bug("scope_call on a node that is not a call")),
+        };
+        let d = self.core.redirect(*d);
+        let def = self.core.ir.def(d);
+        let mut env = Env::new(
+            d,
+            def.depth,
+            def.frame.len(),
+            None,
+            scope.env.dynamic.clone(),
+        );
+        for (i, a) in args.iter().enumerate() {
+            let sv = match a {
+                Arg::Expr { expr, pass } => match pass {
+                    Pass::Strict => Sv::from(self.core.eval(
+                        &mut scope.env.clone(),
+                        &St::constant(),
+                        *expr,
+                    )?),
+                    Pass::Lazy | Pass::Direct => {
+                        Sv::Thunk(Thunk::new(*expr, scope.env.clone(), false))
+                    }
+                },
+                Arg::Op { op, .. } => Sv::Op(self.core.op_value(&scope.env, op)?),
+            };
+            env.bind(i, sv);
+        }
+        Ok((
+            Scope {
+                env,
+                wrapper: scope.wrapper,
+            },
+            d,
+        ))
+    }
+
+    /// Binds the zero-arity definitions of a `LET` (an [`Expr::Let`]) in
+    /// `scope`, so that its body can be evaluated there. TLC does not bind
+    /// them when it walks a specification (`processConfigSpec`, `getActions`):
+    /// it finds each definition by its node and evaluates its body at every
+    /// use. The thunks are therefore not cached, which is indistinguishable
+    /// from TLC.
+    ///
+    /// # Errors
+    /// If `let_expr` is not a `LET`.
+    pub fn scope_let(&self, scope: &Scope, let_expr: ExprId) -> Result<Scope> {
+        let core = &self.core;
+        let Expr::Let { defs, .. } = core.ir.expr(let_expr) else {
+            return Err(EvalError::bug("scope_let on a node that is not a LET"));
+        };
+        let mut env = scope.env.clone();
+        for &d in defs {
+            if let DefScope::LetValue { slot, .. } = core.ir.def(d).scope {
+                let body = core.ir.def(d).body;
+                env.bind(
+                    slot.index(),
+                    Sv::Thunk(Thunk::new(body, env.clone(), false)),
+                );
+            }
+        }
+        Ok(Scope {
+            env,
+            wrapper: scope.wrapper,
+        })
+    }
+
+    /// The scope without its instance substitutions: what TLC's context holds
+    /// while `processConfigProps` walks under a substitution (TLC keeps the
+    /// substitutions apart, to wrap them around what it finds).
+    #[must_use]
+    pub fn scope_without_substs(&self, scope: &Scope) -> Scope {
+        let mut env = scope.env.clone();
+        env.dynamic.subst = None;
+        Scope {
+            env,
+            wrapper: scope.wrapper,
+        }
+    }
+
+    /// Binds a slot of the scope's own frame to a value: a variable of a split
+    /// `\E`, or a parameter of an operator inlined with its value
+    /// (`Tool.getActionsAppl`).
+    #[must_use]
+    pub fn scope_bind(&self, scope: &Scope, slot: Slot, v: Value) -> Scope {
+        let mut env = scope.env.clone();
+        env.bind(slot.index(), Sv::Val(v));
+        Scope {
+            env,
+            wrapper: scope.wrapper,
+        }
+    }
+
+    /// The values bound to the parameters of `def` in the innermost frame of
+    /// `def` in `scope` (walking out through enclosing frames), in parameter
+    /// order; `None` for a parameter bound to anything but a value. This is
+    /// what TLC prints in an action's label (`Action.getLocation`).
+    #[must_use]
+    pub fn scope_params(&self, scope: &Scope, def: DefId) -> Vec<Option<Value>> {
+        let n = self.core.ir.def(def).params.len();
+        let mut f = Some(&scope.env.frame);
+        while let Some(frame) = f {
+            if frame.def == def {
+                return (0..n)
+                    .map(|i| match frame.slots.get(i) {
+                        Some(Sv::Val(v)) => Some(v.clone()),
+                        _ => None,
+                    })
+                    .collect();
+            }
+            f = frame.parent.as_ref();
+        }
+        vec![None; n]
+    }
+
+    /// What the innermost substitution of `decl` in `scope` holds, if any.
+    #[must_use]
+    pub fn scope_subst_slot(&self, scope: &Scope, decl: dive_ir::DeclId) -> SlotView {
+        match scope.env.dynamic.lookup(decl) {
+            None | Some(Sv::Unset) => SlotView::Unset,
+            Some(Sv::Val(v)) => SlotView::Value(v.clone()),
+            Some(Sv::Thunk(t)) => SlotView::Lazy(
+                t.expr,
+                Scope {
+                    env: t.env.clone(),
+                    wrapper: scope.wrapper,
+                },
+            ),
+            Some(_) => SlotView::Other,
+        }
+    }
+
+    /// What a local reference in `scope` holds.
+    #[must_use]
+    pub fn scope_slot(&self, scope: &Scope, r: LocalRef) -> SlotView {
+        let Some(frame) = scope.env.frame_up(r.up) else {
+            return SlotView::Unset;
+        };
+        match frame.slots.get(r.slot.index()) {
+            None | Some(Sv::Unset) => SlotView::Unset,
+            Some(Sv::Val(v)) => SlotView::Value(v.clone()),
+            Some(Sv::Thunk(t)) => SlotView::Lazy(
+                t.expr,
+                Scope {
+                    env: t.env.clone(),
+                    wrapper: scope.wrapper,
+                },
+            ),
+            Some(_) => SlotView::Other,
+        }
+    }
+
+    /// The bindings of a bounded `\E` (an [`Expr::Quant`]) in `scope`, in
+    /// TLC's enumeration order (`ContextEnumerator`, first variable fastest):
+    /// one scope per binding, each with the variables bound. The domains are
+    /// evaluated in `st` (TLC's `getActions` uses the empty state).
+    ///
+    /// # Errors
+    /// Any error evaluating or enumerating a domain.
+    pub fn scope_bindings(&self, scope: &Scope, quant: ExprId, st: &St) -> Result<Vec<Scope>> {
+        let core = &self.core;
+        let Expr::Quant { bounds, .. } = core.ir.expr(quant) else {
+            return Err(EvalError::bug(
+                "scope_bindings on a node that is not a quantifier",
+            ));
+        };
+        let mut env = scope.env.clone();
+        let mut out = Vec::new();
+        core.for_each_context(&mut env, st, bounds, quant, &mut |_, env| {
+            out.push(Scope {
+                env: env.clone(),
+                wrapper: scope.wrapper,
+            });
+            Ok(true)
+        })?;
+        Ok(out)
+    }
+
+    /// Evaluates `expr` in `scope`.
+    ///
+    /// # Errors
+    /// Any evaluation error, refusal or resource limit.
+    pub fn eval_scoped(&self, scope: &Scope, expr: ExprId, st: &St) -> Result<Value> {
+        let mut env = scope.env.clone();
+        let ev = self.core.eval(&mut env, st, expr)?;
+        self.core.force_fcn(ev)
+    }
+
+    /// Evaluates an argument of an operator application in `scope`, as TLC's
+    /// `getActionsAppl` does before it inlines the operator
+    /// (`this.eval(args[i], con, TLCState.Empty)`).
+    ///
+    /// # Errors
+    /// Any evaluation error; an operator argument is not a value.
+    pub fn eval_arg(&self, scope: &Scope, arg: &Arg, st: &St) -> Result<Value> {
+        match arg {
+            Arg::Expr { expr, .. } => self.eval_scoped(scope, *expr, st),
+            Arg::Op { .. } => Err(EvalError::unsupported(
+                "an operator argument where TLC expects a value",
+            )),
+        }
+    }
+
+    /// Evaluates the body of a zero-arity definition at start-up and keeps
+    /// the value for every later use, as `SpecProcessor.processConstantDefns`
+    /// does (`WorkerValue.demux(opDefEvaluator, opDef.getBody())`, then
+    /// `opDef.setToolObject(toolId, val)`). The body is evaluated every time
+    /// this is called, as TLC evaluates it every time it meets it; the first
+    /// value is kept (TLC keeps the last, which is the same value unless the
+    /// definition draws random values). On failure nothing is kept and the
+    /// definition stays lazy; TLC swallows the error.
+    ///
+    /// A function TLC would keep as a lambda (`FcnLambdaValue`) is not kept:
+    /// the definition stays lazy, and `Ok(None)` is returned. dive has no
+    /// value form for such a function, and re-evaluating it is
+    /// indistinguishable unless it is impure.
+    ///
+    /// # Errors
+    /// The evaluation error, which the binding stage swallows as TLC does.
+    pub fn precompute(&self, def: DefId) -> Result<Option<Value>> {
+        let core = &self.core;
+        let d = core.ir.def(def);
+        let mut env = Env::new(def, d.depth, d.frame.len(), None, Dyn::default());
+        let ev = core.eval(&mut env, &St::constant(), d.body)?;
+        let Ev::V(v) = ev else {
+            return Ok(None);
+        };
+        if let Some(cell) = core.startup.get(def.index()) {
+            let _ = cell.set(v.clone());
+        }
+        Ok(Some(v))
+    }
+
+    /// The value [`Evaluator::precompute`] kept for a definition.
+    #[must_use]
+    pub fn precomputed(&self, def: DefId) -> Option<Value> {
+        self.core
+            .startup
+            .get(def.index())
+            .and_then(|c| c.get())
+            .cloned()
+    }
+}
+
+impl crate::core::Core {
+    /// Binds `bindings` (an instance's substitutions) over `env`: lazy values
+    /// over the outer context, cached or not as TLC creates them.
+    pub(crate) fn bind_subst(
+        self: &Arc<Self>,
+        env: &Env,
+        st: &St,
+        bindings: &[dive_ir::SubstBinding],
+        cachable: bool,
+    ) -> Result<Env> {
+        let outer = env.clone();
+        let mut env1 = env.clone();
+        for b in bindings {
+            let val = match &b.value {
+                Arg::Expr { expr, pass } => match pass {
+                    Pass::Strict => Sv::from(self.eval(&mut outer.clone(), st, *expr)?),
+                    Pass::Lazy | Pass::Direct => {
+                        Sv::Thunk(Thunk::new(*expr, outer.clone(), cachable))
+                    }
+                },
+                Arg::Op { op, .. } => Sv::Op(self.op_value(&outer, op)?),
+            };
+            env1.dynamic.push(b.decl, val);
+        }
+        Ok(env1)
+    }
+}

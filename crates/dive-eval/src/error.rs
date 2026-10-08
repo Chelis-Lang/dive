@@ -308,6 +308,14 @@ impl EvalError {
         self.0.class == ErrorClass::Eval
     }
 
+    /// Whether TLC raises this error as an `EvalException` rather than as a
+    /// `TLCRuntimeException` (`Assert.fail`). Some of TLC's messages depend
+    /// on it (`SpecProcessor.processConstantDefns`).
+    #[must_use]
+    pub fn is_eval_exception(&self) -> bool {
+        self.0.eval_exception
+    }
+
     /// Whether a Java override would pass the error through unchanged
     /// (TLC's `EvalException`), rather than wrapping it in
     /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`.

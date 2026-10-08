@@ -192,7 +192,7 @@ Measured on the pinned TLC:
 | **Kind** | Different answer |
 | **Default** | A canonical order, independent of the module text |
 | **TLC behaviour** | `--choose-order=tlc` (included in `--compat=tlc`): TLC's order, including string interning order |
-| **Status** | implemented in the value layer (`dive-value`, ADR 0012), in both orders. `--choose-order=tlc` also needs the parser to record names in TLC's encounter order; that part is pending. |
+| **Status** | implemented in the value layer (`dive-value`, ADR 0012), in both orders. `--choose-order=tlc` also needs names recorded in TLC's encounter order: `dive-model` does that, and on 556 corpus models no name both tables hold is out of TLC's order (ADR 0012, "For the front end"). |
 
 **What TLC does.** `CHOOSE x \in S : P` picks the first element of `S` that satisfies `P`, in TLC's internal value order. For strings, that order is the order in which each string *first appears in the module text*, not alphabetical order. So adding an unused definition can change what `CHOOSE` returns, and can flip a verdict:
 
@@ -467,6 +467,14 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - a built-in operator passed as an operator argument and applied as an action (`Op(\/)`);
   - `x' \subseteq S` where `S` is not a set.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
+- **Binding refusals** (`dive-model`). Binding a specification to its configuration refuses, naming the feature:
+  - a constant operator given values in the `.cfg` (`F(1) = 2`), which TLC holds as a table of values (`OpRcdValue`);
+  - a Java class next to a module (`Bits.class` next to `Bits.tla`): TLC loads it and uses its methods instead of the module's definitions, and dive cannot run Java;
+  - TLC's undocumented `_PERIODIC`, `_RL_REWARD` and `_POSSIBLE` sections;
+  - a definition TLC evaluates at start-up that dive's evaluator refuses, when the result decides how the model is bound (it is named in the configuration, it is a conjunct of the behavior specification, or it prints or draws), or when the refused construct splits the next-state relation;
+  - the few messages whose text depends on Java objects dive does not have (a Java override used as a configuration name, a state variable used as a conjunct of `SPECIFICATION`).
+
+  Models that check temporal properties, or use `SYMMETRY`, bind, but checking them is refused until liveness checking and symmetry are implemented.
 
 ---
 

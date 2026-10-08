@@ -129,7 +129,12 @@ struct Loader<'a> {
 }
 
 /// Loads the specification rooted at `root` (already read).
-pub(crate) fn load(root: SourceFile, root_file_name: Option<&str>, search: &SearchPath) -> Loaded {
+pub(crate) fn load(
+    root: SourceFile,
+    root_file_name: Option<&str>,
+    search: &SearchPath,
+    extra_root_extendees: &[String],
+) -> Loaded {
     let root_dir = match &root.origin {
         Origin::File(p) => p.parent().map(Path::to_path_buf),
         _ => None,
@@ -150,7 +155,7 @@ pub(crate) fn load(root: SourceFile, root_file_name: Option<&str>, search: &Sear
         extension_found: false,
         instantiation_found: false,
     };
-    l.run(root, root_file_name);
+    l.run(root, root_file_name, extra_root_extendees);
     l.out
 }
 
@@ -175,7 +180,7 @@ impl Loader<'_> {
         self.out.diagnostics.push(d);
     }
 
-    fn run(&mut self, root: SourceFile, root_file_name: Option<&str>) {
+    fn run(&mut self, root: SourceFile, root_file_name: Option<&str>, extra: &[String]) {
         let display = root.display.clone();
         let file = self.add_file(root);
         let Some(root_unit) = self.parse_unit(file, root_file_name.map(stem), true, &display, None)
@@ -183,6 +188,13 @@ impl Loader<'_> {
             return;
         };
         let root_ptr = self.out.units[root_unit].root;
+        // `ParameterizedSpecObj.findOrCreateParsedUnit`: extra extendees of the
+        // root module, for loading only (see `Options::extra_root_extendees`).
+        for e in extra {
+            if !self.ptrs[root_ptr.0].extends.contains(e) {
+                self.ptrs[root_ptr.0].extends.push(e.clone());
+            }
+        }
         self.validate_pcal(root_unit);
         loop {
             let more = self.find_next_unresolved_extension(root_ptr)

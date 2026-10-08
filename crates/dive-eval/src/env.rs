@@ -107,6 +107,18 @@ impl St {
         }
     }
 
+    /// TLC's `(TLCState.Empty, TLCState.Empty, EvalControl.Clear)`: what
+    /// `Tool.getActions` evaluates the arguments of inlined operators and the
+    /// domains of split `\E`s in.
+    #[must_use]
+    pub fn empty() -> Self {
+        Self {
+            s0: StateRef::Empty,
+            s1: StateRef::Empty,
+            control: control::CLEAR,
+        }
+    }
+
     /// A state predicate in `state` (`Empty` successor, `Clear`).
     #[must_use]
     pub fn state(state: Arc<[Option<Value>]>) -> Self {

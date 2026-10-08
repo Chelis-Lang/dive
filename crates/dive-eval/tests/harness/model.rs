@@ -1,24 +1,22 @@
-//! A test-only stand-in for `dive-model` (WP-B1) and `dive-check` (WP-D2):
-//! binds the configuration's roles the way TLC's `SpecProcessor` does for
-//! the models it can handle, and runs TLC's single-worker breadth-first
-//! search with no store and no parallelism, to check the successor
-//! generator's counts against TLC's.
+//! A test-only stand-in for `dive-check` (WP-D2): binds the model with
+//! `dive-model`, the binding stage, and runs TLC's single-worker
+//! breadth-first search with no store and no parallelism, to check the
+//! successor generator's counts against TLC's.
 //!
 //! Anything it does not handle is reported as unsupported, naming it. It
 //! follows `ModelChecker.DoInitFunctor` and `Worker.addElement`/`run` for
 //! what is counted and when the search stops (`tlc2/tool/ModelChecker.java`,
 //! `tlc2/tool/Worker.java` at tlaplus `94d0c50`).
 
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque};
 
 use dive_config::ModelConfig;
-use dive_eval::next::{Action, Flow, Scope, StateVals, Successor};
+use dive_eval::next::{Action, Flow, StateVals, Successor};
 use dive_eval::{ErrorClass, EvalError, Evaluator, Options, St};
-use dive_ir::actions::{ActionName, split};
-use dive_ir::{DefId, Expr, ExprId, Ir, JunctionKind, Level, OpRef, Symbol};
+use dive_ir::actions::ActionName;
 use dive_value::Value;
 
-use super::{Loaded, bind};
+use super::Loaded;
 
 /// A predicate the checker evaluates, with its context.
 #[derive(Clone, Debug)]
@@ -89,287 +87,55 @@ pub struct Checked {
     pub output: Vec<String>,
 }
 
-fn name_of(ir: &Ir, name: &str) -> Result<DefId, String> {
-    match ir.lookup(ir.root(), name) {
-        Some(Symbol::Def(d)) => Ok(d),
-        _ => Err(format!(
-            "unsupported: {name} is not a definition of the root module"
-        )),
-    }
-}
-
-fn zero_arity(ir: &Ir, d: DefId, what: &str) -> Result<(), String> {
-    if ir.def(d).params.is_empty() {
-        Ok(())
-    } else {
-        Err(format!("{what} {} takes arguments", ir.def(d).name))
-    }
-}
-
-/// What a `SPECIFICATION` or `PROPERTY` walk found.
-#[derive(Default)]
-struct Parts {
-    inits: Vec<(Scope, ExprId, ActionName)>,
-    /// The next-state relation, its scope, the definition whose frame it is
-    /// in, and whether it is under a substitution (then one action).
-    next: Option<(Scope, ExprId, DefId, bool)>,
-    implied_actions: Vec<(Scope, ExprId)>,
-    /// `PROPERTY []P` for a state predicate `P`, with the name TLC gives it.
-    invariants: Vec<(Scope, ExprId, Option<String>)>,
-    temporal: Vec<String>,
-}
-
-struct Walker<'a> {
-    ev: &'a Evaluator,
-    ir: &'a Ir,
-    redirects: &'a HashMap<DefId, DefId>,
-    props: bool,
-}
-
-impl Walker<'_> {
-    /// `SpecProcessor.processConfigSpec` (and `processConfigProps` with
-    /// `props`), for the shapes the corpus uses. `frame` is the definition
-    /// whose frame `e` is in; `wrapped`, whether a substitution was entered.
-    fn walk(
-        &self,
-        e: ExprId,
-        scope: &Scope,
-        frame: DefId,
-        wrapped: bool,
-        out: &mut Parts,
-    ) -> Result<(), String> {
-        let ir = self.ir;
-        let node = ir.node(e);
-        let err = |e: dive_eval::EvalError| e.to_string();
-        match &node.expr {
-            Expr::Subst { bindings, body } if bindings.is_empty() => {
-                self.walk(*body, scope, frame, wrapped, out)
-            }
-            Expr::Subst { body, .. } => {
-                let s = self.ev.scope_subst(scope, e).map_err(err)?;
-                self.walk(*body, &s, frame, true, out)
-            }
-            Expr::Label { body, .. } | Expr::Selected(body) => {
-                self.walk(*body, scope, frame, wrapped, out)
-            }
-            Expr::Let { .. } => {
-                Err("unsupported: a LET in a SPECIFICATION or PROPERTY (WP-B1)".into())
-            }
-            Expr::Def(d)
-            | Expr::Apply {
-                callee: OpRef::Def(d),
-                ..
-            } => {
-                let d = self.redirects.get(d).copied().unwrap_or(*d);
-                let def = ir.def(d);
-                if def.std.is_some() {
-                    return Err(
-                        "unsupported: an overridden operator as a SPECIFICATION conjunct".into(),
-                    );
-                }
-                if def.scope != dive_ir::DefScope::TopLevel {
-                    return Err("unsupported: a non-top-level definition in a SPECIFICATION".into());
-                }
-                let (s, d) = self.ev.scope_call(scope, e).map_err(err)?;
-                let def = ir.def(d);
-                if matches!(node.expr, Expr::Def(_)) && ir.node(def.body).level == Level::State {
-                    out.inits.push((s, def.body, ActionName::Def(d)));
-                    return Ok(());
-                }
-                self.walk(def.body, &s, d, wrapped, out)
-            }
-            Expr::Junction {
-                kind: JunctionKind::And,
-                items,
-                ..
-            } => {
-                for &i in items {
-                    self.walk(i, scope, frame, wrapped, out)?;
-                }
-                Ok(())
-            }
-            Expr::Always(a) => {
-                if self.props && ir.node(*a).level <= Level::State {
-                    // `[]P` for a state predicate P is checked as an invariant.
-                    let name = match &ir.node(*a).expr {
-                        Expr::Def(d) => Some(ir.def(*d).name.clone()),
-                        _ => None,
-                    };
-                    out.invariants.push((scope.clone(), *a, name));
-                } else if let Expr::StepBox { action, .. } = &ir.node(*a).expr {
-                    if self.props {
-                        out.implied_actions.push((scope.clone(), *a));
-                    } else if out.next.is_some() {
-                        return Err("TLC_CANT_HANDLE_TOO_MANY_NEXT_STATE_RELS".into());
-                    } else {
-                        out.next = Some((scope.clone(), *action, frame, wrapped));
-                    }
-                } else {
-                    out.temporal.push(ir.location(&node.origin));
-                }
-                Ok(())
-            }
-            _ => {
-                if node.level <= Level::State {
-                    out.inits.push((scope.clone(), e, ActionName::Unnamed));
-                } else if node.level == Level::Temporal {
-                    out.temporal.push(ir.location(&node.origin));
-                } else {
-                    return Err(format!(
-                        "TLC_CANT_HANDLE_CONJUNCT {}",
-                        ir.location(&node.origin)
-                    ));
-                }
-                Ok(())
-            }
-        }
-    }
-}
-
-/// Binds the model's roles.
-#[allow(clippy::too_many_lines, reason = "one pass over the configuration")]
+/// Binds the model with `dive-model`, the binding stage, and adapts its
+/// roles to the search below. The search refuses what it does not do:
+/// `SYMMETRY`, post conditions and the other features `dive-model` lists,
+/// except temporal properties, whose counts are still comparable.
 pub fn bind_model(loaded: &Loaded, cfg: &ModelConfig, opts: Options) -> Result<Bound, String> {
-    let ir = loaded.ir.clone();
-    for (what, v) in [
-        ("SYMMETRY", &cfg.symmetry),
-        ("PERIODIC", &cfg.periodic),
-        ("RL_REWARD", &cfg.rl_reward),
-    ] {
-        if v.is_some() {
-            return Err(format!("unsupported: {what}"));
-        }
-    }
     if !cfg.postconditions.is_empty() {
         return Err("unsupported: POSTCONDITION".into());
     }
-    if !cfg.possible.is_empty() {
-        return Err("unsupported: POSSIBLE".into());
+    let bind_opts = dive_model::BindOptions {
+        eval: opts,
+        no_deadlock: false,
+    };
+    let model =
+        dive_model::bind(loaded.ir.clone(), cfg, &bind_opts).map_err(|f| match &f.error.kind {
+            dive_model::ErrorKind::Unsupported { .. } => f.error.message.clone(),
+            _ => format!("binding: {}", f.error),
+        })?;
+    if let Some(u) = model
+        .unsupported
+        .iter()
+        .find(|u| !u.feature.starts_with("temporal properties"))
+    {
+        return Err(format!("unsupported: {}", u.feature));
     }
-    let model = bind(loaded, Some(cfg), opts)?;
-    let redirects = model.redirects.clone();
-    let ev = Evaluator::new(model, opts);
+    let ev = model.evaluator.clone();
     if let Some(e) = ev.startup_error() {
         return Err(format!("start-up error: {e}"));
     }
-    let err = |e: dive_eval::EvalError| e.to_string();
-    let mut init_preds: Vec<Action> = Vec::new();
-    let mut next: Option<(Scope, ExprId, DefId, ActionName, bool)> = None;
-    if let Some(spec) = &cfg.specification {
-        let d = name_of(&ir, &spec.text)?;
-        zero_arity(&ir, d, "SPECIFICATION")?;
-        let w = Walker {
-            ev: &ev,
-            ir: &ir,
-            redirects: &redirects,
-            props: false,
-        };
-        let mut parts = Parts::default();
-        w.walk(ir.def(d).body, &ev.scope(d), d, false, &mut parts)?;
-        for (i, (scope, expr, name)) in parts.inits.iter().enumerate() {
-            init_preds.push(ev.predicate_in(scope, *expr, *name, i));
-        }
-        if let Some((s, a, f, wrapped)) = parts.next {
-            next = Some((s, a, f, ActionName::Unnamed, wrapped));
-        }
-    } else {
-        if let Some(init) = &cfg.init {
-            let d = name_of(&ir, &init.text)?;
-            zero_arity(&ir, d, "INIT")?;
-            init_preds.push(ev.init_predicate(d, 0).map_err(err)?);
-        }
-        if let Some(n) = &cfg.next {
-            let d = name_of(&ir, &n.text)?;
-            zero_arity(&ir, d, "NEXT")?;
-            next = Some((ev.scope(d), ir.def(d).body, d, ActionName::Def(d), false));
-        }
-    }
-    let actions = match next {
-        Some((scope, expr, frame, name, wrapped)) => {
-            if wrapped {
-                // `Specs.addSubsts`' wrapper is one action (`getActions`).
-                vec![ev.predicate_in(&scope, expr, name, init_preds.len())]
-            } else {
-                let r: BTreeMap<DefId, DefId> = redirects.iter().map(|(a, b)| (*a, *b)).collect();
-                let sp = split(&ir, expr, name, frame, &r);
-                ev.actions_in(&scope, &sp, init_preds.len()).map_err(err)?
-            }
-        }
-        None => Vec::new(),
+    let check = |n: &dive_model::Named| Check {
+        name: n.name.clone(),
+        pred: ev.predicate_in(&n.pred.scope, n.pred.expr, ActionName::Unnamed, 0),
     };
-    let def_check = |n: &dive_config::Name| -> Result<Check, String> {
-        let d = name_of(&ir, &n.text)?;
-        let d = redirects.get(&d).copied().unwrap_or(d);
-        zero_arity(&ir, d, "the predicate")?;
-        Ok(Check {
-            name: n.text.clone(),
-            pred: ev.predicate(d, ir.def(d).body, ActionName::Def(d), 0),
-        })
-    };
-    let mut invariants = cfg
-        .invariants
-        .iter()
-        .map(def_check)
-        .collect::<Result<Vec<_>, _>>()?;
-    let constraints = cfg
-        .constraints
-        .iter()
-        .map(def_check)
-        .collect::<Result<Vec<_>, _>>()?;
-    let action_constraints = cfg
-        .action_constraints
-        .iter()
-        .map(def_check)
-        .collect::<Result<Vec<_>, _>>()?;
-    let view = cfg.view.as_ref().map(def_check).transpose()?;
-    let mut implied_inits = Vec::new();
-    let mut implied_actions = Vec::new();
-    // Fairness conjuncts of the SPECIFICATION alone do not make TLC check
-    // liveness; temporal PROPERTYs do.
-    let mut liveness = Vec::new();
-    for p in &cfg.properties {
-        let d = name_of(&ir, &p.text)?;
-        let w = Walker {
-            ev: &ev,
-            ir: &ir,
-            redirects: &redirects,
-            props: true,
-        };
-        let mut pp = Parts::default();
-        w.walk(ir.def(d).body, &ev.scope(d), d, false, &mut pp)?;
-        for (scope, expr, _) in pp.inits {
-            implied_inits.push(Check {
-                name: p.text.clone(),
-                pred: ev.predicate_in(&scope, expr, ActionName::Unnamed, 0),
-            });
-        }
-        for (scope, expr, name) in pp.invariants {
-            invariants.push(Check {
-                name: name.unwrap_or_else(|| p.text.clone()),
-                pred: ev.predicate_in(&scope, expr, ActionName::Unnamed, 0),
-            });
-        }
-        for (scope, expr) in pp.implied_actions {
-            implied_actions.push(Check {
-                name: p.text.clone(),
-                pred: ev.predicate_in(&scope, expr, ActionName::Unnamed, 0),
-            });
-        }
-        if !pp.temporal.is_empty() {
-            liveness.push(format!("PROPERTY {}", p.text));
-        }
-    }
+    let checks = |v: &[dive_model::Named]| v.iter().map(check).collect::<Vec<_>>();
     Ok(Bound {
+        inits: model.init_actions.clone(),
+        actions: model.actions.clone(),
+        invariants: checks(&model.invariants),
+        implied_inits: checks(&model.implied_inits),
+        implied_actions: checks(&model.implied_actions),
+        constraints: checks(&model.constraints),
+        action_constraints: checks(&model.action_constraints),
+        view: model.view.as_ref().map(check),
+        deadlock: model.settings.check_deadlock,
+        liveness: model
+            .implied_temporals
+            .iter()
+            .map(|n| format!("PROPERTY {}", n.name))
+            .collect(),
         ev,
-        inits: init_preds,
-        actions,
-        invariants,
-        implied_inits,
-        implied_actions,
-        constraints,
-        action_constraints,
-        view,
-        deadlock: cfg.checks_deadlock(),
-        liveness,
     })
 }
 
