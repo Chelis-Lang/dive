@@ -112,6 +112,7 @@ fn provenance(jar_sha: &str, corpus_commit: &str) -> Provenance {
         },
         corpus_commit: corpus_commit.to_owned(),
         command: vec!["java".to_owned()],
+        trace_command: None,
         timeout_seconds: 60,
         reason: None,
         generator: "test".to_owned(),

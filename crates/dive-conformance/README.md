@@ -142,7 +142,37 @@ dive-conformance run --impl dive --tier all --corpus examples --corpus tlaplus-t
 dive-conformance run --impl dive --sany-phase parse --corpus tlaplus-tests   # dive parse vs SANY's parse phase
 ```
 
-**`dev capture`** (`--oracle ID --specs DIR --out DIR [--seed N] NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way. `--seed N` replaces the harness's `-seed 0`; the randomization fixtures in `crates/dive-stdlib/tests/fixtures/random/` use it.
+**`dev capture`** (`--oracle ID --specs DIR --out DIR [--seed N] NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way. `--seed N` replaces the harness's `-seed 0`; the randomization fixtures in `crates/dive-stdlib/tests/fixtures/random/` use it. Like golden generation, it records the clean run (no `-dumpTrace`); a counterexample's `.trace.json` comes from the cross-checked trace pass, run with the same `-seed`, whose command line is in `.trace.command`. Transcripts captured before issue #35 were made with `-dumpTrace json` on the deciding run: their `.command` ends in `-dumpTrace json $TMP/trace.json`, and their SANY lines show `_JsonTrace`, `TLCExt`, `Json` and `Integers` being parsed.
+
+## Oracle invocation: flag audit
+
+Every flag the harness passes to TLC and SANY was checked against TLC's source at the pinned commit `94d0c50` (issue #35). "Inert" means the flag cannot change a verdict, a count, an error or a printed value; "chosen" means it fixes one of the settings a user may legitimately choose, and goldens are facts about that setting; "perturbs" means it changes TLC's semantics in a way users do not see.
+
+| Flag | Effect at `94d0c50` | Status |
+|---|---|---|
+| `-tool` | `TLCGlobals.tool`: framed `@!@!@` messages, extra progress messages, runtime in ms, and no trace-exploration spec (`TLC.java` `generateTESpec`). Output format only | inert |
+| `-workers 1` | TLC's default (`TLCGlobals.numWorkers = 1`); visible as `TLCGet("config").worker` | inert (the default) |
+| `-fp 0` | Fixes the fingerprint polynomial (default: random). Changes only which states could collide; visible as `TLCGet("config").fingerprint` | chosen |
+| `-seed 0` (`dev capture --seed N`: `N`) | Fixes the seed of `RandomElement`, `Randomization` and simulation (default: random); visible as `TLCGet("config").seed` | chosen |
+| `-lncheck final` | `TLCGlobals.doLiveness()` is false, so liveness is checked once, after the search, not periodically. The verdict is the same; counts and the counterexample at a liveness violation can differ from the default. Mirrors upstream Examples CI | chosen |
+| `-cleanup`, `-metadir <tmp>` | Where TLC keeps its state files, and deleting them | inert |
+| `-config <cfg>`, `-simulate num=N` | The model and the mode: the input itself | chosen (from the manifest) |
+| `-dumpTrace json <file>` | `ParameterizedSpecObj` adds `_JsonTrace` as an extendee of the root module and a post-condition. `_JsonTrace` loads `TLC`, `TLCExt`, `Json`, `Sequences`, `FiniteSets`, `Naturals` and, through `TLCExt`, `Integers`, so their Java overrides are installed: `Integers`' then replace `Naturals`' on the shared definitions. The extra modules are also lexed, which can move later names in TLC's intern order (and so string order) | **perturbs**: only in the trace pass, never on the deciding run |
+| `-Dtlc2.tool.impl.Tool.cdot=true` | Lets TLC evaluate `\cdot`. Passed only for manifests with the `action composition` feature, as upstream Examples CI does | chosen (from the manifest) |
+| `-Xmx`, `-Xss8m`, `-XX:+UseParallelGC` | Heap, stack and garbage collector. Change only whether a run exhausts a resource, which is `resource-limit`, never a golden | inert |
+| `-Duser.home=<cache>/home` | TLC reads only `~/.tlaplus/esc.txt` (statistics opt-out) and the REPL history from it | inert |
+| `-Djava.io.tmpdir=<run dir>` | Where TLC unpacks the standard modules it parses | inert |
+| `-Duser.language=en -Duser.country=US` | Number formatting in messages (`1,234`) | inert (format only) |
+| `-Dfile.encoding=UTF-8` | Decoding of `.tla`/`.cfg` files and output; UTF-8 is TLA+'s encoding and the macOS and Linux default | inert for UTF-8 input |
+| `-cp` (jar, CommunityModules, TLAPS library, Apalache modules) | Makes those modules resolvable. Standard modules and the spec's own directory always win (SANY's search order), and a Java override is installed only for a module the spec loads (`SpecProcessor`, `modSet.get(evaluation.module())`). Mirrors upstream Examples CI and the jar manifest's own `Class-Path`. The jar's location is visible as `TLCGet("config").install` (a machine path; read by no small-tier model) | chosen |
+| Scrubbed `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS`, `CLASSPATH` | Keeps host settings out | inert |
+| SANY: `-error-codes` | Exit code 4 on semantic errors instead of 0; the text is unchanged | inert (exit code only) |
+
+SANY is never given `-dumpTrace`, so SANY goldens were never perturbed. Only `-dumpTrace` perturbs, so a counterexample's JSON document comes from a separate *trace pass* (ADR 0003 amendment, issue #35):
+- The model runs without `-dumpTrace`. That run decides the verdict, counts, errors and the counterexample's states, and its command is the golden's `provenance.command`.
+- If it ends with a counterexample (one worker, an oracle with `-dumpTrace`), the model runs again with `-dumpTrace json`. Its command is `provenance.trace_command`.
+- The JSON is used only if the trace pass reproduces the clean run's verdict, deciding code, violated property and trace exactly: the same length, ending, and every state's label and printed value, byte for byte. Otherwise the result is `oracle-error` and no JSON is kept. The JSON's state count is then checked against the clean run's stream, as before.
+- When TLC writes no JSON (assertion, evaluation and overflow errors), the clean run's printed states are kept.
 
 ## Cache layout
 
@@ -277,7 +307,8 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 | v1.7.4 does not know `ALIAS` in `.cfg`, and it fails in two different ways: as a nested config error in `GENERAL` (exit 255), or by reading `ALIAS` as a property name ("The property ALIAS ... is not defined", `TLC_CONFIG_SPECIFIED_NOT_DEFINED`, exit 151) | `CfgAlias`; Examples `braf`, `ewd426/TokenRing` |
 | For constant-only models (no variables; only `ASSUME`s are checked, 0 distinct states), `94d0c50` reports search depth 0 and v1.7.4 reports depth 1 | Examples `SimpleMath`, `Stones`, `TransitiveClosure` |
 | `ASSUME TLCGet("config").worker = 1` makes the verdict depend on `-workers` | Examples `DieHard/MCDieHardest` |
-| `-dumpTrace json` makes TLC load `_JsonTrace`, and with it `Integers`, so `Integers`' Java overrides replace `Naturals`' even in a spec that extends only `Naturals`: `"a" >= 1` reports `>=` (not `Naturals.GEQ`'s `>`), and `-2147483648 \div -1` overflows instead of wrapping. dive must select overrides as if `_JsonTrace` were loaded to match these goldens | `crates/dive-eval/tests/fixtures/specs/ErGeqNaturals`, `ErPlusNonIntNaturals`; `crates/dive-value/tests/fixtures/specs/RvNatDiv` |
+| `-dumpTrace json` makes TLC extend the root module with `_JsonTrace`, which loads `TLCExt`, `Json` and `Integers`, so `Integers`' Java overrides replace `Naturals`' even in a spec that extends only `Naturals`: `"a" >= 1` reports `>=` (not `Naturals.GEQ`'s `>`), and `-2147483648 \div -1` overflows instead of wrapping. Goldens and `dev capture` therefore take everything from a run without it, and `-dumpTrace` runs only in the cross-checked trace pass (issue #35; see "Oracle invocation: flag audit") | `crates/dive-eval/tests/fixtures/specs/ErGeqNaturals`, `ErPlusNonIntNaturals`; `crates/dive-value/tests/fixtures/specs/RvNatDiv` |
+| In a spec that loads `Naturals` but not `Integers`, `\div` is `Naturals.Divide`: Java's truncating division, decremented only when the quotient is negative and inexact. A quotient that truncates to 0 is not rounded down, so `(0 - 1) \div 2` and `1 \div (0 - 2)` are `0` (the floored answer, and `Integers.Divide`'s, is `-1`), while `(0 - 7) \div 2` is `-4`. `Naturals.tla` defines `-` and `\div` only on `Nat`, so this is not a wrong answer, but dive must reproduce it. This was hidden while fixtures were captured with `-dumpTrace json` | `crates/dive-value/tests/fixtures/specs/RvNatDiv` |
 | Animation specs write SVG files into their working directory, hence the isolated per-run copies | Examples `*_anim` |
 | Simulation is not reproducible even with `-seed 0` and one worker. `EWD840_anim` generated 267,302, 267,196, 271,147 and 268,375 states in four runs, with the same verdict and trace length. Simulation counts are therefore kept out of the golden payload (`provenance.uncompared_counts`) | Examples `ewd840/EWD840_anim` |
 

@@ -15,7 +15,8 @@ use crate::golden::{
     write_golden,
 };
 use crate::implementation::{
-    ImplResult, Implementation, ModelRequest, run_oracle_model, run_oracle_sany,
+    ImplResult, Implementation, ModelRequest, OracleModelRun, run_oracle_model_traced,
+    run_oracle_sany,
 };
 use crate::oracle::OracleEnv;
 use crate::report::{
@@ -328,6 +329,7 @@ fn provenance(
         oracle: env.provenance(),
         corpus_commit: corpus.commit.clone(),
         command,
+        trace_command: None,
         timeout_seconds: timeout.as_secs(),
         reason: reason.map(str::to_owned),
         generator: generator(),
@@ -425,15 +427,22 @@ pub fn golden_generate(
             xmx: &opts.limits.xmx,
         };
         let n = done.fetch_add(1, Ordering::Relaxed) + 1;
-        match run_oracle_model(env, &req) {
+        match run_oracle_model_traced(env, &req) {
             Err(e) => fail(format!("[{n}/{total}] ERROR {}: {e}", m.id)),
-            Ok(ImplResult::Unsupported(why)) => {
+            Ok(OracleModelRun {
+                result: ImplResult::Unsupported(why),
+                ..
+            }) => {
                 fail(format!("[{n}/{total}] ERROR {}: {why}", m.id));
             }
-            Ok(ImplResult::Completed {
-                result,
-                command,
-                elapsed,
+            Ok(OracleModelRun {
+                result:
+                    ImplResult::Completed {
+                        result,
+                        command,
+                        elapsed,
+                    },
+                trace_command,
             }) => {
                 if result.verdict == Verdict::Timeout {
                     fail(format!(
@@ -461,6 +470,7 @@ pub fn golden_generate(
                     opts.reason.as_deref(),
                     elapsed,
                 );
+                prov.trace_command = trace_command;
                 if !m.counts_comparable {
                     // Keep the payload deterministic (ADR 0003).
                     prov.uncompared_counts = Some(std::mem::take(&mut result.counts));
