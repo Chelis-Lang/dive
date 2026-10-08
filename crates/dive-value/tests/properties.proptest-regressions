@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc a98370e44265a0683fb1049b6d7990b44cebf2bd20f041786976baa9e103563d # shrinks to elems = [[fy |-> FALSE, fx |-> FALSE], <<FALSE>>], seed = 0
