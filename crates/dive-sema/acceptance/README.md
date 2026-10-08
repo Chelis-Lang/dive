@@ -168,11 +168,25 @@ added. The Examples and CommunityModules rows are identical at every stage.
 re-analysed for each root) takes 4.5 s in a release build on an Apple M3, on a heavily
 loaded machine.
 
-## Porting to the harness
+## In the harness
 
-The harness already stores SANY verdicts for Examples (`golden generate`, `kind:
-sany-module`), using the same `-error-codes` run. `dive-conformance`'s `dive`
-implementation should answer `parse_module` from `dive analyze --output json` (`accepted`)
-with the harness library directories given as `--module-path`. The SANY goldens of the
-other corpora can be added with the same classification rules as `run_sany.py`. The
-mutation campaign is a natural deep-tier job.
+The conformance harness now owns the corpus part of this check, for tlaplus/Examples,
+the tlaplus `test/**` and `test-model/**` trees (corpus `tlaplus-tests`) and
+CommunityModules:
+
+```sh
+cargo build --release -p dive-cli
+dive-conformance run --impl dive --tier all \
+  --corpus examples --corpus tlaplus-tests --corpus community-modules
+```
+
+- `dive-conformance`'s `dive` implementation answers each module from
+  `dive analyze --output json`, with the golden oracle's classpath given as
+  `--module-path`, in the order described above. See "`dive`" in
+  `crates/dive-conformance/README.md`.
+- The SANY goldens are the harness's own `-error-codes` runs (`kind: sany-module`), one
+  per module, in the module's directory.
+- The nightly `conformance` workflow runs this comparison.
+
+The minimal cases (`tests/sany-cases/`) and the mutation campaign stay here. Mutants are
+a natural deep-tier job for the harness.

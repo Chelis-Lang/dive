@@ -541,21 +541,29 @@ impl OracleEnv {
 /// preserving its corpus-relative path, and returns `<scratch>/work`. Oracle
 /// runs execute there, so nothing they write (TLC metadata, `IOUtils`
 /// output, animation SVGs, trace-exploration specs) can reach the cached
-/// corpus checkout. The part copied is [`crate::corpus::isolation_dir`] of
-/// `path`: the spec directory for tlaplus/Examples, else the file's
-/// directory.
+/// corpus checkout. The part copied is [`crate::corpus::isolation`] of
+/// `path`: the whole spec directory for tlaplus/Examples, else the files of
+/// the module's own directory.
 ///
 /// # Errors
 /// Fails on any file-system error.
 pub fn isolate(corpus_root: &Path, path: &str, scratch: &Path) -> Result<PathBuf> {
     let work = scratch.join("work");
-    let rel = crate::corpus::isolation_dir(path);
+    let (rel, recursive) = crate::corpus::isolation(path);
     let dest = work.join(&rel);
-    crate::util::copy_dir(&corpus_root.join(&rel), &dest)?;
+    if recursive {
+        crate::util::copy_dir(&corpus_root.join(&rel), &dest)?;
+    } else {
+        crate::util::copy_dir_files(&corpus_root.join(&rel), &dest)?;
+    }
     Ok(work)
 }
 
-fn library_entry(cache: &Cache, lib: &ModuleLibrary) -> Result<ClasspathEntry> {
+/// The verified checkout directory of a module library (`[[module_library]]`).
+///
+/// # Errors
+/// Fails if the library is not fetched at its pinned commit.
+pub fn library_entry(cache: &Cache, lib: &ModuleLibrary) -> Result<ClasspathEntry> {
     let dir = cache.checkout_dir(&lib.id, &lib.commit);
     verified_checkout(&dir, &lib.commit, &format!("module library `{}`", lib.id))?;
     Ok(ClasspathEntry {

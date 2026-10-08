@@ -221,6 +221,26 @@ pub fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Copies the regular files directly in `src` (not its subdirectories) to
+/// `dst`, creating `dst`.
+///
+/// # Errors
+/// Fails on any file-system error.
+pub fn copy_dir_files(src: &Path, dst: &Path) -> Result<()> {
+    std::fs::create_dir_all(dst).map_err(|e| Error::io(dst, &e))?;
+    let entries = std::fs::read_dir(src).map_err(|e| Error::io(src, &e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| Error::io(src, &e))?;
+        let from = entry.path();
+        let meta = std::fs::metadata(&from).map_err(|e| Error::io(&from, &e))?;
+        if meta.is_file() {
+            let to = dst.join(entry.file_name());
+            std::fs::copy(&from, &to).map_err(|e| Error::io(&from, &e))?;
+        }
+    }
+    Ok(())
+}
+
 /// Writes `bytes` to `path` atomically (write to a sibling, then rename),
 /// creating parent directories.
 ///

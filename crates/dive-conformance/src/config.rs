@@ -140,6 +140,24 @@ pub struct Corpus {
     pub license: String,
     /// Layout.
     pub layout: Layout,
+    /// `modules-only`: globs over corpus-relative paths selecting the
+    /// modules; empty means every `.tla` file.
+    #[serde(default)]
+    pub include: Vec<String>,
+    /// `modules-only`: modules that are enumerated but never run, each with
+    /// its reason. They are reported as `out-of-scope`, never dropped.
+    #[serde(default)]
+    pub exclude: Vec<Exclusion>,
+}
+
+/// A module excluded from a corpus (`[[corpus.exclude]]`).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Exclusion {
+    /// Corpus-relative path of the excluded `.tla` file.
+    pub path: String,
+    /// Why it is excluded, with evidence (e.g. the oracle's crash).
+    pub reason: String,
 }
 
 /// The parsed `corpora.toml`.
@@ -361,6 +379,18 @@ impl CorporaFile {
                 return Err(Error::Config(format!(
                     "corpus `{}`: commit must be a full SHA",
                     c.id
+                )));
+            }
+            if c.layout != Layout::ModulesOnly && (!c.include.is_empty() || !c.exclude.is_empty()) {
+                return Err(Error::Config(format!(
+                    "corpus `{}`: `include` and `exclude` apply to the modules-only layout only",
+                    c.id
+                )));
+            }
+            if let Some(x) = c.exclude.iter().find(|x| x.reason.trim().is_empty()) {
+                return Err(Error::Config(format!(
+                    "corpus `{}`: exclusion `{}` needs a reason",
+                    c.id, x.path
                 )));
             }
         }

@@ -8,16 +8,19 @@
 //!
 //! - [`TlcImplementation`] re-runs a pinned TLC oracle (self-consistency,
 //!   determinism and cross-oracle diffs).
-//! - [`DiveImplementation`] is a stub that refuses everything until `dive`
-//!   produces verdicts.
+//! - [`DiveImplementation`] runs the `dive` binary: `dive analyze` and
+//!   `dive parse` for modules; models are refused until `dive check` exists
+//!   (see [`crate::dive`]).
 //! - [`ExternalAdapter`] is the shape for external tools (M2): a TOML file
 //!   with a command template and an exit-code map. It is parsed and
 //!   validated, but not executed yet; every request is refused.
 
+pub use crate::dive::DiveImplementation;
+
 use crate::corpus::{ModelEntry, ModelMode};
 use crate::error::{Error, Result};
 use crate::oracle::{CheckMode, OracleEnv, TlcJob};
-use crate::sany::{self, SanyResult};
+use crate::sany::{self, ParseVerdict, SanyResult};
 use crate::tlc::messages;
 use crate::tlc::result::{OracleResult, RunFacts, Verdict, classify};
 use serde::Deserialize;
@@ -73,6 +76,38 @@ impl ImplOption {
             value,
             result_changing: !imp.result_preserving_options().contains(&name),
         })
+    }
+}
+
+/// A parse-phase result (`run --sany-phase parse`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParseResult {
+    /// The verdict, or `None` when the run does not determine one (see the
+    /// note).
+    pub verdict: Option<ParseVerdict>,
+    /// The harness timeout fired.
+    pub timed_out: bool,
+    /// Why there is no verdict, or the first error.
+    pub note: Option<String>,
+}
+
+impl ParseResult {
+    /// The parse-phase verdict of `module`'s own file, derived from a full
+    /// SANY result ([`sany::parse_phase`]).
+    #[must_use]
+    pub fn from_sany(result: &SanyResult, module: &str) -> Self {
+        match sany::parse_phase(result, module) {
+            Ok(v) => Self {
+                verdict: Some(v),
+                timed_out: false,
+                note: None,
+            },
+            Err(why) => Self {
+                verdict: None,
+                timed_out: result.verdict == sany::SanyVerdict::Timeout,
+                note: Some(why),
+            },
+        }
     }
 }
 
@@ -146,7 +181,8 @@ pub trait Implementation: Sync {
         false
     }
 
-    /// Parses one module (corpus-relative path).
+    /// Parses one module (corpus-relative path) the way full SANY does:
+    /// parsing, semantic analysis and level checking.
     ///
     /// # Errors
     /// Only for harness failures.
@@ -156,6 +192,35 @@ pub trait Implementation: Sync {
         module: &str,
         timeout: Duration,
     ) -> Result<ImplResult<SanyResult>>;
+
+    /// Parses only the module's own file and gives SANY's parse-phase
+    /// verdict for it (`run --sany-phase parse`). The default refuses.
+    ///
+    /// # Errors
+    /// Only for harness failures.
+    fn parse_only(
+        &self,
+        _corpus_root: &Path,
+        _module: &str,
+        _timeout: Duration,
+    ) -> Result<ImplResult<ParseResult>> {
+        Ok(ImplResult::Unsupported(format!(
+            "{} has no parse-only mode",
+            self.name()
+        )))
+    }
+
+    /// `Some(reason)` when the implementation cannot check any model at all.
+    /// Every selected model is then `unsupported` with that reason, whether
+    /// or not it has a golden: the refusal is the implementation's answer.
+    fn models_unsupported(&self) -> Option<String> {
+        None
+    }
+
+    /// Provenance of the `dive` binary under test, for the report.
+    fn dive_provenance(&self) -> Option<crate::dive::DiveProvenance> {
+        None
+    }
 }
 
 /// Re-runs a pinned TLC oracle.
@@ -255,56 +320,27 @@ impl Implementation for TlcImplementation {
     ) -> Result<ImplResult<SanyResult>> {
         run_oracle_sany(&self.env, corpus_root, module, timeout)
     }
-}
 
-/// `dive` itself. Refuses everything until `dive check` and `dive parse`
-/// produce results (soundness contract rule 3).
-#[derive(Debug, Default)]
-pub struct DiveImplementation {
-    /// Options `dive` would run under (`--impl-option`).
-    pub options: Vec<ImplOption>,
-    /// The profile (`--impl-profile`, or `DIVE_COMPAT=tlc`).
-    pub profile: crate::divergence::Profile,
-}
-
-impl Implementation for DiveImplementation {
-    fn profile(&self) -> Option<crate::divergence::Profile> {
-        Some(self.profile.clone())
-    }
-
-    fn options(&self) -> &[ImplOption] {
-        &self.options
-    }
-
-    fn result_preserving_options(&self) -> &[&str] {
-        // A deterministic seed or a worker count never changes a TLC-
-        // compatible result (ADR 0010).
-        &["seed", "workers"]
-    }
-
-    fn name(&self) -> String {
-        "dive".to_owned()
-    }
-
-    fn is_oracle(&self) -> bool {
-        false
-    }
-
-    fn check_model(&self, _req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>> {
-        Ok(ImplResult::Unsupported(
-            "`dive check` is not implemented yet; no verdict produced".to_owned(),
-        ))
-    }
-
-    fn parse_module(
+    fn parse_only(
         &self,
-        _root: &Path,
-        _module: &str,
-        _timeout: Duration,
-    ) -> Result<ImplResult<SanyResult>> {
-        Ok(ImplResult::Unsupported(
-            "`dive parse` is not implemented yet; no verdict produced".to_owned(),
-        ))
+        corpus_root: &Path,
+        module: &str,
+        timeout: Duration,
+    ) -> Result<ImplResult<ParseResult>> {
+        Ok(
+            match run_oracle_sany(&self.env, corpus_root, module, timeout)? {
+                ImplResult::Unsupported(why) => ImplResult::Unsupported(why),
+                ImplResult::Completed {
+                    result,
+                    command,
+                    elapsed,
+                } => ImplResult::Completed {
+                    result: ParseResult::from_sany(&result, module),
+                    command,
+                    elapsed,
+                },
+            },
+        )
     }
 }
 
@@ -421,14 +457,6 @@ mod tests {
             "name = \"x\"\ncheck = [\"x\"]\n[exit_codes]\nzero = \"success\"\n",
         )?;
         assert!(ExternalAdapter::load(&p).is_err());
-        Ok(())
-    }
-
-    #[test]
-    fn dive_refuses() -> Result<()> {
-        let d = DiveImplementation::default();
-        let r = d.parse_module(Path::new("."), "M.tla", Duration::from_secs(1))?;
-        assert!(matches!(r, ImplResult::Unsupported(m) if m.contains("not implemented")));
         Ok(())
     }
 }

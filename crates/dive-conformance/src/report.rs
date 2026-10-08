@@ -5,7 +5,7 @@ use crate::compare::{DriftFinding, FieldDiff, Outcome, WorkerInvariance};
 use crate::corpus::Tier;
 use crate::error::{Error, Result};
 use crate::oracle::OracleProvenance;
-use crate::sany::SanyVerdict;
+use crate::sany::{ParseVerdict, SanyPhase, SanyVerdict};
 use crate::tlc::result::Verdict;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -128,8 +128,17 @@ pub struct ModuleReport {
     pub outcome: Outcome,
     /// Golden verdict.
     pub golden_verdict: Option<SanyVerdict>,
-    /// Observed verdict.
+    /// Observed verdict (full phase).
     pub verdict: Option<SanyVerdict>,
+    /// The SANY phase compared.
+    #[serde(default)]
+    pub phase: SanyPhase,
+    /// Parse phase: the golden's verdict for the module's own file.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub golden_parse_verdict: Option<ParseVerdict>,
+    /// Parse phase: the observed verdict.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parse_verdict: Option<ParseVerdict>,
     /// Differences.
     pub diffs: Vec<FieldDiff>,
     /// Detail.
@@ -167,6 +176,9 @@ pub struct Settings {
     pub timeout_policy: String,
     /// Whether the manifest cross-check ran.
     pub crosscheck_manifest: bool,
+    /// Which SANY verdict modules were compared on.
+    #[serde(default)]
+    pub sany_phase: SanyPhase,
     /// Implementation options active for the run (ADR 0010).
     #[serde(default)]
     pub impl_options: Vec<crate::implementation::ImplOption>,
@@ -211,6 +223,18 @@ pub struct Summary {
     pub worker_introspecting: usize,
     /// Models whose named violated property varied with the worker count.
     pub worker_property_variant: usize,
+    /// Model and module outcomes per corpus.
+    #[serde(default)]
+    pub by_corpus: BTreeMap<String, CorpusCounts>,
+}
+
+/// Outcome counts of one corpus.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CorpusCounts {
+    /// Models by outcome.
+    pub models: OutcomeCounts,
+    /// Modules by outcome.
+    pub modules: OutcomeCounts,
 }
 
 /// A conformance report.
@@ -242,6 +266,10 @@ pub struct Report {
     /// never gates: its findings do not fail the command.
     #[serde(default)]
     pub reference: bool,
+    /// The `dive` binary and module search path, if the implementation is
+    /// `dive`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub implementation_dive: Option<crate::dive::DiveProvenance>,
     /// Corpora.
     pub corpora: Vec<CorpusInfo>,
     /// Host.
@@ -301,6 +329,25 @@ pub fn summarise(
         worker_depth_variant: inv(|w| w.depth_varies),
         worker_property_variant: inv(|w| w.property_varies),
         worker_introspecting: models.iter().filter(|m| m.worker_introspecting).count(),
+        by_corpus: {
+            let mut by: BTreeMap<String, CorpusCounts> = BTreeMap::new();
+            let ids = models
+                .iter()
+                .map(|m| &m.corpus)
+                .chain(modules.iter().map(|m| &m.corpus));
+            for id in ids {
+                by.entry(id.clone()).or_insert_with(|| CorpusCounts {
+                    models: count(models.iter().filter(|m| &m.corpus == id).map(|m| m.outcome)),
+                    modules: count(
+                        modules
+                            .iter()
+                            .filter(|m| &m.corpus == id)
+                            .map(|m| m.outcome),
+                    ),
+                });
+            }
+            by
+        },
     };
     let model_total: usize = summary.models.values().sum();
     let module_total: usize = summary.modules.values().sum();
@@ -310,6 +357,14 @@ pub fn summarise(
         )));
     }
     Ok(summary)
+}
+
+/// The serialised string form of a unit-like enum value (`parse-error`),
+/// or empty.
+fn text<T: Serialize>(x: Option<T>) -> String {
+    x.and_then(|v| serde_json::to_value(v).ok())
+        .and_then(|v| v.as_str().map(str::to_owned))
+        .unwrap_or_default()
 }
 
 /// Renders the generated `docs/conformance.md` from a report.
@@ -340,6 +395,20 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         r.implementation,
         role(r.implementation_oracle_role)
     );
+    if let Some(d) = &r.implementation_dive {
+        let _ = writeln!(
+            s,
+            "- **dive binary:** `{}` ({}, SHA-256 `{}`); `--module-path`: {}",
+            d.binary,
+            d.version,
+            d.sha256,
+            d.module_path
+                .iter()
+                .map(|e| format!("`{}`", e.id))
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+    }
     let _ = writeln!(
         s,
         "- **Goldens:** `{}` (jar SHA-256 `{}`{})",
@@ -385,8 +454,12 @@ pub fn render_markdown(r: &Report) -> Result<String> {
     }
     let _ = writeln!(
         s,
-        "- **Settings:** tier `{}`, workers {:?}, filters {:?}, manifest cross-check {}",
-        r.settings.tier, r.settings.workers, r.settings.filters, r.settings.crosscheck_manifest
+        "- **Settings:** tier `{}`, workers {:?}, filters {:?}, manifest cross-check {}, SANY phase `{}`",
+        r.settings.tier,
+        r.settings.workers,
+        r.settings.filters,
+        r.settings.crosscheck_manifest,
+        text(Some(r.settings.sany_phase))
     );
     if let Some(p) = &r.settings.impl_profile {
         let _ = writeln!(
@@ -433,8 +506,19 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         "{} model(s) and {} module(s) selected; every one has exactly one outcome below.\n",
         r.summary.models_selected, r.summary.modules_selected
     );
+    let phase = match r.settings.sany_phase {
+        SanyPhase::Full => "full SANY verdict (parsing, semantic analysis, level checking)",
+        SanyPhase::Parse => "SANY parse-phase verdict of the module's own file",
+    };
     let _ = writeln!(s, "## Outcomes\n");
-    let _ = writeln!(s, "| Outcome | Models | Modules (SANY) |\n|---|---:|---:|");
+    let _ = writeln!(
+        s,
+        "Models and modules are counted separately. A **model** outcome compares a model check with its TLC golden; a **module** outcome compares the {phase} with its SANY golden.\n"
+    );
+    let _ = writeln!(
+        s,
+        "| Outcome | Models (TLC) | Modules (SANY) |\n|---|---:|---:|"
+    );
     for o in Outcome::ALL {
         let _ = writeln!(
             s,
@@ -443,6 +527,33 @@ pub fn render_markdown(r: &Report) -> Result<String> {
             r.summary.models.get(&o).copied().unwrap_or(0),
             r.summary.modules.get(&o).copied().unwrap_or(0)
         );
+    }
+    if r.summary.by_corpus.len() > 1 {
+        for (title, pick) in [
+            (
+                "Models (TLC) by corpus",
+                (|c: &CorpusCounts| &c.models) as fn(&CorpusCounts) -> &OutcomeCounts,
+            ),
+            ("Modules (SANY) by corpus", |c: &CorpusCounts| &c.modules),
+        ] {
+            let _ = writeln!(
+                s,
+                "\n### {title}\n\n| Corpus | Total | {} |\n|---|---:|{}",
+                Outcome::ALL.map(Outcome::as_str).join(" | "),
+                "---:|".repeat(Outcome::ALL.len())
+            );
+            for (id, c) in &r.summary.by_corpus {
+                let counts = pick(c);
+                let _ = writeln!(
+                    s,
+                    "| `{id}` | {} | {} |",
+                    counts.values().sum::<usize>(),
+                    Outcome::ALL
+                        .map(|o| counts.get(&o).copied().unwrap_or(0).to_string())
+                        .join(" | ")
+                );
+            }
+        }
     }
     let _ = writeln!(
         s,
@@ -553,22 +664,33 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         let _ = writeln!(s, "\n## Modules (SANY)\n");
         let _ = writeln!(
             s,
-            "| Module | Outcome | Golden | Observed | Detail |\n|---|---|---|---|---|"
+            "| Corpus | Module | Outcome | Golden | Observed | Detail |\n|---|---|---|---|---|---|"
         );
         for m in &r.modules {
-            let v = |x: Option<SanyVerdict>| {
-                x.and_then(|v| serde_json::to_value(v).ok())
-                    .and_then(|v| v.as_str().map(str::to_owned))
-                    .unwrap_or_default()
+            let (golden, observed) = match m.phase {
+                SanyPhase::Full => (text(m.golden_verdict), text(m.verdict)),
+                SanyPhase::Parse => (
+                    format!(
+                        "{} (full: {})",
+                        text(m.golden_parse_verdict),
+                        text(m.golden_verdict)
+                    ),
+                    text(m.parse_verdict),
+                ),
             };
+            let mut detail = m.detail.clone().unwrap_or_default();
+            for d in &m.diffs {
+                let _ = write!(detail, " {}: {}≠{};", d.field, d.expected, d.actual);
+            }
             let _ = writeln!(
                 s,
-                "| `{}` | {} | {} | {} | {} |",
+                "| `{}` | `{}` | {} | {} | {} | {} |",
+                m.corpus,
                 m.module,
                 m.outcome.as_str(),
-                v(m.golden_verdict),
-                v(m.verdict),
-                m.detail.clone().unwrap_or_default().replace('|', "\\|")
+                golden,
+                observed,
+                detail.trim().replace('|', "\\|").replace('\n', " ")
             );
         }
     }

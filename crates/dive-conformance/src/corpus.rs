@@ -174,6 +174,10 @@ pub struct ModuleEntry {
     pub path: String,
     /// Features.
     pub features: Vec<String>,
+    /// `Some(reason)` if the module is excluded (`[[corpus.exclude]]`): it is
+    /// reported as `out-of-scope`, never run.
+    #[serde(default)]
+    pub out_of_scope: Option<String>,
 }
 
 /// An enumerated corpus.
@@ -201,11 +205,22 @@ pub struct CorpusIndex {
 /// reference files outside their own directory), else the file's directory.
 #[must_use]
 pub fn isolation_dir(path: &str) -> String {
+    isolation(path).0
+}
+
+/// [`isolation_dir`], and whether that directory is needed recursively. An
+/// Examples spec directory is copied whole (models may read data files in
+/// subdirectories). Any other module needs only the files of its own
+/// directory: SANY resolves modules in the module's directory and on the
+/// classpath, never in subdirectories. Copying only those files keeps
+/// isolation cheap for large test trees (tlaplus `test-model/`).
+#[must_use]
+pub fn isolation(path: &str) -> (String, bool) {
     let parts: Vec<&str> = path.split('/').collect();
     if parts.len() >= 3 && parts[0] == "specifications" {
-        return format!("specifications/{}", parts[1]);
+        return (format!("specifications/{}", parts[1]), true);
     }
-    parts[..parts.len().saturating_sub(1)].join("/")
+    (parts[..parts.len().saturating_sub(1)].join("/"), false)
 }
 
 /// Names of modules that `text` extends or instantiates (`EXTENDS A, B`,
@@ -337,6 +352,7 @@ pub fn models_of(manifest: &Manifest) -> Result<(Vec<ModuleEntry>, Vec<ModelEntr
         modules.push(ModuleEntry {
             path: module.path.clone(),
             features: module.features.clone(),
+            out_of_scope: None,
         });
         for m in &module.models {
             if !RESULTS.contains(&m.result.as_str()) {
@@ -388,18 +404,21 @@ pub fn models_of(manifest: &Manifest) -> Result<(Vec<ModuleEntry>, Vec<ModelEntr
     Ok((modules, models))
 }
 
-fn tla_files(root: &Path, dir: &Path, out: &mut Vec<String>) -> Result<()> {
+/// Collects the `.tla` files under `dir`, as `root`-relative paths. Hidden
+/// entries are skipped unless `hidden` is set; `.git` always is.
+fn tla_files(root: &Path, dir: &Path, hidden: bool, out: &mut Vec<String>) -> Result<()> {
     let entries = std::fs::read_dir(dir).map_err(|e| Error::io(dir, &e))?;
     for entry in entries {
         let entry = entry.map_err(|e| Error::io(dir, &e))?;
         let path = entry.path();
         let name = entry.file_name();
-        if name.to_string_lossy().starts_with('.') {
+        let name = name.to_string_lossy();
+        if name == ".git" || (!hidden && name.starts_with('.')) {
             continue;
         }
         let ft = entry.file_type().map_err(|e| Error::io(&path, &e))?;
         if ft.is_dir() {
-            tla_files(root, &path, out)?;
+            tla_files(root, &path, hidden, out)?;
         } else if path.extension().is_some_and(|e| e == "tla")
             && let Ok(rel) = path.strip_prefix(root)
         {
@@ -407,6 +426,36 @@ fn tla_files(root: &Path, dir: &Path, out: &mut Vec<String>) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// The modules of a `modules-only` corpus: every `.tla` file matching
+/// `include`, with `exclude` entries marked out of scope.
+fn modules_only(corpus: &Corpus, root: &Path) -> Result<Vec<ModuleEntry>> {
+    let mut files = Vec::new();
+    // Hidden directories count: CommunityModules keeps its smoke tests in
+    // `.smoke/`.
+    tla_files(root, root, true, &mut files)?;
+    files.retain(|f| crate::util::matches_any(&corpus.include, f));
+    for x in &corpus.exclude {
+        if !files.contains(&x.path) {
+            return Err(Error::Config(format!(
+                "corpus `{}`: excluded module `{}` is not an enumerated module",
+                corpus.id, x.path
+            )));
+        }
+    }
+    Ok(files
+        .into_iter()
+        .map(|path| ModuleEntry {
+            out_of_scope: corpus
+                .exclude
+                .iter()
+                .find(|x| x.path == path)
+                .map(|x| format!("excluded in corpora.toml: {}", x.reason)),
+            path,
+            features: Vec::new(),
+        })
+        .collect())
 }
 
 /// Enumerates a fetched corpus.
@@ -425,17 +474,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
                 corpus.id
             )));
         }
-        Layout::ModulesOnly => {
-            let mut files = Vec::new();
-            tla_files(root, root, &mut files)?;
-            modules = files
-                .into_iter()
-                .map(|path| ModuleEntry {
-                    path,
-                    features: Vec::new(),
-                })
-                .collect();
-        }
+        Layout::ModulesOnly => modules = modules_only(corpus, root)?,
         Layout::ExamplesManifest => {
             let specs = root.join("specifications");
             let entries = std::fs::read_dir(&specs).map_err(|e| Error::io(&specs, &e))?;
@@ -467,7 +506,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
     if corpus.layout == Layout::ExamplesManifest {
         let mut files = Vec::new();
         let specs = root.join("specifications");
-        tla_files(root, &specs, &mut files)?;
+        tla_files(root, &specs, false, &mut files)?;
         let listed: std::collections::BTreeSet<&str> =
             modules.iter().map(|m| m.path.as_str()).collect();
         let subs = submodule_paths(root);
@@ -593,6 +632,69 @@ mod tests {
             referenced_modules("EXTENDS A, B_1\nY == INSTANCE C WITH x <- 1"),
             ["A", "B_1", "C"]
         );
+        Ok(())
+    }
+
+    #[test]
+    fn modules_only_include_exclude_and_hidden()
+    -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = crate::util::TempDir::new("modonly")?;
+        for p in [
+            "t/A.tla",
+            "t/sub/B.tla",
+            ".smoke/S.tla",
+            "other/O.tla",
+            ".git/G.tla",
+        ] {
+            let f = dir.path().join(p);
+            std::fs::create_dir_all(f.parent().ok_or("no parent")?)?;
+            std::fs::write(&f, "---- MODULE X ----\n====\n")?;
+        }
+        let toml = |extra: &str| {
+            format!(
+                "[[corpus]]\nid = \"c\"\nrepo = \"x\"\ncommit = \"{}\"\nlicense = \"MIT\"\nlayout = \"modules-only\"\n{extra}",
+                "a".repeat(40)
+            )
+        };
+        let all = crate::config::CorporaFile::parse(&toml(""))?;
+        let paths = |c: &Corpus| -> Result<Vec<String>> {
+            Ok(modules_only(c, dir.path())?
+                .into_iter()
+                .map(|m| m.path)
+                .collect())
+        };
+        let mut got = paths(&all.corpus[0])?;
+        got.sort();
+        assert_eq!(
+            got,
+            [".smoke/S.tla", "other/O.tla", "t/A.tla", "t/sub/B.tla"]
+        );
+        let some = crate::config::CorporaFile::parse(&toml(
+            "include = [\"t/**\"]\n[[corpus.exclude]]\npath = \"t/A.tla\"\nreason = \"crashes\"\n",
+        ))?;
+        let mods = modules_only(&some.corpus[0], dir.path())?;
+        assert_eq!(mods.len(), 2);
+        assert!(mods.iter().any(|m| {
+            m.path == "t/A.tla"
+                && m.out_of_scope
+                    .as_deref()
+                    .is_some_and(|r| r.contains("crashes"))
+        }));
+        let stale = crate::config::CorporaFile::parse(&toml(
+            "[[corpus.exclude]]\npath = \"gone/X.tla\"\nreason = \"r\"\n",
+        ))?;
+        assert!(modules_only(&stale.corpus[0], dir.path()).is_err());
+        assert!(
+            crate::config::CorporaFile::parse(&toml(
+                "[[corpus.exclude]]\npath = \"t/A.tla\"\nreason = \" \"\n"
+            ))
+            .is_err()
+        );
+        assert_eq!(
+            isolation("specifications/x/sub/M.tla"),
+            ("specifications/x".to_owned(), true)
+        );
+        assert_eq!(isolation("t/sub/B.tla"), ("t/sub".to_owned(), false));
         Ok(())
     }
 

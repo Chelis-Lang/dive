@@ -251,7 +251,8 @@ impl World {
         workers: Vec<u32>,
     ) -> DResult<dive_conformance::report::Report> {
         let opts = RunOptions {
-            corpus: "examples".to_owned(),
+            corpora: vec!["examples".to_owned()],
+            sany_phase: dive_conformance::sany::SanyPhase::Full,
             golden_oracle: ORACLE.to_owned(),
             selection: Selection {
                 tier: "all".to_owned(),
