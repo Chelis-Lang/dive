@@ -197,6 +197,7 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 | Deep recursion reports `GENERAL` ("StackOverflowError") then 2103, exit 75. This is a `resource-limit`, and `-Xss8m` is pinned | `Stack` |
 | `PrintT("@!@!@ENDMSG 2185 @!@!@")` prints the marker text quoted and mid-line. Markers count only in TLC's own positions | `PrintMarker` |
 | A state-predicate `PROPERTY` violated by an initial state is `TLC_PROPERTY_VIOLATED_INITIAL` (2108), exit 13, with the state inside the message. It is classified as `safety-violation` | `InitProperty` |
+| v1.7.4 consumes `-simulate num=N` only when another argument follows it (`TLC.java`: `(index + 1) < args.length`). As the last argument, `num=N` is rejected (`WRONG_COMMANDLINE_PARAMS_TLC`, exit 1), so the harness puts `-simulate` early | Examples `ewd840/EWD840_anim` |
 | `ASSUME TLCGet("config").worker = 1` makes the verdict depend on `-workers` | Examples `DieHard/MCDieHardest` |
 | Animation specs write SVG files into their working directory, hence the isolated per-run copies | Examples `*_anim` |
 | Simulation is not reproducible even with `-seed 0` and one worker. `EWD840_anim` generated 267,302, 267,196, 271,147 and 268,375 states in four runs, with the same verdict and trace length. Simulation counts are therefore kept out of the golden payload (`provenance.uncompared_counts`) | Examples `ewd840/EWD840_anim` |

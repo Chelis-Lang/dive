@@ -452,9 +452,15 @@ impl OracleEnv {
             cmd.arg("-Dtlc2.tool.impl.Tool.cdot=true");
         }
         cmd.arg("-cp").arg(self.classpath_string()).arg("tlc2.TLC");
-        cmd.arg(job.module)
-            .args(["-config", job.config])
-            .args(["-workers", &job.workers.to_string()])
+        cmd.arg(job.module).args(["-config", job.config]);
+        // `-simulate num=N` must not be the last argument: v1.7.4 consumes
+        // `num=N` only when another argument follows it (`TLC.java`,
+        // `(index + 1) < args.length`), and otherwise rejects the command
+        // line (WRONG_COMMANDLINE_PARAMS_TLC, exit 1).
+        if let CheckMode::Simulate { traces } = job.mode {
+            cmd.args(["-simulate", &format!("num={traces}")]);
+        }
+        cmd.args(["-workers", &job.workers.to_string()])
             .args([
                 "-lncheck", "final", "-cleanup", "-tool", "-fp", "0", "-seed", "0",
             ])
@@ -463,9 +469,6 @@ impl OracleEnv {
         let trace_file = scratch.path().join("trace.json");
         if self.capabilities.dump_trace_json {
             cmd.args(["-dumpTrace", "json"]).arg(&trace_file);
-        }
-        if let CheckMode::Simulate { traces } = job.mode {
-            cmd.args(["-simulate", &format!("num={traces}")]);
         }
         let command = self.redacted_command(&cmd, scratch.path(), &work);
         let mut outcome = run_with_timeout(&mut cmd, job.timeout, scratch.path())?;
