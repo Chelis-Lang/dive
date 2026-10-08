@@ -5,7 +5,11 @@
 //! `dive-eval` underlie checking, liveness, simulation and trace validation.
 //! In particular `dive-trace` may not depend on `dive-check`, `dive-liveness`,
 //! `dive-sim` or `dive-store`, so the trace validator stays a genuine second
-//! check. Changing this table is an architectural decision: record an ADR.
+//! check. `dive-model`, the binding stage, sits between the evaluator and
+//! every backend (ADR 0013 §8). `dive-trace` must also build without
+//! `dive-eval`'s `enumerate` feature, the successor enumerator (ADR 0016 §2);
+//! see [`ENUMERATE_FREE`]. Changing this table is an architectural decision:
+//! record an ADR.
 
 /// `(crate, internal crates it may depend on directly)`.
 pub const ALLOWED: &[(&str, &[&str])] = &[
@@ -17,6 +21,17 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
     ("dive-eval", &["dive-ir", "dive-value"]),
     ("dive-stdlib", &["dive-ir", "dive-value", "dive-eval"]),
     ("dive-store", &["dive-value"]),
+    // The binding stage, `SpecProcessor` (ADR 0013 §8; open question 11).
+    (
+        "dive-model",
+        &[
+            "dive-ir",
+            "dive-value",
+            "dive-config",
+            "dive-eval",
+            "dive-stdlib",
+        ],
+    ),
     (
         "dive-check",
         &[
@@ -25,6 +40,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-eval",
             "dive-stdlib",
             "dive-config",
+            "dive-model",
             "dive-store",
         ],
     ),
@@ -36,6 +52,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-eval",
             "dive-stdlib",
             "dive-config",
+            "dive-model",
             "dive-store",
             "dive-check",
         ],
@@ -48,6 +65,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-eval",
             "dive-stdlib",
             "dive-config",
+            "dive-model",
         ],
     ),
     (
@@ -58,10 +76,14 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-eval",
             "dive-stdlib",
             "dive-config",
+            "dive-model",
         ],
     ),
     ("dive-pluscal", &["dive-syntax", "dive-sema"]),
-    ("dive-compile", &["dive-ir", "dive-value", "dive-stdlib"]),
+    (
+        "dive-compile",
+        &["dive-ir", "dive-value", "dive-stdlib", "dive-model"],
+    ),
     (
         "dive-api",
         &[
@@ -72,6 +94,7 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
             "dive-eval",
             "dive-stdlib",
             "dive-config",
+            "dive-model",
             "dive-store",
             "dive-check",
             "dive-liveness",
@@ -92,6 +115,13 @@ pub const ALLOWED: &[(&str, &[&str])] = &[
     ),
     ("dive-bench", &["dive-api", "dive-conformance"]),
 ];
+
+/// Crates whose standalone build must not enable `dive-eval/enumerate`,
+/// directly or through any internal dependency. `cargo xtask check-layering`
+/// resolves each one's features ([`crate::features`]), and the workspace gate
+/// also builds `dive-trace` on its own, so feature unification across the
+/// workspace cannot hide a violation.
+pub const ENUMERATE_FREE: &[&str] = &["dive-trace"];
 
 #[cfg(test)]
 mod tests {

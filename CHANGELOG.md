@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Added
+- `dive-model`, the configuration-binding stage (stub), and `dive-eval`'s `enumerate`
+  feature (stub). `cargo xtask check-layering` rejects a standalone `dive-trace` build
+  that enables the enumerator, and the workspace gate builds `dive-trace` on its own
+  (ADRs 0013 and 0016, accepted).
 - Cargo workspace with one crate per charter component, workspace lints,
   pinned toolchain, crate layering enforcement and lean CI.
 - AI authorship protection: commit-msg hook, CI check and agent configuration.

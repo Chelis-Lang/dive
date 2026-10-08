@@ -1,6 +1,6 @@
 # 0013: Core IR (`dive-ir`)
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-08
 
 ## Context
@@ -236,7 +236,7 @@ The IR is value-free and configuration-free. Constants, overrides and roles are 
 
 **Why a separate crate.** The binding stage needs `dive-config`, `dive-value`, `dive-eval` (to precompute constants and expand splits) and `dive-stdlib`. `dive-ir` may use none of them, and `dive-eval` may not use `dive-config`. The checker, the simulator, the liveness checker and the trace validator all need the same binding. Duplicating a `SpecProcessor` port in each would be a soundness hazard.
 
-**Proposed layering change** (an owner decision; `layering.rs` is not edited here):
+**Layering change** (accepted by the lead on 2026-10-08, open question 11; in `xtask/src/layering.rs`):
 - add `("dive-model", &["dive-ir", "dive-value", "dive-config", "dive-eval", "dive-stdlib"])`;
 - add `dive-model` to the allowed dependencies of:
   - `dive-check`, `dive-liveness` and `dive-sim`;
