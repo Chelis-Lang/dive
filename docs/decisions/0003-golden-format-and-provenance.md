@@ -129,3 +129,10 @@ This applies to SANY goldens too, including the jar SHA-256 check. A selected mo
   - when a pinned oracle moves (regenerate `EC_CODES` and the exit mapping, and re-capture fixtures);
   - if a CommunityModules release compatible with v1.7.4 is found;
   - when `dive` produces verdicts and needs its own error-class vocabulary.
+
+## Amendments
+
+- **2026-10-08 (issue #16).**
+  - **Outcome.** Reports gain the outcome `known-upstream-change`. A TLC oracle under test gets it for a difference from the golden that entries in `conformance/oracle-changes.toml` fully explain (ADR 0002). Like `expected-divergence`, it is never counted as `agree` and is not a finding. Unexplained differences stay `disagree`.
+  - **Report fields.** Reports record `golden_oracle_role`, `implementation_oracle_role` and `reference`. A run involving a reference oracle does not gate.
+  - **Compatibility.** The golden format is unchanged, and no golden or report was regenerated. The new report fields default when older reports are read.

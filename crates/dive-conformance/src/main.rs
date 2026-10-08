@@ -29,9 +29,14 @@ GLOBAL:
     --cache-dir <dir>      cache directory (default: $DIVE_CACHE_DIR or ~/.cache/dive)
 
 COMMANDS:
-    oracle fetch           download and verify every pinned oracle artifact, the JRE for
-                           this host, and the module libraries
-    oracle verify          verify the cached oracles and print their probed capabilities
+    oracle fetch           download and verify the gating oracles (or --oracle <id>), the
+                           classpath jars, the JRE for this host, and the module libraries
+    oracle verify          verify the cached gating oracles (or --oracle <id>) and print
+                           their probed capabilities
+
+    Reference oracles (role = \"reference\" in oracles.toml) are used only when named
+    with --oracle, --golden-oracle or --impl tlc:<id>, and never gate: a run involving
+    one exits 0 on findings and its report is marked reference.
     corpus fetch           check out pinned corpora (--corpus <id>, repeatable; default all)
     corpus list            list models with tier, mode and scope
     golden generate        generate goldens from an oracle
@@ -69,8 +74,9 @@ LIMITS (golden generate, run):
     --java <path>          use this java instead of the pinned JRE (recorded in provenance)
 
 EXIT STATUS:
-    0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes);
-    2 usage error; 3 harness error
+    0 success; 1 findings (failed goldens, or disagree/oracle-error/timeout outcomes,
+    except in runs involving a reference oracle); 2 usage error; 3 harness error.
+    `known-upstream-change` and `expected-divergence` outcomes are not findings.
 ";
 
 struct Args {
@@ -229,12 +235,12 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
     let words: Vec<&str> = cmd.iter().map(String::as_str).collect();
     match words.as_slice() {
         ["oracle", "fetch"] => {
-            pipeline::oracle_fetch(&config, &cache)?;
+            pipeline::oracle_fetch(&config, &cache, o.oracle.as_deref())?;
             Ok(false)
         }
         ["oracle", "verify"] => {
             let java = Java::resolve(&config, &cache, o.java.as_deref())?;
-            for oracle in &config.oracles.tlc {
+            for oracle in config.oracles.selected_or_gating(o.oracle.as_deref())? {
                 let env = OracleEnv::prepare(&config, &cache, &oracle.id, &java)?;
                 out(&format!(
                     "{}: verified; java: {}\n{}\n",
@@ -382,7 +388,17 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
     let bad = |x: Outcome| {
         s.models.get(&x).copied().unwrap_or(0) + s.modules.get(&x).copied().unwrap_or(0)
     };
-    Ok(bad(Outcome::Disagree) + bad(Outcome::OracleError) + bad(Outcome::Timeout) > 0)
+    let findings = bad(Outcome::Disagree) + bad(Outcome::OracleError) + bad(Outcome::Timeout);
+    if report.reference {
+        // A reference oracle never gates (ADR 0002).
+        if findings > 0 {
+            eprintln_safe(&format!(
+                "reference run: {findings} finding(s) reported, not gating"
+            ));
+        }
+        return Ok(false);
+    }
+    Ok(findings > 0)
 }
 
 fn parse_impl_options(texts: &[String], imp: &dyn Implementation) -> Result<Vec<ImplOption>> {

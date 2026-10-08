@@ -58,11 +58,15 @@ pub enum Outcome {
     /// A disagreement listed in `conformance/expected-divergences.toml` for
     /// the `dive` profile (ADR 0010). Never counted as `agree`.
     ExpectedDivergence,
+    /// A difference between two TLC oracles that changes registered in
+    /// `conformance/oracle-changes.toml` fully explain (ADR 0002). Only for
+    /// TLC oracles under test. Never counted as `agree`.
+    KnownUpstreamChange,
 }
 
 impl Outcome {
     /// All outcomes, in report order.
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 9] = [
         Self::Agree,
         Self::Disagree,
         Self::Unsupported,
@@ -71,6 +75,7 @@ impl Outcome {
         Self::OutOfScope,
         Self::DivergenceMode,
         Self::ExpectedDivergence,
+        Self::KnownUpstreamChange,
     ];
 
     /// The kebab-case name.
@@ -85,6 +90,7 @@ impl Outcome {
             Self::OutOfScope => "out-of-scope",
             Self::DivergenceMode => "divergence-mode",
             Self::ExpectedDivergence => "expected-divergence",
+            Self::KnownUpstreamChange => "known-upstream-change",
         }
     }
 }

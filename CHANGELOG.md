@@ -27,7 +27,9 @@ All notable changes to this project are documented here. The project will follow
   - isolated per-run copies of each spec directory, with `-seed 0`, `-fp 0` and `-Xss` pinned;
   - a `resource-limit` class for JVM out-of-memory and stack-overflow runs;
   - strict comparison for non-oracle implementations at every worker count;
-  - an `--impl-option` hook (ADR 0010), where result-changing options yield `divergence-mode`.
+  - an `--impl-option` hook (ADR 0010), where result-changing options yield `divergence-mode`;
+  - oracle roles (`gating`, `reference`): v1.7.4 is reference, used only when named and never gating;
+  - `conformance/oracle-changes.toml`, with a `known-upstream-change` outcome for cross-oracle differences that registered upstream changes explain.
 - `conformance/oracles.toml`:
   - per-oracle classpath (v1.7.4 runs without CommunityModules);
   - pinned TLAPS-library and Apalache module libraries.
