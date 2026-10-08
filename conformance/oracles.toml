@@ -4,10 +4,16 @@
 # `default = true` marks the oracle goldens are generated from unless
 # `--oracle` says otherwise. Changing a pin requires regenerating goldens with
 # a recorded reason.
+#
+# `role` is required: `gating` oracles decide conformance; a `reference`
+# oracle never gates. The harness uses a reference oracle only when it is
+# named explicitly, its runs never produce failing findings, and reports mark
+# it as reference (ADR 0002). Only a gating oracle can be the default.
 
 [[tlc]]
 id = "tlc-2026.10.06.014338"
 default = true
+role = "gating"
 description = "TLC 1.8.0 rolling build at upstream commit 94d0c50 (CalVer tag 2026.10.06.014338), re-hosted"
 upstream_commit = "94d0c5070852b37b801bb8998c436383ab7ee37b"
 # Private release asset on this repo; fetch needs a GitHub token (GH_TOKEN,
@@ -20,6 +26,9 @@ classpath = ["community-modules-202610040242", "community-modules-deps-202610040
 [[tlc]]
 id = "tlc-1.7.4"
 default = false
+# A 2020 maintenance branch, unmaintained; differences from the pin are mostly
+# 1.7.4 bugs fixed upstream (docs/survey/oracle-history.md).
+role = "reference"
 description = "TLC 1.7.4 (Xenophanes), latest upstream stable release, 2024-08-05"
 upstream_commit = "v1.7.4"
 url = "https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar"

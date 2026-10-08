@@ -80,3 +80,22 @@ Decision:
   - The classpath is now per oracle. The pinned CommunityModules jars break v1.7.4 on every spec (`TLCOverrides` references classes 1.7.4 lacks), so v1.7.4 runs without them.
   - The TLAPS library and Apalache's modules are pinned as `[[module_library]]` git checkouts, as upstream Examples CI uses them.
   - Fetching the private asset works only through the GitHub API asset endpoint; the browser URL answers 404 even with a token.
+- **2026-10-08 (issue #16, roles and upstream changes).** Decisions 2 and 4 of the 1.8.x revision are implemented.
+  - **Roles.** `oracles.toml` gives every oracle a required `role`:
+    - `tlc-2026.10.06.014338` is `gating`, and the default oracle must be gating;
+    - `tlc-1.7.4` is `reference`. The harness uses a reference oracle only when it is named (`--oracle`, `--golden-oracle`, `--impl tlc:<id>`). A run involving one never fails on findings, and its report is marked reference.
+  - **Upstream changes.** `conformance/oracle-changes.toml` registers upstream changes, each with:
+    - its upstream commit (or a `<from>..<to>` range when not attributed to one commit);
+    - a description and a link;
+    - the oracles that lack it and the oracles that have it;
+    - the model and module globs and the fields it may change;
+    - optional conditions on either oracle's result.
+
+    A cross-oracle difference that registered changes fully explain is reported as `known-upstream-change` (ADR 0003). It is never `agree`, and it is never applied to `dive` or adapters.
+  - **Seed.** It is seeded from the v1.7.4-vs-pin report:
+    - CommunityModules incompatibility (`eb3ff99d16..94d0c50`);
+    - `TLCExt`/`Json` (`856398af6`);
+    - `ALIAS` (`f5306c601`);
+    - depth for constant-only models (`508aaf05f`).
+
+    Two differences there have no recorded commit and stay `disagree`: v1.7.4 omits the depth after a liveness violation, and it cannot resolve a nested module that an earlier module in the same file extends.
