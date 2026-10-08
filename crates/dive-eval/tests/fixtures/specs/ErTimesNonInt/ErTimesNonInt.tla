@@ -1,0 +1,4 @@
+---- MODULE ErTimesNonInt ----
+EXTENDS Integers, Sequences, FiniteSets, TLC
+ASSUME <<1>> * 2 = 1
+====
