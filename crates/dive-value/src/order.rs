@@ -123,7 +123,23 @@ fn rank(v: &Value) -> u8 {
 }
 
 impl Value {
-    /// The total order described in the [module docs](crate::order), under `order`.
+    /// A total order on all values, under the name order `order`.
+    ///
+    /// It extends TLC's partial order (`Value.compareTo` in `tlc2.value.impl`):
+    /// wherever TLC compares two values without error the two agree, and where TLC
+    /// raises an error this order falls back to a fixed ranking of kinds:
+    ///
+    /// 1. model values (by name),
+    /// 2. booleans (`FALSE < TRUE`),
+    /// 3. integers (numerically),
+    /// 4. strings (by name),
+    /// 5. finite sets (by cardinality, then element by element in normalized order),
+    /// 6. functions, including tuples and records (by domain size, then domain
+    ///    element by element, then values element by element),
+    /// 7. infinite or unenumerable sets (`Nat < Int < STRING < Seq(S)`, then by
+    ///    definition).
+    ///
+    /// Names (rules 1 and 4, and record fields) are ordered by [`ValueOrder`].
     /// Consistent with `==`: `a.cmp_with(b, o) == Equal` iff `a == b`.
     #[must_use]
     pub fn cmp_with(&self, other: &Self, order: ValueOrder) -> Ordering {

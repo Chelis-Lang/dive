@@ -90,13 +90,13 @@ enum Tok {
 }
 
 fn lex(src: &str) -> Vec<Tok> {
-    let mut out = Vec::new();
-    let b = src.as_bytes();
-    let mut i = 0;
     const OPS: [&str; 22] = [
         "|->", "<<", ">>", "..", ":>", "@@", "->", "\\in", "\\X", "\\div", "{", "}", "(", ")", "[",
         "]", ",", ":", "=", "+", "-", "*",
     ];
+    let mut out = Vec::new();
+    let b = src.as_bytes();
+    let mut i = 0;
     while i < b.len() {
         let c = b[i];
         if c.is_ascii_whitespace() {
@@ -372,7 +372,7 @@ impl P<'_, '_> {
                 _ if self.ev.constants.contains(&id) => Ok(Value::model(self.ev.names, &id)),
                 _ => panic!("unknown identifier {id}"),
             },
-            t => panic!("unexpected token {t:?}"),
+            t @ Tok::Op(_) => panic!("unexpected token {t:?}"),
         }
     }
 

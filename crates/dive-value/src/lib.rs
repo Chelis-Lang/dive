@@ -13,7 +13,7 @@
 //!   order). Defaults are dive's; [`Ctx::tlc`] is `--compat=tlc`.
 //! - [`Interner`]: the run's table of names (strings, model values, record fields).
 //! - [`tlc`]: TLC's checked equality, comparison and membership, with TLC's errors.
-//! - [`print`]: TLC's value printing and pretty-printer.
+//! - [`mod@print`]: TLC's value printing and pretty-printer.
 //! - [`fp64`]: TLC's FP64 fingerprints.
 //! - [`json`]: TLC's JSON form of values.
 //!

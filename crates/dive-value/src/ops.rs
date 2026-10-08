@@ -2,7 +2,7 @@
 //!
 //! These follow TLC's eager forms (`SetEnumValue.cup`, `cap`, `diff`): the result is
 //! an enumerated, normalized set, and membership uses TLC's checked
-//! [`member`](crate::tlc::member). Lazy unions of infinite sets are `dive-eval`'s
+//! [`crate::tlc::member`]. Lazy unions of infinite sets are `dive-eval`'s
 //! concern ([`DeferredSet`](crate::DeferredSet)).
 
 use crate::ctx::Ctx;

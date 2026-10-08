@@ -209,6 +209,46 @@ fn errors_match_tlc() {
     assert!(checked > 40, "only {checked} cases checked");
 }
 
+/// Single-`PrintT` specs whose TLC outcome may be a value or an error (`Asym*`:
+/// TLC's comparability is asymmetric between records and tuples).
+#[test]
+fn outcomes_match_tlc() {
+    let mut failures = String::new();
+    let mut checked = 0;
+    for name in spec_names(&["Asym"]) {
+        let module = module(&name);
+        let expr = module
+            .lines()
+            .find_map(|l| l.strip_prefix("ASSUME PrintT(")?.strip_suffix(')'))
+            .expect("one ASSUME PrintT");
+        let stdout = transcript(&name, "stdout");
+        let want: Result<String, String> = if transcript(&name, "exit").trim() == "0" {
+            let mut lines = stdout
+                .lines()
+                .skip_while(|l| *l != "@!@!@ENDMSG 2185 @!@!@");
+            lines.next();
+            Ok(lines
+                .take_while(|l| !l.starts_with("@!@!@STARTMSG"))
+                .collect::<Vec<_>>()
+                .join("\n"))
+        } else {
+            Err(tlc_error_message(&stdout))
+        };
+        let names = seed_interner(&module);
+        let ev = evaluator(&names, &module, Ctx::tlc());
+        let got = print_t(&ev, expr).map_err(|e| e.message().to_owned());
+        checked += 1;
+        if got != want {
+            let _ = writeln!(
+                failures,
+                "{name}: {expr}\n  TLC:  {want:?}\n  dive: {got:?}"
+            );
+        }
+    }
+    assert!(failures.is_empty(), "{failures}");
+    assert!(checked >= 4, "only {checked} cases checked");
+}
+
 /// The counterexample of `TraceValues`: TLC's state printing and `-dumpTrace json`.
 #[test]
 fn trace_states_match_tlc() {
@@ -245,9 +285,9 @@ fn trace_states_match_tlc() {
     let trace_json = transcript(name, "trace.json");
     for (i, exprs) in states.iter().enumerate() {
         let vals: Vec<Value> = exprs.iter().map(|e| ev.eval(e).expect(e)).collect();
-        let vars: Vec<(&str, &Value)> = ["qva", "qvb", "qvc"].into_iter().zip(&vals).collect();
+        let state: Vec<(&str, &Value)> = ["qva", "qvb", "qvc"].into_iter().zip(&vals).collect();
         // TLC frames the state as "%1%: %2%\n%3%" and ends the message with a newline.
-        let printed = format_state(&vars, ctx).expect("printable") + "\n";
+        let printed = format_state(&state, ctx).expect("printable") + "\n";
         assert_eq!(printed, blocks[i], "state {}", i + 1);
         let rec = Value::record(
             ["qva", "qvb", "qvc"]
