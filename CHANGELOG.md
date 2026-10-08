@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Added
+- `dive-eval` (M5, WP-C1): the interpreter over the IR (ADR 0014 and its amendment):
+  - every expression form with TLC's evaluation order, laziness (thunks under
+    `LazyValue`'s caching rule), lazy sets and lazy functions, `CHOOSE` in the run's
+    value order, dynamic `INSTANCE` substitutions, recursion with a depth limit, and both
+    integer modes;
+  - TLC's error classes and message texts, including the wrapping of errors raised in
+    Java overrides; anything not reproduced exactly is refused as `unsupported`;
+  - the `Naturals`, `Integers`, `Sequences`, `FiniteSets`, `Strings` and basic `TLC`
+    overrides, and TLC's assumption checking;
+  - the pending owner questions as options with TLC's behaviour by default: exploration
+    order (open question 9, D-010) and comparisons (open question 12, D-009);
+  - 133 fixture specifications captured from the pinned TLC, plus `dive-value`'s 84,
+    matched byte for byte; every `ASSUME` of the Examples corpus and the
+    CommunityModules tests is either `TRUE` or refused by name.
+- `dive-value`: a function remembers whether TLC holds it as a tuple literal
+  (`Fcn::is_tuple_literal`), deferred sets can be lazy `\cup`, `\cap`, `\` and `UNION`,
+  and `Set::as_deferred`, `components` and `raw_elements` expose what the evaluator needs.
 - `dive-ir` (M5, WP-A1): the core IR and its lowering from `dive-sema` (ADR 0013):
   - every expression and operator form as an explicit variant, with SANY's level, an
     origin with SANY's line and column, and effects (`impure`, `live_tlcget`, `may_fail`,

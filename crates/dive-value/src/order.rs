@@ -764,7 +764,7 @@ fn dup_domain(v: &Value, ctx: Ctx) -> ValueError {
 /// literal (TLC keeps such functions as `FcnRcdValue`).
 pub(crate) fn make_fcn(mut pairs: Vec<(Value, Value)>, ctx: Ctx) -> Result<Value> {
     if pairs.is_empty() {
-        return Ok(Value::tuple(Vec::new()));
+        return Ok(Value::tuple_fcn(Vec::new()));
     }
     if pairs.len() > 1 {
         let doms: Vec<Value> = pairs.iter().map(|(d, _)| d.clone()).collect();
@@ -794,7 +794,9 @@ pub(crate) fn make_fcn(mut pairs: Vec<(Value, Value)>, ctx: Ctx) -> Result<Value
         |(i, (d, _))| matches!(d, Value::Int(k) if i64::try_from(i).is_ok_and(|i| *k == i + 1)),
     );
     if is_tuple {
-        return Ok(Value::tuple(pairs.into_iter().map(|(_, v)| v).collect()));
+        return Ok(Value::tuple_fcn(
+            pairs.into_iter().map(|(_, v)| v).collect(),
+        ));
     }
     if pairs.iter().all(|(d, _)| matches!(d, Value::Str(_))) {
         let mut fields: Vec<(Atom, Value)> = Vec::with_capacity(n);

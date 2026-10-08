@@ -187,7 +187,7 @@ impl Iterator for Odometer {
                 true,
             )),
             Build::Fcn(dom, shape, order) => match shape {
-                FcnShape::Tuple => Value::tuple(vals),
+                FcnShape::Tuple => Value::tuple_fcn(vals),
                 FcnShape::Record => Value::Fcn(Fcn::record(
                     dom.iter()
                         .filter_map(|d| match d {
