@@ -1,28 +1,37 @@
 //! Comparing a result against a golden (ADR 0004).
 //!
-//! Always compared: the verdict class and the error class (the `EC` name of
-//! the deciding message).
+//! Goldens come from TLC with one worker. Every implementation is compared
+//! against them on:
+//! - the verdict class and the error class (the `EC` name of the deciding
+//!   message);
+//! - the violated property, when the golden names one;
+//! - distinct, generated and queued state counts, and depth;
+//! - the counterexample's length and how it ends (finite, lasso,
+//!   stuttering).
 //!
-//! Distinct and generated state counts are compared when counts are
-//! comparable (not in simulation) and either the run used one worker or the
-//! oracle explored the complete state space (verdict `success`, or
-//! `liveness-violation`, which TLC reports only after the full safety search
-//! with `-lncheck final`). Multi-worker runs that stop at a safety violation
-//! stop at a scheduling-dependent point, so their counts are not compared.
+//! The counterexample's content is never compared. Implementations other
+//! than TLC must instead report that their counterexample was validated
+//! (`Implementation::trace_validated`).
 //!
-//! Like the counterexample, these are compared only for single-worker runs:
-//! - depth;
-//! - counterexample length (never content);
-//! - the violated property, when both sides name one.
+//! [`ComparePolicy::oracle_leniency`] applies only when the implementation is
+//! itself a TLC oracle run with more than one worker. TLC's multi-worker
+//! search is only approximately breadth-first (ADR 0004). So for such runs:
+//! - counts are compared only if the oracle explored the whole state space
+//!   (`success`, `liveness-violation`);
+//! - depth, queue, counterexample and violated property are not compared.
 //!
-//! The property is limited because, with four workers, TLC can name a
-//! different set of violated temporal properties (Examples
-//! `MCDistributedReplicatedLog`: `AllExtending and InSync` vs `InSync`), and
-//! because v1.7.4 names none.
+//! With four workers TLC even named a different set of violated temporal
+//! properties (Examples `MCDistributedReplicatedLog`: `AllExtending and
+//! InSync` vs `InSync`). Implementations other than TLC get no leniency: they
+//! must match the single-worker golden at every worker count.
+//!
+//! [`ComparePolicy::may_omit_property`] lets an oracle that does not name
+//! violated temporal properties (v1.7.4) omit the name without a diff.
+//! Anyone else omitting a property the golden names is a diff.
 
 use crate::corpus::ManifestExpectation;
 use crate::sany::SanyResult;
-use crate::tlc::result::{OracleResult, Verdict};
+use crate::tlc::result::{OracleResult, TraceEnding, Verdict};
 use serde::{Deserialize, Serialize};
 
 /// The outcome of one model or module.
@@ -42,17 +51,22 @@ pub enum Outcome {
     Timeout,
     /// Excluded by policy (symbolic, generate).
     OutOfScope,
+    /// The implementation ran under a result-changing option (ADR 0010:
+    /// TLC-compatible by default, better by option). Its result is not
+    /// comparable with TLC goldens and is never counted as `agree`.
+    DivergenceMode,
 }
 
 impl Outcome {
     /// All outcomes, in report order.
-    pub const ALL: [Self; 6] = [
+    pub const ALL: [Self; 7] = [
         Self::Agree,
         Self::Disagree,
         Self::Unsupported,
         Self::OracleError,
         Self::Timeout,
         Self::OutOfScope,
+        Self::DivergenceMode,
     ];
 
     /// The kebab-case name.
@@ -65,6 +79,7 @@ impl Outcome {
             Self::OracleError => "oracle-error",
             Self::Timeout => "timeout",
             Self::OutOfScope => "out-of-scope",
+            Self::DivergenceMode => "divergence-mode",
         }
     }
 }
@@ -85,8 +100,20 @@ pub struct FieldDiff {
 pub struct CompareContext {
     /// Worker count of the observed run.
     pub workers: u32,
-    /// Whether state counts are comparable at all for this model.
+    /// Whether state counts are comparable at all for this model (false in
+    /// simulation).
     pub counts_comparable: bool,
+}
+
+/// How strict a comparison is; see the module docs.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ComparePolicy {
+    /// Tolerate TLC's own multi-worker variance. Only for oracle
+    /// implementations (`Implementation::is_oracle`).
+    pub oracle_leniency: bool,
+    /// The observed side may omit the violated property's name. Only for
+    /// oracles that lack the capability.
+    pub may_omit_property: bool,
 }
 
 fn push<T: Serialize + PartialEq>(out: &mut Vec<FieldDiff>, field: &str, expected: &T, actual: &T) {
@@ -99,14 +126,35 @@ fn push<T: Serialize + PartialEq>(out: &mut Vec<FieldDiff>, field: &str, expecte
     }
 }
 
-/// Field-by-field differences between a golden result and an observed one.
+fn ending_kind(r: &OracleResult) -> Option<&'static str> {
+    r.trace.as_ref().map(|t| match t.ending {
+        TraceEnding::Finite => "finite",
+        TraceEnding::Lasso { .. } => "lasso",
+        TraceEnding::Stuttering => "stuttering",
+    })
+}
+
+/// Field-by-field differences under the strict policy (no leniency), as
+/// for any implementation that is not TLC.
 #[must_use]
 pub fn diff_results(
     golden: &OracleResult,
     observed: &OracleResult,
     ctx: CompareContext,
 ) -> Vec<FieldDiff> {
+    diff_results_with(golden, observed, ctx, ComparePolicy::default())
+}
+
+/// Field-by-field differences between a golden result and an observed one.
+#[must_use]
+pub fn diff_results_with(
+    golden: &OracleResult,
+    observed: &OracleResult,
+    ctx: CompareContext,
+    policy: ComparePolicy,
+) -> Vec<FieldDiff> {
     let mut d = Vec::new();
+    let lenient = policy.oracle_leniency && ctx.workers > 1;
     push(&mut d, "verdict", &golden.verdict, &observed.verdict);
     push(
         &mut d,
@@ -114,10 +162,8 @@ pub fn diff_results(
         &golden.error_class,
         &observed.error_class,
     );
-    if ctx.workers == 1
-        && golden.violated_property.is_some()
-        && observed.violated_property.is_some()
-    {
+    let omitted = observed.violated_property.is_none() && policy.may_omit_property;
+    if golden.violated_property.is_some() && !omitted && !lenient {
         push(
             &mut d,
             "violated_property",
@@ -129,7 +175,7 @@ pub fn diff_results(
         golden.verdict,
         Verdict::Success | Verdict::LivenessViolation
     );
-    if ctx.counts_comparable && (ctx.workers == 1 || complete) {
+    if ctx.counts_comparable && (!lenient || complete) {
         push(
             &mut d,
             "counts.distinct_states",
@@ -143,7 +189,13 @@ pub fn diff_results(
             &observed.counts.states_generated,
         );
     }
-    if ctx.counts_comparable && ctx.workers == 1 {
+    if ctx.counts_comparable && !lenient {
+        push(
+            &mut d,
+            "counts.states_left_on_queue",
+            &golden.counts.states_left_on_queue,
+            &observed.counts.states_left_on_queue,
+        );
         push(
             &mut d,
             "counts.depth",
@@ -155,6 +207,12 @@ pub fn diff_results(
             "trace.length",
             &golden.trace.as_ref().map(|t| t.length),
             &observed.trace.as_ref().map(|t| t.length),
+        );
+        push(
+            &mut d,
+            "trace.ending",
+            &ending_kind(golden),
+            &ending_kind(observed),
         );
     }
     d
@@ -209,32 +267,43 @@ pub struct WorkerInvariance {
     /// Whether the named violated property varied (reported, not counted as
     /// a disagreement).
     pub property_varies: bool,
+    /// Points left out of the judgements because they are not oracle facts
+    /// (timeout, resource limit, unclassified, oracle error).
+    pub excluded: usize,
 }
 
 /// Summarises worker invariance over `points`.
 #[must_use]
 pub fn worker_invariance(points: Vec<WorkerPoint>) -> WorkerInvariance {
-    let verdict_invariant = points.windows(2).all(|w| w[0].verdict == w[1].verdict);
+    // Timeouts, resource limits and unclassified runs are not oracle facts;
+    // they are left out of the variance judgements (they are still listed).
+    let facts: Vec<&WorkerPoint> = points
+        .iter()
+        .filter(|p| p.verdict.is_oracle_fact())
+        .collect();
+    let verdict_invariant = facts.windows(2).all(|w| w[0].verdict == w[1].verdict);
     let complete = verdict_invariant
-        && points
+        && facts
             .first()
             .is_some_and(|p| matches!(p.verdict, Verdict::Success | Verdict::LivenessViolation));
     let counts_invariant = complete.then(|| {
-        points.windows(2).all(|w| {
+        facts.windows(2).all(|w| {
             w[0].distinct_states == w[1].distinct_states
                 && w[0].states_generated == w[1].states_generated
         })
     });
-    let depth_varies = points.windows(2).any(|w| w[0].depth != w[1].depth);
-    let property_varies = points
+    let depth_varies = facts.windows(2).any(|w| w[0].depth != w[1].depth);
+    let property_varies = facts
         .windows(2)
         .any(|w| w[0].violated_property != w[1].violated_property);
+    let excluded = points.len() - facts.len();
     WorkerInvariance {
         points,
         verdict_invariant,
         counts_invariant,
         depth_varies,
         property_varies,
+        excluded,
     }
 }
 
@@ -332,7 +401,7 @@ pub fn crosscheck_manifest(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tlc::result::{Counts, Trace, TraceEnding};
+    use crate::tlc::result::{Counts, Trace};
 
     fn result(
         verdict: Verdict,
@@ -400,14 +469,35 @@ mod tests {
 
     #[test]
     fn multi_worker_rules() {
-        // Safety violation with 4 workers: counts, depth, trace not compared.
+        let lenient = ComparePolicy {
+            oracle_leniency: true,
+            may_omit_property: false,
+        };
+        // TLC safety violation with 4 workers: counts, depth, trace not compared.
         let a = result(Verdict::SafetyViolation, 4, 5, 4, Some(4));
         let b = result(Verdict::SafetyViolation, 9, 9, 2, Some(2));
-        assert_eq!(diff_results(&a, &b, FOUR), Vec::<FieldDiff>::new());
+        assert_eq!(
+            diff_results_with(&a, &b, FOUR, lenient),
+            Vec::<FieldDiff>::new()
+        );
+        // The same run from an implementation that is not TLC: no leniency.
+        let fields: Vec<String> = diff_results(&a, &b, FOUR)
+            .into_iter()
+            .map(|d| d.field)
+            .collect();
+        assert_eq!(
+            fields,
+            [
+                "counts.distinct_states",
+                "counts.states_generated",
+                "counts.depth",
+                "trace.length"
+            ]
+        );
         // Complete search with 4 workers: counts compared, depth not.
         let a = result(Verdict::Success, 4, 5, 4, None);
         let b = result(Verdict::Success, 4, 6, 3, None);
-        let fields: Vec<String> = diff_results(&a, &b, FOUR)
+        let fields: Vec<String> = diff_results_with(&a, &b, FOUR, lenient)
             .into_iter()
             .map(|d| d.field)
             .collect();
@@ -425,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn property_compared_only_single_worker_and_when_named() {
+    fn property_rules() {
         let mut a = result(Verdict::LivenessViolation, 3, 4, 3, Some(3));
         let mut b = a.clone();
         a.violated_property = Some("InSync".to_owned());
@@ -435,9 +525,56 @@ mod tests {
             .map(|d| d.field)
             .collect();
         assert_eq!(fields, ["violated_property"]);
-        assert_eq!(diff_results(&a, &b, FOUR), Vec::<FieldDiff>::new());
+        let lenient = ComparePolicy {
+            oracle_leniency: true,
+            may_omit_property: false,
+        };
+        assert_eq!(
+            diff_results_with(&a, &b, FOUR, lenient),
+            Vec::<FieldDiff>::new()
+        );
+        assert_eq!(diff_results(&a, &b, FOUR).len(), 1);
+        // A name vs none is a diff, unless an oracle lacks the capability.
         b.violated_property = None;
-        assert_eq!(diff_results(&a, &b, ONE), Vec::<FieldDiff>::new());
+        assert_eq!(diff_results(&a, &b, ONE).len(), 1);
+        let omit = ComparePolicy {
+            oracle_leniency: true,
+            may_omit_property: true,
+        };
+        assert_eq!(
+            diff_results_with(&a, &b, ONE, omit),
+            Vec::<FieldDiff>::new()
+        );
+    }
+
+    #[test]
+    fn ending_and_queue_are_compared() {
+        let a = result(Verdict::LivenessViolation, 3, 4, 3, Some(3));
+        let mut b = a.clone();
+        if let Some(t) = b.trace.as_mut() {
+            t.ending = TraceEnding::Stuttering;
+        }
+        b.counts.states_left_on_queue = Some(1);
+        let fields: Vec<String> = diff_results(&a, &b, ONE)
+            .into_iter()
+            .map(|d| d.field)
+            .collect();
+        assert_eq!(fields, ["counts.states_left_on_queue", "trace.ending"]);
+    }
+
+    #[test]
+    fn invariance_ignores_non_facts() {
+        let p = |workers, verdict| WorkerPoint {
+            workers,
+            verdict,
+            distinct_states: Some(1),
+            states_generated: Some(1),
+            depth: Some(1),
+            violated_property: None,
+        };
+        let w = worker_invariance(vec![p(1, Verdict::Success), p(4, Verdict::Timeout)]);
+        assert!(w.verdict_invariant);
+        assert_eq!(w.excluded, 1);
     }
 
     #[test]

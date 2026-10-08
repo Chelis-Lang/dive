@@ -350,7 +350,10 @@ pub fn verify_head(dir: &Path, commit: &str) -> Result<()> {
 }
 
 /// Paths in the checkout at `dir` that differ from the pinned commit
-/// (modified, deleted or untracked), as reported by `git status`.
+/// (modified, deleted, untracked or ignored), as reported by `git status
+/// --untracked-files=all --ignored`. Ignored files matter: tlaplus/Examples
+/// ignores everything except a few extensions, so files written by specs
+/// (animation SVGs, trace specs) would otherwise go unnoticed.
 ///
 /// # Errors
 /// Fails if git fails.
@@ -359,6 +362,7 @@ pub fn dirty_paths(dir: &Path) -> Result<Vec<String>> {
         "status",
         "--porcelain",
         "--untracked-files=all",
+        "--ignored",
         "--ignore-submodules=all",
     ]))?;
     Ok(out.lines().map(str::to_owned).collect())

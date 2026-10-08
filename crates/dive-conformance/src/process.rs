@@ -4,11 +4,70 @@
 //! group is killed with `SIGKILL`, so a JVM and anything it started cannot
 //! outlive the harness. Output goes to files rather than pipes, so a chatty
 //! child can never block on a full pipe.
+//!
+//! Because children run in their own process groups, a terminal's Ctrl-C
+//! does not reach them. [`install_signal_handler`] therefore tracks every
+//! live child group and, on `SIGINT` or `SIGTERM`, kills them all before the
+//! harness exits.
 
 use crate::error::{Error, Result};
+use std::collections::BTreeSet;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::sync::Mutex;
 use std::time::{Duration, Instant};
+
+/// Process groups of children that are still running.
+static LIVE_GROUPS: Mutex<BTreeSet<u32>> = Mutex::new(BTreeSet::new());
+
+fn track(pid: u32, live: bool) {
+    if let Ok(mut groups) = LIVE_GROUPS.lock() {
+        if live {
+            groups.insert(pid);
+        } else {
+            groups.remove(&pid);
+        }
+    }
+}
+
+/// Kills every tracked child process group.
+pub fn kill_all_children() {
+    let groups: Vec<u32> = LIVE_GROUPS
+        .lock()
+        .map(|g| g.iter().copied().collect())
+        .unwrap_or_default();
+    for pid in groups {
+        kill_group(pid);
+    }
+}
+
+/// On `SIGINT` or `SIGTERM`, kills every tracked child process group and
+/// exits with `128 + signal`.
+///
+/// # Errors
+/// Fails if the handler cannot be registered.
+#[cfg(unix)]
+pub fn install_signal_handler() -> Result<()> {
+    use signal_hook::consts::{SIGINT, SIGTERM};
+    let mut signals = signal_hook::iterator::Signals::new([SIGINT, SIGTERM])
+        .map_err(|e| Error::Command(format!("cannot install signal handler: {e}")))?;
+    std::thread::spawn(move || {
+        if let Some(sig) = signals.forever().next() {
+            kill_all_children();
+            std::process::exit(128 + sig);
+        }
+    });
+    Ok(())
+}
+
+/// No-op on platforms without Unix signals.
+///
+/// # Errors
+/// Never.
+#[cfg(not(unix))]
+pub fn install_signal_handler() -> Result<()> {
+    Ok(())
+}
 
 /// How a child process ended.
 #[derive(Debug, Clone)]
@@ -81,6 +140,7 @@ pub fn run_with_timeout(
         Error::Command(format!("cannot start {}: {e}", cmd.get_program().display()))
     })?;
     let pid = child.id();
+    track(pid, true);
     let mut timed_out = false;
     let status = loop {
         if let Some(status) = child
@@ -101,6 +161,7 @@ pub fn run_with_timeout(
     };
     // Reap anything the child left running in its group.
     kill_group(pid);
+    track(pid, false);
     let elapsed = start.elapsed();
     let read = |p: &Path| {
         std::fs::read(p)

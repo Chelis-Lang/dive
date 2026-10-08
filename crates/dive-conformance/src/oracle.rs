@@ -18,10 +18,14 @@
 //! - `-workers 1` for goldens (ADR 0004);
 //! - `-metadir <unique tmp dir>` and `-cleanup`, so nothing is written into
 //!   the corpus;
-//! - `-fp 0`, because TLC otherwise picks a random fingerprint polynomial per
-//!   run; `-seed 0` in simulation mode for the same reason;
+//! - `-fp 0` and `-seed 0`, always: TLC otherwise picks a random fingerprint
+//!   polynomial and a random seed per run, and the seed matters in exhaustive
+//!   search too (`RandomElement`, `Randomization`; Examples `SpanTreeRandom`);
 //! - `-dumpTrace json <file>` where the oracle supports it (not v1.7.4);
-//! - `-Xmx`, configurable.
+//! - `-Xmx`, configurable, and `-Xss` pinned ([`JVM_STACK`]).
+//!
+//! Every job runs in a fresh scratch copy of the part of the corpus it needs
+//! ([`isolate`]); the cached checkout is never a working directory.
 //!
 //! It deliberately does *not* copy upstream's `-Dtlc2.TLC.ide=Github` and
 //! `-Dutil.ExecutionStatisticsCollector.id=...`: the latter makes TLC report
@@ -147,6 +151,10 @@ impl Java {
 /// failure. `-generate` is not probed: `94d0c50` accepts it but does not
 /// list it in its usage text, and generate models are out of scope anyway.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "each flag is an independent, separately probed oracle fact"
+)]
 pub struct Capabilities {
     /// `-dumpTrace json <file>` (absent from v1.7.4).
     pub dump_trace_json: bool,
@@ -154,6 +162,12 @@ pub struct Capabilities {
     pub no_generate_spec_te: bool,
     /// SANY's `-error-codes` (absent from v1.7.4, which rejects it).
     pub sany_error_codes: bool,
+    /// Whether a temporal-property violation names the property (v1.7.4
+    /// prints "Temporal properties were violated." without a name). Probed
+    /// by model checking a one-line liveness violation, which also proves
+    /// that `-seed` is accepted in breadth-first mode.
+    #[serde(default)]
+    pub names_temporal_properties: bool,
     /// `X-Git-Revision` from the jar manifest.
     pub git_revision: Option<String>,
     /// `Implementation-Version` from the jar manifest.
@@ -239,6 +253,11 @@ pub struct Invocation {
     pub trace_json: Option<String>,
 }
 
+/// The JVM thread stack size, pinned so that deep recursion overflows (or
+/// not) the same way on every machine. A stack overflow is a
+/// `resource-limit`, never an oracle fact.
+pub const JVM_STACK: &str = "8m";
+
 const SCRUBBED_ENV: &[&str] = &[
     "JAVA_TOOL_OPTIONS",
     "_JAVA_OPTIONS",
@@ -305,6 +324,7 @@ impl OracleEnv {
         }
         cmd.arg("-XX:+UseParallelGC")
             .arg(format!("-Xmx{xmx}"))
+            .arg(format!("-Xss{JVM_STACK}"))
             .arg(format!("-Duser.home={}", self.home.display()))
             .arg(format!("-Djava.io.tmpdir={}", scratch.display()))
             .arg("-Duser.language=en")
@@ -360,6 +380,40 @@ impl OracleEnv {
             .arg("-error-codes")
             .arg("DiveProbe.tla");
         let sany = run_with_timeout(&mut cmd, Duration::from_secs(120), scratch.path())?;
+        let probe_dir = scratch.path().join("DiveLive");
+        std::fs::create_dir_all(&probe_dir).map_err(|e| Error::io(&probe_dir, &e))?;
+        for (name, text) in [
+            (
+                "DiveLive.tla",
+                "---- MODULE DiveLive ----\nVARIABLE x\nInit == x = 0\nNext == UNCHANGED x\nSpec == Init /\\ [][Next]_x\nDiveLiveProp == <>(x = 1)\n====\n",
+            ),
+            (
+                "DiveLive.cfg",
+                "SPECIFICATION Spec\nPROPERTY DiveLiveProp\n",
+            ),
+        ] {
+            let f = probe_dir.join(name);
+            std::fs::write(&f, text).map_err(|e| Error::io(&f, &e))?;
+        }
+        let mut cmd = self.base_command(scratch.path(), scratch.path(), "256m");
+        cmd.arg("-cp")
+            .arg(&self.jar)
+            .arg("tlc2.TLC")
+            .args(["DiveLive/DiveLive.tla", "-config", "DiveLive/DiveLive.cfg"])
+            .args([
+                "-workers", "1", "-tool", "-fp", "0", "-seed", "0", "-cleanup",
+            ])
+            .arg("-metadir")
+            .arg(scratch.path().join("live-states"));
+        let live = run_with_timeout(&mut cmd, Duration::from_secs(120), scratch.path())?;
+        if live.exit_code != Some(13) {
+            return Err(Error::Command(format!(
+                "oracle `{}` did not report the probe liveness violation (exit {:?}): {}",
+                self.oracle.id,
+                live.exit_code,
+                live.stdout.chars().take(600).collect::<String>()
+            )));
+        }
         let manifest = capture(
             Command::new("unzip")
                 .arg("-p")
@@ -377,6 +431,9 @@ impl OracleEnv {
             dump_trace_json: usage.contains("-dumpTrace"),
             no_generate_spec_te: usage.contains("-noGenerateSpecTE"),
             sany_error_codes: sany.exit_code == Some(0) && !sany.stdout.contains("Illegal switch"),
+            names_temporal_properties: live
+                .stdout
+                .contains("Temporal property DiveLiveProp was violated"),
             git_revision: field("X-Git-Revision:"),
             implementation_version: field("Implementation-Version:"),
         })
@@ -389,7 +446,8 @@ impl OracleEnv {
     /// be created; every TLC outcome, including timeouts, is returned.
     pub fn run_tlc(&self, job: &TlcJob<'_>) -> Result<Invocation> {
         let scratch = TempDir::new_in(&self.tmp_root, "tlc")?;
-        let mut cmd = self.base_command(scratch.path(), job.corpus_root, job.xmx);
+        let work = isolate(job.corpus_root, job.module, scratch.path())?;
+        let mut cmd = self.base_command(scratch.path(), &work, job.xmx);
         if job.features.iter().any(|f| f == "action composition") {
             cmd.arg("-Dtlc2.tool.impl.Tool.cdot=true");
         }
@@ -397,7 +455,9 @@ impl OracleEnv {
         cmd.arg(job.module)
             .args(["-config", job.config])
             .args(["-workers", &job.workers.to_string()])
-            .args(["-lncheck", "final", "-cleanup", "-tool", "-fp", "0"])
+            .args([
+                "-lncheck", "final", "-cleanup", "-tool", "-fp", "0", "-seed", "0",
+            ])
             .arg("-metadir")
             .arg(scratch.path().join("states"));
         let trace_file = scratch.path().join("trace.json");
@@ -405,12 +465,12 @@ impl OracleEnv {
             cmd.args(["-dumpTrace", "json"]).arg(&trace_file);
         }
         if let CheckMode::Simulate { traces } = job.mode {
-            cmd.args(["-simulate", &format!("num={traces}"), "-seed", "0"]);
+            cmd.args(["-simulate", &format!("num={traces}")]);
         }
-        let command = self.redacted_command(&cmd, scratch.path(), job.corpus_root);
+        let command = self.redacted_command(&cmd, scratch.path(), &work);
         let mut outcome = run_with_timeout(&mut cmd, job.timeout, scratch.path())?;
         let trace_json = std::fs::read_to_string(&trace_file).ok();
-        self.redact_outcome(&mut outcome, scratch.path(), job.corpus_root);
+        self.redact_outcome(&mut outcome, scratch.path(), &work);
         Ok(Invocation {
             command,
             outcome,
@@ -418,29 +478,40 @@ impl OracleEnv {
         })
     }
 
-    /// Runs SANY on `module_file` from its own directory, with
-    /// `-error-codes` when the oracle supports it.
+    /// Runs SANY on `module` (corpus-relative) from the module's own
+    /// directory inside an isolated copy, with `-error-codes` when the oracle
+    /// supports it.
     ///
     /// # Errors
-    /// Fails only if the process cannot be started.
+    /// Fails only if the process cannot be started or the copy fails.
     pub fn run_sany(
         &self,
-        module_dir: &Path,
-        module_file: &str,
+        corpus_root: &Path,
+        module: &str,
         timeout: Duration,
     ) -> Result<Invocation> {
         let scratch = TempDir::new_in(&self.tmp_root, "sany")?;
-        let mut cmd = self.base_command(scratch.path(), module_dir, "1g");
+        let work = isolate(corpus_root, module, scratch.path())?;
+        let module_path = work.join(module);
+        let module_dir = module_path
+            .parent()
+            .ok_or_else(|| Error::Config(format!("module `{module}` has no directory")))?
+            .to_path_buf();
+        let file = module_path
+            .file_name()
+            .ok_or_else(|| Error::Config(format!("module `{module}` has no file name")))?
+            .to_os_string();
+        let mut cmd = self.base_command(scratch.path(), &module_dir, "1g");
         cmd.arg("-cp")
             .arg(self.classpath_string())
             .arg("tla2sany.SANY");
         if self.capabilities.sany_error_codes {
             cmd.arg("-error-codes");
         }
-        cmd.arg(module_file);
-        let command = self.redacted_command(&cmd, scratch.path(), module_dir);
+        cmd.arg(&file);
+        let command = self.redacted_command(&cmd, scratch.path(), &module_dir);
         let mut outcome = run_with_timeout(&mut cmd, timeout, scratch.path())?;
-        self.redact_outcome(&mut outcome, scratch.path(), module_dir);
+        self.redact_outcome(&mut outcome, scratch.path(), &module_dir);
         Ok(Invocation {
             command,
             outcome,
@@ -461,6 +532,24 @@ impl OracleEnv {
             java: self.java.clone(),
         }
     }
+}
+
+/// Copies the part of the corpus a job needs into `<scratch>/work`,
+/// preserving its corpus-relative path, and returns `<scratch>/work`. Oracle
+/// runs execute there, so nothing they write (TLC metadata, `IOUtils`
+/// output, animation SVGs, trace-exploration specs) can reach the cached
+/// corpus checkout. The part copied is [`crate::corpus::isolation_dir`] of
+/// `path`: the spec directory for tlaplus/Examples, else the file's
+/// directory.
+///
+/// # Errors
+/// Fails on any file-system error.
+pub fn isolate(corpus_root: &Path, path: &str, scratch: &Path) -> Result<PathBuf> {
+    let work = scratch.join("work");
+    let rel = crate::corpus::isolation_dir(path);
+    let dest = work.join(&rel);
+    crate::util::copy_dir(&corpus_root.join(&rel), &dest)?;
+    Ok(work)
 }
 
 fn library_entry(cache: &Cache, lib: &ModuleLibrary) -> Result<ClasspathEntry> {

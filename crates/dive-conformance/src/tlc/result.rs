@@ -24,6 +24,13 @@
 //! 6. When both a `-dumpTrace json` file and the message stream carry a
 //!    counterexample, their lengths must agree, or the result is an oracle
 //!    error.
+//!
+//! Before rule 2, JVM resource exhaustion (out of memory, stack overflow)
+//! is [`Verdict::ResourceLimit`], which is never an oracle fact. In rule 4,
+//! an exit code explained only by context messages is unclassified. After
+//! classification: a success without state statistics, or any stderr line
+//! outside [`BENIGN_STDERR`], turns an oracle fact into
+//! [`Verdict::OracleError`], keeping the stderr in the note.
 
 use super::codes::{
     CONTEXT_CODES, PARSE_FAILURE_CODES, ec_name, exit_status_name, exit_statuses_for,
@@ -74,6 +81,12 @@ pub enum Verdict {
     Unclassified,
     /// The harness timeout fired and the process tree was killed.
     Timeout,
+    /// The JVM ran out of a resource (heap, stack): `SYSTEM_OUT_OF_MEMORY*`
+    /// (1001-1003), `SYSTEM_STACK_OVERFLOW` (1005), or `GENERAL` (1000)
+    /// reporting an `OutOfMemoryError`/`StackOverflowError`. That depends on
+    /// `-Xmx`/`-Xss` and the machine, so it is never an oracle fact and never
+    /// becomes a golden.
+    ResourceLimit,
 }
 
 impl Verdict {
@@ -81,7 +94,10 @@ impl Verdict {
     /// failing to obtain or interpret one).
     #[must_use]
     pub fn is_oracle_fact(self) -> bool {
-        !matches!(self, Self::OracleError | Self::Unclassified | Self::Timeout)
+        !matches!(
+            self,
+            Self::OracleError | Self::Unclassified | Self::Timeout | Self::ResourceLimit
+        )
     }
 
     /// The kebab-case name, as serialised.
@@ -104,6 +120,7 @@ impl Verdict {
             Self::OracleError => "oracle-error",
             Self::Unclassified => "unclassified",
             Self::Timeout => "timeout",
+            Self::ResourceLimit => "resource-limit",
         }
     }
 }
@@ -120,6 +137,7 @@ pub enum RunMode {
 
 /// State-space statistics as TLC reports them.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Counts {
     /// Distinct states found (`TLC_STATS`).
     pub distinct_states: Option<u64>,
@@ -134,6 +152,7 @@ pub struct Counts {
 /// Fingerprint collision probability estimates, verbatim as TLC prints them
 /// in `TLC_SUCCESS`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CollisionProbability {
     /// "calculated (optimistic)".
     pub optimistic: Option<String>,
@@ -158,6 +177,7 @@ pub enum TraceEnding {
 
 /// One state of a counterexample as printed in the message stream.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TraceStep {
     /// The action label, e.g. `<Initial predicate>` or `<Next line 5, ...>`.
     pub label: String,
@@ -167,6 +187,7 @@ pub struct TraceStep {
 
 /// A counterexample, if TLC printed one.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Trace {
     /// Number of states, not counting the lasso or stuttering marker.
     pub length: u64,
@@ -187,6 +208,7 @@ pub struct Trace {
 
 /// A stand-in for a trace too large to store in a golden file.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OmittedTrace {
     /// Why it was omitted.
     pub reason: String,
@@ -198,6 +220,7 @@ pub struct OmittedTrace {
 
 /// Everything the harness extracts from one TLC run.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct OracleResult {
     /// The verdict class.
     pub verdict: Verdict,
@@ -239,6 +262,25 @@ pub struct RunFacts<'a> {
     pub trace_json: Option<&'a str>,
     /// Simulation mode.
     pub simulate: bool,
+    /// TLC's stderr. Anything outside [`BENIGN_STDERR`] makes the result an
+    /// oracle error, with the stderr kept in the note.
+    pub stderr: Option<&'a str>,
+}
+
+/// Stderr lines that are known and harmless. v1.7.4's module resolver prints
+/// `File does not exist: ... while looking in these directories: ...` for
+/// every module it cannot find; the parse failure itself is reported on
+/// stdout.
+pub const BENIGN_STDERR: &[&str] = &["File does not exist: "];
+
+/// Stderr lines outside [`BENIGN_STDERR`].
+#[must_use]
+pub fn unexpected_stderr(stderr: &str) -> Vec<&str> {
+    stderr
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .filter(|l| !BENIGN_STDERR.iter().any(|b| l.starts_with(b)))
+        .collect()
 }
 
 fn parse_u64(s: &str) -> Option<u64> {
@@ -482,10 +524,50 @@ impl Decision {
     }
 }
 
+/// Resource-exhaustion codes: `SYSTEM_OUT_OF_MEMORY`,
+/// `SYSTEM_OUT_OF_MEMORY_TOO_MANY_INIT`, `SYSTEM_OUT_OF_MEMORY_LIVENESS` and
+/// `SYSTEM_STACK_OVERFLOW`.
+pub const RESOURCE_CODES: &[i32] = &[1001, 1002, 1003, 1005];
+
+/// JVM error names that mean a resource ran out.
+const RESOURCE_ERRORS: &[&str] = &["OutOfMemoryError", "StackOverflowError"];
+
+/// Detects JVM resource exhaustion: a resource code, a `GENERAL` (1000)
+/// message naming `OutOfMemoryError` or `StackOverflowError`, or either name
+/// on stderr.
+fn resource_exhaustion(t: &Transcript, stderr: Option<&str>) -> Option<(Option<i32>, String)> {
+    for m in t.messages() {
+        if RESOURCE_CODES.contains(&m.code)
+            || (m.code == 1000 && RESOURCE_ERRORS.iter().any(|e| m.body.contains(e)))
+        {
+            return Some((
+                Some(m.code),
+                format!(
+                    "JVM resource exhausted ({}): {}",
+                    ec_name(m.code).unwrap_or("?"),
+                    m.body.lines().next().unwrap_or_default()
+                ),
+            ));
+        }
+    }
+    let stderr = stderr?;
+    RESOURCE_ERRORS
+        .iter()
+        .find(|e| stderr.contains(*e))
+        .map(|e| (None, format!("JVM resource exhausted: {e} on stderr")))
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "the classification rules read best as one ordered sequence"
+)]
 fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision {
     let codes: Vec<i32> = errors.iter().map(|m| m.code).collect();
     if facts.timed_out {
         return Decision::new(Verdict::Timeout, None, None);
+    }
+    if let Some((code, what)) = resource_exhaustion(t, facts.stderr) {
+        return Decision::new(Verdict::ResourceLimit, code, Some(what));
     }
     let Some(exit) = facts.exit_code else {
         return Decision::new(
@@ -536,10 +618,20 @@ fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision
         .iter()
         .filter(|m| exit_statuses_for(m.code).contains(&exit))
         .collect();
-    let primary = candidates
-        .iter()
-        .find(|m| !CONTEXT_CODES.contains(&m.code))
-        .or_else(|| candidates.first());
+    if !candidates.is_empty() && candidates.iter().all(|m| CONTEXT_CODES.contains(&m.code)) {
+        // Only a context message (e.g. the nested-expression stack 2103 after
+        // a GENERAL 1000) explains the exit code: the real error is not one
+        // whose class we can name.
+        return Decision::new(
+            Verdict::Unclassified,
+            codes.first().copied(),
+            Some(format!(
+                "exit code {exit} is explained only by context message(s) {:?}; error codes {codes:?}",
+                candidates.iter().map(|m| m.code).collect::<Vec<_>>()
+            )),
+        );
+    }
+    let primary = candidates.iter().find(|m| !CONTEXT_CODES.contains(&m.code));
     let Some(primary) = primary else {
         if exit == 152 || exit == 153 {
             return Decision::new(
@@ -602,6 +694,27 @@ pub fn classify(t: &Transcript, facts: &RunFacts<'_>) -> OracleResult {
         }
         note = Some(note.map_or(problem.clone(), |n| format!("{n}; {problem}")));
     }
+    let counts = extract_counts(t);
+    if verdict == Verdict::Success {
+        let has_stats = if facts.simulate {
+            counts.states_generated.is_some()
+        } else {
+            counts.distinct_states.is_some() && counts.states_generated.is_some()
+        };
+        if !has_stats {
+            verdict = Verdict::OracleError;
+            note = Some("success reported without state statistics".to_owned());
+        }
+    }
+    if let Some(stderr) = facts.stderr {
+        let unexpected = unexpected_stderr(stderr);
+        if !unexpected.is_empty() && verdict.is_oracle_fact() {
+            verdict = Verdict::OracleError;
+            let kept: String = stderr.chars().take(8000).collect();
+            let problem = format!("unexpected output on stderr:\n{kept}");
+            note = Some(note.map_or(problem.clone(), |n| format!("{n}; {problem}")));
+        }
+    }
     let violated = decision
         .code
         .and_then(|c| errors.iter().find(|m| m.code == c))
@@ -616,7 +729,7 @@ pub fn classify(t: &Transcript, facts: &RunFacts<'_>) -> OracleResult {
             .and_then(exit_status_name)
             .map(str::to_owned),
         violated_property: violated,
-        counts: extract_counts(t),
+        counts,
         fingerprint_collision: extract_collision(t),
         trace,
         error_codes: errors.iter().map(|m| m.code).collect(),

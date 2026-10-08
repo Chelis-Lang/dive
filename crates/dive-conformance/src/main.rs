@@ -5,7 +5,9 @@ use dive_conformance::cache::Cache;
 use dive_conformance::compare::Outcome;
 use dive_conformance::config::Config;
 use dive_conformance::error::{Error, Result};
-use dive_conformance::implementation::{DiveImplementation, ExternalAdapter, TlcImplementation};
+use dive_conformance::implementation::{
+    DiveImplementation, ExternalAdapter, ImplOption, Implementation, TlcImplementation,
+};
 use dive_conformance::oracle::{CheckMode, Java, OracleEnv, TlcJob};
 use dive_conformance::pipeline::{self, GenerateOptions, Limits, RunOptions, Selection};
 use dive_conformance::sany;
@@ -50,6 +52,9 @@ RUN:
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
     --no-sany              skip SANY goldens
+    --impl-option N[=V]    run dive/adapter under an option (repeatable; ADR 0010). Options
+                           the implementation does not declare result-preserving make every
+                           would-be `agree` a `divergence-mode` outcome
     --report-dir <dir>     default: conformance/reports
     --summary <file>       default: docs/conformance.md;  --no-summary to skip
 
@@ -110,6 +115,7 @@ struct Opts {
     timeout: Option<u64>,
     timeout_cap: Option<u64>,
     java: Option<PathBuf>,
+    impl_options: Vec<String>,
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
     positional: Vec<String>,
@@ -161,6 +167,7 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
             "--timeout" => o.timeout = Some(parse_num(&a, &args.value(&a)?)?),
             "--timeout-cap" => o.timeout_cap = Some(parse_num(&a, &args.value(&a)?)?),
             "--java" => o.java = Some(args.value(&a)?.into()),
+            "--impl-option" => o.impl_options.push(args.value(&a)?),
             "--specs" => o.specs = Some(args.value(&a)?.into()),
             "--out" => o.out = Some(args.value(&a)?.into()),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
@@ -324,12 +331,20 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             .to_owned();
         let java = Java::resolve(config, cache, o.java.as_deref())?;
         let env = OracleEnv::prepare(config, cache, &id, &java)?;
+        if !o.impl_options.is_empty() {
+            return Err(Error::Usage(
+                "--impl-option applies to dive and adapters; TLC oracles take none".to_owned(),
+            ));
+        }
         let imp = TlcImplementation { env };
         pipeline::run(config, cache, &imp, Some(&imp.env), &opts)?
     } else if imp_spec == "dive" {
-        pipeline::run(config, cache, &DiveImplementation, None, &opts)?
+        let mut imp = DiveImplementation::default();
+        imp.options = parse_impl_options(&o.impl_options, &imp)?;
+        pipeline::run(config, cache, &imp, None, &opts)?
     } else if let Some(path) = imp_spec.strip_prefix("adapter:") {
-        let adapter = ExternalAdapter::load(Path::new(path))?;
+        let mut adapter = ExternalAdapter::load(Path::new(path))?;
+        adapter.options = parse_impl_options(&o.impl_options, &adapter)?;
         pipeline::run(config, cache, &adapter, None, &opts)?
     } else {
         return Err(Error::Usage(format!("unknown --impl `{imp_spec}`")));
@@ -354,6 +369,10 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         s.models.get(&x).copied().unwrap_or(0) + s.modules.get(&x).copied().unwrap_or(0)
     };
     Ok(bad(Outcome::Disagree) + bad(Outcome::OracleError) + bad(Outcome::Timeout) > 0)
+}
+
+fn parse_impl_options(texts: &[String], imp: &dyn Implementation) -> Result<Vec<ImplOption>> {
+    texts.iter().map(|t| ImplOption::parse(t, imp)).collect()
 }
 
 fn eprintln_safe(s: &str) {
@@ -419,11 +438,12 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
                 timed_out: inv.outcome.timed_out,
                 trace_json: inv.trace_json.as_deref(),
                 simulate: false,
+                stderr: Some(&inv.outcome.stderr),
             },
         );
         let sany_inv = env.run_sany(
-            &specs.join(name),
-            &format!("{name}.tla"),
+            &specs,
+            &format!("{name}/{name}.tla"),
             Duration::from_secs(120),
         )?;
         let sany_result = sany::classify(&sany_inv.outcome);
@@ -466,6 +486,9 @@ fn main() -> ExitCode {
         out(&format!("{}\n", pipeline::generator()));
         return ExitCode::SUCCESS;
     }
+    if let Err(e) = dive_conformance::process::install_signal_handler() {
+        eprintln_safe(&format!("warning: {e}"));
+    }
     // The command is one word (`run`) or two (`oracle fetch`); any further
     // positionals are arguments (only `dev capture` takes them).
     let result = parse_opts(&mut args).and_then(|mut o| {
@@ -476,6 +499,14 @@ fn main() -> ExitCode {
         };
         let rest = o.positional.split_off(n.min(o.positional.len()));
         let cmd = std::mem::replace(&mut o.positional, rest);
+        let takes_args = cmd.first().map(String::as_str) == Some("dev");
+        if !takes_args && !o.positional.is_empty() {
+            return Err(Error::Usage(format!(
+                "unexpected argument(s) {:?} after `{}`",
+                o.positional,
+                cmd.join(" ")
+            )));
+        }
         dispatch(&cmd, &o)
     });
     match result {

@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed -7346841404231963624 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 54014] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 94834] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
@@ -15,13 +15,13 @@ Semantic processing of module Deadlock
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:23:51)
+Starting... (2026-10-08 14:17:26)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 13:23:56.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 14:17:31.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2114:1 @!@!@
 Deadlock reached.
@@ -45,7 +45,7 @@ x = 2
 
 @!@!@ENDMSG 2217 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(3) at 2026-10-08 13:23:56: 3 states generated (33 s/min), 3 distinct states found (33 ds/min), 0 states left on queue.
+Progress(3) at 2026-10-08 14:17:31: 3 states generated (32 s/min), 3 distinct states found (32 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 3 states generated, 3 distinct states found, 0 states left on queue.
@@ -57,5 +57,5 @@ The depth of the complete state graph search is 3.
 The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 1 and the 95th percentile is 1).
 @!@!@ENDMSG 2268 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 5386ms at (2026-10-08 13:23:56)
+Finished in 5596ms at (2026-10-08 14:17:31)
 @!@!@ENDMSG 2186 @!@!@

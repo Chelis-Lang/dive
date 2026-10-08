@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed 2747989144613800769 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 57124] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 96500] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 1000:1 @!@!@
 TLC threw an unexpected exception.
@@ -15,5 +15,5 @@ It was expecting a keyword, but did not find it.
 @!@!@ENDMSG 5006 @!@!@
 @!@!@ENDMSG 1000 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 151ms at (2026-10-08 13:30:29)
+Finished in 406ms at (2026-10-08 14:18:31)
 @!@!@ENDMSG 2186 @!@!@

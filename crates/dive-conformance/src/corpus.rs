@@ -161,6 +161,10 @@ pub struct ModelEntry {
     pub counts_comparable: bool,
     /// Manifest expectations.
     pub expected: ManifestExpectation,
+    /// Whether the model's module reads `TLCGet("config")` (worker count
+    /// visible to the spec); see [`reads_tlc_config`].
+    #[serde(default)]
+    pub worker_introspecting: bool,
 }
 
 /// A module to parse.
@@ -187,6 +191,30 @@ pub struct CorpusIndex {
     pub models: Vec<ModelEntry>,
     /// Submodules declared but not fetched.
     pub unfetched_submodules: Vec<String>,
+    /// Spec directories without a manifest, and `.tla` files that no manifest
+    /// lists. Reported as warnings: they are not covered by any golden.
+    pub uncovered: Vec<String>,
+}
+
+/// The part of a corpus a job on `path` needs, as a corpus-relative
+/// directory: `specifications/<spec>` for tlaplus/Examples (specs never
+/// reference files outside their own directory), else the file's directory.
+#[must_use]
+pub fn isolation_dir(path: &str) -> String {
+    let parts: Vec<&str> = path.split('/').collect();
+    if parts.len() >= 3 && parts[0] == "specifications" {
+        return format!("specifications/{}", parts[1]);
+    }
+    parts[..parts.len().saturating_sub(1)].join("/")
+}
+
+/// Whether a module reads TLC's configuration (`TLCGet("config")`), which
+/// includes the worker count, so its behaviour may legitimately depend on
+/// `-workers` (Examples `MCDieHardest` asserts `TLCGet("config").worker = 1`).
+#[must_use]
+pub fn reads_tlc_config(module_text: &str) -> bool {
+    let squashed: String = module_text.chars().filter(|c| !c.is_whitespace()).collect();
+    squashed.contains("TLCGet(\"config\")")
 }
 
 /// Parses `HH:MM:SS` (or `unknown`) to seconds.
@@ -291,6 +319,7 @@ pub fn models_of(manifest: &Manifest) -> Result<(Vec<ModuleEntry>, Vec<ModelEntr
                         other => other.to_string(),
                     }),
                 },
+                worker_introspecting: false,
             });
         }
     }
@@ -326,6 +355,7 @@ fn tla_files(root: &Path, dir: &Path, out: &mut Vec<String>) -> Result<()> {
 pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
     let mut modules = Vec::new();
     let mut models = Vec::new();
+    let mut uncovered = Vec::new();
     match corpus.layout {
         Layout::Tbd => {
             return Err(Error::Config(format!(
@@ -351,6 +381,12 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
                 let entry = entry.map_err(|e| Error::io(&specs, &e))?;
                 let manifest_path = entry.path().join("manifest.json");
                 if !manifest_path.is_file() {
+                    if entry.path().is_dir() {
+                        let rel = format!("specifications/{}", entry.file_name().to_string_lossy());
+                        if !submodule_paths(root).contains(&rel) {
+                            uncovered.push(format!("{rel}/ (no manifest.json)"));
+                        }
+                    }
                     continue;
                 }
                 let text = std::fs::read_to_string(&manifest_path)
@@ -366,6 +402,25 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
     modules.sort_by(|a, b| a.path.cmp(&b.path));
     modules.dedup_by(|a, b| a.path == b.path);
     models.sort_by(|a, b| a.id.cmp(&b.id));
+    if corpus.layout == Layout::ExamplesManifest {
+        let mut files = Vec::new();
+        let specs = root.join("specifications");
+        tla_files(root, &specs, &mut files)?;
+        let listed: std::collections::BTreeSet<&str> =
+            modules.iter().map(|m| m.path.as_str()).collect();
+        let subs = submodule_paths(root);
+        for f in files {
+            if !listed.contains(f.as_str()) && !subs.iter().any(|s| f.starts_with(&format!("{s}/")))
+            {
+                uncovered.push(f);
+            }
+        }
+        uncovered.sort();
+    }
+    for m in &mut models {
+        let text = std::fs::read_to_string(root.join(&m.module)).unwrap_or_default();
+        m.worker_introspecting = reads_tlc_config(&text);
+    }
     for pair in models.windows(2) {
         if pair[0].id == pair[1].id {
             return Err(Error::Config(format!(
@@ -393,6 +448,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
         modules,
         models,
         unfetched_submodules: submodule_paths(root),
+        uncovered,
     })
 }
 

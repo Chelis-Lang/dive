@@ -196,6 +196,31 @@ pub fn capture(cmd: &mut Command) -> Result<String> {
     Ok(String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
+/// Recursively copies the directory `src` to `dst` (created), skipping `.git`.
+/// Symbolic links are followed (their target's content is copied).
+///
+/// # Errors
+/// Fails on any file-system error.
+pub fn copy_dir(src: &Path, dst: &Path) -> Result<()> {
+    std::fs::create_dir_all(dst).map_err(|e| Error::io(dst, &e))?;
+    let entries = std::fs::read_dir(src).map_err(|e| Error::io(src, &e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| Error::io(src, &e))?;
+        if entry.file_name() == ".git" {
+            continue;
+        }
+        let from = entry.path();
+        let to = dst.join(entry.file_name());
+        let meta = std::fs::metadata(&from).map_err(|e| Error::io(&from, &e))?;
+        if meta.is_dir() {
+            copy_dir(&from, &to)?;
+        } else {
+            std::fs::copy(&from, &to).map_err(|e| Error::io(&from, &e))?;
+        }
+    }
+    Ok(())
+}
+
 /// Writes `bytes` to `path` atomically (write to a sibling, then rename),
 /// creating parent directories.
 ///

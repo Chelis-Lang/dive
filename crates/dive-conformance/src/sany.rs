@@ -37,6 +37,7 @@ pub enum SanyVerdict {
 
 /// The result of running SANY on one module.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SanyResult {
     /// The verdict.
     pub verdict: SanyVerdict,

@@ -3,7 +3,7 @@
 
 use crate::compare::{DriftFinding, FieldDiff, Outcome, WorkerInvariance};
 use crate::corpus::Tier;
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::oracle::OracleProvenance;
 use crate::sany::SanyVerdict;
 use crate::tlc::result::Verdict;
@@ -111,6 +111,10 @@ pub struct ModelReport {
     pub worker_invariance: Option<WorkerInvariance>,
     /// Manifest cross-check findings.
     pub manifest_drift: Vec<DriftFinding>,
+    /// The module reads `TLCGet("config")` (which includes the worker
+    /// count), so its result may legitimately depend on `-workers`.
+    #[serde(default)]
+    pub worker_introspecting: bool,
 }
 
 /// The report entry for one module (SANY).
@@ -141,6 +145,9 @@ pub struct CorpusInfo {
     pub commit: String,
     /// Declared but unfetched submodules.
     pub unfetched_submodules: Vec<String>,
+    /// Spec directories and `.tla` files no manifest covers (warnings).
+    #[serde(default)]
+    pub uncovered: Vec<String>,
 }
 
 /// Settings of the run.
@@ -160,6 +167,9 @@ pub struct Settings {
     pub timeout_policy: String,
     /// Whether the manifest cross-check ran.
     pub crosscheck_manifest: bool,
+    /// Implementation options active for the run (ADR 0010).
+    #[serde(default)]
+    pub impl_options: Vec<crate::implementation::ImplOption>,
 }
 
 /// Outcome counts.
@@ -168,6 +178,10 @@ pub type OutcomeCounts = BTreeMap<Outcome, usize>;
 /// Summary counts.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Summary {
+    /// Models selected for the run. The model outcome counts sum to this.
+    pub models_selected: usize,
+    /// Modules selected for the run. The module outcome counts sum to this.
+    pub modules_selected: usize,
     /// Models by outcome (every outcome present, zero included).
     pub models: OutcomeCounts,
     /// Modules by outcome.
@@ -184,6 +198,8 @@ pub struct Summary {
     pub worker_counts_variant: usize,
     /// Models whose depth varied with the worker count.
     pub worker_depth_variant: usize,
+    /// Models whose module reads `TLCGet("config")`.
+    pub worker_introspecting: usize,
     /// Models whose named violated property varied with the worker count.
     pub worker_property_variant: usize,
 }
@@ -229,9 +245,18 @@ fn count(outcomes: impl Iterator<Item = Outcome>) -> OutcomeCounts {
     m
 }
 
-/// Computes the summary of `models` and `modules`.
-#[must_use]
-pub fn summarise(models: &[ModelReport], modules: &[ModuleReport]) -> Summary {
+/// Computes the summary of `models` and `modules`, which must account for
+/// exactly `models_selected` models and `modules_selected` modules.
+///
+/// # Errors
+/// Fails (as an internal error) if the outcome counts do not add up to the
+/// selection: every selected model and module must have exactly one outcome.
+pub fn summarise(
+    models: &[ModelReport],
+    modules: &[ModuleReport],
+    models_selected: usize,
+    modules_selected: usize,
+) -> Result<Summary> {
     let drift = |m: &ModelReport, informational: bool| {
         m.manifest_drift
             .iter()
@@ -244,7 +269,9 @@ pub fn summarise(models: &[ModelReport], modules: &[ModuleReport]) -> Summary {
             .filter(|m| m.worker_invariance.as_ref().is_some_and(f))
             .count()
     };
-    Summary {
+    let summary = Summary {
+        models_selected,
+        modules_selected,
         models: count(models.iter().map(|m| m.outcome)),
         modules: count(modules.iter().map(|m| m.outcome)),
         models_with_oracle_drift: models.iter().filter(|m| drift(m, false) > 0).count(),
@@ -254,7 +281,16 @@ pub fn summarise(models: &[ModelReport], modules: &[ModuleReport]) -> Summary {
         worker_counts_variant: inv(|w| w.counts_invariant == Some(false)),
         worker_depth_variant: inv(|w| w.depth_varies),
         worker_property_variant: inv(|w| w.property_varies),
+        worker_introspecting: models.iter().filter(|m| m.worker_introspecting).count(),
+    };
+    let model_total: usize = summary.models.values().sum();
+    let module_total: usize = summary.modules.values().sum();
+    if model_total != models_selected || module_total != modules_selected {
+        return Err(Error::Command(format!(
+            "internal error: outcomes cover {model_total}/{models_selected} models and {module_total}/{modules_selected} modules"
+        )));
     }
+    Ok(summary)
 }
 
 /// Renders the generated `docs/conformance.md` from a report.
@@ -295,6 +331,22 @@ pub fn render_markdown(r: &Report) -> Result<String> {
             );
         }
     }
+    for c in &r.corpora {
+        if !c.uncovered.is_empty() {
+            let _ = writeln!(
+                s,
+                "- **Not covered by any manifest ({}):** {}",
+                c.uncovered.len(),
+                c.uncovered
+                    .iter()
+                    .take(20)
+                    .map(|p| format!("`{p}`"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+                    + if c.uncovered.len() > 20 { ", ..." } else { "" }
+            );
+        }
+    }
     let _ = writeln!(
         s,
         "- **Settings:** tier `{}`, workers {:?}, filters {:?}, manifest cross-check {}",
@@ -307,6 +359,11 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         r.host.arch,
         r.host.kernel.as_deref().unwrap_or("unknown kernel"),
         r.host.cpus
+    );
+    let _ = writeln!(
+        s,
+        "{} model(s) and {} module(s) selected; every one has exactly one outcome below.\n",
+        r.summary.models_selected, r.summary.modules_selected
     );
     let _ = writeln!(s, "## Outcomes\n");
     let _ = writeln!(s, "| Outcome | Models | Modules (SANY) |\n|---|---:|---:|");
@@ -329,12 +386,13 @@ pub fn render_markdown(r: &Report) -> Result<String> {
     if r.settings.workers.len() > 1 {
         let _ = writeln!(
             s,
-            "Worker invariance ({:?}): verdict varied in {}, complete-search counts varied in {}, depth varied in {}, violated property varied in {} model(s).",
+            "Worker invariance ({:?}, TLC's own; reported, not counted as disagreement): verdict varied in {}, complete-search counts varied in {}, depth varied in {}, violated property varied in {} model(s). {} model(s) read `TLCGet(\"config\")`.",
             r.settings.workers,
             r.summary.worker_verdict_variant,
             r.summary.worker_counts_variant,
             r.summary.worker_depth_variant,
-            r.summary.worker_property_variant
+            r.summary.worker_property_variant,
+            r.summary.worker_introspecting
         );
     }
     let _ = writeln!(s, "\n## Models\n");
@@ -346,6 +404,45 @@ pub fn render_markdown(r: &Report) -> Result<String> {
         let first = m.runs.first();
         let num = |v: Option<u64>| v.map_or_else(String::new, |n| n.to_string());
         let mut detail = m.detail.clone().unwrap_or_default();
+        if m.worker_introspecting {
+            detail.push_str(" [worker-introspecting: reads TLCGet(\"config\")]");
+        }
+        if let Some(w) = &m.worker_invariance {
+            let mut v = Vec::new();
+            if !w.verdict_invariant {
+                v.push("verdict");
+            }
+            if w.counts_invariant == Some(false) {
+                v.push("counts");
+            }
+            if w.depth_varies {
+                v.push("depth");
+            }
+            if w.property_varies {
+                v.push("violated property");
+            }
+            if !v.is_empty() {
+                let _ = write!(
+                    detail,
+                    " TLC worker variance: {} ({});",
+                    v.join(", "),
+                    w.points
+                        .iter()
+                        .map(|p| format!(
+                            "w{}: {} {}/{} depth {}",
+                            p.workers,
+                            p.verdict.as_str(),
+                            p.distinct_states
+                                .map_or_else(|| "-".to_owned(), |n| n.to_string()),
+                            p.states_generated
+                                .map_or_else(|| "-".to_owned(), |n| n.to_string()),
+                            p.depth.map_or_else(|| "-".to_owned(), |n| n.to_string())
+                        ))
+                        .collect::<Vec<_>>()
+                        .join("; ")
+                );
+            }
+        }
         for d in m
             .runs
             .iter()
@@ -415,7 +512,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn summary_counts_every_outcome() {
+    fn summary_counts_every_outcome() -> Result<()> {
         let m = ModelReport {
             corpus: "c".into(),
             model: "m".into(),
@@ -426,6 +523,7 @@ mod tests {
             golden_verdict: Some(Verdict::Success),
             runs: vec![],
             worker_invariance: None,
+            worker_introspecting: false,
             manifest_drift: vec![DriftFinding {
                 field: "stateDepth".into(),
                 manifest: 1.into(),
@@ -433,12 +531,14 @@ mod tests {
                 informational: true,
             }],
         };
-        let s = summarise(&[m], &[]);
+        let s = summarise(std::slice::from_ref(&m), &[], 1, 0)?;
+        assert!(summarise(&[m], &[], 2, 0).is_err());
         assert_eq!(s.models.len(), Outcome::ALL.len());
         assert_eq!(s.models.get(&Outcome::Agree), Some(&1));
         assert_eq!(
             (s.oracle_drift_findings, s.informational_drift_findings),
             (0, 1)
         );
+        Ok(())
     }
 }

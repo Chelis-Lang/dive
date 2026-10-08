@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed -346929026792979816 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 54279] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 95693] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
@@ -21,13 +21,13 @@ Semantic processing of module AssertFailure
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:24:20)
+Starting... (2026-10-08 14:17:58)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 13:24:25.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 14:18:03.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2132:1 @!@!@
 The first argument of Assert evaluated to FALSE; the second argument was:
@@ -60,11 +60,11 @@ expressions at the following positions:
 
 @!@!@ENDMSG 2103 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(3) at 2026-10-08 13:24:25: 3 states generated (34 s/min), 3 distinct states found (34 ds/min), 0 states left on queue.
+Progress(3) at 2026-10-08 14:18:03: 3 states generated (32 s/min), 3 distinct states found (32 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 3 states generated, 3 distinct states found, 0 states left on queue.
 @!@!@ENDMSG 2199 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 5269ms at (2026-10-08 13:24:25)
+Finished in 5566ms at (2026-10-08 14:18:03)
 @!@!@ENDMSG 2186 @!@!@

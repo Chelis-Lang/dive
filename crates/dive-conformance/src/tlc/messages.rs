@@ -103,6 +103,77 @@ fn parse_header(header: &str) -> Option<(i32, i32)> {
     Some((code.trim().parse().ok()?, class.trim().parse().ok()?))
 }
 
+/// The next marker-like text in the output.
+enum Candidate<'a> {
+    /// A real marker: `header` is the text between the marker and its
+    /// closing delimiter; `next` is where output resumes after it.
+    Marker {
+        at: usize,
+        is_start: bool,
+        header: &'a str,
+        next: usize,
+    },
+    /// Marker text that TLC did not print as a marker (for example inside a
+    /// quoted `Print` string); it is ordinary text.
+    NotAMarker { resume: usize },
+    /// A line-start `STARTMSG` without a closing delimiter.
+    Malformed { what: String },
+}
+
+/// Finds the next marker at or after `from`.
+///
+/// TLC (`MP.java`) prints a `STARTMSG` header followed by a newline (at the
+/// start of a line, except when v1.7.4 nests a message after `": "`), and an
+/// `ENDMSG` always at the start of a line followed by a newline. Marker text
+/// anywhere else, such as `PrintT("@!@!@ENDMSG 2185 @!@!@")`, which TLC
+/// prints quoted and mid-line, is not a marker. That way spec output cannot
+/// forge or close messages.
+fn next_marker(s: &str, from: usize) -> Option<Candidate<'_>> {
+    let rest = &s[from..];
+    let start = rest.find(START).map(|i| (i + from, true));
+    let end = rest.find(END).map(|i| (i + from, false));
+    let (at, is_start) = match (start, end) {
+        (None, None) => return None,
+        (Some(a), None) | (None, Some(a)) => a,
+        (Some(a), Some(b)) => {
+            if a.0 < b.0 {
+                a
+            } else {
+                b
+            }
+        }
+    };
+    let marker = if is_start { START } else { END };
+    let line_start = at == 0 || s.as_bytes().get(at - 1) == Some(&b'\n');
+    let after_idx = at + marker.len();
+    let after = &s[after_idx..];
+    let Some(hdr_end) = after.find(DELIM).filter(|e| !after[..*e].contains('\n')) else {
+        return Some(if line_start && is_start {
+            Candidate::Malformed {
+                what: "STARTMSG header without closing delimiter".to_owned(),
+            }
+        } else {
+            Candidate::NotAMarker { resume: after_idx }
+        });
+    };
+    let delim_end = after_idx + hdr_end + DELIM.len();
+    let tail = &s[delim_end..];
+    let ends_line = tail.is_empty() || tail.starts_with('\n');
+    if !ends_line || !(is_start || line_start) {
+        return Some(Candidate::NotAMarker { resume: after_idx });
+    }
+    Some(Candidate::Marker {
+        at,
+        is_start,
+        header: &after[..hdr_end],
+        next: if tail.is_empty() {
+            delim_end
+        } else {
+            delim_end + 1
+        },
+    })
+}
+
 /// A message that has started but not ended.
 struct Open {
     slot: usize,
@@ -130,7 +201,6 @@ pub fn parse(stdout: &str) -> Transcript {
     let mut slots: Vec<Option<Segment>> = Vec::new();
     let mut anomalies = Vec::new();
     let mut stack: Vec<Open> = Vec::new();
-    let mut rest = stdout;
     let emit_text = |text: &str, stack: &mut Vec<Open>, slots: &mut Vec<Option<Segment>>| {
         if text.is_empty() {
             return;
@@ -140,34 +210,36 @@ pub fn parse(stdout: &str) -> Transcript {
             None => slots.push(Some(Segment::Text(text.to_owned()))),
         }
     };
-    loop {
-        let next_start = rest.find(START);
-        let next_end = rest.find(END);
-        let (at, is_start) = match (next_start, next_end) {
-            (None, None) => break,
-            (Some(s), None) => (s, true),
-            (None, Some(e)) => (e, false),
-            (Some(s), Some(e)) => (s.min(e), s < e),
+    // `pos` is where unconsumed output starts; `scan` is where the search for
+    // the next marker resumes (past marker-like text that is not a marker).
+    let mut pos = 0;
+    let mut scan = 0;
+    while let Some(found) = next_marker(stdout, scan) {
+        let (at, is_start, header, next) = match found {
+            Candidate::Marker {
+                at,
+                is_start,
+                header,
+                next,
+            } => (at, is_start, header, next),
+            Candidate::NotAMarker { resume } => {
+                scan = resume;
+                continue;
+            }
+            Candidate::Malformed { what } => {
+                anomalies.push(what);
+                emit_text(&stdout[pos..], &mut stack, &mut slots);
+                pos = stdout.len();
+                break;
+            }
         };
-        emit_text(&rest[..at], &mut stack, &mut slots);
-        let marker = if is_start { START } else { END };
-        let after = &rest[at + marker.len()..];
-        let Some(hdr_end) = after.find(DELIM) else {
-            anomalies.push("message marker without closing delimiter".to_owned());
-            emit_text(&rest[at..], &mut stack, &mut slots);
-            rest = "";
-            break;
-        };
-        let header = &after[..hdr_end];
-        let mut next = &after[hdr_end + DELIM.len()..];
-        if let Some(stripped) = next.strip_prefix('\n') {
-            next = stripped;
-        }
+        emit_text(&stdout[pos..at], &mut stack, &mut slots);
+        let marker_end = next;
         if is_start {
             let Some((code, class)) = parse_header(header) else {
                 anomalies.push(format!("malformed STARTMSG header `{header}`"));
-                emit_text(&rest[at..], &mut stack, &mut slots);
-                rest = "";
+                emit_text(&stdout[at..], &mut stack, &mut slots);
+                pos = stdout.len();
                 break;
             };
             slots.push(None);
@@ -201,17 +273,14 @@ pub fn parse(stdout: &str) -> Transcript {
                         "ENDMSG `{header}` does not close the innermost open message ({:?})",
                         top.map(|o| o.code)
                     ));
-                    emit_text(
-                        &rest[at..at + marker.len() + hdr_end + DELIM.len()],
-                        &mut stack,
-                        &mut slots,
-                    );
+                    emit_text(&stdout[at..marker_end], &mut stack, &mut slots);
                 }
             }
         }
-        rest = next;
+        pos = marker_end;
+        scan = marker_end;
     }
-    emit_text(rest, &mut stack, &mut slots);
+    emit_text(&stdout[pos..], &mut stack, &mut slots);
     while let Some(open) = stack.pop() {
         anomalies.push(format!(
             "message {} is not terminated by its ENDMSG",

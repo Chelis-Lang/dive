@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed -2438894995046837423 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 54324] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 96020] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
@@ -17,13 +17,13 @@ Semantic processing of module Overflow
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:24:32)
+Starting... (2026-10-08 14:18:11)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 13:24:37.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 14:18:16.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2178:1 @!@!@
 Overflow when computing 1000000000*1000
@@ -60,11 +60,11 @@ expressions at the following positions:
 
 @!@!@ENDMSG 2103 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(4) at 2026-10-08 13:24:37: 4 states generated (45 s/min), 4 distinct states found (45 ds/min), 0 states left on queue.
+Progress(4) at 2026-10-08 14:18:16: 4 states generated (40 s/min), 4 distinct states found (40 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 4 states generated, 4 distinct states found, 0 states left on queue.
 @!@!@ENDMSG 2199 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 5229ms at (2026-10-08 13:24:37)
+Finished in 5904ms at (2026-10-08 14:18:16)
 @!@!@ENDMSG 2186 @!@!@

@@ -25,6 +25,7 @@ pub const GOLDEN_SCHEMA: u32 = 1;
 
 /// How a golden was produced. Never compared.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Provenance {
     /// The oracle, its pins, capabilities and Java.
     pub oracle: OracleProvenance,
@@ -52,6 +53,7 @@ pub struct Provenance {
 
 /// The model a TLC golden is about.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct GoldenModel {
     /// Model id (corpus-relative `.cfg` path).
     pub id: String,
@@ -79,6 +81,7 @@ impl From<&ModelEntry> for GoldenModel {
 
 /// A TLC golden.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ModelGolden {
     /// [`GOLDEN_SCHEMA`].
     pub schema: u32,
@@ -100,6 +103,7 @@ pub struct ModelGolden {
 
 /// A SANY golden.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SanyGolden {
     /// [`GOLDEN_SCHEMA`].
     pub schema: u32,
@@ -117,21 +121,26 @@ pub struct SanyGolden {
     pub provenance: Provenance,
 }
 
-/// Replaces characters outside `[A-Za-z0-9._-]` in each path component.
+/// Encodes a corpus-relative path for use under the golden root, keeping
+/// its directory structure. Bytes outside `[A-Za-z0-9._-]` (including `%`)
+/// are percent-encoded per UTF-8 byte, so the mapping is injective:
+/// `a b/M.cfg` and `a_b/M.cfg` stay distinct. Empty, `.` and `..`
+/// components are dropped; corpus enumeration rejects such paths anyway.
 #[must_use]
 pub fn sanitise(path: &str) -> String {
+    use std::fmt::Write as _;
     path.split('/')
         .filter(|c| !c.is_empty() && *c != "." && *c != "..")
         .map(|c| {
-            c.chars()
-                .map(|ch| {
-                    if ch.is_ascii_alphanumeric() || "._-".contains(ch) {
-                        ch
-                    } else {
-                        '_'
-                    }
-                })
-                .collect::<String>()
+            let mut out = String::with_capacity(c.len());
+            for b in c.bytes() {
+                if b.is_ascii_alphanumeric() || b"._-".contains(&b) {
+                    out.push(char::from(b));
+                } else {
+                    let _ = write!(out, "%{b:02X}");
+                }
+            }
+            out
         })
         .collect::<Vec<_>>()
         .join("/")
@@ -269,7 +278,9 @@ mod tests {
             sanitise("specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg"),
             "specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg"
         );
-        assert_eq!(sanitise("a b/../c$d"), "a_b/c_d");
+        assert_eq!(sanitise("a b/../c$d"), "a%20b/c%24d");
+        assert_ne!(sanitise("a b/M.cfg"), sanitise("a_b/M.cfg"));
+        assert_ne!(sanitise("a%20b"), sanitise("a b"));
         let root = Path::new("/g");
         assert_eq!(
             model_golden_path(root, "o", "examples", "specifications/x/X.cfg"),

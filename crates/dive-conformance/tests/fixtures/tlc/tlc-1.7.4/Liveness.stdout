@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed 657663869812020499 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 54129] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 94992] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
@@ -15,7 +15,7 @@ Semantic processing of module Liveness
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:23:57)
+Starting... (2026-10-08 14:17:32)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2212:0 @!@!@
 Implied-temporal checking--satisfiability problem has 1 branches.
@@ -24,13 +24,13 @@ Implied-temporal checking--satisfiability problem has 1 branches.
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 13:24:02.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 14:17:37.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(3) at 2026-10-08 13:24:02: 4 states generated, 3 distinct states found, 0 states left on queue.
+Progress(3) at 2026-10-08 14:17:37: 4 states generated, 3 distinct states found, 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2192:0 @!@!@
-Checking temporal properties for the complete state space with 3 total distinct states at (2026-10-08 13:24:02)
+Checking temporal properties for the complete state space with 3 total distinct states at (2026-10-08 14:17:37)
 @!@!@ENDMSG 2192 @!@!@
 @!@!@STARTMSG 2116:1 @!@!@
 Temporal properties were violated.
@@ -60,14 +60,14 @@ x = 2
 
 @!@!@ENDMSG 2122 @!@!@
 @!@!@STARTMSG 2267:0 @!@!@
-Finished checking temporal properties in 00s at 2026-10-08 13:24:02
+Finished checking temporal properties in 00s at 2026-10-08 14:17:37
 @!@!@ENDMSG 2267 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(3) at 2026-10-08 13:24:02: 4 states generated (44 s/min), 3 distinct states found (33 ds/min), 0 states left on queue.
+Progress(3) at 2026-10-08 14:17:37: 4 states generated (43 s/min), 3 distinct states found (32 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 4 states generated, 3 distinct states found, 0 states left on queue.
 @!@!@ENDMSG 2199 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 5372ms at (2026-10-08 13:24:02)
+Finished in 5551ms at (2026-10-08 14:17:37)
 @!@!@ENDMSG 2186 @!@!@

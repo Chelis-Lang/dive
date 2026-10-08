@@ -2,20 +2,20 @@
 TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed 3514298895488005702 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 53465] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 93512] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
 @!@!@ENDMSG 2220 @!@!@
 Parsing file $CWD/Assumption/Assumption.tla
-Parsing file $TMP/tlc-8878907570039635965/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
-Parsing file $TMP/tlc-8878907570039635965/_JsonTrace.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
-Parsing file $TMP/tlc-8878907570039635965/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
-Parsing file $TMP/tlc-8878907570039635965/TLCExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
-Parsing file $TMP/tlc-8878907570039635965/Json.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
-Parsing file $TMP/tlc-8878907570039635965/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
-Parsing file $TMP/tlc-8878907570039635965/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
-Parsing file $TMP/tlc-8878907570039635965/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-2179728952722944459/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-2179728952722944459/_JsonTrace.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/_JsonTrace.tla)
+Parsing file $TMP/tlc-2179728952722944459/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-2179728952722944459/TLCExt.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLCExt.tla)
+Parsing file $TMP/tlc-2179728952722944459/Json.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Json.tla)
+Parsing file $TMP/tlc-2179728952722944459/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-2179728952722944459/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Parsing file $TMP/tlc-2179728952722944459/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
 Semantic processing of module Naturals
 Semantic processing of module Sequences
 Semantic processing of module FiniteSets
@@ -33,11 +33,11 @@ Linting of module Assumption
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:23:21)
+Starting... (2026-10-08 14:16:39)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2104:1 @!@!@
 Assumption line 4, col 8 to line 4, col 13 of module Assumption is false.
 @!@!@ENDMSG 2104 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 708ms at (2026-10-08 13:23:21)
+Finished in 228ms at (2026-10-08 14:16:39)
 @!@!@ENDMSG 2186 @!@!@

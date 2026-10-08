@@ -2,8 +2,8 @@
 
 use crate::cache::Cache;
 use crate::compare::{
-    CompareContext, Outcome, WorkerPoint, crosscheck_manifest, diff_results, diff_sany,
-    worker_invariance,
+    CompareContext, ComparePolicy, FieldDiff, Outcome, WorkerPoint, crosscheck_manifest,
+    diff_results_with, diff_sany, worker_invariance,
 };
 use crate::config::{Config, Layout};
 use crate::corpus::{CorpusIndex, ModelEntry, ModelMode, Tier, enumerate};
@@ -150,7 +150,26 @@ pub fn load_corpus(config: &Config, cache: &Cache, id: &str) -> Result<CorpusInd
     let c = config.corpora.corpus(id)?;
     let dir = cache.checkout_dir(&c.id, &c.commit);
     verified_checkout(&dir, &c.commit, &format!("corpus `{id}`"))?;
-    enumerate(c, &dir)
+    let index = enumerate(c, &dir)?;
+    if !index.uncovered.is_empty() {
+        log(&format!(
+            "warning: {} path(s) in corpus `{id}` are not covered by any manifest (no goldens): {}{}",
+            index.uncovered.len(),
+            index
+                .uncovered
+                .iter()
+                .take(5)
+                .cloned()
+                .collect::<Vec<_>>()
+                .join(", "),
+            if index.uncovered.len() > 5 {
+                ", ..."
+            } else {
+                ""
+            }
+        ));
+    }
+    Ok(index)
 }
 
 /// Which models and modules a command works on.
@@ -226,19 +245,33 @@ pub struct Limits {
 }
 
 impl Limits {
-    /// The timeout for a model: `10 × recorded runtime + 60 s`, at least
-    /// 120 s, at most the cap; the cap when the runtime is unknown.
+    /// The timeout for a model.
+    ///
+    /// - The *derived* timeout from the manifest's recorded runtime is
+    ///   `20 × runtime + 120 s`, at least 300 s, capped by `timeout_cap`; the
+    ///   cap when the runtime is unknown. The factor is generous because
+    ///   manifest runtimes were measured with several workers and goldens run
+    ///   with one (Examples `BufferedRandomAccessFile`: 9 s recorded, 102 s
+    ///   single-worker).
+    /// - When a golden exists, its recorded single-worker time also counts:
+    ///   the timeout is at least `4 × golden elapsed + 60 s`, even above the
+    ///   cap, since that run is evidence of what the model needs.
+    /// - `--timeout` overrides both.
     #[must_use]
-    pub fn timeout_for(&self, m: &ModelEntry) -> Duration {
+    pub fn timeout_for(&self, m: &ModelEntry, golden_elapsed_ms: Option<u64>) -> Duration {
         if let Some(t) = self.timeout {
             return t;
         }
         let cap = self.timeout_cap;
-        m.expected.runtime_seconds.map_or(cap, |s| {
-            Duration::from_secs(s.saturating_mul(10).saturating_add(60))
-                .max(Duration::from_secs(120))
+        let derived = m.expected.runtime_seconds.map_or(cap, |s| {
+            Duration::from_secs(s.saturating_mul(20).saturating_add(120))
+                .max(Duration::from_secs(300))
                 .min(cap)
-        })
+        });
+        let from_golden = golden_elapsed_ms.map_or(Duration::ZERO, |ms| {
+            Duration::from_millis(ms.saturating_mul(4)).saturating_add(Duration::from_secs(60))
+        });
+        derived.max(from_golden)
     }
 
     /// The SANY timeout.
@@ -253,7 +286,7 @@ impl Limits {
         self.timeout.map_or_else(
             || {
                 format!(
-                    "10 x recorded runtime + 60 s, min 120 s, cap {} s (cap when unknown)",
+                    "max(20 x recorded runtime + 120 s [min 300 s, cap {} s, cap when unknown], 4 x golden elapsed + 60 s)",
                     self.timeout_cap.as_secs()
                 )
             },
@@ -316,6 +349,22 @@ fn assert_pristine(corpus: &CorpusIndex) -> Result<()> {
     }
 }
 
+/// Fails if two inputs would map to the same golden file, compared
+/// case-insensitively (macOS and Windows file systems fold case).
+fn check_path_collisions<'a>(paths: impl Iterator<Item = (&'a str, PathBuf)>) -> Result<()> {
+    let mut seen: std::collections::BTreeMap<String, &'a str> = std::collections::BTreeMap::new();
+    for (id, path) in paths {
+        let key = path.display().to_string().to_lowercase();
+        if let Some(other) = seen.insert(key, id) {
+            return Err(Error::Golden(format!(
+                "`{other}` and `{id}` map to the same golden file {}",
+                path.display()
+            )));
+        }
+    }
+    Ok(())
+}
+
 /// `golden generate`. Returns the number of failures (refused overwrites,
 /// timeouts, harness errors); goldens that could be written are written.
 ///
@@ -352,6 +401,12 @@ pub fn golden_generate(
             m.out_of_scope.as_deref().unwrap_or("")
         ));
     }
+    check_path_collisions(runnable.iter().map(|m| {
+        (
+            m.id.as_str(),
+            model_golden_path(&root, &env.oracle.id, &corpus.id, &m.id),
+        )
+    }))?;
     let total = runnable.len();
     log(&format!(
         "generating {total} TLC golden(s) with {} ({} job(s), -Xmx{})",
@@ -359,7 +414,7 @@ pub fn golden_generate(
     ));
     let done = AtomicUsize::new(0);
     parallel_map(&runnable, opts.limits.jobs, |_, m| {
-        let timeout = opts.limits.timeout_for(m);
+        let timeout = opts.limits.timeout_for(m, None);
         let req = ModelRequest {
             corpus_root: &corpus.root,
             model: m,
@@ -383,6 +438,14 @@ pub fn golden_generate(
                         "[{n}/{total}] TIMEOUT {} after {} s; no golden written",
                         m.id,
                         timeout.as_secs()
+                    ));
+                    return;
+                }
+                if result.verdict == Verdict::ResourceLimit {
+                    fail(format!(
+                        "[{n}/{total}] RESOURCE-LIMIT {}: {}; no golden written (not an oracle fact)",
+                        m.id,
+                        result.note.as_deref().unwrap_or("")
                     ));
                     return;
                 }
@@ -432,6 +495,12 @@ pub fn golden_generate(
     });
     if opts.sany {
         let modules = opts.selection.modules(&corpus)?;
+        check_path_collisions(modules.iter().map(|m| {
+            (
+                m.as_str(),
+                sany_golden_path(&root, &env.oracle.id, &corpus.id, m),
+            )
+        }))?;
         let total = modules.len();
         log(&format!(
             "generating {total} SANY golden(s) with {}",
@@ -547,7 +616,7 @@ fn combine(outcomes: impl Iterator<Item = Outcome>) -> Outcome {
         Outcome::Timeout => 4,
         Outcome::Disagree => 3,
         Outcome::Unsupported => 2,
-        Outcome::OutOfScope => 1,
+        Outcome::OutOfScope | Outcome::DivergenceMode => 1,
         Outcome::Agree => 0,
     };
     outcomes
@@ -578,6 +647,7 @@ fn run_model(
         runs: Vec::new(),
         worker_invariance: None,
         manifest_drift: Vec::new(),
+        worker_introspecting: m.worker_introspecting,
     };
     if let Some(reason) = &m.out_of_scope {
         report.outcome = Outcome::OutOfScope;
@@ -633,13 +703,19 @@ fn run_model(
         ));
         return report;
     }
+    let policy = ComparePolicy {
+        oracle_leniency: imp.is_oracle(),
+        may_omit_property: imp.is_oracle() && imp.omits_property_names(),
+    };
     let mut points = Vec::new();
     for &workers in &opts.workers {
         let req = ModelRequest {
             corpus_root: &corpus.root,
             model: m,
             workers,
-            timeout: opts.limits.timeout_for(m),
+            timeout: opts
+                .limits
+                .timeout_for(m, Some(golden.provenance.elapsed_ms)),
             xmx: &opts.limits.xmx,
         };
         let rec = match imp.check_model(&req) {
@@ -674,12 +750,24 @@ fn run_model(
                     workers,
                     counts_comparable: m.counts_comparable,
                 };
-                let diffs = diff_results(&golden.result, &result, ctx);
+                let mut diffs = diff_results_with(&golden.result, &result, ctx, policy);
+                if !imp.is_oracle() && result.trace.is_some() && !imp.trace_validated(&result) {
+                    // Charter rule 2: a counterexample must be independently
+                    // replayed before it can count.
+                    diffs.push(FieldDiff {
+                        field: "trace.validated".to_owned(),
+                        expected: true.into(),
+                        actual: false.into(),
+                    });
+                }
                 let outcome = match result.verdict {
                     Verdict::Timeout => Outcome::Timeout,
-                    Verdict::OracleError | Verdict::Unclassified if imp.is_oracle() => {
+                    Verdict::OracleError | Verdict::Unclassified | Verdict::ResourceLimit
+                        if imp.is_oracle() =>
+                    {
                         Outcome::OracleError
                     }
+                    _ if imp.options().iter().any(|o| o.result_changing) => Outcome::DivergenceMode,
                     _ if diffs.is_empty() => Outcome::Agree,
                     _ => Outcome::Disagree,
                 };
@@ -689,14 +777,32 @@ fn run_model(
         };
         report.runs.push(rec);
     }
-    report.outcome = combine(report.runs.iter().map(|r| r.outcome));
-    report.detail = report
-        .runs
+    // For TLC itself the model's outcome is its single-worker comparison;
+    // multi-worker oracle runs are TLC's own invariance and are reported in
+    // `worker_invariance` (ADR 0004 amendment). Every other implementation
+    // must agree at every worker count.
+    let primary: Vec<&RunRecord> = if imp.is_oracle() && report.runs.iter().any(|r| r.workers == 1)
+    {
+        report.runs.iter().filter(|r| r.workers == 1).collect()
+    } else {
+        report.runs.iter().collect()
+    };
+    report.outcome = combine(primary.iter().map(|r| r.outcome));
+    report.detail = primary
         .iter()
         .find(|r| r.outcome == report.outcome)
         .and_then(|r| r.detail.clone());
     if opts.workers.len() > 1 && points.len() > 1 {
-        report.worker_invariance = Some(worker_invariance(points));
+        let inv = worker_invariance(points);
+        let varies = !inv.verdict_invariant
+            || inv.counts_invariant == Some(false)
+            || inv.depth_varies
+            || inv.property_varies;
+        if !imp.is_oracle() && varies && report.outcome == Outcome::Agree {
+            report.outcome = Outcome::Disagree;
+            report.detail = Some("result varies with the worker count".to_owned());
+        }
+        report.worker_invariance = Some(inv);
     }
     report
 }
@@ -706,6 +812,7 @@ fn run_module(
     corpus: &CorpusIndex,
     module: &str,
     golden_root: &Path,
+    golden_sha256: &str,
     opts: &RunOptions,
 ) -> ModuleReport {
     let mut r = ModuleReport {
@@ -732,6 +839,13 @@ fn run_module(
     r.golden_verdict = Some(golden.result.verdict);
     if golden.provenance.corpus_commit != corpus.commit {
         r.detail = Some("SANY golden was generated at another corpus commit".to_owned());
+        return r;
+    }
+    if golden.provenance.oracle.sha256 != golden_sha256 {
+        r.detail = Some(format!(
+            "SANY golden was generated by jar {}, but `{}` is pinned to {golden_sha256}",
+            golden.provenance.oracle.sha256, opts.golden_oracle
+        ));
         return r;
     }
     if matches!(
@@ -785,6 +899,16 @@ pub fn run(
     let golden_oracle = config.oracles.oracle(&opts.golden_oracle)?;
     let root = golden_root(&config.repo_root);
     let models = opts.selection.models(&corpus)?;
+    let modules: Vec<String> = if opts.sany {
+        opts.selection.modules(&corpus)?
+    } else {
+        Vec::new()
+    };
+    if models.is_empty() && modules.is_empty() {
+        return Err(Error::Usage(
+            "the selection is empty: no model or module matches the tier and filters".to_owned(),
+        ));
+    }
     let total = models.len();
     log(&format!(
         "running {} against {} golden(s) of {} on {total} model(s), workers {:?}",
@@ -808,26 +932,17 @@ pub fn run(
         ));
         r
     });
-    let mut module_reports = Vec::new();
-    if opts.sany && corpus_has_sany_goldens(&root, &opts.golden_oracle, &corpus) {
-        let modules: Vec<String> = opts
-            .selection
-            .modules(&corpus)?
-            .into_iter()
-            .filter(|m| sany_golden_path(&root, &opts.golden_oracle, &corpus.id, m).exists())
-            .collect();
-        let total = modules.len();
-        let done = AtomicUsize::new(0);
-        module_reports = parallel_map(&modules, opts.limits.jobs, |_, module| {
-            let r = run_module(imp, &corpus, module, &root, opts);
-            let n = done.fetch_add(1, Ordering::Relaxed) + 1;
-            log(&format!(
-                "[{n}/{total}] SANY {:<13} {module}",
-                r.outcome.as_str()
-            ));
-            r
-        });
-    }
+    let total = modules.len();
+    let done = AtomicUsize::new(0);
+    let mut module_reports = parallel_map(&modules, opts.limits.jobs, |_, module| {
+        let r = run_module(imp, &corpus, module, &root, &golden_oracle.sha256, opts);
+        let n = done.fetch_add(1, Ordering::Relaxed) + 1;
+        log(&format!(
+            "[{n}/{total}] SANY {:<13} {module}",
+            r.outcome.as_str()
+        ));
+        r
+    });
     if imp.is_oracle() {
         assert_pristine(&corpus)?;
     }
@@ -847,12 +962,7 @@ pub fn run(
         .collect();
     let report = Report {
         schema_version: crate::report::REPORT_SCHEMA,
-        run_id: format!(
-            "{}-{}-{}",
-            compact_stamp(now),
-            impl_slug,
-            opts.selection.tier
-        ),
+        run_id: unique_run_id(&opts.report_dir, &impl_slug, &opts.selection.tier),
         generated_at: rfc3339(now),
         generator: generator(),
         implementation: imp.name(),
@@ -863,6 +973,7 @@ pub fn run(
             id: corpus.id.clone(),
             commit: corpus.commit.clone(),
             unfetched_submodules: corpus.unfetched_submodules.clone(),
+            uncovered: corpus.uncovered.clone(),
         }],
         host: Host::current(),
         settings: Settings {
@@ -873,8 +984,9 @@ pub fn run(
             xmx: opts.limits.xmx.clone(),
             timeout_policy: opts.limits.policy(),
             crosscheck_manifest: opts.crosscheck_manifest,
+            impl_options: imp.options().to_vec(),
         },
-        summary: summarise(&model_reports, &module_reports),
+        summary: summarise(&model_reports, &module_reports, models.len(), modules.len())?,
         models: model_reports,
         modules: module_reports,
     };
@@ -888,8 +1000,25 @@ pub fn run(
     Ok(report)
 }
 
-fn corpus_has_sany_goldens(root: &Path, oracle: &str, corpus: &CorpusIndex) -> bool {
-    root.join(oracle).join(&corpus.id).join("sany").is_dir()
+/// A run id that is unique in `report_dir`: UTC time to the millisecond,
+/// the implementation and the tier, with a numeric suffix if a report of
+/// that name already exists.
+fn unique_run_id(report_dir: &Path, impl_slug: &str, tier: &str) -> String {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default();
+    let base = format!(
+        "{}{:03}-{impl_slug}-{tier}",
+        compact_stamp(now.as_secs()).trim_end_matches('Z'),
+        now.subsec_millis()
+    );
+    let mut id = base.clone();
+    let mut n = 1;
+    while report_dir.join(format!("{id}.json")).exists() {
+        n += 1;
+        id = format!("{base}-{n}");
+    }
+    id
 }
 
 /// `corpus list`: prints the selected models and their classification.

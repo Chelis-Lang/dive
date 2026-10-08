@@ -416,9 +416,12 @@ pub fn verdict_for_code(code: i32) -> Option<Verdict> {
         2193 => Verdict::Success,
         2104 | 2105 => Verdict::AssumptionFailure,
         2114 => Verdict::Deadlock,
-        2107 | 2110 => Verdict::SafetyViolation,
+        // 2108: a PROPERTY that is a state predicate is violated by an
+        // initial state. TLC exits 13 (as for liveness), but the
+        // counterexample is one initial state: a safety-style violation.
+        2107 | 2108 | 2110 => Verdict::SafetyViolation,
         2112 => Verdict::ActionPropertyViolation,
-        2108 | 2116 => Verdict::LivenessViolation,
+        2116 => Verdict::LivenessViolation,
         2132 => Verdict::AssertionFailure,
         2178 | 2265 => Verdict::Overflow,
         // Evaluation failures: of the spec, invariants, action properties and

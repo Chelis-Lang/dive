@@ -37,6 +37,7 @@ fn tlc(oracle: &str, name: &str) -> Result<OracleResult, Box<dyn std::error::Err
     let stdout = read(oracle, &format!("{name}.stdout"))?;
     let exit = exit_of(&read(oracle, &format!("{name}.exit"))?);
     let json = read(oracle, &format!("{name}.trace.json")).ok();
+    let stderr = read(oracle, &format!("{name}.stderr"))?;
     Ok(classify(
         &messages::parse(&stdout),
         &RunFacts {
@@ -44,6 +45,7 @@ fn tlc(oracle: &str, name: &str) -> Result<OracleResult, Box<dyn std::error::Err
             timed_out: false,
             trace_json: json.as_deref(),
             simulate: false,
+            stderr: Some(&stderr),
         },
     ))
 }
@@ -212,6 +214,26 @@ fn expectations() -> Vec<Expect> {
             depth_new: Some(4),
             trace: Some((4, TraceEnding::Finite)),
             ..e("Overflow", Verdict::Overflow, "TLC_MODULE_OVERFLOW", 255)
+        },
+        Expect {
+            property: Some("StartsAtZero"),
+            trace: Some((1, TraceEnding::Finite)),
+            json_new: true,
+            ..e(
+                "InitProperty",
+                Verdict::SafetyViolation,
+                "TLC_PROPERTY_VIOLATED_INITIAL",
+                13,
+            )
+        },
+        Expect {
+            distinct: Some(3),
+            generated: Some(3),
+            depth_new: Some(3),
+            depth_old: Some(3),
+            trace: Some((3, TraceEnding::Finite)),
+            json_new: true,
+            ..e("PrintMarker", Verdict::Deadlock, "TLC_DEADLOCK_REACHED", 11)
         },
         e("ParseError", Verdict::ParseError, "TLC_PARSING_FAILED", 150),
         e(
@@ -459,5 +481,59 @@ fn golden_round_trip_and_determinism() -> TestResult {
     assert!(pos("schema") < pos("result"));
     assert!(pos("result") < pos("provenance"));
     assert!(first.ends_with("}\n"));
+    Ok(())
+}
+
+#[test]
+fn resource_exhaustion_is_not_an_oracle_fact() -> TestResult {
+    // 94d0c50 at -Xmx64m: SYSTEM_OUT_OF_MEMORY_TOO_MANY_INIT (1002), exit 255.
+    let r = tlc(NEW, "Oom")?;
+    assert_eq!(r.verdict, Verdict::ResourceLimit);
+    assert_eq!(
+        r.error_class.as_deref(),
+        Some("SYSTEM_OUT_OF_MEMORY_TOO_MANY_INIT")
+    );
+    // v1.7.4 never runs out of memory here: it refuses the set (>1000000
+    // elements) as TLC_INITIAL_STATE (2102), and exit 75 is explained only
+    // by the nested-expression context (2103): unclassified.
+    let r = tlc(OLD, "Oom")?;
+    assert_eq!((r.verdict, r.exit_code), (Verdict::Unclassified, Some(75)));
+    // Deep recursion: GENERAL (1000) "StackOverflowError" then 2103, exit 75,
+    // with -Xss pinned to 8m, in both versions.
+    for oracle in [NEW, OLD] {
+        let r = tlc(oracle, "Stack")?;
+        assert_eq!(r.verdict, Verdict::ResourceLimit, "{oracle}");
+        assert!(!r.verdict.is_oracle_fact());
+    }
+    Ok(())
+}
+
+#[test]
+fn printed_markers_do_not_forge_messages() -> TestResult {
+    // PrintT("@!@!@ENDMSG 2185 @!@!@") appears quoted, mid-line: it is text.
+    for oracle in [NEW, OLD] {
+        let stdout = read(oracle, "PrintMarker.stdout")?;
+        let t = messages::parse(&stdout);
+        assert_eq!(t.anomalies, Vec::<String>::new(), "{oracle}");
+        assert!(t.untagged_text().contains("\"@!@!@ENDMSG 2185 @!@!@\""));
+    }
+    Ok(())
+}
+
+#[test]
+fn unexpected_stderr_is_an_oracle_error() -> TestResult {
+    let stdout = read(NEW, "Success.stdout")?;
+    let r = classify(
+        &messages::parse(&stdout),
+        &RunFacts {
+            exit_code: Some(0),
+            stderr: Some("Exception in thread \"main\" java.lang.InternalError\n"),
+            ..RunFacts::default()
+        },
+    );
+    assert_eq!(r.verdict, Verdict::OracleError);
+    assert!(r.note.is_some_and(|n| n.contains("InternalError")));
+    // v1.7.4's resolver diagnostics on stderr are known and benign.
+    assert_eq!(tlc(OLD, "MissingModule")?.verdict, Verdict::ParseError);
     Ok(())
 }

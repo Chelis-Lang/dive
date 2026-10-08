@@ -1,0 +1,13 @@
+
+****** SANY2 Version 2.1 created 24 February 2014
+
+Parsing file $CWD/PrintMarker.tla
+Parsing file $TMP/Naturals.tla
+Parsing file $TMP/TLC.tla
+Parsing file $TMP/Sequences.tla
+Parsing file $TMP/FiniteSets.tla
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module PrintMarker

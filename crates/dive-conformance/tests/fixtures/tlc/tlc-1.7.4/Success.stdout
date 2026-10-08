@@ -2,7 +2,7 @@
 TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)
 @!@!@ENDMSG 2262 @!@!@
 @!@!@STARTMSG 2187:0 @!@!@
-Running breadth-first search Model-Checking with fp 0 and seed -4560343223494572410 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 53795] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 94181] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 x86_64, MSBDiskFPSet, DiskStateQueue).
 @!@!@ENDMSG 2187 @!@!@
 @!@!@STARTMSG 2220:0 @!@!@
 Starting SANY...
@@ -15,13 +15,13 @@ Semantic processing of module Success
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2026-10-08 13:23:32)
+Starting... (2026-10-08 14:17:00)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
 @!@!@ENDMSG 2189 @!@!@
 @!@!@STARTMSG 2190:0 @!@!@
-Finished computing initial states: 1 distinct state generated at 2026-10-08 13:23:37.
+Finished computing initial states: 1 distinct state generated at 2026-10-08 14:17:05.
 @!@!@ENDMSG 2190 @!@!@
 @!@!@STARTMSG 2193:0 @!@!@
 Model checking completed. No error has been found.
@@ -30,7 +30,7 @@ Model checking completed. No error has been found.
   calculated (optimistic):  val = 2.2E-19
 @!@!@ENDMSG 2193 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(4) at 2026-10-08 13:23:37: 5 states generated (54 s/min), 4 distinct states found (43 ds/min), 0 states left on queue.
+Progress(4) at 2026-10-08 14:17:05: 5 states generated (54 s/min), 4 distinct states found (43 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
 5 states generated, 4 distinct states found, 0 states left on queue.
@@ -42,5 +42,5 @@ The depth of the complete state graph search is 4.
 The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 1 and the 95th percentile is 1).
 @!@!@ENDMSG 2268 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 5483ms at (2026-10-08 13:23:37)
+Finished in 5512ms at (2026-10-08 14:17:05)
 @!@!@ENDMSG 2186 @!@!@

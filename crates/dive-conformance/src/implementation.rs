@@ -40,6 +40,42 @@ pub struct ModelRequest<'a> {
     pub xmx: &'a str,
 }
 
+/// One implementation option, as given with `--impl-option NAME[=VALUE]`
+/// (ADR 0010: `dive` is TLC-compatible by default and better by option).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct ImplOption {
+    /// Option name, e.g. `seed` or `int`.
+    pub name: String,
+    /// Option value, if any.
+    pub value: Option<String>,
+    /// Whether the option may change results (e.g. `int=big`). Results under
+    /// such an option are never compared as `agree` with TLC goldens; they
+    /// are reported as `divergence-mode`.
+    pub result_changing: bool,
+}
+
+impl ImplOption {
+    /// Parses `NAME[=VALUE]`; `result_changing` is decided by the
+    /// implementation (see [`Implementation::result_preserving_options`]).
+    ///
+    /// # Errors
+    /// Fails on an empty name.
+    pub fn parse(text: &str, imp: &dyn Implementation) -> Result<Self> {
+        let (name, value) = match text.split_once('=') {
+            Some((n, v)) => (n.trim(), Some(v.trim().to_owned())),
+            None => (text.trim(), None),
+        };
+        if name.is_empty() {
+            return Err(Error::Usage(format!("--impl-option `{text}` has no name")));
+        }
+        Ok(Self {
+            name: name.to_owned(),
+            value,
+            result_changing: !imp.result_preserving_options().contains(&name),
+        })
+    }
+}
+
 /// The answer to a request.
 #[derive(Debug, Clone)]
 pub enum ImplResult<T> {
@@ -72,6 +108,36 @@ pub trait Implementation: Sync {
     /// Only for harness failures (cannot start a process); every outcome of
     /// the implementation itself is a result.
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>>;
+
+    /// The implementation options this instance runs under
+    /// (`--impl-option`), recorded in every report (ADR 0010).
+    fn options(&self) -> &[ImplOption] {
+        &[]
+    }
+
+    /// Names of options this implementation declares result-preserving
+    /// (e.g. `seed`). Every other option is treated as result-changing, so
+    /// an undeclared option can never produce an `agree`.
+    fn result_preserving_options(&self) -> &[&str] {
+        &[]
+    }
+
+    /// Whether this implementation may omit the name of a violated property
+    /// that the golden names. Only an oracle lacking the capability (v1.7.4
+    /// does not name violated temporal properties) may; for anything else an
+    /// omitted name is a diff.
+    fn omits_property_names(&self) -> bool {
+        false
+    }
+
+    /// Whether this implementation independently validated the
+    /// counterexample in `result` against the spec (charter rule 2: every
+    /// counterexample is replayed by a separate trace validator). An
+    /// implementation that is not an oracle cannot `agree` on a violation
+    /// without it. The default is `false`.
+    fn trace_validated(&self, _result: &OracleResult) -> bool {
+        false
+    }
 
     /// Parses one module (corpus-relative path).
     ///
@@ -129,6 +195,7 @@ pub fn run_oracle_model(
             timed_out: inv.outcome.timed_out,
             trace_json: inv.trace_json.as_deref(),
             simulate: matches!(mode, CheckMode::Simulate { .. }),
+            stderr: Some(&inv.outcome.stderr),
         },
     );
     Ok(ImplResult::Completed {
@@ -148,16 +215,7 @@ pub fn run_oracle_sany(
     module: &str,
     timeout: Duration,
 ) -> Result<ImplResult<SanyResult>> {
-    let path = corpus_root.join(module);
-    let dir = path
-        .parent()
-        .ok_or_else(|| Error::Config(format!("module `{module}` has no directory")))?;
-    let file = path
-        .file_name()
-        .ok_or_else(|| Error::Config(format!("module `{module}` has no file name")))?
-        .to_string_lossy()
-        .into_owned();
-    let inv = env.run_sany(dir, &file, timeout)?;
+    let inv = env.run_sany(corpus_root, module, timeout)?;
     Ok(ImplResult::Completed {
         result: sany::classify(&inv.outcome),
         command: inv.command,
@@ -172,6 +230,10 @@ impl Implementation for TlcImplementation {
 
     fn is_oracle(&self) -> bool {
         true
+    }
+
+    fn omits_property_names(&self) -> bool {
+        !self.env.capabilities.names_temporal_properties
     }
 
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>> {
@@ -191,9 +253,22 @@ impl Implementation for TlcImplementation {
 /// `dive` itself. Refuses everything until `dive check` and `dive parse`
 /// produce results (soundness contract rule 3).
 #[derive(Debug, Default)]
-pub struct DiveImplementation;
+pub struct DiveImplementation {
+    /// Options `dive` would run under (`--impl-option`).
+    pub options: Vec<ImplOption>,
+}
 
 impl Implementation for DiveImplementation {
+    fn options(&self) -> &[ImplOption] {
+        &self.options
+    }
+
+    fn result_preserving_options(&self) -> &[&str] {
+        // A deterministic seed or a worker count never changes a TLC-
+        // compatible result (ADR 0010).
+        &["seed", "workers"]
+    }
+
     fn name(&self) -> String {
         "dive".to_owned()
     }
@@ -243,6 +318,9 @@ pub struct ExternalAdapter {
     pub parse: Option<Vec<String>>,
     /// Exit code to verdict map.
     pub exit_codes: BTreeMap<String, Verdict>,
+    /// Options the tool runs under (`--impl-option`); not part of the TOML.
+    #[serde(skip)]
+    pub options: Vec<ImplOption>,
 }
 
 impl ExternalAdapter {
@@ -273,6 +351,10 @@ impl ExternalAdapter {
 }
 
 impl Implementation for ExternalAdapter {
+    fn options(&self) -> &[ImplOption] {
+        &self.options
+    }
+
     fn name(&self) -> String {
         format!("adapter:{}", self.name)
     }
@@ -331,7 +413,7 @@ mod tests {
 
     #[test]
     fn dive_refuses() -> Result<()> {
-        let d = DiveImplementation;
+        let d = DiveImplementation::default();
         let r = d.parse_module(Path::new("."), "M.tla", Duration::from_secs(1))?;
         assert!(matches!(r, ImplResult::Unsupported(m) if m.contains("not implemented")));
         Ok(())
