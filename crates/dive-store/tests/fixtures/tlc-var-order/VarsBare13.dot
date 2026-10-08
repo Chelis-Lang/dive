@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+2554441907190756731 [label="/\\ a1 = FALSE\n/\\ state = \"s6_0\"\n/\\ msgs = 90\n/\\ rmState = \"s2_0\"\n/\\ AaAa = 10\n/\\ Q = <<7, \"t\", FALSE>>\n/\\ x = 130\n/\\ y = <<11, \"t\", FALSE>>\n/\\ z = \"s10_0\"\n/\\ pc = FALSE\n/\\ b_2 = 50\n/\\ tmPrepared = FALSE\n/\\ votes = <<3, \"t\", FALSE>>",style = filled]
+2554441907190756731 -> 7819108817827219249 [label="",color="black",fontcolor="black"];
+7819108817827219249 [label="/\\ a1 = TRUE\n/\\ state = \"s6_1\"\n/\\ msgs = 91\n/\\ rmState = \"s2_1\"\n/\\ AaAa = 11\n/\\ Q = <<8, \"t\", TRUE>>\n/\\ x = 131\n/\\ y = <<12, \"t\", TRUE>>\n/\\ z = \"s10_1\"\n/\\ pc = TRUE\n/\\ b_2 = 51\n/\\ tmPrepared = TRUE\n/\\ votes = <<4, \"t\", TRUE>>",tooltip="/\\ a1 = TRUE\n/\\ state = \"s6_1\"\n/\\ msgs = 91\n/\\ rmState = \"s2_1\"\n/\\ AaAa = 11\n/\\ Q = <<8, \"t\", TRUE>>\n/\\ x = 131\n/\\ y = <<12, \"t\", TRUE>>\n/\\ z = \"s10_1\"\n/\\ pc = TRUE\n/\\ b_2 = 51\n/\\ tmPrepared = TRUE\n/\\ votes = <<4, \"t\", TRUE>>"];
+7819108817827219249 -> 2633983693010462807 [label="",color="black",fontcolor="black"];
+2633983693010462807 [label="/\\ a1 = FALSE\n/\\ state = \"s6_2\"\n/\\ msgs = 92\n/\\ rmState = \"s2_2\"\n/\\ AaAa = 12\n/\\ Q = <<9, \"t\", FALSE>>\n/\\ x = 132\n/\\ y = <<13, \"t\", FALSE>>\n/\\ z = \"s10_2\"\n/\\ pc = FALSE\n/\\ b_2 = 52\n/\\ tmPrepared = FALSE\n/\\ votes = <<5, \"t\", FALSE>>",tooltip="/\\ a1 = FALSE\n/\\ state = \"s6_2\"\n/\\ msgs = 92\n/\\ rmState = \"s2_2\"\n/\\ AaAa = 12\n/\\ Q = <<9, \"t\", FALSE>>\n/\\ x = 132\n/\\ y = <<13, \"t\", FALSE>>\n/\\ z = \"s10_2\"\n/\\ pc = FALSE\n/\\ b_2 = 52\n/\\ tmPrepared = FALSE\n/\\ votes = <<5, \"t\", FALSE>>"];
+2633983693010462807 -> -3574263950734742590 [label="",color="black",fontcolor="black"];
+-3574263950734742590 [label="/\\ a1 = TRUE\n/\\ state = \"s6_3\"\n/\\ msgs = 93\n/\\ rmState = \"s2_3\"\n/\\ AaAa = 13\n/\\ Q = <<10, \"t\", TRUE>>\n/\\ x = 133\n/\\ y = <<14, \"t\", TRUE>>\n/\\ z = \"s10_3\"\n/\\ pc = TRUE\n/\\ b_2 = 53\n/\\ tmPrepared = TRUE\n/\\ votes = <<6, \"t\", TRUE>>",tooltip="/\\ a1 = TRUE\n/\\ state = \"s6_3\"\n/\\ msgs = 93\n/\\ rmState = \"s2_3\"\n/\\ AaAa = 13\n/\\ Q = <<10, \"t\", TRUE>>\n/\\ x = 133\n/\\ y = <<14, \"t\", TRUE>>\n/\\ z = \"s10_3\"\n/\\ pc = TRUE\n/\\ b_2 = 53\n/\\ tmPrepared = TRUE\n/\\ votes = <<6, \"t\", TRUE>>"];
+{rank = same; 2554441907190756731;}
+{rank = same; 7819108817827219249;}
+{rank = same; 2633983693010462807;}
+}
+}

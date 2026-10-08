@@ -87,7 +87,7 @@ impl From<dive_sema::Level> for Level {
 
 /// The version of the IR's serialized form. Bump it whenever a serialized
 /// type changes; the on-disk cache (ADR 0013 §7) keys on it.
-pub const IR_SCHEMA: u32 = 1;
+pub const IR_SCHEMA: u32 = 2;
 
 /// One lowered specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -99,6 +99,8 @@ pub struct Ir {
     pub(crate) exprs: Vec<Node>,
     pub(crate) decls: Vec<Decl>,
     pub(crate) vars: Vec<DeclId>,
+    /// The state variables in TLC's order (`varLoc`), as [`Ir::tlc_var_order`].
+    pub(crate) tlc_vars: Vec<VarId>,
     pub(crate) consts: Vec<DeclId>,
     pub(crate) refusals: Vec<Refusal>,
     /// For each expression, the index of the `dive-sema` node it was lowered
@@ -435,6 +437,34 @@ impl Ir {
     #[must_use]
     pub fn vars(&self) -> &[DeclId] {
         &self.vars
+    }
+
+    /// The root module's state variables in TLC's order: entry `i` is the
+    /// variable whose `varLoc` is `i` (`SpecProcessor.processSpec`), a
+    /// permutation of the [`VarId`]s.
+    ///
+    /// TLC keeps a state's values in this order. `TLCStateMut.fingerPrint`
+    /// walks them in it, so TLC's state fingerprints need it, and TLC prints
+    /// states in it. It is SANY's `ModuleNode.getVariableDecls`: the reverse of
+    /// the enumeration order of the root module context's Java `Hashtable`
+    /// ([`dive_sema::hashtable`]), which depends on every name in that context.
+    /// The [`VarId`]s themselves stay in the context's insertion order.
+    ///
+    /// ```
+    /// let src = "---- MODULE M ----\nVARIABLES x, y, z, pc, msgs\n====\n";
+    /// let a = dive_sema::analyze_source("M.tla", src, &dive_sema::Options::default());
+    /// let ir = dive_ir::lower(&a).unwrap();
+    /// let names: Vec<&str> = ir
+    ///     .tlc_var_order()
+    ///     .iter()
+    ///     .map(|&v| ir.decl(ir.vars()[v.index()]).name.as_str())
+    ///     .collect();
+    /// // As the pinned TLC numbers them.
+    /// assert_eq!(names, ["msgs", "x", "y", "z", "pc"]);
+    /// ```
+    #[must_use]
+    pub fn tlc_var_order(&self) -> &[VarId] {
+        &self.tlc_vars
     }
 
     /// The constants of every module, by [`ConstId`].

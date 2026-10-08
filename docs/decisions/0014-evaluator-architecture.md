@@ -216,10 +216,10 @@ An enumeration-order probe for each lazy kind (`SUBSET`, `[S -> T]`, `\X`, recor
 They are deterministic per state, so they do not force sequential mode.
 - **Under `--compat=tlc`**, reproducing TLC's draws needs three things:
   - Java's `java.util.Random` sequence;
-  - TLC-identical state fingerprints, which depend on TLC's variable order: the reversed enumeration order of a Java `Hashtable` over the root module's whole context (`TLCStateMut.java:250-254`; `tla2sany/semantic/ModuleNode.java:400-408`; `Context.java:134`, `:320-331`);
+  - TLC-identical state fingerprints, which depend on TLC's variable order: the reversed enumeration order of a Java `Hashtable` over the root module's whole context (`TLCStateMut.java:250-254`; `tla2sany/semantic/ModuleNode.java:400-408`; `Context.java:134`, `:320-331`). WP-A3 provides this: `Ir::tlc_var_order` and `StateFingerprinter::tlc` (ADR 0015 §5);
   - TLC's per-value FP64 encoding, which `dive-value` already has.
 
-  Until the variable-order emulation lands (WP-A3), a spec that draws random values while checking is refused under `--compat=tlc` as `unsupported`, naming the feature.
+  Until `java.util.Random` and the per-state seeding land (WP-C5), a spec that draws random values while checking is refused under `--compat=tlc` as `unsupported`, naming the feature.
 - **In the default profile**, dive uses its own state fingerprint for seeding. The run is replayable from the reported seed at any worker count (D-002).
 
 **`JavaTime`** is nondeterministic, as in TLC. It is marked impure and flagged in the output.

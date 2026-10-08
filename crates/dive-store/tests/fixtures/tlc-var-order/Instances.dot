@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-5960181174044479889 [label="/\\ state = <<3, \"t\", FALSE>>\n/\\ msgs = FALSE\n/\\ BBBB = \"s2_0\"\n/\\ AaAa = 50\n/\\ x = 10\n/\\ y = FALSE",style = filled]
+-5960181174044479889 -> 6629174805288961903 [label="",color="black",fontcolor="black"];
+6629174805288961903 [label="/\\ state = <<4, \"t\", TRUE>>\n/\\ msgs = TRUE\n/\\ BBBB = \"s2_1\"\n/\\ AaAa = 51\n/\\ x = 11\n/\\ y = TRUE",tooltip="/\\ state = <<4, \"t\", TRUE>>\n/\\ msgs = TRUE\n/\\ BBBB = \"s2_1\"\n/\\ AaAa = 51\n/\\ x = 11\n/\\ y = TRUE"];
+6629174805288961903 -> 3113088306380320194 [label="",color="black",fontcolor="black"];
+3113088306380320194 [label="/\\ state = <<5, \"t\", FALSE>>\n/\\ msgs = FALSE\n/\\ BBBB = \"s2_2\"\n/\\ AaAa = 52\n/\\ x = 12\n/\\ y = FALSE",tooltip="/\\ state = <<5, \"t\", FALSE>>\n/\\ msgs = FALSE\n/\\ BBBB = \"s2_2\"\n/\\ AaAa = 52\n/\\ x = 12\n/\\ y = FALSE"];
+3113088306380320194 -> 6055215599377347449 [label="",color="black",fontcolor="black"];
+6055215599377347449 [label="/\\ state = <<6, \"t\", TRUE>>\n/\\ msgs = TRUE\n/\\ BBBB = \"s2_3\"\n/\\ AaAa = 53\n/\\ x = 13\n/\\ y = TRUE",tooltip="/\\ state = <<6, \"t\", TRUE>>\n/\\ msgs = TRUE\n/\\ BBBB = \"s2_3\"\n/\\ AaAa = 53\n/\\ x = 13\n/\\ y = TRUE"];
+{rank = same; -5960181174044479889;}
+{rank = same; 6629174805288961903;}
+{rank = same; 3113088306380320194;}
+}
+}

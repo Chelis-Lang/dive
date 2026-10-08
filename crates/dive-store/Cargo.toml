@@ -12,6 +12,10 @@ repository.workspace = true
 dive-value.workspace = true
 
 [dev-dependencies]
+# The end-to-end check of TLC's state fingerprints lowers its specifications
+# (tests/tlc_state_fingerprints.rs); dev-dependencies are outside the layering.
+dive-sema.workspace = true
+dive-ir.workspace = true
 proptest.workspace = true
 divan.workspace = true
 serde_json.workspace = true

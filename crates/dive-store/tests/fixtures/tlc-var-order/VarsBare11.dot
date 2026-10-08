@@ -1,0 +1,17 @@
+strict digraph DiskGraph {
+node [shape=box,style=rounded]
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+8791739849580105731 [label="/\\ a1 = <<3, \"t\", FALSE>>\n/\\ state = 50\n/\\ msgs = \"s6_0\"\n/\\ rmState = 10\n/\\ Q = FALSE\n/\\ x = \"s10_0\"\n/\\ y = FALSE\n/\\ z = 90\n/\\ pc = <<7, \"t\", FALSE>>\n/\\ b_2 = \"s2_0\"\n/\\ votes = FALSE",style = filled]
+8791739849580105731 -> 245247676471457980 [label="",color="black",fontcolor="black"];
+245247676471457980 [label="/\\ a1 = <<4, \"t\", TRUE>>\n/\\ state = 51\n/\\ msgs = \"s6_1\"\n/\\ rmState = 11\n/\\ Q = TRUE\n/\\ x = \"s10_1\"\n/\\ y = TRUE\n/\\ z = 91\n/\\ pc = <<8, \"t\", TRUE>>\n/\\ b_2 = \"s2_1\"\n/\\ votes = TRUE",tooltip="/\\ a1 = <<4, \"t\", TRUE>>\n/\\ state = 51\n/\\ msgs = \"s6_1\"\n/\\ rmState = 11\n/\\ Q = TRUE\n/\\ x = \"s10_1\"\n/\\ y = TRUE\n/\\ z = 91\n/\\ pc = <<8, \"t\", TRUE>>\n/\\ b_2 = \"s2_1\"\n/\\ votes = TRUE"];
+245247676471457980 -> 902122797715737322 [label="",color="black",fontcolor="black"];
+902122797715737322 [label="/\\ a1 = <<5, \"t\", FALSE>>\n/\\ state = 52\n/\\ msgs = \"s6_2\"\n/\\ rmState = 12\n/\\ Q = FALSE\n/\\ x = \"s10_2\"\n/\\ y = FALSE\n/\\ z = 92\n/\\ pc = <<9, \"t\", FALSE>>\n/\\ b_2 = \"s2_2\"\n/\\ votes = FALSE",tooltip="/\\ a1 = <<5, \"t\", FALSE>>\n/\\ state = 52\n/\\ msgs = \"s6_2\"\n/\\ rmState = 12\n/\\ Q = FALSE\n/\\ x = \"s10_2\"\n/\\ y = FALSE\n/\\ z = 92\n/\\ pc = <<9, \"t\", FALSE>>\n/\\ b_2 = \"s2_2\"\n/\\ votes = FALSE"];
+902122797715737322 -> -349453943333161333 [label="",color="black",fontcolor="black"];
+-349453943333161333 [label="/\\ a1 = <<6, \"t\", TRUE>>\n/\\ state = 53\n/\\ msgs = \"s6_3\"\n/\\ rmState = 13\n/\\ Q = TRUE\n/\\ x = \"s10_3\"\n/\\ y = TRUE\n/\\ z = 93\n/\\ pc = <<10, \"t\", TRUE>>\n/\\ b_2 = \"s2_3\"\n/\\ votes = TRUE",tooltip="/\\ a1 = <<6, \"t\", TRUE>>\n/\\ state = 53\n/\\ msgs = \"s6_3\"\n/\\ rmState = 13\n/\\ Q = TRUE\n/\\ x = \"s10_3\"\n/\\ y = TRUE\n/\\ z = 93\n/\\ pc = <<10, \"t\", TRUE>>\n/\\ b_2 = \"s2_3\"\n/\\ votes = TRUE"];
+{rank = same; 8791739849580105731;}
+{rank = same; 245247676471457980;}
+{rank = same; 902122797715737322;}
+}
+}

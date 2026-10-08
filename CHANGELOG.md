@@ -40,6 +40,16 @@ All notable changes to this project are documented here. The project will follow
   configuration overrides and TLC's action labels; `actions::shape` gives the
   guards-and-updates view. On the 141 small-tier Examples models it reproduces TLC's own
   action list (names, parameters, labels, order and count) for every model.
+- TLC's state-variable order (M5, WP-A3): `dive_sema::Model::variable_decls` and
+  `constant_decls` reproduce SANY's `ModuleNode.getVariableDecls`/`getConstantDecls`,
+  the reversed iteration order of the module context's Java `Hashtable`
+  (`dive_sema::hashtable`). `dive_ir::Ir::tlc_var_order` records TLC's `varLoc` order
+  (`IR_SCHEMA` 2). `dive_store::state::StateFingerprinter::tlc` computes TLC's own state
+  fingerprint in that order, the scheme `--compat=tlc` uses; the default profile keeps
+  dive's two-level fingerprint in IR order. The order matches the pinned TLC on 29
+  generated specifications, 234 repository modules and all 424 Examples modules, and the
+  fingerprints match TLC's `-dump dot` output on all 116 states of the generated
+  specifications, from the specification text (ADR 0015 §5).
 - `dive-model`, the configuration-binding stage (stub), and `dive-eval`'s `enumerate`
   feature (stub). `cargo xtask check-layering` rejects a standalone `dive-trace` build
   that enables the enumerator, and the workspace gate builds `dive-trace` on its own
