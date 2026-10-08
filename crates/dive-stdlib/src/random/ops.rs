@@ -1,5 +1,6 @@
 //! `RandomElement` (module `TLC`) and the `Randomization` operators over values.
 
+use std::collections::HashSet;
 use std::fmt;
 
 use num_bigint::BigInt;
@@ -309,8 +310,11 @@ pub fn random_subset(
         }
         return Ok(Value::set_raw(out, ctx));
     }
-    // SetEnumValue, and every other enumerable set through `toSetEnum` (which
-    // enumerates before the negative-size error).
+    // `SetEnumValue.getRandomSubset` fails on a negative count before it normalizes;
+    // every other enumerable set goes through `toSetEnum` first, which enumerates.
+    if k < 0 && matches!(s.kind(), SetKind::Enum | SetKind::Raw) {
+        return Err(negative());
+    }
     let elems = s.elements(ctx).map_err(&wrap)?;
     if k < 0 {
         return Err(negative());
@@ -500,6 +504,11 @@ pub fn random_set_of_subsets(
     let probability = f64::from(mean) / size as f64;
     let elems = s.elements(ctx).map_err(&wrap)?;
     let mut subsets: Vec<Value> = Vec::new();
+    #[allow(
+        clippy::mutable_key_type,
+        reason = "Value's interior mutability is caches that never change its Hash or Eq (ADR 0012)"
+    )]
+    let mut seen: HashSet<Value> = HashSet::new();
     for _ in 0..picks {
         let mut chosen = Vec::new();
         for e in elems.iter() {
@@ -508,9 +517,31 @@ pub fn random_set_of_subsets(
             }
         }
         let subset = Value::set_raw(chosen, ctx);
-        if !subsets.contains(&subset) {
+        if seen.insert(subset.clone()) {
             subsets.push(subset);
         }
     }
     Ok(Value::set_raw(subsets, ctx))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::random::JavaRandom;
+
+    #[test]
+    fn negative_count_on_an_enumerated_set_fails_before_normalizing() {
+        // `RandomSubset(-1, {1, "a"})`: TLC's `new ValueVec(-1)` throws before
+        // `{1, "a"}` is normalized (which would fail comparing 1 with "a").
+        let ctx = Ctx::tlc();
+        let names = dive_value::Interner::new();
+        let s = Value::set_raw(vec![Value::from(1), Value::string(&names, "a")], ctx);
+        let mut r = JavaRandom::new(0);
+        let before = r;
+        let err = random_subset(&Value::from(-1), &s, ctx, &mut r);
+        let err = err.err().map(|e| (e.tlc_code(), e.message()));
+        assert_eq!(err.as_ref().map(|e| e.0), Some(2154));
+        assert!(err.is_some_and(|e| e.1.ends_with("\n-1")));
+        assert_eq!(r, before, "no draw");
+    }
 }
