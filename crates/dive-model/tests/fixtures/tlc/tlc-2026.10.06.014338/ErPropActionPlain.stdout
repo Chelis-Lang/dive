@@ -1,0 +1,24 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 17541] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/ErPropActionPlain/ErPropActionPlain.tla
+Semantic processing of module ErPropActionPlain
+Linting of module ErPropActionPlain
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-08 21:24:09)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2272:1 @!@!@
+The formula Prop at line 6, col 9 to line 6, col 14 of module ErPropActionPlain is an action-level formula (i.e., it contains no temporal operators). Only temporal-level (or state-level) formulas are allowed under PROPERTY or PROPERTIES. To check that action Prop holds in *every* step of the behavior, define a temporal property: Let A be the formula at line 6, col 9 to line 6, col 14 of module ErPropActionPlain; rewrite A as [][A]_v, where v is a state function (typically the tuple of variables) (compare page 90 of Specifying Systems at https://lamport.azurewebsites.net/tla/book.html).
+@!@!@ENDMSG 2272 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 368ms at (2026-10-08 21:24:09)
+@!@!@ENDMSG 2186 @!@!@

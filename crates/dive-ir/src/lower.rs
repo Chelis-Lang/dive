@@ -266,6 +266,8 @@ impl<'a> Lowerer<'a> {
             context: Vec::new(),
             assumptions: Vec::new(),
             theorems: Vec::new(),
+            axioms: Vec::new(),
+            tlc_constants: Vec::new(),
         });
         for n in inner {
             self.collect_module(n, Some(id));
@@ -301,12 +303,26 @@ impl<'a> Lowerer<'a> {
             context.push((name, sym));
         }
         let assumptions: Vec<DefId> = d.assumptions.iter().map(|&a| self.global_def(a)).collect();
+        let axioms: Vec<bool> = d
+            .assumptions
+            .iter()
+            .map(|&a| matches!(&self.m.node(a).kind, NodeKind::Assume(ad) if ad.is_axiom))
+            .collect();
         let theorems: Vec<DefId> = d.theorems.iter().map(|&t| self.global_def(t)).collect();
+        let tlc_constants: Vec<DeclId> = self
+            .m
+            .constant_decls(mid)
+            .into_iter()
+            .map(|n| self.decl_id(n))
+            .filter(|d| d.0 != u32::MAX)
+            .collect();
         if let Some(md) = self.modules.get_mut(id.index()) {
             md.extends = extends;
             md.context = context;
             md.assumptions = assumptions;
+            md.axioms = axioms;
             md.theorems = theorems;
+            md.tlc_constants = tlc_constants;
         }
     }
 
@@ -1703,6 +1719,7 @@ impl<'a> Lowerer<'a> {
             tlc_vars: self.tlc_vars,
             consts: self.consts,
             refusals: self.refusals,
+            lexical_names: crate::intern::lexical_names(self.analysis),
             sema_nodes: self.sema_nodes,
         };
         crate::analysis::compute_effects(&mut ir);

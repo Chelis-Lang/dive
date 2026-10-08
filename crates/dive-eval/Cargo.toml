@@ -23,6 +23,7 @@ dive-value.workspace = true
 
 [dev-dependencies]
 dive-sema.workspace = true
+dive-model.workspace = true
 dive-config.workspace = true
 proptest.workspace = true
 serde_json.workspace = true

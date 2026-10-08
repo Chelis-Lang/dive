@@ -47,6 +47,11 @@ pub enum ActionName {
     Def(DefId),
     /// An operator TLC overrides in Java, applied without being inlined.
     Std(StdOp),
+    /// A built-in constant TLC's split meets as the whole action: `TRUE`,
+    /// `FALSE`, `BOOLEAN` or `STRING`. They have no opcode, so
+    /// `getActionsAppl` makes an action named after the built-in
+    /// (`(OpDefNode) opNode`).
+    Builtin(&'static str),
     /// No definition: the next-state relation of a `SPECIFICATION` that is
     /// not an operator application. TLC prints `Action`.
     Unnamed,
@@ -236,6 +241,21 @@ impl Splitter<'_> {
                 None => ActionTree::Throws { expr: e },
             },
             Expr::Const(_) | Expr::SubstRef { .. } => ActionTree::Configured { expr: e, name },
+            Expr::Bool(b) => ActionTree::Leaf {
+                expr: e,
+                name: ActionName::Builtin(if *b { "TRUE" } else { "FALSE" }),
+            },
+            Expr::Builtin { op, args } if args.is_empty() => match op {
+                crate::BuiltinOp::Boolean => ActionTree::Leaf {
+                    expr: e,
+                    name: ActionName::Builtin("BOOLEAN"),
+                },
+                crate::BuiltinOp::String => ActionTree::Leaf {
+                    expr: e,
+                    name: ActionName::Builtin("STRING"),
+                },
+                _ => ActionTree::Leaf { expr: e, name },
+            },
             Expr::Var { .. }
             | Expr::Unbound(_)
             | Expr::Num(_)
@@ -295,6 +315,7 @@ pub fn label(ir: &Ir, name: ActionName, values: &[String], leaf: ExprId) -> Stri
     let n = match name {
         ActionName::Def(d) => ir.def(d).name.clone(),
         ActionName::Std(op) => op.name().to_owned(),
+        ActionName::Builtin(b) => b.to_owned(),
         ActionName::Unnamed => "Action".to_owned(),
     };
     let params = if values.is_empty() {
@@ -311,6 +332,7 @@ pub fn name_text(ir: &Ir, name: ActionName) -> Option<String> {
     match name {
         ActionName::Def(d) => Some(ir.def(d).name.clone()),
         ActionName::Std(op) => Some(op.name().to_owned()),
+        ActionName::Builtin(b) => Some(b.to_owned()),
         ActionName::Unnamed => None,
     }
 }
