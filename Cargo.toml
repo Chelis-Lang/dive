@@ -9,7 +9,7 @@ edition = "2024"
 rust-version = "1.99"
 publish = false
 repository = "https://github.com/Chelis-Lang/dive"
-# License is deliberately unset until the owner confirms it (ADR 0007).
+license = "MIT"
 
 [workspace.dependencies]
 # Internal crates. Allowed edges are enforced by `cargo xtask check-layering`.

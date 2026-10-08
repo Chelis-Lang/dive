@@ -1,4 +1,4 @@
-# 0010: TLC-compatible by default, better by option
+# 0010: Better by default where approved; TLC-compatible always built and proven
 
 - **Status:** accepted
 - **Date:** 2026-10-08
@@ -17,46 +17,69 @@ The charter's soundness contract requires matching TLC by default (rule 5). The 
 
 ## Decision
 
-### 1. The default is TLC-compatible
+### 1. Two profiles: dive's default and `--compat=tlc`
 
-Every observable result matches the pinned TLC under equivalent flags. This covers:
+- **`--compat=tlc` (the TLC-compatible profile).**
+  - Every observable result matches the pinned TLC under equivalent flags: verdict, counts, depth, error class, counterexample validity and length, and the meaning of every flag that shares a name with a TLC flag.
+  - This is the profile the charter's conformance contract (rule 1) is enforced against, over **the full corpus**.
+  - The TLC-matching behaviour is always *built*, never merely recorded. Every result-changing enhancement ships with its TLC-matching counterpart, and the harness proves that counterpart matches.
+- **The default profile (dive).** This is TLC-compatible except where the owner has approved a better default. Approved defaults are listed in the registry in `docs/divergences.md`.
+- **Per-feature switches.** Each enhancement also has its own flag, for example `--int=big|tlc` or `--symmetry-liveness=refuse|tlc`.
 
-- verdict;
-- counts;
-- depth;
-- error class;
-- counterexample validity and length;
-- the meaning of every flag that shares a name with a TLC flag.
+`--compat=tlc` is one global switch, set by the `--compat=tlc` flag, the `DIVE_COMPAT=tlc` environment variable, the `compat = "tlc"` config key, or `Profile::Tlc` in the library API. It puts **every** behaviour into its precisely TLC-equivalent form at once, for clean testing and for users who want to validate dive against TLC:
 
-### 2. Better behaviour is always available as a named option
+- Result-changing behaviours are switched, for example integers and symmetry with liveness.
+- So are result-preserving defaults and observable conventions: the default worker count (TLC's 1), seeding (unseeded unless `-seed` is given), the meaning of flags shared with TLC, exit codes, and the shape of the default human-readable output where TLC defines it.
+- A newly added option must declare its TLC-equivalent setting, or that it has no observable TLC counterpart. Otherwise it fails review.
+- Per-feature flags given explicitly alongside `--compat=tlc` override it for that feature only. The output's `options` block then reports the run as `tlc+overrides`, listing each override, so a "pure TLC" claim is never made for a mixed run.
+- The conformance harness runs dive under pure `--compat=tlc` for the strict tier.
 
-Wherever TLC imposes a handcuff, dive keeps a named, documented option that does better. "Keep" means the design must not foreclose it. The option need not be built on day one, but no implementation choice may make it impossible later. The option is recorded in the registry in `docs/divergences.md` before or with its implementation.
+### 2. Better behaviour is always available
+
+Wherever TLC imposes a handcuff, dive builds a named, documented option that does better. Examples of handcuffs:
+
+- single-worker exactness;
+- unseeded or unreplayable randomness;
+- 32-bit integers;
+- a silent soundness hazard;
+- output designed for humans only.
+
+Until the option exists, the design must not foreclose it. Every option is recorded in the registry before or with its implementation.
 
 ### 3. Two kinds of "better"
 
-Each kind has its own rule for defaults.
+**Result-preserving enhancements** change *how* dive gets the answer, not the answer. Examples: deterministic parallel BFS that still yields TLC's single-worker exact depth and shortest counterexample, faster storage, compilation.
 
-- **Result-preserving enhancements.** These change *how* dive gets the answer, not the answer. Examples: deterministic parallel BFS that still yields TLC's single-worker exact depth and shortest counterexample, faster storage, compilation.
-  - They may be on by default, because the observable result equals the TLC-compatible one.
-  - The conformance harness must show equality with the TLC golden at every setting. The worker-invariance rule in ADR 0004 is the test.
-  - The single-worker constraint in ADR 0004 applies to *generating goldens with TLC*. It is never a limit on dive's own parallelism.
-- **Result-changing options.** These change the answer relative to TLC. Examples: arbitrary-precision integers, refusing symmetry with liveness, a fixed default seed, alternative `CHOOSE` orders.
-  - They are always **opt-in** and named.
-  - The output and the JSON report always say which options were active.
-  - They are tested in both modes. Where TLC has no equivalent, they are tested against the TLA+ semantics.
+- They are on by default in both profiles. The owner confirmed this for parallel workers on 2026-10-08.
+- The harness must show equality with the TLC golden at every setting. The worker-invariance rule in ADR 0004 is the test.
+- ADR 0004's single-worker constraint applies only to *generating goldens with TLC*. It never limits dive's own parallelism.
+
+**Result-changing enhancements** change the answer relative to TLC. Examples: arbitrary-precision integers, refusing symmetry with liveness.
+
+- They may be the **default** only with owner approval, recorded in the registry. Otherwise they are opt-in.
+- In every case, the TLC-matching behaviour is built and selectable, and `--compat=tlc` passes full conformance.
+- The default profile is also run through the harness. It must agree with the TLC goldens on every entry except the registered expected divergences. Each of those has a minimal spec, a justification, and a check against TLA+ semantics.
+- The output and the JSON `options` block always say which profile and options were active. They also flag when a result would differ under `--compat=tlc`, where that can be known; integer overflow is one such case.
 
 ### 4. Nondeterminism must be replayable
 
-Wherever TLC is nondeterministic, the default draws its seed fresh to match TLC's behaviour. Even so, dive *always reports the seed it used*. `--seed` replays a run exactly, including simulation at any worker count. A run that cannot be reproduced from its reported inputs is a bug.
+Where TLC is nondeterministic, the default draws a fresh seed as TLC does. dive *always reports the seed* it used, and `--seed` replays a run exactly, including simulation at any worker count. A run that cannot be reproduced from its reported inputs is a bug.
 
 ### 5. Process
 
 Whenever an agent finds a TLC handcuff, it:
 
-1. writes the minimal spec and the oracle result (charter, working method);
-2. matches TLC by default;
-3. adds a row to the registry in `docs/divergences.md`: the handcuff, the TLC-compatible default, the dive option, whether the option preserves or changes results, its status and its tests;
-4. writes an ADR when the option shapes architecture, for example the parallel search design or the value representation.
+1. writes the minimal spec and records the oracle result (charter, working method);
+2. builds or keeps TLC-matching behaviour under `--compat=tlc`;
+3. adds a row to the registry in `docs/divergences.md`: the handcuff, the default, the TLC-compat behaviour, the better option, its kind, its status and its tests;
+4. proposes a better default to the owner when it changes results, through `docs/open-questions.md`. It never adopts one silently;
+5. writes an ADR when the option shapes architecture, as with the value representation or the parallel search design.
+
+### Owner decisions recorded (2026-10-08)
+
+- **Parallel workers** are on by default. They are result-preserving.
+- **Arbitrary-precision integers** are the intended default. TLC's 32-bit integers with its overflow error are built as `--int=tlc` (included in `--compat=tlc`), and full conformance to TLC is proven in that mode. The default flips to big integers once both modes pass the harness.
+- **Symmetry with liveness:** the default is **refuse**, with an explicit diagnostic. TLC instead warns and proceeds, and can miss violations. TLC's behaviour is built as `--symmetry-liveness=tlc` (included in `--compat=tlc`), and the harness proves it matches.
 
 ## Consequences
 
@@ -64,4 +87,4 @@ Whenever an agent finds a TLC handcuff, it:
 - **Value representation.** `dive-value` must leave room for arbitrary-precision integers behind an option without penalising the 32-bit fast path.
 - **CLI.** Flags that share a name with TLC flags keep TLC's meaning. Options only dive has use distinct names and are listed in `dive --help` under their own heading.
 - **Reporting.** The JSON output has an `options` block that records every active enhancement and divergence, and the seed.
-- **Open question:** may result-preserving enhancements such as parallel workers default to "on" (for example `--workers auto`)? TLC itself defaults to 1 worker. This ADR permits it, because results are identical by construction and by test. The owner may override.
+- **Defaults for result-preserving enhancements:** the owner confirmed on 2026-10-08 that these may default to on. For example, parallel workers may be on by default (`--workers auto`), even though TLC defaults to 1. This rests on results being identical by construction and by harness test.
