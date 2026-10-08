@@ -257,6 +257,7 @@ pub fn run_oracle_model(
         workers: req.workers,
         timeout: req.timeout,
         xmx: req.xmx,
+        seed: 0,
     };
     let inv = env.run_tlc(&job)?;
     let transcript = messages::parse(&inv.outcome.stdout);
