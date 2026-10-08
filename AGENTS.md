@@ -21,6 +21,21 @@ The charter's appendix records factual corrections made since it was written.
   the corpus with the oracle's result, and document it before you implement it.
 - **Ports follow TLC's semantics, not its structure.** Record provenance for every
   ported algorithm in `docs/provenance.md`, naming the Java class or method matched.
+- **TLC-compatible by default, better by option** (ADR 0010). Defaults reproduce
+  the pinned TLC's observable results. Wherever TLC imposes a handcuff, such as
+  single-worker exactness, unseeded or unreplayable randomness, 32-bit integers, or
+  output built for humans, keep a named dive option that does better. "Better"
+  means faster, more deterministic, or more useful to agents and Rust callers.
+  Never let an oracle limitation become a dive limitation. For example, goldens
+  use `-workers 1`, but dive itself must scale wide and stay deterministic.
+  - **Result-preserving enhancements** (same answer, better path) may be on by
+    default, once the harness shows they equal the TLC golden at every setting.
+  - **Result-changing options** are opt-in and named. They are reported in the
+    output's `options` block and tested in both modes.
+  - **Nondeterminism must be replayable.** Always report the seed, and make
+    `--seed` reproduce the run exactly.
+  - **Register every handcuff you find** in `docs/divergences.md`, with its
+    minimal-spec evidence, before or alongside the implementation.
 - **Divergences** from TLC are opt-in, named, documented in `docs/divergences.md`,
   and tested in both modes.
 - **Decisions** go in numbered ADRs in `docs/decisions/` (copy `0000-template.md`).
