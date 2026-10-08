@@ -31,14 +31,40 @@ use crate::tlc::result::{OracleResult, TraceEnding};
 pub struct TraceCheck {
     /// Whether the counterexample validated.
     pub validated: bool,
+    /// Whether it was shown wrong (invalid, or contradicted by the oracle),
+    /// rather than left unconfirmed (refused by name, or no document).
+    pub refuted: bool,
     /// What the validator said.
     pub detail: String,
 }
 
 impl TraceCheck {
-    fn no(detail: impl Into<String>) -> Self {
+    /// Validated.
+    #[must_use]
+    pub fn yes(detail: impl Into<String>) -> Self {
+        Self {
+            validated: true,
+            refuted: false,
+            detail: detail.into(),
+        }
+    }
+
+    /// Not confirmed: refused by name, or nothing to validate.
+    #[must_use]
+    pub fn no(detail: impl Into<String>) -> Self {
         Self {
             validated: false,
+            refuted: false,
+            detail: detail.into(),
+        }
+    }
+
+    /// Shown wrong.
+    #[must_use]
+    pub fn refuted(detail: impl Into<String>) -> Self {
+        Self {
+            validated: false,
+            refuted: true,
             detail: detail.into(),
         }
     }
@@ -136,27 +162,23 @@ pub fn validate_counterexample(
     };
     let reported = ending_of(result);
     if doc.ending.is_none() || doc.ending != reported {
-        return TraceCheck::no(format!(
+        return TraceCheck::refuted(format!(
             "the counterexample claims {:?}, but the result reports {reported:?}",
             doc.ending
         ));
     }
     let (report, trace) = spec.read(&doc);
     match &report.validation {
-        Validation::Valid => TraceCheck {
-            validated: true,
-            detail: "validated".to_owned(),
-        },
+        Validation::Valid => TraceCheck::yes("validated"),
         Validation::Unsupported(u) if u == dive_trace_deadlock() => {
             let Some(trace) = trace else {
                 return TraceCheck::no("deadlock: no trace");
             };
             match golden_last_state(spec, golden) {
-                Ok(last) if trace.states.last() == Some(&last) => TraceCheck {
-                    validated: true,
-                    detail: "validated; the deadlock is confirmed by the oracle's counterexample, which ends in the same state".to_owned(),
-                },
-                Ok(_) => TraceCheck::no(
+                Ok(last) if trace.states.last() == Some(&last) => TraceCheck::yes(
+                    "validated; the deadlock is confirmed by the oracle's counterexample, which ends in the same state",
+                ),
+                Ok(_) => TraceCheck::refuted(
                     "deadlock: every other check passed, but the last state differs from the oracle's deadlocked state",
                 ),
                 Err(e) => TraceCheck::no(format!(
@@ -165,7 +187,7 @@ pub fn validate_counterexample(
             }
         }
         Validation::Unsupported(u) => TraceCheck::no(format!("unsupported: {u}")),
-        Validation::Invalid(f) => TraceCheck::no(format!(
+        Validation::Invalid(f) => TraceCheck::refuted(format!(
             "invalid at state {} ({}): {}",
             f.state,
             f.check.name(),

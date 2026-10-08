@@ -35,9 +35,10 @@
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
 //! - `length` (optional) is the claimed number of states; it must match.
 //!
-//! `dive check --output json` embeds this object as its `counterexample`;
-//! [`TraceDoc::from_json`] accepts either the object or a document that
-//! carries it there.
+//! `dive check --output json` embeds this object as `counterexample.trace`;
+//! [`TraceDoc::from_json`] accepts the object itself, a document that
+//! carries it as `counterexample`, or `dive check`'s report or its
+//! `counterexample` object.
 //!
 //! # TLC's format
 //!
@@ -272,6 +273,19 @@ impl TraceDoc {
     pub fn from_json(j: &J) -> Result<Self, String> {
         if j.get("format").and_then(J::as_str) == Some(FORMAT) {
             return Self::from_dive(j);
+        }
+        // `dive check --output json`'s counterexample object carries the
+        // document as `trace`; accept the object or the whole report.
+        for t in [
+            j.get("trace"),
+            j.get("counterexample").and_then(|c| c.get("trace")),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            if t.get("format").and_then(J::as_str) == Some(FORMAT) {
+                return Self::from_dive(t);
+            }
         }
         if let Some(c) = j.get("counterexample") {
             if c.get("format").and_then(J::as_str) == Some(FORMAT) {

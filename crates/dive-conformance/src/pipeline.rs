@@ -846,8 +846,15 @@ fn run_model(
                     // itself (ADR 0016 §3).
                     let check = imp.trace_validated(&req, &result, &golden.result);
                     if !check.validated {
+                        // Unconfirmed (refused by name) can at best be
+                        // pending; shown wrong is a disagreement.
                         diffs.push(FieldDiff {
-                            field: "trace.validated".to_owned(),
+                            field: if check.refuted {
+                                "trace.invalid"
+                            } else {
+                                "trace.validated"
+                            }
+                            .to_owned(),
                             expected: true.into(),
                             actual: false.into(),
                         });

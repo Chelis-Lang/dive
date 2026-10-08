@@ -184,13 +184,10 @@ pub trait Implementation: Sync {
         _result: &OracleResult,
         _golden: &OracleResult,
     ) -> crate::trace_check::TraceCheck {
-        crate::trace_check::TraceCheck {
-            validated: false,
-            detail: format!(
-                "{} has no counterexample the harness can validate",
-                self.name()
-            ),
-        }
+        crate::trace_check::TraceCheck::no(format!(
+            "{} has no counterexample the harness can validate",
+            self.name()
+        ))
     }
 
     /// Parses one module (corpus-relative path) the way full SANY does:

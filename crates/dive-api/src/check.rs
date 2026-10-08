@@ -333,7 +333,8 @@ impl CheckReport {
     ///                   "initial_generated", "reported_by_tlc" } | null,
     ///   "counterexample": { "length", "ending": "finite",
     ///                       "states": [ { "index", "label", "action",
-    ///                                     "values": { var: TLC JSON }, "text" } ] } | null,
+    ///                                     "values": { var: TLC JSON }, "text" } ],
+    ///                       "trace": dive-trace document | null } | null,
     ///   "collision": { "store", "optimistic", "actual" } | null,
     ///   "output": [ string ], "warnings": [ { "code", "message" } ],
     ///   "diagnostics": [ ... ], "notes": [ string ],
@@ -451,6 +452,7 @@ impl CheckReport {
                         "length": states.len(),
                         "ending": "finite",
                         "states": states,
+                        "trace": trace_doc(r, cx, ctx),
                     });
                 }
                 if let Some(c) = &r.collision {
@@ -513,4 +515,67 @@ impl CheckReport {
         }
         out
     }
+}
+
+/// The counterexample in `dive-trace`'s format (version 1, exact values), the
+/// document the independent validator reads (ADR 0016): `dive
+/// validate-trace` and the conformance harness take it from
+/// `counterexample.trace`. `null` when a value has no JSON form or the
+/// verdict has no ending the format names.
+fn trace_doc(
+    r: &dive_check::CheckResult,
+    cx: &dive_check::Counterexample,
+    ctx: dive_value::Ctx,
+) -> Value {
+    use dive_check::Verdict as V;
+    use dive_trace::Ending;
+    let ending = match &r.verdict {
+        V::InvariantViolated { property, .. } => Ending::Invariant(property.clone()),
+        V::PropertyViolatedInitially { property } | V::ActionPropertyViolated { property } => {
+            Ending::Property(property.clone())
+        }
+        V::Deadlock => Ending::Deadlock,
+        V::EvaluationError { name, .. } => {
+            if *name == "TLC_VALUE_ASSERT_FAILED" {
+                Ending::Assertion
+            } else {
+                Ending::Error {
+                    ec: Some((*name).to_owned()),
+                }
+            }
+        }
+        _ => return Value::Null,
+    };
+    let mut states = Vec::with_capacity(cx.states.len());
+    let mut labels = Vec::with_capacity(cx.states.len());
+    for (i, s) in cx.states.iter().enumerate() {
+        let mut m = serde_json::Map::new();
+        for (k, name) in r.var_names.iter().enumerate() {
+            let Some(v) = s.values.get(k) else {
+                return Value::Null;
+            };
+            let Ok(j) = dive_trace::value_json::to_json(v, ctx) else {
+                return Value::Null;
+            };
+            m.insert(name.clone(), j);
+        }
+        states.push(m);
+        labels.push(if i == 0 {
+            None
+        } else {
+            s.action.as_ref().map(|name| dive_trace::Label {
+                name: name.clone(),
+                location: Some(s.label.clone()),
+            })
+        });
+    }
+    dive_trace::TraceDoc {
+        variables: r.var_names.clone(),
+        states,
+        labels,
+        ending: Some(ending),
+        length: Some(cx.states.len()),
+        source: dive_trace::Source::Dive,
+    }
+    .to_json()
 }

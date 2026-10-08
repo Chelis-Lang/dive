@@ -11,8 +11,10 @@
 //!   statistics are taken only where TLC prints them, and the
 //!   counterexample's length and printed states are kept. A refusal, a
 //!   resource limit, or an error whose TLC class dive does not claim yet is
-//!   `unsupported`, naming it. dive's counterexamples are not yet validated
-//!   by an independent trace validator (WP-E1), so a violation is at best
+//!   `unsupported`, naming it. dive's counterexample document
+//!   (`counterexample.trace`) is validated by the harness itself with
+//!   `dive-trace`, in-process ([`crate::trace_check`]); a violation whose
+//!   counterexample the validator cannot confirm is at best
 //!   `agree-pending-trace-validation` (ADR 0016).
 //!
 //! **Module search path.** SANY goldens are generated with the oracle's
@@ -624,7 +626,12 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
             Trace {
                 length: u64::try_from(steps.len()).unwrap_or(u64::MAX),
                 ending: TraceEnding::Finite,
-                json: None,
+                // dive's own document (`counterexample.trace`, dive-trace's
+                // format), which the harness validates itself (ADR 0016 §3).
+                json: v["counterexample"]
+                    .get("trace")
+                    .filter(|t| !t.is_null())
+                    .cloned(),
                 steps: Some(steps),
                 omitted: None,
                 json_unavailable: None,
@@ -705,19 +712,17 @@ impl Implementation for DiveImplementation {
             Profile::Tlc => true,
             Profile::Dive => false,
             Profile::TlcWithOverrides(_) => {
-                return crate::trace_check::TraceCheck {
-                    validated: false,
-                    detail: "the validator has no tlc+overrides profile".to_owned(),
-                };
+                return crate::trace_check::TraceCheck::no(
+                    "the validator has no tlc+overrides profile",
+                );
             }
         };
         let paths: Vec<PathBuf> = self.module_path.iter().map(|e| e.path.clone()).collect();
         match crate::trace_check::load_model(req.corpus_root, req.model, &paths, compat_tlc) {
             Ok(spec) => crate::trace_check::validate_counterexample(&spec, result, golden),
-            Err(e) => crate::trace_check::TraceCheck {
-                validated: false,
-                detail: format!("the validator cannot bind the model: {e}"),
-            },
+            Err(e) => crate::trace_check::TraceCheck::no(format!(
+                "the validator cannot bind the model: {e}"
+            )),
         }
     }
 
