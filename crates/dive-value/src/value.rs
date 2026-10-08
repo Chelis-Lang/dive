@@ -232,7 +232,7 @@ pub(crate) struct SetInner {
 /// `dive-value` stores and prints such sets but cannot evaluate them: `dive-eval`
 /// implements this trait.
 pub trait DeferredSet: Send + Sync + fmt::Debug {
-    /// Whether the set is a filter (`{x \in S : P}`) or a map (`{e : x \in S}`).
+    /// Which construct the set is.
     fn kind(&self) -> DeferredKind;
     /// Computes the set's elements in any order; `dive-value` normalizes them.
     ///
@@ -260,6 +260,14 @@ pub enum DeferredKind {
     Filter,
     /// `{e : x \in S}`.
     Map,
+    /// `S \cup T` of sets TLC keeps lazy (`SetCupValue`).
+    Cup,
+    /// `S \cap T` of sets TLC keeps lazy (`SetCapValue`).
+    Cap,
+    /// `S \ T` of sets TLC keeps lazy (`SetDiffValue`).
+    Diff,
+    /// `UNION S` that TLC keeps lazy (`UnionValue`).
+    Union,
 }
 
 pub(crate) enum SetRepr {
@@ -448,6 +456,43 @@ impl Set {
     pub fn ptr_eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
+
+    /// The evaluator-driven source, if this is a deferred set.
+    #[must_use]
+    pub fn as_deferred(&self) -> Option<&Arc<dyn DeferredSet>> {
+        match &self.0.repr {
+            SetRepr::Deferred(d) => Some(d),
+            _ => None,
+        }
+    }
+
+    /// The components of a lazy set: the base of `SUBSET S` or `Seq(S)`, the domain
+    /// and range of `[S -> T]`, the factors of `S1 \X ... \X Sn`, or the field sets of
+    /// `[a : S, ...]` (with their names); empty for other kinds.
+    #[must_use]
+    pub fn components(&self) -> Vec<(Option<Atom>, Value)> {
+        match &self.0.repr {
+            SetRepr::Subset(b) | SetRepr::Seq(b) => vec![(None, b.clone())],
+            SetRepr::FcnSet(d, r) => vec![(None, d.clone()), (None, r.clone())],
+            SetRepr::Product(fs) => fs.iter().map(|f| (None, f.clone())).collect(),
+            SetRepr::RcdSet(fs) => fs
+                .iter()
+                .map(|(a, f)| (Some(a.clone()), f.clone()))
+                .collect(),
+            _ => Vec::new(),
+        }
+    }
+
+    /// The elements of an enumerated set as constructed, without normalizing it (TLC's
+    /// `SetEnumValue.elems` before `normalize()`), or `None` for other kinds or a set
+    /// TLC would already treat as normalized.
+    #[must_use]
+    pub fn raw_elements(&self) -> Option<&[Value]> {
+        match &self.0.repr {
+            SetRepr::Raw(e) if !self.is_tlc_normalized() => Some(e),
+            _ => None,
+        }
+    }
 }
 
 /// Sets with more elements than this hash by cardinality alone, so that hashing a
@@ -484,6 +529,13 @@ pub(crate) fn set_hash(hashes: impl Iterator<Item = u64>, len: u128) -> u64 {
 /// string domain (TLC `FcnRcdValue`: built by `:>`, `@@`, `[x \in S |-> e]` or
 /// enumerated from `[S -> T]`). TLC compares and prints the two differently; equality,
 /// hashing and fingerprints ignore the distinction.
+///
+/// Likewise a tuple remembers whether it is a tuple *literal* (TLC `TupleValue`: built
+/// by `<<...>>`, `Append`, `\o` and the other sequence operators, or enumerated from
+/// `S1 \X S2`) or a function with domain `1..n` built any other way (TLC
+/// `FcnRcdValue`: `[i \in 1..n |-> e]`, `:>`, `@@`, or an element of `[S -> T]`). TLC
+/// reports function-application errors and value kinds differently for the two
+/// ([`Fcn::is_tuple_literal`]); equality, hashing and fingerprints ignore it.
 #[derive(Clone)]
 pub struct Fcn(pub(crate) Arc<FcnInner>);
 
@@ -491,7 +543,9 @@ pub(crate) struct FcnInner {
     pub(crate) hash: u64,
     /// The order records' fields and general domains are sorted in.
     pub(crate) order: ValueOrder,
-    /// TLC `RecordValue` (a record literal) rather than a string-domain `FcnRcdValue`.
+    /// For a record: TLC `RecordValue` (a record literal) rather than a string-domain
+    /// `FcnRcdValue`. For a tuple: TLC `TupleValue` rather than a `FcnRcdValue` with
+    /// domain `1..n`.
     pub(crate) literal: bool,
     /// The cached FP64 fingerprint of this function alone (see
     /// [`crate::fp64::FpCache`]).
@@ -523,6 +577,15 @@ fn fcn_hash<'a>(pairs: impl Iterator<Item = (u64, &'a Value)>, len: usize) -> u6
 
 impl Fcn {
     pub(crate) fn tuple(elems: Vec<Value>) -> Self {
+        Self::tuple_as(elems, true)
+    }
+
+    /// A function with domain `1..n` that TLC keeps as a `FcnRcdValue`.
+    pub(crate) fn tuple_fcn(elems: Vec<Value>) -> Self {
+        Self::tuple_as(elems, false)
+    }
+
+    fn tuple_as(elems: Vec<Value>, literal: bool) -> Self {
         let hash = fcn_hash(
             elems
                 .iter()
@@ -533,7 +596,7 @@ impl Fcn {
         Self(Arc::new(FcnInner {
             hash,
             order: ValueOrder::default(),
-            literal: false,
+            literal,
             fp: crate::fp64::FpCache::new(),
             repr: FcnRepr::Tuple(elems.into_boxed_slice()),
         }))
@@ -578,7 +641,14 @@ impl Fcn {
     /// that has a string domain (see [`Fcn`]).
     #[must_use]
     pub fn is_record_literal(&self) -> bool {
-        self.0.literal
+        self.0.literal && matches!(self.0.repr, FcnRepr::Record(_))
+    }
+
+    /// Whether this is a tuple literal (TLC `TupleValue`), as opposed to a function
+    /// with domain `1..n` that TLC keeps as a `FcnRcdValue` (see [`Fcn`]).
+    #[must_use]
+    pub fn is_tuple_literal(&self) -> bool {
+        self.0.literal && matches!(self.0.repr, FcnRepr::Tuple(_))
     }
 
     /// The order the fields or domain are sorted in.
@@ -863,10 +933,18 @@ impl Value {
         Self::Set(Set::new(ctx.order, SetRepr::Deferred(source)))
     }
 
-    /// The tuple (sequence) `<<e1, ..., en>>`.
+    /// The tuple (sequence) `<<e1, ..., en>>` (TLC `TupleValue`).
     #[must_use]
     pub fn tuple(elems: Vec<Self>) -> Self {
         Self::Fcn(Fcn::tuple(elems))
+    }
+
+    /// The function with domain `1..n` mapping `i` to `elems[i - 1]`, as TLC builds it
+    /// from `[i \in 1..n |-> e]` (a `FcnRcdValue`, not a `TupleValue`; see [`Fcn`]).
+    /// Equal to [`Value::tuple`] of the same elements.
+    #[must_use]
+    pub fn tuple_fcn(elems: Vec<Self>) -> Self {
+        Self::Fcn(Fcn::tuple_fcn(elems))
     }
 
     /// The record literal `[f1 |-> v1, ..., fn |-> vn]` (TLC `RecordValue`). With no
