@@ -1,0 +1,60 @@
+---- MODULE VarsBare13 ----
+VARIABLES AaAa, tmPrepared, rmState, votes, b_2, a1, state, Q, msgs, pc, z, y, x
+Init ==
+  /\ AaAa = 10
+  /\ tmPrepared = FALSE
+  /\ rmState = "s2_0"
+  /\ votes = <<3, "t", FALSE>>
+  /\ b_2 = 50
+  /\ a1 = FALSE
+  /\ state = "s6_0"
+  /\ Q = <<7, "t", FALSE>>
+  /\ msgs = 90
+  /\ pc = FALSE
+  /\ z = "s10_0"
+  /\ y = <<11, "t", FALSE>>
+  /\ x = 130
+Next ==
+  \/ /\ AaAa = 10
+     /\ AaAa' = 11
+     /\ tmPrepared' = TRUE
+     /\ rmState' = "s2_1"
+     /\ votes' = <<4, "t", TRUE>>
+     /\ b_2' = 51
+     /\ a1' = TRUE
+     /\ state' = "s6_1"
+     /\ Q' = <<8, "t", TRUE>>
+     /\ msgs' = 91
+     /\ pc' = TRUE
+     /\ z' = "s10_1"
+     /\ y' = <<12, "t", TRUE>>
+     /\ x' = 131
+  \/ /\ AaAa = 11
+     /\ AaAa' = 12
+     /\ tmPrepared' = FALSE
+     /\ rmState' = "s2_2"
+     /\ votes' = <<5, "t", FALSE>>
+     /\ b_2' = 52
+     /\ a1' = FALSE
+     /\ state' = "s6_2"
+     /\ Q' = <<9, "t", FALSE>>
+     /\ msgs' = 92
+     /\ pc' = FALSE
+     /\ z' = "s10_2"
+     /\ y' = <<13, "t", FALSE>>
+     /\ x' = 132
+  \/ /\ AaAa = 12
+     /\ AaAa' = 13
+     /\ tmPrepared' = TRUE
+     /\ rmState' = "s2_3"
+     /\ votes' = <<6, "t", TRUE>>
+     /\ b_2' = 53
+     /\ a1' = TRUE
+     /\ state' = "s6_3"
+     /\ Q' = <<10, "t", TRUE>>
+     /\ msgs' = 93
+     /\ pc' = TRUE
+     /\ z' = "s10_3"
+     /\ y' = <<14, "t", TRUE>>
+     /\ x' = 133
+====

@@ -28,6 +28,23 @@ which would give `1.7E-10`. TLC prints `1.5E-11` because its default fingerprint
 (`MultiFPSet` with `fpBits = 1`) keeps negative and positive fingerprints in separate
 sub-sets and computes each sub-set's minimum gap separately.
 
+## `tlc-var-order/`
+
+TLC's state graphs of the 29 variable-order specifications in
+`crates/dive-ir/tests/fixtures/var-order/specs/` (4 states each), for
+`tests/tlc_state_fingerprints.rs`. Each `<Name>.dot` was produced in the specification's
+directory by
+
+```sh
+java -XX:+UseParallelGC -Xmx3g -Xss8m -Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8 \
+  -cp tla2tools.jar tlc2.TLC <Name>.tla -config <Name>.cfg -workers 1 -cleanup -tool \
+  -fp 0 -seed 0 -metadir $TMP/states -dump dot $OUT/<Name>
+```
+
+Every run ended with exit code 0 and 4 distinct states. The node ids are
+`TLCState.fingerPrint()` and the labels are `TLCStateMut.toString()`, which lists the
+variables in TLC's `varLoc` order.
+
 ## `tlc-probability/`
 
 `cases.tsv` holds 2,137 cases of TLC's probability printing, sampled from 75,036

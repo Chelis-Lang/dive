@@ -29,7 +29,7 @@ This is the implementation plan for milestone M5 (`docs/ROADMAP.md`).
   - `SYMMETRY`;
   - simulation;
   - `ALIAS` and `POSTCONDITION`, unless WP-D2 gets to them;
-  - randomness under `--compat=tlc` until WP-A3;
+  - randomness under `--compat=tlc` until WP-C5;
   - CommunityModules operators not yet implemented.
 
   Each refusal names the feature.

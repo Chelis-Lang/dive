@@ -223,18 +223,37 @@ Randomness replays exactly, because generation is seeded per state (ADR 0014 §7
 - In phase 2, candidates are sorted by key, so probes walk the table in near-sequential order.
 
 **The fingerprint function.**
-- **Two levels.** A state's fingerprint is FP64 over the per-variable FP64 value fingerprints (`dive-value`'s TLC-compatible FP64), in dive's variable order, under the reported polynomial index.
+- **Default profile: two levels.** A state's fingerprint is FP64 over the per-variable FP64 value fingerprints (`dive-value`'s TLC-compatible FP64), in the IR's variable order, under the reported polynomial index (`StateFingerprinter::new`).
 - **Caching.** Value fingerprints are cached in shared compound values, so a successor that keeps most of its parent's values reuses their fingerprints. The cost of fingerprinting is proportional to what changed.
 - **Not TLC's bits.** These are not TLC's fingerprints: TLC hashes every value's bytes in one stream, in TLC's variable order. Fingerprint values are not part of any compared result.
-- **TLC's own fingerprints** are computed where TLC semantics observe them:
+- **Under `--compat=tlc`: TLC's own.** The store keys on TLC's state fingerprint, bit for bit: `TLCStateMut.fingerPrint`, one FP64 stream over the values in TLC's variable order (`StateFingerprinter::tlc`, given `Ir::tlc_var_order`). It cannot reuse cached value fingerprints, so it costs more per state. The fingerprint set, and therefore the "actual" collision figure and any collision, are then TLC's. TLC's fingerprints are also what TLC semantics observe:
   - for each *expanded* state, to seed randomness under `--compat=tlc` (ADR 0014 §7);
   - for each distinct state, to print TLC's "actual" probability under `--compat=tlc`.
-
-  Both need TLC's variable order (WP-A3).
+- **What the scheme changes.** Only which fingerprints are produced. Verdicts, counts and traces are the same under both schemes, except through a collision. The default profile keeps the cheaper two-level scheme in the IR's order; nothing found while implementing WP-A3 argues for changing that.
+- **`VIEW` and symmetry.** With `VIEW`, TLC fingerprints only the view's value (`val.fingerPrint(FP64.New())`, `TLCStateMut.java:262-270`), so the variable order does not enter. With `SYMMETRY`, it does twice: the smallest permuted state is chosen by comparing values in variable order, then fingerprinted in that order.
 - **The polynomial index.**
   - In the default profile it is fixed at 0 and reported, so identical inputs give identical runs. `--fp N` selects another.
   - Under `--compat=tlc` it is random per run unless `-fp` is given, as in TLC (`TLC.java:230`), and it is always reported.
   - This is result-preserving. Only a collision could make it observable.
+
+**TLC's variable order (WP-A3).** TLC keeps a state's values in an array indexed by each variable's `varLoc`, walks it in that order to fingerprint (`TLCStateMut.fingerPrint`) and to print states (`TLCStateMut.toString`). The order, established from the pinned source (`94d0c50`):
+1. `SpecProcessor.processSpec` takes `rootModule.getVariableDecls()` and gives the `i`-th declaration `varLoc` `i` (`varNames[i].setLoc(i)`).
+2. `ModuleNode.getVariableDecls` (`ModuleNode.java:400-408`) is the *reverse* of `Context.getVariableDecls`, and is cached on first use.
+3. `Context.getVariableDecls` (`Context.java:320-331`) filters `table.elements()`: the enumeration of the root module context's `java.util.Hashtable<Object, Pair>`. The context holds every name visible in the module: the built-in operators (copied by `Context.duplicate`), every extended module's non-`LOCAL` symbols (`mergeExtendContext`), the module's own definitions and declarations, `I!Op` names of instances, and inner-module names (keyed by `SymbolTable.ModuleName`).
+4. Keys hash with `String.hashCode` of the name: `UniqueString.hashCode` and `ModuleName.hashCode` both return it. **Intern tokens play no part in the order.**
+5. The JDK 17 `Hashtable` (the pinned runtime is Temurin 17.0.20.1+1): capacity 11, load factor `0.75f`; when `count >= threshold` an insert first rehashes to `2·capacity + 1`, moving old buckets from last to first, each chain from its head, each entry to the head of its new bucket; a new entry goes to the head of bucket `(hash & 0x7FFFFFFF) % capacity`; `elements()` walks buckets from last to first, chains from the head.
+
+So the order depends on the variables' names, on how many keys the context ends up with (which fixes the capacity), and on when each variable was inserted relative to the resizes. Nothing else matters: two keys' relative position in the table is decided by their own hashes and insertion times and the resize schedule alone, so, for example, the order in which the built-ins were copied cannot change it.
+
+`dive-sema` ports this as `Model::variable_decls` (and `constant_decls`, the same structure, which is TLC's order for processing constants), over its context, which records SANY's insertion order (`crates/dive-sema/src/hashtable.rs`). `dive-ir` records the result as `Ir::tlc_var_order`, a permutation of the `VarId`s, which stay in the context's insertion order. The computation lives in `dive-sema` because it needs the whole context, including built-ins and module names that the IR does not keep; it is a port of a SANY method, not of anything in TLC's evaluator.
+
+**Evidence.** Against the pinned jar (`crates/dive-ir/acceptance/VarOrderDump.java`, which reads `SpecProcessor.getVariablesNodes()` and checks each `getVarLoc()`, or `ModuleNode.getVariableDecls()` through SANY):
+- 29 generated specifications, all matching (`crates/dive-ir/tests/var_order.rs`): 1, 2, 5, 11, 12, 13, 25 and 50 variables, each with no standard module, with `Naturals`, and with five standard modules; names with equal Java hashes (`AaAa`, `BBBB`, `AaBB`, `BBAa`) in both declaration orders; variables inserted before and after 300 definitions; `EXTENDS` diamonds; named, unnamed and `LOCAL` instances and an inner module. The root contexts have 75 to 393 keys. The 72 built-ins alone pass the first four resize thresholds (8, 17, 35, 71), so every variable is inserted at capacity 191 or more; the declarations of `VarsStd25` and `VarsStd50` straddle the resize at 143 keys, and `Epochs` has variables inserted two resizes apart (capacities 191 and 767).
+- 234 repository modules SANY accepts, all matching.
+- All 424 Examples modules (`6a7b26a`), 303 of them with two or more variables (1,639 variables, up to 40 in one module), all matching (`examples/var_order_oracle.rs`).
+- **End to end:** every state of TLC's `-fp 0 -dump dot` output for the 29 specifications (116 states) has its full 64-bit fingerprint reproduced from the specification text: `dive-sema` and `dive-ir` give the order, `dive-value` the values, `StateFingerprinter::tlc` the fingerprint (`crates/dive-store/tests/tlc_state_fingerprints.rs`). The IR's own order gives different fingerprints on the 24 specifications whose orders differ. TLC prints each state's variables in the same order.
+
+**What the fingerprints still need from interning.** The variable order needs nothing from the interner. The values do (ADR 0012): a model value fingerprints its absolute intern token, and sets of strings or model values, and records' fields, are fingerprinted in their normalized order, which is token order. So TLC-identical state fingerprints for such states also need `dive-sema`, `dive-config` and the evaluator to intern names in TLC's encounter order, starting from TLC's pre-interned names (ADR 0012, "For the front end"). Integers, booleans, strings, intervals, tuples and functions over these do not depend on it.
 
 **The collision bound.** Every fingerprint-mode result reports it.
 - **Optimistic:** `distinct × (generated − distinct) / 2^64`, TLC's formula (`AbstractChecker.java:206-208`).

@@ -9,7 +9,9 @@
 //! # Overview
 //!
 //! - [`state`]: states as bytes (a lossless encoding for frontiers and spill, a
-//!   canonical key for the exact store) and dive's two-level FP64 state fingerprint.
+//!   canonical key for the exact store) and the state fingerprint: dive's two-level
+//!   FP64 in the default profile, TLC's own (in TLC's variable order) under
+//!   `--compat=tlc`.
 //! - [`StateSet`]: the seen-state set, with its deterministic, level-synchronous
 //!   [`resolve`](StateSet::resolve). It is implemented by [`FpSet`] (fingerprint
 //!   mode) and [`ExactSet`] (`--store exact`).
