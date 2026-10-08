@@ -565,7 +565,25 @@ pub fn check_result(outcome: &ProcessOutcome, tlc_profile: bool) -> CheckMapping
                 .map(|(c, m)| format!("{c}: {m}"))
                 .collect::<Vec<_>>()
                 .join("\n");
-            return CheckMapping::Result(Box::new(bare(verdict, outcome.exit_code, note)));
+            let mut result = bare(verdict, outcome.exit_code, note);
+            // TLC's class for the rejection (3002 for SANY's), only when dive
+            // claims it; otherwise it stays absent and differs from the
+            // golden's, so a rejection never agrees on an unclaimed class.
+            let tlc = &v["tlc"];
+            if tlc.get("verified").and_then(Value::as_bool) == Some(true) {
+                let tlc_exit = tlc.get("exit_status").and_then(as_i32);
+                if tlc_profile && outcome.exit_code != tlc_exit {
+                    return unclassified(
+                        outcome.exit_code,
+                        format!(
+                            "dive check rejected the spec and exited {:?} under --compat=tlc, but TLC exits {tlc_exit:?}",
+                            outcome.exit_code
+                        ),
+                    );
+                }
+                result.error_class = tlc.get("name").and_then(Value::as_str).map(str::to_owned);
+            }
+            return CheckMapping::Result(Box::new(result));
         }
         _ => {}
     }
@@ -910,6 +928,34 @@ mod tests {
             check_result(&outcome(3, refused), true),
             CheckMapping::Refused(w) if w == "unsupported: SYMMETRY S"
         ));
+        // A rejection carries TLC's class only when dive claims it.
+        let rejected = r#"{"schema_version":1,"command":"check","verdict":"rejected","message":null,
+            "diagnostics":[{"code":"DIVE-S0010","severity":"error","message":"expected `)`"}],
+            "tlc":{"code":3002,"name":"TLC_PARSING_FAILED","exit_status":150,"verified":true}}"#;
+        let CheckMapping::Result(r) = check_result(&outcome(150, rejected), true) else {
+            panic!("a result");
+        };
+        assert_eq!(
+            (r.verdict, r.error_class.as_deref()),
+            (Verdict::ParseError, Some("TLC_PARSING_FAILED"))
+        );
+        let CheckMapping::Result(r) = check_result(&outcome(1, rejected), true) else {
+            panic!("a result");
+        };
+        assert_eq!(
+            r.verdict,
+            Verdict::Unclassified,
+            "TLC's exit under --compat=tlc"
+        );
+        let CheckMapping::Result(r) = check_result(&outcome(1, rejected), false) else {
+            panic!("a result");
+        };
+        assert_eq!(r.error_class.as_deref(), Some("TLC_PARSING_FAILED"));
+        let unclaimed = rejected.replace("\"verified\":true", "\"verified\":false");
+        let CheckMapping::Result(r) = check_result(&outcome(150, &unclaimed), true) else {
+            panic!("a result");
+        };
+        assert_eq!((r.verdict, r.error_class), (Verdict::ParseError, None));
         // No statistics where TLC prints none.
         let init = violation.replace("\"reported_by_tlc\":true", "\"reported_by_tlc\":false");
         let CheckMapping::Result(r) = check_result(&outcome(12, &init), true) else {
