@@ -248,34 +248,46 @@ fn hole_context() -> impl Strategy<Value = Ctx1> {
 }
 
 /// Applies a permutation of the model values to every model value in `v`.
-fn rename(v: &Value, perm: &HashMap<&str, &str>) -> Value {
+/// Renames model values throughout `v`. `None` when the renamed value cannot
+/// be built: renaming can reorder a set whose elements TLC cannot all compare
+/// (records mixed with tuples), and TLC's normalization then refuses it.
+fn rename(v: &Value, perm: &HashMap<&str, &str>) -> Option<Value> {
     if let Some(m) = MODEL_VALUES.iter().find(|m| *v == model(m)) {
-        return model(perm.get(m).copied().unwrap_or(m));
+        return Some(model(perm.get(m).copied().unwrap_or(m)));
     }
-    match v {
+    Some(match v {
         Value::Set(s) => {
-            let items = s.elements(ctx()).expect("finite");
-            Value::set(items.iter().map(|x| rename(x, perm)).collect(), ctx()).expect("set")
+            let items = s.elements(ctx()).ok()?;
+            let renamed = items
+                .iter()
+                .map(|x| rename(x, perm))
+                .collect::<Option<Vec<_>>>()?;
+            Value::set(renamed, ctx()).ok()?
         }
         Value::Fcn(f) => {
             if let Some(items) = f.as_tuple() {
-                Value::tuple(items.iter().map(|x| rename(x, perm)).collect())
+                Value::tuple(
+                    items
+                        .iter()
+                        .map(|x| rename(x, perm))
+                        .collect::<Option<Vec<_>>>()?,
+                )
             } else if let Some(fields) = f.as_record() {
                 let fields = fields
                     .iter()
-                    .map(|(a, x)| (a.clone(), rename(x, perm)))
-                    .collect();
-                Value::record(fields, ctx()).expect("record")
+                    .map(|(a, x)| Some((a.clone(), rename(x, perm)?)))
+                    .collect::<Option<Vec<_>>>()?;
+                Value::record(fields, ctx()).ok()?
             } else {
                 let pairs = f
                     .iter()
-                    .map(|(d, x)| (rename(&d, perm), rename(x, perm)))
-                    .collect();
-                Value::fcn(pairs, ctx()).expect("function")
+                    .map(|(d, x)| Some((rename(&d, perm)?, rename(x, perm)?)))
+                    .collect::<Option<Vec<_>>>()?;
+                Value::fcn(pairs, ctx()).ok()?
             }
         }
         _ => v.clone(),
-    }
+    })
 }
 
 proptest! {
@@ -359,7 +371,10 @@ proptest! {
         perm in Just(MODEL_VALUES.to_vec()).prop_shuffle(),
     ) {
         let perm: HashMap<&str, &str> = MODEL_VALUES.iter().copied().zip(perm).collect();
-        let t: Vec<Value> = s.iter().map(|v| rename(v, &perm)).collect();
+        let t: Option<Vec<Value>> = s.iter().map(|v| rename(v, &perm)).collect();
+        // Renamings TLC cannot normalize are not states; skip them.
+        prop_assume!(t.is_some());
+        let t = t.unwrap_or_default();
         prop_assert_eq!(fp(&s) == fp(&t), key(&s) == key(&t));
     }
 }
