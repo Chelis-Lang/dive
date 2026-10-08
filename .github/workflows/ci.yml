@@ -89,3 +89,39 @@ jobs:
         run: cargo xtask check-layering
       - name: cargo-deny
         run: cargo deny --locked check
+
+  conformance-gate:
+    # Required check name; must match `cargo xtask protect-main`.
+    # PR conformance gate (m5-plan CM1): `dive check --compat=tlc` must agree
+    # with the committed TLC goldens on a fixed model list. Never runs TLC.
+    name: Conformance gate
+    needs: no-ai-authorship
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DIVE_CACHE_DIR: ${{ github.workspace }}/../dive-cache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: release-gate
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Cache oracles, JRE and corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.DIVE_CACHE_DIR }}
+          key: dive-cache-${{ runner.os }}-${{ hashFiles('conformance/oracles.toml', 'conformance/corpora.toml') }}
+      - name: Build harness and dive
+        run: cargo build --release --locked -p dive-conformance -p dive-cli
+      - name: Fetch and verify oracles and corpus
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          target/release/dive-conformance oracle fetch
+          target/release/dive-conformance corpus fetch --corpus examples
+      - name: CM1 gate (1 and 4 workers)
+        run: scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4
