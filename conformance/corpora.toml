@@ -28,4 +28,18 @@ id = "tlaplus-tests"
 repo = "https://github.com/tlaplus/tlaplus"
 commit = "94d0c5070852b37b801bb8998c436383ab7ee37b" # same commit as the default TLC oracle
 license = "MIT"
-layout = "tbd"
+# Modules only: every `.tla` file of TLC's and SANY's own test trees (808
+# files, including SANY's semantic `error_corpus`), for SANY goldens. The
+# models there are driven by JUnit tests, not by manifests, so none is
+# enumerated.
+layout = "modules-only"
+include = [
+  "tlatools/org.lamport.tlatools/test/**",
+  "tlatools/org.lamport.tlatools/test-model/**",
+]
+
+# Modules that crash the pinned SANY: no oracle fact, so no golden. They are
+# reported as `out-of-scope`, never dropped.
+[[corpus.exclude]]
+path = "tlatools/org.lamport.tlatools/test/tla2sany/semantic/error_corpus/E4294_Module_Test.tla"
+reason = "crashes SANY (tlc-2026.10.06.014338): semantic analysis throws util.WrongInvocationException \"Defined more recursive operators than were declared in RECURSIVE statements.\" (Generator.endOpDefNode), wrapped in FrontEndException, exit 255, no error marker. Upstream expects error 4294 (a nested module between RECURSIVE and the definition). dive rejects it with DIVE-E0124 (SANY 4294)"
