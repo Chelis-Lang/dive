@@ -10,6 +10,7 @@ repository.workspace = true
 
 [dependencies]
 dive-config = { workspace = true }
+dive-sema = { workspace = true }
 dive-syntax = { workspace = true }
 serde_json = { workspace = true }
 
