@@ -322,7 +322,10 @@ fn registry_excuses_only_under_the_dive_profile() -> TestResult {
         repo.join("conformance/expected-divergences.toml"),
         "[[divergence]]\nid = \"counts\"\npattern = \"specifications/x/*\"\nprofile = \"dive\"\nexpected_verdict = \"overflow\"\nfields = [\"counts.*\"]\njustification = \"test\"\nlink = \"docs/divergences.md#test\"\n",
     )?;
-    assert_eq!(run(Some(Profile::Dive))?.models[0].outcome, Outcome::Disagree);
+    assert_eq!(
+        run(Some(Profile::Dive))?.models[0].outcome,
+        Outcome::Disagree
+    );
     // A registry entry claiming to apply under the tlc profile is refused.
     std::fs::write(
         repo.join("conformance/expected-divergences.toml"),
