@@ -34,11 +34,13 @@ the current `v1.8.0` pre-release was built from. "1.7.4" means tag `v1.7.4` at
 > acceptance/rejection oracle. The harness must therefore classify SANY results
 > per oracle version, not by exit code alone (details below).
 >
-> **3. The 1.8.0 snapshot changes semantics between pushes.** The commit at
-> master HEAD is titled "Len, Tail, and SubSeq count UTF-16 chars, not characters"
-> (`94d0c50`, 2026-10-06). Every re-pin of the rolling 1.8.0 build can move
-> verdicts. The pin record should hold the `X-Git-Revision` from the jar
-> manifest, not just the SHA-256.
+> **3. The 1.8.x builds change semantics between pins.** Many recent master
+> commits fix TLC answers that were wrong (see `oracle-history.md`). Every re-pin of
+> the rolling 1.8.0 build can move verdicts, so the pin record holds the
+> `X-Git-Revision` from the jar manifest as well as the SHA-256. *Correction
+> (2026-10-08):* an earlier version of this finding said `94d0c50` changed `Len`,
+> `Tail` and `SubSeq` to count UTF-16 units. That commit only adds disabled tests
+> documenting existing behaviour (#1076); 1.7.4 counts the same way.
 >
 > **4. ADR 0005 is slightly inaccurate.** It says Examples CI classifies "by exit
 > code (0, or 10–14)". `tla_utils.py:265-273` (Examples `6a7b26a`) maps only 0, 10,
