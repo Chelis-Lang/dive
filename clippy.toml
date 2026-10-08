@@ -1,2 +1,2 @@
 # Domain terms that clippy::doc_markdown should accept without backticks.
-doc-valid-idents = ["PlusCal", "TLAPS", "SANY", "TLC", "Verus", "..", "TLA+"]
+doc-valid-idents = ["PlusCal", "TLAPS", "SANY", "TLC", "Verus", "CommunityModules", "..", "TLA+"]
