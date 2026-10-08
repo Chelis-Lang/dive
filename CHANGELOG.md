@@ -50,6 +50,34 @@ All notable changes to this project are documented here. The project will follow
   `--compat=tlc`: 59 agree, 9 agree pending trace validation, 72 unsupported,
   0 disagree. Default profile, for information: 59, 7, 72, and 2 disagree, both at a
   violation under canonical exploration order (D-010).
+- `dive-trace` (M5, WP-E1): the independent trace validator (ADR 0016 and its amendment 1).
+  - A versioned counterexample format (`dive_trace::format`, version 1) with a lossless JSON
+    form of values (`value_json`), which `dive check --output json` will embed; TLC's
+    `-dumpTrace json` is read too, by searching the interpretations of its lossy values
+    (`dive_trace::tlc`).
+  - The checks: `Init` and the next-state relation as predicates over the given states,
+    step labels, constraints, earlier invariants and action properties, the claimed
+    invariant or property, assumptions and length. Results are `Valid`, `Invalid` (the
+    first failing state and check) or `Unsupported` (named). Deadlock is refused by name
+    after every other check, because deciding it needs the successor enumerator, which
+    the validator is built without.
+  - Negative controls: by-construction invalid mutants (`dive_trace::mutate`).
+- `dive-api`: `trace` module, a small API for validating traces against a specification,
+  including a Rust program's own implementation traces (`SpecModel`, `TraceDoc::behavior`).
+- `dive validate-trace Spec.tla --trace trace.json [--config X.cfg] [--claim ENDING]
+  [--compat=tlc] [--output json]`.
+- Conformance harness: `trace_validated` is computed by the harness with `dive-trace`,
+  in-process, never taken from dive; a deadlock is confirmed against the golden's own
+  counterexample. New command `trace-controls` runs the positive and negative controls over
+  the golden counterexamples: 12 of the 15 TLC safety counterexamples validate, 3 are refused
+  by name (`TLCGet`, `Bitwise!Xor`, an `ALIAS` without the variables), none is invalid, and
+  every mutant is rejected (D-012). Under `--compat=tlc` the small tier goes from 59 agree
+  and 9 agree-pending-trace-validation to 68 agree; `agree-pending-trace-validation` now
+  means the validator could not confirm the trace, and an invalid trace is a disagreement.
+  `scripts/conformance-gate.sh` accepts only `agree`.
+- `dive check --output json`: `counterexample.trace`, the counterexample in `dive-trace`'s
+  lossless format, which `dive validate-trace` and the harness read.
+- `dive-eval`: `Evaluator::redirected` and `Evaluator::is_value_override`.
 - `dive-eval` (M5, WP-C2): the successor generator `dive_eval::next`, behind the
   `enumerate` feature (ADR 0014 §3 and its WP-C2 amendment):
   - ports of TLC's `getInitStates`, `getNextStates`, `processUnchanged`, `getActions` and

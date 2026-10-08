@@ -141,10 +141,12 @@ dependencies = [
  "dive-config",
  "dive-eval",
  "dive-ir",
+ "dive-model",
  "dive-sema",
  "dive-stdlib",
  "dive-store",
  "dive-syntax",
+ "dive-trace",
  "dive-value",
  "serde_json",
 ]
@@ -192,6 +194,7 @@ dependencies = [
 name = "dive-conformance"
 version = "0.0.0"
 dependencies = [
+ "dive-api",
  "serde",
  "serde_json",
  "sha2",
@@ -289,6 +292,15 @@ dependencies = [
 [[package]]
 name = "dive-trace"
 version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-eval",
+ "dive-ir",
+ "dive-model",
+ "dive-sema",
+ "dive-value",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-value"

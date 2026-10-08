@@ -1,9 +1,10 @@
 //! The `dive` binary.
 //!
 //! `dive parse` (including reading a TLC model configuration with
-//! `--config`), `dive analyze` and `dive check` are implemented. Every other core command
-//! is recognised and refuses with an explicit `unsupported` result until its
-//! backend exists (soundness contract rule 3).
+//! `--config`), `dive analyze`, `dive check` and `dive validate-trace` are
+//! implemented. Every other core command is recognised and refuses with an
+//! explicit `unsupported` result until its backend exists (soundness contract
+//! rule 3).
 #![forbid(unsafe_code)]
 
 use std::io::Write as _;
@@ -30,7 +31,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -397,6 +398,151 @@ fn check_command(
     ExitCode::from(report.exit_code())
 }
 
+/// `dive validate-trace <file> --trace <trace.json> [--config cfg] [--claim ENDING]
+/// [--compat=tlc] [--deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
+///
+/// Validates a counterexample or behavior against the specification with
+/// the independent trace validator (ADR 0016). The trace is in dive's format
+/// or TLC's `-dumpTrace json` (which needs `--claim`, e.g.
+/// `invariant:Inv`). Exit status: 0 valid, 1 invalid (or the specification
+/// is rejected), 2 usage or unreadable input, 3 unsupported.
+#[allow(
+    clippy::too_many_lines,
+    reason = "one command: its options, then loading, validating and reporting"
+)]
+fn validate_trace_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let mut file: Option<&str> = None;
+    let mut cfg: Option<&str> = None;
+    let mut trace: Option<&str> = None;
+    let mut claim: Option<&str> = None;
+    let mut json = false;
+    let mut opts = dive_api::trace::TraceOptions {
+        compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
+        ..Default::default()
+    };
+    let mut it = args.iter();
+    let usage_error = |err: &mut dyn std::io::Write, msg: &str| {
+        let _ = writeln!(err, "error: {msg}");
+        ExitCode::from(EXIT_USAGE)
+    };
+    while let Some(a) = it.next() {
+        match a.as_str() {
+            "--output" => match it.next().map(String::as_str) {
+                Some("json") => json = true,
+                Some("human") => json = false,
+                other => {
+                    return usage_error(
+                        err,
+                        &format!(
+                            "--output expects `human` or `json`, got {}",
+                            other.unwrap_or("nothing")
+                        ),
+                    );
+                }
+            },
+            "--config" | "--trace" | "--claim" => {
+                let Some(v) = it.next() else {
+                    return usage_error(err, &format!("{a} expects a value"));
+                };
+                let slot = match a.as_str() {
+                    "--config" => &mut cfg,
+                    "--trace" => &mut trace,
+                    _ => &mut claim,
+                };
+                if slot.replace(v).is_some() {
+                    return usage_error(err, &format!("{a} given twice"));
+                }
+            }
+            "--compat=tlc" => opts.compat_tlc = true,
+            "--compat=dive" => opts.compat_tlc = false,
+            "--compat" => match it.next().map(String::as_str) {
+                Some("tlc") => opts.compat_tlc = true,
+                Some("dive") => opts.compat_tlc = false,
+                _ => return usage_error(err, "--compat expects `tlc` or `dive`"),
+            },
+            "--deadlock" | "-deadlock" => opts.no_deadlock = true,
+            "--library-path" | "--module-path" => {
+                let Some(dir) = it.next() else {
+                    return usage_error(err, &format!("{a} expects a directory"));
+                };
+                if a == "--library-path" {
+                    opts.library_paths.push(dir.into());
+                } else {
+                    opts.module_paths.push(dir.into());
+                }
+            }
+            s if s.starts_with('-') => {
+                return usage_error(
+                    err,
+                    &format!("unknown option `{s}` for `dive validate-trace`"),
+                );
+            }
+            s => {
+                if file.replace(s).is_some() {
+                    return usage_error(err, "`dive validate-trace` takes one specification");
+                }
+            }
+        }
+    }
+    let (Some(file), Some(trace)) = (file, trace) else {
+        return usage_error(
+            err,
+            &format!(
+                "`dive validate-trace` needs a specification and --trace\n\n{}",
+                usage()
+            ),
+        );
+    };
+    let spec = std::path::Path::new(file);
+    // TLC's default: the configuration next to the specification.
+    let cfg = cfg.map_or_else(|| spec.with_extension("cfg"), std::path::PathBuf::from);
+    let text = match std::fs::read_to_string(trace) {
+        Ok(t) => t,
+        Err(e) => return usage_error(err, &format!("cannot read {trace}: {e}")),
+    };
+    let mut doc = match dive_api::trace::TraceDoc::parse(&text) {
+        Ok(d) => d,
+        Err(e) => return usage_error(err, &format!("{trace}: {e}")),
+    };
+    if let Some(c) = claim {
+        let ending = match dive_api::trace::Ending::parse(c) {
+            Ok(e) => e,
+            Err(e) => return usage_error(err, &format!("--claim: {e}")),
+        };
+        if doc.ending.as_ref().is_some_and(|d| *d != ending) {
+            return usage_error(err, "--claim contradicts the trace's own `ending`");
+        }
+        doc = doc.with_ending(ending);
+    }
+    let model = match dive_api::trace::SpecModel::load(spec, &cfg, &opts) {
+        Ok(m) => m,
+        Err(e @ dive_api::ApiError::Unsupported { .. }) => {
+            let _ = writeln!(err, "{e}; no result produced");
+            return ExitCode::from(EXIT_UNSUPPORTED);
+        }
+        Err(e @ dive_api::ApiError::Rejected { .. }) => {
+            let _ = writeln!(err, "error: {e}");
+            return ExitCode::from(EXIT_REJECTED);
+        }
+        Err(e) => return usage_error(err, &e.to_string()),
+    };
+    let report = model.validate(&doc);
+    if json {
+        let _ = writeln!(out, "{}", dive_api::trace::report_json(&report));
+    } else {
+        let _ = write!(out, "{}", dive_api::trace::render_report(&report));
+    }
+    match report.validation {
+        dive_api::trace::Validation::Valid => ExitCode::SUCCESS,
+        dive_api::trace::Validation::Invalid(_) => ExitCode::from(EXIT_REJECTED),
+        dive_api::trace::Validation::Unsupported(_) => ExitCode::from(EXIT_UNSUPPORTED),
+    }
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut stdout = std::io::stdout().lock();
@@ -414,6 +560,7 @@ fn main() -> ExitCode {
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
+        Some("validate-trace") => validate_trace_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {
             let _ = writeln!(
                 stderr,

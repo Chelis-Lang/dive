@@ -18,6 +18,8 @@ dive-eval = { workspace = true }
 dive-stdlib = { workspace = true }
 dive-store = { workspace = true }
 dive-check = { workspace = true }
+dive-model = { workspace = true }
+dive-trace = { workspace = true }
 serde_json = { workspace = true }
 
 [lints]
