@@ -99,7 +99,7 @@ The seed is not shown in the normal results, so a surprising run cannot easily b
 | **Kind** | Different answer |
 | **Default** | Arbitrary-precision integers |
 | **TLC behaviour** | `--int=tlc` (included in `--compat=tlc`): 32-bit integers with TLC's overflow error |
-| **Status** | implemented in the value layer (`dive-value`, ADR 0011), in both modes. The CLI switch and the default flip follow once both modes pass the conformance harness. |
+| **Status** | implemented in the value layer (`dive-value`, ADR 0012), in both modes. The CLI switch and the default flip follow once both modes pass the conformance harness. |
 
 **What TLC does.** TLA+ defines integers as the mathematical integers, but TLC stores them in 32 bits. Anything outside −2,147,483,648 … 2,147,483,647 stops the run:
 
@@ -125,7 +125,7 @@ Measured on the pinned TLC:
 
 **Why it matters.** Four of the five other Rust or Go TLA+ checkers we measured widen integers silently, with no TLC mode and no indication in their output. dive does better by default and is TLC-exact on request.
 
-**Evidence.** Probe P1, harness fixture `Overflow`, ADR 0010 (owner decision of 2026-10-08), ADR 0011. The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte.
+**Evidence.** Probe P1, harness fixture `Overflow`, ADR 0010 (owner decision of 2026-10-08), ADR 0012. The fixtures `Ov*`, `Ar*` and `ErrCardSubset`/`ErrIntvSize` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts, and dive's messages match them byte for byte.
 
 ---
 
@@ -153,7 +153,7 @@ Measured on the pinned TLC:
 | **Kind** | Different answer |
 | **Default** | A canonical order, independent of the module text |
 | **TLC behaviour** | `--choose-order=tlc` (included in `--compat=tlc`): TLC's order, including string interning order |
-| **Status** | implemented in the value layer (`dive-value`, ADR 0011), in both orders. `--choose-order=tlc` also needs the parser to record names in TLC's encounter order; that part is pending. |
+| **Status** | implemented in the value layer (`dive-value`, ADR 0012), in both orders. `--choose-order=tlc` also needs the parser to record names in TLC's encounter order; that part is pending. |
 
 **What TLC does.** `CHOOSE x \in S : P` picks the first element of `S` that satisfies `P`, in TLC's internal value order. For strings, that order is the order in which each string *first appears in the module text*, not alphabetical order. So adding an unused definition can change what `CHOOSE` returns, and can flip a verdict:
 
@@ -191,7 +191,7 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 **Evidence.**
 
 - Probes P2 and P7 in `docs/survey/competitive.md`.
-- ADR 0010 (owner decision of 2026-10-08) and ADR 0011.
+- ADR 0010 (owner decision of 2026-10-08) and ADR 0012.
 - In `crates/dive-value/tests/fixtures/`:
   - `ChooseIntern` and `ChooseInternUnused` (this example);
   - `PrintChoose`, `PrintSets` and `PrintFcns` (122 printed values in all, matched byte for byte).
@@ -247,10 +247,10 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | TLC's behaviour exactly, in both profiles. The proposal below is **not adopted**. |
+| **Default** | TLC's comparability rules in both profiles. They are exact under `--compat=tlc`; the default profile differs in one corner, described below. The proposal below is **not adopted**. |
 | **Proposed option** | `--comparisons=tla`: answer `=` and `\in` between functions, records, tuples and sets as TLA+ defines them |
 | **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
-| **Status** | proposed (open question 9). TLC's behaviour is implemented and matched in `dive-value`. |
+| **Status** | proposed (open question 12). TLC's behaviour is implemented and matched in `dive-value`. |
 
 **What TLC does.** TLC refuses to compare values of different kinds, which catches real mistakes such as `1 = "a"`. But it also refuses comparisons whose answer TLA+ defines, and its refusals are asymmetric and depend on the order in which elements are written. Measured on the pinned TLC:
 
@@ -265,11 +265,33 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 | `1 \in {1, "a"}` | `TRUE`, because TLC sorts a written set only when it must |
 | `"a" \in {1, 2}` | error |
 
-In TLA+, tuples and records are functions. Two functions with different domains are unequal, and a function is not a member of a set of functions with another domain. So each error above has a defined answer, `FALSE`. And `=` should not depend on which side a value is written on.
+The refusal even depends on *how* the function was built, not only on its value:
 
-**What we propose.** An option that answers these as TLA+ defines them, symmetrically and independently of element order. It would keep the error where TLA+ leaves the answer unspecified (`1 = "a"`, `{1} = 1`), because an error is the sound response there. It changes results: specs that TLC stops with an evaluation error would get a verdict. So it awaits the owner's decision. Until then dive reproduces TLC exactly, including the asymmetry.
+| Expression | TLC |
+|---|---|
+| `[qa \|-> 1, qb \|-> 2] = <<1>>` | error: a record literal refuses non-records |
+| `("qa" :> 1 @@ "qb" :> 2) = <<1>>` | `FALSE`: the same function built with `:>` and `@@` compares sizes first |
+| `[x \in {"qa", "qb"} \|-> 1] = <<1>>` | `FALSE` |
 
-**Evidence.** ADR 0011. The fixtures `AsymSetRecFirst`, `AsymSetTupleFirst`, `AsymEqTupleRec`, `AsymEqRecTuple`, `ErrMemRcdTuple`, `ErrMemProductRec`, `ErrMemEnumStr` and `PrintMember` in `crates/dive-value/tests/fixtures/` hold TLC's transcripts.
+Whether TLC rejects a set also depends on which pairs its insertion sort compares, and so on the string order. `{[fx |-> "qzb", fy |-> 0], <<1>>, [fx |-> "qza", fy |-> 0]}` is a set in TLC (probe `RvCanonAsym`), but the same elements in another order are an error.
+
+In TLA+, tuples and records are functions. Two functions with different domains are unequal, and a function is not a member of a set of functions with another domain. So each error above has a defined answer, `FALSE`. And `=` should not depend on which side a value is written on, or on how the function was built.
+
+**What dive does today.**
+
+- **Under `--compat=tlc`.** dive reproduces all of the above exactly, including the asymmetry and the dependence on how the function was built.
+- **In the default profile, sets.** dive decides whether building a set is an error exactly as TLC does, by running TLC's insertion sort in TLC's name order, whatever order the set is then kept in.
+- **In the default profile, membership.** Membership tests are a binary search in the run's order. If the set mixes values TLC cannot compare with the element being tested, the default profile can meet a different pair from TLC. It may then raise TLC's error where TLC answers, or answer where TLC raises one. This corner needs a set that TLC can build but whose elements are not mutually comparable, such as tuples mixed with records of other sizes.
+
+**What we propose.** An option that answers these as TLA+ defines them, symmetrically and independently of element order and of how a function was built. It would keep the error where TLA+ leaves the answer unspecified (`1 = "a"`, `{1} = 1`), because an error is the sound response there. It changes results: specs that TLC stops with an evaluation error would get a verdict. So it awaits the owner's decision. It would also remove the membership corner above.
+
+**Evidence.**
+
+- ADR 0012.
+- The fixtures in `crates/dive-value/tests/fixtures/` hold TLC's transcripts:
+  - `AsymSetRecFirst`, `AsymSetTupleFirst`, `AsymEqTupleRec` and `AsymEqRecTuple`;
+  - `ErrMemRcdTuple`, `ErrMemProductRec`, `ErrMemEnumStr` and `PrintMember`;
+  - `RvFcnRcd1`–`RvFcnRcd8` and `RvCanonAsym`.
 
 ---
 
@@ -318,6 +340,8 @@ These are recorded candidates. They are not decided, and nothing in dive behaves
 dive refuses rather than approximates (soundness contract rule 3). These are honest refusals, and we track them here so that nobody mistakes them for features.
 
 - **Extremely deep nesting** (`DIVE-S0040`). dive refuses expressions nested more than 256 levels deep, and syntax trees more than 2,048 levels high (for example a chain of thousands of `+`). SANY accepts these. No module in the corpus comes close. Removing the limit is a tracked follow-up.
+- **Very deeply nested values** (`DIVE-V0030`). dive refuses to print, to convert to JSON, or to compare, test for equality or test for membership with TLC's rules, a value nested more than 500 levels deep, such as `<<<<<<...>>>>>>`. Its own equality, ordering, hashing and fingerprints handle any depth, and so does dropping a value. TLC works recursively up to the limit of its JVM stack (`-Xss`; the harness uses 8 MiB). The limit keeps dive safe on a 2 MiB worker stack even in debug builds. No spec in the corpus is known to come close.
+- **Very large sets.** dive enumerates at most 2^31−1 elements of a set (`DIVE-V0020`). TLC's own limit is the same, from Java's `int` sizes. Larger sets that TLC handles without enumerating, such as `0..2147483646` in a state, are handled the same way in dive.
 - **Very deeply nested cfg sets** (`DIVE-C0030`). dive refuses a constant value in a `.cfg` file whose sets are nested more than 1,024 deep. TLC reads them recursively, and stops with a stack overflow at a depth that depends on its `-Xss` setting. No cfg file in the corpus comes close.
 - **PlusCal re-translation during analysis.** When a module contains both a PlusCal
   algorithm and its translation markers, SANY re-translates the algorithm to check it

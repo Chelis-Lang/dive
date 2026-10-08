@@ -155,7 +155,7 @@ The checker (ADR 0015) counts, constrains, deduplicates and checks.
 
 ### 4. Lazy sets
 
-`dive-value` owns set representations, including the `DeferredSet` hook for evaluator-driven filters and maps (ADR 0011). The evaluator decides representations exactly where TLC does:
+`dive-value` owns set representations, including the `DeferredSet` hook for evaluator-driven filters and maps (ADR 0012). The evaluator decides representations exactly where TLC does:
 
 | Construct | Representation |
 |---|---|

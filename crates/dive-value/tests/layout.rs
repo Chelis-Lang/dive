@@ -1,4 +1,4 @@
-//! Representation guarantees from ADR 0011.
+//! Representation guarantees from ADR 0012.
 
 use dive_value::{Atom, Ctx, Fcn, Interner, Set, Value};
 

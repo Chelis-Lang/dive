@@ -1,4 +1,4 @@
-//! Fingerprints: TLC's FP64 (ADR 0011).
+//! Fingerprints: TLC's FP64 (ADR 0012).
 //!
 //! [`Fp64`] ports `tlc2.util.FP64` (Rabin fingerprints over GF(2^64), "Written by Allan
 //! Heydon and Marc Najork"; tlaplus `94d0c50`) and [`TlcFingerprint`] ports each

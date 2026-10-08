@@ -24,7 +24,7 @@ pub enum IntMode {
 /// (`util.UniqueString.compareTo` compares intern tokens), not by their characters.
 /// That order depends on the order in which SANY and TLC first met each name: adding
 /// an unused definition `U == "alpha"` can change `CHOOSE e \in {"zeta", "alpha"} : TRUE`.
-/// The owner decided (open question 8, ADR 0011) that dive's default is a canonical,
+/// The owner decided (open question 8, ADR 0012) that dive's default is a canonical,
 /// text-independent order, and TLC's order is `--choose-order=tlc`, included in
 /// `--compat=tlc`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
@@ -63,7 +63,7 @@ impl Ctx {
     }
 
     /// dive's default semantics: big integers and the canonical order (both
-    /// owner-approved defaults; ADR 0010, ADR 0011).
+    /// owner-approved defaults; ADR 0010, ADR 0012).
     #[must_use]
     pub const fn dive() -> Self {
         Self {

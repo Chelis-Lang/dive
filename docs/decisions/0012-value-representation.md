@@ -1,4 +1,4 @@
-# 0011: Value representation, order and fingerprints
+# 0012: Value representation, order and fingerprints
 
 - **Status:** accepted
 - **Date:** 2026-10-08
@@ -108,18 +108,35 @@ Fingerprints are `tlc2.util.FP64` (64-bit Rabin), applied through each value's `
 
 **Compound values cache their hash.** Sets and functions carry a precomputed or lazily cached 64-bit hash. Hashing is O(1), and inequality is usually decided by the first hash comparison.
 
+**Dropping is iterative.** `SetInner` and `FcnInner` implement `Drop` by moving uniquely owned children onto a work list, so a value nested a million levels deep drops without recursion.
+
+**Integers are numeric everywhere.** Constructors keep integers canonical, but the `Value` variants are public. Equality, ordering, hashing and fingerprints therefore compare integers by value, so a hand-built `BigInt(5)` equals `Int(5)`.
+
 **Functions are canonical by domain:**
 
 - a **tuple** for domain `1..n`, including `<<>>`;
 - a **record** for a non-empty domain of strings, with fields sorted;
 - a **general** function otherwise, with pairs sorted by argument.
 
-Equal functions therefore have equal representations, and printing by domain reproduces TLC's printing.
+Equal functions therefore have equal representations, and equality, hashing and fingerprints depend only on the function.
+
+**A record remembers whether it is a record literal.** TLC keeps a record literal (`[f |-> e]`, or an element of `[f : S]`) as a `RecordValue`. A function with a string domain built any other way (`:>`, `@@`, `[x \in S |-> e]`, or an element of `[S -> T]`) stays a `FcnRcdValue`. The two behave differently:
+
+- **Comparison with a tuple.** `RecordValue` refuses to compare with a non-record outright. `FcnRcdValue` compares sizes first. So `("qa" :> 1 @@ "qb" :> 2) = <<1>>` is `FALSE`, but `[qa |-> 1, qb |-> 2] = <<1>>` is an error (probes `RvFcnRcd1`–`RvFcnRcd8`).
+- **Printing.** `RecordValue` always prints in record syntax. `FcnRcdValue` does so only when every field is a name.
+
+The bit (`Fcn::is_record_literal`) selects TLC's rules in `tlc` and the printer. Equality, hashing and fingerprints ignore it.
 
 **Sets are enumerated or lazy.**
 
 - **Enumerated sets** are kept normalized: sorted and without duplicates.
 - **Raw sets**, built with `Value::set_raw`, reproduce TLC's lazily normalized set enumerations, including linear-scan membership.
+- **TLC's normalization state is observable**, so it is kept apart from dive's caches.
+  - A raw set carries its own flag for TLC's `isNorm`.
+  - Only the operations that normalize in TLC set it: comparison, equality, size, fingerprinting, printing and enumeration.
+  - Hashing, `==`, `cmp_with` and `Debug` may compute and cache the normalized elements, but they never set the flag.
+  - So `<<1>> \in {[qfa |-> 1, qfb |-> 1], [qfa |-> 2, qfb |-> 2]}` stays TLC's error however often the set is hashed. It becomes `FALSE` only once the set is fingerprinted as part of a state (probes `RvMemUnnorm`, `RvMemNorm`).
+- **Only successes are cached.** An enumeration error is recomputed under the caller's context, so its message never depends on who enumerated first.
 - **Lazy sets** cover:
   - `a..b` and `SUBSET S`;
   - `[S -> T]`, `[a : S]` and `S \X T`;
@@ -129,11 +146,15 @@ Equal functions therefore have equal representations, and printing by domain rep
 **How lazy sets behave:**
 
 - **Membership** is decided without enumerating, by porting each class's `member`.
-- **Enumeration** happens at most once (`OnceLock`) and produces normalized order directly:
+- **Streaming.** Elements are generated in normalized order without materializing the set:
+  - intervals ascending;
   - subsets by size, then lexicographically;
   - products, function sets and record sets as odometers.
+
+  Equality, ordering, hashing and fingerprints consume these streams. Only the components (`S`, `T`) are materialized.
+- **Materialization** happens only on request (`Set::elements`), at most once, and is cached.
 - **Infinite sets** refuse enumeration (`DIVE-V0021`).
-- **Size limit:** dive enumerates at most 2^31−1 elements in either mode (`DIVE-V0020`).
+- **Size limit:** dive enumerates at most 2^31−1 elements in either mode (`DIVE-V0020`). Larger finite sets are compared by definition.
 
 **No `unsafe`.**
 
@@ -186,23 +207,40 @@ model values < booleans < integers < strings < finite sets < functions < infinit
 
 `dive_value::tlc` ports `compareTo`, `equals`, `member` and `isEmpty` class by class. It dispatches on dive's equivalent of TLC's class for the left operand, and raises TLC's errors with TLC's messages.
 
-The same rules apply in both profiles. The better default proposed in open question 9 is not adopted.
+TLC's comparability rules apply in both profiles. The better default proposed in open question 12 is not adopted.
 
 **Normalization** (`Value::set`, function domains) is exact and fast:
 
 - **Fast path.** A cheap structural "shape" join proves when every pair of elements is comparable in TLC. Then a stable sort with first-kept deduplication gives exactly TLC's result. This covers sets of integers, strings, records, tuples and so on.
 - **Slow path.** Otherwise dive runs TLC's own algorithm with TLC's checked comparisons: binary insertion (`ValueVec.sort`), or swap-then-insert (`FcnRcdValue.normalize`). This reproduces TLC's result, or TLC's error, including the order-dependent and asymmetric cases.
+- **Both profiles.** Whether TLC's insertion sort hits an incomparable pair depends on the order it sorts in. So the slow path always runs in TLC's name order (intern tokens), and the result is then re-sorted in the run's order. With names interned in TLC's encounter order, the default profile raises exactly TLC's errors too (probe `RvCanonAsym`).
+- **Residual difference.** Membership in a normalized set is a binary search, and its comparisons follow the run's order. In the canonical profile, a membership test that mixes incomparable values can therefore meet a different pair from TLC, and give TLC's error where TLC answers, or the reverse. This is recorded under D-009 in `docs/tlc-differences.md`.
 
-### 5. Equality and hashing
+### 5. Equality, the order and hashing
 
 **`Value` implements total semantic `Eq`/`Hash`, distinct from TLC's checked `equals`.**
 
 - **Never errors.** Values TLC refuses to compare are simply unequal.
 - **Looks through representation.** An interval equals the enumerated set with the same elements.
+- **Iterative.** `==` and `cmp_with` use an explicit work list over enumerated sets and functions, so any nesting is safe.
+- **Never changes anything observable** (see the `isNorm` flag above).
+
+**Sets fall in three classes:**
+
+| Class | Members | Compared by |
+|---|---|---|
+| Intervals | `a..b` | bounds |
+| Finite | at most 2^31−1 elements | cardinality, then element by element in normalized order, streamed |
+| Structural | infinite, larger, or unenumerable (such as a literal `{1, "a"}` that TLC cannot normalize, or an unenumerable deferred set) | definition |
+
+So `0..2147483646 = 0..2147483646` takes constant time, as in TLC.
+
+**Deferred sets have a stable key.** `DeferredSet::key` replaces allocation addresses, so the order never depends on allocation.
 
 **The hash is consistent with `Eq`.** It is order-independent for sets and functions (sums of mixed element hashes), so equal values hash equally whatever their representation and whichever order is active.
 
-**Lazy sets hash their enumeration.** That is computed once and cached. A set that cannot be enumerated hashes and compares by its definition.
+- **Large sets.** A set of more than 65,536 elements hashes by its cardinality alone. Hashing a huge lazy set is then O(1), and equality still compares the elements.
+- **`Seq({})`.** It is the finite set `{<<>>}`, and hashes as such.
 
 ### 6. Fingerprints
 
@@ -217,9 +255,14 @@ dive's fingerprint is TLC's FP64.
 - The goldens pin `-fp 0`.
 - TLC-identical fingerprints allow TLC-exact collision-bound reporting under `--compat=tlc` ("based on the actual fingerprints").
 - They allow state-by-state cross-checking against TLC when a conformance run disagrees.
-- At about 0.44 µs for a small state they are not a bottleneck yet.
+- At about 1 µs for a small state they are not a bottleneck yet.
 
-**Verification.** The low 32 bits (`TLCFP`) match TLC on 22 fixture values. Those include records, nested sets, lazy sets and non-ASCII strings.
+**The traversal is iterative and streams lazy sets.** `0..2147483646` fingerprints in constant memory, as TLC's `IntervalValue.fingerPrint` does.
+
+**Verification.**
+
+- **All 64 bits.** State fingerprints match TLC's on the 28 states of `FpFull`. The reference is TLC's own `-fp 0 -dump dot` output, whose node ids are `TLCState.fingerPrint()`. The states cover integers at the 32-bit bounds, booleans, ASCII, non-ASCII and non-BMP strings, sets, intervals, tuples, records, functions, nested sets, `SUBSET`, `[S -> T]`, `\X` and `[a : S]`.
+- **Low 32 bits.** `TLCFP` matches TLC on 22 further fixture values.
 
 **Model values** fingerprint their intern token. The fingerprint matches TLC's only when the interner's absolute numbering matches TLC's, which needs the front end's encounter-order feed (see Consequences).
 
@@ -237,16 +280,29 @@ dive's fingerprint is TLC's FP64.
 
 **`json::to_tlc_json`** ports `tlc2.module.Json.getNode` with Gson's escaping. That is the value part of `-dumpTrace json`.
 
+### 8. Nesting
+
+**Most operations are iterative.** Dropping, `==`, `cmp_with`, hashing and fingerprinting handle any depth.
+
+**The rest recurse, with a limit.** TLC's checked operations (`tlc::compare`, `equals`, `member`), printing and JSON recurse. They refuse values nested more than `MAX_DEPTH` = 500 levels deep, with `DIVE-V0030`, instead of overflowing the stack.
+
+- **Why 500.** It is safe on a 2 MiB thread stack in debug builds. The measured limit there is about 700 levels.
+- **The pretty-printer** falls back to the one-line form for deeper values. TLC does the same whenever its re-parser fails.
+- **TLC's own limit** is the JVM stack (`-Xss`, 8 MiB in the harness), so TLC handles deeper values. This is listed as a dive limitation in `docs/tlc-differences.md`.
+
 ## Consequences
 
 ### Verified
 
-All of the following is verified without Java (`crates/dive-value/tests/tlc_differential.rs`):
+All of the following is verified without Java (`crates/dive-value/tests/tlc_differential.rs`, `review_adversarial.rs`, `limits.rs`):
 
 - 122 printed values;
 - 55 error messages, byte for byte, covering comparison, equality, membership, overflow, size and literal errors;
-- 4 order-dependent outcomes;
-- the counterexample states and their JSON.
+- 4 order-dependent outcomes, plus the 14 review probes `Rv*`, with outputs and errors;
+- the counterexample states and their JSON;
+- all 64 bits of 28 state fingerprints;
+- the reviewer's adversarial tests, including a 3,000-case fuzz test of every public operation for panic-freedom and cross-API consistency;
+- dropping, `==` and fingerprints at a million and 200,000 levels of nesting.
 
 Property tests cover:
 
@@ -271,7 +327,13 @@ Reproducing the full sequence, including the pre-interned set, standard modules,
 ### Known gaps
 
 - **Unnormalized records.** TLC prints a record in construction order until it is normalized, for example in some error messages. dive's records are always normalized.
-- **Representation-dependent message wording.** A function TLC holds with an explicit `1..n` domain (built with `:>`/`@@`) gives slightly different message wording from a `TupleValue` in rare comparison errors. The error class is the same.
+- **Message wording for explicit `1..n` domains.** TLC holds a function with domain `1..n` in one of three forms:
+  - a `TupleValue` (`<<...>>`);
+  - a `FcnRcdValue` with an interval domain (`[i \in 1..n |-> e]`);
+  - a `FcnRcdValue` with an explicit domain (`:>`/`@@`, `[x \in {1, 2} |-> e]`).
+
+  dive models the first two exactly (probes `RvFcnRcd5`–`RvFcnRcd7`). For the third, a comparison error with a non-integer domain is worded `Attempted to compare integer 1 with non-integer: ...` in TLC and `Attempted to compare integer with non-integer: ...` in dive. Which comparisons fail, and the results, are the same; this follows from the class-by-class port, but no probe covers it.
+- **Canonical-profile membership errors** (§4).
 - **Unicode letter classes.** Java's `Character.isLetter` differs from Unicode's alphabetic property outside ASCII. This only affects the pretty-printer and record-syntax decisions for non-ASCII names.
 - **Lazy set operators.** `UNION`, `\cup` and `\cap` on infinite sets, `Seq` enumeration, `KSubset` and `FcnLambdaValue` are left to `dive-eval` (`DeferredSet`).
 
@@ -281,18 +343,21 @@ Measured on an Apple M3 (8 cores, 24 GB), rustc 1.99.0, with `cargo bench -p div
 
 | Operation | Median |
 |---|---|
-| clone a set of 100 records | 2.8 ns |
-| hash a set of 100 records | 3.6 ns |
-| `=` of two equal 100-record sets, separate allocations | 2.4 µs |
-| TLC `compareTo` of two records | 6.5 ns |
-| membership: 1000-element set | 45 ns |
-| membership: interval | 4.4 ns |
-| normalize 10 integers | 166 ns |
-| normalize 100 integers | 4.1 µs |
-| normalize 1000 integers | 55 µs |
-| normalize 100 records | 10 µs |
-| FP64 of a 3-variable state | 0.44 µs |
-| enumerate `SUBSET` of 10 elements (1024 sets) | 216 µs |
-| print 20 records | 24 µs |
+| clone a set of 100 records | 2.2 ns |
+| hash a set of 100 records | 4.7 ns |
+| `=` of two equal 100-record sets, separate allocations | 3.1 µs |
+| TLC `compareTo` of two records | 18 ns |
+| membership: 1000-element set | 83 ns |
+| membership: interval | 8.6 ns |
+| normalize 10 integers | 265 ns |
+| normalize 100 integers | 3.0 µs |
+| normalize 1000 integers | 41–70 µs |
+| normalize 100 records | 18 µs |
+| FP64 of a 3-variable state | 0.95 µs |
+| enumerate `SUBSET` of 10 elements (1024 sets) | 162 µs |
+| print 20 records | 31 µs |
+| `0..2147483646 = 0..2147483646` (Rust `==`, `tlc::equals`, `cmp_with`) | constant time (under 1 ms in a debug build) |
+
+These numbers are after the review fixes. They pay for the record-literal dispatch, the depth guard on TLC's checked operations and the separate normalization flag. That roughly doubles TLC `compareTo` and membership against the first version, which got those cases wrong.
 
 No comparison with TLC or the other Rust checkers was run for this ADR. That belongs to `dive-bench` once states can be explored end to end.

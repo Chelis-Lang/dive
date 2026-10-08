@@ -9,7 +9,7 @@ All notable changes to this project are documented here. The project will follow
 - Cargo workspace with one crate per charter component, workspace lints,
   pinned toolchain, crate layering enforcement and lean CI.
 - AI authorship protection: commit-msg hook, CI check and agent configuration.
-- `dive-value` (ADR 0011):
+- `dive-value` (ADR 0012):
   - 16-byte immutable, `Send + Sync` values with shared compound values and cached hashes;
   - arbitrary-precision integers (default) and TLC's 32-bit integers with its overflow
     errors (`IntMode`);
@@ -17,10 +17,14 @@ All notable changes to this project are documented here. The project will follow
   - lazy sets (`a..b`, `SUBSET`, `[S -> T]`, `S \X T`, `[a : S]`, `Nat`, `Int`,
     `STRING`, `Seq`, evaluator-driven filters and maps) with membership without
     enumeration;
-  - TLC's checked equality, comparison and membership, with TLC's error messages;
+  - TLC's checked equality, comparison and membership, with TLC's error messages,
+    distinguishing record literals from string-domain functions as TLC does;
   - TLC's value printer and pretty-printer, counterexample state format and JSON form;
-  - TLC's FP64 fingerprints behind a `Fingerprinter` trait;
-  - differential fixtures from the pinned TLC, property tests and benchmarks.
+  - TLC's FP64 fingerprints behind a `Fingerprinter` trait, verified in all 64 bits;
+  - iterative drop, equality, ordering and fingerprints, and streaming of lazy sets,
+    so deep nesting and huge intervals are safe;
+  - differential fixtures from the pinned TLC, the red-team review's adversarial
+    tests, property tests and benchmarks.
 - `dive-syntax`:
   - a TLA+ lexer and parser with a lossless rowan CST, including the proof language;
   - parse acceptance matching the pinned SANY parser;

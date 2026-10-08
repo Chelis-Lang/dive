@@ -2,7 +2,7 @@
 //! fingerprints; model values; lazy and enumerable sets.
 //!
 //! The crate has no internal dependencies (`xtask/src/layering.rs`). Its design is
-//! recorded in ADR 0011 (`docs/decisions/0011-value-representation.md`).
+//! recorded in ADR 0012 (`docs/decisions/0012-value-representation.md`).
 //!
 //! # Overview
 //!
