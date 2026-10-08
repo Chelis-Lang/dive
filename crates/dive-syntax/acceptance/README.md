@@ -127,14 +127,31 @@ single-threaded:
 The largest file, `test-model/Bug156/TE.tla` (2.9 MB of generated trace), takes about
 0.19 s on its own.
 
-## Porting to the harness
+## In the harness
 
-The harness should store SANY's parse verdict per module as a golden. It must use the
-same rules: run with `-s`, attribute a failure only to the module that printed
-`Could not parse module`, and keep `name_mismatch` as its own class. It should then
-compare that golden with `dive parse --output json`:
-- `accepted` and the `DIVE-S0006` diagnostic carry the same information as SANY's
-  verdict and `name_mismatch`;
-- the JSON `schema_version` is 1.
+The conformance harness now owns the corpus part of this check, for tlaplus/Examples,
+the tlaplus `test/**` and `test-model/**` trees (corpus `tlaplus-tests`) and
+CommunityModules:
 
-The mutation campaign is a natural "deep" tier job.
+```sh
+cargo build --release -p dive-cli
+dive-conformance run --impl dive --sany-phase parse --tier all \
+  --corpus examples --corpus tlaplus-tests --corpus community-modules
+```
+
+- It needs no separate `-s` goldens. The parse-phase verdict of each file (`accept`,
+  `name-mismatch`, `reject`) is derived from the full SANY goldens with the same rules
+  as `run_sany.py`:
+  - a failure counts only for the file whose `Could not parse module <M> from file`
+    SANY printed;
+  - `File name '<M>' does not match` is `name-mismatch`.
+
+  This is sound because SANY parses the root file first and stops at the first
+  parse-phase failure, and the golden keeps SANY's text from the first error marker
+  on. A golden that does not determine the verdict is reported as `oracle-error`.
+- It compares that verdict with `dive parse --output json`. `accepted`, with
+  `DIVE-S0006` as the only error, is `name-mismatch`.
+- The nightly `conformance` workflow runs this comparison.
+
+The syntax corpus, the tree-sitter corpus, `tests/sany-cases/` and the mutation
+campaign stay here. Mutants are a natural deep-tier job for the harness.

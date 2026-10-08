@@ -3,7 +3,7 @@
 The differential conformance harness. It:
 - fetches and verifies the pinned TLC/SANY oracles, the Java runtime and the corpora;
 - generates golden results from TLC and SANY;
-- runs an implementation against those goldens: TLC itself today, `dive` and external tools later;
+- runs an implementation against those goldens: TLC itself, `dive` (its front end today: `dive analyze` and `dive parse` against the SANY goldens), and external tools later;
 - writes per-model reports.
 
 Read with ADRs [0002](../../docs/decisions/0002-oracle-pinning.md) (pins), [0003](../../docs/decisions/0003-golden-format-and-provenance.md) (goldens, invocation, classification), [0004](../../docs/decisions/0004-worker-count-and-depth-semantics.md) (workers and depth) and [0005](../../docs/decisions/0005-reuse-examples-manifests.md) (Examples manifests).
@@ -23,7 +23,8 @@ sany.rs           SANY accept/reject
         │
 golden.rs   goldens (payload + provenance)        corpus.rs   manifests, tiers, scope
 compare.rs  outcomes, field diffs, worker invariance, manifest drift
-implementation.rs   Implementation trait: TLC, dive (stub), external adapter (stub)
+implementation.rs   Implementation trait: TLC, dive, external adapter (stub)
+dive.rs             dive: runs the `dive` binary (analyze/parse JSON), module search path
 pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 ```
 
@@ -85,7 +86,17 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
 - v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
 - Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`.
 - Simulation models compare verdict-level fields only.
-- Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The summary asserts that the totals equal the selection.
+- Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The exception is an implementation that refuses every model (`dive` until `dive check` exists): its models are `unsupported`, and the detail notes a missing golden. The summary asserts that the totals equal the selection.
+
+## Corpora
+
+`conformance/corpora.toml` pins each corpus and its `layout`:
+- `examples-manifest` (tlaplus/Examples): modules and models from the per-spec `manifest.json` files (ADR 0005).
+- `modules-only`: every `.tla` file is a module for SANY goldens, and there are no models. Hidden directories are included (CommunityModules keeps smoke tests in `.smoke/`); `.git` is not.
+  - `include = [globs]` narrows the modules (`tlaplus-tests`: `tlatools/org.lamport.tlatools/test/**` and `test-model/**`, 808 files).
+  - `[[corpus.exclude]]` entries (`path`, `reason`) are modules that are enumerated but never run, for example because they crash SANY. They are reported as `out-of-scope` with the reason, never dropped. An exclusion that names no enumerated module is a configuration error.
+  - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
+- `tbd`: not yet enumerated.
 
 ## Commands
 
@@ -98,8 +109,11 @@ corpus fetch [--corpus ID]      # git checkout of pinned corpora; submodules are
 corpus list  [--tier small|deep|all] [--filter GLOB]
 golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only]
 run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
-    [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
+    [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
+    [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
 ```
+
+`run` takes several `--corpus`, into one report and one summary (default: `examples`).
 
 **Common options:**
 - `--jobs N` (default `min(4, cpus/2)`): parallel oracle runs.
@@ -123,6 +137,9 @@ dive-conformance golden generate --tier small                     # all small mo
 dive-conformance run --impl tlc --crosscheck-manifest              # self-consistency + manifest drift
 dive-conformance run --impl tlc:tlc-1.7.4 --no-summary             # cross-oracle diff vs default goldens (reference: never gates)
 dive-conformance run --impl tlc --workers 1,4 --filter 'specifications/ewd840/*'
+cargo build --release -p dive-cli                                  # then, for dive's front end:
+dive-conformance run --impl dive --tier all --corpus examples --corpus tlaplus-tests --corpus community-modules
+dive-conformance run --impl dive --sany-phase parse --corpus tlaplus-tests   # dive parse vs SANY's parse phase
 ```
 
 **`dev capture`** (`--oracle ID --specs DIR --out DIR NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way.
@@ -150,7 +167,7 @@ tmp/                     per-run scratch: an isolated copy of the spec directory
 - `curl`, `git` and `tar` are present on every developer machine and CI runner.
 - Integrity does not depend on them: every artifact is hashed in-process (`sha2`) before use, and checkouts are verified by commit SHA.
 - The GitHub token is passed to curl on stdin (`--config -`), never on a command line.
-- `unzip` is used only to read the jar manifest's `X-Git-Revision`. If it is missing, the revision is simply not recorded.
+- `unzip` reads the jar manifest's `X-Git-Revision` (if it is missing, the revision is simply not recorded), and, for `--impl dive`, extracts the `.tla` files of the verified classpath jars into `jar-modules/<sha256>/` (required there).
 
 **The private oracle asset.** It is fetched through the GitHub REST API: the release by tag, then the asset URL with `Accept: application/octet-stream`. The token comes from `GH_TOKEN`, `GITHUB_TOKEN` or `gh auth token`. The browser download URL answers 404 for private assets even with a token. Public assets are fetched from their URL without a token.
 
@@ -164,6 +181,8 @@ pub trait Implementation: Sync {
     fn is_oracle(&self) -> bool;          // false for anything that is not TLC
     fn check_model(&self, req: &ModelRequest<'_>) -> Result<ImplResult<OracleResult>>;
     fn parse_module(&self, root: &Path, module: &str, timeout: Duration) -> Result<ImplResult<SanyResult>>;
+    // Optional: parse-only mode (`--sany-phase parse`), a wholesale refusal of models,
+    // profile, options, provenance; see the rustdoc.
 }
 ```
 
@@ -178,6 +197,23 @@ pub trait Implementation: Sync {
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
+
+**`dive` (`--impl dive`)** runs the `dive` binary as a black box: `target/release/dive` by default, or `--dive-bin PATH`. Build it first with `cargo build --release -p dive-cli`. The report records the binary's path, SHA-256 and version, and its module search path.
+- **Modules, full phase (default).** Each module runs `dive analyze --output json --module-path ... <file>` from the module's own directory in the corpus checkout. `accepted` decides acceptance. A rejection is `parse-error` when any error is a syntax (`DIVE-Snnnn`) or module-resolution (`DIVE-E00nn`) diagnostic, which SANY reports in its parse phase, and `semantic-error` otherwise. The exception is `DIVE-E0005` (a module defined twice, SANY 4223), which SANY reports as a semantic error. `DIVE-E0001` diagnostics give the unresolved modules. The comparison with the golden is the usual one: acceptance, verdict and unresolved modules.
+- **Modules, parse phase (`--sany-phase parse`).** Each module runs `dive parse --output json <file>`, which parses that one file. It is compared with SANY's parse-phase verdict for the same file (`accept`, `name-mismatch` or `reject`), which is derived from the *existing* full-SANY goldens, so no extra golden is needed. SANY parses the root file first and aborts at the first parse-phase failure, and the golden's `error_text` keeps SANY's attribution line from the first error marker on. So:
+  - `accept` and `semantic-error` goldens mean the file parsed;
+  - a `parse-error` is the file's own when SANY printed `Could not parse module <stem> from file`, a `name-mismatch` when it printed `File name '<stem>' does not match`, and a dependency's failure (so the file parsed) when it names another module or reports a circular dependency, which SANY detects only after every file of the cycle has parsed;
+  - anything else is `oracle-error`, never a guess.
+
+  `--impl tlc --sany-phase parse` derives the same verdict from a fresh SANY run, as a self-check.
+- **Module search path.** It is derived from `conformance/oracles.toml` exactly as the golden oracle's classpath is. SANY looks in the root's directory, then in `tla2sany/StandardModules` inside `tla2tools.jar`, then in the rest of the classpath in order. So every later classpath entry becomes a `--module-path` (searched after dive's standard modules), in order:
+  - the root-level `.tla` files of each classpath jar, extracted once into `$DIVE_CACHE_DIR/jar-modules/<sha256>/`;
+  - each `[[module_library]]` directory: Apalache's `src/tla`, then the TLAPS `library/`.
+
+  Standard modules therefore win over the TLAPS library's own `Bags`, `FiniteSets` and `RealTime`, as they do for SANY (ADR 0011).
+- **Models.** `dive check` does not exist yet, so every model is `unsupported` ("`dive check` is not implemented yet"), with or without a golden. Nothing passes silently, and `unsupported` is not a finding.
+- **Robustness.** A run whose exit code contradicts `accepted` (0 if accepted, 1 if rejected), a crash, missing or unparsable JSON, or a `schema_version` other than 1 is `unclassified`, which is a `disagree`. Exit 3 (`dive` refusing) is `unsupported`. Every run must leave the corpus checkout unmodified.
+- **Profiles.** `--impl-profile` and `DIVE_COMPAT=tlc` are recorded. `dive parse` and `dive analyze` have no profile-dependent behaviour yet. The harness passes `DIVE_COMPAT=tlc` to `dive` under the pure `tlc` profile, and removes it otherwise. A result-changing `--impl-option` makes module outcomes `divergence-mode`, as it does for models.
 
 **External tools (M2)** are described by a TOML file, loaded with `--impl adapter:<file>`:
 
@@ -203,7 +239,12 @@ Goldens are generated, never edited (charter rule 6; ADR 0003).
 - Review the payload diff in the PR. A payload change with an unchanged oracle and corpus is a harness change and needs explaining.
 - **Never regenerate to make a disagreement go away.** `run` refuses to compare against goldens whose corpus commit or jar SHA-256 no longer match the pins.
 
-**Committed goldens.** `conformance/golden/` currently holds an 11-model smoke set for both oracles, plus SANY goldens for their modules, as regression anchors. Full-corpus goldens are generated by the lead and committed separately.
+**Committed goldens.** `conformance/golden/` holds:
+- for `tlc-1.7.4`, an 11-model smoke set with SANY goldens for its modules, as regression anchors;
+- for the gating oracle:
+  - 141 Examples model goldens (the small tier and more) and SANY goldens for all 424 Examples modules;
+  - SANY goldens for `tlaplus-tests` (807 of 808 modules; one SANY crash is excluded in `corpora.toml`);
+  - SANY goldens for `community-modules` (78 modules).
 
 ## Oracle behaviour notes
 
@@ -241,7 +282,8 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 
 ## Limitations
 
-- Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite, the tlaplus repo tests) report "not yet supported".
+- Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite) report "not yet supported". The tlaplus repo tests (`tlaplus-tests`) and CommunityModules are `modules-only`: SANY goldens, no models.
+- `dive check` does not exist, so `--impl dive` compares modules only; models are `unsupported`.
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.
