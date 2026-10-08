@@ -16,7 +16,11 @@ All notable changes to this project are documented here. The project will follow
   - golden generation with provenance (ADR 0003);
   - runs against goldens, with worker-invariance and manifest drift checks;
   - JSON reports and `docs/conformance.md`;
-  - the nightly `conformance.yml` workflow.
+  - the nightly `conformance.yml` workflow;
+  - isolated per-run copies of each spec directory, with `-seed 0`, `-fp 0` and `-Xss` pinned;
+  - a `resource-limit` class for JVM out-of-memory and stack-overflow runs;
+  - strict comparison for non-oracle implementations at every worker count;
+  - an `--impl-option` hook (ADR 0010), where result-changing options yield `divergence-mode`.
 - `conformance/oracles.toml`:
   - per-oracle classpath (v1.7.4 runs without CommunityModules);
   - pinned TLAPS-library and Apalache module libraries.
