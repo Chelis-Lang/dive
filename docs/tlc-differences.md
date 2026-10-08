@@ -250,7 +250,7 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 | **Default** | TLC's comparability rules in both profiles. They are exact under `--compat=tlc`; the default profile differs in one corner, described below. The proposal below is **not adopted**. |
 | **Proposed option** | `--comparisons=tla`: answer `=` and `\in` between functions, records, tuples and sets as TLA+ defines them |
 | **TLC behaviour** | `--comparisons=tlc`, part of `--compat=tlc` |
-| **Status** | proposed (open question 12). TLC's behaviour is implemented and matched in `dive-value`. |
+| **Status** | proposed (open question 12), built but not the default. TLC's behaviour is implemented and matched in `dive-value` and `dive-eval`. The proposed rules for `=` and `\in` are built in `dive-eval` (`Comparisons::Tla`); set construction still follows TLC's rules under that option. |
 
 **What TLC does.** TLC refuses to compare values of different kinds, which catches real mistakes such as `1 = "a"`. But it also refuses comparisons whose answer TLA+ defines, and its refusals are asymmetric and depend on the order in which elements are written. Measured on the pinned TLC:
 
@@ -292,6 +292,35 @@ In TLA+, tuples and records are functions. Two functions with different domains 
   - `AsymSetRecFirst`, `AsymSetTupleFirst`, `AsymEqTupleRec` and `AsymEqRecTuple`;
   - `ErrMemRcdTuple`, `ErrMemProductRec`, `ErrMemEnumStr` and `PrintMember`;
   - `RvFcnRcd1`–`RvFcnRcd8` and `RvCanonAsym`.
+
+---
+
+## D-010: The order in which sets are explored (proposal)
+
+| | |
+|---|---|
+| **Kind** | Different answer, only at a violation |
+| **Default** | TLC's order in both profiles, until the owner decides (open question 9) |
+| **Proposed option** | `--explore-order=value`: explore sets in the run's value order, which is canonical in the default profile (D-006) |
+| **TLC behaviour** | `--explore-order=tlc`, part of `--compat=tlc` |
+| **Status** | proposed (open question 9), built in `dive-eval` (`ExplorationOrder::Value`), not the default |
+
+**What TLC does.** TLC explores the elements of a set in its internal value order: the elements of `\E x \in S`, `\A x \in S`, `{x \in S : P}`, `{e : x \in S}`, `[x \in S |-> e]` and `x' \in S`. For strings and model values, that order is the order in which names first appear in the module (D-006). So the module text decides which successor TLC generates first, and with it which of two violations at the same depth TLC reports:
+
+```tla
+VARIABLE y
+Init == y = "init"
+First == "zeta"
+Next == \E v \in {"alpha", First} : y' = v
+InvAlpha == y # "alpha"
+InvZeta == y # "zeta"
+```
+
+With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 states generated, because `"zeta"` appears in the text before `"alpha"`. Exploring in the canonical order reports `InvAlpha`, also after 2 states.
+
+**What dive does.** dive's `CHOOSE` follows the canonical order (D-006). Its exploration keeps TLC's order in both profiles, so it reports the same first violation as TLC. Canonical exploration is built (`ExplorationOrder::Value` in the library). It would make the whole default profile independent of the module text. Complete searches give the same states, totals and depth either way. Which to make the default is open question 9.
+
+**Evidence.** Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`; `crates/dive-eval/tests/options.rs`.
 
 ---
 
@@ -351,6 +380,14 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - SANY would also reject a module whose re-translation throws an unexpected exception.
     `dive analyze` does not re-translate (that is `dive-pluscal`'s job), so it could accept
     such a module. No corpus module or mutant has shown this.
+- **Evaluation refusals** (`dive-eval`). The evaluator refuses, naming the feature, rather than guess:
+  - a Java-overridden operator dive does not implement yet, such as most CommunityModules operators, `TLCGet`, `TLCSet`, `RandomElement`, `JavaTime`, the `Bags` and `Json` operators and `TLCExt`. TLC never uses these operators' TLA+ definitions, so dive does not either;
+  - `ENABLED`, which needs the successor enumerator;
+  - a function that TLC keeps unevaluated (`[x \in S |-> e]` over an infinite domain, or a recursive function) stored inside another value, when computing it could fail or has side effects;
+  - enumerating `S \X T` or `[a : S]` with an infinite component, a set too large to count when it is enumerated lazily, and `IsFiniteSet` of a lazily evaluated set;
+  - applying a function of 32 or more arguments to a value TLC cannot compare with its domain.
+
+  An evaluation nested deeper than the depth limit is a resource limit, as TLC's stack overflow is.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
 
 ---

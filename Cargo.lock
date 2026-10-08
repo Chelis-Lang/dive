@@ -186,6 +186,13 @@ dependencies = [
 [[package]]
 name = "dive-eval"
 version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-ir",
+ "dive-sema",
+ "dive-value",
+ "proptest",
+]
 
 [[package]]
 name = "dive-ir"
