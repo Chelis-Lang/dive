@@ -141,8 +141,7 @@ impl Parser<'_> {
     /// sequence of steps ending in `QED`.
     pub(super) fn proof(&mut self) -> PResult<Raw> {
         self.enter()?;
-        self.push_proof_level()?;
-        let r = self.proof_inner();
+        let r = self.push_proof_level().and_then(|()| self.proof_inner());
         self.proof_depth -= 1;
         self.leave();
         r

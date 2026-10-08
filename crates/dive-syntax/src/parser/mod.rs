@@ -692,11 +692,7 @@ impl<'s> Parser<'s> {
             }
             root.node(err);
         }
-        let limit = trailer_from.map_or(self.eof(), |f| {
-            u32::try_from(self.toks.iter().take_while(|t| t.full < f).count()).unwrap_or(u32::MAX)
-        });
         let sig: Vec<u32> = self.toks.iter().map(|t| t.full).collect();
-        let _ = limit;
         ParseOutput {
             root,
             kinds: self.kinds,

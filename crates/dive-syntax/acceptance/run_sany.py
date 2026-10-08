@@ -23,11 +23,19 @@ HEADER = "****** SANY2"
 
 def classify(segment, path):
     base = os.path.basename(path)
-    m = re.search(r"Could not parse module (\S+) from file (.+)", segment)
-    if m and (m.group(2).strip() in (path, base)):
-        return "reject"
+    for m in re.finditer(r"Could not parse module (\S+) from file (.+)", segment):
+        if m.group(2).strip() in (path, base):
+            return "reject"
     if "does not match the name" in segment:
         return "name_mismatch"
+    if "Fatal errors" in segment or "Exception" in segment:
+        # A fatal error is explained if it concerns another module: a missing
+        # dependency, or a dependency that failed to parse. Anything else
+        # (for example a Java exception inside SANY's parser) is a crash.
+        explained = ("Cannot find source file" in segment
+                     or re.search(r"Could not parse module \S+ from file", segment))
+        if not explained or "Exception" in segment:
+            return "crash"
     return "accept"
 
 

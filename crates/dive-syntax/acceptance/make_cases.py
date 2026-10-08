@@ -186,9 +186,20 @@ CASES = [
     ("DoubleEquals", "x === 1"),
 ]
 
-HEAD = {
-    "TextBefore": "some text\n(* ---- MODULE fake *)\n",
-}
+def nested_proof(levels):
+    """A theorem whose proof nests `levels` deep (SANY allows 100)."""
+    lines = ["THEOREM TRUE"]
+    for k in range(1, levels + 1):
+        lines.append("  " * (k - 1) + "<%d>1. TRUE" % k)
+    for k in range(levels, 0, -1):
+        lines.append("  " * (k - 1) + "<%d>2. QED" % k)
+    return "\n".join(lines)
+
+
+CASES += [
+    ("ProofDepth100", nested_proof(100)),
+    ("ProofDepth101", nested_proof(101)),
+]
 
 
 def main():
