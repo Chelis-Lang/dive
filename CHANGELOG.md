@@ -17,6 +17,9 @@ All notable changes to this project are documented here. The project will follow
   `DIVE_CACHE_DIR`. Downloads, JRE unpacking, checkouts and jar module extraction run
   under a per-entry advisory file lock (`locks/` in the cache) and re-check under it.
   The README and `AGENTS.md` document a per-worktree `DIVE_CACHE_DIR` for parallel agents.
+- `dive-sema` (issue #30): `DIVE-E0005` (a module defined twice, SANY 4223) is documented
+  as a semantic-phase error, as SANY reports it, not a parse-phase one. The harness
+  already classified it as `semantic-error`.
 - `dive-store` and `dive check` (issue #42): the default profile's two-level state
   fingerprint combined per-value FP64 fingerprints with FP64 again, which is affine
   over GF(2), so the same change made to two variables could cancel; Examples
