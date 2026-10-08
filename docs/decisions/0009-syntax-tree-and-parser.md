@@ -113,7 +113,7 @@ into tlaplus at `test/tla2sany/corpus`, is the best structural test set availabl
 ## Consequences
 
 Evidence for the decision is from the pinned oracle, 2026-10-08.
-- **Parse acceptance agrees with SANY on every module checked, 13,256 in total:**
+- **Parse acceptance agrees with SANY on every module checked, 13,646 in total:**
 
   | Corpus | Modules | Both accept | Both reject | Disagree |
   |---|---|---|---|---|
@@ -121,8 +121,12 @@ Evidence for the decision is from the pinned oracle, 2026-10-08.
   | CommunityModules | 78 | 78 | 0 | 0 |
   | tlaplus `test/**` and `test-model/**` (including `error_corpus`) | 808 | 804 | 4 | 0 |
   | tlaplus syntax corpus | 355 | 326 | 29 | 0 |
-  | Minimal SANY-behaviour cases | 174 | 110 | 64 | 0 |
-  | Mutants of corpus, Examples and test modules (token edits, operator swaps, re-indentation, tabs, CRLF and CR line endings) | 11,417 | 5,807 | 5,610 | 0 |
+  | tree-sitter-tlaplus corpus (`add40814`) | 389 | 362 | 27 | 0 |
+  | Minimal SANY-behaviour cases | 176 | 111 | 65 | 0 |
+  | Mutants of corpus, Examples and test modules (token edits, operator swaps, re-indentation, tabs, CRLF and CR line endings) | 11,416 | 5,806 | 5,610 | 0 |
+
+  One further mutant crashed SANY inside its PlusCal translation validation, not its
+  parser, and is excluded (see the acceptance README).
 
   The procedure is in `crates/dive-syntax/acceptance/README.md`.
 - The syntax corpus also passes a structural comparison against its expected trees.

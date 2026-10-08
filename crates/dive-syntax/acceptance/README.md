@@ -106,12 +106,18 @@ Clone these the same way:
 | CommunityModules `78b98ae` | 78 | 78 | 0 | 0 | 0 |
 | tlaplus `test/**` + `test-model/**` `94d0c50` | 808 | 804 | 4 | 0 | 0 |
 | tlaplus syntax corpus `94d0c50` | 355 | 326 | 29 | 0 | 0 |
-| `tests/sany-cases` | 174 | 110 | 64 | 0 | 0 |
-| Mutants, wave 1 (corpus + small test modules; seeds 11, 22, 33) | 3,483 | 1,290 | 2,193 | 0 | 0 |
+| tree-sitter-tlaplus `test/corpus` `add40814` (includes PlusCal and nonstandard cases) | 389 | 362 | 27 | 0 | 0 |
+| `tests/sany-cases` | 176 | 111 | 65 | 0 | 0 |
+| Mutants, wave 1 (corpus + small test modules; seeds 11, 22, 33; 1 SANY crash excluded, see below) | 3,482 | 1,289 | 2,193 | 0 | 0 |
 | Mutants, wave 2 (corpus + Examples/CommunityModules under 30 KB; seeds 44, 55, 66) | 4,758 | 2,422 | 2,336 | 0 | 0 |
 | Mutants, layout wave (`--layout`: tabs, CRLF/CR, indentation, up to three edits; seeds 77, 88) | 3,176 | 2,095 | 1,081 | 0 | 0 |
 
-No SANY run crashed.
+One SANY run crashed (`java.lang.ArrayIndexOutOfBoundsException`) and is excluded: a
+wave 1 mutant of Examples `LearnProofs/AddTwo.tla` whose only edits are inside comments.
+One of them corrupts the `\* BEGIN TRANSLATION` marker. The crash is in the PlusCal
+translation validation that SANY runs during its parse phase (it printed "Labels added."
+first), not in the TLA+ parser. dive accepts the file, as SANY's parser does. Validating
+PlusCal translations is `dive-pluscal`'s job.
 
 **Performance.** These are `examples/acceptance.rs` parse times, release build, Apple M3,
 single-threaded:
