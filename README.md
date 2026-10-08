@@ -11,6 +11,7 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 - [`docs/CHARTER.md`](docs/CHARTER.md): mission, scope, soundness contract and architecture.
 - [`AGENTS.md`](AGENTS.md): how to work in this repo, for humans and agents.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): milestones.
+- [`docs/tlc-differences.md`](docs/tlc-differences.md): where dive differs from TLC and why, with `--compat=tlc` restoring TLC's exact behaviour.
 - [`docs/decisions/`](docs/decisions/): architecture decision records.
 - [`docs/survey/`](docs/survey/): oracles, corpora and the competitive analysis.
 - [`docs/conformance.md`](docs/conformance.md): latest conformance summary (generated).
