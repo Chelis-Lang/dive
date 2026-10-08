@@ -16,3 +16,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 | `dive-syntax` operator table (`crates/dive-syntax/src/ops.rs`) | tlaplus `tla2sany/parser/Operators.java` (`CanonicalOperators`, `OperatorSynonyms`, `getMixfix`); commit `94d0c50` | MIT | Table ported verbatim |
 | `dive-syntax` corpus test reader (`crates/dive-syntax/tests/corpus.rs`) | tlaplus `test/util/SyntaxCorpusFileParser.java` and `test/tla2sany/parser/TlaPlusSyntaxCorpusTests.java` (expected-failure list); commit `94d0c50` | MIT | Format and expectations matched; the corpus itself is vendored with its licence |
 | `dive-syntax` node naming | tree-sitter-tlaplus `grammar.js` at `add40814` | MIT | Reference only, for node-kind vocabulary |
+| `dive-conformance` `tlc/codes.rs` (`EC_CODES`, `exit_statuses_for`, `EXIT_STATUSES`) | tlaplus/tlaplus `tlc2/output/EC.java` (constants, `EC.ExitStatus`, `errorConstantToExitStatus`) at `5a47802` (v1.7.4) and `94d0c50` | MIT | Data transcribed (codes, names, exit mapping); used to classify oracle output, not ported behaviour |
+| `dive-conformance` `tlc/messages.rs` | tlaplus/tlaplus `tlc2/output/MP.java` (`-tool` message delimiters and classes) | MIT | Format matched (parser written from the format) |
+
+No checker algorithm has been ported yet.
