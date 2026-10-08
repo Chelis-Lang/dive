@@ -1,0 +1,3 @@
+---- MODULE AssumeTemporal ----
+ASSUME []TRUE
+====

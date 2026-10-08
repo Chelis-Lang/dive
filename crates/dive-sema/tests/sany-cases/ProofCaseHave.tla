@@ -1,0 +1,8 @@
+---- MODULE ProofCaseHave ----
+THEOREM TRUE => TRUE
+<1>1. HAVE TRUE
+<1>2. CASE TRUE
+  OBVIOUS
+<1>3. QED
+  OBVIOUS
+====

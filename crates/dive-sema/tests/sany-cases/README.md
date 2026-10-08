@@ -5,7 +5,8 @@ verdict on it: tla2tools 1.8.0 at tlaplus `94d0c50`, run with `-error-codes` by
 `acceptance/run_sany.py`. `tests/sany_cases.rs` checks that dive agrees on every one.
 `acceptance/make_cases.py` regenerates the files.
 
-Most cases pin down an ordinary check. The ones below show SANY behaviour that surprised
+There are 164 cases: 61 accepted and 103 rejected by SANY. Most pin down an ordinary
+check. The ones below show SANY behaviour that surprised
 us when reading or porting SANY. Each was predicted from SANY's source, then confirmed on
 the oracle.
 
@@ -24,6 +25,7 @@ returns success and keeps the first declaration.
 | `DupAssumeTheoremName` | `ASSUME A == TRUE` and `THEOREM A == TRUE` | accept (warning) |
 | `DupStepNames` | two `<1>1.` steps in one proof | accept (warning) |
 | `ExtendsTwoDefs` | `EXTENDS A2, B2`, both defining `x` differently | accept (warning 4800) |
+| `UnnamedInstanceConflict` | `z == 2`, then `INSTANCE P` where `P` defines `z == 1` | accept (warning); the instantiated `z` is silently dropped |
 
 Defining an *operator* twice is an error (`DupDefinition`, 4201), and so is mixing kinds
 (`DupConstVar`, `DefThenTheoremSameName`, `ExtendsConflictKinds`).
@@ -38,6 +40,10 @@ Defining an *operator* twice is an error (`DupDefinition`, 4201), and so is mixi
 - **`ConstantModuleAnyLevel` (accepted).** A module with no variables can be instantiated
   with substitutions of any level, even a temporal one (`N <- []v`). `InstanceNode`
   checks substitution levels only for non-constant modules.
+- **`TemporalInIf` (accepted).** `IF []TRUE THEN x' = x ELSE TRUE` mixes a temporal
+  formula and an action. The mixed-level check (4313) covers `/\`, `\/`, `=>`, `<=>` and
+  junction lists, but not `IF` or `CASE`. Compare `MixedTemporalAction`, which is
+  rejected.
 - **`UnusedBadLevelDef`, `UnusedBadLevelInLet` (rejected).** Level errors are found in
   definitions nobody uses, including definitions inside a `LET` that nobody uses.
 
@@ -52,6 +58,8 @@ Defining an *operator* twice is an error (`DupDefinition`, 4201), and so is mixi
   module of that name from the root file's text (`MonolithSpecExtractor`). That finds the
   inner module itself, so the same module ends up loaded twice. Semantic analysis then
   reports "Multiply-defined module".
+- **`ProofInstanceStep` (rejected, 4223).** The same applies to an `INSTANCE` proof step
+  that names an inner module of the file.
 - **`InnerRedefinesOuter` (rejected, 4201).** An inner module cannot define a name that
   the enclosing module has already defined, because it sees the enclosing module's
   symbols. `InnerSeesOuter` is accepted.
@@ -68,6 +76,10 @@ Defining an *operator* twice is an error (`DupDefinition`, 4201), and so is mixi
   names level 0, and naming any step with `<*>` or `<+>` is an error. (The parser
   computes `<*>` as the enclosing proof level plus one, and the enclosing level is -1 at
   the top.)
+- **`LabelOnAssumeProve`, `ProofNewInNested` (rejected, 4333).** Labels are allowed only
+  inside a definition or a *named* theorem or step: SANY starts collecting labels only for
+  named ones. A label inside an unnamed `THEOREM ASSUME ... PROVE ...` is therefore
+  "not in definition or proof step".
 - **`PickScope` (rejected), `PickAfter` (accepted).** The identifiers a `PICK` introduces
   are not in scope in the `PICK` step's own proof. They are in scope in the following
   steps.
