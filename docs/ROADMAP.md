@@ -69,7 +69,7 @@ This is not a build-or-buy gate: `dive` is built regardless.
 ## M5: First verdicts
 
 - **IR and evaluation:** `dive-ir`, `dive-eval` and the `dive-stdlib` core.
-- **Safety checking:** `dive-check` breadth-first safety checking with one worker, in both exact and fingerprint modes.
+- **Safety checking:** `dive-check` breadth-first safety checking, in both exact and fingerprint modes. It is designed from the start for *deterministic* parallel search (ADR 0010): the first release may run one worker, but its architecture must already be level-synchronous with deterministic ordering, so that `--workers N` gives results identical to TLC's single-worker run.
 - **Trace validation:** the `dive-trace` validator replays every counterexample.
 - **Conformance gate:** the standard conformance tier becomes a PR gate on a small subset.
 
