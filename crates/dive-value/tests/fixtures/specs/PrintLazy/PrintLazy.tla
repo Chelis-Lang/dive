@@ -1,0 +1,25 @@
+---- MODULE PrintLazy ----
+EXTENDS Integers, Sequences, FiniteSets, TLC, TLCExt
+CONSTANTS mvq1, mvq2, T_q1, T_q2, U_q1, mv_q3
+ASSUME PrintT("#interval") /\ PrintT(1..5)
+ASSUME PrintT("#intervalempty") /\ PrintT(5..1)
+ASSUME PrintT("#intervalneg") /\ PrintT(-3..-1)
+ASSUME PrintT("#subsetsmall") /\ PrintT(SUBSET {1, 2})
+ASSUME PrintT("#subsetsix") /\ PrintT(SUBSET (1..6))
+ASSUME PrintT("#subsetseven") /\ PrintT(SUBSET (1..7))
+ASSUME PrintT("#subsetsevenenum") /\ PrintT(SUBSET {1, 2, 3, 4, 5, 6, 7})
+ASSUME PrintT("#fcnset") /\ PrintT([{1, 2} -> {TRUE, FALSE}])
+ASSUME PrintT("#fcnsetbig") /\ PrintT([1..20 -> 1..3])
+ASSUME PrintT("#fcnsetempty") /\ PrintT([{} -> {1}])
+ASSUME PrintT("#product") /\ PrintT({1, 2} \X {"qsi"})
+ASSUME PrintT("#product3") /\ PrintT({1} \X {2} \X {3, 4})
+ASSUME PrintT("#productbig") /\ PrintT((1..100) \X (1..100))
+ASSUME PrintT("#rcdset") /\ PrintT([qfa : {1, 2}, qfb : {TRUE}])
+ASSUME PrintT("#rcdsetbig") /\ PrintT([qfa : 1..2000])
+ASSUME PrintT("#nat") /\ PrintT(Nat)
+ASSUME PrintT("#int") /\ PrintT(Int)
+ASSUME PrintT("#string") /\ PrintT(STRING)
+ASSUME PrintT("#seq") /\ PrintT(Seq({1}))
+ASSUME PrintT("#setofsubset") /\ PrintT({SUBSET {1}, {{}, {1}}})
+ASSUME PrintT("#subsetinset") /\ PrintT({SUBSET (1..7)})
+====
