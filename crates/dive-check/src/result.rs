@@ -231,8 +231,10 @@ impl Verdict {
             // Read from TLC's source (`Tool.checkPostConditionWithContext`),
             // not yet checked against a captured run.
             Self::PostconditionFalse { .. } => class(2404, "TLC_POSTCONDITION_FALSE", false),
-            // The binding stage's errors are checked against TLC (WP-B1).
-            Self::ModelError { code, name, .. } => class(*code, name, true),
+            // The binding stage's errors are checked against TLC (WP-B1);
+            // `TLC_STATES_AND_NO_NEXT_ACTION` (2115) is read from TLC's source
+            // only (`ModelChecker.java:233-245`).
+            Self::ModelError { code, name, .. } => class(*code, name, *code != 2115),
             Self::NotCompletelySpecified { initial: true, .. } => {
                 class(2102, "TLC_INITIAL_STATE", false)
             }

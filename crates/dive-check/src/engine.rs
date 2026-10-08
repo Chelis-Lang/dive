@@ -399,6 +399,23 @@ impl<'a> Search<'a> {
             let stats = self.stats(0);
             return (Some(s), stats);
         }
+        // No action at all: success if no state was queued, otherwise TLC's
+        // `TLC_STATES_AND_NO_NEXT_ACTION`, without statistics
+        // (`ModelChecker.java:233-245`).
+        if m.actions.is_empty() && !next.is_empty() {
+            let stop = Stop {
+                verdict: Verdict::ModelError {
+                    code: 2115,
+                    name: "TLC_STATES_AND_NO_NEXT_ACTION".to_owned(),
+                    message: "No next state actions defined to generate successor states from."
+                        .to_owned(),
+                },
+                in_init: true,
+                path: None,
+                then: None,
+            };
+            return (Some(stop), self.stats(next.len() as u64));
+        }
         // The levels: `Worker.run`.
         let mut level = 1u64;
         while !next.is_empty() {
