@@ -21,6 +21,30 @@ The charter's appendix records factual corrections made since it was written.
   the corpus with the oracle's result, and document it before you implement it.
 - **Ports follow TLC's semantics, not its structure.** Record provenance for every
   ported algorithm in `docs/provenance.md`, naming the Java class or method matched.
+- **Better by default where approved, TLC-compatible always built and proven**
+  (ADR 0010).
+  - `--compat=tlc` is the single global switch (also `DIVE_COMPAT=tlc` and the
+    config key) that makes *every* behaviour precisely TLC-equivalent, including
+    defaults like the worker count, seeding, exit codes and output conventions.
+    Full conformance is enforced in that mode. Every new option must declare its
+    TLC-equivalent setting.
+  - Wherever TLC imposes a handcuff, build a named dive option that does better:
+    single-worker exactness, unseeded or unreplayable randomness, 32-bit
+    integers, silent soundness hazards, or human-only output. "Better" means
+    faster, more deterministic, or more useful to agents and Rust callers.
+  - Never let an oracle limitation become a dive limitation. Goldens use
+    `-workers 1`, but dive itself must scale wide and stay deterministic.
+  - **Result-preserving enhancements** (same answer, better path) are on by
+    default, once the harness shows they equal the TLC golden at every setting.
+  - **Result-changing enhancements** are opt-in unless the owner approved them as
+    the default (see the registry). Their TLC-matching counterpart is always
+    built, and is proven against the goldens under `--compat=tlc`.
+  - Propose new result-changing defaults in `docs/open-questions.md`. Never adopt
+    one silently.
+  - **Nondeterminism must be replayable.** Always report the seed, and make
+    `--seed` reproduce the run exactly.
+  - **Register every handcuff you find** in `docs/divergences.md`, with
+    minimal-spec evidence, before or alongside the implementation.
 - **Divergences** from TLC are opt-in, named, documented in `docs/divergences.md`,
   and tested in both modes.
 - **Decisions** go in numbered ADRs in `docs/decisions/` (copy `0000-template.md`).
