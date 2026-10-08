@@ -18,6 +18,11 @@ All notable changes to this project are documented here. The project will follow
     debug dump and an invariant checker;
   - every module SANY accepts in Examples, the tlaplus tests and CommunityModules lowers
     (`crates/dive-ir/acceptance/README.md`).
+- `dive-ir` action tree (M5, WP-A2): `actions::split` reproduces TLC's split of the
+  next-state relation into actions (`Tool.getActions`), including its exception paths,
+  configuration overrides and TLC's action labels; `actions::shape` gives the
+  guards-and-updates view. On the 141 small-tier Examples models it reproduces TLC's own
+  action list (names, parameters, labels, order and count) for every model.
 - `dive-model`, the configuration-binding stage (stub), and `dive-eval`'s `enumerate`
   feature (stub). `cargo xtask check-layering` rejects a standalone `dive-trace` build
   that enables the enumerator, and the workspace gate builds `dive-trace` on its own

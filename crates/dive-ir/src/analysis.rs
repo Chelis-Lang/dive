@@ -173,12 +173,18 @@ pub(crate) fn compute_effects(ir: &mut Ir) {
             let ops: Vec<&OpRef> = match &n.expr {
                 Expr::Apply { args, .. } => args
                     .iter()
-                    .filter_map(|a| if let Arg::Op(o) = a { Some(o) } else { None })
+                    .filter_map(|a| {
+                        if let Arg::Op { op: o, .. } = a {
+                            Some(o)
+                        } else {
+                            None
+                        }
+                    })
                     .collect(),
                 Expr::Subst { bindings, .. } => bindings
                     .iter()
                     .filter_map(|b| {
-                        if let Arg::Op(o) = &b.value {
+                        if let Arg::Op { op: o, .. } = &b.value {
                             Some(o)
                         } else {
                             None
@@ -268,7 +274,7 @@ fn node_effects(
         Expr::Bool(_) | Expr::Num(_) | Expr::Str(_) | Expr::Tuple(_) | Expr::Record(_) => {
             Effects::NONE
         }
-        Expr::Label { .. } => Effects::NONE,
+        Expr::Label { .. } | Expr::Selected(_) => Effects::NONE,
         Expr::Local(_) => match locals.get(i).copied().flatten() {
             Some(LocalKind::Value) => Effects::NONE,
             Some(LocalKind::Let(d)) => {
@@ -292,14 +298,14 @@ fn node_effects(
                 OpRef::Std(op) => {
                     let key = args.first().and_then(|a| match a {
                         Arg::Expr { expr, .. } => ir.exprs.get(expr.index()).map(|n| &n.expr),
-                        Arg::Op(_) => None,
+                        Arg::Op { .. } => None,
                     });
                     std_effects(*op, key)
                 }
                 other => opref_effects(ir, other, def_eff, escape),
             };
             for a in args {
-                if let Arg::Op(o) = a {
+                if let Arg::Op { op: o, .. } = a {
                     c |= opref_effects(ir, o, def_eff, escape);
                 }
             }
@@ -308,7 +314,7 @@ fn node_effects(
         Expr::Subst { bindings, .. } => {
             let mut c = Effects::NONE;
             for b in bindings {
-                if let Arg::Op(o) = &b.value {
+                if let Arg::Op { op: o, .. } = &b.value {
                     c |= opref_effects(ir, o, def_eff, escape);
                 }
             }
@@ -522,7 +528,7 @@ fn hash_expr(ir: &Ir, e: ExprId, h: &mut Fnv) {
                 for a in args {
                     match a {
                         Arg::Expr { pass, .. } => h.str(&format!("{pass:?}")),
-                        Arg::Op(o) => hash_opref(ir, o, h),
+                        Arg::Op { op: o, .. } => hash_opref(ir, o, h),
                     }
                 }
             }
@@ -558,7 +564,7 @@ fn hash_expr(ir: &Ir, e: ExprId, h: &mut Fnv) {
             Expr::Subst { bindings, .. } => {
                 for b in bindings {
                     h.str(&decl_name(ir, b.decl));
-                    if let Arg::Op(o) = &b.value {
+                    if let Arg::Op { op: o, .. } = &b.value {
                         hash_opref(ir, o, h);
                     }
                 }

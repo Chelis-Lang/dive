@@ -38,6 +38,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod actions;
 mod analysis;
 pub mod effects;
 pub mod expr;
@@ -532,6 +533,20 @@ impl Ir {
             }
         }
         seen
+    }
+
+    /// For each expression, the definition whose frame it is evaluated in
+    /// (the innermost one, for nodes inside `LET` operators and `LAMBDA`s).
+    /// Indexed by [`ExprId`]; `None` for a node no definition reaches.
+    #[must_use]
+    pub fn expr_frames(&self) -> Vec<Option<DefId>> {
+        let mut out = vec![None; self.exprs.len()];
+        analysis::walk_frames(self, |e, stack| {
+            if let Some(o) = out.get_mut(e.index()) {
+                *o = stack.last().copied();
+            }
+        });
+        out
     }
 
     /// A deterministic, human-readable dump of the whole IR, for debugging

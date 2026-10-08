@@ -112,3 +112,91 @@ In the tlaplus tests, the refused operators that can be reached also include:
 - `IOUtils!IODeserialize`, `CSV!CSVWriteRecord`, `Json!JsonDeserialize`,
   `Json!ndJsonSerialize` (I/O);
 - `FiniteSetsExt!kSubset` (CommunityModules).
+
+## The action split (WP-A2)
+
+`dive_ir::actions::split` builds the tree TLC's `Tool.getActions` walks. Expanding it into
+TLC's list of actions needs values, so `dive-model` (WP-B1) does that. The check is
+against TLC's own list.
+
+**The oracle.** `ActionDump.java` constructs TLC's `FastTool` from the pinned jar, as
+`tlc2.TLC` does. It prints, for one model:
+- the next-state relation;
+- the configuration's `<-` overrides;
+- `tool.getActions()`, in order. Each action has its name, its label (`getLocation()`,
+  the string TLC prints in traces), its location, its bound parameters and its whole
+  context.
+
+It reimplements nothing. TLC's coverage report (`-coverage`) cannot replace it: the report
+merges actions that share a location, so it loses their count and parameters.
+`dump_actions.sh` runs one JVM per model, in the model's directory, with the harness
+classpath. The pinned JRE has no compiler, so it needs a JDK 11+ `javac`.
+
+```sh
+python3 -I acceptance/models.py goldens <repository> <examples-checkout> > examples.tsv
+python3 -I acceptance/models.py repo <repository> > repo.tsv
+acceptance/dump_actions.sh <tla2tools.jar> <javac> <pinned java> <libraries> < examples.tsv \
+  > tests/fixtures/actions/tlc-2026.10.06.014338/examples.jsonl
+acceptance/dump_actions.sh ... < repo.tsv > tests/fixtures/actions/tlc-2026.10.06.014338/repo.jsonl
+```
+
+The dumps are generated, never edited.
+
+**The comparison** (`tests/common/action_oracle.rs`). Without an evaluator, dive cannot
+decide the value-dependent choices itself:
+- how many bindings a split `\E` has, in what order, or whether its domain evaluates;
+- whether an inlined operator's arguments evaluate;
+- whether splitting throws.
+
+So the comparison lets TLC's list make each choice. It succeeds only if some consistent
+choice reproduces the list exactly: every action's name, its parameter names, its label
+with TLC's parameter values, the order and the count. Each choice point only allows the
+alternatives TLC's code has, so a disjunct, inlining, name or location that dive got wrong
+cannot be matched. The next-state relation is rooted as TLC roots it:
+- the named definition for `NEXT`;
+- for `SPECIFICATION`, the `A` of the `[][A]_v` at TLC's location;
+- for an instantiated `SPECIFICATION`, TLC's substitution wrapper. This is one action
+  labelled with the `INSTANCE`'s location, and the check is that a substitution with
+  bindings at that location reaches a `[][A]_v`.
+
+The configuration's `<-` overrides of definitions are applied as redirects.
+
+`tests/actions.rs` runs the comparison in CI on the repository's 48 models: the 7
+split-rule fixtures in `tests/fixtures/actions/specs/`, the 19 TLC probes and the harness
+fixtures. TLC rejects 4 of the harness fixtures, so 44 are compared.
+`examples/action_oracle.rs` runs it on the Examples:
+
+```sh
+cargo run --release -p dive-ir --example action_oracle -- --corpus <examples-checkout> \
+  --dump tests/fixtures/actions/tlc-2026.10.06.014338/examples.jsonl \
+  --after "$CM_TLA_DIR" --after "$APALACHE_DIR" --after "$TLAPS_LIBRARY_DIR"
+```
+
+### Results (2026-10-08, `tlc-2026.10.06.014338`, Examples `6a7b26a`)
+
+| Models | Exact match | Instantiated `SPECIFICATION` (one action, label checked) | Mismatch | Actions |
+|---|---|---|---|---|
+| 141 small-tier goldens (140 exhaustive, 1 simulation) | 135 | 6 | 0 | 1,994 |
+| 44 repository models | 44 | 0 | 0 | |
+
+How the 141 models give their next-state relation:
+- 5 use `NEXT`;
+- 120 use a `SPECIFICATION` whose `[][A]_v` is in the root module;
+- 6 use an instantiated `SPECIFICATION`;
+- 10 have none (constant-only models).
+
+42 configurations have `<-` overrides. Two of them, `FiniteMonotonic/MCCRDT` and
+`MCReplicatedLog`, replace `Next` itself. TLC inlines the replacement, and so does
+dive's split with the redirect. The largest model has 93 actions.
+
+The split-rule fixtures pin down the rules that the Examples exercise least:
+- an operator whose lookup is not a definition throws in `getActionsAppl` (TLC casts it
+  to `OpDefNode`);
+- an inlined operator catches that, keeps the actions it already added, and adds the
+  whole application (`SplitThrows`: `G(TRUE)` then `G`);
+- a `\E` catches it and removes what its body added;
+- an empty domain, or one that reads a variable, makes one action (`SplitDomains`);
+- `LET` definitions are not bound while splitting, so a `LET` value used as a disjunct is
+  inlined by name (`SplitLet`);
+- `INSTANCE` substitutions stop the split (`SplitSubst`);
+- `<-` overrides redirect it (`SplitOverride`).

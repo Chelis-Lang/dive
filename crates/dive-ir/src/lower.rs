@@ -1028,7 +1028,8 @@ impl<'a> Lowerer<'a> {
                     r.expr = ExprId(u32::MAX);
                 }
             }
-            return Arg::Op(r);
+            let level = self.m.level(node).into();
+            return Arg::Op { op: r, level };
         }
         let expr = self.expr(node);
         let pass = if !lazy {
@@ -1186,7 +1187,7 @@ impl<'a> Lowerer<'a> {
                         expr,
                         pass: Pass::Direct,
                     },
-                    other @ Arg::Op(_) => other,
+                    other @ Arg::Op { .. } => other,
                 })
                 .collect();
             let e = self.push(
@@ -1643,11 +1644,7 @@ impl<'a> Lowerer<'a> {
                 };
                 Expr::SetFilter { bound, pred }
             }
-            "$Nop" => {
-                let inner = self.operand(d, 0, node);
-                self.bindings.truncate(mark);
-                return inner;
-            }
+            "$Nop" => Expr::Selected(self.operand(d, 0, node)),
             _ => {
                 if let Some(op) = BuiltinOp::from_sany_name(name) {
                     let args = self.operands(d, node);

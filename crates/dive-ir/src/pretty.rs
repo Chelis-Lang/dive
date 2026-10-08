@@ -225,7 +225,7 @@ fn expr(ir: &Ir, e: ExprId, out: &mut String) {
                         }
                         expr(ir, *x, out);
                     }
-                    Arg::Op(o) => {
+                    Arg::Op { op: o, .. } => {
                         let _ = write!(out, "&{}", opref(o));
                     }
                 }
@@ -368,7 +368,7 @@ fn expr(ir: &Ir, e: ExprId, out: &mut String) {
                         }
                         expr(ir, *x, out);
                     }
-                    Arg::Op(o) => {
+                    Arg::Op { op: o, .. } => {
                         let _ = write!(out, "&{}", opref(o));
                     }
                 }
@@ -382,6 +382,7 @@ fn expr(ir: &Ir, e: ExprId, out: &mut String) {
             expr(ir, *body, out);
             out.push(')');
         }
+        Expr::Selected(a) => list(ir, "selected", &[*a], out),
         Expr::Prime(a) => list(ir, "prime", &[*a], out),
         Expr::Unchanged(a) => list(ir, "unchanged", &[*a], out),
         Expr::StepBox { action, sub } => list(ir, "[]_", &[*action, *sub], out),

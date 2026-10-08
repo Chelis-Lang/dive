@@ -75,7 +75,14 @@ pub enum Arg {
         pass: Pass,
     },
     /// An operator argument.
-    Op(OpRef),
+    Op {
+        /// The operator.
+        op: OpRef,
+        /// SANY's level of the argument (the operator's level), which TLC
+        /// reads when it decides whether to inline an application while
+        /// splitting the next-state relation (`Tool.getActionsAppl`).
+        level: crate::Level,
+    },
 }
 
 /// SANY's built-in operators that are not language constructs of their own,
@@ -491,6 +498,11 @@ pub enum Expr {
         /// The body.
         body: ExprId,
     },
+    /// A subexpression reached through a selector without parameters
+    /// (`Op!1`, SANY's `$Nop`). Evaluation sees through it; TLC's split of the
+    /// next-state relation does not (`Tool.getActionsAppl` treats it as a
+    /// leaf).
+    Selected(ExprId),
     /// `lab :: e`, transparent.
     Label {
         /// The label.
@@ -603,6 +615,7 @@ impl Expr {
             Self::ExceptAt { .. } => "ExceptAt",
             Self::Let { .. } => "Let",
             Self::Subst { .. } => "Subst",
+            Self::Selected { .. } => "Selected",
             Self::Label { .. } => "Label",
             Self::Prime { .. } => "Prime",
             Self::Unchanged { .. } => "Unchanged",
@@ -660,6 +673,7 @@ impl Expr {
             | Self::Tuple(items)
             | Self::Cartesian(items) => out.extend(items.iter().copied()),
             Self::Not(a)
+            | Self::Selected(a)
             | Self::Prime(a)
             | Self::Unchanged(a)
             | Self::Enabled(a)
@@ -734,14 +748,14 @@ impl Expr {
             Self::Apply { callee, args } => {
                 out.push(callee);
                 for a in args {
-                    if let Arg::Op(o) = a {
+                    if let Arg::Op { op: o, .. } = a {
                         out.push(o);
                     }
                 }
             }
             Self::Subst { bindings, .. } => {
                 for b in bindings {
-                    if let Arg::Op(o) = &b.value {
+                    if let Arg::Op { op: o, .. } = &b.value {
                         out.push(o);
                     }
                 }

@@ -142,13 +142,22 @@ Expression kinds are explicit Rust enum variants, not SANY's `$`-names. A spec S
 
 ### 4. Actions
 
-**The action tree.** `dive_ir::actions::split(expr) -> ActionTree` mirrors `Tool.getActions` exactly. Its nodes:
-- `Disj(children)`;
-- `ExistsSplit { bounds, body }`: a `\E` whose domains are constant-level;
-- `Inline { def, args, body }`: a user operator with constant-level arguments;
-- `Leaf(ExprId)`.
+**The action tree.** `dive_ir::actions::split(ir, root, name, frame, redirects) -> Split` mirrors `Tool.getActions` and `getActionsAppl` exactly. Its nodes:
+- `Disj { children }`: `\/` and bulleted `\/` lists;
+- `Exists { name, body }`: a bounded `\E` (`OPCODE_be`). Its domains are enumerated in the empty state; whether they evaluate is decided then, not by level, since a state-level domain that does not read a variable evaluates;
+- `Inline { def, constant_args }`: a use of a user definition, which TLC inlines when every argument has constant level (`getLevel`, including operator arguments, whose level `Arg::Op` carries);
+- `Scope { body }`: `LET`, labels and substitution-free `Subst`s, which are transparent;
+- `Leaf { name }`: one action;
+- `Throws`: TLC throws while splitting here;
+- `Configured`: a constant or constant operator, which depends on the configuration.
 
-`LET`, labels and substitution-free `Subst`s are transparent. A `Subst` with substitutions is a leaf.
+A definition's subtree is shared (`Split::defs`), so recursive operators give a finite graph. The rules the implementation had to make explicit, each checked against TLC (below):
+- **Names.** An action is named after the innermost operator inlined around it. An application that is not inlined is one action named after the operator applied (`(OpDefNode) opNode`), including a Java override.
+- **`LET` definitions are not bound while splitting.** A `LET` value used as a disjunct is found by name and inlined, under its own name.
+- **Exceptions.** An operator whose lookup is not a definition, and is not one itself, makes TLC's cast to `OpDefNode` throw `ClassCastException`: a parameter or bound variable bound to a value, a declaration, a theorem name, an operator parameter. So does an expression that is not boolean at all. The nearest enclosing `Inline` catches it, keeps the actions already added, and adds the whole application as one action. An enclosing `Exists` catches it, removes what its body added, and becomes one action. At the top it is TLC's error.
+- **A `Subst` with substitutions is a leaf.** For an instantiated `SPECIFICATION`, TLC wraps the `A` of `[][A]_v` in a new substitution (`Specs.addSubsts`) whose location is the `INSTANCE`'s, and that wrapper is the one action.
+- **Selected subexpressions** (`Op!1`, SANY's `$Nop`) are leaves (`Expr::Selected`).
+- **Overrides.** The configuration's `<-` replacements of definitions come first in TLC's lookup, so `split` takes them as redirects: a use of `Op` inlines `Other`, under `Other`'s name.
 
 **From tree to actions.** Expanding `ExistsSplit` needs values, so it happens when the model is built (§8). The result is the flat, ordered action list TLC uses. Each action has:
 - a leaf expression;
@@ -166,7 +175,9 @@ If a split domain fails to evaluate or is empty, the whole `\E` becomes one acti
 - `[A]_v`, `<A>_v`, `IF`, `CASE`, `\E`, `\A`, `=>`;
 - application of a function-valued lambda.
 
-**The `ActionShape` view.** `dive_ir::actions::shape(action)` returns an `ActionShape` for export and diagnostics:
+**Labels.** `dive_ir::actions::label` formats TLC's `<Name(v1,v2) location>` (`Action.getLocation`). The values are those of the named definition's parameters bound by inlining, joined with `,` and no space. The location is the leaf predicate's. An unnamed action prints as `Action`.
+
+**The `ActionShape` view.** `dive_ir::actions::shape(ir, leaf)` returns an `ActionShape` for export and diagnostics:
 - `name`;
 - `params` (split variables and their domains);
 - `guards` (state-level conjuncts);
@@ -289,11 +300,13 @@ Each of these can change evaluation order, error behaviour or side effects, so e
 
 ## Amendments
 
-**2026-10-08, WP-A1 (lowering).** Implementing the lowering over every corpus module showed four details of the original text to be wrong or incomplete. The sections above now say what was built; the evidence is:
+**2026-10-08, WP-A1 and WP-A2 (lowering and the action tree).** Implementing them over every corpus module showed five details of the original text to be wrong or incomplete. The sections above now say what was built; the evidence is:
 
 1. **Substitutions are dynamic (§2, §3).** The original `SubstRef { slot, primed }` bound substitutions to slots of the instantiated definition's frame. That cannot work: `I!Op`'s body calls the instantiated module's other definitions, which SANY does not copy, and their references to the module's declarations must resolve to `I`'s substitutions. TLC resolves them through its dynamic context (`Tool.evalImplSubstInKind`, `getOpContext`, `SymbolNodeValueLookupProvider.lookup`). `SubstRef` and `OpRef::Subst` now name the declaration and are looked up dynamically; `Subst` bindings have no slots.
 2. **Variables are not strict (§3).** The original list of strict shapes included variables. An unassigned variable fails, and TLC's enumerator relies on a lazy argument naming a variable to assign it (`getVar`), so a variable argument stays lazy.
 3. **Selectors reach `LET` definitions out of scope (§2).** A subexpression selector such as `COp(1, 2)!(3)!++(4, 5)` (tlaplus `test-model/suite/test206.tla`, which SANY accepts) applies a `LET` operator outside its `LET`, inside the `LAMBDA` SANY generates. TLC finds the operator by node, not in its context, and evaluates its body in the context of the use, where the `LAMBDA` binds the names the body needs. Lowering it as a separate top-level definition left 31 unresolved references in the tlaplus tests; lowering it inline, like a `LAMBDA` (`DefScope::Inline`), leaves none.
 4. **Overrides depend on which modules are loaded (§5).** `Naturals` and `Integers` both override the arithmetic operators, with different code, and TLC's last write wins. `StdOp` has one variant per Java method, and matching reproduces TLC's order.
+
+5. **The action tree needs more node kinds than the four first listed (§4).** TLC's split depends on exceptions as well as values. An operator its lookup cannot cast to a definition throws; the nearest inlining or `\E` catches it, and the two treat the actions already added differently. `LET` definitions are not bound while splitting. Configuration overrides redirect the split. The tree therefore has `Scope`, `Throws` and `Configured` nodes, and `split` takes the overrides. It was checked against TLC's own `Tool.getActions()` on the 141 small-tier Examples models: 1,994 actions with every name, parameter and label in order. It was also checked on 44 repository models, including 7 fixtures written to pin each rule (`crates/dive-ir/acceptance/README.md`).
 
 Smaller additions: `LocalRef { up, slot }` for closures over enclosing frames; `Decimal`, `WhilePlus`, `Unbound` and `Unevaluable` nodes; `OpRef::Builtin`, `Const` and `Subst` callees, with `LAMBDA` folded into `Def`; definitions for unnamed assumptions and theorems; the `open` effect; `DeclId`; `lower` returns `Result<Ir, LowerError>`, failing only on rejected input or an internal bug, with refusals recorded in the IR.
