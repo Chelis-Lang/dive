@@ -8,12 +8,11 @@ use dive_conformance::divergence::Profile;
 use dive_conformance::error::{Error, Result};
 use dive_conformance::implementation::{
     DiveImplementation, ExternalAdapter, ImplOption, Implementation, TlcImplementation,
+    classify_with_trace_pass,
 };
 use dive_conformance::oracle::{CheckMode, Java, OracleEnv, TlcJob};
 use dive_conformance::pipeline::{self, GenerateOptions, Limits, RunOptions, Selection};
 use dive_conformance::sany::{self, SanyPhase};
-use dive_conformance::tlc::messages;
-use dive_conformance::tlc::result::{RunFacts, classify};
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -465,6 +464,9 @@ fn eprintln_safe(s: &str) {
 /// (+`.cfg`) and records stdout, stderr, exit code and the JSON trace as test
 /// fixtures, plus SANY's output on the module. `--seed` replaces the harness's
 /// `-seed 0` (for randomization fixtures).
+/// The transcript is the clean run's (no `-dumpTrace`); a counterexample's
+/// JSON comes from the cross-checked trace pass, run with the same seed,
+/// whose command is recorded in `.trace.command`.
 fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
     let specs = o
         .specs
@@ -487,7 +489,7 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
     for name in &o.positional {
         let module = format!("{name}/{name}.tla");
         let config_path = format!("{name}/{name}.cfg");
-        let inv = env.run_tlc(&TlcJob {
+        let job = TlcJob {
             corpus_root: &specs,
             module: &module,
             config: &config_path,
@@ -497,7 +499,12 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
             timeout: Duration::from_secs(300),
             xmx: &lim.xmx,
             seed: o.seed.unwrap_or(0),
-        })?;
+            dump_trace: false,
+        };
+        let inv = env.run_tlc(&job)?;
+        // The transcript is the clean run's; a counterexample's JSON comes
+        // from the cross-checked trace pass, exactly as for goldens (#35).
+        let (result, traced) = classify_with_trace_pass(&env, &job, &inv)?;
         let write = |suffix: &str, text: &str| {
             let p = dir.join(format!("{name}.{suffix}"));
             std::fs::write(&p, text).map_err(|e| Error::io(&p, &e))
@@ -510,20 +517,23 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
                 .exit_code
                 .map_or_else(|| "none\n".to_owned(), |c| format!("{c}\n")),
         )?;
-        if let Some(t) = &inv.trace_json {
+        // A recapture must not leave an earlier run's trace files behind.
+        for suffix in ["trace.json", "trace.command"] {
+            let p = dir.join(format!("{name}.{suffix}"));
+            if p.exists() {
+                std::fs::remove_file(&p).map_err(|e| Error::io(&p, &e))?;
+            }
+        }
+        let json = result.trace.as_ref().is_some_and(|t| t.json.is_some());
+        if let Some(t) = traced.as_ref().and_then(|t| t.trace_json.as_ref())
+            && json
+        {
             write("trace.json", t)?;
         }
         write("command", &(inv.command.join(" ") + "\n"))?;
-        let result = classify(
-            &messages::parse(&inv.outcome.stdout),
-            &RunFacts {
-                exit_code: inv.outcome.exit_code,
-                timed_out: inv.outcome.timed_out,
-                trace_json: inv.trace_json.as_deref(),
-                simulate: false,
-                stderr: Some(&inv.outcome.stderr),
-            },
-        );
+        if let Some(t) = &traced {
+            write("trace.command", &(t.command.join(" ") + "\n"))?;
+        }
         let sany_inv = env.run_sany(
             &specs,
             &format!("{name}/{name}.tla"),

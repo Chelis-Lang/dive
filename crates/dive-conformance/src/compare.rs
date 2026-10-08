@@ -441,6 +441,7 @@ mod tests {
                 json: None,
                 steps: None,
                 omitted: None,
+                json_unavailable: None,
             }),
             error_codes: vec![],
             warning_codes: vec![],

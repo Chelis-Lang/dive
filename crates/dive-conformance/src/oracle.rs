@@ -21,8 +21,16 @@
 //! - `-fp 0` and `-seed 0`, always: TLC otherwise picks a random fingerprint
 //!   polynomial and a random seed per run, and the seed matters in exhaustive
 //!   search too (`RandomElement`, `Randomization`; Examples `SpanTreeRandom`);
-//! - `-dumpTrace json <file>` where the oracle supports it (not v1.7.4);
 //! - `-Xmx`, configurable, and `-Xss` pinned ([`JVM_STACK`]).
+//!
+//! `-dumpTrace json <file>` is *not* part of the run that decides a result:
+//! it makes TLC extend the root module with `_JsonTrace`, which loads
+//! `TLCExt`, `Json` and `Integers`, so `Integers`' Java overrides apply even
+//! to a spec that extends only `Naturals` (issue #35). It is passed only in
+//! the separate trace pass ([`TlcJob::dump_trace`]), whose sole output kept
+//! is the JSON document (see
+//! [`crate::implementation::classify_with_trace_pass`]). The flag audit is
+//! in the harness README ("Oracle invocation: flag audit").
 //!
 //! Every job runs in a fresh scratch copy of the part of the corpus it needs
 //! ([`isolate`]); the cached checkout is never a working directory.
@@ -242,6 +250,11 @@ pub struct TlcJob<'a> {
     pub xmx: &'a str,
     /// `-seed`. Goldens always use 0; `dev capture --seed` sets others.
     pub seed: i64,
+    /// Pass `-dumpTrace json <file>` (when the oracle supports it). Only the
+    /// trace pass sets this: the flag changes which Java overrides TLC
+    /// installs, so a run with it is never the source of a verdict, count
+    /// or error (issue #35).
+    pub dump_trace: bool,
 }
 
 /// The raw outcome of one oracle invocation.
@@ -468,7 +481,7 @@ impl OracleEnv {
             .arg("-metadir")
             .arg(scratch.path().join("states"));
         let trace_file = scratch.path().join("trace.json");
-        if self.capabilities.dump_trace_json {
+        if job.dump_trace && self.capabilities.dump_trace_json {
             cmd.args(["-dumpTrace", "json"]).arg(&trace_file);
         }
         let command = self.redacted_command(&cmd, scratch.path(), &work);

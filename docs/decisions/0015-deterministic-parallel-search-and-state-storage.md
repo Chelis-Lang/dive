@@ -98,7 +98,7 @@ After the enumeration:
 **Equality with TLC.**
 - With TLC's value order (`--compat=tlc`), 𝒪 is exactly TLC's single-worker execution order, so every reported field equals TLC's `-workers 1` output.
 - The only exception is a fingerprint collision, which neither tool can rule out in fingerprint mode (§5). Under exact storage, dive explores what TLC would have explored without collisions.
-- This depends on dive's intern order being TLC's. Names must be interned in the order TLC meets them, including the standard modules TLC always loads, which TLC parses even without `EXTENDS` (probe `StringOrderPreinterned`). That is the `dive-value`/`dive-sema` interner's contract for `--choose-order=tlc`, and the string-order probes test it.
+- This depends on dive's intern order being TLC's. Names must be interned in the order TLC meets them, in the modules the spec loads (probe `StringOrderPreinterned`). TLC parses no standard module that the spec does not load; an earlier version of this paragraph said it did, but that observation was an artefact of the harness passing `-dumpTrace json` (issue #35). That is the `dive-value`/`dive-sema` interner's contract for `--choose-order=tlc`, and the string-order probes test it.
 - This is the definition of "same counterexample" (charter rule 2, ADR 0004): the same states, labels and length as TLC's single-worker trace, modulo how TLC reconstructs concrete states (§4).
 
 ### 2. Level-synchronous search with a deterministic merge
