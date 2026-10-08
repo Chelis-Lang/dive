@@ -1,6 +1,6 @@
 # Divergences and enhancements
 
-`dive --compat=tlc` matches the pinned TLC exactly and is proven against the full corpus. dive's default profile is TLC-compatible except where the owner has approved a better default. Wherever TLC's behaviour is a handcuff, dive builds a named option that does better. See [ADR 0010](decisions/0010-tlc-compatible-defaults-dive-enhancements.md) for the rule. This file is the registry. Every TLC handcuff found gets a row here, *before or with* its implementation.
+`dive --compat=tlc` matches the pinned TLC exactly and is proven against the full corpus. dive's default profile is TLC-compatible except where the owner has approved a better default. Wherever TLC's behaviour is a handcuff, dive builds a named option that does better. See [ADR 0010](decisions/0010-tlc-compatible-defaults-dive-enhancements.md) for the rule. This file is the terse registry. Its user-facing narrative companion, [`tlc-differences.md`](tlc-differences.md), explains each entry with an example; every row here has a `D-NNN` entry there, kept in sync in the same PR. Every TLC handcuff found gets a row here, *before or with* its implementation.
 
 **Kinds:**
 - **preserving**: a result-preserving enhancement. It changes how dive gets the answer, never the answer. It may default to on once the harness shows equality with the TLC golden at every setting.
