@@ -1,17 +1,16 @@
-//! Enumeration of lazy sets, in normalized order, and set sizes.
+//! Set sizes and enumeration.
 //!
-//! Each lazy set is generated directly in the order normalization would produce
-//! (as TLC's `toSetEnum` does): `SUBSET S` by size and then lexicographically,
-//! `[S -> T]`, `S \X T` and `[a : S]` as odometers whose last position varies fastest.
-//! Sizes follow TLC's `size()` methods, including its 32-bit overflow errors in
-//! [`IntMode::Tlc`].
+//! [`size`] follows TLC's `size()` methods, including its 32-bit overflow errors in
+//! [`IntMode::Tlc`]; [`quiet_size`] is the mathematical size, used by equality,
+//! ordering and hashing. Enumeration materializes a [stream](crate::stream) of the
+//! elements in normalized order.
 
 use crate::ctx::{Ctx, IntMode};
 use crate::error::{ErrorKind, Result, ValueError};
-use crate::int::Int;
 use crate::print::{ppr, to_tlc_string_lenient};
+use crate::stream::{not_enumerable, stream};
 use crate::tlc::is_empty;
-use crate::value::{Fcn, Set, SetRepr, Value};
+use crate::value::{Set, SetRepr, Value};
 
 /// The most elements dive will materialize in one set.
 pub const MAX_ENUMERATION: u64 = i32::MAX as u64;
@@ -20,7 +19,7 @@ fn p(v: &Value, ctx: Ctx) -> String {
     ppr(&to_tlc_string_lenient(v, ctx))
 }
 
-fn too_large(what: &Value, n: Option<u64>, ctx: Ctx) -> ValueError {
+fn too_large(what: &Value, n: Option<u128>, ctx: Ctx) -> ValueError {
     ValueError::new(
         ErrorKind::TooLarge,
         match n {
@@ -36,30 +35,71 @@ fn too_large(what: &Value, n: Option<u64>, ctx: Ctx) -> ValueError {
     )
 }
 
-pub(crate) fn not_enumerable(what: &Value, ctx: Ctx) -> ValueError {
-    ValueError::new(
-        ErrorKind::NotEnumerable,
-        format!(
-            "Attempted to enumerate the infinite or non-enumerable set\n{}",
-            p(what, ctx)
-        ),
-    )
-}
-
 /// Whether a set is infinite. Conservative only for sets built from infinite parts.
 pub(crate) fn is_infinite(s: &Set) -> bool {
     let inf = |v: &Value| matches!(v, Value::Set(t) if is_infinite(t));
     match s.repr() {
         SetRepr::Nat | SetRepr::Int | SetRepr::Strings => true,
-        SetRepr::Seq(r) => {
-            !matches!(r, Value::Set(t) if !is_infinite(t) && t.elements(Ctx::default()).is_ok_and(|e| e.is_empty()))
-        }
+        SetRepr::Seq(r) => quiet_component_size(r) != Some(0),
         SetRepr::Subset(b) => inf(b),
         SetRepr::FcnSet(d, r) => inf(d) || inf(r),
         SetRepr::RcdSet(fs) => fs.iter().any(|(_, v)| inf(v)),
         SetRepr::Product(fs) => fs.iter().any(inf),
         _ => false,
     }
+}
+
+fn quiet_component_size(v: &Value) -> Option<u128> {
+    match v {
+        Value::Set(s) => quiet_size(s),
+        _ => None,
+    }
+}
+
+/// The mathematical number of elements, or `None` when the set is infinite, cannot
+/// be enumerated, or has more than `u128::MAX` elements. Changes nothing observable.
+pub(crate) fn quiet_size(s: &Set) -> Option<u128> {
+    let quiet = Ctx {
+        int_mode: IntMode::Big,
+        order: s.order(),
+    };
+    match s.repr() {
+        SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Deferred(_) => {
+            s.quiet_elements(quiet).ok().map(|e| e.len() as u128)
+        }
+        SetRepr::Interval(lo, hi) => {
+            if hi < lo {
+                return Some(0);
+            }
+            u128::try_from(hi.to_big() - lo.to_big() + 1u32).ok()
+        }
+        SetRepr::Subset(b) => {
+            let n = quiet_component_size(b)?;
+            (n < 128).then(|| 1u128 << n)
+        }
+        SetRepr::FcnSet(d, r) => {
+            let dn = quiet_component_size(d)?;
+            if dn == 0 {
+                return Some(1);
+            }
+            let rn = quiet_component_size(r)?;
+            rn.checked_pow(u32::try_from(dn).ok()?)
+        }
+        SetRepr::RcdSet(fs) => product_size(fs.iter().map(|(_, v)| v)),
+        SetRepr::Product(fs) => product_size(fs.iter()),
+        SetRepr::Seq(r) => (quiet_component_size(r)? == 0).then_some(1),
+        SetRepr::Nat | SetRepr::Int | SetRepr::Strings => None,
+    }
+}
+
+fn product_size<'a>(comps: impl Iterator<Item = &'a Value>) -> Option<u128> {
+    let sizes: Vec<Option<u128>> = comps.map(quiet_component_size).collect();
+    if sizes.contains(&Some(0)) {
+        return Some(0);
+    }
+    sizes
+        .into_iter()
+        .try_fold(1u128, |acc, n| acc.checked_mul(n?))
 }
 
 /// TLC's `Value.size()` for a component of a lazy set (a function's size is its
@@ -86,17 +126,7 @@ fn value_size(v: &Value, ctx: Ctx) -> Result<u64> {
     }
 }
 
-fn component_elements(v: &Value, ctx: Ctx) -> Result<std::sync::Arc<[Value]>> {
-    match v {
-        Value::Set(s) => s.elements(ctx),
-        _ => Err(ValueError::new(
-            ErrorKind::NotEnumerable,
-            format!("Attempted to enumerate the non-set value\n{}", p(v, ctx)),
-        )),
-    }
-}
-
-/// The number of elements of `s`.
+/// TLC's `size()` of `s`, with TLC's overflow errors in [`IntMode::Tlc`].
 #[allow(
     clippy::too_many_lines,
     reason = "one arm per TLC size() method, kept together for comparison"
@@ -111,8 +141,7 @@ pub(crate) fn size(s: &Set, ctx: Ctx) -> Result<u64> {
             if hi < lo {
                 return Ok(0);
             }
-            let n = hi.to_big() - lo.to_big() + 1u32;
-            let n = u64::try_from(n).ok();
+            let n = u64::try_from(hi.to_big() - lo.to_big() + 1u32).ok();
             if tlc && n.is_none_or(|n| n > int_max) {
                 return Err(ValueError::new(
                     ErrorKind::TooLarge,
@@ -154,8 +183,7 @@ pub(crate) fn size(s: &Set, ctx: Ctx) -> Result<u64> {
             let dsz = value_size(d, ctx)?;
             let mut sz: u64 = 1;
             for _ in 0..dsz {
-                let next = sz.checked_mul(rsz);
-                match next {
+                match sz.checked_mul(rsz) {
                     Some(n) if !tlc || n <= int_max => sz = n,
                     _ if tlc => {
                         return Err(ValueError::new(
@@ -219,155 +247,31 @@ pub(crate) fn size(s: &Set, ctx: Ctx) -> Result<u64> {
     }
 }
 
-/// Enumerates `s` in normalized order.
+/// Materializes `s` in normalized order, without changing anything observable. The
+/// caller ([`Set::quiet_elements`]) caches successes.
 pub(crate) fn enumerate(s: &Set, ctx: Ctx) -> Result<Vec<Value>> {
     let ctx = Ctx {
         order: s.order(),
         ..ctx
     };
-    let me = Value::Set(s.clone());
     match s.repr() {
         SetRepr::Enum => Ok(Vec::new()),
         SetRepr::Raw(raw) => crate::order::normalize_set(raw.to_vec(), ctx),
         SetRepr::Deferred(src) => crate::order::normalize_set(src.elements(ctx)?, ctx),
-        SetRepr::Nat | SetRepr::Int | SetRepr::Strings => Err(not_enumerable(&me, ctx)),
-        SetRepr::Seq(r) => {
-            if is_empty(r, ctx)? {
-                Ok(vec![Value::tuple(Vec::new())])
-            } else {
-                Err(not_enumerable(&me, ctx))
-            }
-        }
         _ => {
-            let n = size(s, ctx)?;
-            if n > MAX_ENUMERATION {
-                return Err(too_large(&me, Some(n), ctx));
-            }
-            enumerate_lazy(s, ctx, usize::try_from(n).unwrap_or(usize::MAX))
-        }
-    }
-}
-
-fn enumerate_lazy(s: &Set, ctx: Ctx, n: usize) -> Result<Vec<Value>> {
-    let mut out = Vec::with_capacity(n);
-    match s.repr() {
-        SetRepr::Interval(lo, hi) => {
-            if let (Some(l), Some(h)) = (lo.to_i64(), hi.to_i64()) {
-                out.extend((l..=h).map(Value::Int));
-            } else {
-                let mut i = lo.clone();
-                while &i <= hi {
-                    out.push(Value::int(i.clone()));
-                    i = i.add(&Int::ONE, IntMode::Big)?;
+            let me = Value::Set(s.clone());
+            match quiet_size(s) {
+                Some(n) if n <= u128::from(MAX_ENUMERATION) => {}
+                Some(n) => return Err(too_large(&me, Some(n), ctx)),
+                None if is_infinite(s) => return Err(not_enumerable(&me, ctx)),
+                None => {
+                    // Not countable without enumerating a component: let the stream
+                    // report why (an unenumerable component), or the size is too big.
+                    let _ = stream(s, ctx, false)?;
+                    return Err(too_large(&me, None, ctx));
                 }
             }
-        }
-        SetRepr::Subset(b) => {
-            let base = component_elements(b, ctx)?;
-            let m = base.len();
-            for k in 0..=m {
-                // Combinations of k indices in lexicographic order.
-                let mut idx: Vec<usize> = (0..k).collect();
-                loop {
-                    let elems = idx.iter().map(|&i| base[i].clone()).collect();
-                    out.push(Value::Set(Set::from_sorted(ctx.order, elems)));
-                    // Advance the rightmost index that can still move right.
-                    let Some(pos) = (0..k).rev().find(|&i| idx[i] < m - k + i) else {
-                        break;
-                    };
-                    idx[pos] += 1;
-                    for j in pos + 1..k {
-                        idx[j] = idx[j - 1] + 1;
-                    }
-                }
-            }
-        }
-        SetRepr::FcnSet(d, r) => {
-            if is_empty(d, ctx)? {
-                return Ok(vec![Value::tuple(Vec::new())]);
-            }
-            if is_empty(r, ctx)? {
-                return Ok(Vec::new());
-            }
-            let dom = component_elements(d, ctx)?;
-            let rng = component_elements(r, ctx)?;
-            // The function shape depends only on the domain.
-            let template = crate::order::make_fcn(
-                dom.iter().map(|x| (x.clone(), Value::FALSE)).collect(),
-                ctx,
-            )?;
-            odometer(&vec![rng; dom.len()], |vals| {
-                out.push(rebuild(&template, &dom, vals));
-            });
-        }
-        SetRepr::RcdSet(fs) => {
-            let mut comps = Vec::with_capacity(fs.len());
-            for (_, v) in fs {
-                comps.push(component_elements(v, ctx)?);
-            }
-            odometer(&comps, |vals| {
-                let fields = fs
-                    .iter()
-                    .map(|(a, _)| a.clone())
-                    .zip(vals.iter().cloned())
-                    .collect();
-                out.push(Value::Fcn(Fcn::record(fields)));
-            });
-        }
-        SetRepr::Product(fs) => {
-            let mut comps = Vec::with_capacity(fs.len());
-            for v in fs {
-                comps.push(component_elements(v, ctx)?);
-            }
-            odometer(&comps, |vals| out.push(Value::tuple(vals.to_vec())));
-        }
-        _ => {}
-    }
-    Ok(out)
-}
-
-/// Rebuilds a function with `template`'s domain shape and the values `vals`.
-fn rebuild(template: &Value, dom: &[Value], vals: &[Value]) -> Value {
-    match template.as_fcn().map(Fcn::kind) {
-        Some(crate::FcnKind::Tuple) => Value::tuple(vals.to_vec()),
-        Some(crate::FcnKind::Record) => Value::Fcn(Fcn::record(
-            dom.iter()
-                .zip(vals)
-                .filter_map(|(d, v)| match d {
-                    Value::Str(a) => Some((a.clone(), v.clone())),
-                    _ => None,
-                })
-                .collect(),
-        )),
-        _ => Value::Fcn(Fcn::general(
-            dom.iter().cloned().zip(vals.iter().cloned()).collect(),
-        )),
-    }
-}
-
-/// Visits every combination of one element from each component, the last component
-/// varying fastest. Visits nothing if a component is empty.
-fn odometer(comps: &[std::sync::Arc<[Value]>], mut visit: impl FnMut(&[Value])) {
-    if comps.iter().any(|c| c.is_empty()) {
-        return;
-    }
-    let mut idx = vec![0usize; comps.len()];
-    let mut cur: Vec<Value> = comps.iter().map(|c| c[0].clone()).collect();
-    loop {
-        visit(&cur);
-        let mut pos = comps.len();
-        loop {
-            if pos == 0 {
-                return;
-            }
-            pos -= 1;
-            idx[pos] += 1;
-            if idx[pos] < comps[pos].len() {
-                cur[pos] = comps[pos][idx[pos]].clone();
-                break;
-            }
-            idx[pos] = 0;
-            cur[pos] = comps[pos][0].clone();
+            Ok(stream(s, ctx, false)?.collect())
         }
     }
 }

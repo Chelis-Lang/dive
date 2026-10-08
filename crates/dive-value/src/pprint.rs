@@ -47,6 +47,8 @@ type PResult<T> = Result<T, Fail>;
 
 struct Parser<'a> {
     s: &'a [u16],
+    /// Current nesting; deeper input fails to parse, so it prints on one line.
+    depth: std::cell::Cell<u32>,
 }
 
 fn unit_char(u: u16) -> Option<char> {
@@ -97,6 +99,17 @@ impl Parser<'_> {
     }
 
     fn parse(&self, index: usize) -> PResult<Node> {
+        let d = self.depth.get();
+        if d >= crate::depth::MAX_DEPTH {
+            return Err(Fail);
+        }
+        self.depth.set(d + 1);
+        let r = self.parse_at(index);
+        self.depth.set(d);
+        r
+    }
+
+    fn parse_at(&self, index: usize) -> PResult<Node> {
         if index >= self.s.len() {
             return Err(Fail);
         }
@@ -427,7 +440,10 @@ pub fn ppr(value: &str) -> String {
 #[must_use]
 pub fn ppr_width(value: &str, width: usize) -> String {
     let units: Vec<u16> = value.encode_utf16().collect();
-    let parser = Parser { s: &units };
+    let parser = Parser {
+        s: &units,
+        depth: std::cell::Cell::new(0),
+    };
     let Ok(tree) = parser.parse(0) else {
         return value.to_owned();
     };

@@ -3,10 +3,12 @@
 //! [`Value`] is 16 bytes, immutable, `Send + Sync`, and cheap to clone: scalars are
 //! inline and compound values are shared behind an [`Arc`]. Compound values carry a
 //! precomputed (or lazily cached) hash, so hashing is O(1) and unequal values usually
-//! differ at the first hash comparison.
+//! differ at the first hash comparison. Dropping a value is iterative, so any nesting
+//! depth is safe.
 
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 use std::sync::{Arc, OnceLock};
 
 use num_bigint::BigInt;
@@ -18,11 +20,11 @@ use crate::int::Int;
 
 /// A TLA+ value.
 ///
-/// Integers are canonical: [`Value::Int`] holds every value in `i64` range and
-/// [`Value::BigInt`] only values outside it, so structural equality is numeric
-/// equality. Functions are canonical by domain (see [`Fcn`]), so two equal functions
-/// always have the same representation. Sets may be enumerated or lazy (see [`Set`]);
-/// equality and hashing look through the representation.
+/// Integers built through [`Value::int`] are canonical: [`Value::Int`] for every value
+/// in `i64` range and [`Value::BigInt`] only outside it. Equality, ordering, hashing
+/// and fingerprints are numeric even for a hand-built `BigInt` that fits in an `i64`.
+/// Functions are canonical by domain (see [`Fcn`]). Sets may be enumerated or lazy
+/// (see [`Set`]); equality and hashing look through the representation.
 #[derive(Clone)]
 pub enum Value {
     /// `TRUE` or `FALSE`.
@@ -41,14 +43,13 @@ pub enum Value {
     Fcn(Fcn),
 }
 
-/// The empty-function hash seed and per-kind constants for [`Value`]'s hash.
+/// Per-kind constants for [`Value`]'s hash.
 const K_BOOL: u64 = 0x1f83_d9ab_fb41_bd6b;
 const K_INT: u64 = 0x5be0_cd19_137e_2179;
-const K_STR: u64 = 0x6a09_e667_f3bc_c908;
+pub(crate) const K_STR: u64 = 0x6a09_e667_f3bc_c908;
 const K_MV: u64 = 0xbb67_ae85_84ca_a73b;
-const K_SET: u64 = 0x3c6e_f372_fe94_f82b;
+pub(crate) const K_SET: u64 = 0x3c6e_f372_fe94_f82b;
 const K_FCN: u64 = 0xa54f_f53a_5f1d_36f1;
-const K_INF: u64 = 0x510e_527f_ade6_82d1;
 
 pub(crate) fn mix2(a: u64, b: u64) -> u64 {
     mix64(a ^ b.rotate_left(29).wrapping_mul(0x9e37_79b9_7f4a_7c15))
@@ -66,21 +67,24 @@ impl Value {
     /// `FALSE`.
     pub const FALSE: Self = Self::Bool(false);
 
-    /// An integer value from an [`Int`].
+    /// An integer value from an [`Int`], in canonical form.
     #[must_use]
     pub fn int(i: Int) -> Self {
         match i {
             Int::Small(v) => Self::Int(v),
-            Int::Big(b) => Self::BigInt(b),
+            Int::Big(b) => match Int::from_big((*b).clone()) {
+                Int::Small(v) => Self::Int(v),
+                Int::Big(_) => Self::BigInt(b),
+            },
         }
     }
 
-    /// The integer, if this is one.
+    /// The integer, if this is one, in canonical form.
     #[must_use]
     pub fn as_int(&self) -> Option<Int> {
         match self {
             Self::Int(v) => Some(Int::Small(*v)),
-            Self::BigInt(b) => Some(Int::Big(b.clone())),
+            Self::BigInt(b) => Some(Int::from_big((**b).clone())),
             _ => None,
         }
     }
@@ -114,19 +118,20 @@ impl Value {
 
     /// The hash used by [`Hash`]: order-independent for sets and functions, so equal
     /// values hash equally whatever their representation (an interval and the
-    /// enumerated set it equals, for example).
+    /// enumerated set it equals, for example). Never changes how TLC's operations
+    /// behave: hashing an unnormalized set does not normalize it.
     #[must_use]
     pub fn hash64(&self) -> u64 {
         match self {
             Self::Bool(b) => mix64(K_BOOL ^ u64::from(*b)),
             Self::Int(v) => int_hash(*v),
-            Self::BigInt(b) => {
-                let mut h = K_INT;
-                for d in b.to_signed_bytes_le() {
-                    h = mix2(h, u64::from(d));
-                }
-                h
-            }
+            Self::BigInt(b) => match self.as_int().and_then(|i| i.to_i64()) {
+                Some(v) => int_hash(v),
+                None => b
+                    .to_signed_bytes_le()
+                    .iter()
+                    .fold(K_INT, |h, d| mix2(h, u64::from(*d))),
+            },
             Self::Str(a) => mix2(K_STR, a.text_hash()),
             Self::Model(a) => mix2(K_MV, a.text_hash()),
             Self::Set(s) => s.hash64(),
@@ -180,11 +185,13 @@ impl PartialEq for Value {
 
 impl Eq for Value {}
 
+/// The TLC printing of the value. Formatting never changes how TLC's operations
+/// behave: it does not normalize unnormalized sets.
 impl fmt::Debug for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match crate::print::to_tlc_string(self, Ctx::default()) {
-            Ok(s) => f.write_str(&s),
-            Err(_) => write!(f, "<{}>", self.kind_name()),
+        match crate::print::to_debug_string(self) {
+            Some(s) => f.write_str(&s),
+            None => write!(f, "<{}>", self.kind_name()),
         }
     }
 }
@@ -198,17 +205,23 @@ impl fmt::Debug for Value {
 /// Enumerated sets are kept normalized: sorted in the run's [`ValueOrder`] without
 /// duplicates. Lazy sets (`a..b`, `SUBSET S`, `[S -> T]`, `S \X T`, `[a : S]`, `Nat`,
 /// `Int`, `STRING`, `Seq(S)`, and evaluator-driven filters and maps) keep their
-/// definition; membership is decided without enumerating, as in TLC, and enumeration
-/// happens at most once, on demand, in normalized order. Infinite sets refuse
-/// enumeration with [`ErrorKind::NotEnumerable`].
+/// definition; membership is decided without enumerating, as in TLC. Equality,
+/// ordering, hashing and fingerprints stream lazy sets in normalized order rather
+/// than materializing them. Infinite sets refuse enumeration with
+/// [`ErrorKind::NotEnumerable`].
 #[derive(Clone)]
 pub struct Set(pub(crate) Arc<SetInner>);
 
 pub(crate) struct SetInner {
     pub(crate) order: ValueOrder,
     pub(crate) hash: OnceLock<u64>,
-    /// Enumeration (or normalization, for `Raw`) cache.
-    pub(crate) elems: OnceLock<Result<Arc<[Value]>>>,
+    /// The normalized elements, once computed. Only successes are cached, so an error
+    /// is always computed under the caller's context.
+    pub(crate) elems: OnceLock<Arc<[Value]>>,
+    /// For `Raw` sets: whether TLC would consider the set normalized (`isNorm`). Set
+    /// only by the operations that normalize in TLC, never by hashing, `==` or
+    /// formatting.
+    pub(crate) tlc_norm: AtomicBool,
     pub(crate) repr: SetRepr,
 }
 
@@ -229,6 +242,13 @@ pub trait DeferredSet: Send + Sync + fmt::Debug {
     /// # Errors
     /// Any evaluation error.
     fn member(&self, elem: &Value, ctx: Ctx) -> Option<Result<bool>>;
+    /// A stable description of the definition (for example the bound set and the
+    /// values the predicate closes over). Two unenumerable deferred sets of the same
+    /// kind are equal, and ordered, by their keys; enumerable ones by their elements.
+    /// The default, an empty key, makes all unenumerable sets of one kind equal.
+    fn key(&self) -> Vec<Value> {
+        Vec::new()
+    }
 }
 
 /// See [`DeferredSet::kind`].
@@ -244,7 +264,8 @@ pub(crate) enum SetRepr {
     /// Normalized elements (the elements live in `SetInner::elems`).
     Enum,
     /// Elements as constructed, normalized on demand (TLC's unnormalized
-    /// `SetEnumValue`). Membership scans them linearly with TLC's equality.
+    /// `SetEnumValue`). Until TLC would normalize it, membership scans the elements
+    /// linearly with TLC's equality.
     Raw(Box<[Value]>),
     Interval(Int, Int),
     Subset(Value),
@@ -264,7 +285,7 @@ pub(crate) enum SetRepr {
 pub enum SetKind {
     /// An enumerated, normalized set.
     Enum,
-    /// An enumerated set not yet normalized.
+    /// An enumerated set as written, normalized on demand.
     Raw,
     /// `a..b`.
     Interval,
@@ -294,6 +315,7 @@ impl Set {
             order,
             hash: OnceLock::new(),
             elems: OnceLock::new(),
+            tlc_norm: AtomicBool::new(false),
             repr,
         }))
     }
@@ -302,8 +324,11 @@ impl Set {
     pub(crate) fn from_sorted(order: ValueOrder, elems: Vec<Value>) -> Self {
         let set = Self::new(order, SetRepr::Enum);
         let elems: Arc<[Value]> = elems.into();
-        let _ = set.0.hash.set(set_hash(&elems));
-        let _ = set.0.elems.set(Ok(elems));
+        let _ = set.0.hash.set(set_hash(
+            elems.iter().map(Value::hash64),
+            elems.len() as u128,
+        ));
+        let _ = set.0.elems.set(elems);
         set
     }
 
@@ -339,22 +364,53 @@ impl Set {
         crate::enumerate::is_infinite(self)
     }
 
-    /// The elements in normalized order, enumerating (once) if the set is lazy.
+    /// The elements in normalized order, enumerating if the set is lazy: TLC's
+    /// `elements()`/`toSetEnum()`. An unnormalized (`Raw`) set counts as normalized
+    /// afterwards, as in TLC.
     ///
     /// # Errors
     /// [`ErrorKind::NotEnumerable`] for an infinite or symbolic set,
     /// [`ErrorKind::TooLarge`] when the set is too large, and comparison errors from
     /// normalization.
     pub fn elements(&self, ctx: Ctx) -> Result<Arc<[Value]>> {
-        if let Some(r) = self.0.elems.get() {
-            return r.clone();
+        if !matches!(
+            self.0.repr,
+            SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Deferred(_)
+        ) {
+            // TLC's `toSetEnum` sizes the set first: its size errors come first.
+            crate::enumerate::size(self, ctx)?;
         }
-        let r = crate::enumerate::enumerate(self, ctx).map(Arc::from);
-
-        self.0.elems.get_or_init(|| r).clone()
+        let e = self.quiet_elements(ctx)?;
+        self.mark_normalized();
+        Ok(e)
     }
 
-    /// The number of elements.
+    /// The elements in normalized order, without changing TLC's view of the set.
+    pub(crate) fn quiet_elements(&self, ctx: Ctx) -> Result<Arc<[Value]>> {
+        if let Some(e) = self.0.elems.get() {
+            return Ok(e.clone());
+        }
+        let e: Arc<[Value]> = crate::enumerate::enumerate(self, ctx)?.into();
+        Ok(self.0.elems.get_or_init(|| e).clone())
+    }
+
+    /// Whether TLC would treat the set as normalized (always, except for a `Raw` set
+    /// that no normalizing operation has touched).
+    pub(crate) fn is_tlc_normalized(&self) -> bool {
+        match self.0.repr {
+            SetRepr::Raw(_) => self.0.tlc_norm.load(AtomicOrdering::Acquire),
+            _ => true,
+        }
+    }
+
+    /// Records that TLC would now treat the set as normalized.
+    pub(crate) fn mark_normalized(&self) {
+        if matches!(self.0.repr, SetRepr::Raw(_)) {
+            self.0.tlc_norm.store(true, AtomicOrdering::Release);
+        }
+    }
+
+    /// The number of elements (TLC's `size()`, which normalizes).
     ///
     /// # Errors
     /// As [`Set::elements`], plus TLC's size limits in [`IntMode::Tlc`](crate::IntMode).
@@ -365,21 +421,10 @@ impl Set {
     /// The order-independent hash (see [`Value::hash64`]).
     #[must_use]
     pub fn hash64(&self) -> u64 {
-        *self.0.hash.get_or_init(|| match &self.0.repr {
-            SetRepr::Nat => mix2(K_INF, 1),
-            SetRepr::Int => mix2(K_INF, 2),
-            SetRepr::Strings => mix2(K_INF, 3),
-            SetRepr::Seq(r) => mix2(K_INF ^ 4, r.hash64()),
-            _ => match self.elements(Ctx {
-                int_mode: crate::IntMode::Big,
-                order: self.0.order,
-            }) {
-                Ok(e) => set_hash(&e),
-                // A set that cannot be enumerated hashes by its definition; equality
-                // then also falls back to the definition (`order::semantic_eq`).
-                Err(_) => mix2(K_INF ^ 5, structural_hash(&self.0.repr)),
-            },
-        })
+        *self
+            .0
+            .hash
+            .get_or_init(|| crate::order::compute_set_hash(self))
     }
 
     pub(crate) fn repr(&self) -> &SetRepr {
@@ -402,25 +447,20 @@ impl Set {
     }
 }
 
-fn structural_hash(repr: &SetRepr) -> u64 {
-    match repr {
-        SetRepr::Subset(b) => mix2(11, b.hash64()),
-        SetRepr::FcnSet(d, r) => mix2(mix2(12, d.hash64()), r.hash64()),
-        SetRepr::RcdSet(fs) => fs.iter().fold(13, |h, (a, v)| {
-            h.wrapping_add(mix2(a.text_hash(), v.hash64()))
-        }),
-        SetRepr::Product(fs) => fs.iter().fold(14, |h, v| mix2(h, v.hash64())),
-        SetRepr::Seq(r) => mix2(15, r.hash64()),
-        SetRepr::Deferred(d) => mix2(16, d.kind() as u64),
-        _ => 17,
-    }
-}
+/// Sets with more elements than this hash by cardinality alone, so that hashing a
+/// huge lazy set (`0..2147483646`) is O(1). Equality still compares the elements.
+pub(crate) const HASH_ELEMENT_LIMIT: u128 = 1 << 16;
 
-pub(crate) fn set_hash(elems: &[Value]) -> u64 {
-    let sum = elems
-        .iter()
-        .fold(0u64, |acc, e| acc.wrapping_add(mix64(e.hash64())));
-    mix2(K_SET ^ (elems.len() as u64), sum)
+/// The order-independent hash of a set with the given element hashes (consumed only
+/// when `len` is at most [`HASH_ELEMENT_LIMIT`]).
+pub(crate) fn set_hash(hashes: impl Iterator<Item = u64>, len: u128) -> u64 {
+    let sum = if len <= HASH_ELEMENT_LIMIT {
+        hashes.fold(0u64, |acc, h| acc.wrapping_add(mix64(h)))
+    } else {
+        0x9e37_79b9_7f4a_7c15
+    };
+    #[allow(clippy::cast_possible_truncation, reason = "hash mixing")]
+    mix2(K_SET ^ (len as u64), sum)
 }
 
 // ---------------------------------------------------------------------------------
@@ -432,17 +472,24 @@ pub(crate) fn set_hash(elems: &[Value]) -> u64 {
 /// The representation is canonical by domain, so equal functions have equal
 /// representations:
 /// - domain `1..n` (including the empty domain): a **tuple** (TLC `TupleValue`);
-/// - a non-empty domain of strings: a **record** (TLC `RecordValue`), fields sorted;
+/// - a non-empty domain of strings: a **record**, fields sorted;
 /// - any other domain: a **general** function (TLC `FcnRcdValue`), pairs sorted by
 ///   domain element.
 ///
-/// TLC prints by domain too, so the canonical form prints exactly as TLC prints the
-/// same function (`FcnRcdValue.toString`: `isRcd`, `isTuple`).
+/// A record also remembers whether it is a record *literal* (TLC `RecordValue`: built
+/// by `[f |-> e]` or enumerated from `[f : S]`) or a function that happens to have a
+/// string domain (TLC `FcnRcdValue`: built by `:>`, `@@`, `[x \in S |-> e]` or
+/// enumerated from `[S -> T]`). TLC compares and prints the two differently; equality,
+/// hashing and fingerprints ignore the distinction.
 #[derive(Clone)]
 pub struct Fcn(pub(crate) Arc<FcnInner>);
 
 pub(crate) struct FcnInner {
     pub(crate) hash: u64,
+    /// The order records' fields and general domains are sorted in.
+    pub(crate) order: ValueOrder,
+    /// TLC `RecordValue` (a record literal) rather than a string-domain `FcnRcdValue`.
+    pub(crate) literal: bool,
     pub(crate) repr: FcnRepr,
 }
 
@@ -479,25 +526,31 @@ impl Fcn {
         );
         Self(Arc::new(FcnInner {
             hash,
+            order: ValueOrder::default(),
+            literal: false,
             repr: FcnRepr::Tuple(elems.into_boxed_slice()),
         }))
     }
 
-    pub(crate) fn record(fields: Vec<(Atom, Value)>) -> Self {
+    pub(crate) fn record(fields: Vec<(Atom, Value)>, order: ValueOrder, literal: bool) -> Self {
         let hash = fcn_hash(
             fields.iter().map(|(a, v)| (mix2(K_STR, a.text_hash()), v)),
             fields.len(),
         );
         Self(Arc::new(FcnInner {
             hash,
+            order,
+            literal,
             repr: FcnRepr::Record(fields.into_boxed_slice()),
         }))
     }
 
-    pub(crate) fn general(pairs: Vec<(Value, Value)>) -> Self {
+    pub(crate) fn general(pairs: Vec<(Value, Value)>, order: ValueOrder) -> Self {
         let hash = fcn_hash(pairs.iter().map(|(d, v)| (d.hash64(), v)), pairs.len());
         Self(Arc::new(FcnInner {
             hash,
+            order,
+            literal: false,
             repr: FcnRepr::General(pairs.into_boxed_slice()),
         }))
     }
@@ -510,6 +563,19 @@ impl Fcn {
             FcnRepr::Record(_) => FcnKind::Record,
             FcnRepr::General(_) => FcnKind::General,
         }
+    }
+
+    /// Whether this is a record literal (TLC `RecordValue`), as opposed to a function
+    /// that has a string domain (see [`Fcn`]).
+    #[must_use]
+    pub fn is_record_literal(&self) -> bool {
+        self.0.literal
+    }
+
+    /// The order the fields or domain are sorted in.
+    #[must_use]
+    pub fn order(&self) -> ValueOrder {
+        self.0.order
     }
 
     /// The number of domain elements.
@@ -567,9 +633,10 @@ impl Fcn {
     #[must_use]
     pub fn apply(&self, arg: &Value) -> Option<&Value> {
         match (&self.0.repr, arg) {
-            (FcnRepr::Tuple(e), Value::Int(i)) => {
-                usize::try_from(*i - 1).ok().and_then(|i| e.get(i))
-            }
+            (FcnRepr::Tuple(e), Value::Int(i)) => i
+                .checked_sub(1)
+                .and_then(|i| usize::try_from(i).ok())
+                .and_then(|i| e.get(i)),
             (FcnRepr::Record(f), Value::Str(a)) => f.iter().find(|(n, _)| n == a).map(|(_, v)| v),
             (FcnRepr::General(p), _) => p.iter().find(|(d, _)| d == arg).map(|(_, v)| v),
             _ => None,
@@ -580,6 +647,83 @@ impl Fcn {
     #[must_use]
     pub fn ptr_eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+// ---------------------------------------------------------------------------------
+// Iterative drop
+// ---------------------------------------------------------------------------------
+
+impl SetInner {
+    fn take_children(&mut self, out: &mut Vec<Value>) {
+        match std::mem::replace(&mut self.repr, SetRepr::Enum) {
+            SetRepr::Raw(e) | SetRepr::Product(e) => out.extend(e.into_vec()),
+            SetRepr::Subset(v) | SetRepr::Seq(v) => out.push(v),
+            SetRepr::FcnSet(d, r) => {
+                out.push(d);
+                out.push(r);
+            }
+            SetRepr::RcdSet(fs) => out.extend(fs.into_vec().into_iter().map(|(_, v)| v)),
+            other => self.repr = other,
+        }
+        if let Some(mut e) = self.elems.take()
+            && let Some(slice) = Arc::get_mut(&mut e)
+        {
+            for v in slice.iter_mut() {
+                out.push(std::mem::replace(v, Value::FALSE));
+            }
+        }
+    }
+}
+
+impl FcnInner {
+    fn take_children(&mut self, out: &mut Vec<Value>) {
+        match std::mem::replace(&mut self.repr, FcnRepr::Tuple(Box::default())) {
+            FcnRepr::Tuple(e) => out.extend(e.into_vec()),
+            FcnRepr::Record(fs) => out.extend(fs.into_vec().into_iter().map(|(_, v)| v)),
+            FcnRepr::General(ps) => {
+                for (d, v) in ps.into_vec() {
+                    out.push(d);
+                    out.push(v);
+                }
+            }
+        }
+    }
+}
+
+/// Drops values without recursion: each uniquely owned compound value is emptied
+/// into a work list before it is freed.
+fn drain(mut stack: Vec<Value>) {
+    while let Some(v) = stack.pop() {
+        match v {
+            Value::Set(mut s) => {
+                if let Some(inner) = Arc::get_mut(&mut s.0) {
+                    inner.take_children(&mut stack);
+                }
+            }
+            Value::Fcn(mut f) => {
+                if let Some(inner) = Arc::get_mut(&mut f.0) {
+                    inner.take_children(&mut stack);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+impl Drop for SetInner {
+    fn drop(&mut self) {
+        let mut stack = Vec::new();
+        self.take_children(&mut stack);
+        drain(stack);
+    }
+}
+
+impl Drop for FcnInner {
+    fn drop(&mut self) {
+        let mut stack = Vec::new();
+        self.take_children(&mut stack);
+        drain(stack);
     }
 }
 
@@ -604,8 +748,9 @@ impl Value {
     ///
     /// Normalization applies TLC's comparability rules: `{1, "a"}` is an error, with
     /// the message TLC gives (`Attempted to compare string "a" with non-string:\n1`).
-    /// Under [`ValueOrder::Tlc`] the error is the one TLC reports, because the
-    /// comparisons are made in TLC's order whenever an error is possible.
+    /// Whether an error occurs is decided exactly as TLC decides it, by TLC's
+    /// insertion sort in TLC's name order, in both [`ValueOrder`]s (with names interned
+    /// in TLC's order); the result is then sorted in `ctx.order`.
     ///
     /// When elements are equal but differently represented (`1..3` and `{1, 2, 3}`),
     /// the first one is kept, as in TLC.
@@ -617,8 +762,9 @@ impl Value {
     }
 
     /// A set exactly as TLC builds a set enumeration `{e1, ..., en}`: unnormalized
-    /// until first needed. Membership tests scan the elements with TLC's equality, so
-    /// `1 \in {1, "a"}` is `TRUE` while `{1, "a"} = {}` is an error, as in TLC.
+    /// until TLC would normalize it. Membership tests scan the elements with TLC's
+    /// equality, so `1 \in {1, "a"}` is `TRUE` while `{1, "a"} = {}` is an error, as in
+    /// TLC.
     #[must_use]
     pub fn set_raw(elems: Vec<Self>, ctx: Ctx) -> Self {
         if elems.is_empty() {
@@ -714,8 +860,8 @@ impl Value {
         Self::Fcn(Fcn::tuple(elems))
     }
 
-    /// The record `[f1 |-> v1, ..., fn |-> vn]`. With no fields this is the empty
-    /// function `<<>>`.
+    /// The record literal `[f1 |-> v1, ..., fn |-> vn]` (TLC `RecordValue`). With no
+    /// fields this is the empty function `<<>>`.
     ///
     /// # Errors
     /// [`ErrorKind::Duplicate`] when a field repeats (TLC: `Field name f occurs
@@ -724,11 +870,16 @@ impl Value {
         if fields.is_empty() {
             return Ok(Self::tuple(Vec::new()));
         }
-        Ok(Self::Fcn(Fcn::record(sort_fields(fields, ctx.order)?)))
+        Ok(Self::Fcn(Fcn::record(
+            sort_fields(fields, ctx.order)?,
+            ctx.order,
+            true,
+        )))
     }
 
-    /// The function with the given `(argument, value)` pairs, in canonical form (see
-    /// [`Fcn`]). The domain is normalized with TLC's comparability rules.
+    /// The function with the given `(argument, value)` pairs (TLC `FcnRcdValue`, as
+    /// built by `:>`, `@@` or `[x \in S |-> e]`), in canonical form (see [`Fcn`]). The
+    /// domain is normalized with TLC's comparability rules.
     ///
     /// # Errors
     /// Comparison errors from normalizing the domain, and [`ErrorKind::Duplicate`]
@@ -739,7 +890,10 @@ impl Value {
     }
 }
 
-fn sort_fields(mut fields: Vec<(Atom, Value)>, order: ValueOrder) -> Result<Vec<(Atom, Value)>> {
+pub(crate) fn sort_fields(
+    mut fields: Vec<(Atom, Value)>,
+    order: ValueOrder,
+) -> Result<Vec<(Atom, Value)>> {
     fields.sort_by(|a, b| a.0.cmp_with(&b.0, order));
     for w in fields.windows(2) {
         if w[0].0 == w[1].0 {

@@ -38,6 +38,7 @@
 
 mod atom;
 mod ctx;
+mod depth;
 mod enumerate;
 mod error;
 pub mod fp64;
@@ -47,11 +48,13 @@ pub mod ops;
 mod order;
 mod pprint;
 pub mod print;
+mod stream;
 pub mod tlc;
 mod value;
 
 pub use atom::{Atom, Interner};
 pub use ctx::{Ctx, IntMode, ValueOrder};
+pub use depth::MAX_DEPTH;
 pub use enumerate::MAX_ENUMERATION;
 pub use error::{ErrorKind, Result, ValueError};
 pub use int::Int;

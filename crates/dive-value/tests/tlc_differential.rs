@@ -21,6 +21,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use common::{Evaluator, constants, seed_interner};
+use dive_value::fp64::{Fingerprinter, TlcFingerprint};
 use dive_value::json::to_tlc_json;
 use dive_value::print::{format_state, print_value};
 use dive_value::{Ctx, ErrorKind, Value, ValueError};
@@ -209,44 +210,133 @@ fn errors_match_tlc() {
     assert!(checked > 40, "only {checked} cases checked");
 }
 
-/// Single-`PrintT` specs whose TLC outcome may be a value or an error (`Asym*`:
-/// TLC's comparability is asymmetric between records and tuples).
+/// Specs whose `ASSUME PrintT(e)` lines (optionally preceded by a `"#case"` marker)
+/// may end in an error: `Asym*` (TLC's comparability is asymmetric between records and
+/// tuples) and the review probes `Rv*`. The printed output and, if TLC stopped with
+/// an error, its message must match.
 #[test]
 fn outcomes_match_tlc() {
     let mut failures = String::new();
     let mut checked = 0;
-    for name in spec_names(&["Asym"]) {
+    for name in spec_names(&["Asym", "Rv"]) {
         let module = module(&name);
-        let expr = module
+        let lines: Vec<(Option<String>, String)> = module
             .lines()
-            .find_map(|l| l.strip_prefix("ASSUME PrintT(")?.strip_suffix(')'))
-            .expect("one ASSUME PrintT");
+            .filter_map(|l| l.strip_prefix("ASSUME PrintT("))
+            .filter_map(|l| {
+                if let Some(rest) = l.strip_prefix("\"#") {
+                    let (case, rest) = rest.split_once("\") /\\ PrintT(")?;
+                    Some((Some(case.to_owned()), rest.strip_suffix(')')?.to_owned()))
+                } else {
+                    Some((None, l.strip_suffix(')')?.to_owned()))
+                }
+            })
+            .collect();
+        if lines.is_empty() {
+            continue; // a state-based probe, tested separately
+        }
         let stdout = transcript(&name, "stdout");
-        let want: Result<String, String> = if transcript(&name, "exit").trim() == "0" {
-            let mut lines = stdout
-                .lines()
-                .skip_while(|l| *l != "@!@!@ENDMSG 2185 @!@!@");
-            lines.next();
-            Ok(lines
-                .take_while(|l| !l.starts_with("@!@!@STARTMSG"))
-                .collect::<Vec<_>>()
-                .join("\n"))
-        } else {
-            Err(tlc_error_message(&stdout))
-        };
+        let mut out = stdout
+            .lines()
+            .skip_while(|l| *l != "@!@!@ENDMSG 2185 @!@!@");
+        out.next();
+        let want_printed: Vec<&str> = out
+            .take_while(|l| !l.starts_with("@!@!@STARTMSG"))
+            .collect();
+        let want_err =
+            (transcript(&name, "exit").trim() != "0").then(|| tlc_error_message(&stdout));
         let names = seed_interner(&module);
         let ev = evaluator(&names, &module, Ctx::tlc());
-        let got = print_t(&ev, expr).map_err(|e| e.message().to_owned());
+        let mut printed: Vec<String> = Vec::new();
+        let mut err = None;
+        for (case, expr) in &lines {
+            if let Some(case) = case {
+                printed.push(format!("\"#{case}\""));
+            }
+            match print_t(&ev, expr) {
+                Ok(s) => printed.extend(s.lines().map(str::to_owned)),
+                Err(e) => {
+                    err = Some(e.message().to_owned());
+                    break;
+                }
+            }
+        }
         checked += 1;
-        if got != want {
+        if printed != want_printed || err != want_err {
             let _ = writeln!(
                 failures,
-                "{name}: {expr}\n  TLC:  {want:?}\n  dive: {got:?}"
+                "{name}\n  TLC:  {want_printed:?} {want_err:?}\n  dive: {printed:?} {err:?}"
             );
         }
     }
     assert!(failures.is_empty(), "{failures}");
-    assert!(checked >= 4, "only {checked} cases checked");
+    assert!(checked >= 17, "only {checked} specs checked");
+}
+
+/// Probes `RvMemUnnorm`/`RvMemNorm`: `<<1>> \in S` for the literal
+/// `S == {[qfa |-> 1, qfb |-> 1], [qfa |-> 2, qfb |-> 2]}` is an error while `S` is
+/// unnormalized, and `FALSE` once TLC has normalized it (as it does when it
+/// fingerprints a state holding `S`).
+#[test]
+fn membership_after_tlc_normalization_matches_tlc() {
+    let module = module("RvMemNorm");
+    let names = seed_interner(&module);
+    let ctx = Ctx::tlc();
+    let ev = evaluator(&names, &module, ctx);
+    let s = ev
+        .eval("{[qfa |-> 1, qfb |-> 1], [qfa |-> 2, qfb |-> 2]}")
+        .expect("set");
+    let t = ev.eval("<<1>>").expect("tuple");
+    assert!(dive_value::tlc::member(&t, &s, ctx).is_err());
+    // Neither hashing nor `==` nor `Debug` normalizes in TLC's sense.
+    let _ = (s.hash64(), s == s.clone(), format!("{s:?}"));
+    assert!(dive_value::tlc::member(&t, &s, ctx).is_err());
+    // Fingerprinting the state does.
+    let fp = TlcFingerprint::new(0).expect("poly");
+    fp.fingerprint_state(&[Value::from(0), s.clone()], ctx)
+        .expect("fingerprint");
+    assert!(!dive_value::tlc::member(&t, &s, ctx).expect("member"));
+    let stdout = transcript("RvMemNorm", "stdout");
+    assert!(stdout.lines().any(|l| l == "FALSE"));
+}
+
+/// The full 64-bit FP64 state fingerprints of `FpFull` (TLC `-fp 0 -dump dot`, node
+/// ids are `TLCState.fingerPrint()`), checked against dive state by state.
+#[test]
+fn fp64_matches_tlc_dump_dot_in_all_64_bits() {
+    let module = module("FpFull");
+    let dot = fs::read_to_string(fixtures().join("fp/FpFull.dot")).expect("FpFull.dot");
+    let v_src = module
+        .split_once("V == ")
+        .and_then(|(_, rest)| rest.split_once("\nN == "))
+        .map(|(v, _)| v.trim().to_owned())
+        .expect("V");
+    // TLC decoded the module as UTF-8; the one non-ASCII escape is written as is.
+    let names = seed_interner(&module);
+    let ctx = Ctx::tlc();
+    let ev = evaluator(&names, &module, ctx);
+    let v = ev.eval(&v_src).expect("V");
+    let elems = v
+        .as_fcn()
+        .and_then(|f| f.as_tuple())
+        .expect("a tuple")
+        .to_vec();
+    let fp = TlcFingerprint::new(0).expect("poly");
+    let mut checked = 0;
+    for (i, x) in elems.iter().enumerate() {
+        let i = i64::try_from(i + 1).unwrap_or(0);
+        let got = fp
+            .fingerprint_state(&[Value::from(i), x.clone()], ctx)
+            .expect("fingerprint");
+        #[allow(clippy::cast_possible_wrap, reason = "Java long")]
+        let node = format!("{} [label=\"/\\\\ i = {i}\\n", got as i64);
+        assert!(
+            dot.contains(&node),
+            "state {i} ({x:?}): fingerprint {got} not in the dump"
+        );
+        checked += 1;
+    }
+    assert_eq!(checked, 28);
 }
 
 /// The counterexample of `TraceValues`: TLC's state printing and `-dumpTrace json`.

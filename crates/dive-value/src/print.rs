@@ -18,9 +18,11 @@
 
 use std::fmt::Write as _;
 
+use crate::atom::Atom;
 use crate::ctx::Ctx;
 use crate::enumerate;
 use crate::error::Result;
+use crate::stream::elems_in;
 use crate::value::{FcnRepr, SetRepr, Value};
 
 pub use crate::pprint::{WIDTH, ppr, ppr_width};
@@ -44,7 +46,15 @@ pub use crate::pprint::{WIDTH, ppr, ppr_width};
 /// enumerating a lazy set that TLC would expand.
 pub fn to_tlc_string(v: &Value, ctx: Ctx) -> Result<String> {
     let mut out = String::new();
-    write_value(v, ctx, false, &mut out)?;
+    write_value(
+        v,
+        ctx,
+        Mode {
+            swallow: false,
+            mark: true,
+        },
+        &mut out,
+    )?;
     Ok(out)
 }
 
@@ -55,7 +65,15 @@ pub fn to_tlc_string(v: &Value, ctx: Ctx) -> Result<String> {
 #[must_use]
 pub fn to_tlc_string_lenient(v: &Value, ctx: Ctx) -> String {
     let mut out = String::new();
-    match write_value(v, ctx, true, &mut out) {
+    match write_value(
+        v,
+        ctx,
+        Mode {
+            swallow: true,
+            mark: true,
+        },
+        &mut out,
+    ) {
         Ok(()) => out,
         Err(_) => format!("<unprintable {}>", v.kind_name()),
     }
@@ -146,28 +164,50 @@ pub(crate) fn java_is_letter_or_digit(c: char) -> bool {
     }
 }
 
+/// How a value is being printed.
+#[derive(Clone, Copy)]
+struct Mode {
+    /// Swallow errors raised while deciding how to print a lazy set (`toString`).
+    swallow: bool,
+    /// Print as TLC does, normalizing unnormalized sets as a side effect. Off only
+    /// for `Debug`, which must not change anything observable.
+    mark: bool,
+}
+
+/// The `Debug` form: TLC's printing, without normalizing anything and without
+/// failing on what TLC would expand.
+pub(crate) fn to_debug_string(v: &Value) -> Option<String> {
+    let mut out = String::new();
+    let mode = Mode {
+        swallow: true,
+        mark: false,
+    };
+    write_value(v, Ctx::default(), mode, &mut out).ok()?;
+    Some(out)
+}
+
 fn write_list<'a>(
     items: impl Iterator<Item = &'a Value>,
     ctx: Ctx,
-    swallow: bool,
+    mode: Mode,
     out: &mut String,
 ) -> Result<()> {
     for (i, v) in items.enumerate() {
         if i > 0 {
             out.push_str(", ");
         }
-        write_value(v, ctx, swallow, out)?;
+        write_value(v, ctx, mode, out)?;
     }
     Ok(())
 }
 
 /// The size estimate TLC uses to decide whether to expand `[S -> T]`.
-fn fcn_set_bound(d: &Value, r: &Value, ctx: Ctx) -> Result<u128> {
+fn fcn_set_bound(d: &Value, r: &Value, ctx: Ctx, mode: Mode) -> Result<u128> {
     if crate::tlc::is_empty(d, ctx)? {
         return Ok(1);
     }
-    let dsz = component_size(d, ctx)?;
-    let rsz = u128::from(component_size(r, ctx)?);
+    let dsz = component_size(d, ctx, mode)?;
+    let rsz = u128::from(component_size(r, ctx, mode)?);
     let mut sz: u128 = 1;
     let mut i = 0;
     while i < dsz && sz <= 2_147_483_647 {
@@ -178,10 +218,10 @@ fn fcn_set_bound(d: &Value, r: &Value, ctx: Ctx) -> Result<u128> {
 }
 
 /// The size estimate TLC uses to decide whether to expand `[a : S]` and `S \X T`.
-fn product_bound<'a>(comps: impl Iterator<Item = &'a Value>, ctx: Ctx) -> Result<u128> {
+fn product_bound<'a>(comps: impl Iterator<Item = &'a Value>, ctx: Ctx, mode: Mode) -> Result<u128> {
     let mut sz: u128 = 1;
     for c in comps {
-        let n = u128::from(component_size(c, ctx)?);
+        let n = u128::from(component_size(c, ctx, mode)?);
         if n == 0 {
             return Ok(0);
         }
@@ -192,11 +232,14 @@ fn product_bound<'a>(comps: impl Iterator<Item = &'a Value>, ctx: Ctx) -> Result
     Ok(sz)
 }
 
-fn component_size(v: &Value, ctx: Ctx) -> Result<u64> {
+fn component_size(v: &Value, ctx: Ctx, mode: Mode) -> Result<u64> {
     match v {
-        Value::Set(s) => s.size(ctx),
+        Value::Set(s) if mode.mark => s.size(ctx),
+        Value::Set(s) => enumerate::quiet_size(s)
+            .and_then(|n| u64::try_from(n).ok())
+            .ok_or_else(|| crate::stream::not_enumerable(v, ctx)),
         Value::Fcn(f) => Ok(f.len() as u64),
-        _ => Err(enumerate::not_enumerable(v, ctx)),
+        _ => Err(crate::stream::not_enumerable(v, ctx)),
     }
 }
 
@@ -207,14 +250,12 @@ const ENUM_BOUND: u128 = 2000;
     clippy::too_many_lines,
     reason = "one arm per TLC toString method, kept together for comparison"
 )]
-fn write_value(v: &Value, ctx: Ctx, swallow: bool, out: &mut String) -> Result<()> {
+fn write_value(v: &Value, ctx: Ctx, mode: Mode, out: &mut String) -> Result<()> {
+    let _guard = crate::depth::Guard::enter()?;
     match v {
         Value::Bool(b) => out.push_str(if *b { "TRUE" } else { "FALSE" }),
-        Value::Int(i) => {
-            let _ = write!(out, "{i}");
-        }
-        Value::BigInt(b) => {
-            let _ = write!(out, "{b}");
+        Value::Int(_) | Value::BigInt(_) => {
+            let _ = write!(out, "{}", v.as_int().unwrap_or(crate::Int::ZERO));
         }
         Value::Str(a) => {
             out.push('"');
@@ -222,137 +263,166 @@ fn write_value(v: &Value, ctx: Ctx, swallow: bool, out: &mut String) -> Result<(
             out.push('"');
         }
         Value::Model(a) => out.push_str(a.as_str()),
-        Value::Fcn(f) => match &f.0.repr {
-            FcnRepr::Tuple(e) => {
-                out.push_str("<<");
-                write_list(e.iter(), ctx, swallow, out)?;
-                out.push_str(">>");
+        Value::Fcn(f) => write_fcn(f, ctx, mode, out)?,
+        Value::Set(s) => write_set(s, ctx, mode, out)?,
+    }
+    Ok(())
+}
+
+#[inline(never)]
+fn write_fcn(f: &crate::Fcn, ctx: Ctx, mode: Mode, out: &mut String) -> Result<()> {
+    match &f.0.repr {
+        FcnRepr::Tuple(e) => {
+            out.push_str("<<");
+            write_list(e.iter(), ctx, mode, out)?;
+            out.push_str(">>");
+        }
+        // `RecordValue.toString` always uses record syntax; a string-domain
+        // `FcnRcdValue` only when every field is a name (`isRcd`).
+        FcnRepr::Record(fs)
+            if f.is_record_literal() || fs.iter().all(|(a, _)| is_name(a.as_str())) =>
+        {
+            let mut fields: Vec<(Atom, Value)> = fs.to_vec();
+            if f.order() != ctx.order {
+                fields.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
             }
-            FcnRepr::Record(fs) if fs.iter().all(|(a, _)| is_name(a.as_str())) => {
+            out.push('[');
+            for (i, (a, x)) in fields.iter().enumerate() {
+                if i > 0 {
+                    out.push_str(", ");
+                }
+                out.push_str(a.as_str());
+                out.push_str(" |-> ");
+                write_value(x, ctx, mode, out)?;
+            }
+            out.push(']');
+        }
+        _ => {
+            let mut pairs: Vec<(Value, Value)> = f.iter().map(|(d, x)| (d, x.clone())).collect();
+            if f.order() != ctx.order {
+                pairs.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
+            }
+            out.push('(');
+            for (i, (d, x)) in pairs.iter().enumerate() {
+                if i > 0 {
+                    out.push_str(" @@ ");
+                }
+                write_value(d, ctx, mode, out)?;
+                out.push_str(" :> ");
+                write_value(x, ctx, mode, out)?;
+            }
+            out.push(')');
+        }
+    }
+    Ok(())
+}
+
+#[inline(never)]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one arm per TLC toString method of a set, kept together for comparison"
+)]
+fn write_set(s: &crate::Set, ctx: Ctx, mode: Mode, out: &mut String) -> Result<()> {
+    let expand = |decide: Result<bool>| -> Result<bool> {
+        match decide {
+            Ok(b) => Ok(b),
+            Err(_) if mode.swallow => Ok(false),
+            Err(e) => Err(e),
+        }
+    };
+    let enumerated = |out: &mut String| -> Result<()> {
+        let elems = if mode.mark {
+            elems_in(s, ctx, true)?
+        } else {
+            s.quiet_elements(ctx)?
+        };
+        out.push('{');
+        write_list(elems.iter(), ctx, mode, out)?;
+        out.push('}');
+        Ok(())
+    };
+    match s.repr() {
+        SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Deferred(_) => enumerated(out)?,
+        SetRepr::Interval(lo, hi) => {
+            if lo <= hi {
+                let _ = write!(out, "{lo}..{hi}");
+            } else {
+                out.push_str("{}");
+            }
+        }
+        SetRepr::Subset(b) => {
+            if expand(component_size(b, ctx, mode).map(|n| n < 7))? {
+                enumerated(out)?;
+            } else {
+                out.push_str("SUBSET ");
+                if matches!(b, Value::Set(t) if t.as_interval().is_some()) {
+                    out.push('(');
+                    write_value(b, ctx, mode, out)?;
+                    out.push(')');
+                } else {
+                    write_value(b, ctx, mode, out)?;
+                }
+            }
+        }
+        SetRepr::FcnSet(d, r) => {
+            let small = expand(fcn_set_bound(d, r, ctx, mode).map(|n| n < ENUM_BOUND))?;
+            let printed = small && {
+                let mut tmp = String::new();
+                match enumerated(&mut tmp) {
+                    Ok(()) => {
+                        out.push_str(&tmp);
+                        true
+                    }
+                    Err(_) if mode.swallow => false,
+                    Err(e) => return Err(e),
+                }
+            };
+            if !printed {
+                out.push('[');
+                write_value(d, ctx, mode, out)?;
+                out.push_str(" -> ");
+                write_value(r, ctx, mode, out)?;
+                out.push(']');
+            }
+        }
+        SetRepr::RcdSet(fs) => {
+            if expand(product_bound(fs.iter().map(|(_, x)| x), ctx, mode).map(|n| n < ENUM_BOUND))?
+            {
+                enumerated(out)?;
+            } else {
                 out.push('[');
                 for (i, (a, x)) in fs.iter().enumerate() {
                     if i > 0 {
                         out.push_str(", ");
                     }
                     out.push_str(a.as_str());
-                    out.push_str(" |-> ");
-                    write_value(x, ctx, swallow, out)?;
+                    out.push_str(": ");
+                    write_value(x, ctx, mode, out)?;
                 }
                 out.push(']');
             }
-            _ => {
+        }
+        SetRepr::Product(fs) => {
+            if expand(product_bound(fs.iter(), ctx, mode).map(|n| n < ENUM_BOUND))? {
+                enumerated(out)?;
+            } else if !fs.is_empty() {
                 out.push('(');
-                for (i, (d, x)) in f.iter().enumerate() {
+                for (i, x) in fs.iter().enumerate() {
                     if i > 0 {
-                        out.push_str(" @@ ");
+                        out.push_str(" \\X ");
                     }
-                    write_value(&d, ctx, swallow, out)?;
-                    out.push_str(" :> ");
-                    write_value(x, ctx, swallow, out)?;
+                    write_value(x, ctx, mode, out)?;
                 }
                 out.push(')');
             }
-        },
-        Value::Set(s) => {
-            let expand = |decide: Result<bool>| -> Result<bool> {
-                match decide {
-                    Ok(b) => Ok(b),
-                    Err(_) if swallow => Ok(false),
-                    Err(e) => Err(e),
-                }
-            };
-            let enumerated = |out: &mut String| -> Result<()> {
-                let elems = s.elements(ctx)?;
-                out.push('{');
-                write_list(elems.iter(), ctx, swallow, out)?;
-                out.push('}');
-                Ok(())
-            };
-            match s.repr() {
-                SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Deferred(_) => enumerated(out)?,
-                SetRepr::Interval(lo, hi) => {
-                    if lo <= hi {
-                        let _ = write!(out, "{lo}..{hi}");
-                    } else {
-                        out.push_str("{}");
-                    }
-                }
-                SetRepr::Subset(b) => {
-                    if expand(component_size(b, ctx).map(|n| n < 7))? {
-                        enumerated(out)?;
-                    } else {
-                        out.push_str("SUBSET ");
-                        if matches!(b, Value::Set(t) if t.as_interval().is_some()) {
-                            out.push('(');
-                            write_value(b, ctx, swallow, out)?;
-                            out.push(')');
-                        } else {
-                            write_value(b, ctx, swallow, out)?;
-                        }
-                    }
-                }
-                SetRepr::FcnSet(d, r) => {
-                    let small = expand(fcn_set_bound(d, r, ctx).map(|n| n < ENUM_BOUND))?;
-                    let printed = small && {
-                        let mut tmp = String::new();
-                        match enumerated(&mut tmp) {
-                            Ok(()) => {
-                                out.push_str(&tmp);
-                                true
-                            }
-                            Err(_) if swallow => false,
-                            Err(e) => return Err(e),
-                        }
-                    };
-                    if !printed {
-                        out.push('[');
-                        write_value(d, ctx, swallow, out)?;
-                        out.push_str(" -> ");
-                        write_value(r, ctx, swallow, out)?;
-                        out.push(']');
-                    }
-                }
-                SetRepr::RcdSet(fs) => {
-                    if expand(
-                        product_bound(fs.iter().map(|(_, x)| x), ctx).map(|n| n < ENUM_BOUND),
-                    )? {
-                        enumerated(out)?;
-                    } else {
-                        out.push('[');
-                        for (i, (a, x)) in fs.iter().enumerate() {
-                            if i > 0 {
-                                out.push_str(", ");
-                            }
-                            out.push_str(a.as_str());
-                            out.push_str(": ");
-                            write_value(x, ctx, swallow, out)?;
-                        }
-                        out.push(']');
-                    }
-                }
-                SetRepr::Product(fs) => {
-                    if expand(product_bound(fs.iter(), ctx).map(|n| n < ENUM_BOUND))? {
-                        enumerated(out)?;
-                    } else if !fs.is_empty() {
-                        out.push('(');
-                        for (i, x) in fs.iter().enumerate() {
-                            if i > 0 {
-                                out.push_str(" \\X ");
-                            }
-                            write_value(x, ctx, swallow, out)?;
-                        }
-                        out.push(')');
-                    }
-                }
-                SetRepr::Nat => out.push_str("Nat"),
-                SetRepr::Int => out.push_str("Int"),
-                SetRepr::Strings => out.push_str("STRING"),
-                SetRepr::Seq(r) => {
-                    out.push_str("Seq(");
-                    write_value(r, ctx, swallow, out)?;
-                    out.push(')');
-                }
-            }
+        }
+        SetRepr::Nat => out.push_str("Nat"),
+        SetRepr::Int => out.push_str("Int"),
+        SetRepr::Strings => out.push_str("STRING"),
+        SetRepr::Seq(r) => {
+            out.push_str("Seq(");
+            write_value(r, ctx, mode, out)?;
+            out.push(')');
         }
     }
     Ok(())

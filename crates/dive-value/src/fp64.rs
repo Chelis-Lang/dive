@@ -9,9 +9,11 @@
 //!
 //! The [`Fingerprinter`] trait leaves room for another fingerprint function.
 
+use crate::atom::Atom;
 use crate::ctx::Ctx;
 use crate::error::{ErrorKind, Result, ValueError};
 use crate::print::{ppr, to_tlc_string_lenient};
+use crate::stream::{Elems, elems_in, slice_stream, stream};
 use crate::value::{FcnRepr, SetRepr, Value};
 
 /// TLC's 131 irreducible polynomials (`FP64.Polys`); `-fp n` selects `POLYS[n]`.
@@ -291,23 +293,47 @@ impl TlcFingerprint {
     }
 }
 
-impl Fingerprinter for TlcFingerprint {
-    fn extend(&self, fp: u64, v: &Value, ctx: Ctx) -> Result<u64> {
+/// One step of the iterative fingerprint traversal.
+enum Frame<'a> {
+    /// A value borrowed from the value being fingerprinted.
+    Ref(&'a Value),
+    /// A value generated on the way (an element of a lazy set, or a re-sorted pair).
+    Own(Value),
+    /// The remaining elements of a set, in normalized order.
+    Elems(Elems),
+    /// A tuple's domain element: `INTVALUE` and the index.
+    IntHdr(i32),
+    /// A record field name, fingerprinted as a string.
+    StrHdr(&'a Atom),
+}
+
+impl TlcFingerprint {
+    fn header_str(&self, fp: u64, a: &Atom) -> u64 {
+        let f = &self.fp;
+        let fp = f.extend_byte(fp, kind::STRING);
+        let fp = f.extend_i32(fp, len_i32(a.utf16_len() as usize));
+        f.extend_str(fp, a.as_str())
+    }
+
+    /// Extends `fp` by the top level of `v` and pushes its children.
+    #[allow(clippy::many_single_char_names, reason = "port of fingerPrint")]
+    fn step<'a>(&self, fp: u64, v: &'a Value, ctx: Ctx, stack: &mut Vec<Frame<'a>>) -> Result<u64> {
         let f = &self.fp;
         Ok(match v {
             Value::Bool(b) => {
                 f.extend_char(f.extend_byte(fp, kind::BOOL), if *b { 0x74 } else { 0x66 })
             }
-            Value::Int(i) => match i32::try_from(*i) {
-                Ok(i) => f.extend_i32(f.extend_byte(fp, kind::INT), i),
-                Err(_) => big_int(f, fp, &num_bigint::BigInt::from(*i)),
-            },
-            Value::BigInt(b) => big_int(f, fp, b),
-            Value::Str(a) => {
-                let fp = f.extend_byte(fp, kind::STRING);
-                let fp = f.extend_i32(fp, len_i32(a.utf16_len() as usize));
-                f.extend_str(fp, a.as_str())
+            Value::Int(i) if i32::try_from(*i).is_ok() => {
+                f.extend_i32(f.extend_byte(fp, kind::INT), i32::try_from(*i).unwrap_or(0))
             }
+            Value::Int(_) | Value::BigInt(_) => {
+                let i = v.as_int().unwrap_or(crate::Int::ZERO);
+                match i.to_i32() {
+                    Some(i) => f.extend_i32(f.extend_byte(fp, kind::INT), i),
+                    None => big_int(f, fp, &i.to_big()),
+                }
+            }
+            Value::Str(a) => self.header_str(fp, a),
             Value::Model(a) => {
                 let fp = f.extend_byte(fp, kind::MODEL);
                 f.extend_i32(fp, i32::try_from(a.tok()).unwrap_or(i32::MAX))
@@ -324,43 +350,80 @@ impl Fingerprinter for TlcFingerprint {
                         ),
                     ));
                 }
-                let elems = s.elements(ctx)?;
-                let mut fp = f.extend_byte(fp, kind::SETENUM);
-                fp = f.extend_i32(fp, len_i32(elems.len()));
-                for e in elems.iter() {
-                    fp = self.extend(fp, e, ctx)?;
+                // TLC normalizes (and sizes) the set before fingerprinting it.
+                let n = s.size(ctx)?;
+                let fp = f.extend_byte(fp, kind::SETENUM);
+                let fp = f.extend_i32(fp, i32::try_from(n).unwrap_or(i32::MAX));
+                match (s.repr(), s.0.elems.get()) {
+                    (SetRepr::Enum | SetRepr::Raw(_), Some(e)) if s.order() == ctx.order => {
+                        stack.extend(e.iter().rev().map(Frame::Ref));
+                    }
+                    _ if s.order() == ctx.order => stack.push(Frame::Elems(stream(s, ctx, true)?)),
+                    _ => stack.push(Frame::Elems(slice_stream(elems_in(s, ctx, true)?))),
                 }
                 fp
             }
             Value::Fcn(fun) => {
-                let mut fp = f.extend_byte(fp, kind::FCNRCD);
-                fp = f.extend_i32(fp, len_i32(fun.len()));
+                let fp = f.extend_byte(fp, kind::FCNRCD);
+                let fp = f.extend_i32(fp, len_i32(fun.len()));
                 match &fun.0.repr {
                     FcnRepr::Tuple(e) => {
-                        for (i, x) in e.iter().enumerate() {
-                            fp = f.extend_byte(fp, kind::INT);
-                            fp = f.extend_i32(fp, len_i32(i + 1));
-                            fp = self.extend(fp, x, ctx)?;
+                        for (i, x) in e.iter().enumerate().rev() {
+                            stack.push(Frame::Ref(x));
+                            stack.push(Frame::IntHdr(len_i32(i + 1)));
                         }
                     }
-                    FcnRepr::Record(fs) => {
-                        for (a, x) in fs {
-                            fp = f.extend_byte(fp, kind::STRING);
-                            fp = f.extend_i32(fp, len_i32(a.utf16_len() as usize));
-                            fp = f.extend_str(fp, a.as_str());
-                            fp = self.extend(fp, x, ctx)?;
+                    FcnRepr::Record(fs) if fun.order() == ctx.order => {
+                        for (a, x) in fs.iter().rev() {
+                            stack.push(Frame::Ref(x));
+                            stack.push(Frame::StrHdr(a));
                         }
                     }
-                    FcnRepr::General(ps) => {
-                        for (d, x) in ps {
-                            fp = self.extend(fp, d, ctx)?;
-                            fp = self.extend(fp, x, ctx)?;
+                    FcnRepr::General(ps) if fun.order() == ctx.order => {
+                        for (d, x) in ps.iter().rev() {
+                            stack.push(Frame::Ref(x));
+                            stack.push(Frame::Ref(d));
+                        }
+                    }
+                    FcnRepr::Record(_) | FcnRepr::General(_) => {
+                        let mut pairs: Vec<(Value, Value)> =
+                            fun.iter().map(|(d, x)| (d, x.clone())).collect();
+                        pairs.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
+                        for (d, x) in pairs.into_iter().rev() {
+                            stack.push(Frame::Own(x));
+                            stack.push(Frame::Own(d));
                         }
                     }
                 }
                 fp
             }
         })
+    }
+}
+
+impl Fingerprinter for TlcFingerprint {
+    /// Iterative over any nesting of enumerated values; lazy sets are streamed, never
+    /// materialized.
+    fn extend(&self, fp: u64, v: &Value, ctx: Ctx) -> Result<u64> {
+        let f = &self.fp;
+        let mut fp = fp;
+        let mut stack = vec![Frame::Ref(v)];
+        while let Some(frame) = stack.pop() {
+            match frame {
+                Frame::IntHdr(i) => fp = f.extend_i32(f.extend_byte(fp, kind::INT), i),
+                Frame::StrHdr(a) => fp = self.header_str(fp, a),
+                Frame::Ref(v) => fp = self.step(fp, v, ctx, &mut stack)?,
+                // A generated value owns its children, so it gets its own traversal.
+                Frame::Own(v) => fp = self.extend(fp, &v, ctx)?,
+                Frame::Elems(mut it) => {
+                    if let Some(x) = it.next() {
+                        stack.push(Frame::Elems(it));
+                        stack.push(Frame::Own(x));
+                    }
+                }
+            }
+        }
+        Ok(fp)
     }
 
     fn fingerprint(&self, v: &Value, ctx: Ctx) -> Result<u64> {

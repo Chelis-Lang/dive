@@ -16,7 +16,8 @@
 //! | `S \X T` | `SetOfTuplesValue` |
 //! | `Nat`, `Int`, `STRING`, `Seq(S)` | `UserValue` |
 //! | tuple | `TupleValue` |
-//! | record | `RecordValue` |
+//! | record literal (`[f \|-> e]`, elements of `[f : S]`) | `RecordValue` |
+//! | function with a string domain (`:>`, `@@`, `[x \in S \|-> e]`) | `FcnRcdValue` with an explicit domain |
 //! | general function | `FcnRcdValue` with an explicit domain |
 
 #![allow(
@@ -24,12 +25,17 @@
     reason = "ports keep short operand names (a, b, s, t, x, y)"
 )]
 
+use std::borrow::Cow;
 use std::cmp::Ordering;
+use std::sync::Arc;
 
 use crate::atom::Atom;
-use crate::ctx::Ctx;
+use crate::ctx::{Ctx, ValueOrder};
+use crate::depth::Guard;
 use crate::error::{ErrorKind, Result, ValueError};
+use crate::int::Int;
 use crate::print::{ppr, to_tlc_string_lenient};
+use crate::stream::elems_in;
 use crate::value::{Fcn, FcnRepr, Set, SetRepr, Value};
 
 /// `Values.ppr(v.toString())`.
@@ -111,21 +117,22 @@ fn mv_member(mv: &Atom, mv_val: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
 
 /// `Value.toSetEnum()`: the normalized elements of a finite set, or `None` for
 /// non-sets and `UserValue`s.
-fn to_set_enum(v: &Value, ctx: Ctx) -> Result<Option<std::sync::Arc<[Value]>>> {
+fn to_set_enum(v: &Value, ctx: Ctx) -> Result<Option<Arc<[Value]>>> {
     match v {
-        Value::Set(s) if user_of(s).is_none() => s.elements(ctx).map(Some),
+        Value::Set(s) if user_of(s).is_none() => elems_in(s, ctx, true).map(Some),
         _ => Ok(None),
     }
 }
 
-fn enum_value(elems: &std::sync::Arc<[Value]>, ctx: Ctx) -> Value {
+fn enum_value(elems: &Arc<[Value]>, ctx: Ctx) -> Value {
     Value::Set(Set::from_sorted(ctx.order, elems.to_vec()))
 }
 
-/// A view of a function as TLC's `FcnRcdValue`: interval domain `1..n` or explicit.
+/// A view of a function as TLC's `FcnRcdValue`: interval domain `1..n` or explicit
+/// (sorted in the context's order).
 enum FcnView<'a> {
     Intv(&'a [Value]),
-    Array(Vec<(Value, &'a Value)>),
+    Array(Vec<(Value, Value)>),
 }
 
 impl FcnView<'_> {
@@ -138,17 +145,26 @@ impl FcnView<'_> {
     fn value(&self, i: usize) -> &Value {
         match self {
             FcnView::Intv(v) => &v[i],
-            FcnView::Array(p) => p[i].1,
+            FcnView::Array(p) => &p[i].1,
         }
     }
 }
 
+/// A function's pairs sorted in `order`.
+fn sorted_pairs(f: &Fcn, order: ValueOrder) -> Vec<(Value, Value)> {
+    let mut v: Vec<(Value, Value)> = f.iter().map(|(d, x)| (d, x.clone())).collect();
+    if f.kind() != crate::FcnKind::Tuple && f.order() != order {
+        v.sort_by(|a, b| a.0.cmp_with(&b.0, order));
+    }
+    v
+}
+
 /// `Value.toFcnRcd()`.
-fn to_fcn(v: &Value) -> Option<FcnView<'_>> {
+fn to_fcn(v: &Value, ctx: Ctx) -> Option<FcnView<'_>> {
     match v {
         Value::Fcn(f) => Some(match &f.0.repr {
             FcnRepr::Tuple(e) => FcnView::Intv(e),
-            _ => FcnView::Array(f.iter().collect()),
+            _ => FcnView::Array(sorted_pairs(f, ctx.order)),
         }),
         _ => None,
     }
@@ -162,20 +178,26 @@ fn to_tuple(v: &Value) -> Option<&[Value]> {
     }
 }
 
-/// `Value.toRcd()`: records, and the empty tuple as the empty record.
-fn to_rcd(v: &Value) -> Option<&[(Atom, Value)]> {
+/// `Value.toRcd()`: records (literal or not), and the empty tuple as the empty
+/// record, with fields sorted in the context's order.
+fn to_rcd(v: &Value, ctx: Ctx) -> Option<Cow<'_, [(Atom, Value)]>> {
     match v {
         Value::Fcn(f) => match &f.0.repr {
-            FcnRepr::Record(fs) => Some(fs),
-            FcnRepr::Tuple(e) if e.is_empty() => Some(&[]),
+            FcnRepr::Record(fs) if f.order() == ctx.order => Some(Cow::Borrowed(fs)),
+            FcnRepr::Record(fs) => {
+                let mut v = fs.to_vec();
+                v.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
+                Some(Cow::Owned(v))
+            }
+            FcnRepr::Tuple(e) if e.is_empty() => Some(Cow::Borrowed(&[])),
             _ => None,
         },
         _ => None,
     }
 }
 
-fn idx_value(i: usize) -> i64 {
-    i64::try_from(i).unwrap_or(i64::MAX) + 1
+fn idx_value(i: usize) -> Int {
+    Int::Small(i64::try_from(i).unwrap_or(i64::MAX) + 1)
 }
 
 /// TLC's `a.compareTo(b)`.
@@ -214,8 +236,14 @@ pub fn compare(a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
             ))),
         },
         Value::Model(x) => compare_mv(x, a, b, ctx),
-        Value::Set(s) => compare_set(s, a, b, ctx),
-        Value::Fcn(f) => compare_fcn(f, a, b, ctx),
+        Value::Set(s) => {
+            let _guard = Guard::enter()?;
+            compare_set(s, a, b, ctx)
+        }
+        Value::Fcn(f) => {
+            let _guard = Guard::enter()?;
+            compare_fcn(f, a, b, ctx)
+        }
     }
 }
 
@@ -309,7 +337,7 @@ fn compare_set(s: &Set, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
         }
         _ => {}
     }
-    let mine = s.elements(ctx)?;
+    let mine = elems_in(s, ctx, true)?;
     let Some(theirs) = to_set_enum(b, ctx)? else {
         if let Value::Model(m) = b {
             return mv_compare_rev(m, b, a, ctx);
@@ -349,8 +377,9 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
             }
             compare_fcnrcd(&FcnView::Intv(e), a, b, ctx)
         }
-        FcnRepr::Record(fs) => {
-            let Some(r) = to_rcd(b) else {
+        FcnRepr::Record(_) if f.is_record_literal() => {
+            let fs = to_rcd(a, ctx).unwrap_or_default();
+            let Some(r) = to_rcd(b, ctx) else {
                 if let Value::Model(m) = b {
                     return mv_compare_rev(m, b, a, ctx);
                 }
@@ -363,13 +392,13 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
             if fs.len() != r.len() {
                 return Ok(fs.len().cmp(&r.len()));
             }
-            for ((n1, _), (n2, _)) in fs.iter().zip(r) {
+            for ((n1, _), (n2, _)) in fs.iter().zip(r.iter()) {
                 let c = n1.cmp_with(n2, ctx.order);
                 if c != Ordering::Equal {
                     return Ok(c);
                 }
             }
-            for ((_, v1), (_, v2)) in fs.iter().zip(r) {
+            for ((_, v1), (_, v2)) in fs.iter().zip(r.iter()) {
                 let c = compare(v1, v2, ctx)?;
                 if c != Ordering::Equal {
                     return Ok(c);
@@ -377,8 +406,9 @@ fn compare_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
             }
             Ok(Ordering::Equal)
         }
-        FcnRepr::General(_) => {
-            let view = FcnView::Array(f.iter().collect());
+        // A string-domain function that is not a record literal is a `FcnRcdValue`.
+        FcnRepr::Record(_) | FcnRepr::General(_) => {
+            let view = FcnView::Array(sorted_pairs(f, ctx.order));
             compare_fcnrcd(&view, a, b, ctx)
         }
     }
@@ -394,7 +424,7 @@ fn non_int_domain(d: &Value, ctx: Ctx, an: bool) -> ValueError {
 
 /// `FcnRcdValue.compareTo`, with `this` viewed as `me`.
 fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Ordering> {
-    let Some(other) = to_fcn(b) else {
+    let Some(other) = to_fcn(b, ctx) else {
         if let Value::Model(m) = b {
             return mv_compare_rev(m, b, a, ctx);
         }
@@ -413,10 +443,10 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
         (FcnView::Intv(_), FcnView::Intv(_)) => {}
         (FcnView::Intv(_), FcnView::Array(ps)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
-                let Value::Int(k) = d else {
+                let Some(k) = d.as_int() else {
                     return Err(non_int_domain(d, ctx, false));
                 };
-                let c = idx_value(i).cmp(k);
+                let c = idx_value(i).cmp(&k);
                 if c != Ordering::Equal {
                     return Ok(c);
                 }
@@ -424,7 +454,7 @@ fn compare_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<Or
         }
         (FcnView::Array(ps), FcnView::Intv(_)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
-                let Value::Int(k) = d else {
+                let Some(k) = d.as_int() else {
                     return Err(non_int_domain(d, ctx, false));
                 };
                 let c = k.cmp(&idx_value(i));
@@ -507,8 +537,14 @@ pub fn equals(a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
                 p(b, ctx)
             ))),
         },
-        Value::Set(s) => equals_set(s, a, b, ctx),
-        Value::Fcn(f) => equals_fcn(f, a, b, ctx),
+        Value::Set(s) => {
+            let _guard = Guard::enter()?;
+            equals_set(s, a, b, ctx)
+        }
+        Value::Fcn(f) => {
+            let _guard = Guard::enter()?;
+            equals_fcn(f, a, b, ctx)
+        }
     }
 }
 
@@ -573,7 +609,7 @@ fn equals_set(s: &Set, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
             _ => {}
         }
     }
-    let mine = s.elements(ctx)?;
+    let mine = elems_in(s, ctx, true)?;
     let Some(theirs) = to_set_enum(b, ctx)? else {
         if let Value::Model(m) = b {
             return mv_equals_rev(m, b, a, ctx);
@@ -611,8 +647,9 @@ fn equals_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
             }
             equals_fcnrcd(&FcnView::Intv(e), a, b, ctx)
         }
-        FcnRepr::Record(fs) => {
-            let Some(r) = to_rcd(b) else {
+        FcnRepr::Record(_) if f.is_record_literal() => {
+            let fs = to_rcd(a, ctx).unwrap_or_default();
+            let Some(r) = to_rcd(b, ctx) else {
                 if let Value::Model(m) = b {
                     return mv_equals_rev(m, b, a, ctx);
                 }
@@ -625,25 +662,26 @@ fn equals_fcn(f: &Fcn, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
             if fs.len() != r.len() {
                 return Ok(false);
             }
-            if fs.iter().zip(r).any(|((n1, _), (n2, _))| n1 != n2) {
+            if fs.iter().zip(r.iter()).any(|((n1, _), (n2, _))| n1 != n2) {
                 return Ok(false);
             }
-            for ((_, v1), (_, v2)) in fs.iter().zip(r) {
+            for ((_, v1), (_, v2)) in fs.iter().zip(r.iter()) {
                 if !equals(v1, v2, ctx)? {
                     return Ok(false);
                 }
             }
             Ok(true)
         }
-        FcnRepr::General(_) => {
-            let view = FcnView::Array(f.iter().collect());
+        // A string-domain function that is not a record literal is a `FcnRcdValue`.
+        FcnRepr::Record(_) | FcnRepr::General(_) => {
+            let view = FcnView::Array(sorted_pairs(f, ctx.order));
             equals_fcnrcd(&view, a, b, ctx)
         }
     }
 }
 
 fn equals_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<bool> {
-    let Some(other) = to_fcn(b) else {
+    let Some(other) = to_fcn(b, ctx) else {
         if let Value::Model(m) = b {
             return mv_equals_rev(m, b, a, ctx);
         }
@@ -660,10 +698,10 @@ fn equals_fcnrcd(me: &FcnView<'_>, a: &Value, b: &Value, ctx: Ctx) -> Result<boo
         (FcnView::Intv(_), FcnView::Intv(_)) => {}
         (FcnView::Intv(_), FcnView::Array(ps)) | (FcnView::Array(ps), FcnView::Intv(_)) => {
             for (i, (d, _)) in ps.iter().enumerate() {
-                let Value::Int(k) = d else {
+                let Some(k) = d.as_int() else {
                     return Err(non_int_domain(d, ctx, true));
                 };
-                if *k != idx_value(i) {
+                if k != idx_value(i) {
                     return Ok(false);
                 }
             }
@@ -696,9 +734,10 @@ pub fn is_empty(v: &Value, ctx: Ctx) -> Result<bool> {
         )));
     };
     Ok(match s.repr() {
-        SetRepr::Interval(..) | SetRepr::Enum | SetRepr::Raw(_) | SetRepr::Deferred(_) => {
-            s.elements(ctx)?.is_empty()
-        }
+        SetRepr::Interval(lo, hi) => hi < lo,
+        // `SetEnumValue.isEmpty` counts the elements without normalizing.
+        SetRepr::Raw(e) => e.is_empty(),
+        SetRepr::Enum | SetRepr::Deferred(_) => s.elements(ctx)?.is_empty(),
         SetRepr::FcnSet(d, r) => !is_empty(d, ctx)? && is_empty(r, ctx)?,
         SetRepr::RcdSet(fs) => {
             let mut any = false;
@@ -731,6 +770,7 @@ pub fn is_empty(v: &Value, ctx: Ctx) -> Result<bool> {
     reason = "one arm per TLC member() method, kept together for comparison"
 )]
 pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
+    let _guard = Guard::enter()?;
     let s = match set {
         Value::Set(s) => s,
         Value::Fcn(f) => {
@@ -738,12 +778,12 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
                 FcnRepr::Tuple(_) => {
                     "Attempted to check set membership in a tuple value.".to_owned()
                 }
-                FcnRepr::Record(_) => format!(
+                FcnRepr::Record(_) if f.is_record_literal() => format!(
                     "Attempted to check if element:\n{}\nis in the record:\n{}",
                     p(elem, ctx),
                     p(set, ctx)
                 ),
-                FcnRepr::General(_) => format!(
+                FcnRepr::Record(_) | FcnRepr::General(_) => format!(
                     "Attempted to check if the value:\n{}\nis an element of the function {}",
                     p(elem, ctx),
                     p(set, ctx)
@@ -765,10 +805,14 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
         }
     };
     match s.repr() {
-        SetRepr::Enum => binary_search(elem, &s.elements(ctx)?, ctx),
+        // The elements are sorted in the set's own order: search in that order.
+        SetRepr::Enum => match s.0.elems.get() {
+            Some(e) => binary_search(elem, e, own(s, ctx)),
+            None => binary_search(elem, &s.elements(ctx)?, own(s, ctx)),
+        },
         SetRepr::Raw(raw) => {
-            if let Some(Ok(sorted)) = s.0.elems.get() {
-                binary_search(elem, sorted, ctx)
+            if s.is_tlc_normalized() {
+                binary_search(elem, &s.elements(ctx)?, own(s, ctx))
             } else {
                 for x in raw {
                     if equals(x, elem, ctx)? {
@@ -812,7 +856,7 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
         },
         SetRepr::FcnSet(domain, range) => member_fcn_set(elem, set, domain, range, ctx),
         SetRepr::RcdSet(fs) => {
-            let Some(r) = to_rcd(elem) else {
+            let Some(r) = to_rcd(elem, own(s, ctx)) else {
                 if let Value::Model(m) = elem {
                     return mv_member(m, elem, set, ctx);
                 }
@@ -825,7 +869,7 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
             if fs.len() != r.len() {
                 return Ok(false);
             }
-            for ((n1, s1), (n2, v)) in fs.iter().zip(r) {
+            for ((n1, s1), (n2, v)) in fs.iter().zip(r.iter()) {
                 if n1 != n2 || !member(v, s1, ctx)? {
                     return Ok(false);
                 }
@@ -844,7 +888,7 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
                 return match elem {
                     Value::Model(m) => mv_member(m, elem, set, ctx),
                     Value::Fcn(f) => {
-                        if f.iter().all(|(d, _)| matches!(d, Value::Int(_))) {
+                        if f.iter().all(|(d, _)| d.as_int().is_some()) {
                             Ok(false)
                         } else {
                             Err(non_tuple())
@@ -906,7 +950,7 @@ pub fn member(elem: &Value, set: &Value, ctx: Ctx) -> Result<bool> {
         }
         SetRepr::Deferred(src) => match src.member(elem, ctx) {
             Some(r) => r,
-            None => binary_search(elem, &s.elements(ctx)?, ctx),
+            None => binary_search(elem, &s.elements(ctx)?, own(s, ctx)),
         },
     }
 }
@@ -918,7 +962,7 @@ fn member_fcn_set(
     range: &Value,
     ctx: Ctx,
 ) -> Result<bool> {
-    let Some(f) = to_fcn(elem) else {
+    let Some(f) = to_fcn(elem, ctx) else {
         if let Value::Model(m) = elem {
             return mv_member(m, elem, set, ctx);
         }
@@ -953,6 +997,14 @@ fn member_fcn_set(
         }
     }
     Ok(true)
+}
+
+/// The context with the set's own order.
+fn own(s: &Set, ctx: Ctx) -> Ctx {
+    Ctx {
+        order: s.order(),
+        ..ctx
+    }
 }
 
 /// `ValueVec.search(elem, true)`: binary search with `elem.compareTo(sorted[mid])`.

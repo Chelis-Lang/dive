@@ -17,11 +17,14 @@ use crate::value::{Set, SetRepr, Value};
 fn current(v: &Value, ctx: Ctx) -> Result<(Vec<Value>, bool)> {
     match v {
         Value::Set(s) => match s.repr() {
-            SetRepr::Raw(raw) => match s.0.elems.get() {
-                Some(Ok(sorted)) => Ok((sorted.to_vec(), true)),
-                _ => Ok((raw.to_vec(), false)),
-            },
-            _ => Ok((s.elements(ctx)?.to_vec(), true)),
+            SetRepr::Raw(raw) => {
+                if s.is_tlc_normalized() {
+                    Ok((crate::stream::elems_in(s, ctx, true)?.to_vec(), true))
+                } else {
+                    Ok((raw.to_vec(), false))
+                }
+            }
+            _ => Ok((crate::stream::elems_in(s, ctx, true)?.to_vec(), true)),
         },
         _ => Err(ValueError::new(
             ErrorKind::Argument,
@@ -55,7 +58,7 @@ pub fn union(a: &Value, b: &Value, ctx: Ctx) -> Result<Value> {
     let Value::Set(bs) = b else {
         return current(b, ctx).map(|(_, _)| b.clone());
     };
-    for e in bs.elements(ctx)?.iter() {
+    for e in crate::stream::elems_in(bs, ctx, true)?.iter() {
         if !member(e, a, ctx)? {
             out.push(e.clone());
         }
@@ -110,7 +113,7 @@ pub fn choose(
             "Attempted to compute the value of an expression of form CHOOSE x \\in S: P, but S was not enumerable.",
         ));
     };
-    for e in set.elements(ctx)?.iter() {
+    for e in crate::stream::elems_in(set, ctx, true)?.iter() {
         if pred(e)? {
             return Ok(Some(e.clone()));
         }

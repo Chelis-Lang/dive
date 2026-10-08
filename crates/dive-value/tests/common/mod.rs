@@ -396,6 +396,21 @@ impl P<'_, '_> {
     /// `[f |-> e, ...]`, `[f : S, ...]` or `[S -> T]`.
     fn bracket(&mut self) -> Eval {
         let ctx = self.ctx();
+        // `[x \in S |-> e]` with a body that does not mention `x`.
+        if matches!(self.peek(), Some(Tok::Id(_)))
+            && matches!(self.toks.get(self.pos + 1), Some(Tok::Op(o)) if o == "\\in")
+        {
+            self.pos += 2;
+            let dom = self.expr()?;
+            self.eat("|->");
+            let body = self.expr()?;
+            self.eat("]");
+            let elems = dom.as_set().expect("a set domain").elements(ctx)?;
+            return Value::fcn(
+                elems.iter().map(|d| (d.clone(), body.clone())).collect(),
+                ctx,
+            );
+        }
         let is_field = matches!(self.peek(), Some(Tok::Id(_)))
             && matches!(self.toks.get(self.pos + 1), Some(Tok::Op(o)) if o == "|->" || o == ":");
         if is_field {

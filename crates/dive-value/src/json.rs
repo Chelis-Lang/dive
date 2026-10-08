@@ -64,6 +64,7 @@ pub fn json_string(s: &str) -> String {
 }
 
 fn write_json(v: &Value, ctx: Ctx, out: &mut String) -> Result<()> {
+    let _guard = crate::depth::Guard::enter()?;
     match v {
         Value::Bool(b) => out.push_str(if *b { "true" } else { "false" }),
         Value::Int(i) => {
@@ -85,13 +86,18 @@ fn write_json(v: &Value, ctx: Ctx, out: &mut String) -> Result<()> {
                 out.push(']');
             } else {
                 out.push('{');
-                for (i, (d, x)) in f.iter().enumerate() {
+                let mut pairs: Vec<(Value, Value)> =
+                    f.iter().map(|(d, x)| (d, x.clone())).collect();
+                if f.order() != ctx.order {
+                    pairs.sort_by(|a, b| a.0.cmp_with(&b.0, ctx.order));
+                }
+                for (i, (d, x)) in pairs.iter().enumerate() {
                     if i > 0 {
                         out.push(',');
                     }
                     let key = match &d {
                         Value::Str(a) => a.as_str().to_owned(),
-                        _ => to_tlc_string(&d, ctx)?,
+                        _ => to_tlc_string(d, ctx)?,
                     };
                     out.push_str(&json_string(&key));
                     out.push(':');
@@ -111,7 +117,7 @@ fn write_json(v: &Value, ctx: Ctx, out: &mut String) -> Result<()> {
                 ));
             }
             out.push('[');
-            for (i, x) in s.elements(ctx)?.iter().enumerate() {
+            for (i, x) in crate::stream::elems_in(s, ctx, true)?.iter().enumerate() {
                 if i > 0 {
                     out.push(',');
                 }

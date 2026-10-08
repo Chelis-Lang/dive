@@ -20,9 +20,9 @@ use crate::error::{ErrorKind, Result, ValueError};
 
 /// An integer: inline when it fits in an `i64`, otherwise a shared big integer.
 ///
-/// Invariant: `Big` never holds a value that fits in an `i64`, so the representation is
-/// canonical and structural equality is numeric equality.
-#[derive(Clone, PartialEq, Eq, Hash)]
+/// Constructors keep the representation canonical (`Big` only outside `i64` range);
+/// equality, ordering and hashing are numeric even for a hand-built non-canonical `Big`.
+#[derive(Clone)]
 pub enum Int {
     /// A value in `i64` range.
     Small(i64),
@@ -61,7 +61,7 @@ impl Int {
     pub fn to_i64(&self) -> Option<i64> {
         match self {
             Self::Small(v) => Some(*v),
-            Self::Big(_) => None,
+            Self::Big(b) => b.to_i64(),
         }
     }
 
@@ -385,25 +385,30 @@ impl From<i32> for Int {
     }
 }
 
+/// Numeric order. A `Big` that fits in an `i64` (possible only by building the
+/// variant directly) still compares by value.
 impl Ord for Int {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Small(a), Self::Small(b)) => a.cmp(b),
-            (Self::Small(_), Self::Big(b)) => {
-                if b.is_negative() {
-                    Ordering::Greater
-                } else {
-                    Ordering::Less
-                }
-            }
-            (Self::Big(a), Self::Small(_)) => {
-                if a.is_negative() {
-                    Ordering::Less
-                } else {
-                    Ordering::Greater
-                }
-            }
-            (Self::Big(a), Self::Big(b)) => a.cmp(b),
+            _ => self.to_big().cmp(&other.to_big()),
+        }
+    }
+}
+
+impl PartialEq for Int {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == Ordering::Equal
+    }
+}
+
+impl Eq for Int {}
+
+impl std::hash::Hash for Int {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self.to_i64() {
+            Some(v) => v.hash(state),
+            None => self.to_big().hash(state),
         }
     }
 }
