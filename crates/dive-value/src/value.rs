@@ -391,18 +391,38 @@ impl Set {
             // TLC's `toSetEnum` sizes the set first: its size errors come first.
             crate::enumerate::size(self, ctx)?;
         }
-        let e = self.quiet_elements(ctx)?;
+        let e = self.cached_elements(ctx)?;
         self.mark_normalized();
         Ok(e)
     }
 
-    /// The elements in normalized order, without changing TLC's view of the set.
+    /// The elements in normalized order, without changing TLC's view of the set or
+    /// of any set nested in it (issue #32): the operations TLC would perform to
+    /// normalize run with [`quiet::Quiet`] active, so they mark nothing.
     pub(crate) fn quiet_elements(&self, ctx: Ctx) -> Result<Arc<[Value]>> {
         if let Some(e) = self.0.elems.get() {
             return Ok(e.clone());
         }
+        let _quiet = quiet::Quiet::enter();
+        self.cached_elements(ctx)
+    }
+
+    /// Enumerates and normalizes the set, caching the result unless a mark was
+    /// suppressed while computing it. A suppressed mark means TLC's normalization
+    /// would have normalized a nested set; the cache must not skip that side effect
+    /// when a TLC operation later asks for the elements, so the result is
+    /// recomputed then.
+    fn cached_elements(&self, ctx: Ctx) -> Result<Arc<[Value]>> {
+        if let Some(e) = self.0.elems.get() {
+            return Ok(e.clone());
+        }
+        let before = quiet::suppressed();
         let e: Arc<[Value]> = crate::enumerate::enumerate(self, ctx)?.into();
-        Ok(self.0.elems.get_or_init(|| e).clone())
+        if quiet::suppressed() == before {
+            Ok(self.0.elems.get_or_init(|| e).clone())
+        } else {
+            Ok(e)
+        }
     }
 
     /// Whether TLC would treat the set as normalized (always, except for a `Raw` set
@@ -416,8 +436,12 @@ impl Set {
 
     /// Records that TLC would now treat the set as normalized.
     pub(crate) fn mark_normalized(&self) {
-        if matches!(self.0.repr, SetRepr::Raw(_)) {
-            self.0.tlc_norm.store(true, AtomicOrdering::Release);
+        if matches!(self.0.repr, SetRepr::Raw(_)) && !self.is_tlc_normalized() {
+            if quiet::active() {
+                quiet::note_suppressed();
+            } else {
+                self.0.tlc_norm.store(true, AtomicOrdering::Release);
+            }
         }
     }
 
@@ -492,6 +516,48 @@ impl Set {
             SetRepr::Raw(e) if !self.is_tlc_normalized() => Some(e),
             _ => None,
         }
+    }
+}
+
+/// Quiet mode: while a [`quiet::Quiet`] guard is alive on this thread, operations
+/// that TLC performs with side effects (normalizing an unnormalized set) compute the
+/// same results without recording the side effect. `==`, [`Hash`] and `Debug` run
+/// quietly (ADR 0012).
+pub(crate) mod quiet {
+    use std::cell::Cell;
+
+    thread_local! {
+        static DEPTH: Cell<u32> = const { Cell::new(0) };
+        static SUPPRESSED: Cell<u64> = const { Cell::new(0) };
+    }
+
+    /// Keeps quiet mode active on this thread until dropped.
+    pub(crate) struct Quiet(());
+
+    impl Quiet {
+        pub(crate) fn enter() -> Self {
+            DEPTH.with(|d| d.set(d.get().saturating_add(1)));
+            Self(())
+        }
+    }
+
+    impl Drop for Quiet {
+        fn drop(&mut self) {
+            DEPTH.with(|d| d.set(d.get().saturating_sub(1)));
+        }
+    }
+
+    pub(crate) fn active() -> bool {
+        DEPTH.with(Cell::get) > 0
+    }
+
+    /// The number of marks suppressed on this thread so far.
+    pub(crate) fn suppressed() -> u64 {
+        SUPPRESSED.with(Cell::get)
+    }
+
+    pub(crate) fn note_suppressed() {
+        SUPPRESSED.with(|s| s.set(s.get().wrapping_add(1)));
     }
 }
 

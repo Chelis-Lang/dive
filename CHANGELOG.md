@@ -156,3 +156,10 @@ All notable changes to this project are documented here. The project will follow
 - `conformance/oracles.toml`:
   - per-oracle classpath (v1.7.4 runs without CommunityModules);
   - pinned TLAPS-library and Apalache module libraries.
+
+### Fixed
+- `dive-value`: Rust `==`, `Hash`, `Debug` and `cmp_with` on an unnormalized set
+  whose elements TLC cannot compare no longer mark nested unnormalized sets as
+  normalized (issue #32). These operations now run in a quiet mode that records no
+  TLC-observable side effect, and an element list computed that way is not cached,
+  so a later TLC operation still normalizes the nested sets as TLC does.
