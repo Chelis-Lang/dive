@@ -475,6 +475,34 @@ impl Set {
         }
     }
 
+    /// The domain and range, if this is `[S -> T]`.
+    #[must_use]
+    pub fn as_fcn_set(&self) -> Option<(&Value, &Value)> {
+        match &self.0.repr {
+            SetRepr::FcnSet(d, r) => Some((d, r)),
+            _ => None,
+        }
+    }
+
+    /// The fields and their sets, if this is `[a : S, ...]`, sorted in the set's
+    /// order (TLC's `SetOfRcdsValue.sortByNames` under [`ValueOrder::Tlc`]).
+    #[must_use]
+    pub fn as_rcd_set(&self) -> Option<&[(Atom, Value)]> {
+        match &self.0.repr {
+            SetRepr::RcdSet(f) => Some(f),
+            _ => None,
+        }
+    }
+
+    /// The factors, if this is `S1 \X ... \X Sn`.
+    #[must_use]
+    pub fn as_product(&self) -> Option<&[Value]> {
+        match &self.0.repr {
+            SetRepr::Product(f) => Some(f),
+            _ => None,
+        }
+    }
+
     /// Whether two handles share the same allocation.
     #[must_use]
     pub fn ptr_eq(&self, other: &Self) -> bool {
