@@ -59,3 +59,8 @@ Original configured PROPERTY formulas are retained for attribution. A universal
 property may split into several checking roles, but its counterexample claim is
 still the original configuration name; all roles are checked without guessing
 which repeated internal name means which binding.
+
+Pure `IF` formulas use their guard's truth at each position, including temporal
+guards and nested conditionals. Action-level guards and temporal `CASE` remain
+explicit refusals: the pinned TLC also rejects them during liveness planning.
+A formula with an effectful branch is refused before planning executes it.

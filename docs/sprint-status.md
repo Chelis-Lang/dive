@@ -99,3 +99,9 @@ bindings and inspected pure configured constants. Original configured PROPERTY
 formulas now retain unambiguous claim names when the binder splits checking
 roles. Five additional pinned probes match verdict truth/counts in both profiles
 and stores. Full TLC finite-prefix class/trace timing remains open (#77).
+
+Pure state- and temporal-guarded `IF` formulas now lower pointwise and validate
+independently, including nested guards and closing-edge positions. Three new
+pinned probes match truth and counts in both profiles/stores. The oracle
+rejects action-guarded temporal IF (2214) and temporal CASE (2213); dive retains
+named planning refusals for these cases, even though SANY accepts their syntax.
