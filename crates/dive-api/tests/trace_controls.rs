@@ -210,13 +210,39 @@ fn deadlock_needs_the_model_to_check_it() {
     let checks =
         SpecModel::from_source("D.tla", spec, "INIT Init\nNEXT Next\n", &tlc()).expect("model");
     assert_eq!(checks.validate(&doc).validation, Validation::Valid);
-    let opaque = spec.replace(
-        "Next == x = 0 /\\ x' = 1",
-        "Step(k) == x < k /\\ x' = x + 1\nNext == Step(1)",
-    );
-    let opaque = opaque.replace("VARIABLE x", "EXTENDS Naturals\nVARIABLE x");
+    let scoped = spec
+        .replace(
+            "Next == x = 0 /\\ x' = 1",
+            "Step(k) == x < k /\\ x' = x + 1\nNext == Step(1)",
+        )
+        .replace("VARIABLE x", "EXTENDS Naturals\nVARIABLE x");
+    let scoped = SpecModel::from_source("D.tla", &scoped, "INIT Init\nNEXT Next\n", &tlc())
+        .expect("scoped model");
+    assert_eq!(scoped.validate(&doc).validation, Validation::Valid);
+    let fixtures =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-trace/tests/fixtures");
+    let source =
+        std::fs::read_to_string(fixtures.join("specs/DeadlockScopedCover/DeadlockScopedCover.tla"))
+            .expect("pinned source");
+    let config =
+        std::fs::read_to_string(fixtures.join("specs/DeadlockScopedCover/DeadlockScopedCover.cfg"))
+            .expect("pinned config");
+    let code = std::fs::read_to_string(
+        fixtures.join("tlc/tlc-2026.10.06.014338/DeadlockScopedCover.exit"),
+    )
+    .expect("pinned exit");
+    assert_eq!(code.trim(), "11");
+    let pinned = SpecModel::from_source("DeadlockScopedCover.tla", &source, &config, &tlc())
+        .expect("pinned model");
+    assert_eq!(pinned.validate(&doc).validation, Validation::Valid);
+    let opaque = spec
+        .replace(
+            "Next == x = 0 /\\ x' = 1",
+            "Step(k) == IF x < k THEN x' = x + 1 ELSE x' > x /\\ x' < x + 1\nNext == Step(1)",
+        )
+        .replace("VARIABLE x", "EXTENDS Naturals\nVARIABLE x");
     let unknown = SpecModel::from_source("D.tla", &opaque, "INIT Init\nNEXT Next\n", &tlc())
-        .expect("opaque model");
+        .expect("missing-cover model");
     assert_eq!(
         unknown.validate(&doc).validation,
         Validation::Unsupported(dive_trace_deadlock().to_owned())
