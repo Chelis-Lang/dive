@@ -39,6 +39,19 @@ fn body<'a>(ir: &'a Ir, name: &str) -> &'a Expr {
 }
 
 #[test]
+fn folded_prime_keeps_both_expression_and_operand_locations() {
+    let ir = ir("---- MODULE M ----\nVARIABLE x\nA == x'\n====\n");
+    let expr = ir.def(def(&ir, "A")).body;
+    assert_eq!(ir.node(expr).origin.end, (3, 7));
+    let operand = ir.prime_operand_origin(expr);
+    assert_eq!(operand.map(|o| o.end), Some((3, 6)));
+    let encoded = serde_json::to_string(&ir).unwrap_or_default();
+    let back: Ir = serde_json::from_str(&encoded).unwrap_or_else(|e| unreachable!("{e}"));
+    assert_eq!(back.prime_operand_origin(expr), operand);
+    assert_eq!(dive_ir::validate::check(&back), Vec::<String>::new());
+}
+
+#[test]
 fn operator_arguments_are_laziness_points() {
     let ir = ir("---- MODULE M ----
 EXTENDS Naturals

@@ -715,6 +715,12 @@ impl Gen<'_, '_> {
                 self.core.ev_string(&other),
                 self.core.loc(e)
             ))),
+            _ if matches!(self.core.ir.expr(e), Expr::Num(_) | Expr::Str(_)) => {
+                Err(EvalError::general(format!(
+                    "The next state relation is not a boolean expression.\n{}",
+                    self.core.loc(e)
+                )))
+            }
             other => Err(self.expected_bool(&other, e)),
         }
     }

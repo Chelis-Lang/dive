@@ -76,7 +76,9 @@ impl Core {
     /// `MethodValue.eval`: an error that is not an `EvalException` becomes
     /// `TLC_MODULE_VALUE_JAVA_METHOD_OVERRIDE`.
     pub(crate) fn wrap_override(&self, op: StdOp, err: EvalError) -> EvalError {
-        if err.passes_override() {
+        // int_arg models the spreader's ClassCastException and has already
+        // wrapped it; MethodValue must wrap each error only once.
+        if err.passes_override() || err.ec() == Ec::JavaMethodOverride {
             return err;
         }
         let Some(sig) = java_signature(op) else {
@@ -85,7 +87,7 @@ impl Core {
                 op.qualified_name()
             ));
         };
-        EvalError::eval_exception(
+        EvalError::coded(
             Ec::JavaMethodOverride,
             format!(
                 "Attempted to apply the operator overridden by the Java method\n{sig},\nbut it produced the following error:\n{}",
@@ -571,7 +573,7 @@ impl Core {
                 "Cannot cast tlc2.value.impl.{class} to tlc2.value.impl.IntValue"
             );
             match java_signature(op) {
-                Some(sig) => EvalError::eval_exception(
+                Some(sig) => EvalError::coded(
                     Ec::JavaMethodOverride,
                     format!(
                         "Attempted to apply the operator overridden by the Java method\n{sig},\nbut it produced the following error:\n{msg}"
