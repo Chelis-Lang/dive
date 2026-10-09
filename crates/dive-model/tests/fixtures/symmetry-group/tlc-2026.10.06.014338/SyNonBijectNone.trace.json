@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":"a"}],{"name":"Next","location":{"beginLine":5,"beginColumn":9,"endLine":5,"endColumn":20,"module":"SyNonBijectNone"}},[2,{"x":"b"}]]],"state":[[1,{"x":"a"}],[2,{"x":"b"}]]},"vars":["x"]}

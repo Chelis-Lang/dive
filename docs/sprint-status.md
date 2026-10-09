@@ -184,3 +184,11 @@ and three VIEW refusals (one model), with zero findings at requested widths 1/4/
 DiningPhilosophers matches 336 generated states, 67 distinct states and depth 29.
 MCDistributedReplicatedLog now reaches the explicit VIEW graph-capture restriction.
 Actual capture remains width 1; strict TLC temporal conformance is still pending.
+
+## Symmetry closure foundation
+
+The bounded model-value permutation kernel matches all 1,329 direct pinned
+Java inputs in order, including malformed maps under TLC behavior. Checked
+mode rejects non-bijections, with omitted identities included. Model binding,
+startup warnings, canonical state keys and symmetry trace validation are
+still open; SYMMETRY checking remains an explicit refusal.
