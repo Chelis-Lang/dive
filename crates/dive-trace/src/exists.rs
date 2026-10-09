@@ -239,14 +239,26 @@ impl Search<'_> {
                 }
                 None => return Err(ExistsError::Unsupported("unbound action constant".into())),
             },
-            Expr::Local(r)
-                if matches!(
-                    self.model.evaluator.scope_slot(scope, *r),
-                    SlotView::Value(_)
-                ) => {}
-            Expr::Local(_) | Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
+            Expr::Let { body, .. } => {
+                let sc = self
+                    .model
+                    .evaluator
+                    .scope_let(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.scan(*body, &sc, prime, needed, depth + 1)?;
+            }
+            Expr::Local(r) => match self.model.evaluator.scope_slot(scope, *r) {
+                SlotView::Value(_) => {}
+                SlotView::Lazy(body, sc) => self.scan(body, &sc, prime, needed, depth + 1)?,
+                _ => {
+                    return Err(ExistsError::Unsupported(
+                        "opaque local action context".into(),
+                    ));
+                }
+            },
+            Expr::SubstRef { .. } | Expr::Subst { .. } => {
                 return Err(ExistsError::Unsupported(
-                    "opaque local/substitution action context".into(),
+                    "opaque substitution action context".into(),
                 ));
             }
             _ => {
@@ -291,7 +303,16 @@ impl Search<'_> {
                     "nonconstant action argument".into(),
                 ));
             }
-            self.scan(*expr, scope, false, &mut BTreeSet::new(), depth + 1)?;
+            // A LET/local reference can have constant formal metadata while
+            // its captured expression reads a state variable. Prove data is
+            // state-independent before evaluating it under the empty state.
+            let mut variables = BTreeSet::new();
+            self.scan(*expr, scope, true, &mut variables, depth + 1)?;
+            if !variables.is_empty() {
+                return Err(ExistsError::Unsupported(
+                    "state-dependent action argument".into(),
+                ));
+            }
             values.push(self.read(*expr, scope, &St::constant())?);
         }
         ev.scope_call_values(scope, def, values)
@@ -361,6 +382,19 @@ impl Search<'_> {
     ) -> Result<Cover, ExistsError> {
         self.step(depth)?;
         match self.model.ir.expr(expr) {
+            Expr::Let { body, .. } => {
+                let sc = self
+                    .model
+                    .evaluator
+                    .scope_let(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                self.unchanged(*body, &sc, depth + 1)
+            }
+            Expr::Local(r) => match self.model.evaluator.scope_slot(scope, *r) {
+                SlotView::Lazy(body, sc) => self.unchanged(body, &sc, depth + 1),
+                _ => Ok(Cover::default()),
+            },
+
             Expr::Var { var, primed: false } => Ok(Cover {
                 impossible: false,
                 domains: Domains::from([(
@@ -523,6 +557,22 @@ impl Search<'_> {
     fn cover(&mut self, expr: ExprId, scope: &Scope, depth: usize) -> Result<Cover, ExistsError> {
         self.step(depth)?;
         let node = self.model.ir.node(expr);
+        match &node.expr {
+            Expr::Let { body, .. } => {
+                let sc = self
+                    .model
+                    .evaluator
+                    .scope_let(scope, expr)
+                    .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                return self.cover(*body, &sc, depth + 1);
+            }
+            Expr::Local(r) => {
+                if let SlotView::Lazy(body, sc) = self.model.evaluator.scope_slot(scope, *r) {
+                    return self.cover(body, &sc, depth + 1);
+                }
+            }
+            _ => {}
+        }
         if node.level <= Level::State {
             return Ok(Cover {
                 impossible: !self.boolean(expr, scope, &St::state(self.state.clone()))?,

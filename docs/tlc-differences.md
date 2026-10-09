@@ -741,6 +741,14 @@ constraints and an empty existential domain. Missing covers and exhausted budget
 still refuse. This expands supported semantics without a new default or exact
 TLC temporal-conformance claim.
 
+**D-013 LET update:** final/short checking now accepts local values and
+operators in temporal predicates. Captured state stays lazy, including nested
+calls and priming. Six pinned `Lt*` models match final truth/counts in both
+profiles/stores, with every returned periodic claim independently validated.
+A fair stuttering ending requires independent disabledness. Effects, checker
+reads, missing covers and explicit budgets remain named refusals; strict TLC
+selection and temporal stopping remain pending.
+
 ### Symbolic function-set enumeration
 
 The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds

@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final temporal predicates and independent finite successor covers retain
+  LET value and operator scopes, including captured state and nested calls.
+
 - Value printing breaks recursive diagnostic expansion of a non-enumerable
   function set, retaining a named error and symbolic fallback on small stacks.
 
