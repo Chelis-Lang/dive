@@ -348,3 +348,40 @@ Against the pinned TLC, measured as in ADR 0006:
 ## Owner decisions, 2026-10-09
 
 `--lasso=short` is the intended default. Symmetry with liveness uses `--symmetry-liveness=unreduced` by default: disable reduction for the whole run. Keep `refuse` and `tlc` modes. The periodic schedule amendment above supersedes §7's earlier proposal; TLC's wall-clock path is required for precise compatibility. All options remain planned until implemented and proven.
+
+
+### Incremental graph capture and pure coordinator (2026-10-09)
+
+`dive_check::capture::explore` uses the existing inline safety engine. Discovery
+ids match its trace log; every in-model generated transition is retained,
+including duplicate and already-seen destinations. An implicit full-state
+stutter is added after each successful expansion and does not inflate the
+counters. Constraints filter generated transitions, while implicit stutters
+remain available. State, edge and total-generation limits abort explicitly;
+a stopped search never exposes a complete graph. The capture contains run
+options/seed, collision qualifications and actual worker width.
+
+This foundation currently runs inline and refuses VIEW, symmetry, randomness
+and stateful checker reads. The ordinary safety checker remains parallel.
+Full L2 still needs parallel retention, concrete closing evidence under VIEW,
+phase-L atom evaluation, spill and scheduling. Temporal property refusals now
+have a structured `UnsupportedKind::TemporalProperty`; every other unsupported
+reason remains blocking. Diagnostic text cannot grant a capability.
+
+`dive_liveness::analyze::analyze_final` plans all behavior conjuncts and all
+properties before exploring. It searches each behavior AND negated-property
+tableau in property order, with separate state/action labels and explicit
+label/product bounds. It returns holds-on-the-captured-graph evidence or a
+concrete short candidate. The candidate names its target property, not a
+complete attributed set, and is not marked independently validated. Its
+safety counts match four pinned pure models in both stores, and every candidate
+validates independently; four WF fixtures refuse at the actual source operand.
+A control proves that a pure temporal behavior conjunct cannot be dropped.
+
+This activates the already permitted `dive-liveness -> dive-check` dependency;
+trace is only a test dependency. No reverse checker edge or trace-validator
+production edge is added. Postconditions with temporal checking are refused
+until their failure priority is integrated. Fairness/ENABLED expansion,
+TLC-exact planning and lasso choice, complete attribution, and periodic/CLI
+integration remain outstanding. Library-stage diagnostics are `DIVE-L0030`
+through `DIVE-L0035`; atom failures retain their property and source span.

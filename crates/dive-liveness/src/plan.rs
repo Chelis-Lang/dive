@@ -45,7 +45,7 @@ pub struct Source {
 }
 
 impl Source {
-    fn new(model: &Model, expr: ExprId) -> Self {
+    pub(crate) fn new(model: &Model, expr: ExprId) -> Self {
         Self {
             expr,
             origin: model.ir.node(expr).origin,
@@ -381,6 +381,44 @@ pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, Plannin
     let root = cx.expr(pred.expr, &pred.scope, 0)?;
     let formula =
         Formula::new(cx.nodes, root).map_err(|e| PlanningError::formula(model, pred.expr, e))?;
+    Ok(Plan {
+        formula,
+        atoms: cx.atoms,
+    })
+}
+
+/// Plans the behavior temporal conjuncts AND the negation of one property.
+/// An accepting behavior of this formula is a counterexample candidate.
+/// The same pure subset and resource limits as [`lower`] apply to the whole
+/// combined formula; unsupported behavior conjuncts cannot be dropped.
+///
+/// # Errors
+/// Any named planning refusal or construction bound in a behavior conjunct
+/// or the requested property.
+pub fn lower_violation(
+    model: &Model,
+    property: &Pred,
+    limits: Limits,
+) -> Result<Plan, PlanningError> {
+    let mut cx = Lower {
+        model,
+        limits,
+        nodes: Vec::new(),
+        atoms: Vec::new(),
+        steps: 0,
+        root_expr: property.expr,
+    };
+    let mut conjuncts = Vec::new();
+    for behavior in &model.temporals {
+        cx.root_expr = behavior.pred.expr;
+        conjuncts.push(cx.expr(behavior.pred.expr, &behavior.pred.scope, 0)?);
+    }
+    cx.root_expr = property.expr;
+    let property = cx.expr(property.expr, &property.scope, 0)?;
+    conjuncts.push(cx.push(Node::Not(property))?);
+    let root = cx.push(Node::And(conjuncts))?;
+    let formula =
+        Formula::new(cx.nodes, root).map_err(|e| PlanningError::formula(model, cx.root_expr, e))?;
     Ok(Plan {
         formula,
         atoms: cx.atoms,

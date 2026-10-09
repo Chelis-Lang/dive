@@ -89,7 +89,7 @@ use dive_ir::Ir;
 
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
-pub use model::{Init, Model, Named, Pred, Settings, Unsupported};
+pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
 
 /// The modules TLC's `-dumpTrace json <file>` loads in addition to the
 /// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and

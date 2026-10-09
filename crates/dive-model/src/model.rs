@@ -63,10 +63,21 @@ pub struct Settings {
     pub check_deadlock: bool,
 }
 
+/// Why the model cannot yet receive a complete checking verdict.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UnsupportedKind {
+    /// A temporal property requires the liveness backend.
+    TemporalProperty,
+    /// Another unimplemented feature, which graph capture cannot defer.
+    Feature,
+}
+
 /// A feature of the model that dive does not check yet. The checker refuses
 /// the model as `unsupported`, naming it.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Unsupported {
+    /// The structured reason, never inferred from diagnostic text.
+    pub kind: UnsupportedKind,
     /// The feature, by name.
     pub feature: String,
 }
