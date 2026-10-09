@@ -722,3 +722,12 @@ disabledness rather than a recurring action certificate. Three additional
 `scoped-fairness` probes match final truth/counts in both profiles/stores.
 Missing covers remain validation refusals; this expands the validated subset
 without claiming TLC-exact temporal selection or error timing.
+
+**D-013 scoped-language update:** final/short checking now accepts pure state
+arguments such as `Live(x)` for `Live(p) == []<>p`. Caller scopes remain lazy
+through nested calls, guards, tuple values and priming. Six pinned `Sp*` probes
+match final truth/counts in both profiles/stores and every returned periodic
+claim validates independently. SANY's rejection of bare eventual actions is
+also retained as a negative control. Action/temporal and higher-order arguments
+still refuse; this adds supported semantics without a new default or exact
+TLC temporal-conformance claim.

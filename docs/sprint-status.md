@@ -126,3 +126,9 @@ operators and value-bound locals. They agree with pinned TLC on 108 decisions
 across 36 initial states. Three new final temporal probes match truth/counts
 in both profiles/stores; the violation requires independent disabledness to
 validate fairness. General lazy/higher-order contexts remain open.
+
+Pure state arguments now retain their caller scopes through temporal operators.
+Six pinned probes match final truth/counts in both profiles/stores; direct
+short-word controls also cover nested forwarding, tuple/state guards and
+priming across the closing edge. Action/temporal and higher-order arguments
+remain refusals. Exact TLC temporal planning/timing/selection is still open.

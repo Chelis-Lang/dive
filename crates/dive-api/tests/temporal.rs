@@ -173,17 +173,12 @@ fn safety_stops_retain_trace_statistics_and_assumption_failures() {
 }
 
 #[test]
-fn bounds_and_unsupported_scopes_never_become_holds() {
+fn state_argument_holds_and_resource_limits_never_become_holds() {
     let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nF(a) == []<>a\nP == F(x)\n====\n";
     let (ir, cfg) = input(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
-    assert!(matches!(
-        temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default()),
-        Err(Error::Analysis(_))
-    ));
-    let (ir, cfg) = input(
-        &src.replace("P == F(x)", "P == []<>x"),
-        "INIT Init\nNEXT Next\nPROPERTY P\n",
-    );
+    let r = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        .expect("pure state argument");
+    assert!(matches!(r.outcome(), Outcome::Holds(_)));
     let r = temporal::check_final(
         &ir,
         &cfg,
@@ -597,9 +592,9 @@ fn constant_temporal_calls_keep_scopes_and_match_direct_word_semantics() {
 }
 
 #[test]
-fn dynamic_and_effectful_temporal_arguments_remain_refusals() {
+fn effectful_arguments_refuse_while_pure_state_arguments_keep_their_truth() {
     let source = "---- MODULE M ----\nEXTENDS TLC, Naturals\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nVisit(i) == []<>(x=i)\nHidden(i) == TLCGet(\"level\")+i\nWrap(i) == Visit(i)\nP == Wrap(Hidden(0)) /\\ Wrap(0)\nQ == Visit(x)\nR == Visit(PrintT(\"hidden\"))\n====\n";
-    for name in ["P", "Q", "R"] {
+    for name in ["P", "R"] {
         let (ir, cfg) = input(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
         let model =
             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("model");
@@ -623,6 +618,10 @@ fn dynamic_and_effectful_temporal_arguments_remain_refusals() {
             "{name}"
         );
     }
+    let (ir, cfg) = input(source, "INIT Init\nNEXT Next\nPROPERTY Q\n");
+    let report = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        .expect("x=x at every position");
+    assert!(matches!(report.outcome(), Outcome::Holds(_)));
 }
 
 #[test]
@@ -689,6 +688,147 @@ fn temporal_call_purity_walk_consumes_the_planning_budget() {
         .expect_err("small budget cannot report success");
     assert_eq!(err.code(), "DIVE-L0021");
 }
+
+#[test]
+fn state_arguments_are_position_dependent_and_priming_uses_the_closing_edge() {
+    let src = "---- MODULE M ----\nVARIABLE x\nInit == x=FALSE\nNext == x'=~x\nLive(p) == []<>p\nStable(p) == <>[]p\nBoth(p) == Live(p) /\\ Live(~p)\nSelect(p) == IF p THEN []p ELSE <>p\nChange(p) == []<><<p' # p>>_p\nP == Live(x)\nQ == Stable(x)\nR == Both(x)\nC == Change(x)\nI == Select(x)\n====\n";
+    let (ir, cfg) = input(src, "INIT Init\nNEXT Next\n");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    for n in 1..=4 {
+        for bits in 0..(1_usize << n) {
+            let values: Vec<bool> = (0..n).map(|i| bits & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|b| Arc::from([Some(dive_value::Value::Bool(*b))]))
+                .collect();
+            for back in 0..n {
+                let any = values[back..].iter().any(|b| *b);
+                let all = values[back..].iter().all(|b| *b);
+                for name in ["P", "Q", "R", "C", "I"] {
+                    let expected: Vec<bool> = (0..n)
+                        .map(|i| match name {
+                            "P" => any,
+                            "Q" => all,
+                            "R" | "C" => any && !all,
+                            "I" => {
+                                let mut reach = Vec::new();
+                                let mut at = i;
+                                while !reach.contains(&at) {
+                                    reach.push(at);
+                                    at = if at + 1 == n { back } else { at + 1 };
+                                }
+                                if values[i] {
+                                    reach.iter().all(|j| values[*j])
+                                } else {
+                                    reach.iter().any(|j| values[*j])
+                                }
+                            }
+                            _ => panic!("formula"),
+                        })
+                        .collect();
+                    let d = model.ir.root_def(name).expect("definition");
+                    let pred =
+                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, expected, "{name} {values:?} back {back}");
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        direct,
+                        "{name}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pinned_state_argument_operators_match_truth_counts_and_validate_independently() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/state-temporal-calls");
+    for name in [
+        "SpHold",
+        "SpStable",
+        "SpGuard",
+        "SpNested",
+        "SpTuple",
+        "SpNonstutter",
+    ] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let code: i32 =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+                .expect("exit")
+                .trim()
+                .parse()
+                .expect("number");
+        let (ir, cfg) = input(&src, &config);
+        for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                opts.store = store;
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let evidence = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(code, 0, "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(code, 13, "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid);
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (
+                        evidence.stats.generated,
+                        evidence.stats.distinct,
+                        evidence.stats.depth
+                    ),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+    // SANY requires eventual actions to use <<A>>_v. Keep that negative
+    // syntax/level control separate from supported, scoped non-stuttering.
+    let src = std::fs::read_to_string(root.join("specs/SpPrime/SpPrime.tla")).expect("source");
+    let a = dive_sema::analyze_source("SpPrime.tla", &src, &dive_sema::Options::default());
+    assert!(
+        !a.accepted(),
+        "bare eventual action is rejected by SANY too"
+    );
+    assert_eq!(
+        std::fs::read_to_string(root.join("tlc-2026.10.06.014338/SpPrime.sany.exit"))
+            .expect("exit")
+            .trim(),
+        "4"
+    );
+}
+
 
 #[test]
 fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation() {

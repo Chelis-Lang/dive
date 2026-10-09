@@ -244,9 +244,9 @@ impl Lower<'_> {
         }
     }
 
-    // Constant arguments become values before entering a user definition. This
-    // makes its SANY levels valid for planning without evaluating a state thunk.
-    fn constant_call(
+    // Constants remain value-bound. Pure state arguments stay lazy so priming
+    // inside the callee still reads the caller's successor, not a frozen value.
+    fn scoped_call(
         &mut self,
         expr: ExprId,
         scope: &Scope,
@@ -259,7 +259,7 @@ impl Lower<'_> {
             return Err(PlanningError::formula(
                 self.model,
                 self.root_expr,
-                FormulaError::Limit("constant call bindings/depth"),
+                FormulaError::Limit("scoped call bindings/depth"),
             ));
         }
         let ev = &self.model.evaluator;
@@ -271,22 +271,92 @@ impl Lower<'_> {
         {
             return Err(self.refused(expr, "recursive/overridden/higher-order temporal call"));
         }
-        let mut values = Vec::with_capacity(args.len());
+        let mut constant = true;
         for arg in args {
             let Arg::Expr { expr: arg, .. } = arg else {
                 return Err(self.refused(expr, "operator argument in temporal call"));
             };
-            if self.model.ir.node(*arg).level != Level::Constant {
-                return Err(self.refused(*arg, "nonconstant temporal operator argument"));
+            let level = self.scoped_level(*arg, scope, depth + 1)?;
+            if level > Level::State {
+                return Err(self.refused(*arg, "action/temporal operator argument"));
             }
+            constant &= level == Level::Constant;
             self.pure_scoped(*arg, scope, depth + 1)?;
-            values.push(
-                ev.eval_scoped(scope, *arg, &St::constant())
-                    .map_err(|e| self.refused(*arg, format!("constant temporal argument: {e}")))?,
-            );
         }
-        ev.scope_call_values(scope, def, values)
-            .map_err(|e| self.refused(expr, e.to_string()))
+        if constant {
+            let values = args
+                .iter()
+                .map(|arg| match arg {
+                    Arg::Expr { expr: arg, .. } => {
+                        ev.eval_scoped(scope, *arg, &St::constant()).map_err(|e| {
+                            self.refused(*arg, format!("constant temporal argument: {e}"))
+                        })
+                    }
+                    Arg::Op { .. } => Err(self.refused(expr, "operator argument in temporal call")),
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            ev.scope_call_values(scope, def, values)
+                .map_err(|e| self.refused(expr, e.to_string()))
+        } else {
+            ev.scope_apply(scope, def, args)
+                .map_err(|e| self.refused(expr, e.to_string()))
+        }
+    }
+
+    // SANY's levels on a formal parameter assume a constant. Follow its actual
+    // context before deciding whether an atom is constant, state or action.
+    fn scoped_level(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Level, PlanningError> {
+        self.step()?;
+        if depth > 256 {
+            return Err(PlanningError::formula(
+                self.model,
+                self.root_expr,
+                FormulaError::Limit("scoped level depth"),
+            ));
+        }
+        let ir = &self.model.ir;
+        let ev = &self.model.evaluator;
+        let node = ir.node(expr);
+        match &node.expr {
+            Expr::Local(r) => {
+                return match ev.scope_slot(scope, *r) {
+                    SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1),
+                    _ => Err(self.refused(expr, "opaque scoped level")),
+                };
+            }
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } => {
+                let d = ev.redirected(*d);
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                    let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
+                    return self.scoped_level(ir.def(d).body, &sc, depth + 1);
+                }
+            }
+            Expr::Def(d) => {
+                let d = ev.redirected(*d);
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                    let sc = self.scoped_call(expr, scope, d, &[], depth + 1)?;
+                    return self.scoped_level(ir.def(d).body, &sc, depth + 1);
+                }
+            }
+            _ => {}
+        }
+        if node.level == Level::Temporal {
+            return Ok(Level::Temporal);
+        }
+        let mut level = node.level;
+        for child in node.expr.children() {
+            level = level.max(self.scoped_level(child, scope, depth + 1)?);
+        }
+        Ok(level)
     }
 
     fn pure_atom(&mut self, expr: ExprId, scope: &Scope) -> Result<(), PlanningError> {
@@ -328,9 +398,14 @@ impl Lower<'_> {
                 ));
             }
             match &n.expr {
-                Expr::Local(r) if !matches!(ev.scope_slot(&scope, *r), SlotView::Value(_)) => {
-                    return Err(self.refused(e, "opaque scoped predicate atom"));
-                }
+                Expr::Local(r) => match ev.scope_slot(&scope, *r) {
+                    SlotView::Value(_) => {}
+                    SlotView::Lazy(body, sc) => {
+                        todo.push((body, sc, depth + 1));
+                        continue;
+                    }
+                    _ => return Err(self.refused(e, "opaque scoped predicate atom")),
+                },
                 Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
                     return Err(self.refused(e, "opaque substituted/LET predicate atom"));
                 }
@@ -366,7 +441,7 @@ impl Lower<'_> {
                         let d = ev.redirected(d);
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
-                            let sc = self.constant_call(e, &scope, d, args, depth + 1)?;
+                            let sc = self.scoped_call(e, &scope, d, args, depth + 1)?;
                             todo.push((def.body, sc, depth + 1));
                             continue;
                         }
@@ -429,17 +504,34 @@ impl Lower<'_> {
         if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
         }
-        if node.level <= Level::Action
+        if let Expr::Local(r) = &node.expr
+            && let SlotView::Lazy(body, sc) = ev.scope_slot(scope, *r)
+        {
+            return self.expr(body, &sc, depth + 1);
+        }
+        if let Expr::Apply {
+            callee: OpRef::Def(d),
+            args,
+        } = &node.expr
+        {
+            let d = ev.redirected(*d);
+            if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
+                return self.expr(ir.def(d).body, &sc, depth + 1);
+            }
+        }
+        let level = self.scoped_level(expr, scope, depth)?;
+        if level <= Level::Action
             && !node
                 .effects
                 .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
         {
             self.pure_atom(expr, scope)?;
-            if node.level == Level::Constant {
+            if level == Level::Constant {
                 let b = self.bool_constant(expr, scope)?;
                 return self.push(Node::Bool(b));
             }
-            let kind = if node.level == Level::Action {
+            let kind = if level == Level::Action {
                 AtomKind::Action
             } else {
                 AtomKind::State
@@ -490,7 +582,7 @@ impl Lower<'_> {
                     let Some(dom) = bound.domain else {
                         return Err(self.refused(expr, "unbounded temporal quantifier"));
                     };
-                    if ir.node(dom).level != Level::Constant {
+                    if self.scoped_level(dom, scope, depth)? != Level::Constant {
                         return Err(self.refused(dom, "nonconstant temporal quantifier domain"));
                     }
                     self.pure_atom(dom, scope)?;
@@ -523,7 +615,7 @@ impl Lower<'_> {
                 args,
             } => {
                 let d = ev.redirected(*d);
-                let sc = self.constant_call(expr, scope, d, args, depth)?;
+                let sc = self.scoped_call(expr, scope, d, args, depth)?;
                 return self.expr(ir.def(d).body, &sc, depth);
             }
             Expr::Def(d) => {
@@ -540,7 +632,9 @@ impl Lower<'_> {
                 return self.expr(ir.def(d).body, &sc, depth);
             }
             Expr::Selected(c) | Expr::Label { body: c, .. } => return self.expr(*c, scope, depth),
-            Expr::If { cond, then, other } if ir.node(*cond).level == Level::Constant => {
+            Expr::If { cond, then, other }
+                if self.scoped_level(*cond, scope, depth)? == Level::Constant =>
+            {
                 self.pure_atom(*cond, scope)?;
                 let branch = if self.bool_constant(*cond, scope)? {
                     *then
@@ -550,7 +644,7 @@ impl Lower<'_> {
                 return self.expr(branch, scope, depth);
             }
             Expr::If { cond, then, other } => {
-                if ir.node(*cond).level == Level::Action {
+                if self.scoped_level(*cond, scope, depth)? == Level::Action {
                     return Err(self.refused(
                         *cond,
                         "TLC liveness rejects action-level conditional guards",
@@ -575,7 +669,7 @@ impl Lower<'_> {
                 );
             }
             Expr::Wf { sub, action } | Expr::Sf { sub, action } => {
-                if ir.node(*sub).level > Level::State {
+                if self.scoped_level(*sub, scope, depth)? > Level::State {
                     return Err(self.refused(*sub, "action-level fairness subscript"));
                 }
                 self.pure_atom(*action, scope)?;

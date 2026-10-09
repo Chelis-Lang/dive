@@ -140,6 +140,22 @@ impl Word<'_> {
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
         }
+        if let Expr::Local(r) = &node.expr
+            && let SlotView::Lazy(body, sc) = ev.scope_slot(scope, *r)
+        {
+            return self.eval(body, &sc, depth + 1);
+        }
+        if let Expr::Apply {
+            callee: OpRef::Def(d),
+            args,
+        } = &node.expr
+        {
+            let d = ev.redirected(*d);
+            if self.model.ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                let sc = self.scoped_call(scope, d, args, depth + 1, &mut 0)?;
+                return self.eval(self.model.ir.def(d).body, &sc, depth + 1);
+            }
+        }
         if node.level <= Level::Action
             && !node
                 .effects
@@ -204,7 +220,7 @@ impl Word<'_> {
                             "unbounded temporal quantifier".into(),
                         ));
                     };
-                    if self.model.ir.node(dom).level != Level::Constant {
+                    if self.scoped_level(dom, scope, child, &mut 0)? != Level::Constant {
                         return Err(TemporalError::Unsupported(
                             "nonconstant temporal quantifier domain".into(),
                         ));
@@ -227,7 +243,7 @@ impl Word<'_> {
                 Ok(values)
             }
             Expr::If { cond, then, other } => {
-                if self.model.ir.node(*cond).level == Level::Action {
+                if self.scoped_level(*cond, scope, child, &mut 0)? == Level::Action {
                     return Err(TemporalError::Unsupported(
                         "TLC liveness rejects action-level conditional guards".into(),
                     ));
@@ -247,7 +263,7 @@ impl Word<'_> {
                 args,
             } => {
                 let d = ev.redirected(*d);
-                let scope = self.constant_call(scope, d, args, child, &mut 0)?;
+                let scope = self.scoped_call(scope, d, args, child, &mut 0)?;
                 self.eval(self.model.ir.def(d).body, &scope, child)
             }
             Expr::Def(d) => {
@@ -284,7 +300,7 @@ impl Word<'_> {
         strong: bool,
     ) -> Result<Vec<bool>, TemporalError> {
         self.check_atom_context(sub, scope)?;
-        if self.model.ir.node(sub).level > Level::State {
+        if self.scoped_level(sub, scope, 0, &mut 0)? > Level::State {
             return Err(TemporalError::Unsupported(
                 "action-level fairness subscript".into(),
             ));
@@ -370,9 +386,7 @@ impl Word<'_> {
         Ok(out)
     }
 
-    // Value-bound constant arguments cannot hide a state-dependent thunk. This
-    // validation walk is separate from the planner and consumes its own bound.
-    fn constant_call(
+    fn scoped_call(
         &self,
         scope: &Scope,
         def: DefId,
@@ -393,25 +407,98 @@ impl Word<'_> {
                 "recursive/overridden/higher-order or bounded temporal call".into(),
             ));
         }
-        let mut values = Vec::with_capacity(args.len());
+        let mut constant = true;
         for arg in args {
             let Arg::Expr { expr, .. } = arg else {
                 return Err(TemporalError::Unsupported(
                     "operator argument in temporal call".into(),
                 ));
             };
-            if self.model.ir.node(*expr).level != Level::Constant {
+            let level = self.scoped_level(*expr, scope, depth + 1, steps)?;
+            if level > Level::State {
                 return Err(TemporalError::Unsupported(
-                    "nonconstant temporal operator argument".into(),
+                    "action/temporal operator argument".into(),
                 ));
             }
+            constant &= level == Level::Constant;
             self.check_scoped_context(*expr, scope, depth + 1, steps)?;
-            values.push(ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
-                TemporalError::Unsupported(format!("constant temporal argument: {e}"))
-            })?);
         }
-        ev.scope_call_values(scope, def, values)
-            .map_err(|e| TemporalError::Unsupported(e.to_string()))
+        if constant {
+            let values = args
+                .iter()
+                .map(|arg| match arg {
+                    Arg::Expr { expr, .. } => {
+                        ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
+                            TemporalError::Unsupported(format!("constant temporal argument: {e}"))
+                        })
+                    }
+                    Arg::Op { .. } => Err(TemporalError::Unsupported(
+                        "operator temporal argument".into(),
+                    )),
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            ev.scope_call_values(scope, def, values)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))
+        } else {
+            ev.scope_apply(scope, def, args)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))
+        }
+    }
+
+    // Check actual argument contexts independently of planner annotations.
+    fn scoped_level(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<Level, TemporalError> {
+        *steps = steps.saturating_add(1);
+        if depth > 256 || *steps > 100_000 {
+            return Err(TemporalError::Unsupported(
+                "scoped temporal level resource bound".into(),
+            ));
+        }
+        let ev = &self.model.evaluator;
+        let ir = &self.model.ir;
+        let node = ir.node(expr);
+        match &node.expr {
+            Expr::Local(r) => {
+                return match ev.scope_slot(scope, *r) {
+                    SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps),
+                    _ => Err(TemporalError::Unsupported(
+                        "opaque scoped temporal level".into(),
+                    )),
+                };
+            }
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } => {
+                let d = ev.redirected(*d);
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                    let sc = self.scoped_call(scope, d, args, depth + 1, steps)?;
+                    return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
+                }
+            }
+            Expr::Def(d) => {
+                let d = ev.redirected(*d);
+                if ir.def(d).std.is_none() && !ev.is_value_override(d) {
+                    let sc = self.scoped_call(scope, d, &[], depth + 1, steps)?;
+                    return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
+                }
+            }
+            _ => {}
+        }
+        if node.level == Level::Temporal {
+            return Ok(Level::Temporal);
+        }
+        let mut level = node.level;
+        for child in node.expr.children() {
+            level = level.max(self.scoped_level(child, scope, depth + 1, steps)?);
+        }
+        Ok(level)
     }
 
     fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
@@ -451,11 +538,18 @@ impl Word<'_> {
                 ));
             }
             match &meta.expr {
-                Expr::Local(r) if !matches!(ev.scope_slot(&scope, *r), SlotView::Value(_)) => {
-                    return Err(TemporalError::Unsupported(
-                        "opaque scoped atom in temporal validation".into(),
-                    ));
-                }
+                Expr::Local(r) => match ev.scope_slot(&scope, *r) {
+                    SlotView::Value(_) => {}
+                    SlotView::Lazy(e, sc) => {
+                        todo.push((e, sc, depth + 1));
+                        continue;
+                    }
+                    _ => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque scoped atom in temporal validation".into(),
+                        ));
+                    }
+                },
                 Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
                     return Err(TemporalError::Unsupported(
                         "opaque substituted/LET atom in temporal validation".into(),
@@ -496,7 +590,7 @@ impl Word<'_> {
                         let d = ev.redirected(d);
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
-                            let sc = self.constant_call(&scope, d, args, depth + 1, steps)?;
+                            let sc = self.scoped_call(&scope, d, args, depth + 1, steps)?;
                             todo.push((def.body, sc, depth + 1));
                             continue;
                         }
