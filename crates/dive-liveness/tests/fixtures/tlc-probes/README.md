@@ -26,6 +26,7 @@ The transcripts are generated, never edited. Each has `.stdout`, `.stderr`, `.ex
 |---|---|---|---|---|---|
 | `LvWeakFair` | success (0) | 4 / 3 / 0 / 3 | | | Baseline: `[]<>(x = 0)` under `WF_x(Next)` holds; TLC prints "1 branches" (2212) and checks "the complete state space with 3 total distinct states" (2192) |
 | `LvNoFair` | temporal (13) | 4 / 3 / 0 / 3 | 3, stuttering | 2259 | Without fairness, `[]<>(x = 0)` is violated by stuttering. TLC shows stuttering at `x = 2` (3 states), not the shorter stuttering at `x = 1`: its choice is not shortest |
+| `LvEAPrefix` | temporal (13) | 4 / 3 / 0 / 3 | 2, stuttering | 2259 | The EA condition `x > 0` is false in the initial prefix, then true forever. Restricting recurrence must preserve reachability through that prefix (ADR 0018 §5 correction) |
 | `LvWFIntermittent` | temporal (13) | 6 / 4 / 0 / 4 | 2, back to 1 | | `WF` does not force an action that is enabled only intermittently |
 | `LvSFIntermittent` | success (0) | 6 / 4 / 0 / 4 | | | `SF` does |
 | `LvStutterEnd` | temporal (13) | 4 / 4 / 0 / 4 | 4, stuttering | | Stuttering is allowed once the fair action is disabled. No 2259 hint, since the spec has fairness |
