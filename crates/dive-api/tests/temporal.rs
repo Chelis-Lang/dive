@@ -1851,3 +1851,228 @@ Still == UNCHANGED x
         "zero traversal budget"
     );
 }
+
+#[test]
+fn finite_choose_predicates_keep_values_contexts_and_closing_words() {
+    let (ir, cfg) = input(
+        r"---- MODULE ChoiceWords ----
+EXTENDS Naturals
+VARIABLE x
+Init == x=FALSE
+Next == x'=~x
+Min(S) == CHOOSE b \in S : \A c \in S : b<=c
+Max(S) == CHOOSE b \in S : \A c \in S : b>=c
+H(S) == []<>((CHOOSE b \in S : TRUE)=TRUE)
+A == []<>(Min(IF x THEN {1,2} ELSE {3,4})=1)
+B == []<>(Max(IF x THEN {1,2} ELSE {3,4})=4)
+C == H(IF x THEN {TRUE} ELSE {FALSE})
+D == []<>(\E i \in {x} : (CHOOSE b \in IF i THEN {TRUE} ELSE {FALSE} : b=i)=i)
+E == []<>((CHOOSE t \in IF x THEN {<<TRUE,FALSE>>} ELSE {<<FALSE,TRUE>>} : t[1]#t[2]) = <<TRUE,FALSE>>)
+F == []<>((CHOOSE i \in {1,2} : i>1)=2)
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for n in 1..=4 {
+        for mask in 0_usize..(1 << n) {
+            let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|v| Arc::from([Some((*v).into())]))
+                .collect();
+            for back in 0..n {
+                let any = values[back..].iter().any(|v| *v);
+                let all = values[back..].iter().all(|v| *v);
+                for (name, truth) in [
+                    ("A", any),
+                    ("B", !all),
+                    ("C", any),
+                    ("D", true),
+                    ("E", any),
+                    ("F", true),
+                ] {
+                    let d = ir.root_def(name).expect(name);
+                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
+                    let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let j = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[j].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect(name))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect(name),
+                        direct
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn finite_choose_purity_limits_and_unsatisfied_predicates_never_supply_a_value() {
+    let (ir, cfg) = input(
+        r#"---- MODULE ChoiceRefused ----
+EXTENDS Naturals,TLC
+VARIABLE x
+Init == x=TRUE
+Next == x'=~x
+Effect == []<>((CHOOSE b \in IF x THEN BOOLEAN ELSE {} : Print(b,TRUE))=TRUE)
+Checker == []<>((CHOOSE b \in BOOLEAN : TLCGet("level")=1)=TRUE)
+Infinite == []<>((CHOOSE i \in Nat : i=1)=1)
+Huge == []<>((CHOOSE i \in IF x THEN 1..5000 ELSE {1} : TRUE)=1)
+None == []<>((CHOOSE b \in IF x THEN {FALSE} ELSE {TRUE} : b)=TRUE)
+Empty == []<>((CHOOSE b \in IF x THEN {} ELSE {TRUE} : TRUE)=TRUE)
+====
+"#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for name in ["Effect", "Checker", "Infinite"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        assert!(
+            dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
+            "{name}"
+        );
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
+                .is_err(),
+            "{name}"
+        );
+        assert!(model.take_output().is_empty(), "{name}");
+    }
+    for name in ["Huge", "None", "Empty"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+            .expect("dynamic pure choice");
+        let st = dive_eval::St::state(Arc::from([Some(true.into())]));
+        assert!(
+            plan.atoms.iter().any(|a| a.evaluate(&model, &st).is_err()),
+            "{name}"
+        );
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
+                .is_err(),
+            "{name}"
+        );
+        assert_eq!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(false.into())])], 0)
+                .expect("a valid concrete choice"),
+            vec![true],
+            "{name}"
+        );
+    }
+}
+
+#[test]
+fn finite_choose_models_match_pinned_truth_counts_in_both_profiles_and_stores() {
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-choose");
+    for name in ["CfMin", "CfMax", "CfTuple", "CfNested", "CfLazy"] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("oracle exit");
+        let (ir, cfg) = input(&source, &config);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                let options = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit.trim(), "0", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(exit.trim(), "13", "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn captured_domains_affect_predicate_level_even_when_the_body_ignores_the_binder() {
+    let (ir, cfg) = input(
+        r"---- MODULE CapturedDomains ----
+VARIABLE x
+Init == x=FALSE
+Next == x'=~x
+E(S) == []<>(\E b \in S : TRUE)
+A(S) == <>[](\A b \in S : FALSE)
+M(S) == []<>({TRUE : b \in S}={TRUE})
+F(S) == []<>(DOMAIN [b \in S |-> TRUE]={TRUE})
+PE == E(IF x THEN {TRUE} ELSE {})
+PA == A(IF x THEN {TRUE} ELSE {})
+PM == M(IF x THEN {TRUE} ELSE {})
+PF == F(IF x THEN {TRUE} ELSE {})
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for name in ["PE", "PA", "PM", "PF"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+            .expect("domain must remain state level");
+        assert!(!plan.atoms.is_empty(), "{name}: no eager constant folding");
+        for value in [false, true] {
+            let state: dive_trace::State = Arc::from([Some(value.into())]);
+            let truth = if name == "PA" { !value } else { value };
+            let direct =
+                dive_trace::temporal::evaluate_lasso(&model, &p, std::slice::from_ref(&state), 0)
+                    .expect(name);
+            assert_eq!(direct, vec![truth], "{name} {value}");
+            let st = dive_eval::St::action(state.clone(), state);
+            let row: Vec<bool> = plan
+                .atoms
+                .iter()
+                .map(|a| a.evaluate(&model, &st).expect(name))
+                .collect();
+            assert_eq!(
+                plan.formula
+                    .evaluate_word(
+                        std::slice::from_ref(&row),
+                        std::slice::from_ref(&row),
+                        0,
+                        1_000_000
+                    )
+                    .expect(name),
+                direct
+            );
+        }
+    }
+}

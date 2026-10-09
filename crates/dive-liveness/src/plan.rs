@@ -388,11 +388,9 @@ impl Lower<'_> {
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1);
                 }
             }
-            Expr::Quant { kind, body, .. }
-                if *kind != QuantKind::Choose && node.level != Level::Temporal =>
-            {
-                let scopes = self.predicate_scopes(expr, scope, depth + 1)?;
-                let mut level = node.level;
+            Expr::Quant { body, .. } if node.level != Level::Temporal => {
+                let (scopes, domain_level) = self.predicate_scopes(expr, scope, depth + 1)?;
+                let mut level = node.level.max(domain_level);
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
                 }
@@ -401,8 +399,8 @@ impl Lower<'_> {
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
             | Expr::FcnCons { body, .. } => {
-                let scopes = self.predicate_scopes(expr, scope, depth + 1)?;
-                let mut level = node.level;
+                let (scopes, domain_level) = self.predicate_scopes(expr, scope, depth + 1)?;
+                let mut level = node.level.max(domain_level);
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
                 }
@@ -427,7 +425,7 @@ impl Lower<'_> {
         expr: ExprId,
         scope: &Scope,
         depth: usize,
-    ) -> Result<Vec<Scope>, PlanningError> {
+    ) -> Result<(Vec<Scope>, Level), PlanningError> {
         self.step()?;
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
@@ -436,7 +434,7 @@ impl Lower<'_> {
             Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
             _ => return Err(self.refused(expr, "predicate scopes require a binder")),
         };
-        let mut dynamic = false;
+        let mut domain_level = Level::Constant;
         for bound in bounds {
             let dom = bound
                 .domain
@@ -446,15 +444,17 @@ impl Lower<'_> {
                 return Err(self.refused(dom, "action/temporal predicate domain"));
             }
             self.pure_scoped(dom, scope, depth + 1)?;
-            dynamic |= level == Level::State;
+            domain_level = domain_level.max(level);
         }
-        if !dynamic {
-            return self.finite_scopes(expr, scope, depth + 1);
+        if domain_level == Level::Constant {
+            return self
+                .finite_scopes(expr, scope, depth + 1)
+                .map(|sc| (sc, domain_level));
         }
         self.model
             .evaluator
             .scope_binder_analysis(scope, expr)
-            .map(|sc| vec![sc])
+            .map(|sc| (vec![sc], domain_level))
             .map_err(|e| self.refused(expr, e.to_string()))
     }
 
@@ -543,15 +543,15 @@ impl Lower<'_> {
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
-                Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
-                    let scopes = self.predicate_scopes(e, &scope, depth + 1)?;
+                Expr::Quant { body, .. } => {
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let scopes = self.predicate_scopes(e, &scope, depth + 1)?;
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }

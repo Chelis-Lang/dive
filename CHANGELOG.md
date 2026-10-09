@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final/short temporal predicates support bounded CHOOSE with retained domain
+  levels, including pure Min/Max-style calls and state-dependent arguments.
+
 - Final/short temporal predicates evaluate bounded state-dependent quantifier,
   set and function domains in each actual state/edge, with independent periodic
   validation and explicit refusals for infinite/oversized domains.
