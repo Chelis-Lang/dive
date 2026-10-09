@@ -68,7 +68,7 @@ fn named_set_is_complete_and_legacy_claims_stay_unsupported() {
 }
 
 #[test]
-fn temporal_behavior_conjuncts_must_hold_and_fairness_refuses() {
+fn temporal_behavior_conjuncts_must_hold_and_recurring_action_certifies_fairness() {
     let src = SPEC.replace(
         "Spec == Init /\\ [][Next]_x",
         "Spec == Init /\\ [][Next]_x /\\ []<>x",
@@ -84,9 +84,14 @@ fn temporal_behavior_conjuncts_must_hold_and_fairness_refuses() {
         "Spec == Init /\\ [][Next]_x /\\ WF_x(Next)",
     );
     let m = bound(&src, "SPECIFICATION Spec\nPROPERTY P\n");
-    assert!(
-        matches!(result(&m, &word()), Validation::Unsupported(s) if s.contains("fairness") || s.contains("ENABLED"))
-    );
+    // The cycle executes <<Next>>_x infinitely often, proving WF without
+    // needing to decide whether some other action is enabled.
+    assert_eq!(result(&m, &word()), Validation::Valid);
+    let stutter = TraceDoc::behavior(vec![json!({"x":false})])
+        .expect("word")
+        .with_ending(Ending::Stuttering)
+        .with_properties(vec!["P".into()]);
+    assert!(matches!(result(&m,&stutter),Validation::Unsupported(s) if s.contains("ENABLED")));
 }
 
 #[test]
@@ -147,7 +152,7 @@ fn lossy_reader_preflights_before_scoring_effectful_initial_predicates() {
 }
 
 #[test]
-fn pinned_liveness_words_validate_or_refuse_by_name_never_turn_invalid() {
+fn pinned_liveness_words_validate_including_recurring_fair_actions() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-liveness/tests/fixtures/tlc-probes");
     let mut valid = 0;
@@ -186,24 +191,13 @@ fn pinned_liveness_words_validate_or_refuse_by_name_never_turn_invalid() {
         match r {
             Validation::Valid => valid += 1,
             Validation::Unsupported(s) => {
-                assert_ne!(s, "");
-                assert!(
-                    matches!(
-                        name,
-                        "LvAlwaysEventually" | "LvEventuallyAlways" | "LvLeadsTo" | "LvLassoMid"
-                    ),
-                    "pure control {name} was refused: {s}"
-                );
-                assert!(
-                    s.contains("fairness") || s.contains("ENABLED"),
-                    "{name}: {s}"
-                );
+                panic!("pinned recurring-action control {name} was refused: {s}")
             }
             Validation::Invalid(f) => panic!("{name}: {f:?}"),
         }
     }
     assert!(
-        valid >= 4,
+        valid == 8,
         "controls must exercise actual certification, got {valid}"
     );
 }

@@ -253,6 +253,17 @@ impl Evaluator {
         }
     }
 
+    /// Compares two given values with this evaluator's comparison profile.
+    /// This is the equality used by the interpreter, including TLC's errors
+    /// under `Comparisons::Tlc` and the approved TLA+ comparison semantics.
+    /// It does not evaluate an expression or generate successor states.
+    ///
+    /// # Errors
+    /// A comparison the profile cannot decide, or a value/resource error.
+    pub fn equal_values(&self, a: &Value, b: &Value) -> Result<bool> {
+        self.core.equals(a, b)
+    }
+
     /// The options.
     #[must_use]
     pub fn options(&self) -> &Options {
