@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":true}],{"name":"Next","location":{"beginLine":4,"beginColumn":9,"endLine":4,"endColumn":13,"module":"QfAllState"}},[2,{"x":false}]],[[2,{"x":false}],{"name":"Next","location":{"beginLine":4,"beginColumn":9,"endLine":4,"endColumn":13,"module":"QfAllState"}},[1,{"x":true}]]],"state":[[1,{"x":true}],[2,{"x":false}]]},"vars":["x"]}

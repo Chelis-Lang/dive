@@ -887,3 +887,123 @@ fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation
         }
     }
 }
+
+#[test]
+fn quantified_actions_and_predicates_match_pinned_final_truth_and_validate() {
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/action-quantifiers");
+    for name in [
+        "QfReach",
+        "QfDisabled",
+        "QfStrong",
+        "QfAllState",
+        "QfTuple",
+        "QfNested",
+    ] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("exit");
+        let (ir, cfg) = input(&src, &config);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                let opts = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit.trim(), "0", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(exit.trim(), "13", "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn finite_predicate_quantifiers_keep_every_context_and_empty_identity() {
+    let (ir, cfg) = input(
+        "---- MODULE QWords ----\nVARIABLE x\nInit == x=TRUE\nNext == x'=~x\n\
+        Visit(i) == x=i\n\
+        Any == []<>(\\E i \\in {TRUE,FALSE} : Visit(i))\n\
+        All == []<>(\\A i \\in {TRUE,FALSE} : Visit(i))\n\
+        Pair == []<>(\\E <<i,j>> \\in {<<TRUE,FALSE>>,<<FALSE,TRUE>>} : x=i /\\ x=j)\n\
+        EmptyAny == []<>(\\E i \\in {} : Visit(i))\n\
+        EmptyAll == []<>(\\A i \\in {} : Visit(i))\n\
+        StateDomain == []<>(\\E i \\in {x} : Visit(i))\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let m = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for len in 1..=4 {
+        for mask in 0_usize..(1 << len) {
+            let word: Vec<bool> = (0..len).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = word
+                .iter()
+                .map(|b| Arc::from([Some((*b).into())]))
+                .collect();
+            for back in 0..len {
+                for (name, expected) in [
+                    ("Any", true),
+                    ("All", false),
+                    ("EmptyAny", false),
+                    ("EmptyAll", true),
+                    ("Pair", false),
+                ] {
+                    let d = ir.root_def(name).expect(name);
+                    let p = dive_model::Pred::new(ir.def(d).body, m.evaluator.scope(d));
+                    let plan = dive_liveness::plan::lower(
+                        &m,
+                        &p,
+                        dive_liveness::formula::Limits::default(),
+                    )
+                    .expect(name);
+                    let labels: Vec<Vec<bool>> = (0..len)
+                        .map(|i| {
+                            let next = if i + 1 == len { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|atom| atom.evaluate(&m, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    let value = plan
+                        .formula
+                        .evaluate_word(&labels, &labels, back, 1_000_000)
+                        .expect("formula");
+                    assert_eq!(value[0], expected, "{name} {word:?} {back}");
+                    let direct = dive_trace::temporal::evaluate_lasso(&m, &p, &states, back)
+                        .expect("independent word");
+                    assert_eq!(direct[0], expected, "{name} {word:?} {back}");
+                }
+            }
+        }
+    }
+    let d = ir.root_def("StateDomain").expect("StateDomain");
+    let p = dive_model::Pred::new(ir.def(d).body, m.evaluator.scope(d));
+    assert!(dive_liveness::plan::lower(&m, &p, dive_liveness::formula::Limits::default()).is_err());
+    assert!(
+        dive_trace::temporal::evaluate_lasso(&m, &p, &[Arc::from([Some(true.into())])], 0).is_err()
+    );
+}

@@ -147,3 +147,8 @@ Minimal specs and raw results are in
 `crates/dive-api/tests/fixtures/temporal-conditionals/`. Pure state- and
 temporal-guarded IF works. Broader support may become a named TLA+ formula option;
 it is not an adopted default. Both checker profiles retain explicit refusals.
+
+D-013 finite-predicate coverage now includes constant-domain quantified actions
+and state predicates. Six clean `action-quantifiers` probes match final truth/counts;
+independent ENABLED uses necessary covers rather than the checker enumerator.
+Exact TLC temporal ordering, timing and selection remain pending.

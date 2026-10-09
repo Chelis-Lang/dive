@@ -731,3 +731,12 @@ claim validates independently. SANY's rejection of bare eventual actions is
 also retained as a negative control. Action/temporal and higher-order arguments
 still refuse; this adds supported semantics without a new default or exact
 TLC temporal-conformance claim.
+
+**D-013 quantified-action update:** final/short checking now accepts finite
+constant-domain predicates such as `\E p \in Processes : Move(p)` inside
+fairness. Six pinned probes match final truth/counts in both profiles/stores,
+and every returned periodic claim validates independently. A 36-state probe
+checks 108 independent ENABLED decisions, including contradictory universal
+constraints and an empty existential domain. Missing covers and exhausted budgets
+still refuse. This expands supported semantics without a new default or exact
+TLC temporal-conformance claim.

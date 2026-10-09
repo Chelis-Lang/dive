@@ -5,7 +5,8 @@
 use crate::State;
 use dive_eval::{ConstBinding, Scope, SlotView, St};
 use dive_ir::{
-    Arg, BuiltinOp, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp, VarId,
+    Arg, BuiltinOp, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp,
+    VarId,
 };
 use dive_model::{Model, Pred};
 use dive_value::{SetKind, Value};
@@ -213,6 +214,12 @@ impl Search<'_> {
                     self.scan(e, scope, prime, needed, depth + 1)?;
                 }
             }
+            Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                for sc in scopes {
+                    self.scan(*body, &sc, prime, needed, depth + 1)?;
+                }
+            }
             Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
                 Some(ConstBinding::Value(_)) => {}
                 Some(ConstBinding::Def(d)) => {
@@ -291,6 +298,52 @@ impl Search<'_> {
             .map_err(|e| ExistsError::Unsupported(e.to_string()))
     }
 
+    // A quantifier's bound values are concrete data in the current state.
+    // Never bind a primed domain or speculate about an unbounded domain.
+    fn finite_scopes(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Vec<Scope>, ExistsError> {
+        self.step(depth)?;
+        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
+            return Err(ExistsError::Invalid("expected bounded quantifier".into()));
+        };
+        for bound in bounds {
+            let dom = bound
+                .domain
+                .ok_or_else(|| ExistsError::Unsupported("unbounded action quantifier".into()))?;
+            if self.model.ir.node(dom).level > Level::State {
+                return Err(ExistsError::Unsupported(
+                    "primed action quantifier domain".into(),
+                ));
+            }
+            let mut reads = BTreeSet::new();
+            self.scan(dom, scope, false, &mut reads, depth + 1)?;
+            if !reads.is_empty() {
+                return Err(ExistsError::Unsupported(
+                    "primed action quantifier domain".into(),
+                ));
+            }
+        }
+        self.model
+            .evaluator
+            .scope_bindings_bounded(
+                scope,
+                expr,
+                &St::state(self.state.clone()),
+                self.limits.domain_values.min(self.limits.expressions),
+            )
+            .map_err(|e| {
+                if e.class() == dive_eval::ErrorClass::ResourceLimit {
+                    ExistsError::Limit("quantifier bindings")
+                } else {
+                    ExistsError::Unsupported(format!("action quantifier bindings: {e}"))
+                }
+            })
+    }
+
     fn enter(&self, scope: &Scope, d: dive_ir::DefId) -> Result<(ExprId, Scope), ExistsError> {
         let d = self.model.evaluator.redirected(d);
         let s = self
@@ -339,6 +392,44 @@ impl Search<'_> {
             _ => Ok(Cover::default()),
         }
     }
+    fn combine(
+        &self,
+        kind: JunctionKind,
+        mut lhs: Cover,
+        rhs: Cover,
+    ) -> Result<Cover, ExistsError> {
+        if kind == JunctionKind::And {
+            lhs.impossible |= rhs.impossible;
+            // Either necessary cover suffices. Preserve the first cover,
+            // avoiding value-comparison side effects and retaining correlations
+            // for the original relation to check.
+            for (v, ds) in rhs.domains {
+                lhs.domains.entry(v).or_insert(ds);
+            }
+            Ok(lhs)
+        } else if lhs.impossible {
+            Ok(rhs)
+        } else if rhs.impossible {
+            Ok(lhs)
+        } else {
+            lhs.domains.retain(|v, ds| {
+                if let Some(other) = rhs.domains.get(v) {
+                    ds.extend(other.iter().cloned());
+                    true
+                } else {
+                    false
+                }
+            });
+            if lhs
+                .domains
+                .values()
+                .any(|d| d.len() > self.limits.domain_values)
+            {
+                return Err(ExistsError::Limit("domain values"));
+            }
+            Ok(lhs)
+        }
+    }
     fn junction(
         &mut self,
         kind: JunctionKind,
@@ -346,43 +437,40 @@ impl Search<'_> {
         scope: &Scope,
         depth: usize,
     ) -> Result<Cover, ExistsError> {
-        let mut combined: Option<Cover> = None;
+        let mut combined = None;
         for e in items {
             let rhs = self.cover(*e, scope, depth + 1)?;
-            let Some(mut lhs) = combined.take() else {
-                combined = Some(rhs);
-                continue;
-            };
-            if kind == JunctionKind::And {
-                lhs.impossible |= rhs.impossible;
-                // Either necessary cover suffices. Pick the first without
-                // introducing comparison or intersection side effects.
-                for (v, ds) in rhs.domains {
-                    lhs.domains.entry(v).or_insert(ds);
-                }
-                combined = Some(lhs);
-            } else if lhs.impossible {
-                combined = Some(rhs);
-            } else if rhs.impossible {
-                combined = Some(lhs);
-            } else {
-                lhs.domains.retain(|v, ds| {
-                    if let Some(other) = rhs.domains.get(v) {
-                        ds.extend(other.iter().cloned());
-                        true
-                    } else {
-                        false
-                    }
-                });
-                if lhs
-                    .domains
-                    .values()
-                    .any(|d| d.len() > self.limits.domain_values)
-                {
-                    return Err(ExistsError::Limit("domain values"));
-                }
-                combined = Some(lhs);
-            }
+            combined = Some(match combined {
+                Some(lhs) => self.combine(kind, lhs, rhs)?,
+                None => rhs,
+            });
+        }
+        Ok(combined.unwrap_or(Cover {
+            impossible: kind == JunctionKind::Or,
+            domains: Domains::new(),
+        }))
+    }
+    fn quantified(
+        &mut self,
+        expr: ExprId,
+        kind: QuantKind,
+        body: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Cover, ExistsError> {
+        let kind = if kind == QuantKind::Exists {
+            JunctionKind::Or
+        } else {
+            JunctionKind::And
+        };
+        let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+        let mut combined = None;
+        for sc in scopes {
+            let rhs = self.cover(body, &sc, depth + 1)?;
+            combined = Some(match combined {
+                Some(lhs) => self.combine(kind, lhs, rhs)?,
+                None => rhs,
+            });
         }
         Ok(combined.unwrap_or(Cover {
             impossible: kind == JunctionKind::Or,
@@ -471,6 +559,9 @@ impl Search<'_> {
             }
             Expr::Label { body, .. } | Expr::Selected(body) => self.cover(*body, scope, depth + 1),
             Expr::Junction { kind, items, .. } => self.junction(*kind, items, scope, depth),
+            Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                self.quantified(expr, *kind, *body, scope, depth)
+            }
             Expr::If { cond, then, other } if self.model.ir.node(*cond).level <= Level::State => {
                 let b = self.boolean(*cond, scope, &St::state(self.state.clone()))?;
                 self.cover(if b { *then } else { *other }, scope, depth + 1)
