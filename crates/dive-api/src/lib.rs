@@ -6,7 +6,8 @@
 //! SANY-equivalent semantic analysis ([`analyze_file`], [`analyze_source`])
 //! with its own report ([`AnalyzeReport::to_json`]); safety model checking
 //! ([`check_file`], [`CheckReport`]); and trace validation against a
-//! specification ([`trace`], ADR 0016). Everything else in the
+//! specification ([`trace`], ADR 0016); and bounded final temporal checking
+//! for Rust callers ([`temporal`]). Everything else in the
 //! charter is still to come. Permitted internal dependencies are listed in
 //! `xtask/src/layering.rs`.
 //!
@@ -23,6 +24,7 @@
 
 mod config;
 
+pub mod temporal;
 pub mod trace;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};

@@ -73,6 +73,11 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- `dive-api::temporal::check_final`: bounded final checking for the supported
+  pure temporal subset, with independently validated lossless counterexamples,
+  complete property claims and retained safety-stop evidence. TLC-exact lasso
+  selection and ordinary `dive check` integration remain pending.
+
 - WF/SF and direct ENABLED planning via scoped checker-side atoms. Bounded
   final temporal candidates now carry their complete false-property set,
   attributed by direct word truth and checked independently. Ten pinned
