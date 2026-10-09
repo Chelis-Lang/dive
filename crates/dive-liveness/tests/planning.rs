@@ -17,6 +17,7 @@ fn bound(source: &str, config: &str) -> Model {
         source,
         &dive_sema::Options::default(),
     );
+    assert!(a.accepted(), "{:?}", a.diagnostics());
     let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
     let cfg = dive_config::parse(config).into_config().expect("config");
     dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind")
@@ -170,7 +171,7 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     let model = bound(
         "---- MODULE Refusal ----\nEXTENDS TLC\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n\
         F(a) == WF_x(a)\nFair == F(Next)\nEffect == []Print(x,x)\nRead == [](TLCGet(\"level\") = 0)\n\
-        T(p) == []p\nParam == T(x)\nH(F(_),p) == F(p)\nHigher == H(T,x)\nBad == <>1\n====\n",
+        T(p) == []p\nParam == T(x)\nH(G(_),p) == G(p)\nHigher == H(T,x)\nBad == <>1\n====\n",
         "INIT Init\nNEXT Next\n",
     );
     let _ = model.take_output();

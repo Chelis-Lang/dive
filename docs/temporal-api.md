@@ -108,7 +108,8 @@ remain validation refusals.
 Independent ENABLED/fairness proofs now follow pure constant-argument action
 calls and value-bound locals. Covers retain each call's scalar/tuple context,
 and every witness is tested against the original relation. Missing primed
-variable covers, lazy state arguments and higher-order calls still refuse.
+variable covers, lazy state arguments in the independent finite-cover search,
+and higher-order calls still refuse.
 The `SfDisabled` probe specifically requires false ENABLED on its stuttering
 cycle; a recurring action cannot stand in for this proof.
 

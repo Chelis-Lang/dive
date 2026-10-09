@@ -182,6 +182,19 @@ fn fairness_limits_and_safety_stops_do_not_guess_holds() {
         .replace("WF_x(Next)", "F(Next)")
         .replace("Spec ==", "F(a) == WF_x(a)\nSpec ==");
     let model = bound(&opaque, "SPECIFICATION Spec\nPROPERTY Prop\n", &opts);
+    let actual =
+        analyze_final(&model, &opts, Limits::default()).expect("resolved fair action binding");
+    let Analysis::Holds(c) = actual else {
+        panic!("fair alias changed truth");
+    };
+    assert_eq!(
+        (c.stats.generated, c.stats.distinct, c.stats.depth),
+        (3, 2, 2)
+    );
+    let opaque = source
+        .replace("VARIABLE x", "EXTENDS TLC\nVARIABLE x")
+        .replace("WF_x(Next)", "[]<>(TLCGet(\"level\")=0)");
+    let model = bound(&opaque, "SPECIFICATION Spec\nPROPERTY Prop\n", &opts);
     assert!(matches!(
         analyze_final(&model, &opts, Limits::default()),
         Err(AnalysisError::Planning(_))

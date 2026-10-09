@@ -8,14 +8,15 @@ DIVE_CACHE_DIR=<verified-cache> cargo run -p dive-conformance --release -- dev c
   --oracle tlc-2026.10.06.014338 \
   --specs crates/dive-api/tests/fixtures/state-temporal-calls/specs \
   --out crates/dive-api/tests/fixtures/state-temporal-calls \
-  SpHold SpStable SpGuard SpNested SpTuple SpNonstutter SpPrime
+  SpHold SpStable SpGuard SpNested SpTuple SpNonstutter SpForwardFair SpPrime
 ```
 
 Clean transcripts decide counts/truth; violation JSON uses a separate
 cross-checked trace pass. `SpHold`, `SpNested`, `SpTuple` and `SpNonstutter`
-succeed; `SpStable` and `SpGuard` violate P. These cover state arguments,
+and `SpForwardFair` succeed; `SpStable` and `SpGuard` violate P. These cover state arguments,
 nested forwarding, tuple arguments, a state guard and priming the argument
-inside a non-stuttering action. `SpPrime` is a negative control: SANY rejects
+inside a non-stuttering action, and a fairness action forwarded through the
+bound model’s lazy scope. `SpPrime` is a negative control: SANY rejects
 bare `<>A` when A is an action without the required `<<A>>_v` form (exit 4;
 TLC refuses the module with exit 150).
 

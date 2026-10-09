@@ -768,6 +768,7 @@ fn pinned_state_argument_operators_match_truth_counts_and_validate_independently
         "SpNested",
         "SpTuple",
         "SpNonstutter",
+        "SpForwardFair",
     ] {
         let src =
             std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
@@ -828,7 +829,6 @@ fn pinned_state_argument_operators_match_truth_counts_and_validate_independently
         "4"
     );
 }
-
 
 #[test]
 fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation() {

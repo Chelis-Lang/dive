@@ -709,8 +709,8 @@ impl Lower<'_> {
 /// Lowers a pure bound temporal predicate into the language kernel, retaining
 /// each atom's scope. Supports boolean combinations, `[]`, `<>`, `~>`, pure
 /// constant conditionals, direct ENABLED, WF/SF over pure actions and
-/// state-level subscripts, finite constant domains and pure constant-argument
-/// temporal definitions. Planning alone
+/// state-level subscripts, finite constant domains and temporal definitions
+/// with pure constant/state arguments. Planning alone
 /// does not validate a behavior or enable model-checking liveness.
 ///
 /// # Errors
