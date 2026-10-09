@@ -160,3 +160,10 @@ supported), with no findings. FourQueens matches its safety stop and ChangRobert
 its final success. DistributedReplicatedLog retains an opaque scoped-level
 refusal; DiningPhilosophers reaches the tableau-node bound. Actual graph capture
 is still inline, and none of this is strict TLC temporal parity.
+
+Finite CHOOSE now works inside final/short predicates, including Min/Max-style
+operators and retained constant/state-dependent domains. Five pinned probes
+match final truth/counts in both profiles/stores; exhaustive word and domain
+level controls pass. LM1 stays at 39 matches and 6 refusals, with zero findings:
+DistributedReplicatedLog gets past Min/Max and now reaches the explicit
+action-argument refusal; DiningPhilosophers remains at the tableau bound.

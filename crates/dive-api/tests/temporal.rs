@@ -2053,7 +2053,8 @@ PF == F(IF x THEN {TRUE} ELSE {})
             let state: dive_trace::State = Arc::from([Some(value.into())]);
             let truth = if name == "PA" { !value } else { value };
             let direct =
-                dive_trace::temporal::evaluate_lasso(&model, &p, &[state.clone()], 0).expect(name);
+                dive_trace::temporal::evaluate_lasso(&model, &p, std::slice::from_ref(&state), 0)
+                    .expect(name);
             assert_eq!(direct, vec![truth], "{name} {value}");
             let st = dive_eval::St::action(state.clone(), state);
             let row: Vec<bool> = plan
@@ -2063,7 +2064,12 @@ PF == F(IF x THEN {TRUE} ELSE {})
                 .collect();
             assert_eq!(
                 plan.formula
-                    .evaluate_word(&[row.clone()], &[row], 0, 1_000_000)
+                    .evaluate_word(
+                        std::slice::from_ref(&row),
+                        std::slice::from_ref(&row),
+                        0,
+                        1_000_000
+                    )
                     .expect(name),
                 direct
             );
