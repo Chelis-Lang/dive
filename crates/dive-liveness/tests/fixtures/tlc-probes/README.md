@@ -108,3 +108,14 @@ Under the default mode TLC checks liveness periodically, triggered by the wall c
 | `MCDistributedReplicatedLog` | 6, back to 2, `InSync` | five different lassos of 4, 5 and 6 states over the six polynomials; `-fp 3` and `42` name `AllExtending and InSync` |
 
 The probe transcripts are in `fp-<N>/`. The Examples model's were captured outside the tree; LM3 recaptures them through the harness. TLC's default is a random polynomial per run (`TLC.java:230`), so a TLC user does not see a reproducible liveness counterexample unless they pass `-fp`.
+
+## Implicit stuttering and action constraints
+
+`LvStutterActionConstraint` has a boolean toggle and `ACTION_CONSTRAINT
+Changes`, where `Changes == x' # x`. TLC still adds the implicit stuttering
+edge after filtering successors and violates `[]<>x` on the single initial
+state `x = FALSE`. The pinned clean run exits 13 with 3 generated states,
+2 distinct states and depth 2; its cross-checked JSON trace is one state
+with a self-loop. Action constraints restrict generated steps, not the
+implicit stuttering closure. The capture commands and unmodified transcripts
+are next to the existing probes.

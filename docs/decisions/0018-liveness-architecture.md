@@ -215,7 +215,7 @@ The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and
 
 The validator checks, with the core evaluator only (no enumerator, no search):
 
-1. **The behaviour.** ADR 0016 checks 1–5 over every step. This includes the loop step `(s_{n-1}, s_k)`, or `(s_{n-1}, closing)` with `VIEW(closing) = VIEW(s_k)`. For a stuttering ending, the step `(s_{n-1}, s_{n-1})` is a stutter and needs no check. Every state, the last included, must be inside the model, and every step must satisfy the action constraints, since the lasso lies entirely within the explored graph.
+1. **The behaviour.** ADR 0016 checks 1–5 over every step. This includes the loop step `(s_{n-1}, s_k)`, or `(s_{n-1}, closing)` with `VIEW(closing) = VIEW(s_k)`. For a stuttering ending, the step `(s_{n-1}, s_{n-1})` is a stutter and needs no check. Every state, the last included, must be inside the model. Generated transitions must satisfy the action constraints. Implicit full-state stuttering steps are always permitted and bypass the action constraints, as TLC adds them after successor filtering (`Worker.doNextCheckLiveness`, lines 171–172). Probe `LvStutterActionConstraint` requires `x' # x` but TLC still reports the one-state stuttering violation at `x = FALSE` (exit 13, 3 generated / 2 distinct / depth 2). The validator must preserve that distinction on the prefix and closing edge.
 2. **Fairness.** Every temporal conjunct of the behaviour specification (`Model::temporals`) must be **true** on the ultimately periodic behaviour.
 3. **The properties.** Every claimed property must be **false** on it. Under `--lasso=tlc`, every unclaimed property must be true, since TLC names all the violated ones.
 
