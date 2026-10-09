@@ -55,7 +55,8 @@ impl std::error::Error for TemporalError {}
 /// ```
 ///
 /// # Errors
-/// Invalid words or nonboolean atoms; unsupported fairness, side effects,
+/// Invalid words or nonboolean atoms; unsupported fairness without recurring
+/// action occurrences, side effects,
 /// temporal quantification, opaque scoped atoms, checker introspection or
 /// resource bounds. `ENABLED` is deliberately
 /// refused until independent successor-existence checking is available.
@@ -201,13 +202,64 @@ impl Word<'_> {
                 self.eval(self.model.ir.def(d).body, &scope, child)
             }
             Expr::Selected(e) | Expr::Label { body: e, .. } => self.eval(*e, scope, child),
-            Expr::Wf { .. } | Expr::Sf { .. } => Err(TemporalError::Unsupported(
-                "fairness: independent ENABLED checking is not implemented".into(),
-            )),
+            Expr::Wf { sub, action } | Expr::Sf { sub, action } => {
+                self.recurring_action(*action, *sub, scope)
+            }
             other => Err(TemporalError::Unsupported(format!(
                 "temporal constructor {}",
                 other.tag()
             ))),
+        }
+    }
+
+    // GF <<A>>_v implies both WF_v(A) and SF_v(A). This sufficient
+    // condition needs no ENABLED search or witness. Checking only the finite
+    // prefix would be unsound: the occurrence must be on the repeated cycle.
+    fn recurring_action(
+        &self,
+        action: ExprId,
+        sub: ExprId,
+        scope: &Scope,
+    ) -> Result<Vec<bool>, TemporalError> {
+        self.check_atom_context(sub)?;
+        if self.model.ir.node(sub).level > Level::State {
+            return Err(TemporalError::Unsupported(
+                "action-level fairness subscript".into(),
+            ));
+        }
+        let occurrences = self.atom(action, scope)?;
+        let ev = &self.model.evaluator;
+        let mut recurrent = false;
+        for (i, occurs) in occurrences.into_iter().enumerate() {
+            if !occurs {
+                continue;
+            }
+            let next = if i + 1 == self.states.len() {
+                self.back_to
+            } else {
+                i + 1
+            };
+            let read = |at: usize| {
+                ev.eval_scoped(scope, sub, &St::state(self.states[at].clone()))
+                    .map_err(|e| {
+                        TemporalError::Unsupported(format!(
+                            "fairness subscript at position {at}: {e}"
+                        ))
+                    })
+            };
+            let before = read(i)?;
+            let after = read(next)?;
+            let same = ev.equal_values(&before, &after).map_err(|e| {
+                TemporalError::Unsupported(format!(
+                    "fairness subscript comparison at position {i}: {e}"
+                ))
+            })?;
+            recurrent |= i >= self.back_to && !same;
+        }
+        if recurrent {
+            Ok(vec![true; self.states.len()])
+        } else {
+            Err(TemporalError::Unsupported("fairness: no recurring <<A>>_v occurrence certifies the claim; independent ENABLED checking is not implemented".into()))
         }
     }
 

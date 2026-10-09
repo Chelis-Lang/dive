@@ -73,16 +73,29 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Independent fairness certificates for supplied periodic counterexamples:
+  a recurring non-stuttering action establishes both weak and strong fairness.
+  Prefix-only occurrences, unchanged subscripts and false actions cannot
+  certify fairness. Other cases still require independent enabledness checking
+  and refuse explicitly; this does not enable liveness model checking.
+- Bounded behavior-graph/tableau products with separate state and per-edge
+  action labels, promise acceptance and witness projection retaining original
+  edge positions. Invalid inputs and resource limits are explicit errors.
+  Model graph capture, TLC-exact ordering and checker integration remain pending.
 - Independent validation of named pure liveness counterexamples: the optional
   trace `properties` list names every violated temporal property. Init, all
   edges including loop closure, constraints, safety and behavior predicates,
   and property truth are checked separately from graph search. Implicit
-  stutters preserve TLC’s action-constraint semantics. Fairness, ENABLED,
+  stutters preserve TLC’s action-constraint semantics. Unestablished fairness, ENABLED,
   VIEW/symmetry and unnamed legacy liveness claims remain explicit refusals.
+- Pure bound liveness predicate planning into the formula/tableau kernel,
+  preserving state/action scopes. Unsupported constructs and resource limits
+  carry source locations and stable diagnostic codes. Fairness/ENABLED,
+  dynamic contexts, TLC-exact planning and checker integration remain pending.
 - Bounded temporal formula/tableau kernel for boolean, always and eventually
   formulas over supplied state/action atoms. Negations normalize by duality;
   every eventuality has an acceptance promise. Malformed references and
-  construction limits are errors. Model lowering and TLC-exact planning remain
+  construction limits are errors. Full TLC-exact planning remains
   pending; the kernel alone does not produce model-checking verdicts.
 - Independent temporal evaluation over supplied lassos in `dive-trace`:
   boolean combinations, `[]`, `<>`, `~>` and action atoms, including the

@@ -23,6 +23,13 @@ against the pinned TLC bundle and Examples `6a7b26a`, at one worker:
   refusals across the selected models. The timeout remains in the original
   generated report and in issue #53; it is not rewritten into agreement.
 
+The evaluator-core borrow cleanup subsequently passed in one complete
+[standard run](../conformance/reports/20261009T134501007-dive-small.json):
+83 agree, 71 explicit refusals, no disagreement, pending validation, timeout
+or oracle error, with two jobs and a fixed 2,400-second timeout. The generated
+report records its binary hash and pins. Paired busy-machine measurements
+establish no speed-up; the performance targets remain open.
+
 Seeded random trace validation now requires a proof that predicate and
 state-generation draw orders agree. Unknown alignment is refused even for
 coincidental matches. P9Random now fully agrees, resolving the previous
@@ -57,13 +64,18 @@ Follow [the M6 plan](design/m6-plan.md): temporal formula/tableau planning,
 behavior-graph capture, then integrated accepting-lasso search and
 property attribution. A bounded formula/tableau language kernel now checks
 boolean combinations, always and eventually over supplied state/action atoms.
-Bound-model lowering, fairness expansion and TLC-exact planning remain pending.
+Pure bound predicates lower to that kernel with retained scopes and source
+diagnostics; fairness/dynamic contexts and TLC-exact planning remain pending.
 Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
-foundations. Named pure concrete periodic counterexamples now validate
+foundations. The graph/tableau product preserves per-edge atom truth and
+projects accepting witnesses without discarding repeated obligations;
+behavior-graph capture and model coordination are still pending. Named pure concrete periodic counterexamples now validate
 independently, including closing edges and the complete property set.
-Fairness, ENABLED and VIEW/symmetry closing evidence are still refused.
+Recurring non-stuttering action occurrences now certify WF/SF independently
+on a supplied cycle. Eight pinned counterexamples validate; fairness needing
+ENABLED and VIEW/symmetry closing evidence are still refused.
 These APIs do not yet produce model-checking liveness verdicts.
 
 Approved defaults are recorded in ADRs and the differences log: explicit

@@ -53,19 +53,26 @@ combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
 suffix of all boolean words up to four positions and six pinned TLC liveness
 words. Named pure periodic counterexamples now validate independently,
 including behavior/closing-edge checks and the complete violated-property
-set. Four pinned pure words validate, four fairness words refuse, and
-closing-edge/property/constraint mutations are rejected. Fairness, independent
+set. Eight pinned words validate, including recurring-action fairness
+certificates; closing-edge/property/constraint mutations are rejected.
+Fairness without a recurring non-stuttering action, independent
 `ENABLED`, VIEW/symmetry closing evidence and harness integration remain
 outstanding. L3 now provides validated SCC decomposition
 and accepting-lasso search over supplied product graphs, including unrestricted
 prefix reachability, all acceptance visits and deterministic witnesses. TLC-exact formula/tableau planning,
-behavior-graph capture, concrete-state projection and property
-attribution remain outstanding. L1 now has a bounded, flat boolean/always/
+behavior-graph capture and property
+attribution remain outstanding. An explicit graph/tableau product now checks per-edge action
+truth, applies promises and projects witnesses to original edge positions,
+with bounded resources. It still requires caller-supplied graph/labels.
+L1 now has a bounded, flat boolean/always/
 eventually formula kernel with negation normalization and generalized Buchi
 tableaux over supplied state/action atoms. Exhaustive short-word tests compare
 the accepted language with direct temporal semantics; an omitted promise is
-caught by a planted-bug control. Bound-model lowering, fairness expansion,
-TLC's DNF/classification/order and tableau numbering remain outstanding.
+caught by a planted-bug control. Bound pure predicates now lower to that
+kernel with retained state/action scopes, source-located stable diagnostics,
+seven pinned property-word controls and exhaustive short-word comparisons.
+Fairness/ENABLED expansion, parameter/dynamic contexts, TLC's DNF/classification/
+order and tableau numbering remain outstanding.
 L2 and L5–L10 remain planned.
 
 ## Work packages

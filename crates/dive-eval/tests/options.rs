@@ -149,3 +149,26 @@ fn integer_modes() {
     assert!(matches!(outcome, AssumptionOutcome::AllTrue));
     assert_eq!(out, ["2147483648"]);
 }
+
+#[test]
+fn equality_api_obeys_the_evaluator_comparison_profile() {
+    let source = module("A == <<1>>\nB == [a |-> 1, b |-> 1]");
+    let analysis = dive_sema::analyze_source("M.tla", &source, &dive_sema::Options::default());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+    for opts in [Options::tlc(), Options::dive()] {
+        let evaluator = Evaluator::new(dive_eval::Model::new(ir.clone()), opts);
+        let a = evaluator
+            .eval_def(ir.root_def("A").expect("A"), &dive_eval::St::constant())
+            .expect("tuple");
+        let b = evaluator
+            .eval_def(ir.root_def("B").expect("B"), &dive_eval::St::constant())
+            .expect("record");
+        assert!(!evaluator.equal_values(&a, &b).expect("tuple/record"));
+        let reverse = evaluator.equal_values(&b, &a);
+        if opts.comparisons == Comparisons::Tlc {
+            assert!(reverse.is_err(), "TLC record/tuple equality must refuse");
+        } else {
+            assert!(!reverse.expect("TLA equality is symmetric"));
+        }
+    }
+}

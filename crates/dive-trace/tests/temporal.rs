@@ -142,7 +142,7 @@ fn actions_use_the_closing_successor_and_bad_words_refuse() {
 }
 
 #[test]
-fn fairness_is_explicitly_unsupported() {
+fn fairness_without_recurring_action_requires_independent_enabled() {
     let model = bound(
         "---- MODULE Word ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nFair == WF_x(Next)\n====\n",
         "INIT Init\nNEXT Next\n",
@@ -230,5 +230,42 @@ fn pinned_tlc_liveness_words_violate_the_reported_property() {
                 .trim(),
             "13"
         );
+    }
+}
+
+#[test]
+fn recurring_action_certifies_both_fairness_kinds_on_every_small_word() {
+    let model = bound(
+        "---- MODULE Word ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n\
+         W == WF_x(Next)\nS == SF_x(Next)\n\
+         EmptyW == WF_<<>>(Next)\nEmptyS == SF_<<>>(Next)\n\
+         FalseW == WF_x(FALSE)\nFalseS == SF_x(FALSE)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    for len in 1..=4 {
+        for bits in 0..(1_u32 << len) {
+            let word: Vec<bool> = (0..len).map(|i| bits & (1 << i) != 0).collect();
+            let states: Vec<State> = word
+                .iter()
+                .map(|b| Arc::from([Some(Value::Bool(*b))]))
+                .collect();
+            for back in 0..len {
+                let recurring = (back..len).any(|i| {
+                    let next = if i + 1 == len { back } else { i + 1 };
+                    word[i] != word[next]
+                });
+                for name in ["W", "S", "EmptyW", "EmptyS", "FalseW", "FalseS"] {
+                    let result = evaluate_lasso(&model, &predicate(&model, name), &states, back);
+                    if recurring && matches!(name, "W" | "S") {
+                        assert_eq!(result.expect(name), vec![true; len], "{word:?}, {back}");
+                    } else {
+                        assert!(
+                            matches!(&result, Err(TemporalError::Unsupported(s)) if s.contains("ENABLED")),
+                            "{name}: {word:?}, {back}: {result:?}"
+                        );
+                    }
+                }
+            }
+        }
     }
 }
