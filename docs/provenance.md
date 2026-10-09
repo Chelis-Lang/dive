@@ -145,4 +145,7 @@ The frontend campaign grammar driver invokes `TLAplusParser.parse` and
 `SpecObj.validateParseUnit` / `SANY.frontEndParse`; generic exceptions never
 establish a root-grammar fact. See `scripts/java/README.md` for source and
 bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
+
+| Component | Reference | License | Evidence |
+|---|---|---|---|
 | State-dependent finite predicate preflight (`dive-eval::finite`, `scope_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original conservative scoped analysis and bounded concrete walks; TLA+ quantifier/constructor truth compared with TLC `ContextEnumerator`, `SetOfAllValue`, `SetPredValue`, `FcnLambdaValue` at `94d0c50` | Original implementation; MIT reference | Eight `Df*` pinned truth/count probes, independent periodic validation and exhaustive short words; no sample values, frozen domains or validator successor enumeration |

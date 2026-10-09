@@ -52,7 +52,8 @@ L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
 bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
 is checked against independent short-word semantics. Finite constant-domain quantifiers, tuple bindings and original configured
 property attribution are implemented. Pure constant/state-argument temporal operators are supported; action/temporal and higher-order arguments,
-nonconstant/unbounded quantification, dynamic scopes, TLC's DNF/classification/order and
+state-dependent temporal quantifier expansion, unbounded quantification,
+opaque scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
 
 L2 captures bounded complete graphs through the shared inline safety engine,
@@ -256,3 +257,10 @@ necessary-cover search. Four pinned fairness cases match final truth/counts in
 both profiles/stores, and all periodic claims validate independently. Forty-eight
 ENABLED decisions agree with the pinned eight-state identity probe. Primed
 domains, missing covers and budgets remain refusals; broader L5 remains open.
+
+The state-domain predicate increment reads finite constructor and quantifier
+domains at each concrete state or edge. Static level/purity analysis uses
+non-evaluable unknown bindings, never sampled values. Independent validation
+uses bounded concrete preflight without the successor enumerator. The final/short
+LM1 study now matches truth/counts on thirteen models and refuses two; this is
+not the full LM1/strict conformance exit.

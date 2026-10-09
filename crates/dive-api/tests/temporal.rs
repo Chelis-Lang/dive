@@ -1672,7 +1672,7 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
         assert_eq!(
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(false.into())])], 0)
                 .expect("empty domain"),
-            vec![true],
+            vec![name == "Large"], // Empty set equals {}; an existential over it is FALSE.
             "{name}"
         );
         // Empty current domain is valid. A nonempty later domain must still refuse.
