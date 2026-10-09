@@ -555,13 +555,19 @@ impl Core {
     }
 
     pub(crate) fn undefined(&self, name: &str, e: ExprId) -> EvalError {
+        let location = self.undefined_location(e);
         EvalError::coded(
             Ec::UndefinedOrNoOperator,
             format!(
-                "In evaluation, the identifier {name} is either undefined or not an operator.\n{}",
-                self.loc(e)
+                "In evaluation, the identifier {name} is either undefined or not an operator.\n{location}"
             ),
         )
+    }
+
+    fn undefined_location(&self, e: ExprId) -> String {
+        self.ir
+            .prime_operand_origin(e)
+            .map_or_else(|| self.loc(e), |origin| self.ir.location(&origin))
     }
 
     fn field_atoms(&self, e: ExprId) -> Result<&[dive_value::Atom]> {

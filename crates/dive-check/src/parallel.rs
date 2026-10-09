@@ -47,6 +47,7 @@
 //! sizes, claim orders, the narrow-level split, which phases run inline,
 //! the resolve's shard order and thread count, and inserts yields.
 
+use std::collections::BTreeSet;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, PoisonError, RwLock};
@@ -59,10 +60,11 @@ use dive_store::trace::StateId;
 use dive_store::{Candidates, ResolveOptions};
 use dive_value::Ctx;
 
+use crate::class;
 use crate::engine::{
     Keyed, Levels, Search, Stop, action_name, check_implied_actions, check_invariants,
-    error_verdict, in_model, incomplete, level_of, state_key_of, store_verdict, trace_state,
-    values,
+    error_verdict, in_model, incomplete, level_of, resumes, state_key_of, store_verdict,
+    trace_state, values,
 };
 use crate::host::{ThreadLevel, set_thread_level};
 use crate::options::CheckOptions;
@@ -102,6 +104,9 @@ struct Event {
     verdict: Verdict,
     /// The counterexample's last state, for events on a successor.
     then: Option<TraceState>,
+    /// Whether TLC's replay goes on past this event (an invariant that
+    /// failed to evaluate on a new state, `Search::replay_after`).
+    resume: bool,
 }
 
 fn earlier(a: Option<Event>, b: Option<Event>) -> Option<Event> {
@@ -312,6 +317,7 @@ impl<S: Keyed> Expand<'_, S> {
                                 message: "more than 2^32 successors of one state".to_owned(),
                             },
                             then: None,
+                            resume: false,
                         });
                         return Flow::Stop;
                     };
@@ -325,11 +331,12 @@ impl<S: Keyed> Expand<'_, S> {
                                 unit,
                                 c: u64::from(ord) + 1,
                                 then: if s.with {
-                                    trace_state(m, succ, false)
+                                    Some(trace_state(m, succ, false))
                                 } else {
                                     None
                                 },
                                 verdict: s.verdict,
+                                resume: false,
                             });
                             Flow::Stop
                         }
@@ -351,6 +358,7 @@ impl<S: Keyed> Expand<'_, S> {
                         c: generated,
                         verdict: error_verdict(&e.error, ErrorSite::Next),
                         then: None,
+                        resume: false,
                     });
                     break;
                 }
@@ -383,9 +391,9 @@ impl<S: Keyed> Expand<'_, S> {
         let m = self.m;
         if !succ.complete() {
             return Some(Stopped {
-                verdict: incomplete(m, succ, false),
+                verdict: incomplete(m, succ, false, self.ctx),
                 phase: PH_ENUM,
-                with: false,
+                with: true,
             });
         }
         let t: StateVals = succ.state.into();
@@ -396,20 +404,23 @@ impl<S: Keyed> Expand<'_, S> {
             here: level_of(self.level + 1),
             from: level_of(self.level),
         };
-        let checked = in_model(m, &st1, Some(&step), &levels).and_then(|inside| {
-            if inside {
-                state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1).map(Some)
-            } else {
-                Ok(None)
-            }
-        });
+        // A constraint's error ends the counterexample with the successor; a
+        // state TLC cannot fingerprint (or whose `VIEW` fails) is not
+        // printed (fixtures `ErConstr*`, `ErView*`).
+        let checked = match in_model(m, &st1, Some(&step), &levels) {
+            Err(v) => Err((v, true)),
+            Ok(true) => state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1)
+                .map(Some)
+                .map_err(|v| (v, false)),
+            Ok(false) => Ok(None),
+        };
         flush(cap, lines, (pos, PH_CHECK));
         match checked {
-            Err(verdict) => {
+            Err((verdict, with)) => {
                 return Some(Stopped {
                     verdict,
                     phase: PH_CHECK,
-                    with: true,
+                    with,
                 });
             }
             Ok(Some(key)) => {
@@ -419,12 +430,13 @@ impl<S: Keyed> Expand<'_, S> {
             }
             Ok(None) => {
                 // Outside the model: checked on every occurrence, never
-                // inserted (probe `ConstrainedViolation`).
+                // inserted (probe `ConstrainedViolation`); TLC's replay checks
+                // it again.
                 let v = check_invariants(m, &st1, false);
                 flush(cap, lines, (pos, PH_INV));
                 if let Some(verdict) = v {
                     return Some(Stopped {
-                        verdict,
+                        verdict: class::recurring(verdict),
                         phase: PH_INV,
                         with: true,
                     });
@@ -454,6 +466,7 @@ fn deadlock(i: usize, unit: usize) -> Event {
         c: 0,
         verdict: Verdict::Deadlock,
         then: None,
+        resume: false,
     }
 }
 
@@ -539,11 +552,13 @@ impl Check<'_> {
                     key,
                     unit: self.unit_of(w.pos),
                     c: u64::from(w.pos.2) + 1,
+                    resume: resumes(&verdict),
                     verdict,
                     then: values(&w.vals).map(|values| TraceState {
                         label: a.label().to_owned(),
                         action: action_name(&m.evaluator, a),
                         values,
+                        text: None,
                     }),
                 });
                 break;
@@ -801,15 +816,34 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
             };
             search.generated = generated;
             search.depth = depth;
-            let stats = Stats {
+            let mut stats = Stats {
                 generated,
                 distinct: distinct_before + upto as u64,
                 left_on_queue: ((len - i - 1) + before) as u64,
                 depth,
                 initial_generated: search.initial_generated,
             };
+            let mut verdict = e.verdict;
+            if e.resume {
+                // TLC's replay goes on past the state: as of E*, the states
+                // this level found after it are not in the set yet.
+                let unseen: BTreeSet<S::Key> = winners[upto..]
+                    .iter()
+                    .filter_map(|w| {
+                        let st = St::state(w.vals.clone());
+                        state_key_of::<S>(m, keyer, search.ctx, &w.vals, &st).ok()
+                    })
+                    .collect();
+                let first_unit = if narrow { i * n_actions } else { i };
+                let ordinal = gens[first_unit..e.unit].iter().sum::<u64>() + e.c - 1;
+                let set = set.read().unwrap_or_else(PoisonError::into_inner);
+                let r = search.replay_after(&set, &frontier[i], ordinal, level, &unseen);
+                stats.distinct += r.distinct;
+                stats.left_on_queue += r.queued;
+                verdict = r.apply(verdict);
+            }
             let stop = Stop {
-                verdict: e.verdict,
+                verdict,
                 in_init: false,
                 path: Some((first_id + pos.0, frontier[i].clone())),
                 then: e.then,

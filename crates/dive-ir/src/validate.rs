@@ -45,6 +45,17 @@ pub fn check(ir: &Ir) -> Vec<String> {
 fn ids_in_range(ir: &Ir, v: &mut Vec<String>) {
     let ne = ir.exprs.len();
     let nd = ir.defs.len();
+    let mut prime_ids = std::collections::BTreeSet::new();
+    for (expr, origin) in &ir.prime_origins {
+        if !matches!(
+            ir.exprs.get(expr.index()).map(|n| &n.expr),
+            Some(Expr::Var { primed: true, .. } | Expr::SubstRef { primed: true, .. })
+        ) || !prime_ids.insert(*expr)
+            || origin.file.is_some_and(|f| f.index() >= ir.files.len())
+        {
+            v.push(format!("#{}: invalid prime operand origin", expr.index()));
+        }
+    }
     let check_ref = |r: &OpRef, v: &mut Vec<String>, at: usize| match r {
         OpRef::Def(d) if d.index() >= nd => v.push(format!("#{at}: callee d{} out of range", d.0)),
         OpRef::Const(c) if c.index() >= ir.consts.len() => {

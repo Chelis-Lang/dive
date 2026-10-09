@@ -12,6 +12,9 @@ use crate::result::{CheckResult, TraceState, Verdict};
 /// variable.
 #[must_use]
 pub fn format_trace_state(r: &CheckResult, s: &TraceState, ctx: Ctx) -> String {
+    if let Some(text) = &s.text {
+        return text.clone();
+    }
     let vars: Vec<(&str, &dive_value::Value)> = r
         .tlc_var_order
         .iter()
@@ -47,14 +50,9 @@ fn headline(v: &Verdict) -> String {
         Verdict::AssumptionFalse { message } | Verdict::ModelError { message, .. } => {
             format!("Error: {message}")
         }
-        Verdict::PostconditionFalse { property } => {
-            format!("Error: The postcondition {property} is violated.")
-        }
-        Verdict::NotCompletelySpecified { variables, .. } => format!(
-            "Error: a state does not assign every variable: {}",
-            variables.join(", ")
-        ),
-        Verdict::EvaluationError { message, .. } => format!("Error: {message}"),
+        Verdict::PostconditionFalse { message, .. }
+        | Verdict::NotCompletelySpecified { message, .. }
+        | Verdict::EvaluationError { message, .. } => format!("Error: {message}"),
         Verdict::Unsupported { feature } => {
             format!("unsupported: {feature}; no verdict produced")
         }

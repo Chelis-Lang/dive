@@ -3,6 +3,7 @@
 
 use std::time::Duration;
 
+use dive_eval::EvalError;
 use dive_store::StoreMode;
 use dive_value::Value;
 
@@ -92,6 +93,8 @@ pub enum Verdict {
     PostconditionFalse {
         /// The postcondition.
         property: String,
+        /// TLC's message (`TLC_POSTCONDITION_FALSE`).
+        message: String,
     },
     /// TLC's error while processing the model (configuration, constants,
     /// start-up evaluation), as the binding stage reports it.
@@ -109,18 +112,36 @@ pub enum Verdict {
         initial: bool,
         /// The unassigned variables.
         variables: Vec<String>,
+        /// TLC's message (`TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT`, or
+        /// `TLC_INITIAL_STATE` for an initial state).
+        message: String,
     },
     /// Evaluation failed with an error TLC also raises (including a failed
-    /// `Assert` and integer overflow).
+    /// `Assert` and integer overflow), classified as TLC classifies it at
+    /// `site` (WP-C4's error-class table, `class.rs`).
     EvaluationError {
         /// Where.
         site: ErrorSite,
-        /// TLC's message code of the underlying error (`EC`).
+        /// TLC's deciding code: what its run returns, which decides its exit
+        /// status (`ModelChecker.modelCheck`). After an error while
+        /// exploring, TLC replays the step with its call stack recorded, and
+        /// the replay decides it (`TLC_NESTED_EXPRESSION`, or the code of the
+        /// `EvalException` it meets again).
         code: u32,
         /// Its `EC` name.
         name: &'static str,
-        /// TLC's message.
+        /// The code of the error message TLC prints first: the site's
+        /// wrapper (`TLC_INVARIANT_EVALUATION_FAILED`, `GENERAL`, ...) or the
+        /// error's own code.
+        reported: u32,
+        /// The text of that message, as TLC prints it.
         message: String,
+        /// Whether `code` is checked against captured TLC runs for this site
+        /// and this kind of error. An unverified class is reported but not
+        /// claimed.
+        verified: bool,
+        /// The evaluation error itself.
+        cause: EvalError,
     },
     /// dive refused, naming the feature. Never a verdict about the model.
     Unsupported {
@@ -150,6 +171,10 @@ pub struct TlcClass {
     pub name: String,
     /// TLC's exit status (`EC.ExitStatus.errorConstantToExitStatus`).
     pub exit: u8,
+    /// The code of the error message TLC prints first, where it differs
+    /// from `code` (an evaluation error wrapped by its site); otherwise
+    /// `code`.
+    pub reported: u32,
     /// Whether dive reproduces TLC's class here, checked against a captured
     /// TLC run. An unverified class is reported but not claimed (WP-C4 owns
     /// the error-class table).
@@ -188,7 +213,7 @@ impl Verdict {
             Self::InvariantViolated { property, .. }
             | Self::PropertyViolatedInitially { property }
             | Self::ActionPropertyViolated { property }
-            | Self::PostconditionFalse { property } => Some(property),
+            | Self::PostconditionFalse { property, .. } => Some(property),
             _ => None,
         }
     }
@@ -210,6 +235,7 @@ impl Verdict {
             code,
             name: name.to_owned(),
             exit: tlc_exit_status(code),
+            reported: code,
             verified,
         };
         Some(match self {
@@ -228,38 +254,31 @@ impl Verdict {
             }
             Self::Deadlock => class(2114, "TLC_DEADLOCK_REACHED", true),
             Self::AssumptionFalse { .. } => class(2104, "TLC_ASSUMPTION_FALSE", true),
-            // Read from TLC's source (`Tool.checkPostConditionWithContext`),
-            // not yet checked against a captured run.
-            Self::PostconditionFalse { .. } => class(2404, "TLC_POSTCONDITION_FALSE", false),
+            // Fixture `ErPostFalse` (WP-C4).
+            Self::PostconditionFalse { .. } => class(2404, "TLC_POSTCONDITION_FALSE", true),
             // The binding stage's errors are checked against TLC (WP-B1);
             // `TLC_STATES_AND_NO_NEXT_ACTION` (2115) is read from TLC's source
             // only (`ModelChecker.java:233-245`).
             Self::ModelError { code, name, .. } => class(*code, name, *code != 2115),
+            // Fixtures `ErInitIncomplete` and `ErNextIncomplete` (WP-C4).
             Self::NotCompletelySpecified { initial: true, .. } => {
-                class(2102, "TLC_INITIAL_STATE", false)
+                class(2102, "TLC_INITIAL_STATE", true)
             }
             Self::NotCompletelySpecified { initial: false, .. } => {
-                class(2109, "TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT", false)
+                class(2109, "TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT", true)
             }
+            // The error-class table (`class.rs`) decides the code and
+            // whether it is verified.
             Self::EvaluationError {
-                site, code, name, ..
-            } => {
-                // Verified against captured TLC runs: a coded error raised
-                // while generating successors is reported with its own code
-                // (probe `EvalErrorMidLevel`, 2179; harness fixtures
-                // `AssertFailure`, 2132, and `Overflow`, 2178); an assumption
-                // that fails to evaluate is 2105 (fixtures of WP-C1);
-                // start-up errors are reported as raised (WP-C1). Every
-                // other site and an uncoded (`GENERAL`) error in `Next`,
-                // which TLC reports as 1000 and then 2147 (fixture
-                // `EvalError`), wait for the error-class table (WP-C4).
-                let verified = match site {
-                    ErrorSite::Next => *code != 1000,
-                    ErrorSite::Startup | ErrorSite::Assumption => true,
-                    _ => false,
-                };
-                class(*code, name, verified)
-            }
+                code,
+                name,
+                reported,
+                verified,
+                ..
+            } => TlcClass {
+                reported: *reported,
+                ..class(*code, name, *verified)
+            },
             Self::Unsupported { .. } | Self::ResourceLimit { .. } | Self::InternalError { .. } => {
                 return None;
             }
@@ -309,8 +328,13 @@ pub struct TraceState {
     pub label: String,
     /// The action's name, when the state was produced by a named action.
     pub action: Option<String>,
-    /// The state's values, by `VarId`.
+    /// The state's values, by `VarId`. Empty for a state that leaves
+    /// variables unassigned, which only `text` describes.
     pub values: Vec<Value>,
+    /// TLC's text of a state that leaves variables unassigned (`null` for
+    /// them), the last state of a `TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT`
+    /// counterexample; `None` otherwise.
+    pub text: Option<String>,
 }
 
 /// A counterexample: a finite behavior prefix.

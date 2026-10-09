@@ -1,0 +1,91 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 64587] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/ErWrapStateTuple/ErWrapStateTuple.tla
+Parsing file $TMP/tlc-16822675374084823124/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-16822675374084823124/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-16822675374084823124/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-16822675374084823124/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-16822675374084823124/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module ErWrapStateTuple
+Linting of module ErWrapStateTuple
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-09 02:55:25)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-10-09 02:55:25.
+@!@!@ENDMSG 2190 @!@!@
+@!@!@STARTMSG 1000:1 @!@!@
+TLC threw an unexpected exception.
+This was probably caused by an error in the spec or model.
+See the User Output or TLC Console for clues to what happened.
+The exception was a java.lang.RuntimeException
+: Attempted to access index 3 of tuple
+<<1, 2>>
+which is out of bounds.
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 2121:1 @!@!@
+The behavior up to this point is:
+@!@!@ENDMSG 2121 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+1: <Initial predicate>
+/\ x = 0
+/\ y = <<1, 2>>
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+2: <Next line 6, col 9 to line 6, col 64 of module ErWrapStateTuple>
+/\ x = 1
+/\ y = <<1, 2>>
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+3: <Next line 6, col 9 to line 6, col 64 of module ErWrapStateTuple>
+/\ x = 2
+/\ y = <<1, 2>>
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2103:1 @!@!@
+The error occurred when TLC was evaluating the nested
+expressions at the following positions:
+0. Line 6, column 9 to line 6, column 64 in ErWrapStateTuple
+1. Line 6, column 9 to line 6, column 37 in ErWrapStateTuple
+2. Line 6, column 9 to line 6, column 27 in ErWrapStateTuple
+3. Line 6, column 9 to line 6, column 13 in ErWrapStateTuple
+4. Line 6, column 18 to line 6, column 27 in ErWrapStateTuple
+5. Line 6, column 32 to line 6, column 37 in ErWrapStateTuple
+6. Line 6, column 43 to line 6, column 63 in ErWrapStateTuple
+7. Line 6, column 52 to line 6, column 63 in ErWrapStateTuple
+8. Line 6, column 52 to line 6, column 59 in ErWrapStateTuple
+
+
+@!@!@ENDMSG 2103 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(3) at 2026-10-09 02:55:25: 3 states generated (173 s/min), 3 distinct states found (173 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+3 states generated, 3 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 3.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 1036ms at (2026-10-09 02:55:25)
+@!@!@ENDMSG 2186 @!@!@
