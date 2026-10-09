@@ -143,7 +143,7 @@ fn constructor_effects_and_binding_budgets_refuse_before_guessing() {
         matches!(result, Err(ExistsError::Unsupported(_))),
         "{result:?}"
     );
-    assert!(m.take_output().is_empty());
+    assert_eq!(m.take_output(), Vec::<String>::new());
     let limits = Limits {
         domain_values: 1,
         ..Limits::default()
