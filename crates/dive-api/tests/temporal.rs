@@ -548,3 +548,144 @@ fn oracle_rejected_temporal_conditionals_remain_named_refusals() {
         }
     }
 }
+
+#[test]
+fn constant_temporal_calls_keep_scopes_and_match_direct_word_semantics() {
+    let source = "---- MODULE M ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = 1-x\nHit(i) == x=i\nVisit(i) == []<>Hit(i)\nStable(i) == <>[]Hit(i)\nInc(i) == i+1\nWrap(i) == Visit(Inc(i))\nPair(a,b) == []<>(Hit(a) /\\ ~Hit(b))\nP == Pair(0,1) /\\ Pair(1,0)\nQ == \\E i \\in {0,1}: Stable(i)\nR == Wrap(0)\n====\n";
+    let (ir, cfg) = input(source, "INIT Init\nNEXT Next\n");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    for n in 1..=4 {
+        for bits in 0..(1_usize << n) {
+            let values: Vec<bool> = (0..n).map(|i| bits & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|b| Arc::from([Some(dive_value::Value::from(i64::from(*b)))]))
+                .collect();
+            for back in 0..n {
+                let mixed = values[back..].iter().any(|b| *b) && values[back..].iter().any(|b| !*b);
+                let one = values[back..].iter().any(|b| *b);
+                for (name, expected) in [("P", mixed), ("Q", !mixed), ("R", one)] {
+                    let d = model.ir.root_def(name).expect("definition");
+                    let pred =
+                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![expected; n], "{name} {values:?} back {back}");
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        direct,
+                        "{name}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn dynamic_and_effectful_temporal_arguments_remain_refusals() {
+    let source = "---- MODULE M ----\nEXTENDS TLC, Naturals\nVARIABLE x\nInit == x=0\nNext == x'=1-x\nVisit(i) == []<>(x=i)\nHidden(i) == TLCGet(\"level\")+i\nWrap(i) == Visit(i)\nP == Wrap(Hidden(0)) /\\ Wrap(0)\nQ == Visit(x)\nR == Visit(PrintT(\"hidden\"))\n====\n";
+    for name in ["P", "Q", "R"] {
+        let (ir, cfg) = input(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
+        let model =
+            dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("model");
+        let d = model.ir.root_def(name).expect("definition");
+        let pred = dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+        assert!(
+            dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err(),
+            "{name}"
+        );
+        let states: Vec<dive_trace::State> =
+            vec![Arc::from([Some(dive_value::Value::from(0_i64))])];
+        assert!(
+            matches!(
+                dive_trace::temporal::evaluate_lasso(&model, &pred, &states, 0),
+                Err(dive_trace::temporal::TemporalError::Unsupported(_))
+            ),
+            "{name}"
+        );
+        assert!(
+            temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default()).is_err(),
+            "{name}"
+        );
+    }
+}
+
+#[test]
+fn pinned_constant_temporal_calls_match_truth_counts_and_validate_independently() {
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/temporal-calls");
+    for name in ["PcVisit", "PcFair", "PcStable", "PcScopes", "PcTuple"] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let code: i32 =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+                .expect("exit")
+                .trim()
+                .parse()
+                .expect("number");
+        let (ir, cfg) = input(&src, &config);
+        for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                opts.store = store;
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let evidence = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(code, 0, "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(code, 13, "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid);
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (
+                        evidence.stats.generated,
+                        evidence.stats.distinct,
+                        evidence.stats.depth
+                    ),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn temporal_call_purity_walk_consumes_the_planning_budget() {
+    let src = "---- MODULE M ----\nVARIABLE x\nInit == x=TRUE\nNext == x'=x\nG(i) == x=i\nF(i) == []<>G(i)\nP == F(TRUE)\n====\n";
+    let (ir, cfg) = input(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    let d = model.ir.root_def("P").expect("predicate");
+    let pred = dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+    let mut limits = Limits::default().formula;
+    limits.expansion_steps = 3;
+    let err = dive_liveness::plan::lower(&model, &pred, limits)
+        .expect_err("small budget cannot report success");
+    assert_eq!(err.code(), "DIVE-L0021");
+}

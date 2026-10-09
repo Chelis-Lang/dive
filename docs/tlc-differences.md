@@ -706,3 +706,11 @@ include the complete false-property set and actual worker width. With
 lasso choice, temporal error classes, finite-prefix stopping or periodic checks.
 Ordinary strict checking remains a named temporal refusal. See
 [command-line access](temporal-api.md#command-line-access).
+
+**D-013 supported-language update:** pure constant-argument operators now work
+in final/short checking, including nested calls, tuple arguments and calls from
+finite temporal quantifiers. The five `temporal-calls` probes match the pinned
+oracle's final verdict truth and state counts in both profiles/stores. Each
+returned lasso validates independently. Broader lazy/higher-order arguments,
+phase-L timing and TLC-exact selection remain pending; no new default or
+compatibility claim is introduced.

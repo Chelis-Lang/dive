@@ -175,10 +175,10 @@ fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     );
     let _ = model.take_output();
     for (name, reason) in [
-        ("Fair", "constructor"),
+        ("Fair", "nonconstant temporal operator argument"),
         ("Effect", "effects"),
         ("Read", "TLCGet"),
-        ("Param", "constructor"),
+        ("Param", "nonconstant temporal operator argument"),
         ("Bad", "not boolean"),
     ] {
         let error = lower(&model, &pred(&model, name), Limits::default()).expect_err(name);
