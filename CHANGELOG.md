@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Independent disabledness validation refuses successor-dependent primed
+  quantifier domains instead of binding them from the current state.
+
 - Pinned ValidationTestSuite smoke corpus: 16 models and 20 modules, with a
   complete selected-case census, generated oracle goldens and a required
   1/4/8-worker conformance check.
