@@ -396,3 +396,34 @@ still certify fairness directly. Otherwise GF(~enabled) (WF) and FG(~enabled)
 `LvWFIntermittent` and `LvStutterEnd` extend the pinned controls to ten words;
 exhaustive two-variable words distinguish WF from SF. Checker-side fairness
 expansion and TLC-exact planning remain pending.
+
+
+### Increment: WF/SF planning and complete candidate attribution (2026-10-09)
+
+Bound planning now expands WF as GF(~ENABLED <<A>>_v) OR GF(<<A>>_v),
+and SF as FG(~ENABLED <<A>>_v) OR GF(<<A>>_v). State enabledness atoms
+call the existing TLC-side continuation search with its CHANGED check;
+non-stuttering action atoms evaluate the pair and subscript change. These
+labels never infer enabledness from retained graph edges. Nested opaque
+ENABLED, effects, dynamic/parameter scopes and temporal quantification remain
+refused. TLC's DNF/classification order and numbering remain pending.
+
+Candidates now carry all false configured temporal properties, deduplicated
+in config order. Direct formula evaluation over their concrete periodic word
+attributes claims separately from tableau visits; the independent validator
+rechecks every claim against the original IR and rejects omissions or extra
+claims. Acceptance/attribution inconsistency yields internal diagnostic
+`DIVE-L0036`, never a verdict. Word truth has separate state/action atom tables
+and an explicit cell budget.
+
+Ten pinned violations produce independently valid candidates and match final
+TLC counts in both stores. `LvWeakFair`, `LvSFIntermittent` and `LvConstraint`
+match success and counts; the latter's enabled successor lies outside the
+retained graph. Exhaustive short-word tests cover WF/SF, negation, empty/false
+actions and intermittent enabledness; direct formula truth also matches the
+independent reachability oracle on 166,516 formula/word cases.
+
+Capture still runs inline. Ordinary `dive check` remains refusing while phase-L
+errors/counts, exact planning/selection, parallel/periodic capture, VIEW,
+symmetry and report/API integration are completed. This library increment does
+not claim full TLC compatibility or enable CLI liveness verdicts.

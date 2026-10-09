@@ -211,6 +211,16 @@ fn all_short_two_atom_words_match_direct_semantics_at_every_back_edge() {
                     .map(|i| u8::try_from((bits >> (2 * i)) & 3).expect("two bits"))
                     .collect();
                 for back in 0..len {
+                    let states: Vec<Vec<bool>> = word.iter().map(|b| vec![b & 1 != 0]).collect();
+                    let actions: Vec<Vec<bool>> = word.iter().map(|b| vec![b & 2 != 0]).collect();
+                    let direct = f
+                        .evaluate_word(&states, &actions, back, 100_000)
+                        .expect("word evaluation");
+                    assert_eq!(
+                        direct[0],
+                        truth(&nodes, root, &word, back),
+                        "direct {nodes:?} word={word:?} back={back}"
+                    );
                     let (g, acceptance) = product(&t, &word, back);
                     let actual = find_lasso(&g, &acceptance).expect("acceptance").is_some();
                     assert_eq!(
@@ -272,4 +282,30 @@ fn malformed_graphs_and_limits_are_errors_not_empty_languages() {
         compile(&f, Limits::default()),
         Err(FormulaError::Limit("normalization depth"))
     );
+}
+
+#[test]
+fn direct_word_truth_checks_shapes_domains_and_cell_bounds() {
+    let f = Formula::new(vec![atom(AtomKind::State), Node::Eventually(0)], 1).expect("formula");
+    let states = vec![vec![true], vec![false]];
+    let actions = vec![vec![false], vec![true]];
+    assert_eq!(
+        f.evaluate_word(&states, &actions, 1, 4)
+            .expect("prefix truth"),
+        vec![true, false]
+    );
+    assert!(matches!(
+        f.evaluate_word(&states, &actions, 1, 3),
+        Err(FormulaError::Limit(_))
+    ));
+    assert!(f.evaluate_word(&states, &[], 1, 4).is_err());
+    assert!(f.evaluate_word(&[], &[], 0, 4).is_err());
+    assert!(f.evaluate_word(&states, &actions, 2, 4).is_err());
+    let a = Formula::new(vec![atom(AtomKind::Action)], 0).expect("action formula");
+    assert_eq!(
+        a.evaluate_word(&states, &actions, 1, 4)
+            .expect("action truth"),
+        vec![false, true]
+    );
+    assert!(a.evaluate_word(&states, &[vec![], vec![]], 1, 4).is_err());
 }

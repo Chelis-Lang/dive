@@ -35,8 +35,8 @@
 //! included, evaluating the non-action parts of an action through this
 //! interpreter against the partial successor it is building, and uses
 //! [`EvalError`] for the error classes. `ENABLED` goes through it too, so a
-//! build without the feature (the independent trace validator) refuses
-//! `ENABLED`.
+//! core build without the feature refuses `ENABLED`; the independent trace
+//! validator uses its separate bounded finite-cover procedure.
 #![forbid(unsafe_code)]
 
 pub mod capture;

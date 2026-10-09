@@ -3,7 +3,6 @@
 
 use dive_check::{CheckOptions, Verdict};
 use dive_liveness::analyze::{Analysis, AnalysisError, Limits, analyze_final};
-use dive_liveness::plan;
 use dive_trace::{Ending, TraceDoc, Validation};
 use dive_value::Value;
 use serde_json::json;
@@ -52,27 +51,8 @@ fn counters(stdout: &str) -> (u64, u64, u64) {
     (numbers[0], numbers[1], depth)
 }
 
-fn expect_fairness_refusal(
-    analysis: Result<Analysis, AnalysisError>,
-    model: &dive_model::Model,
-    name: &str,
-) {
-    let Err(AnalysisError::Planning(plan::PlanningError::Unsupported(r))) = analysis else {
-        panic!("{name}: the behavior's WF must refuse before exploration");
-    };
-    assert!(r.detail.contains("fairness"));
-    assert!(matches!(
-        model.ir.expr(r.cause.expr),
-        dive_ir::Expr::Wf { .. }
-    ));
-    assert!(
-        r.cause.origin.file.is_some(),
-        "the refusal must retain its source"
-    );
-}
-
 #[test]
-fn pinned_models_either_have_valid_candidates_and_tlc_counts_or_refuse_fairness() {
+fn pinned_pure_and_fair_models_have_valid_candidates_and_tlc_counts() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-probes");
     for name in [
         "LvNoFair",
@@ -83,6 +63,8 @@ fn pinned_models_either_have_valid_candidates_and_tlc_counts_or_refuse_fairness(
         "LvLassoMid",
         "LvEAPrefix",
         "LvStutterActionConstraint",
+        "LvWFIntermittent",
+        "LvStutterEnd",
     ] {
         let source =
             std::fs::read_to_string(root.join("specs").join(name).join(format!("{name}.tla")))
@@ -106,13 +88,6 @@ fn pinned_models_either_have_valid_candidates_and_tlc_counts_or_refuse_fairness(
             };
             let model = bound(&source, &config, &opts);
             let analysis = analyze_final(&model, &opts, Limits::default());
-            if matches!(
-                name,
-                "LvAlwaysEventually" | "LvEventuallyAlways" | "LvLeadsTo" | "LvLassoMid"
-            ) {
-                expect_fairness_refusal(analysis, &model, name);
-                continue;
-            }
             let Analysis::Candidate(c) = analysis.expect(name) else {
                 panic!("{name}: must find a counterexample");
             };
@@ -125,22 +100,33 @@ fn pinned_models_either_have_valid_candidates_and_tlc_counts_or_refuse_fairness(
                 counters(&stdout),
                 "{name}"
             );
+            assert!(c.properties.contains(&c.target_property));
+            let vars = dive_trace::variables(&model);
             let mut states: Vec<serde_json::Value> = c
                 .states
                 .iter()
                 .map(|vals| {
-                    let x = match vals[0].as_ref().expect("x") {
-                        Value::Int(n) => json!(*n),
-                        Value::Bool(b) => json!(*b),
-                        v => panic!("unexpected {}", v.kind_name()),
-                    };
-                    json!({"x":x})
+                    let values: serde_json::Map<String, serde_json::Value> = vars
+                        .iter()
+                        .zip(vals.iter())
+                        .map(|(name, value)| {
+                            (
+                                name.clone(),
+                                dive_trace::value_json::to_json(
+                                    value.as_ref().expect("value"),
+                                    opts.eval.ctx,
+                                )
+                                .expect("JSON value"),
+                            )
+                        })
+                        .collect();
+                    serde_json::Value::Object(values)
                 })
                 .collect();
             let doc = TraceDoc::behavior(states.clone())
                 .expect("word")
                 .with_ending(Ending::Lasso { back_to: c.back_to })
-                .with_properties(vec![c.target_property]);
+                .with_properties(c.properties.clone());
             assert_eq!(
                 dive_trace::validate_doc(&model, &doc, &[], None)
                     .0
@@ -183,14 +169,23 @@ fn pure_behavior_conjuncts_cannot_be_dropped_and_holds_is_exhaustive() {
 }
 
 #[test]
-fn unknown_fairness_limits_and_safety_stops_never_become_holds() {
+fn fairness_limits_and_safety_stops_do_not_guess_holds() {
     let opts = CheckOptions::tlc(0, 0);
     let source = "---- MODULE Analyze ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n\
         Spec == Init /\\ [][Next]_x /\\ WF_x(Next)\nProp == []<>x\nInv == ~x\n====\n";
     let model = bound(source, "SPECIFICATION Spec\nPROPERTY Prop\n", &opts);
-    assert!(
-        matches!(analyze_final(&model,&opts,Limits::default()),Err(AnalysisError::Planning(e)) if e.to_string().contains("fairness"))
-    );
+    assert!(matches!(
+        analyze_final(&model, &opts, Limits::default()).expect("fair toggle"),
+        Analysis::Holds(_)
+    ));
+    let opaque = source
+        .replace("WF_x(Next)", "F(Next)")
+        .replace("Spec ==", "F(a) == WF_x(a)\nSpec ==");
+    let model = bound(&opaque, "SPECIFICATION Spec\nPROPERTY Prop\n", &opts);
+    assert!(matches!(
+        analyze_final(&model, &opts, Limits::default()),
+        Err(AnalysisError::Planning(_))
+    ));
     let source = source.replace(" /\\ WF_x(Next)", "");
     let model = bound(&source, "SPECIFICATION Spec\nPROPERTY Prop\n", &opts);
     for limits in [
@@ -245,4 +240,81 @@ fn atom_errors_retain_a_diagnostic_and_source_span() {
         detail.contains("The second argument of \\div is 0."),
         "{detail}"
     );
+}
+
+#[test]
+fn every_false_temporal_property_is_named_on_the_selected_lasso() {
+    let opts = CheckOptions::tlc(0, 0);
+    let model = bound(
+        "---- MODULE Claims ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>[]x\nQ == <>[]~x\nR == []<>x\n====\n",
+        "SPECIFICATION Spec\nPROPERTY P Q R\n",
+        &opts,
+    );
+    let Analysis::Candidate(c) = analyze_final(&model, &opts, Limits::default()).expect("analysis")
+    else {
+        panic!("violations")
+    };
+    assert_eq!(c.properties, vec!["P", "Q"]);
+    let values = c
+        .states
+        .iter()
+        .map(|s| json!({"x":s[0].as_ref().expect("x")==&Value::Bool(true)}))
+        .collect();
+    let doc = TraceDoc::behavior(values)
+        .expect("doc")
+        .with_ending(Ending::Lasso { back_to: c.back_to })
+        .with_properties(c.properties);
+    assert_eq!(
+        dive_trace::validate_doc(&model, &doc, &[], None)
+            .0
+            .validation,
+        Validation::Valid
+    );
+    let omitted = doc.clone().with_properties(vec!["P".into()]);
+    assert!(
+        matches!(dive_trace::validate_doc(&model,&omitted,&[],None).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
+    );
+    let false_claim = doc.with_properties(vec!["P".into(), "Q".into(), "R".into()]);
+    assert!(
+        matches!(dive_trace::validate_doc(&model,&false_claim,&[],None).0.validation,Validation::Invalid(f) if f.check==dive_trace::Check::Temporal)
+    );
+}
+
+#[test]
+fn pinned_fair_successes_use_full_enabledness_beyond_the_retained_graph() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tlc-probes");
+    for name in ["LvWeakFair", "LvSFIntermittent", "LvConstraint"] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let cfg =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("cfg");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        assert_eq!(
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+                .expect("exit")
+                .trim(),
+            "0"
+        );
+        for store in [
+            dive_store::StoreMode::Fingerprint,
+            dive_store::StoreMode::Exact,
+        ] {
+            let opts = CheckOptions {
+                store,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let model = bound(&source, &cfg, &opts);
+            let Analysis::Holds(c) = analyze_final(&model, &opts, Limits::default()).expect(name)
+            else {
+                panic!("{name}: TLC finds no counterexample")
+            };
+            assert_eq!(
+                (c.stats.generated, c.stats.distinct, c.stats.depth),
+                counters(&stdout),
+                "{name}"
+            );
+        }
+    }
 }

@@ -1,14 +1,14 @@
 //! Final-only pure liveness analysis through the shared safety engine.
 //!
 //! This library coordinator does not implement TLC's exact planning/selection,
-//! periodic checks, symmetry or fairness expansion. Counterexample candidates
-//! still require independent validation and complete property attribution.
+//! periodic checks or symmetry. WF/SF expansion uses TLC-side enabledness. Counterexample candidates
+//! still require independent validation; direct formula evaluation attributes
+//! their complete configured property set.
 //! The CLI retains its liveness refusal until that integration is complete.
 
 use dive_check::{CheckOptions, Verdict, capture};
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
-use dive_value::Value;
 
 use crate::Graph;
 use crate::formula::{self, AtomKind, Tableau};
@@ -48,7 +48,7 @@ pub enum Analysis {
     /// The capture retains the store's collision qualifications and statistics.
     Holds(capture::Complete),
     /// A concrete candidate falsifies the target under the behavior conjuncts.
-    /// This is not an independently validated report or a complete claim set.
+    /// The complete claim set is attributed, but still requires independent validation.
     Candidate(Candidate),
 }
 
@@ -58,6 +58,9 @@ pub struct Candidate {
     /// The property whose negation selected this candidate. Other properties
     /// may also be false and must be attributed before report validation.
     pub target_property: String,
+    /// Complete set of configured temporal properties false on this word,
+    /// attributed by direct formula evaluation, not accepting-product visits.
+    pub properties: Vec<String>,
     /// Concrete word positions, without repeating the closing target.
     pub states: Vec<StateVals>,
     /// Zero-based target of the final transition.
@@ -92,6 +95,8 @@ pub enum AnalysisError {
     Limit(&'static str),
     /// The requested mode is not implemented by this coordinator.
     Unsupported(&'static str),
+    /// Internal disagreement between acceptance and direct attribution.
+    Inconsistent(&'static str),
 }
 impl AnalysisError {
     /// Stable diagnostics for the library analysis stages. These are dive
@@ -106,6 +111,7 @@ impl AnalysisError {
             Self::Atom { .. } => "DIVE-L0033",
             Self::Limit(_) => "DIVE-L0034",
             Self::Unsupported(_) => "DIVE-L0035",
+            Self::Inconsistent(_) => "DIVE-L0036",
         }
     }
 }
@@ -129,6 +135,7 @@ impl std::fmt::Display for AnalysisError {
             ),
             Self::Limit(s) => write!(f, "liveness analysis resource limit: {s}"),
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
+            Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
         }
     }
 }
@@ -147,11 +154,9 @@ fn atom(
         source: Box::new(plan::Source::new(model, pred.location)),
         detail,
     };
-    match model.eval(pred, st) {
-        Ok(Value::Bool(b)) => Ok(b),
-        Ok(v) => Err(failure(format!("{} is not boolean", v.kind_name()))),
-        Err(e) => Err(failure(e.to_string())),
-    }
+    plan.atoms[index]
+        .evaluate(model, st)
+        .map_err(|e| failure(e.to_string()))
 }
 
 fn labels(
@@ -204,6 +209,42 @@ fn labels(
         actions.push(action_rows);
     }
     Ok(Labels { states, actions })
+}
+
+fn attribute(
+    model: &Model,
+    plans: &[(Plan, Tableau)],
+    states: &[StateVals],
+    back: usize,
+    cells: usize,
+) -> Result<Vec<String>, AnalysisError> {
+    let mut violated = Vec::new();
+    for (p, (plan, _)) in model.implied_temporals.iter().zip(plans) {
+        states
+            .len()
+            .checked_mul(plan.atoms.len())
+            .filter(|n| *n <= cells)
+            .ok_or(AnalysisError::Limit("attribution atom cells"))?;
+        let mut rows = Vec::new();
+        for (i, state) in states.iter().enumerate() {
+            let next = if i + 1 == states.len() { back } else { i + 1 };
+            let st = St::action(state.clone(), states[next].clone());
+            let row = (0..plan.atoms.len())
+                .map(|a| atom(model, plan, a, &st, &p.name))
+                .collect::<Result<_, _>>()?;
+            rows.push(row);
+        }
+        let truth = plan
+            .formula
+            .evaluate_word(&rows, &rows, back, cells)
+            .map_err(AnalysisError::Tableau)?;
+        // Each plan is behavior AND NOT property. The selected candidate
+        // must satisfy behavior, so its truth attributes precisely violations.
+        if truth[0] && !violated.contains(&p.name) {
+            violated.push(p.name.clone());
+        }
+    }
+    Ok(violated)
 }
 
 /// Checks the supported pure temporal properties after complete exploration.
@@ -271,21 +312,34 @@ pub fn analyze_final(
         captured.graph.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau)) in model.implied_temporals.iter().zip(plans) {
-        let labels = labels(model, &plan, &captured.graph, &p.name, limits.atom_cells)?;
-        let product = Product::new(&graph, &tableau, &labels, limits.product)
+    for (p, (plan, tableau)) in model.implied_temporals.iter().zip(&plans) {
+        let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
+        let product = Product::new(&graph, tableau, &labels, limits.product)
             .map_err(AnalysisError::Product)?;
         if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
-            let states = steps
+            let states: Vec<StateVals> = steps
                 .clone()
                 .map(|s| captured.graph.states[s.from].clone())
                 .collect();
             let edges = steps
                 .map(|s| captured.graph.edges[s.from][s.edge].clone())
                 .collect();
+            let properties = attribute(
+                model,
+                &plans,
+                &states,
+                lasso.prefix.len(),
+                limits.atom_cells,
+            )?;
+            if !properties.contains(&p.name) {
+                return Err(AnalysisError::Inconsistent(
+                    "accepting candidate failed target-property attribution",
+                ));
+            }
             return Ok(Analysis::Candidate(Candidate {
                 target_property: p.name.clone(),
+                properties,
                 states,
                 back_to: lasso.prefix.len(),
                 edges,
