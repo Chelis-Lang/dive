@@ -235,11 +235,14 @@ dependencies = [
 name = "dive-liveness"
 version = "0.0.0"
 dependencies = [
+ "dive-check",
  "dive-config",
  "dive-eval",
  "dive-ir",
  "dive-model",
  "dive-sema",
+ "dive-store",
+ "dive-trace",
  "dive-value",
  "serde_json",
 ]

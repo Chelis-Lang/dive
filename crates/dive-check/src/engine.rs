@@ -32,6 +32,7 @@
 //! recorded ordinal. The replayed end state is checked against the state
 //! the search held; any difference is an internal error, never a verdict.
 
+use crate::capture::{BehaviorGraph, Collector};
 use std::collections::BTreeSet;
 use std::fmt::Write as _;
 
@@ -83,6 +84,9 @@ where
         ctx: Ctx,
     ) -> Result<Self::Key, StoreError>;
 
+    /// Copies a graph identity key without evaluating the specification.
+    fn duplicate_key(key: &Self::Key) -> Self::Key;
+
     /// TLC's collision figures after a complete search, in fingerprint mode.
     fn collision(&self, distinct: u64, generated: u64) -> Option<Collision>;
 }
@@ -122,6 +126,10 @@ impl Keyed for FpSet {
         }
     }
 
+    fn duplicate_key(key: &u64) -> u64 {
+        *key
+    }
+
     fn collision(&self, distinct: u64, generated: u64) -> Option<Collision> {
         let f = collision::tlc_success_figures(distinct, generated, || {
             self.tlc_min_gap(collision::TLC_DEFAULT_FP_BITS)
@@ -148,6 +156,10 @@ impl Keyed for ExactSet {
         let mut buf = Vec::new();
         state_key(vals, ctx, &mut buf)?;
         Ok(buf.into_boxed_slice())
+    }
+
+    fn duplicate_key(key: &Box<[u8]>) -> Box<[u8]> {
+        key.clone()
     }
 
     fn collision(&self, _: u64, _: u64) -> Option<Collision> {
@@ -222,7 +234,7 @@ fn search_counters(host: &RunHost) {
 
 /// Whether the specification refers to a random operator, so that expanded
 /// states need their own random stream.
-fn uses_random(ir: &dive_ir::Ir) -> bool {
+pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
     use dive_ir::{OpRef, StdOp};
     let random = |op: StdOp| {
         matches!(
@@ -561,6 +573,7 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) generated: u64,
     pub(crate) depth: u64,
     pub(crate) initial_generated: u64,
+    capture: Option<Collector<S::Key>>,
 }
 
 impl<S: Keyed> Search<'_, S> {
@@ -590,6 +603,11 @@ impl<S: Keyed> Search<'_, S> {
         next: &mut Vec<(StateVals, StateId)>,
     ) -> Option<(Verdict, bool, bool)> {
         self.generated += 1;
+        if let Some(capture) = &self.capture
+            && let Err(v) = capture.allow_generated(self.generated)
+        {
+            return Some((v, false, false));
+        }
         let host = self.host;
         let set = |l: i64| host.set_level(l);
         let levels = Levels {
@@ -622,6 +640,7 @@ impl<S: Keyed> Search<'_, S> {
                 Ok(k) => k,
                 Err(v) => return Some((v, false, false)),
             };
+            let graph_key = self.capture.as_ref().map(|_| S::duplicate_key(&key));
             if self.set.insert(key) {
                 let Ok(ordinal) = u32::try_from(succ.ordinal) else {
                     return Some((
@@ -643,6 +662,12 @@ impl<S: Keyed> Search<'_, S> {
                 self.depth = self.depth.max(new_level);
             } else {
                 fresh = false;
+            }
+            if let (Some(capture), Some(key)) = (&mut self.capture, graph_key)
+                && let Err(v) =
+                    capture.record(key, t.clone(), new_id, parent.map(|(_, id)| id), succ)
+            {
+                return Some((v, false, false));
             }
         }
         if fresh {
@@ -853,6 +878,19 @@ impl<S: Keyed> Search<'_, S> {
                         s.verdict = r.apply(s.verdict);
                     }
                     return (Some(s), stats);
+                }
+                if let Some(capture) = &mut self.capture
+                    && let Err(v) = capture.stutter(*id)
+                {
+                    return (
+                        Some(Stop {
+                            verdict: v,
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        self.stats(0),
+                    );
                 }
             }
             level += 1;
@@ -1080,6 +1118,7 @@ impl<S: Keyed> Search<'_, S> {
 
 /// What the engine hands back.
 pub(crate) struct Outcome {
+    pub graph: Option<BehaviorGraph>,
     pub verdict: Verdict,
     pub stats: Option<Stats>,
     pub tlc_prints_stats: bool,
@@ -1187,16 +1226,38 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
 /// Runs the search over `m` (assumptions already checked).
 pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None),
     }
+}
+
+/// Captures accepted edges through the same inline safety search.
+pub(crate) fn search_graph(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    limits: crate::capture::Limits,
+) -> Outcome {
+    let mut inline = opts.clone();
+    inline.sequential = true;
+    let mut outcome = match opts.store {
+        StoreMode::Fingerprint => search_in::<FpSet>(m, &inline, host, Some(limits)),
+        StoreMode::Exact => search_in::<ExactSet>(m, &inline, host, Some(limits)),
+    };
+    outcome.workers.reason = Some("behavior graph capture currently uses the inline engine".into());
+    outcome
 }
 
 #[allow(
     clippy::too_many_lines,
     reason = "the search and its outcome, in order"
 )]
-fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
+fn search_in<S: Keyed>(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    capture: Option<crate::capture::Limits>,
+) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
     let tlc_order: Vec<usize> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
@@ -1204,6 +1265,7 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
         Ok(k) => k,
         Err(message) => {
             return Outcome {
+                graph: None,
                 verdict: Verdict::InternalError { message },
                 stats: None,
                 tlc_prints_stats: false,
@@ -1217,6 +1279,7 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
     };
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
+            graph: None,
             verdict: Verdict::InternalError {
                 message: format!(
                     "fingerprint polynomial index {} out of range",
@@ -1244,6 +1307,7 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
         generated: 0,
         depth: 0,
         initial_generated: 0,
+        capture: capture.map(Collector::new),
     };
     let mut next = Vec::new();
     let (stop, stats) = match s.initial_states(&mut next) {
@@ -1272,6 +1336,7 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
         let verdict = postconditions(m).unwrap_or(Verdict::Success);
         output.extend(m.take_output());
         return Outcome {
+            graph: s.capture.take().map(Collector::finish),
             collision: if verdict == Verdict::Success {
                 collision
             } else {
@@ -1313,6 +1378,7 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
         );
     }
     Outcome {
+        graph: None,
         // TLC prints statistics after an error in the initial states, not
         // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
         tlc_prints_stats: !stop.in_init || matches!(verdict, Verdict::EvaluationError { .. }),

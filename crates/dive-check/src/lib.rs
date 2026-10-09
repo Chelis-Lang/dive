@@ -61,6 +61,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod capture;
 mod class;
 pub mod engine;
 mod host;

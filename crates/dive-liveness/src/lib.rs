@@ -21,3 +21,5 @@ pub mod formula;
 
 pub mod plan;
 pub mod product;
+
+pub mod analyze;
