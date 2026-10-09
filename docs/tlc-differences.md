@@ -294,6 +294,31 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 
 **`dive check` exit codes.** Under `--compat=tlc` a verdict exits with TLC's status (0, 10 to 14, 75 to 77, 150, 151, 255). dive's default profile uses its own, documented in `dive --help`: 0 no error, 1 rejected input, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation error. In both profiles 2 is a usage error, 3 a refusal or resource limit (no verdict) and 4 an internal error.
 
+**Finite temporal-prefix exit codes.** With `S = {}`, this property is false
+already in the initial state:
+
+```tla
+CONSTANT S
+VARIABLE x
+Init == x = 0
+Next == x' = x
+P == \E i \in S : []<>(x = i)
+```
+
+The pinned TLC reports `Temporal property P was violated` (2116), prints one
+finite initial state, and exits **12**, normally the safety status. Its counts
+are 2 generated, 1 distinct, depth 1. `LiveCheck.printErrorTrace` deliberately
+stores invariant code 2110 after printing temporal code 2116. A consumer that
+classifies solely by exit status mislabels the violation.
+
+The harness preserves the temporal class and actual exit status after checking
+this specific finite stream shape. Ordinary cyclic temporal failures still
+require exit 13. The raw evidence lives in
+`crates/dive-conformance/tests/fixtures/temporal-prefix/`. This is an oracle
+classification fix, not a new result-changing default. Reproducing TLC's
+finite-prefix stopping point in the checker remains phase-L work; the bounded
+final Rust API returns an independently validated periodic witness.
+
 **What dive does.** Every diagnostic has:
 
 - a stable code (for example `DIVE-S0010`);

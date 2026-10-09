@@ -31,6 +31,11 @@ pipeline.rs / report.rs   commands, JSON report, docs/conformance.md
 **The harness never guesses.**
 - Every TLC run is classified from its `-tool` message stream, then cross-checked against the exit code.
 - An exit code that the messages do not explain is `oracle-error`, with both recorded.
+  One source-verified exception is TLC’s finite temporal-prefix path: it prints
+  temporal code 2116 but stores invariant code 2110, exiting 12. The harness
+  requires the finite counterexample header, consecutive nonempty state messages,
+  completion/statistics and no other errors or cycle markers. It retains both
+  the temporal verdict and actual exit 12; cyclic cases still require exit 13.
 - An unknown exit code or message code, or a malformed stream, is `unclassified`, with the raw data kept.
 - JVM resource exhaustion (out of memory, stack overflow) is `resource-limit`: never an oracle fact, never a golden.
 - Unexpected stderr, or a success without statistics, is `oracle-error`.
