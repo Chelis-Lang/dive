@@ -8,3 +8,5 @@
 .DS_Store
 # Agent worktrees (Claude Code isolation)
 /.claude/worktrees
+# Per-worktree conformance cache (DIVE_CACHE_DIR; see AGENTS.md)
+/.dive-cache

@@ -64,7 +64,9 @@ macro_rules! codes {
 }
 
 codes! {
-    // ---- Module resolution (SANY's parse phase) --------------------------
+    // ---- Module resolution -------------------------------------------------
+    // SANY reports all of these in its parse phase except `DuplicateModule`
+    // (4223), which semantic analysis (`SymbolTable.addModule`) reports.
     /// No file, library module or standard module provides an `EXTENDS`ed or
     /// `INSTANCE`d module.
     ModuleNotFound = "DIVE-E0001", Error, Some(4220);
@@ -74,7 +76,12 @@ codes! {
     DependencyNameMismatch = "DIVE-E0003", Error, Some(4221);
     /// A dependency does not parse; its syntax diagnostics follow.
     DependencyParseError = "DIVE-E0004", Error, Some(4003);
-    /// Two modules with the same name are visible in one scope.
+    /// Two modules with the same name are visible in one scope. Unlike the
+    /// rest of this group, SANY reports this in its semantic phase
+    /// ("Multiply-defined module", under `Semantic errors:`, exit 4), not
+    /// its parse phase, and dive reports it during generation
+    /// (`generate::add_module`). Evidence: the `tlaplus-tests` SANY goldens of
+    /// `E4223_Test.tla` and `NestedModuleLetInstance.tla`.
     DuplicateModule = "DIVE-E0005", Error, Some(4223);
     /// A module named in `EXTENDS` or `INSTANCE` was not loaded (SANY aborts).
     ModuleUnavailable = "DIVE-E0006", Error, Some(4003);

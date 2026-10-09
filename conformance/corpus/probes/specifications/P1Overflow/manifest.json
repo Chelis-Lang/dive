@@ -1,0 +1,25 @@
+{
+  "sources": [
+    "docs/survey/competitive.md#appendix-probe-specs"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/P1Overflow/P1Overflow.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/P1Overflow/P1Overflow.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "unknown"
+        }
+      ]
+    }
+  ]
+}

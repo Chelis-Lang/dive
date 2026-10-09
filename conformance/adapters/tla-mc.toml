@@ -1,0 +1,34 @@
+# tla-mc, as measured in docs/survey/competitive.md ("Method", per-tool
+# invocations). For reproducible re-measurement with
+# `dive-conformance run --impl adapter:conformance/adapters/tla-mc.toml`.
+# Not run in CI; adapters are parsed and validated, and executed from M2.
+# Assumes `tla-mc` on PATH, run from the spec directory. {library} is a
+# directory holding the CommunityModules `.tla` files and the TLAPS library.
+name = "tla-mc"
+source = "ddalton/tla-mc @ 09e1cc5 (MIT)"
+check = ["tla-mc", "-workers", "{workers}", "-lib", "{library}", "-metadir", "{scratch}/meta", "-config", "{config}", "{module}"]
+library = "flag"
+# Exit 2 is a refusal or an error. Exit 12 covers every failure kind
+# (invariant, deadlock, liveness and evaluation errors alike), so the rules
+# below decide it; a 12 that no rule explains is unclassified.
+refused_exit_codes = [2]
+
+[exit_codes]
+0 = "success"
+10 = "assumption-failure"
+
+[[rules]]
+pattern = "^Error: Invariant"
+verdict = "safety-violation"
+
+[[rules]]
+pattern = "^Error: Deadlock reached"
+verdict = "deadlock"
+
+[[rules]]
+pattern = "^Error: Temporal propert"
+verdict = "liveness-violation"
+
+[counts]
+distinct_states = { pattern = '([0-9,]+) distinct states found' }
+states_generated = { pattern = '([0-9,]+) states generated' }

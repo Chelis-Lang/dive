@@ -518,7 +518,7 @@ No code or text from tlaplusplus was copied. Ideas taken from it are recorded as
 
 ## Appendix: probe specs
 
-The probe specs are reproduced below so the dive harness can import them as corpus entries with TLC goldens, per the charter rule on surprising TLC behaviour.
+The probe specs are reproduced below. They are imported verbatim as the harness corpus `probes` (`conformance/corpus/probes/`, ADR 0005 amendment 1), with TLC goldens from the gating oracle, per the charter rule on surprising TLC behaviour; `Trivial`, a benchmark, is not. The per-tool invocations above are the harness adapters in `conformance/adapters/`.
 
 ### P1Overflow
 

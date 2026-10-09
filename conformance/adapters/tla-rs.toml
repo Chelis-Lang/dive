@@ -1,0 +1,30 @@
+# tla-rs (`tla-checker`), as measured in docs/survey/competitive.md ("Method",
+# per-tool invocations). For reproducible re-measurement with
+# `dive-conformance run --impl adapter:conformance/adapters/tla-rs.toml`.
+# Not run in CI; adapters are parsed and validated, and executed from M2.
+# Assumes `tla` on PATH, run from the spec directory. It has no module search
+# path: library modules are copied beside the spec. It is single-threaded.
+name = "tla-rs"
+source = "fabracht/tla-rs @ 627fa61 (MIT OR Apache-2.0 per Cargo.toml)"
+check = ["tla", "{module}", "--config", "{config}", "--max-states", "100000000", "--max-depth", "100000", "--check-liveness"]
+library = "copy-beside-spec"
+max_workers = 1
+
+# It exits 0 or 1 only, so the verdict comes from its output; output that no
+# rule explains is unclassified.
+[exit_codes]
+
+[[rules]]
+pattern = "No errors found"
+verdict = "success"
+
+[[rules]]
+pattern = "Invariant .* violated!"
+verdict = "safety-violation"
+
+[[rules]]
+pattern = "Deadlock detected!"
+verdict = "deadlock"
+
+[counts]
+distinct_states = { pattern = 'Reachable states: ([0-9,]+)' }

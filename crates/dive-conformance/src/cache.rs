@@ -6,9 +6,22 @@
 //!   sha256/<hex>/<file>        downloaded artifacts, one directory per digest
 //!   jre/<hex>/                 JRE unpacked from the archive with digest <hex>
 //!   git/<id>/<commit>/         corpora and module libraries at pinned commits
+//!   jar-modules/<hex>/         `.tla` files extracted from the jar with digest <hex>
 //!   home/.tlaplus/esc.txt      hermetic `user.home` that opts out of TLC telemetry
 //!   tmp/                       per-run scratch (TLC metadirs, traces)
+//!   locks/<entry>.lock         advisory locks, one per cache entry
 //! ```
+//!
+//! **Concurrency.** Several harness processes may share one cache. Every
+//! step that creates an entry (download, JRE unpacking, checkout, jar
+//! module extraction) holds that entry's exclusive advisory lock
+//! ([`Cache::lock`]) and checks again, under the lock, whether another
+//! process finished it meanwhile. Entries become visible only when complete:
+//! downloads are renamed into place after verification, unpacked trees are
+//! renamed from a staging directory, and checkouts are marked complete last.
+//! Readers therefore need no lock: they see a complete entry or none, and
+//! still verify it before use. Per-run scratch directories carry the process
+//! id and a counter, so runs never share one.
 //!
 //! Each artifact sits alone in its own directory. That matters for the TLC
 //! jar: its manifest `Class-Path` names `CommunityModules*.jar` relative to the
@@ -17,7 +30,16 @@
 
 use crate::error::{Error, Result};
 use crate::hash::verify_file;
+use std::fs::{File, OpenOptions, TryLockError};
 use std::path::{Path, PathBuf};
+
+/// An exclusive advisory lock on one cache entry, released when dropped
+/// (or when the process exits, however it exits).
+#[derive(Debug)]
+pub struct CacheLock {
+    // Held only to keep the lock: closing the file releases it.
+    _file: File,
+}
 
 /// The cache root and its layout.
 #[derive(Debug, Clone)]
@@ -80,6 +102,43 @@ impl Cache {
         self.root.join("tmp")
     }
 
+    /// Takes the exclusive advisory lock of cache entry `key`, waiting for
+    /// another process (or thread) that holds it. `key` names the entry,
+    /// e.g. `checkout-examples-<commit>`; characters outside
+    /// `[A-Za-z0-9._-]` become `_`. Lock files live in `locks/` and are never
+    /// deleted, since deleting a lock file while another process waits on it
+    /// would let two holders in at once.
+    ///
+    /// The lock is `std::fs::File::lock`: `flock(2)` on macOS and Linux. It
+    /// coordinates processes on one machine; it is not meant for a cache on
+    /// a network file system.
+    ///
+    /// # Errors
+    /// Fails if the lock file cannot be created or locked.
+    pub fn lock(&self, key: &str) -> Result<CacheLock> {
+        let dir = self.root.join("locks");
+        std::fs::create_dir_all(&dir).map_err(|e| Error::io(&dir, &e))?;
+        let path = dir.join(format!("{}.lock", lock_name(key)));
+        let file = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .write(true)
+            .open(&path)
+            .map_err(|e| Error::io(&path, &e))?;
+        match file.try_lock() {
+            Ok(()) => {}
+            Err(TryLockError::WouldBlock) => {
+                eprintln!(
+                    "waiting for another harness process to finish cache entry `{key}` ({})",
+                    path.display()
+                );
+                file.lock().map_err(|e| Error::io(&path, &e))?;
+            }
+            Err(TryLockError::Error(e)) => return Err(Error::io(&path, &e)),
+        }
+        Ok(CacheLock { _file: file })
+    }
+
     /// A hermetic `user.home` for TLC whose `.tlaplus/esc.txt` opts out of
     /// TLC's execution-statistics collection (`util.ExecutionStatisticsCollector`),
     /// which otherwise performs a DNS query and may report usage.
@@ -93,7 +152,11 @@ impl Cache {
         let esc = dir.join("esc.txt");
         let want = "NO_STATISTICS\n";
         if std::fs::read_to_string(&esc).ok().as_deref() != Some(want) {
-            std::fs::write(&esc, want).map_err(|e| Error::io(&esc, &e))?;
+            // Written aside and renamed, so a concurrent TLC never reads a
+            // partly written file.
+            let tmp = dir.join(format!("esc.txt.{}", std::process::id()));
+            std::fs::write(&tmp, want).map_err(|e| Error::io(&tmp, &e))?;
+            std::fs::rename(&tmp, &esc).map_err(|e| Error::io(&esc, &e))?;
         }
         Ok(home)
     }
@@ -115,6 +178,20 @@ impl Cache {
         verify_file(&path, sha256, what)?;
         Ok(path)
     }
+}
+
+/// The file name of the lock for `key`: `[A-Za-z0-9._-]` kept, anything
+/// else replaced by `_`.
+fn lock_name(key: &str) -> String {
+    key.chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || "._-".contains(c) {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect()
 }
 
 /// The last path segment of `url`, percent-decoded for `%2B`/`%2b`, or
@@ -151,5 +228,21 @@ mod tests {
             "OpenJDK.tar.gz"
         );
         assert_eq!(file_name_from_url("https://x/"), "artifact");
+    }
+
+    #[test]
+    fn locks_exclude_each_other() -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = crate::util::TempDir::new("cache-lock")?;
+        let cache = Cache::new(dir.path().to_path_buf());
+        let held = cache.lock("entry/../x y")?;
+        let path = dir.path().join("locks").join("entry_.._x_y.lock");
+        assert!(path.is_file());
+        // Another open file description cannot take it while it is held,
+        // even in the same process (flock semantics).
+        let other = OpenOptions::new().write(true).open(&path)?;
+        assert!(matches!(other.try_lock(), Err(TryLockError::WouldBlock)));
+        drop(held);
+        assert!(other.try_lock().is_ok());
+        Ok(())
     }
 }

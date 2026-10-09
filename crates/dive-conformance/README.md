@@ -99,6 +99,9 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
   - A job copies only the files of the module's own directory into its scratch directory, since SANY never looks into subdirectories. An Examples job copies the whole spec directory.
 - `tbd`: not yet enumerated.
 
+**In-repository corpora** (ADR 0005, amendment 1) give `path = "conformance/..."` instead of `repo` and `commit`. Their identity is the SHA-256 of their files (`sha256:<hex>`, recorded in goldens as the corpus commit), so changing any file makes `run` refuse the goldens until they are regenerated. `corpus fetch` skips them. Today there is one:
+- `probes` (`conformance/corpus/probes/`, `examples-manifest` layout): the honesty and determinism probes of `docs/survey/competitive.md` (P1–P9, M1–M2), 12 modules and 14 models with goldens from the gating oracle. Run it with `--corpus probes`.
+
 ## Commands
 
 ```sh
@@ -187,10 +190,28 @@ sha256/<hex>/<file>      one directory per artifact digest (jars, JRE archive). 
 jre/<hex>/               the JRE unpacked from archive <hex> (macOS: */Contents/Home/bin/java)
 git/<id>/<commit>/       corpora and module libraries, `git init` + `fetch --depth 1 <sha>` + checkout;
                          completion marker in .git/, HEAD checked and the work tree must be clean
+jar-modules/<hex>/       root-level .tla files of the classpath jar <hex>, for `--impl dive`
 home/.tlaplus/esc.txt    TLC's user.home: NO_STATISTICS (opts out of TLC telemetry)
 tmp/                     per-run scratch: an isolated copy of the spec directory (the run's working
                          directory), TLC -metadir, java.io.tmpdir, -dumpTrace output; removed after each run
+locks/<entry>.lock       advisory locks, one per cache entry (never deleted)
 ```
+
+**Concurrent runs.** Several harness processes may share one cache (issue #46).
+- Every step that creates an entry (download, JRE unpacking, checkout, jar module extraction) holds that entry's exclusive advisory lock (`std::fs::File::lock`, `flock(2)`) and checks again under the lock whether another process finished it meanwhile. A process that has to wait says so on stderr.
+- Entries appear only when complete: downloads are renamed into place after verification, unpacked trees are renamed from a staging directory, and a checkout's completion marker is written last. So readers take no lock: they see a complete entry or none, and verify it before every use. Per-run scratch directories are unique per process and run.
+- `tests/cache_concurrency.rs` starts two `corpus fetch` processes together against an empty cache; one checks out, the other waits and finds it cached.
+- The locks coordinate processes on one machine. Do not put the cache on a network file system.
+
+**Parallel agents and worktrees.** Locking makes a shared cache safe, but a checkout is still shared state: anything that writes into it by hand (a stray `ln -s`, an editor) breaks every run that uses it, and the harness then refuses to run until the checkout is deleted and fetched again. Agents working in parallel should therefore each use their own cache, seeded from the shared one:
+
+```sh
+export DIVE_CACHE_DIR="$PWD/.dive-cache"                 # per worktree; or a scratch directory
+rsync -a --exclude tmp ~/.cache/dive/ "$DIVE_CACHE_DIR/"   # optional: copy instead of downloading
+dive-conformance oracle fetch && dive-conformance corpus fetch   # verifies the copy, fetches what is missing
+```
+
+A copied cache is verified exactly like a downloaded one: artifacts by SHA-256, checkouts by commit and a clean work tree.
 
 **Isolation.** Each jar sits alone in its own directory. That matters because `tla2tools.jar`'s manifest `Class-Path` names `CommunityModules*.jar` *relative to the jar*; isolation guarantees that only the jars on `-cp` are used.
 
@@ -230,6 +251,8 @@ pub trait Implementation: Sync {
 - **Options.** `--impl-option NAME[=VALUE]` runs `dive` or an adapter under an option, and is recorded in the report. An option the implementation does not declare result-preserving (`result_preserving_options`) turns every would-be `agree` into `divergence-mode`.
 - **Profiles.** `dive` also has a profile, set with `--impl-profile dive|tlc|tlc+overrides=<features>`, or `DIVE_COMPAT=tlc`. Every report records it, plus `strict_tier`, which is true only for pure `tlc`.
 - **Expected divergences.** Under the `dive` profile, a disagreement listed in `conformance/expected-divergences.toml` is reported as `expected-divergence`. It is never `agree`. The registry never applies under `tlc` or `tlc+overrides`.
+  - An entry names the model or module glob, dive's verdict, and the `fields` that may differ (globs over the compared fields). It excuses a disagreement only when every differing field is among them, so an entry for counts never hides a different verdict or property. Trace validation can never be excused.
+  - Registered today: MissionariesAndCannibals and ACP_NB_WRONG_TLC, whose counts at the violation differ under canonical exploration order (D-010). The nightly runs the default profile on the tier's models, so these must stay `expected-divergence` and anything else unregistered fails.
 
 **`dive` (`--impl dive`)** runs the `dive` binary as a black box: `target/release/dive` by default, or `--dive-bin PATH`. Build it first with `cargo build --release -p dive-cli`. The report records the binary's path, SHA-256 and version, and its module search path.
 - **Modules, full phase (default).** Each module runs `dive analyze --output json --module-path ... <file>` from the module's own directory in the corpus checkout. `accepted` decides acceptance. A rejection is `parse-error` when any error is a syntax (`DIVE-Snnnn`) or module-resolution (`DIVE-E00nn`) diagnostic, which SANY reports in its parse phase, and `semantic-error` otherwise. The exception is `DIVE-E0005` (a module defined twice, SANY 4223), which SANY reports as a semantic error. `DIVE-E0001` diagnostics give the unresolved modules. The comparison with the golden is the usual one: acceptance, verdict and unresolved modules.
@@ -249,6 +272,7 @@ pub trait Implementation: Sync {
   - the statistics are taken only where TLC prints them (`reported_by_tlc`; none for a stop while generating initial states);
   - the counterexample's length and printed states (label and text) form the trace, ending `finite`;
   - `unsupported` and `resource-limit` reports (exit 3) are `unsupported`, naming the feature; an error whose TLC class dive does not claim yet (`tlc.verified: false`) is `unsupported` too, with dive's own finding in the detail;
+  - a rejected spec is `config-error`, `parse-error` or `semantic-error` by its diagnostics' codes (as for modules), with TLC's class (`TLC_PARSING_FAILED` for SANY's rejections) only where dive claims it; under `--impl-profile tlc` the exit code must be TLC's;
   - `internal-error`, or a report that contradicts itself, is `unclassified`, which is a `disagree`.
 
   dive's counterexample document (`counterexample.trace`) is validated by the harness in-process with `dive-trace`; a violation agrees only if it validates.
@@ -259,14 +283,31 @@ pub trait Implementation: Sync {
 
 ```toml
 name = "tla2"
+source = "joweeba/tla2 @ 5e828d3 (Apache-2.0)"     # optional provenance
+# Placeholders: {module} {config} {workers} {corpus} {library} {scratch}
 check = ["tla2", "check", "{module}", "--config", "{config}", "--workers", "{workers}"]
-parse = ["tla2", "parse", "{module}"]     # optional
+parse = ["tla2", "parse", "{module}"]              # optional
+library = "env"                                    # optional: flag | env | classpath | copy-beside-spec
+max_workers = 1                                    # optional: a single-threaded tool
+refused_exit_codes = [2]                           # optional: refusals and errors without a verdict
+[env]                                              # optional, values are templates
+TLA_PATH = "{library}"
 [exit_codes]
 0 = "success"
 12 = "safety-violation"
+[[rules]]                                          # optional; the first match wins, before exit_codes
+pattern = "^Error: Invariant"                      # a line regex (stream = stdout|stderr|any), or
+verdict = "safety-violation"                       #   json = "/pointer" with equals = "value";
+                                                   #   and verdict = ... or refused = true
+[counts]                                           # optional: distinct_states, states_generated, depth
+distinct_states = { pattern = '([0-9,]+) distinct states found' }   # or { json = "/pointer" }
 ```
 
-The description is parsed and validated today, but adapters are **not executed yet**: every request answers `unsupported`. Executing them, and mapping their output into `OracleResult`, is M2 work.
+A result that no rule or exit code explains is unclassified, never a guess. Loading validates placeholders, exit codes, rules, counts and the library mode.
+
+`conformance/adapters/` holds the invocations measured in `docs/survey/competitive.md`: `tla-mc.toml`, `tla-rs.toml`, `tlaplusplus.toml`, `tlago.toml` and `tla2.toml`. A unit test loads every one. They are not run in CI; they exist for reproducible re-measurement.
+
+The descriptions are parsed and validated today, but adapters are **not executed yet**: every request answers `unsupported`. Executing them, and mapping their output into `OracleResult`, is M2 work.
 
 ## Regenerating goldens
 
@@ -284,7 +325,8 @@ Goldens are generated, never edited (charter rule 6; ADR 0003).
 - for the gating oracle:
   - 141 Examples model goldens (the small tier and more) and SANY goldens for all 424 Examples modules;
   - SANY goldens for `tlaplus-tests` (807 of 808 modules; one SANY crash is excluded in `corpora.toml`);
-  - SANY goldens for `community-modules` (78 modules).
+  - SANY goldens for `community-modules` (78 modules);
+  - for the `probes` corpus, 14 model goldens and 12 SANY goldens.
 
 ## Oracle behaviour notes
 
@@ -325,7 +367,7 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 ## Limitations
 
 - Only the `examples-manifest` and `modules-only` layouts are enumerated. `tbd` corpora (ValidationTestSuite) report "not yet supported". The tlaplus repo tests (`tlaplus-tests`) and CommunityModules are `modules-only`: SANY goldens, no models.
-- `dive check` does not exist, so `--impl dive` compares modules only; models are `unsupported`.
+- `dive check` refuses features it does not implement yet (liveness, symmetry, simulation, Java-overridden modules, among others), so those models are `unsupported`.
 - Examples submodules (CCF, azure-cosmos-tla, BlockingQueue, microwave) are never fetched. They are listed in reports as unfetched.
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.

@@ -185,8 +185,12 @@ pub struct ModuleEntry {
 pub struct CorpusIndex {
     /// Corpus id.
     pub id: String,
-    /// Pinned commit.
+    /// Pinned commit, or for an in-repository corpus its
+    /// [`tree_digest`] (`sha256:<hex>`). Goldens record it.
     pub commit: String,
+    /// Whether the corpus lives in this repository (`path` in
+    /// `corpora.toml`) rather than in a cached git checkout.
+    pub in_repo: bool,
     /// Checkout root.
     pub root: PathBuf,
     /// Modules, sorted by path.
@@ -292,6 +296,56 @@ pub fn module_closure_reads_tlc_config(module: &Path) -> bool {
 pub fn reads_tlc_config(module_text: &str) -> bool {
     let squashed: String = module_text.chars().filter(|c| !c.is_whitespace()).collect();
     squashed.contains("TLCGet(\"config\")")
+}
+
+/// The identity of an in-repository corpus: `sha256:<hex>` over every file
+/// under `root` (except `.DS_Store`), in path order, each as its
+/// `/`-separated relative path, a NUL byte, its length as 8 little-endian
+/// bytes, and its contents. Any added, removed, renamed or edited file
+/// changes it, so goldens generated before an edit are refused until they
+/// are regenerated.
+///
+/// # Errors
+/// Fails on an unreadable file, or on a symbolic link or other special file
+/// (a corpus must be plain files).
+pub fn tree_digest(root: &Path) -> Result<String> {
+    fn walk(root: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>) -> Result<()> {
+        let entries = std::fs::read_dir(dir).map_err(|e| Error::io(dir, &e))?;
+        for entry in entries {
+            let entry = entry.map_err(|e| Error::io(dir, &e))?;
+            let path = entry.path();
+            if entry.file_name() == ".DS_Store" {
+                continue;
+            }
+            let ft = entry.file_type().map_err(|e| Error::io(&path, &e))?;
+            if ft.is_dir() {
+                walk(root, &path, out)?;
+            } else if ft.is_file() {
+                let rel = path
+                    .strip_prefix(root)
+                    .map_err(|_| Error::Io(format!("{} escapes the corpus", path.display())))?;
+                out.push((rel.to_string_lossy().replace('\\', "/"), path));
+            } else {
+                return Err(Error::Config(format!(
+                    "{}: in-repository corpora hold plain files only",
+                    path.display()
+                )));
+            }
+        }
+        Ok(())
+    }
+    let mut files = Vec::new();
+    walk(root, root, &mut files)?;
+    files.sort();
+    let mut buf = Vec::new();
+    for (rel, path) in &files {
+        let bytes = std::fs::read(path).map_err(|e| Error::io(path, &e))?;
+        buf.extend_from_slice(rel.as_bytes());
+        buf.push(0);
+        buf.extend_from_slice(&(bytes.len() as u64).to_le_bytes());
+        buf.extend_from_slice(&bytes);
+    }
+    Ok(format!("sha256:{}", crate::hash::sha256_bytes(&buf)))
 }
 
 /// Parses `HH:MM:SS` (or `unknown`) to seconds.
@@ -544,6 +598,7 @@ pub fn enumerate(corpus: &Corpus, root: &Path) -> Result<CorpusIndex> {
     Ok(CorpusIndex {
         id: corpus.id.clone(),
         commit: corpus.commit.clone(),
+        in_repo: corpus.path.is_some(),
         root: root.to_path_buf(),
         modules,
         models,
@@ -598,6 +653,33 @@ mod tests {
         assert_eq!(sim.mode, ModelMode::Simulate { traces: 100 });
         assert!(sim.out_of_scope.is_none() && !sim.counts_comparable);
         assert_eq!(sim.tier, Tier::Deep);
+        Ok(())
+    }
+
+    #[test]
+    fn tree_digest_covers_names_and_contents() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = crate::util::TempDir::new("digest")?;
+        std::fs::create_dir_all(dir.path().join("specifications/a"))?;
+        std::fs::write(dir.path().join("specifications/a/A.tla"), "x")?;
+        let d0 = tree_digest(dir.path())?;
+        assert!(d0.starts_with("sha256:"));
+        assert_eq!(tree_digest(dir.path())?, d0);
+        std::fs::write(dir.path().join(".DS_Store"), "ignored")?;
+        assert_eq!(tree_digest(dir.path())?, d0);
+        std::fs::write(dir.path().join("specifications/a/A.tla"), "y")?;
+        let d1 = tree_digest(dir.path())?;
+        assert_ne!(d1, d0);
+        std::fs::rename(
+            dir.path().join("specifications/a/A.tla"),
+            dir.path().join("specifications/a/B.tla"),
+        )?;
+        assert_ne!(tree_digest(dir.path())?, d1);
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink("/", dir.path().join("link"))?;
+            assert!(tree_digest(dir.path()).is_err());
+        }
         Ok(())
     }
 
