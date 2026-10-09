@@ -602,6 +602,10 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
 
 ---
 
+Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).
+
+On the pinned oracle at seed 7, `RndCoincidence` reports a safety violation and two states. `RndWide` reports the violation and the initial state, then fails to finish counterexample reconstruction within the capture's 300-second timeout. Its clean capture is recorded as a timeout, not a usable trace or golden. dive produces the two-state violation, but its independent validator explicitly refuses the unproved random position. Evidence: `crates/dive-api/tests/fixtures/random-traces/`.
+
 ## Maintaining this page
 
 This page is the narrative companion to the terse registry in [`docs/divergences.md`](divergences.md). The rules for agents and contributors are in `AGENTS.md`. In short:
@@ -617,5 +621,3 @@ This page is the narrative companion to the terse registry in [`docs/divergences
   - the status and the evidence.
 - When an entry's status changes (planned → implemented → default), update it in the same PR as the code.
 - Write for users who know TLA+ and TLC but not dive's internals. Link to ADRs for the design detail rather than repeating it.
-
-Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The minimal `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).

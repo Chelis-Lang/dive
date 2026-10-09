@@ -65,6 +65,8 @@ pub struct TraceOptions {
     /// initial predicate and the steps (TLC's seeding under `compat_tlc`,
     /// dive's otherwise; D-002). Without them, all of these are refused by
     /// name.
+    /// Random checks are decisive only where generator and predicate draw
+    /// positions can be proved equal; other orders are explicitly refused.
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
