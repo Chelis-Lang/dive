@@ -1,0 +1,31 @@
+{
+  "authors": [
+    "NVIDIA CORPORATION & AFFILIATES"
+  ],
+  "modules": [
+    {
+      "features": [],
+      "models": [
+        {
+          "mode": "exhaustive search",
+          "path": "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.cfg",
+          "result": "unknown",
+          "runtime": "unknown"
+        }
+      ],
+      "path": "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_M0.tla"
+    },
+    {
+      "features": [],
+      "models": [],
+      "path": "specifications/7b9665dc17de1692ca94ade6dca8e327353e883f/TLC_x1.tla"
+    }
+  ],
+  "sources": [
+    "https://github.com/tlaplus/ValidationTestSuite/tree/fe99cff1ca48535bdbfc99fd95bd2706f056c12f"
+  ],
+  "tags": [
+    "validation-test-suite",
+    "generated-smoke"
+  ]
+}

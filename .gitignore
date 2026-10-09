@@ -10,3 +10,6 @@
 /.claude/worktrees
 # Per-worktree conformance cache (DIVE_CACHE_DIR; see AGENTS.md)
 /.dive-cache
+
+# Local ValidationTestSuite generator environment.
+/.validation-venv

@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Pinned ValidationTestSuite smoke corpus: 16 models and 20 modules, with a
+  complete selected-case census, generated oracle goldens and a required
+  1/4/8-worker conformance check.
+
 - `dive-conformance study final`: separate, non-gating final/short truth/count
   observations with fresh independent periodic-witness validation and explicit
   profile, binary, oracle and corpus provenance.

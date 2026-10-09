@@ -1,0 +1,1824 @@
+{
+  "testcases": {
+    "06cb41f6d429e5df49e3648fa0c09fcd9dd41244": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "06cb41f6d429e5df49e3648fa0c09fcd9dd41244",
+      "path": "Let/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "7c85ac60170f0664feb95f3530e1ecc97b451cc2",
+        "ir": "299038879e79ae2b12c43381e88f2f11c4411961",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "d0ea0621aa493c04a5e3b1a80bac8280cd675beb",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "5621351d5dfd5f3a6b6cc11659d05400e526338c",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "1433cf727e0e566bdfdca64b1b72b30a32716461": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "1433cf727e0e566bdfdca64b1b72b30a32716461",
+      "path": "Eq/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "7c72662118ae6f0100123f7bb0ecfed841cf1379",
+        "ir": "cb2398cb90c3ef9a32a0b723cd0571748f1a77de",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "14345165096188fc5f163e65b679c40ff3c42fb1",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "d16a72f5c05a8fbd634295808e818359150bbc5a",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "15cc6b01a0dc77e13fe58a8a275ba376dc92681f": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "15cc6b01a0dc77e13fe58a8a275ba376dc92681f",
+      "path": "Eq/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8dcee36191ec3c70c9530fe2d6f684963b5e0d45",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "e738afe5948115814de74bf79ab741434b9cc3e5",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "1aa9a751a36494037bbae5dfe1a90ba9a056a516": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "1aa9a751a36494037bbae5dfe1a90ba9a056a516",
+      "path": "InstanceNamedWith/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "07367c73c46cd1358c83f3cdeb9a75824620a427",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "af1d5aff3d2cffb8f12a5600a0d031791fb16ec2",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "24f15a44b2df798de8c821d6fe3f677722ac1808": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "24f15a44b2df798de8c821d6fe3f677722ac1808",
+      "path": "Eq/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "91a34fe3e33e27d9af027dc8ce02b258126cb4b9",
+        "ir": "cb2398cb90c3ef9a32a0b723cd0571748f1a77de",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "14345165096188fc5f163e65b679c40ff3c42fb1",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "b3bf8dc6171628f46e62297858341db6bf24888a",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "282d803d2c84194a1bc52d09f86f482d61b604aa": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "282d803d2c84194a1bc52d09f86f482d61b604aa",
+      "path": "Enabled/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "14303394a95294f91336d803f1e0edfe9cabe5a3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "68a2cfd775d6479e12252b1aea33902acd4e2747",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "3870929418abe4114f36583a9a4d04798480ce4f": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "3870929418abe4114f36583a9a4d04798480ce4f",
+      "path": "Let/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "a7e10cd9df3e4b068c1c6b214c78c3e777215447",
+        "ir": "a9329d22aabf11e54cb5fdc24271b92cefcdefef",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "eca1490cfd431d6874788157179aea23f1ea72d5",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "ad6aef2512e1c80a3a9b7102df309e3ed08a5cb3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "4215925a27ba4761da44b9e22d04639d690aa2e7": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "4215925a27ba4761da44b9e22d04639d690aa2e7",
+      "path": "InstanceNamedWith/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "31911908accd8c825072a8e799a54f4e85c44349",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "9daeb4e27e6a99422730ec42dcbf62387bf3f7ba",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "47b9493639eccf24eafba4243c1b5ee9e82decf0": {
+      "desc": {
+        "case_feature": "BoolTrue",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "47b9493639eccf24eafba4243c1b5ee9e82decf0",
+      "reason": "CanNotBeCase",
+      "type": "skipped"
+    },
+    "4e97856939057fc81a11c6e4e811523e016df94c": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "4e97856939057fc81a11c6e4e811523e016df94c",
+      "path": "InstanceNamedWith/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "7e8ce75fd204a9f9d13d3504e7af6fc48e740875",
+        "ir": "1eb6b4e6ac35884fc66eb53c33bf56431057621c",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e6a7d1d2ed6c9a77416687a069c89a6fe55360d0",
+            "name": "Apalache_M0",
+            "path": ""
+          },
+          {
+            "digest": "1ebe514b2d6ab5d8f6185995732515980c773003",
+            "name": "Apalache_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "cd5d8e524c5ce78f0ac19f6bca2cc4646ec53c31",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "51bc1792ea26f6ca015de54ce60f65d2b4bc13db": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "51bc1792ea26f6ca015de54ce60f65d2b4bc13db",
+      "path": "Let/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "5621351d5dfd5f3a6b6cc11659d05400e526338c",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "26a7e8b64461a94c90a294f265f863c5a76858b6",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "5d9425415c79d7fd9b6407f9eb3d100716e6bc2a": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "5d9425415c79d7fd9b6407f9eb3d100716e6bc2a",
+      "path": "Enabled/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "3c479d716c58627aa3718ec220fae507739c3176",
+        "ir": "e1427131b519e41b84d6d13bdabbd87a911f0632",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "35d9acaa23964700fa0d7d82f7a87ece7d19c294",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "c2838ec7df13e1aa8e6bf14d81285f901c609559",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "711e233cfbf7149e08ba7a7b6ffd6eef3446eaa7": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "711e233cfbf7149e08ba7a7b6ffd6eef3446eaa7",
+      "path": "InstanceNamedWith/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "cd5d8e524c5ce78f0ac19f6bca2cc4646ec53c31",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "5114a168b587cb8fcdd4b1883d71f53adb24fde0",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "790bcfa8ec55208e571de861f066c4a82e4e8dc5": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "790bcfa8ec55208e571de861f066c4a82e4e8dc5",
+      "path": "Eq/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "d16a72f5c05a8fbd634295808e818359150bbc5a",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "0f211a5581b58346f42869f9ca5571b9076d59d3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "7a9707c18231c7f196bfc1f513bfc4c2ddaecb30": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "7a9707c18231c7f196bfc1f513bfc4c2ddaecb30",
+      "path": "Let/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "40c7746dce3dc7c8ecf56eb537201e95d0524dac",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "ea796c94b02cef4947b9d0725506d2ecaa6c6f47",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "7b9665dc17de1692ca94ade6dca8e327353e883f": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "7b9665dc17de1692ca94ade6dca8e327353e883f",
+      "path": "InstanceNamedWith/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "5da291b06df67764401ce8951d31a1f9476b9ff9",
+        "ir": "5b178692d93a97449e29e165083c1d708baf713f",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e6a7d1d2ed6c9a77416687a069c89a6fe55360d0",
+            "name": "Apalache_M0",
+            "path": ""
+          },
+          {
+            "digest": "45a3a6cc5ba8e6ee6fc059e678446a7837b7791c",
+            "name": "Apalache_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "07367c73c46cd1358c83f3cdeb9a75824620a427",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "7c339496ea8de87b0e9f449e814d23b81215a07d": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "7c339496ea8de87b0e9f449e814d23b81215a07d",
+      "path": "InstanceNamedWith/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "560c2157f6e21ce0df7ae6cd8b66db2f905251a5",
+        "ir": "5b178692d93a97449e29e165083c1d708baf713f",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e6a7d1d2ed6c9a77416687a069c89a6fe55360d0",
+            "name": "Apalache_M0",
+            "path": ""
+          },
+          {
+            "digest": "45a3a6cc5ba8e6ee6fc059e678446a7837b7791c",
+            "name": "Apalache_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "6445213e21c8ba440c4d90d559f623807eb609d6",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "7eba23cc0e7aace25a902a4adaf5fe893a16b5d4": {
+      "desc": {
+        "case_feature": "BoolTrue",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "7eba23cc0e7aace25a902a4adaf5fe893a16b5d4",
+      "reason": "CanNotBeCase",
+      "type": "skipped"
+    },
+    "8ce239d2137c1fb9536fecfa4fbd7fe3c4e87e46": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "8ce239d2137c1fb9536fecfa4fbd7fe3c4e87e46",
+      "path": "InstanceNamedWith/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "6445213e21c8ba440c4d90d559f623807eb609d6",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "eecf353591f609e1c28d3dc14f35ed8e00ccee32",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "62f2a9fda76dd5128472a4a61868a63f0baaaa97",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "90fd9daab81221afee6ce88c42448621ec9afb45": {
+      "desc": {
+        "case_feature": "InstanceNamedWith",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "90fd9daab81221afee6ce88c42448621ec9afb45",
+      "path": "InstanceNamedWith/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "b8f8e11dda91673fa5fd058ff0b3c64216738b10",
+        "ir": "1eb6b4e6ac35884fc66eb53c33bf56431057621c",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e6a7d1d2ed6c9a77416687a069c89a6fe55360d0",
+            "name": "Apalache_M0",
+            "path": ""
+          },
+          {
+            "digest": "1ebe514b2d6ab5d8f6185995732515980c773003",
+            "name": "Apalache_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "31911908accd8c825072a8e799a54f4e85c44349",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "c4bb789a947bdd351a83ad40dd64b052fa9186db",
+            "name": "TLC_M0",
+            "path": ""
+          },
+          {
+            "digest": "83c6e0f4cf0917ee0cc987902fd3609aeeeaefcd",
+            "name": "TLC_x1",
+            "path": ""
+          }
+        ],
+        "path": "InstanceNamedWith/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "94dc14331d9da5603c31466dffc5b4cca2094178": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "94dc14331d9da5603c31466dffc5b4cca2094178",
+      "path": "Eq/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "30d9ec9ef3d96251c85dee21e0827af43d68039e",
+        "ir": "ac705ddeb88406d930c572bc22635947abf55f90",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e1496d4ac4c5571526e5d1ecefa43124a523a515",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "d0adfb11bd646f472856cfec44ed956d52f16195",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "96f7795102986ba75b39bc151aaa1396684aeeea": {
+      "desc": {
+        "case_feature": "BoolTrue",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "96f7795102986ba75b39bc151aaa1396684aeeea",
+      "reason": "CanNotBeCase",
+      "type": "skipped"
+    },
+    "9b33484778609a0a78ef2dae93ea8780283e5604": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "9b33484778609a0a78ef2dae93ea8780283e5604",
+      "path": "Eq/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "80b09e74555f53d4c44ca6e713981790c2fc8c6c",
+        "ir": "ac705ddeb88406d930c572bc22635947abf55f90",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "e1496d4ac4c5571526e5d1ecefa43124a523a515",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8dcee36191ec3c70c9530fe2d6f684963b5e0d45",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "a2282f7bb439272582954d4224f353628e7a6279": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "a2282f7bb439272582954d4224f353628e7a6279",
+      "path": "Let/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8e7994e8e84d89dce57415c3fd6cce936f8e0f40",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "8de7222dde95e2d87f8822e03a395c1d23b54a77",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "a4a6bfa440e1e4863d898e85c1adac1f7ae976ee": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "a4a6bfa440e1e4863d898e85c1adac1f7ae976ee",
+      "path": "Enabled/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8704903bf4ed19f46c121d24977054ffa324015c",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "daf23b0ecea477d82ca0774f086b4d0bd3a40cf3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "aca89d8f9ace59a5fd7716214cc8866242eb7135": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "aca89d8f9ace59a5fd7716214cc8866242eb7135",
+      "path": "Enabled/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "395d712af1bfb6829be497585d315346c29bcd8d",
+        "ir": "b3fd90428cc1fe4174f9674f5ddc88e917ef7be2",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "254c42f13bdfd8e6759f016c4ece85779903d5d9",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "14303394a95294f91336d803f1e0edfe9cabe5a3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "af6b5e5300d7c9b084190cb3985cfcea54734981": {
+      "desc": {
+        "case_feature": "BoolTrue",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "af6b5e5300d7c9b084190cb3985cfcea54734981",
+      "reason": "CanNotBeCase",
+      "type": "skipped"
+    },
+    "afb5a158cc0289c80fb1a9285d646ce5c9483562": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "afb5a158cc0289c80fb1a9285d646ce5c9483562",
+      "path": "Let/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "bc1e8cec483b966e379654a911e493bf37bfff31",
+        "ir": "299038879e79ae2b12c43381e88f2f11c4411961",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "d0ea0621aa493c04a5e3b1a80bac8280cd675beb",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8e7994e8e84d89dce57415c3fd6cce936f8e0f40",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ea62011c91aecb90272814bbc258b0585bbe9202",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "b65933e4402e657a8f98f26d1c18e283b806961d": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "b65933e4402e657a8f98f26d1c18e283b806961d",
+      "path": "Eq/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "b3bf8dc6171628f46e62297858341db6bf24888a",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "3224c84dd2a287bdd13cbf59efbe78725bc5dbdf",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "ce685120928339a3a99c57000f3f245e25ba390f",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "beb102a215d9c318c378eb21921421942df0fb78": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "beb102a215d9c318c378eb21921421942df0fb78",
+      "path": "Enabled/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "4660ae063c2adfda3f5f3c93342f995fa6bb97ca",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "142be9cbf715dea570fa322ab0d83f45f9bf1d88",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "cc66ce05c285f570750e325ee84fe2d0b7aa3a04": {
+      "desc": {
+        "case_feature": "Eq",
+        "check_deadlock": false,
+        "plug_feature": "BoolTrue",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "cc66ce05c285f570750e325ee84fe2d0b7aa3a04",
+      "path": "Eq/BoolTrue/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "d0adfb11bd646f472856cfec44ed956d52f16195",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "d25c4abed505a576c97d6b8c9e778cbf1ecd91d1",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "e2d92e9f5eaad6aa7e0242896df0c58679ff0c63",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Eq/BoolTrue/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "db34a439da0a07814aeb80e65ca4fdb76d980551": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "db34a439da0a07814aeb80e65ca4fdb76d980551",
+      "path": "Let/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "bb04a12bc5f6da0da7ffb7573b2e2048deb36035",
+        "ir": "a9329d22aabf11e54cb5fdc24271b92cefcdefef",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "eca1490cfd431d6874788157179aea23f1ea72d5",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "40c7746dce3dc7c8ecf56eb537201e95d0524dac",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "e5d7e351f1d2a4c04a6827d0297b2a90db5011ce": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": false,
+        "plug_feature": "BoolFalse"
+      },
+      "id": "e5d7e351f1d2a4c04a6827d0297b2a90db5011ce",
+      "path": "Enabled/BoolFalse/no-dl",
+      "ref": {
+        "cfg": {
+          "digest": "7a76f1595504117c39490267dc38a7b173545b3c",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [
+          "--no-deadlock"
+        ],
+        "id": "40fe1406a6c05dfc99419b6b314f34d648a53582",
+        "ir": "e1427131b519e41b84d6d13bdabbd87a911f0632",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "35d9acaa23964700fa0d7d82f7a87ece7d19c294",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/no-dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "6baa2db9bac06681c876b29f587fb496a1485227",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "4660ae063c2adfda3f5f3c93342f995fa6bb97ca",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/no-dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    },
+    "f41884e342f1307100bde97c7b5a34fb94d1734f": {
+      "desc": {
+        "case_feature": "Let",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "f41884e342f1307100bde97c7b5a34fb94d1734f",
+      "path": "Let/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "ad6aef2512e1c80a3a9b7102df309e3ed08a5cb3",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "39d1a7b84ffb39d308e1c7b53b58f276a4458177",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "2b180be3348769e40ccfd157c46a5f4fa63ac2e4",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Let/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "f63fb15a2a66d8311c40c6dc7f0e6ee36786a86c": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": true,
+        "plug_feature": "BoolFalse",
+        "reduction_strategy": {
+          "configuration": "Replace `-workers 2` option with the `-workers 1`"
+        }
+      },
+      "id": "f63fb15a2a66d8311c40c6dc7f0e6ee36786a86c",
+      "path": "Enabled/BoolFalse/dl",
+      "ref": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "c2838ec7df13e1aa8e6bf14d81285f901c609559",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "2"
+        ],
+        "id": "877865cb7b349efba4c1ff1bafd499fe0c7082c8",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "13b6e289a6e406ee586aab2528bb699535b4a10a",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolFalse/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-tlc"
+    },
+    "f85a8c8b070809cb0f54c081da908852bbb949be": {
+      "desc": {
+        "case_feature": "Enabled",
+        "check_deadlock": true,
+        "plug_feature": "BoolTrue"
+      },
+      "id": "f85a8c8b070809cb0f54c081da908852bbb949be",
+      "path": "Enabled/BoolTrue/dl",
+      "ref": {
+        "cfg": {
+          "digest": "c6a075f69d5d1cddb4fdedf93c90a41b0adafeb5",
+          "file": "Apalache_M0.cfg"
+        },
+        "cmd_options": [],
+        "id": "378581efc3842802e0e1370e7f5e16f9ddd66aaa",
+        "ir": "b3fd90428cc1fe4174f9674f5ddc88e917ef7be2",
+        "main_module": "Apalache_M0",
+        "modules": [
+          {
+            "digest": "254c42f13bdfd8e6759f016c4ece85779903d5d9",
+            "name": "Apalache_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/dl/ref",
+        "search_paths": []
+      },
+      "tlc": {
+        "cfg": {
+          "digest": "0335667820c89b7d96e50c3a259d5d6be01a4b02",
+          "file": "TLC_M0.cfg"
+        },
+        "cmd_options": [
+          "-workers",
+          "1"
+        ],
+        "id": "8704903bf4ed19f46c121d24977054ffa324015c",
+        "main_module": "TLC_M0",
+        "modules": [
+          {
+            "digest": "934360e8cfe79b951eb64bec0ef7280f174d4d7d",
+            "name": "TLC_M0",
+            "path": ""
+          }
+        ],
+        "path": "Enabled/BoolTrue/dl/tlc",
+        "search_paths": []
+      },
+      "type": "ref-apalache"
+    }
+  },
+  "workers_options": [
+    "1",
+    "2"
+  ]
+}

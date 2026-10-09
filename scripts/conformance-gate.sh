@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Runs `dive check --compat=tlc` on a fixed list of Examples models against the
+# Runs `dive check --compat=tlc` on a fixed list of models against the
 # committed TLC goldens and fails unless every one of them agrees.
 #
 #   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4,8] [extra run args...]
+# Set DIVE_GATE_CORPUS for another registered corpus (default: examples).
 #
 # Needs release builds of the harness and of dive
 # (`cargo build --release --locked -p dive-conformance -p dive-cli`) and the
@@ -18,6 +19,7 @@ set -euo pipefail
 list="${1:?usage: conformance-gate.sh <model-list> [run args...]}"
 shift
 harness="${HARNESS:-target/release/dive-conformance}"
+corpus="${DIVE_GATE_CORPUS:-examples}"
 out="$(mktemp -d)"
 trap 'rm -rf "$out"' EXIT
 
@@ -30,10 +32,11 @@ while IFS= read -r line; do
   filters+=(--filter "$line")
   expected=$((expected + 1))
 done <"$list"
+[ "$expected" -gt 0 ] || { echo 'gate: empty selection' >&2; exit 2; }
 
 start=$(date +%s)
 set +e
-"$harness" run --impl dive --impl-profile tlc --corpus examples --tier all \
+"$harness" run --impl dive --impl-profile tlc --corpus "$corpus" --tier all \
   --no-sany --no-summary --report-dir "$out" "${filters[@]}" "$@" \
   2>&1 | tee "$out/log"
 status=${PIPESTATUS[0]}
