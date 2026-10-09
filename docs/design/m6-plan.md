@@ -51,7 +51,7 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
 bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
 is checked against independent short-word semantics. Finite constant-domain quantifiers, tuple bindings and original configured
-property attribution are implemented. Pure constant-argument temporal operators are supported; state/action-dependent and higher-order arguments,
+property attribution are implemented. Pure constant/state-argument temporal operators are supported; action/temporal and higher-order arguments,
 nonconstant/unbounded quantification, dynamic scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
 
@@ -210,3 +210,10 @@ ENABLED probe agrees with three arithmetic identities; witnesses are checked
 against original relations. Three temporal probes match final truth/counts
 in both profiles/stores, including a fair stuttering word requiring disabledness
 rather than recurrence. Lazy state arguments and missing covers remain refusals.
+
+L1/L4 state-call increment: pure state arguments retain lazy caller scopes;
+instantiated level checks distinguish state predicates from constants. Nested
+forwarding, tuple arguments, pointwise guards and primed non-stuttering atoms
+match six pinned final outcomes/counts in both profiles/stores, with independent
+periodic validation and exhaustive short-word controls. Higher-order and
+action/temporal arguments, phase-L timing and exact selection remain open.

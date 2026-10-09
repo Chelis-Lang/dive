@@ -1,0 +1,14 @@
+
+****** SANY2 Version 2.2 created 08 July 2020
+
+Parsing file $CWD/SpPrime.tla
+Semantic processing of module SpPrime
+Semantic errors:
+
+*** Errors: 1
+
+line 7, col 16 to line 7, col 25 of module SpPrime
+
+<> followed by action not of form <<A>>_v.
+
+

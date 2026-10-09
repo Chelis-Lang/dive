@@ -35,9 +35,9 @@ include the closing edge. Both the in-memory word and its serialized form must
 pass validation before the API returns a violation.
 
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
-zero-arity definitions, pure constant-argument operators, finite constant-domain quantifiers with explicit sets
+zero-arity definitions, pure constant/state-argument operators, finite constant-domain quantifiers with explicit sets
 or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
-pure actions. State/action-dependent arguments, higher-order calls, nonconstant/unbounded quantification, dynamic scopes, effects and
+pure actions. Action/temporal arguments, higher-order calls, nonconstant/unbounded quantification, dynamic scopes, effects and
 checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.
@@ -101,13 +101,22 @@ bindings in each call's retained scope. For example, `Visit(i) == []<>(x=i)`
 can be called as `Visit(2)` or from a constant-domain temporal quantifier.
 Repeated calls with different values keep separate contexts. The planner and
 independent word validator each check their own scoped arguments and work/depth
-bounds. Lazy state arguments and hidden checker-register reads are refused;
+bounds. Hidden checker-register reads are refused;
 parameterized actions whose ENABLED proof lacks an independent finite cover
-also remain validation refusals.
+remain validation refusals.
 
 Independent ENABLED/fairness proofs now follow pure constant-argument action
 calls and value-bound locals. Covers retain each call's scalar/tuple context,
 and every witness is tested against the original relation. Missing primed
-variable covers, lazy state arguments and higher-order calls still refuse.
+variable covers, lazy state arguments in the independent finite-cover search,
+and higher-order calls still refuse.
 The `SfDisabled` probe specifically requires false ENABLED on its stuttering
 cycle; a recurring action cannot stand in for this proof.
+
+Pure state arguments now work too: `Live(p) == []<>p` can take `Live(x)`,
+including nested forwarding, tuple arguments and state guards. State bindings
+remain lazy and retain their caller context; priming inside the callee reads
+the successor value. Planning checks instantiated levels before classifying
+an atom or folding a constant. The independent word evaluator resolves those
+contexts separately. Action/temporal arguments and higher-order operators
+remain named refusals.
