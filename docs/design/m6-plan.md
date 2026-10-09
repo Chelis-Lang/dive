@@ -182,3 +182,9 @@ three successes match final counts in both stores; all candidates independently
 validate. Direct periodic-word truth attributes their complete property set,
 with omission/extra-claim controls. Full TLC planning order, phase-L accounting,
 exact selection and CLI integration remain pending.
+
+Pure state- and temporal-guarded `IF` formulas now lower pointwise and validate
+independently, including nested guards and closing-edge positions. Three new
+pinned probes match truth and counts in both profiles/stores. The oracle
+rejects action-guarded temporal IF (2214) and temporal CASE (2213); dive retains
+named planning refusals for these cases, even though SANY accepts their syntax.

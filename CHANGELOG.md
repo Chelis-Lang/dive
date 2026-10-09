@@ -73,6 +73,9 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Pure state- and temporal-guarded temporal IF formulas in bounded final
+  checking and independent periodic-word validation, with named refusals
+  for the oracle-rejected action guards and temporal CASE constructors.
 - Final temporal planning and independent word validation support finite
   constant-domain quantifiers, tuple bindings and inspected pure configured
   constants. Original PROPERTY formulas preserve complete claim attribution
