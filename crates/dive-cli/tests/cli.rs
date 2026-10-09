@@ -343,3 +343,195 @@ fn check_refuses_and_rejects_with_distinct_codes() {
     let out = dive(&["check", &bad.to_string_lossy(), "--compat=tlc"]);
     assert_eq!(out.status.code(), Some(150));
 }
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "end-to-end profile/store/replay matrix"
+)]
+fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
+    let spec = temp_file(
+        "FinalTemporal.tla",
+        "---- MODULE FinalTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nSpec == Init /\\ [][Next]_x /\\ WF_x(Next)\nP == <>[]x\nQ == []<>x\n====\n",
+    );
+    let cfg = spec.with_extension("cfg");
+    assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY P Q\n").is_ok());
+    let path = spec.to_string_lossy();
+    // Ordinary checking keeps its explicit refusal until full temporal
+    // compatibility is implemented.
+    let ordinary = dive(&["check", &path, "--compat=tlc", "--output", "json"]);
+    assert_eq!(ordinary.status.code(), Some(3));
+    for (profile, code) in [("tlc", 13), ("dive", 10)] {
+        let run = |store: &str, workers: &str| {
+            dive(&[
+                "check",
+                &path,
+                "--lncheck=final",
+                "--lasso=short",
+                "--compat",
+                profile,
+                "--store",
+                store,
+                "--workers",
+                workers,
+                "--seed",
+                "17",
+                "--fp",
+                "0",
+                "--output=json",
+            ])
+        };
+        for store in ["fp", "exact"] {
+            let first = run(store, "1");
+            let many = run(store, "8");
+            assert_eq!(
+                first.status.code(),
+                Some(code),
+                "{}",
+                String::from_utf8_lossy(&first.stderr)
+            );
+            assert_eq!(many.status.code(), Some(code));
+            let a: serde_json::Value = serde_json::from_slice(&first.stdout).unwrap_or_default();
+            let b: serde_json::Value = serde_json::from_slice(&many.stdout).unwrap_or_default();
+            assert_eq!(a["schema_version"], 2);
+            assert_eq!(a["verdict"], "liveness-violation");
+            assert_eq!(a["properties"], serde_json::json!(["P"]));
+            assert_eq!(a["counterexample"]["validation"], "valid");
+            assert_eq!(a["counterexample"], b["counterexample"]);
+            assert_eq!(a["statistics"], b["statistics"]);
+            assert_eq!(
+                a["options"]["profile"],
+                if profile == "tlc" {
+                    "tlc+overrides"
+                } else {
+                    "dive"
+                }
+            );
+            assert_eq!(a["options"]["tlc_exact_temporal"], false);
+            assert_eq!(a["options"]["lncheck"], "final");
+            assert_eq!(a["options"]["lasso"], "short");
+            assert_eq!(a["options"]["seed"], 17);
+            assert_eq!(b["options"]["workers"]["used"], 1);
+            assert!(a["tlc"].is_null(), "unverified TLC class cannot be claimed");
+            let trace_path = temp_file(
+                &format!("temporal-{profile}-{store}.json"),
+                &a["counterexample"]["trace"].to_string(),
+            );
+            let trace_path = trace_path.to_string_lossy();
+            let validated = dive(&[
+                "validate-trace",
+                &path,
+                "--trace",
+                &trace_path,
+                "--compat",
+                profile,
+                "--output",
+                "json",
+            ]);
+            assert!(
+                validated.status.success(),
+                "{}",
+                String::from_utf8_lossy(&validated.stdout)
+            );
+        }
+    }
+    let human = dive(&[
+        "check",
+        &path,
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "17",
+        "--store",
+        "exact",
+    ]);
+    assert_eq!(human.status.code(), Some(10));
+    assert!(
+        String::from_utf8_lossy(&human.stdout).contains("Independently validated counterexample")
+    );
+    // A true fair temporal property succeeds through the same backend.
+    assert!(std::fs::write(&cfg, "SPECIFICATION Spec\nPROPERTY Q\n").is_ok());
+    let held = dive(&[
+        "check",
+        &path,
+        "--lncheck=final",
+        "--lasso=short",
+        "--output=json",
+    ]);
+    assert!(held.status.success());
+    let held: serde_json::Value = serde_json::from_slice(&held.stdout).unwrap_or_default();
+    assert_eq!(held["verdict"], "success");
+    assert!(held["counterexample"].is_null());
+    assert_eq!(held["statistics"]["distinct"], 2);
+}
+
+#[test]
+fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
+    let spec = temp_file(
+        "TemporalSafety.tla",
+        "---- MODULE TemporalSafety ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nInv == ~x\nP == []<>x\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            spec.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY P\n"
+        )
+        .is_ok()
+    );
+    let path = spec.to_string_lossy();
+    let base = dive(&[
+        "check",
+        &path,
+        "--lncheck=final",
+        "--lasso=short",
+        "--output=json",
+        "--seed=0",
+    ]);
+    assert_eq!(base.status.code(), Some(10));
+    let base: serde_json::Value = serde_json::from_slice(&base.stdout).unwrap_or_default();
+    assert_eq!(base["verdict"], "invariant-violation");
+    assert_eq!(base["counterexample"]["ending"], "finite");
+    assert_eq!(base["statistics"]["distinct"], 2);
+    for flags in [
+        ["--lncheck", "final"],
+        ["--lasso", "short"],
+        ["--lasso", "tlc"],
+        ["--lncheck", "off"],
+    ] {
+        assert_eq!(
+            dive(&["check", &path, flags[0], flags[1]]).status.code(),
+            Some(2)
+        );
+    }
+    // A formula whose scope needs an unsupported parameter is refused
+    // before it can produce a temporal verdict.
+    let opaque = temp_file(
+        "OpaqueTemporal.tla",
+        "---- MODULE OpaqueTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nT(p) == []<>p\nP == T(x)\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            opaque.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY P\n"
+        )
+        .is_ok()
+    );
+    let rejected = dive(&[
+        "check",
+        &opaque.to_string_lossy(),
+        "--lncheck=final",
+        "--lasso=short",
+        "--output=json",
+    ]);
+    assert_eq!(rejected.status.code(), Some(3));
+    let rejected: serde_json::Value = serde_json::from_slice(&rejected.stdout).unwrap_or_default();
+    assert_eq!(rejected["verdict"], "unsupported");
+    assert!(rejected["counterexample"].is_null());
+    assert!(
+        rejected["diagnostics"]
+            .as_array()
+            .is_some_and(|d| !d.is_empty())
+    );
+}
