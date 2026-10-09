@@ -140,6 +140,8 @@ pub struct Model {
     pub postconditions: Result<Vec<Named>, BindError>,
     /// `SYMMETRY`, by name.
     pub symmetry: Option<String>,
+    /// Pre-constant-evaluation lookup, retained only for the configured declaration.
+    pub(crate) symmetry_definition: Option<crate::tables::Look>,
     /// Run settings.
     pub settings: Settings,
     /// The root module's assumptions TLC checks (not `AXIOM`s), in order.

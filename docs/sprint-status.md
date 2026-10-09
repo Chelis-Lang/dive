@@ -192,3 +192,11 @@ Java inputs in order, including malformed maps under TLC behavior. Checked
 mode rejects non-bijections, with omitted identities included. Model binding,
 startup warnings, canonical state keys and symmetry trace validation are
 still open; SYMMETRY checking remains an explicit refusal.
+
+
+The S1 declaration stage now preserves the configured definition before constant
+evaluation and validates pure enum-set/function-record representations. Four
+early errors match pinned TLC messages; substitutions, assignments, identities,
+effectful/state-dependent refusals and absent declarations have regression
+controls. Full warnings, model-value checks, canonical keys and trace handling
+remain open; normal `SYMMETRY` checking is still refused.

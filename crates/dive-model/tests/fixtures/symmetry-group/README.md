@@ -82,3 +82,25 @@ operator (so the syntactic small-set heuristic does not disable reduction).
 Its unreduced control finds the real violation `x = b`, proving a missed
 safety error rather than just a change in counts. Exact lookup/override order,
 warning construction and canonical keys remain tracked in issue #104.
+
+
+## Pure declaration preparation
+
+`Model::symmetry_declaration` now implements the early lookup, original-body
+evaluation, enum-set normalization and function-record checks for pure
+constant declarations. This explicit intermediate API does not enable reduction,
+run the too-small warning heuristic or validate model-value domains. Its four
+early diagnostic categories match the raw transcripts above.
+
+Two additional normal CLI captures verify pre-constant lookup and configuration
+replacement:
+
+| Model | Pinned TLC outcome |
+|---|---|
+| SySubstitution | `Sym <- Other`: success, 2 generated / 1 distinct / depth 1 |
+| SyAssignment | `Sym = TRUE`: exit 255, GENERAL, name is not an operator |
+
+Reproduce with the same dev-capture command and these two names. The declaration
+controls also cover unchanged identities, missing symmetry, and explicit pure-
+stage refusals for effects, state-dependent and parameterized definitions.
+Full binding, warnings, group attachment and canonical keys remain in #104.

@@ -526,13 +526,15 @@ and the oracle parser correction remain tracked in issue #77.
 
 ## D-015: Symmetry functions must actually be permutations
 
-**Status:** checked and TLC-compatible closure kernels implemented; model binding and reduction remain planned. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
+**Status:** checked and TLC-compatible closure kernels and pure declaration preparation implemented; full model binding and reduction remain planned. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
 
 **Foundation update, 2026-10-09.** The bounded symmetry-closure kernel now
 has a checked setting that rejects non-bijective maps, including collisions
 with implicitly fixed model values. Its TLC setting preserves malformed-map
 closure and exact insertion order. All 1,329 direct pinned-kernel inputs match;
-valid cases match in both settings. This is a library foundation: binding,
+valid cases match in both settings. Pure declaration preparation now preserves
+configuration substitutions and pre-constant lookup; its four early errors
+match normal pinned TLC transcripts. This is a library foundation: full binding,
 startup warnings and state reduction remain open, so model checking with
 `SYMMETRY` still refuses by name. Evidence and reproduction:
 `crates/dive-model/tests/fixtures/symmetry-group/README.md`.

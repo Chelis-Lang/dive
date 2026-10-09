@@ -156,3 +156,24 @@ TLC reports success with a collapsing map (3 generated / 1 distinct / depth 1),
 while the unreduced control reports the real Inv violation (3 / 2 / depth 2).
 They establish the next binding stage's evidence, not its implementation.
 Issue #104 tracks the remaining binding, warnings and canonicalization work.
+
+## S1 declaration increment, 2026-10-10
+
+`Model::symmetry_declaration` prepares pure constant declarations without
+changing normal checking. The configured name's lookup is retained immediately
+after `processSpec`, before `processConstantDefns` replaces definitions with
+values, matching `SpecProcessor`'s snapshot and `Tool.getSymmetryPerms`.
+Configuration substitutions and assignments remain distinguishable. The
+original definition body is evaluated, and only normalized enum sets of function
+records are accepted. Tuple and record literals retain their separate TLC
+representation errors.
+
+Four early errors match the raw pinned transcripts (2229 for the missing name;
+GENERAL for a non-definition, non-enum-set or non-function-record). Empty,
+singleton, non-model-value and malformed-map declarations pass this **intermediate**
+representation stage. Too-small warnings must precede domain/closure validation,
+so they are deliberately not preempted here. Effectful, parameterized and
+nonconstant definitions refuse by name; evaluator bugs stay internal errors.
+The API is called explicitly and does not activate symmetry reduction. Warning
+construction, model-value validation, group attachment, canonical state keys and
+concrete trace reconstruction remain open in #104.
