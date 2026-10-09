@@ -14,6 +14,7 @@ fn model(body: &str) -> Model {
         "---- MODULE Cover ----\nEXTENDS Integers\nVARIABLES x, y\nInit == x = 0 /\\ y = 0\nNext == UNCHANGED <<x, y>>\n{body}\n====\n"
     );
     let analysis = dive_sema::analyze_source("Cover.tla", &src, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
     let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
         .into_config()
@@ -321,6 +322,176 @@ fn pinned_scoped_enabledness_agrees_on_all_initial_states() {
                     (min..=max).contains(&(x + y)),
                     "{name} {x} {y}"
                 );
+            }
+        }
+    }
+}
+
+#[test]
+fn finite_quantified_actions_match_every_small_assignment() {
+    let m = model(
+        "Move(i) == x'=i /\\ y' \\in 0..2 /\\ x'+y'=x+y\n\
+         Any == \\E i \\in 0..2 : Move(i)\n\
+         All == \\A i \\in {0,1} : x'=i\n\
+         One == \\A i \\in {1} : Move(i)\n\
+         EmptyAny == \\E i \\in {} : x'>y'\n\
+         EmptyAll == \\A i \\in {} : x'>y'\n\
+         Pair == \\E <<i,j>> \\in {<<0,1>>,<<2,0>>} : x'=i /\\ y'=j /\\ i+j=x+y\n\
+         Two == \\E i \\in 0..1, j \\in 0..1 : x'=i /\\ y'=j /\\ i+j=x+y\n\
+         StateDomain == \\E i \\in {x,y} : x'=i /\\ y'=0 /\\ x'+y'=1\n\
+         Both == (\\A i \\in {0} : x'=i) /\\ (\\A j \\in {1} : y'=j)\n",
+    );
+    for x in -1..=4 {
+        for y in -1..=4 {
+            let before = state(x, y);
+            for name in [
+                "Any",
+                "All",
+                "One",
+                "EmptyAny",
+                "EmptyAll",
+                "Pair",
+                "Two",
+                "StateDomain",
+                "Both",
+            ] {
+                let p = pred(&m, name);
+                let brute = (-1..=4).any(|a| {
+                    (-1..=4).any(|b| {
+                        m.eval(&p, &St::action(before.clone(), state(a, b)))
+                            .expect("relation")
+                            == Value::Bool(true)
+                    })
+                });
+                let result =
+                    exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
+                assert_eq!(enabled(&result), brute, "{name} {x} {y}");
+                if let Decision::Enabled { witness } = result {
+                    assert_eq!(
+                        m.eval(&p, &St::action(before.clone(), witness))
+                            .expect("witness"),
+                        Value::Bool(true)
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn quantified_missing_domains_correlations_and_limits_never_guess_disabled() {
+    let m = model(
+        "Pick(i) == IF i=0 THEN x'=0 ELSE y'=0\n\
+         Missing == \\E i \\in {0,1} : Pick(i)\n\
+         Infinite == \\E i \\in Nat : x'=i\n\
+         Dependent == \\E i \\in {0,1} : \\E j \\in {i} : x'=j\n\
+         PrimeDomain == \\E i \\in {x'} : x'=i\n\
+         Many == \\E i \\in 0..8 : x'=i\n\
+         Joint == \\E i,j \\in 0..2 : x'=i /\\ y'=j /\\ i+j=4\n\
+         Grid == \\E i,j \\in 0..2 : x'=i /\\ y'=j\n",
+    );
+    for name in ["Missing", "Infinite", "PrimeDomain"] {
+        assert!(
+            matches!(
+                exists_successor(&m, &pred(&m, name), &state(0, 0), None, Limits::default()),
+                Err(ExistsError::Unsupported(_))
+            ),
+            "{name}"
+        );
+    }
+    for (name, limits) in [
+        (
+            "Many",
+            Limits {
+                domain_values: 8,
+                ..Limits::default()
+            },
+        ),
+        (
+            "Joint",
+            Limits {
+                domain_values: 8,
+                ..Limits::default()
+            },
+        ),
+        (
+            "Grid",
+            Limits {
+                assignments: 8,
+                ..Limits::default()
+            },
+        ),
+        (
+            "Joint",
+            Limits {
+                expressions: 2,
+                ..Limits::default()
+            },
+        ),
+    ] {
+        assert!(
+            matches!(
+                exists_successor(&m, &pred(&m, name), &state(0, 0), None, limits),
+                Err(ExistsError::Limit(_))
+            ),
+            "{name}"
+        );
+    }
+    assert!(enabled(
+        &exists_successor(
+            &m,
+            &pred(&m, "Dependent"),
+            &state(0, 0),
+            None,
+            Limits::default()
+        )
+        .expect("nested dependent domain")
+    ));
+    let result = exists_successor(
+        &m,
+        &pred(&m, "Joint"),
+        &state(0, 0),
+        None,
+        Limits::default(),
+    )
+    .expect("correlated");
+    let Decision::Enabled { witness } = result else {
+        panic!("i=j=2 satisfies relation");
+    };
+    assert_eq!(witness, state(2, 2));
+}
+
+#[test]
+fn pinned_quantified_enabledness_matches_all_36_states() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+    let name = "EnabledQuantifiedCover";
+    let src =
+        std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+    let config =
+        std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+    let analysis =
+        dive_sema::analyze_source(&format!("{name}.tla"), &src, &dive_sema::Options::default());
+    assert!(analysis.accepted());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg = dive_config::parse(&config).into_config().expect("cfg");
+    let m = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    let oracle = root.join("tlc-2026.10.06.014338");
+    let exit = std::fs::read_to_string(oracle.join(format!("{name}.exit"))).expect("exit");
+    assert_eq!(exit.trim(), "0");
+    let stdout =
+        std::fs::read_to_string(oracle.join(format!("{name}.stdout"))).expect("transcript");
+    assert!(stdout.contains("72 states generated, 36 distinct states found"));
+    for x in -1..=4 {
+        for y in -1..=4 {
+            for (name, expected) in [
+                ("Any", (0..=4).contains(&(x + y))),
+                ("All", false),
+                ("EmptyAny", false),
+            ] {
+                let d =
+                    exists_successor(&m, &pred(&m, name), &state(x, y), None, Limits::default())
+                        .expect(name);
+                assert_eq!(enabled(&d), expected, "{name} {x} {y}");
             }
         }
     }

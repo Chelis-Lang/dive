@@ -90,3 +90,8 @@ The design is in ADRs 0017–0019 (proposed). The plan, with work packages, conf
 - **Checking features:** simulation and PlusCal.
 - **Integration:** the library API with `cargo test` integration, and the LSP.
 - **Compilation:** specification compilation and the Verus export path.
+
+M6 finite-predicate increment: final/short checking and independent validation
+support constant-domain forall/exists inside state/action predicates. Six pinned
+models match final truth/counts in both profiles/stores; a separate 36-state probe
+checks 108 quantified ENABLED decisions. Complete L1/L4/L5 coverage remains pending.
