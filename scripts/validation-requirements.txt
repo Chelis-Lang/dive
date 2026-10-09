@@ -1,0 +1,4 @@
+# Generator-only dependencies. The Rust harness does not need Python.
+Jinja2==3.1.2
+PyYAML==6.0.3
+MarkupSafe==2.1.5

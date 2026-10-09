@@ -71,7 +71,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/conformance"
           target/release/dive-conformance run \
             --impl tlc \
-            --corpus examples --corpus probes \
+            --corpus examples --corpus probes --corpus validation-smoke \
             --tier "$TIER" \
             --workers 1,4 \
             --jobs 2 \
@@ -91,7 +91,7 @@ jobs:
           target/release/dive-conformance run \
             --impl dive \
             --impl-profile tlc \
-            --corpus examples --corpus probes --corpus tlaplus-tests --corpus community-modules \
+            --corpus examples --corpus probes --corpus validation-smoke --corpus tlaplus-tests --corpus community-modules \
             --tier "$TIER" \
             --jobs 2 \
             --timeout 600 \
@@ -109,7 +109,7 @@ jobs:
           target/release/dive-conformance run \
             --impl dive \
             --impl-profile dive \
-            --corpus examples --corpus probes \
+            --corpus examples --corpus probes --corpus validation-smoke \
             --tier "$TIER" \
             --no-sany \
             --jobs 2 \
@@ -124,7 +124,7 @@ jobs:
             --impl dive \
             --sany-phase parse \
             --sany-only \
-            --corpus examples --corpus tlaplus-tests --corpus community-modules \
+            --corpus examples --corpus validation-smoke --corpus tlaplus-tests --corpus community-modules \
             --tier "$TIER" \
             --jobs 2 \
             --timeout 120 \

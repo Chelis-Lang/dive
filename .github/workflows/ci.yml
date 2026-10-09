@@ -71,6 +71,8 @@ jobs:
           tool: cargo-nextest,cargo-deny
       - name: rustfmt
         run: cargo fmt --all --check
+      - name: ValidationTestSuite import controls
+        run: python3 scripts/test-validation-import.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: tests
@@ -125,3 +127,7 @@ jobs:
           target/release/dive-conformance corpus fetch --corpus examples
       - name: CM1 gate (1, 4 and 8 workers)
         run: scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8
+      - name: ValidationTestSuite smoke gate (1, 4 and 8 workers)
+        env:
+          DIVE_GATE_CORPUS: validation-smoke
+        run: scripts/conformance-gate.sh conformance/gates/validation-smoke.txt --workers 1,4,8 --timeout 30

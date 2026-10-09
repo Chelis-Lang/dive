@@ -148,6 +148,7 @@ Run the gate locally before pushing. This is exactly what CI's `Workspace gate` 
 
 ```sh
 cargo fmt --all --check
+python3 scripts/test-validation-import.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
@@ -163,6 +164,9 @@ cargo deny --locked check
   dispatch, over the small-model corpus. Its PR-gating subset is
   `conformance/gates/cm1.txt`, run by the required `Conformance gate` job
   (`scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8`).
+  The same job checks all 16 generated ValidationTestSuite smoke models at
+  those widths (`DIVE_GATE_CORPUS=validation-smoke` and
+  `conformance/gates/validation-smoke.txt`). Every model must fully agree.
 - *Deep:* the same workflow with `tier=deep`, run on manual dispatch and before
   releases.
 - *Not in CI:* benchmarks, profiling and long fuzzing. Run them by hand with
