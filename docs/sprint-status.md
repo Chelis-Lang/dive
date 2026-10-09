@@ -23,6 +23,13 @@ against the pinned TLC bundle and Examples `6a7b26a`, at one worker:
   refusals across the selected models. The timeout remains in the original
   generated report and in issue #53; it is not rewritten into agreement.
 
+The evaluator-core borrow cleanup subsequently passed in one complete
+[standard run](../conformance/reports/20261009T134501007-dive-small.json):
+83 agree, 71 explicit refusals, no disagreement, pending validation, timeout
+or oracle error, with two jobs and a fixed 2,400-second timeout. The generated
+report records its binary hash and pins. Paired busy-machine measurements
+establish no speed-up; the performance targets remain open.
+
 Seeded random trace validation now requires a proof that predicate and
 state-generation draw orders agree. Unknown alignment is refused even for
 coincidental matches. P9Random now fully agrees, resolving the previous
