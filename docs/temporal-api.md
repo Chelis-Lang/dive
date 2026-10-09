@@ -142,3 +142,8 @@ Pure INSTANCE value/variable bindings retain captured caller scopes in temporal
 predicates, including nested substitutions, quantifiers and priming. Operator
 substitutions and independently proving disabledness through an INSTANCE remain
 named refusals. Effects and checker reads are rejected before evaluation.
+
+Pure finite constant-domain set maps, filters and function constructors retain
+local bindings and captured state in temporal predicates. State-dependent
+domains and recursive constructors remain explicit refusals. See the `Bc*`
+probes in `crates/dive-api/tests/fixtures/temporal-constructors/`.

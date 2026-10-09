@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The project will follow
 - Pinned ValidationTestSuite smoke corpus: 16 models and 20 modules, with a
   complete selected-case census, generated oracle goldens and a required
   1/4/8-worker conformance check.
+- Final temporal predicates preserve finite constant-domain set-map, set-filter
+  and function-constructor scopes without freezing captured state.
 
 - `dive-conformance study final`: separate, non-gating final/short truth/count
   observations with fresh independent periodic-witness validation and explicit

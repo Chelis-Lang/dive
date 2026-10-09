@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":true}],{"name":"Next","location":{"beginLine":5,"beginColumn":9,"endLine":5,"endColumn":13,"module":"BcMapBad"}},[2,{"x":false}]],[[2,{"x":false}],{"name":"Next","location":{"beginLine":5,"beginColumn":9,"endLine":5,"endColumn":13,"module":"BcMapBad"}},[2,{"x":false}]]],"state":[[1,{"x":true}],[2,{"x":false}]]},"vars":["x"]}

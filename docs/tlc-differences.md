@@ -373,9 +373,20 @@ In TLA+, tuples and records are functions. Two functions with different domains 
 
 - **Under `--compat=tlc`.** dive reproduces all of the above exactly, including the asymmetry and the dependence on how the function was built.
 - **In the default profile, sets.** dive decides whether building a set is an error exactly as TLC does, by running TLC's insertion sort in TLC's name order, whatever order the set is then kept in.
-- **In the default profile, membership.** Membership tests are a binary search in the run's order. If the set mixes values TLC cannot compare with the element being tested, the default profile can meet a different pair from TLC. It may then raise TLC's error where TLC answers, or answer where TLC raises one. This corner needs a set that TLC can build but whose elements are not mutually comparable, such as tuples mixed with records of other sizes.
+- **In the default profile, comparisons and membership.** The approved
+  `--comparisons=tla` setting uses extensional equality for functions and sets,
+  and structural membership for function/record/sequence sets. It answers the
+  defined mixed-structure cases symmetrically. Where TLA+ leaves the answer
+  unspecified, it retains TLC's answer or error.
+- **Mixed overrides.** Choosing TLC comparisons while retaining canonical
+  value order can still change which incomparable pair a membership search
+  meets. Such a run is mixed. The global `--compat=tlc` switch restores both
+  comparison behavior and ordering together.
 
-**What we propose.** An option that answers these as TLA+ defines them, symmetrically and independently of element order and of how a function was built. It would keep the error where TLA+ leaves the answer unspecified (`1 = "a"`, `{1} = 1`), because an error is the sound response there. It changes results: specs that TLC stops with an evaluation error would get a verdict. So it awaits the owner's decision. It would also remove the membership corner above.
+The owner approved TLA+ comparisons as the default on 2026-10-08. This changes
+results for defined comparisons that TLC stops with an evaluation error; the
+TLC counterpart remains implemented and tested. Set construction still follows
+TLC's normalization rules, so some heterogeneous set literals remain refusals.
 
 **Evidence.**
 
@@ -633,7 +644,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
-  - temporal checking still refuses at the CLI; the pure final library coordinator currently captures inline and does not provide TLC-exact selection or a complete attributed report;
+  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with inline capture, while TLC-exact selection remains pending;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
@@ -757,6 +768,24 @@ constant remains rejected as in SANY. Effectful/checker-dependent bindings,
 operator substitutions and unproven substituted disabledness remain named
 refusals. This is supported-language coverage, not TLC-exact temporal selection
 or stopping. Evidence: `crates/dive-api/tests/fixtures/temporal-substitutions/`.
+
+**D-013 finite-data update:** temporal predicates can use set maps, set filters
+and function constructors over finite constant domains. For example:
+
+```tla
+P == []<>({IF b THEN x ELSE FALSE : b \in BOOLEAN} = BOOLEAN)
+```
+
+With a Boolean variable initially TRUE and a toggling Next action, TLC reports
+a violation: infinite stuttering at FALSE fails P. It generates 3 states,
+retains 2 distinct states and reaches depth 2. Both dive profiles/stores match
+this result and independently validate the returned periodic witness. Local
+bindings and captured state remain separate through nested constructors and
+function arguments. The empty-domain case is supported; state-dependent
+domains, effects and explicit resource limits remain named refusals. Evidence:
+`crates/dive-api/tests/fixtures/temporal-constructors/`, seven supported pinned
+truth/count controls and exhaustive short Boolean words. Exact TLC temporal
+selection, stopping and parallel capture remain pending.
 
 ### Symbolic function-set enumeration
 

@@ -530,6 +530,16 @@ impl Word<'_> {
                 }
                 return Ok(level);
             }
+            Expr::SetMap { expr: body, .. }
+            | Expr::SetFilter { pred: body, .. }
+            | Expr::FcnCons { body, .. } => {
+                let scopes = self.finite_scopes(expr, scope, depth + 1, steps)?;
+                let mut level = node.level;
+                for sc in scopes {
+                    level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
+                }
+                return Ok(level);
+            }
             _ => {}
         }
         if node.level == Level::Temporal {
@@ -549,10 +559,16 @@ impl Word<'_> {
         depth: usize,
         steps: &mut usize,
     ) -> Result<Vec<Scope>, TemporalError> {
-        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
-            return Err(TemporalError::Unsupported(
-                "finite scopes require a quantifier".into(),
-            ));
+        let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => {
+                return Err(TemporalError::Unsupported(
+                    "finite scopes require a finite binder".into(),
+                ));
+            }
         };
         for bound in bounds {
             let Some(dom) = bound.domain else {
@@ -618,6 +634,13 @@ impl Word<'_> {
                     continue;
                 }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                    let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
+                Expr::SetMap { expr: body, .. }
+                | Expr::SetFilter { pred: body, .. }
+                | Expr::FcnCons { body, .. } => {
                     let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
