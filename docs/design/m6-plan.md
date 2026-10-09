@@ -51,7 +51,7 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
 bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
 is checked against independent short-word semantics. Finite constant-domain quantifiers, tuple bindings and original configured
-property attribution are implemented. Parameterized temporal operators,
+property attribution are implemented. Pure constant-argument temporal operators are supported; state/action-dependent and higher-order arguments,
 nonconstant/unbounded quantification, dynamic scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
 
@@ -64,8 +64,8 @@ L3 supplies SCC decomposition, accepting product search, deterministic short
 witnesses and direct attribution of the complete false-property set. Ten pinned
 violations and three successes match TLC exploration counts in both stores.
 The final-only Rust API independently validates every returned periodic
-counterexample; it does not claim TLC-exact lasso selection. Ordinary
-`dive check` still refuses temporal models pending CLI/report integration.
+counterexample; it does not claim TLC-exact lasso selection. Explicit final/short CLI checking is implemented; ordinary
+strict `dive check` retains its temporal refusal.
 
 L4 validates named periodic words, all behavior temporal conjuncts, closing
 edges, constraints and complete property claims. L5 independently decides
@@ -195,3 +195,10 @@ schema 2 and labels TLC profiles as mixed; ordinary schema-1 checks retain
 strict temporal refusals. The mode's counts are complete exploration counts,
 not claims about TLC phase-L stopping. H1's full corpus adapter and TLC-exact
 selection/phase-L integration remain open.
+
+L1/L4 constant-call increment: pure scalar/tuple arguments bind as values,
+including nested and quantified calls. Both scoped purity walks inspect every
+context rather than deduplicating by expression ID. Five additional pinned
+probes match final truth/counts in both profiles/stores, with independent
+periodic validation. State/action arguments, higher-order operators and missing
+independent ENABLED covers remain named refusals.
