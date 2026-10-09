@@ -457,14 +457,15 @@ valid: the 7-state trace validates
 
 **Status:** planned, owner-approved default. `--lasso=short` chooses a shortest prefix and a deterministic short cycle. It does not promise the globally shortest lasso. `--lasso=tlc`, included in `--compat=tlc`, reproduces TLC's selection.
 
-**Library progress.** Bounded graph/tableau search now selects short candidates
-on supplied graphs. A final-only pure library coordinator captures through
-the existing safety engine: four pinned models match TLC's state counts in
-both stores and every candidate validates independently. Four specifications
-with weak fairness refuse before exploration. The capture currently runs
-inline and reports that width. Complete property attribution, exact TLC
-selection, parallel/periodic capture and CLI options remain pending; this does
-not turn on liveness verdicts in `dive check`.
+**Library progress.** The bounded final-only coordinator now handles pure
+predicates and WF/SF via scoped enabledness and non-stuttering actions. Ten
+pinned violations match TLC counts in both stores and yield independently valid
+candidates; three success controls also match, including enabled successors
+outside a constrained graph. Every false configured property is attributed
+and independently checked; omitted or extra claims are rejected. Capture runs
+inline and reports that width. TLC-exact planning/selection, phase-L error
+accounting, parallel/periodic capture and CLI options remain pending. Ordinary
+`dive check` still refuses temporal model checking.
 
 **Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
 

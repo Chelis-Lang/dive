@@ -73,6 +73,91 @@ impl std::fmt::Display for FormulaError {
 impl std::error::Error for FormulaError {}
 
 impl Formula {
+    /// Directly evaluates the formula on an ultimately periodic word, without
+    /// a tableau or product search. Each row supplies atom truth for a word
+    /// position, separately for state and action domains. Action rows include
+    /// the truth on each outgoing (closing) edge.
+    ///
+    /// ```
+    /// use dive_liveness::formula::{Atom, AtomKind, Formula, Node};
+    /// let f = Formula::new(vec![Node::Atom(Atom {kind: AtomKind::State,index: 0}),
+    ///     Node::Eventually(0)], 1)?;
+    /// let states = vec![vec![true],vec![false]];
+    /// let actions = vec![vec![],vec![]];
+    /// assert_eq!(f.evaluate_word(&states,&actions,1,4)?, vec![true,false]);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    ///
+    /// # Errors
+    /// Empty/malformed word, missing atom values or the explicit cell bound.
+    pub fn evaluate_word(
+        &self,
+        states: &[Vec<bool>],
+        actions: &[Vec<bool>],
+        back_to: usize,
+        max_cells: usize,
+    ) -> Result<Vec<bool>, FormulaError> {
+        if states.is_empty() || states.len() != actions.len() || back_to >= states.len() {
+            return Err(FormulaError::Reference("invalid periodic word".into()));
+        }
+        states
+            .len()
+            .checked_mul(self.nodes.len())
+            .filter(|n| *n <= max_cells)
+            .ok_or(FormulaError::Limit("word truth cells"))?;
+        let mut truth: Vec<Vec<bool>> = Vec::new();
+        for node in &self.nodes {
+            let values = match node {
+                Node::Bool(b) => vec![*b; states.len()],
+                Node::Atom(a) => (if a.kind == AtomKind::State {
+                    states
+                } else {
+                    actions
+                })
+                .iter()
+                .map(|r| {
+                    r.get(a.index).copied().ok_or_else(|| {
+                        FormulaError::Reference(format!("missing word atom {}", a.index))
+                    })
+                })
+                .collect::<Result<_, _>>()?,
+                Node::Not(child) => truth[*child].iter().map(|b| !b).collect(),
+                Node::And(children) | Node::Or(children) => {
+                    let all = matches!(node, Node::And(_));
+                    (0..states.len())
+                        .map(|pos| {
+                            if all {
+                                children.iter().all(|c| truth[*c][pos])
+                            } else {
+                                children.iter().any(|c| truth[*c][pos])
+                            }
+                        })
+                        .collect()
+                }
+                Node::Always(child) | Node::Eventually(child) => {
+                    let all = matches!(node, Node::Always(_));
+                    let mut values = truth[*child].clone();
+                    let cycle = if all {
+                        values[back_to..].iter().all(|b| *b)
+                    } else {
+                        values[back_to..].iter().any(|b| *b)
+                    };
+                    values[back_to..].fill(cycle);
+                    for pos in (0..back_to).rev() {
+                        values[pos] = if all {
+                            truth[*child][pos] && values[pos + 1]
+                        } else {
+                            truth[*child][pos] || values[pos + 1]
+                        };
+                    }
+                    values
+                }
+            };
+            truth.push(values);
+        }
+        Ok(truth[self.root].clone())
+    }
+
     /// Checks the root and the strict topological order of every child.
     ///
     /// # Errors

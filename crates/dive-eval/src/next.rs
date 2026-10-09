@@ -1874,6 +1874,51 @@ impl Expander<'_> {
 // ENABLED (`Tool.enabled`, `Tool.java:2953-3570`)
 // -----------------------------------------------------------------------------
 
+impl Evaluator {
+    /// Decides whether a scoped action has a successor, using TLC's existing
+    /// ENABLED search. A subscript requests a non-stuttering successor,
+    /// equivalent to `ENABLED <<action>>_sub`. This checker API is available
+    /// only with `enumerate`; the independent validator uses its own procedure.
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use dive_eval::{Evaluator, Model, Options};
+    /// use dive_value::Value;
+    /// let src = "---- MODULE M ----\nVARIABLE x\nNext == x' = ~x\n====\n";
+    /// let analysis = dive_sema::analyze_source("M.tla", src, &dive_sema::Options::default());
+    /// let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    /// let d = ir.root_def("Next").expect("Next");
+    /// let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc());
+    /// assert!(ev.enabled_scoped(&ev.scope(d), ir.def(d).body, None,
+    ///     Arc::from([Some(Value::Bool(false))])).expect("enabled"));
+    /// ```
+    ///
+    /// # Errors
+    /// Malformed current state or the existing TLC ENABLED evaluation errors.
+    pub fn enabled_scoped(
+        &self,
+        scope: &Scope,
+        action: ExprId,
+        sub: Option<ExprId>,
+        state: StateVals,
+    ) -> Result<bool> {
+        if state.len() != self.core.ir.vars().len() || state.iter().any(Option::is_none) {
+            return Err(EvalError::general(
+                "ENABLED requires a complete current state",
+            ));
+        }
+        let mut env = scope.env.clone();
+        env.dynamic.branch();
+        let acts = sub.and_then(|sub| cons(&None, Kind::Changed, sub, &env));
+        let en = Enab {
+            core: self.core.clone(),
+            s0: StateRef::Vals(state),
+        };
+        let successor = vec![None; self.core.ir.vars().len()].into();
+        Ok(en.enabled(action, &acts, &env, successor)?.is_some())
+    }
+}
+
 impl Core {
     /// `OPCODE_enabled`: whether the action has a successor from the current
     /// state, searched as TLC's `enabled` searches, in a branched context.
