@@ -4,8 +4,8 @@
 //! every periodic counterexample before returning it as a violation. It binds a
 //! fresh model for each run and for validation. It selects a deterministic short
 //! lasso, including with TLC value semantics; TLC-exact selection and periodic
-//! checking are not implemented here. Ordinary [`crate::check_file`] continues
-//! to refuse temporal models until its report/CLI integration is complete.
+//! checking are not implemented here. Ordinary [`crate::check_file`] retains the strict temporal refusal; its
+//! explicit final/short option exposes this backend and labels TLC overrides.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
