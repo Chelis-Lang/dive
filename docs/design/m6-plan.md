@@ -48,32 +48,32 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 
 ## Implementation status
 
-L4's independent temporal word kernel is implemented for pure boolean
-combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
-suffix of all boolean words up to four positions and six pinned TLC liveness
-words. Named pure periodic counterexamples now validate independently,
-including behavior/closing-edge checks and the complete violated-property
-set. Eight pinned words validate, including recurring-action fairness
-certificates; closing-edge/property/constraint mutations are rejected.
-Fairness without a recurring non-stuttering action, independent
-`ENABLED`, VIEW/symmetry closing evidence and harness integration remain
-outstanding. L3 now provides validated SCC decomposition
-and accepting-lasso search over supplied product graphs, including unrestricted
-prefix reachability, all acceptance visits and deterministic witnesses. TLC-exact formula/tableau planning,
-behavior-graph capture and property
-attribution remain outstanding. An explicit graph/tableau product now checks per-edge action
-truth, applies promises and projects witnesses to original edge positions,
-with bounded resources. It still requires caller-supplied graph/labels.
-L1 now has a bounded, flat boolean/always/
-eventually formula kernel with negation normalization and generalized Buchi
-tableaux over supplied state/action atoms. Exhaustive short-word tests compare
-the accepted language with direct temporal semantics; an omitted promise is
-caught by a planted-bug control. Bound pure predicates now lower to that
-kernel with retained state/action scopes, source-located stable diagnostics,
-seven pinned property-word controls and exhaustive short-word comparisons.
-Fairness/ENABLED expansion, parameter/dynamic contexts, TLC's DNF/classification/
-order and tableau numbering remain outstanding.
-L2 and L5–L10 remain planned.
+L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
+bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
+is checked against independent short-word semantics. Parameterized temporal
+operators, quantification, dynamic scopes, TLC's DNF/classification/order and
+exact tableau numbering remain open.
+
+L2 captures bounded complete graphs through the shared inline safety engine,
+retaining duplicate edges, full-state implicit stutters, constraints, counts,
+startup output and safety-stop evidence. Phase-L evaluation/error timing,
+parallel retention, VIEW, symmetry and graph spill remain open.
+
+L3 supplies SCC decomposition, accepting product search, deterministic short
+witnesses and direct attribution of the complete false-property set. Ten pinned
+violations and three successes match TLC exploration counts in both stores.
+The final-only Rust API independently validates every returned periodic
+counterexample; it does not claim TLC-exact lasso selection. Ordinary
+`dive check` still refuses temporal models pending CLI/report integration.
+
+L4 validates named periodic words, all behavior temporal conjuncts, closing
+edges, constraints and complete property claims. L5 independently decides
+necessary finite successor covers for supported deadlocks, ENABLED and fairness;
+missing covers remain named refusals. VIEW/symmetry evidence, wider scopes and
+quantified actions remain open. The validator still builds without the
+checker's successor enumerator.
+
+L6–L10, symmetry S1–S5 and the full model conformance milestones remain open.
 
 ## Work packages
 

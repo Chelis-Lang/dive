@@ -112,7 +112,7 @@ fn no_safety_stop_or_resource_bound_exposes_a_complete_graph() {
     let m = model(source, "INIT Init\nNEXT Next\nINVARIANT Inv\n", &opts);
     assert!(matches!(
         capture::explore(&m, &opts, Limits::default()),
-        Exploration::Stopped(Verdict::InvariantViolated { .. })
+        Exploration::Stopped(r) if matches!(r.verdict, Verdict::InvariantViolated { .. })
     ));
     for limits in [
         Limits {
@@ -131,7 +131,7 @@ fn no_safety_stop_or_resource_bound_exposes_a_complete_graph() {
         let m = model(source, "INIT Init\nNEXT Next\n", &opts);
         assert!(matches!(
             capture::explore(&m, &opts, limits),
-            Exploration::Stopped(Verdict::ResourceLimit { .. })
+            Exploration::Stopped(r) if matches!(r.verdict, Verdict::ResourceLimit { .. })
         ));
     }
     let dead = model(
@@ -141,7 +141,7 @@ fn no_safety_stop_or_resource_bound_exposes_a_complete_graph() {
     );
     assert!(matches!(
         capture::explore(&dead, &opts, Limits::default()),
-        Exploration::Stopped(Verdict::Deadlock)
+        Exploration::Stopped(r) if r.verdict == Verdict::Deadlock
     ));
 }
 
@@ -159,9 +159,51 @@ fn every_other_unsupported_reason_and_profile_mismatch_is_retained() {
         kind: dive_model::UnsupportedKind::Feature,
     });
     assert!(
-        matches!(capture::explore(&m,&opts,Limits::default()),Exploration::Stopped(Verdict::Unsupported { feature }) if feature.contains("Fake"))
+        matches!(capture::explore(&m,&opts,Limits::default()),Exploration::Stopped(r) if matches!(&r.verdict, Verdict::Unsupported { feature } if feature.contains("Fake")))
     );
     assert!(
-        matches!(capture::explore(&m,&CheckOptions::dive(0),Limits::default()),Exploration::Stopped(Verdict::Unsupported { feature }) if feature.contains("profile mismatch"))
+        matches!(capture::explore(&m,&CheckOptions::dive(0),Limits::default()),Exploration::Stopped(r) if matches!(&r.verdict, Verdict::Unsupported { feature } if feature.contains("profile mismatch")))
     );
+}
+
+#[test]
+fn failing_assumptions_keep_prints_and_completed_safety_stops_keep_all_evidence() {
+    let opts = CheckOptions::tlc(0, 17);
+    for source in [
+        "---- MODULE Capture ----\nEXTENDS TLC\nVARIABLE x\nASSUME PrintT(\"before-failure\") /\\ FALSE\nInit == x = TRUE\nNext == x' = x\n====\n",
+        "---- MODULE Capture ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nInv == ~x\n====\n",
+    ] {
+        let cfg_text = if source.contains("Inv ==") {
+            "INIT Init\nNEXT Next\nINVARIANT Inv\n"
+        } else {
+            "INIT Init\nNEXT Next\n"
+        };
+        let m = model(source, cfg_text, &opts);
+        let cfg = dive_config::parse(cfg_text).into_config().expect("cfg");
+        let normal = dive_check::check(&m.ir, &cfg, &opts);
+        let Exploration::Stopped(captured) = capture::explore(&m, &opts, Limits::default()) else {
+            panic!("safety stop must retain evidence, never a complete graph");
+        };
+        assert_eq!(captured.verdict, normal.verdict);
+        assert_eq!(captured.stats, normal.stats);
+        assert_eq!(captured.tlc_prints_stats, normal.tlc_prints_stats);
+        assert_eq!(captured.output, normal.output);
+        assert_eq!(captured.warnings, normal.warnings);
+        assert_eq!(captured.var_names, normal.var_names);
+        assert_eq!(captured.tlc_var_order, normal.tlc_var_order);
+        assert_eq!(captured.fp_index, normal.fp_index);
+        assert!(captured.elapsed > std::time::Duration::ZERO);
+        let states = |r: &dive_check::CheckResult| {
+            r.counterexample.as_ref().map(|c| {
+                c.states
+                    .iter()
+                    .map(|s| s.values.clone())
+                    .collect::<Vec<_>>()
+            })
+        };
+        assert_eq!(states(&captured), states(&normal));
+        if source.contains("PrintT") {
+            assert_ne!(captured.output, Vec::<String>::new());
+        }
+    }
 }

@@ -80,8 +80,10 @@ on a supplied cycle. Ten pinned counterexamples validate; finite covers independ
 ENABLED and WF/SF without recurring occurrences. Missing covers and
 VIEW/symmetry closing evidence remain refused.
 The final-only bounded library coordinator now matches ten pinned violations
-and three successes in both stores, with complete property attribution and
-independently valid candidates. The ordinary `dive check` path still refuses
+and three successes in both stores, with complete property attribution.
+The public Rust temporal API returns periodic violations only after independent
+validation of the in-memory word and lossless document, retaining full safety
+stop evidence. The ordinary `dive check` path still refuses
 temporal models. Full phase-L/parallel capture, broader temporal/scoped
 constructors, CLI integration and TLC-exact planning/selection remain pending.
 
