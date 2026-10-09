@@ -197,3 +197,31 @@ The gate runs the controls on the seven goldens whose models are vendored in `di
 **SpanTreeRandom-style models.** Examples `SpanTreeRandom` draws its graph in a constant definition (`RandomElement(SUBSET ...)`), which the validator binds from the run's start-up stream, as the checker does. Its configuration checks temporal properties (`PROPERTY Liveness Safety`), so `dive check` refuses it until liveness lands, and its golden is a success with no counterexample to validate. It uses no `SYMMETRY`; a `SYMMETRY` or `VIEW` variant would also need the validator to seed per-state streams with the representative's or view's fingerprint, which is refused by name today.
 
 **Revisit:** an independent placement of draws (for example, a draw log in dive's trace document, checked against the stream) if draw-order refusals block agreement on corpus models.
+
+
+## Amendment 2: bounded independent finite-cover decisions (2026-10-09)
+
+`dive_trace::exists::exists_successor` implements part of the previously deferred
+independent successor-existence option. It shares predicate evaluation and
+values, never the checker generator, graph or liveness plan. Necessary covers
+come from equality, explicit finite-set/interval membership, conjunction,
+disjunction, state guards, state-selected IF and UNCHANGED variables/tuples.
+Conjunction chooses a necessary cover; disjunction covers only variables bounded
+in every possible branch, unioning their covers. All primed reads must be
+covered; unreferenced variables may retain current values. The original action
+checks correlations on every candidate. An optional subscript comparison requires
+a non-stuttering witness. Model constraints and reachability never restrict
+ENABLED.
+
+A concrete witness proves existence; complete-cover exhaustion proves absence.
+Missing covers, unsupported contexts/operators and limits refuse. Bounds cap
+variable-domain entries, Cartesian assignments and expression visits, not total
+memory in bytes. This is a partial independent action decision procedure.
+
+Deadlock endings now use it. A witness refutes the claim; absence certifies it.
+Other cases retain `DEADLOCK_UNSUPPORTED`, diagnostic notes and pinned-oracle
+confirmation. The harness reads both certified and refused golden deadlocks.
+WF/SF retain the recurring-action certificate, then check cycle enabledness
+independently: WF needs a disabled position, SF needs every cycle position
+disabled. Prefix occurrences do not suffice. The validator remains built without
+`enumerate`, enforced by CI. Full arbitrary-action existence remains pending.

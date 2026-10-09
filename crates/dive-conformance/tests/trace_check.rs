@@ -68,7 +68,7 @@ fn an_invariant_counterexample_is_validated_by_the_harness() {
 }
 
 #[test]
-fn a_deadlock_is_confirmed_only_by_the_oracles_last_state() {
+fn finite_deadlocks_validate_independently_and_false_claims_are_rejected() {
     let probes = repo().join("crates/dive-check/tests/fixtures/tlc-probes");
     let dir = probes.join("specs/DeadlockMidLevel");
     let spec = SpecModel::load(
@@ -97,21 +97,24 @@ fn a_deadlock_is_confirmed_only_by_the_oracles_last_state() {
     let ok = validate_counterexample(&spec, &with_doc(&g, &doc), &g);
     assert!(ok.validated, "{}", ok.detail);
 
-    // `0 -> 1` is a behavior, and the validator cannot refute the claim that
-    // 1 is deadlocked, but the oracle's deadlocked state is 2.
+    // `0 -> 1` is a behavior, but 1 has a successor. The independent finite
+    // cover now refutes the claim without the oracle's ending state.
     let mut wrong = doc.clone();
     wrong.states[1].insert("x".to_owned(), serde_json::json!(1));
     let no = validate_counterexample(&spec, &with_doc(&g, &wrong), &g);
     assert!(!no.validated);
-    assert!(no.detail.contains("differs"), "{}", no.detail);
+    assert!(no.detail.contains("has a successor"), "{}", no.detail);
 
-    // Without the oracle's document, the claim cannot be confirmed.
+    // A finite proof needs no oracle document.
     let mut blind = g.clone();
     if let Some(t) = blind.trace.as_mut() {
         t.json = None;
         t.json_unavailable = Some("issue #35".to_owned());
     }
-    let no = validate_counterexample(&spec, &with_doc(&g, &doc), &blind);
-    assert!(!no.validated);
-    assert!(no.detail.contains("cannot confirm"), "{}", no.detail);
+    let independently_valid = validate_counterexample(&spec, &with_doc(&g, &doc), &blind);
+    assert!(
+        independently_valid.validated,
+        "{}",
+        independently_valid.detail
+    );
 }

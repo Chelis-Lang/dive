@@ -165,3 +165,10 @@ four WF models refuse before exploration. Full phase-L/parallel graph capture,
 TLC planning/selection, fairness/ENABLED and complete property attribution are
 still required. `dive check` continues to refuse temporal models while this
 library foundation is integrated.
+
+
+Independent L5 increment: necessary finite covers certify supported deadlocks,
+direct ENABLED and WF/SF truth without recurring occurrences. Ten pinned named
+words validate, adding `LvWFIntermittent` and `LvStutterEnd`. Unbounded/opaque
+actions, temporal quantification, dynamic scopes and opaque nested ENABLED
+remain refused. Full L5 and checker-side fairness expansion remain open.
