@@ -403,10 +403,10 @@ fn conditional_word_truth_uses_current_state_or_temporal_guard() {
                                     }
                                 }
                                 "Q" => {
-                                    if !values[i] {
-                                        gf
-                                    } else {
+                                    if values[i] {
                                         !gf
+                                    } else {
+                                        gf
                                     }
                                 }
                                 "T" => {
