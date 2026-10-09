@@ -119,3 +119,7 @@ Measured by L10 and S4 against the pinned TLC, with the survey's method:
 - **Atom evaluation order.** Errors in two different liveness predicates on one state would be reported in TLC's set order only under `--lasso=tlc`'s ordering. This is flagged, and no corpus model is known to hit it.
 - **Graph memory on the deep tier.** L8's spill is required before deep-tier liveness models run. Until then, they end as a resource limit rather than run unbounded.
 - **Symmetry cost.** Unreduced groups of 144 or more permutations, per successor, are expensive. Under `--compat=tlc` the minimum must be TLC's, so S4's speed-up applies to the default profile only.
+
+## Shipping amendment, 2026-10-09
+
+Questions 14–17 are answered in `docs/open-questions.md`. Implement S3 with `unreduced` as the default, preserving `refuse` and `tlc`. Extend L7 to build two distinct scheduling paths: deterministic level boundaries in the default profile and TLC's actual wall-clock trigger in compat mode. Under final checking, keep full golden comparison. Default unreduced runs are tested against oracle runs without symmetry; no blanket verdict exemption is permitted. Reject malformed permutations by default, and keep S5's model-symmetry audit opt-in. Update SM3's default acceptance cases to sound unreduced verdicts rather than refusals.
