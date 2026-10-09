@@ -176,3 +176,8 @@ with pure symbolic bindings only for static level/purity analysis. Eight `Df*`
 probes match final truth/counts in both profiles/stores, and every violation
 validates independently. Infinite/oversized concrete domains and dynamic
 temporal quantifier expansion remain named refusals.
+
+D-013 finite predicate coverage includes bounded CHOOSE and pure Min/Max-style
+operators over constant or state-dependent domains. Domain levels are retained
+even when bodies ignore their binders. Five `Cf*` probes match final truth/counts
+in both profiles/stores; existing canonical/TLC choice ordering is unchanged.

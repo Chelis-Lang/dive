@@ -846,3 +846,23 @@ checks finite-entry bounds at every state and closing edge. Evidence is in
 and exhaustive short-word tests. State-dependent expansion of temporal
 quantifiers, infinite/oversized domains and effects still refuse by name.
 Ordinary strict temporal checking and exact TLC selection/timing remain pending.
+
+**D-013 finite-choice update:** temporal predicates can use bounded CHOOSE,
+including definitions such as:
+
+```tla
+Min(S) == CHOOSE b \in S : \A c \in S : b <= c
+P == []<>(Min(IF x THEN {1,2} ELSE {3,4}) = 1)
+```
+
+With x initially FALSE and a toggling Next, pinned TLC reports a liveness
+violation (exit 13), generating 3 states, retaining 2 and reaching depth 2.
+Both dive profiles/stores match final truth/counts and independently validate
+the periodic witness. Each choice here is unique; ambiguous choice keeps the
+existing canonical default and TLC restoration switch from D-006. Finite
+domains retain actual state context even when a body does not read its binder.
+Empty or unsatisfied choices raise errors rather than inventing a value;
+infinite/oversized domains, effects and checker reads remain named refusals.
+Evidence: `crates/dive-api/tests/fixtures/temporal-choose/`, five pinned models
+and exhaustive short-word/context tests. This does not establish strict TLC
+temporal selection, scheduling or parallel graph capture.

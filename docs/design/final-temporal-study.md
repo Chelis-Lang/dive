@@ -41,10 +41,11 @@ TLC compatibility remain open until their complete requirements are proven.
 The latest [LM1 TLC-value study](../../conformance/reports/studies/lm1-final-short-tlc.json)
 retains all fifteen models at requested widths 1, 4 and 8: thirty-nine observations
 match final verdict truth/counts and six are named refusals, with no findings.
-The build includes bounded state-dependent predicate domains. FourQueens now
+The build includes bounded state-dependent predicate domains and finite CHOOSE. FourQueens now
 matches the complete safety stop (62 generated, 40 distinct, depth 5), and
 ChangRoberts matches its final success (227 generated, 137 distinct, depth 10).
-DistributedReplicatedLog still refuses an opaque scoped level in FiniteSetsExt;
+DistributedReplicatedLog now gets past FiniteSetsExt Min/Max but still refuses
+a pure helper called with action-level arguments;
 DiningPhilosophers reaches the tableau-node bound. Every deciding field is
 identical across requested widths; successful graph capture reports one actual
 worker. Full LM1, TLC-exact temporal behavior and parallel capture remain open.
