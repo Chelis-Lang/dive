@@ -22,7 +22,8 @@ This is the implementation plan for milestone M6 (`docs/ROADMAP.md`, "Checking f
   - `-lncheck final|default|off|seq*`;
   - liveness under `CONSTRAINT`, `ACTION_CONSTRAINT` and `VIEW`;
   - `SYMMETRY` for safety;
-  - symmetry with liveness: refused by default (D-005), and TLC's behaviour under `--symmetry-liveness=tlc`;
+  - symmetry with liveness: unreduced checking by default (D-005), with explicit
+    refusal and TLC's behavior under `--symmetry-liveness=tlc`;
   - lasso validation in `dive-trace`.
 - **Not in M6:**
   - simulation-mode liveness;
@@ -52,7 +53,11 @@ combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
 suffix of all boolean words up to four positions and six pinned TLC liveness
 words. Formula truth alone does not certify a counterexample: behavior and
 fairness checks, named-property claims, the format extensions and harness
-integration remain outstanding. L1–L3 and L5–L10 remain planned.
+integration remain outstanding. L3 now provides validated SCC decomposition
+and accepting-lasso search over supplied product graphs, including unrestricted
+prefix reachability, all acceptance visits and deterministic witnesses. Tableau
+construction, behavior-graph capture, concrete-state projection and property
+attribution remain outstanding. L1–L2 and L5–L10 remain planned.
 
 ## Work packages
 
@@ -74,7 +79,7 @@ integration remain outstanding. L1–L3 and L5–L10 remain planned.
 | **L10** | Perf | Benchmarks and profiling toward ADR 0018 §13: `ElevatorLivenessMedium`, the overhead ratio against safety-only runs, scaling; pattern-interning and edge-width choices. Exit: a benchmark report in `crates/dive-bench` | L3 | M, ongoing |
 | **S1** | Symmetry | Binding: port of `Tool.getSymmetryPerms` and `MVPerms.permutationSubgroup` in `dive-model`. Every error in TLC's order, closure to a group, the too-small heuristic that disables reduction (warning 2300), the "unused set" warning. Exit: one probe per error and warning captured against TLC; `MCPaxos` binds with reduction off | — | M |
 | **S2** | Symmetry | Canonicalisation in `dive-check`'s key hook (ADR 0019 §1–§2). TLC-order minimum under `--compat=tlc`, the run's order in the default profile; early exit; lazy permutation; `VIEW` after symmetry; the D-010 flag extended to complete searches with `SYMMETRY`; validation of symmetric counterexamples. Exit: milestone SM1 | S1 | M |
-| **S3** | Symmetry | Symmetry with liveness (ADR 0019 §4, ADR 0018 §9). `DIVE-L0010` refusal by default; `--symmetry-liveness=tlc` quotient construction; `ValidModuloSymmetry` validation. Exit: milestone SM3 | S2, L3 (L6 for exact lassos) | M |
+| **S3** | Symmetry | Symmetry with liveness (ADR 0019 §4, ADR 0018 §9). unreduced checking by default (reduction disabled for the whole run), explicit `DIVE-L0010` refusal, and `--symmetry-liveness=tlc` quotient construction; `ValidModuloSymmetry` validation. Exit: milestone SM3 | S2, L3 (L6 for exact lassos) | M |
 | **S4** | Symmetry | Performance: the sort-based canonical form for the default profile, and benchmarks on `FastPaxos` (144 permutations) and `MultiPaxos_MC_small`. Exit: equal results to S2 on SM1, with the speed-up measured | S2 | M |
 | **S5** | Symmetry | `--check-symmetry` audit and the non-bijective warning or refusal, after Q16 and Q17 | S2 | S |
 | **H1** | Harness | Liveness probes as a local corpus with goldens (layout `probe-fixtures`, as WP-E2 did for M5's probes). Golden fields for the named property set, the ending and `back_to`, and the number of branches. The `agree-lasso-unmatched` outcome. `--impl dive` passes `--lncheck final` and the `--lasso` mode. `dev capture --lncheck/--workers/--fp` (done in this design PR). Exit: harness reports for LM0 | L4 for validation | S |
@@ -99,7 +104,7 @@ All runs use the pinned oracle `tlc-2026.10.06.014338` and Examples `6a7b26a`. A
 | **LM5: modes** | `-lncheck default` (L7) and forced-spill runs (L8) on the LM2 set: verdicts equal; under `final`, results are byte-identical to in-memory runs |
 | **SM1: symmetry, safety** | Probes `SymCounts`, `SymCountsNone`, `SymAsym`, `SymAsymLate`, `SymOrder`, `SymTwoSets`, `SymView`, `SymViolation`, and S1's error and warning probes. The 11 small-tier models: `MCCheckpointCoordinationFailure` (violation, trace 12), `MCFlashWithMutex`, `MCGermanCMPWithMutex`, `MCGermanControl`, `MCGermanData`, `MultiPaxos_MC_small`, `MCPaxos` (no reduction, warning 2300), `MCVoting`, `FastPaxos`, `Paxos`, `BufferedRandomAccessFile`. At 1, 4 and 8 workers, chaos, both stores |
 | **SM2: symmetry, default profile** | The SM1 set in the default profile: equal counts, with the D-010 flag raised where ADR 0019 §1 says |
-| **SM3: symmetry with liveness** | Default: `SymLiveWarn`, `SymLiveMissed` and `SymLiveSymProp` are refused with `DIVE-L0010`. Under `--compat=tlc`: TLC's verdicts (success, success, violation), warning 2279 and counts; the spurious lasso is reported with `InvalidUnderSymmetry`. Deep tier: `KeyValueStore/MCKVsnap` |
+| **SM3: symmetry with liveness** | Default: `SymLiveWarn`, `SymLiveMissed` and `SymLiveSymProp` match unreduced oracle verdicts; reduction is disabled for the whole run and reported. Explicit `refuse` mode reports `DIVE-L0010`. Under `--compat=tlc`: TLC's verdicts (success, success, violation), warning 2279 and counts; the spurious lasso is reported with `InvalidUnderSymmetry`. Deep tier: `KeyValueStore/MCKVsnap` |
 
 ## Gate additions
 

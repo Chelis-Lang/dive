@@ -76,10 +76,14 @@ All notable changes to this project are documented here. The project will follow
   closing edge. Fairness, `ENABLED`, temporal quantification and side effects
   remain explicit refusals. This is the temporal kernel for M6 L4;
   liveness checking and complete lasso validation are not implemented yet.
+- Accepting-cycle search over supplied product graphs in `dive-liveness`: EA
+  edge filtering, all required state/action visits and tableau promises, a
+  shortest unrestricted prefix, and a deterministic short closed walk.
+  Temporal planning and integration with model checking remain pending.
 - `dive-liveness` graph foundation: validated dense references, iterative
   strongly connected components, and recurrent-edge filtering that preserves
-  unrestricted prefix reachability. Formula planning, acceptance and model
-  verdicts remain pending.
+  unrestricted prefix reachability. Formula planning and model verdicts
+  remain pending.
 - Approved M6 defaults and the explicit host-I/O grant policy are recorded in
   ADRs, the charter appendix, and D-005 / D-013–D-017. These options remain planned.
 - M6 design: ADRs 0017 (TLC's liveness semantics), 0018 (liveness in dive) and 0019
