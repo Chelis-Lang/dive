@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- `dive-conformance study final`: separate, non-gating final/short truth/count
+  observations with fresh independent periodic-witness validation and explicit
+  profile, binary, oracle and corpus provenance.
+
 - Final temporal predicates and independent finite successor covers retain
   LET value and operator scopes, including captured state and nested calls.
 

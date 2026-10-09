@@ -1,0 +1,16 @@
+# Non-gating final/short LM1 observations; not a strict conformance gate.
+specifications/DiningPhilosophers/DiningPhilosophers.cfg
+specifications/Prisoners_Single_Switch/PrisonerSolo.cfg
+specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg
+specifications/Prisoners_Single_Switch/Prisoner.cfg
+specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg
+specifications/CoffeeCan/CoffeeCan100Beans.cfg
+specifications/ewd840/SyncTerminationDetection.cfg
+specifications/Prisoners/Prisoners.cfg
+specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg
+specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg
+specifications/chang_roberts/MCChangRoberts.cfg
+specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg
+specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg
+specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg
+specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg
