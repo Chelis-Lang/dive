@@ -73,6 +73,14 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Bounded behavior-graph capture through the shared inline safety engine,
+  retaining duplicate/seen transitions and explicit implicit stutters without
+  changing counters. Incomplete searches never expose complete graphs.
+- Final-only pure liveness library coordination: all behavior conjuncts and
+  properties are planned before exploration; candidates retain concrete
+  closing edges and target-property metadata. Fairness, TLC-exact selection,
+  complete attribution and CLI integration remain pending. Four pinned pure
+  models match TLC counts in both stores and independently validate.
 - Independent fairness certificates for supplied periodic counterexamples:
   a recurring non-stuttering action establishes both weak and strong fairness.
   Prefix-only occurrences, unchanged subscripts and false actions cannot

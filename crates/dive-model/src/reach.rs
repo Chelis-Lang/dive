@@ -7,25 +7,38 @@ use dive_eval::{Scope, SlotView};
 use dive_ir::{Arg, DefId, Effects, Expr, ExprId, OpRef, StdOp, StdSupport};
 
 use crate::bind::Binder;
-use crate::model::{Model, Pred, Unsupported};
+use crate::model::{Model, Pred, Unsupported, UnsupportedKind};
 use crate::tables::Look;
 
 /// The features of `model` dive refuses, in a stable order.
 pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
-    let mut out: Vec<String> = b.unsupported.clone();
+    let mut out: Vec<Unsupported> = b
+        .unsupported
+        .iter()
+        .map(|feature| Unsupported {
+            feature: feature.clone(),
+            kind: UnsupportedKind::Feature,
+        })
+        .collect();
     if !model.implied_temporals.is_empty() {
         let names: Vec<&str> = model
             .implied_temporals
             .iter()
             .map(|n| n.name.as_str())
             .collect();
-        out.push(format!(
-            "temporal properties (liveness checking): {}",
-            names.join(", ")
-        ));
+        out.push(Unsupported {
+            kind: UnsupportedKind::TemporalProperty,
+            feature: format!(
+                "temporal properties (liveness checking): {}",
+                names.join(", ")
+            ),
+        });
     }
     if let Some(s) = &model.symmetry {
-        out.push(format!("SYMMETRY {s}"));
+        out.push(Unsupported {
+            feature: format!("SYMMETRY {s}"),
+            kind: UnsupportedKind::Feature,
+        });
     }
     // Java overrides dive does not implement, reachable from what is checked.
     let ir = &*model.ir;
@@ -45,10 +58,11 @@ pub(crate) fn unsupported(b: &Binder<'_>, model: &Model) -> Vec<Unsupported> {
             refused.insert(dive_ir::Feature::StdOp(op).name());
         }
     }
-    out.extend(refused);
-    out.into_iter()
-        .map(|feature| Unsupported { feature })
-        .collect()
+    out.extend(refused.into_iter().map(|feature| Unsupported {
+        feature,
+        kind: UnsupportedKind::Feature,
+    }));
+    out
 }
 
 /// The definitions a role's expression uses directly, including through the
