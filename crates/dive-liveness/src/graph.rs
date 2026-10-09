@@ -34,8 +34,8 @@ impl std::error::Error for GraphError {}
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Graph {
-    edges: Vec<Vec<usize>>,
-    roots: Vec<usize>,
+    pub(crate) edges: Vec<Vec<usize>>,
+    pub(crate) roots: Vec<usize>,
 }
 
 impl Graph {
