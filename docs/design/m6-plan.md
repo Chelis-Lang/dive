@@ -228,3 +228,11 @@ each complete assignment; 108 decisions match the pinned 36-state ENABLED
 probe. State-dependent finite domains are supported in that concrete-state
 existential procedure but remain refusals in temporal planning/word preflight.
 Missing/primed/infinite domains and explicit budgets never mean disabledness.
+
+L1/L4/L5 LET increment: pure local values/operators preserve parent scopes
+through formula lowering, direct periodic words and necessary-cover derivation.
+Six `Lt*` probes match final truth/counts in both profiles/stores; disabledness
+on a fair stuttering cycle validates independently. Exhaustive short-word and
+finite-assignment controls retain original witnesses and reject used effects,
+checker reads and missing covers. INSTANCE/dynamic substitutions, complete
+TLC planning order, phase-L timing and exact selection remain open.
