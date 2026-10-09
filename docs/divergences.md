@@ -132,3 +132,12 @@ None is implemented.
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | planned; ADR 0019 non-bijective probe |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
 | D-017 | Host access from a specification | No access without explicit category grants | Explicit grants also required under `--compat=tlc`; restrictions are reported | planned; existing named refusals, CommunityModules `AllTests`, Examples `TLC/TestGraphs` and `ewd998/EWD998ChanTrace` |
+
+## Temporal constructor restrictions (candidate, D-013)
+
+The pinned TLC accepts the syntax but cannot check temporal CASE (`CdCaseOverlap`,
+2213, exit 255) or an action-guarded temporal IF (`CdAction`, 2214, exit 255).
+Minimal specs and raw results are in
+`crates/dive-api/tests/fixtures/temporal-conditionals/`. Pure state- and
+temporal-guarded IF works. Broader support may become a named TLA+ formula option;
+it is not an adopted default. Both checker profiles retain explicit refusals.

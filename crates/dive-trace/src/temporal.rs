@@ -226,6 +226,22 @@ impl Word<'_> {
                 }
                 Ok(values)
             }
+            Expr::If { cond, then, other } => {
+                if self.model.ir.node(*cond).level == Level::Action {
+                    return Err(TemporalError::Unsupported(
+                        "TLC liveness rejects action-level conditional guards".into(),
+                    ));
+                }
+                let guards = self.eval(*cond, scope, child)?;
+                let yes = self.eval(*then, scope, child)?;
+                let no = self.eval(*other, scope, child)?;
+                Ok(guards
+                    .into_iter()
+                    .zip(yes)
+                    .zip(no)
+                    .map(|((guard, yes), no)| if guard { yes } else { no })
+                    .collect())
+            }
             Expr::Def(d) => {
                 let d = ev.redirected(*d);
                 if ev.is_value_override(d) || self.model.ir.def(d).recursive {

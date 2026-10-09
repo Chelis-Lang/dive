@@ -648,3 +648,27 @@ This page is the narrative companion to the terse registry in [`docs/divergences
   - the status and the evidence.
 - When an entry's status changes (planned → implemented → default), update it in the same PR as the code.
 - Write for users who know TLA+ and TLC but not dive's internals. Link to ADRs for the design detail rather than repeating it.
+
+### D-013 candidate: more temporal constructors
+
+TLC accepts the syntax of the following properties, then refuses them during
+liveness planning:
+
+```tla
+VARIABLE x
+Init == x = FALSE
+Next == x' = ~x
+P == [](IF x' # x THEN <>x ELSE <>~x)
+Q == [](CASE TRUE -> <>x [] x -> <>~x [] OTHER -> FALSE)
+```
+
+On the pinned oracle, P stops with 2214 (wrong formula format), Q with 2213
+(cannot handle formula), both exit 255 before exploration. Pure state guards
+and even a temporal guard such as `IF []<>x THEN <>[]x ELSE <>[]~x` do work.
+The captures live in `crates/dive-api/tests/fixtures/temporal-conditionals/`.
+
+Dive implements the working IF forms in its bounded final Rust API and
+independent validator. It keeps the other forms as named planning refusals in
+both profiles. Supporting more constructors could remove an implementation
+restriction, but is only a recorded candidate. No new default or compatibility
+claim is adopted here.
