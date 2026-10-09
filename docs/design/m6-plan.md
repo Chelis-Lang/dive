@@ -64,8 +64,11 @@ attribution remain outstanding. L1 now has a bounded, flat boolean/always/
 eventually formula kernel with negation normalization and generalized Buchi
 tableaux over supplied state/action atoms. Exhaustive short-word tests compare
 the accepted language with direct temporal semantics; an omitted promise is
-caught by a planted-bug control. Bound-model lowering, fairness expansion,
-TLC's DNF/classification/order and tableau numbering remain outstanding.
+caught by a planted-bug control. Bound pure predicates now lower to that
+kernel with retained state/action scopes, source-located stable diagnostics,
+seven pinned property-word controls and exhaustive short-word comparisons.
+Fairness/ENABLED expansion, parameter/dynamic contexts, TLC's DNF/classification/
+order and tableau numbering remain outstanding.
 L2 and L5–L10 remain planned.
 
 ## Work packages

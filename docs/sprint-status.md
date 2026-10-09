@@ -57,7 +57,8 @@ Follow [the M6 plan](design/m6-plan.md): temporal formula/tableau planning,
 behavior-graph capture, then integrated accepting-lasso search and
 property attribution. A bounded formula/tableau language kernel now checks
 boolean combinations, always and eventually over supplied state/action atoms.
-Bound-model lowering, fairness expansion and TLC-exact planning remain pending.
+Pure bound predicates lower to that kernel with retained scopes and source
+diagnostics; fairness/dynamic contexts and TLC-exact planning remain pending.
 Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are

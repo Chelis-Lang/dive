@@ -79,10 +79,14 @@ All notable changes to this project are documented here. The project will follow
   and property truth are checked separately from graph search. Implicit
   stutters preserve TLC’s action-constraint semantics. Fairness, ENABLED,
   VIEW/symmetry and unnamed legacy liveness claims remain explicit refusals.
+- Pure bound liveness predicate planning into the formula/tableau kernel,
+  preserving state/action scopes. Unsupported constructs and resource limits
+  carry source locations and stable diagnostic codes. Fairness/ENABLED,
+  dynamic contexts, TLC-exact planning and checker integration remain pending.
 - Bounded temporal formula/tableau kernel for boolean, always and eventually
   formulas over supplied state/action atoms. Negations normalize by duality;
   every eventuality has an acceptance promise. Malformed references and
-  construction limits are errors. Model lowering and TLC-exact planning remain
+  construction limits are errors. Full TLC-exact planning remains
   pending; the kernel alone does not produce model-checking verdicts.
 - Independent temporal evaluation over supplied lassos in `dive-trace`:
   boolean combinations, `[]`, `<>`, `~>` and action atoms, including the

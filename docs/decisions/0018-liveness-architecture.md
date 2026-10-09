@@ -69,6 +69,22 @@ This is dive's own language implementation, not TLC's node numbering or full
 `astToLive` port. Model scopes, operator expansion, quantifiers, fairness,
 DNF/classification and TLC-exact order are still required before L1 is complete.
 
+**Bound pure planning, 2026-10-09:** `dive_liveness::plan::lower`
+retains each state/action predicate in its bound `Pred` scope and lowers
+boolean combinations, `[]`, `<>`, `~>`, pure constant conditionals and
+zero-arity temporal definitions to the language kernel. Seven pinned TLC
+counterexample words falsify their lowered property; ten synthetic TLA+
+formulas agree with direct word semantics at every back edge. Fairness,
+ENABLED, opaque/dynamic scopes, effects, checker reads, temporal quantification
+and unsupported constructors remain named planning refusals. Diagnostics
+retain both the requested predicate and failing operand spans/locations:
+`DIVE-L0020` unsupported, `DIVE-L0021` resource limit, `DIVE-L0022` an internal
+formula-reference inconsistency. These are library planning diagnostics;
+TLC's planning error codes/order are not claimed. This activates the already
+permitted `dive-liveness` edges to IR, evaluator, values and model binding;
+the checker/trace dependency boundary is unchanged. The full L1 pipeline
+and graph integration remain outstanding.
+
 ### 3. The behaviour graph, built by the deterministic search
 
 The graph is stored **once**, as the state graph labelled with atom bits. The product with each tableau is not stored. It is explored on the fly by the searches (§5, §6), with pure bit operations.
