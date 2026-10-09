@@ -62,7 +62,9 @@ diagnostics; fairness/dynamic contexts and TLC-exact planning remain pending.
 Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
-foundations. Named pure concrete periodic counterexamples now validate
+foundations. The graph/tableau product preserves per-edge atom truth and
+projects accepting witnesses without discarding repeated obligations;
+behavior-graph capture and model coordination are still pending. Named pure concrete periodic counterexamples now validate
 independently, including closing edges and the complete property set.
 Recurring non-stuttering action occurrences now certify WF/SF independently
 on a supplied cycle. Eight pinned counterexamples validate; fairness needing

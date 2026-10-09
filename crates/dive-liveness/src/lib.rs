@@ -6,8 +6,9 @@
 //! [`formula::compile`] provides a bounded boolean/always/eventually tableau
 //! kernel over supplied atoms. [`plan::lower`] retains pure bound predicates
 //! and scopes. Fairness expansion and TLC-exact formula order,
-//! model integration, concrete-state projection and property attribution remain
-//! planned; this crate does not produce model verdicts.
+//! behavior-graph capture, model coordination and property attribution remain
+//! planned. [`product::Product`] combines supplied behavior graphs/tableaux
+//! and projects witnesses; this crate does not produce model verdicts.
 #![forbid(unsafe_code)]
 
 mod graph;
@@ -19,3 +20,4 @@ pub mod search;
 pub mod formula;
 
 pub mod plan;
+pub mod product;

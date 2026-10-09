@@ -134,6 +134,20 @@ That is about **24 bytes per state and 6–8 bytes per edge**, for every OoS tog
 
 **Worker invariance.** Atom bits are functions of states and pairs. Ids and edge order are fixed by 𝒪. Blocks append in block order. So the graph is byte-identical at any worker count and under chaos scheduling (ADR 0015 §2), and everything after it is a function of the graph.
 
+
+**Explicit product foundation, 2026-10-09:** `dive_liveness::product`
+combines a supplied behavior graph with the language tableau. State atoms
+label vertices; action atoms label each actual outgoing edge, including
+parallel edges and the closing transition. Dense ids follow `(state, tableau)`
+order. Promise visits feed the accepting-lasso search; projection retains
+original edge positions and repeated concrete vertices with different
+obligations. Callers must supply stutter edges; dead ends are never silently
+made into behaviors. Invalid label shapes and explicit vertex, edge, work
+and acceptance-memory bounds are errors, not absence of acceptance. Short
+words are checked against direct temporal truth and every two-vertex graph
+against an independent path-closure oracle. This is not TLC's product/node
+numbering, graph capture or an integrated model-checking verdict.
+
 ### 4. Constraints, `VIEW`, symmetry
 
 - **Constraints:** no edge to an out-of-model successor (ADR 0017 §9; probes `LvConstraint`, `LvConstraintHolds`, `LvActionConstraint`).

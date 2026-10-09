@@ -60,8 +60,11 @@ Fairness without a recurring non-stuttering action, independent
 outstanding. L3 now provides validated SCC decomposition
 and accepting-lasso search over supplied product graphs, including unrestricted
 prefix reachability, all acceptance visits and deterministic witnesses. TLC-exact formula/tableau planning,
-behavior-graph capture, concrete-state projection and property
-attribution remain outstanding. L1 now has a bounded, flat boolean/always/
+behavior-graph capture and property
+attribution remain outstanding. An explicit graph/tableau product now checks per-edge action
+truth, applies promises and projects witnesses to original edge positions,
+with bounded resources. It still requires caller-supplied graph/labels.
+L1 now has a bounded, flat boolean/always/
 eventually formula kernel with negation normalization and generalized Buchi
 tableaux over supplied state/action atoms. Exhaustive short-word tests compare
 the accepted language with direct temporal semantics; an omitted promise is

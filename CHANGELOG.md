@@ -78,6 +78,10 @@ All notable changes to this project are documented here. The project will follow
   Prefix-only occurrences, unchanged subscripts and false actions cannot
   certify fairness. Other cases still require independent enabledness checking
   and refuse explicitly; this does not enable liveness model checking.
+- Bounded behavior-graph/tableau products with separate state and per-edge
+  action labels, promise acceptance and witness projection retaining original
+  edge positions. Invalid inputs and resource limits are explicit errors.
+  Model graph capture, TLC-exact ordering and checker integration remain pending.
 - Independent validation of named pure liveness counterexamples: the optional
   trace `properties` list names every violated temporal property. Init, all
   edges including loop closure, constraints, safety and behavior predicates,
