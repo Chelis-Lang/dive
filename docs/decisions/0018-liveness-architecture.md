@@ -172,9 +172,9 @@ It runs sequentially after the search, on the same stored graph (with TLC-ordere
 | `default`, `seqdefault` | periodic checks at **level boundaries**, deterministically: after a level, if the graph has at least 2^16 states and at least twice as many as at the last check. A violation stops the run with that level's statistics and TLC's "current state space" message. A final check follows the search if none fired. The doubling bounds the total cost of periodic checks by about one final check. The schedule is a function of the graph, so the result is the same at any worker count |
 | `off` | the graph's atoms are still evaluated (errors and finite-prefix violations are still caught, as in TLC), but no SCC search is run |
 
-**Why level boundaries are TLC-compatible.** TLC's periodic check is triggered by the wall clock (ADR 0017 §6; probe `LvPeriodic`: three runs stopped at 418,795, 167,402 and 162,021 distinct states). Its single worker suspends between states, so "every state up to level L expanded, none of level L+1" is a point at which TLC can check. dive's result is therefore one of the results TLC can produce. It is reproducible, where TLC's is not.
+**Why level boundaries are sound but a scheduling divergence.** TLC's periodic check is triggered by the wall clock (ADR 0017 §6; probe `LvPeriodic`: three runs stopped at 418,795, 167,402 and 162,021 distinct states). Its single worker suspends between states, so "every state up to level L expanded, none of level L+1" is a point at which TLC can check. dive's result is therefore one of the results TLC can produce. It is reproducible, where TLC's is not.
 
-**The default** is `default` in both profiles, as in TLC. The harness passes `--lncheck final`, as goldens do. Under `default`, conformance compares the verdict only (ADR 0017 §2).
+**Owner decision, 2026-10-09 (D-014).** The default profile uses `--lncheck=deterministic`, the documented level-boundary schedule. `--compat=tlc` uses TLC's wall-clock schedule for `--lncheck=default`; the deterministic schedule is not called precisely TLC-equivalent. The harness passes `--lncheck final`, as goldens do. Wall-clock runs are checked for verdicts without claiming deterministic stop counts.
 
 ### 8. Validating lassos (`dive-trace`)
 
@@ -251,3 +251,7 @@ Against the pinned TLC, measured as in ADR 0006:
   - after WP-L3's measurements (pattern interning, edge widths, whether a parallel SCC algorithm is needed);
   - when simulation-mode liveness is designed (TLC checks each simulated trace with `LiveCheck1`);
   - if the owner chooses `--lasso=tlc` as the default.
+
+## Owner decisions, 2026-10-09
+
+`--lasso=short` is the intended default. Symmetry with liveness uses `--symmetry-liveness=unreduced` by default: disable reduction for the whole run. Keep `refuse` and `tlc` modes. The periodic schedule amendment above supersedes §7's earlier proposal; TLC's wall-clock path is required for precise compatibility. All options remain planned until implemented and proven.

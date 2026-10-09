@@ -46,6 +46,8 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Approved M6 defaults and the explicit host-I/O grant policy are recorded in
+  ADRs, the charter appendix, and D-005 / D-013–D-017. These options remain planned.
 - M6 design: ADRs 0017 (TLC's liveness semantics), 0018 (liveness in dive) and 0019
   (symmetry), all proposed, and `docs/design/m6-plan.md`. 43 TLC probes for liveness,
   fairness and symmetry in `crates/dive-liveness/tests/fixtures/tlc-probes/`, with
