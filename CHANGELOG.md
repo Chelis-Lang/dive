@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- A bounded symmetry-closure kernel preserves TLC generator/composition order,
+  with checked bijections and TLC-compatible malformed maps. Binding and state
+  reduction remain explicitly unsupported.
+
 - Final/short liveness factors pure recurrence conditions out of temporal
   memory, reuses shared tableau expansions and retains only reachable product
   pairs, with unchanged resource defaults and deterministic witness ordering.

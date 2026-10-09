@@ -135,7 +135,7 @@ None is implemented.
 |---|---|---|---|---|
 | D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; phase-L/TLC-exact selection pending. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
 | D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | planned; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
-| D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | planned; ADR 0019 non-bijective probe |
+| D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | checked/TLC closure kernel implemented; model binding and reduction still refused; 1,329 direct kernel probes and SyNonBiject missed-invariant control (ADR 0019) |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
 | D-017 | Host access from a specification | No access without explicit category grants | Explicit grants also required under `--compat=tlc`; restrictions are reported | planned; existing named refusals, CommunityModules `AllTests`, Examples `TLC/TestGraphs` and `ewd998/EWD998ChanTrace` |
 
@@ -194,3 +194,13 @@ reachable products, without increasing resource defaults. Three five-process
 fresh independent validation rejects an unfair stuttering mutant. DiningPhilosophers
 also matches; the remaining LM1 refusal names VIEW graph capture. Exact TLC
 planning, scheduling, lasso choice and parallel capture remain pending.
+
+### Empty symmetry declarations (candidate)
+
+The pinned TLC normal CLI accepts SyEmpty in SANY, then exits 255 with
+GENERAL and `IllegalArgumentException` for `SYMMETRY Sym`, `Sym == {}`.
+Its direct closure kernel throws for zero or one supplied function. The new
+bounded kernel returns `TooFewGenerators`; binding/reduction remain refused.
+No alternative empty-declaration default is adopted. Raw evidence:
+`crates/dive-model/tests/fixtures/symmetry-group/` and the corresponding
+under-consideration entry in `docs/tlc-differences.md`.

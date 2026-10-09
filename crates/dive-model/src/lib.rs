@@ -78,6 +78,7 @@ pub mod level;
 mod model;
 mod reach;
 mod spec;
+pub mod symmetry;
 mod tables;
 mod tlc_names;
 mod walk;
