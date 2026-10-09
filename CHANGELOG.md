@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Successor traversal borrows the evaluator core instead of incrementing and
+  decrementing its shared reference count at each recursive rule.
 - Module-only conformance runs honor `--sany-only`; nightly parse checks no
   longer repeat model checking under the shorter parsing timeout.
 - Checker error classification now follows TLC’s initial-state, successor,
