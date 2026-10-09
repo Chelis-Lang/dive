@@ -17,7 +17,9 @@
 //!    stack) decides the verdict. No candidate means the exit code and the
 //!    messages disagree: [`Verdict::OracleError`], both recorded. Exit codes
 //!    152 and 153 are raised outside that mapping and classify as
-//!    [`Verdict::OtherError`].
+//!    [`Verdict::OtherError`]. A complete, finite temporal counterexample
+//!    may exit 12: `LiveCheck.printErrorTrace` prints 2116 but stores 2110
+//!    as the checker error. This specific stream shape is checked separately.
 //! 5. Parse failures (3002, 2171) are split into [`Verdict::ParseError`] and
 //!    [`Verdict::SemanticError`] using SANY's untagged text; if neither
 //!    marker is present the result is unclassified.
@@ -566,6 +568,42 @@ fn resource_exhaustion(t: &Transcript, stderr: Option<&str>) -> Option<(Option<i
         .map(|e| (None, format!("JVM resource exhausted: {e} on stderr")))
 }
 
+/// The pinned `LiveCheck.printErrorTrace` safety-like temporal path prints
+/// 2116, a header and a finite prefix, but records 2110 as the checker error.
+/// Do not broaden the EC mapping: cyclic temporal failures must still exit 13.
+fn finite_temporal_prefix(t: &Transcript, errors: &[&Message]) -> bool {
+    if errors.iter().map(|m| m.code).collect::<Vec<_>>() != [2116, 2264]
+        || t.first(2193).is_some()
+        || t.first(2122).is_some()
+        || t.first(2218).is_some()
+        || t.first(2186).is_none()
+        || t.first(2199).is_none()
+    {
+        return false;
+    }
+    let mut phase = 0;
+    let mut states = 0_u64;
+    for m in t.messages() {
+        match m.code {
+            2116 if phase == 0 && m.class == class::ERROR => phase = 1,
+            2264 if phase == 1 && m.class == class::ERROR => phase = 2,
+            2217 if phase == 2 && m.class == class::STATE => {
+                let (index, label, state) = split_state(&m.body);
+                states += 1;
+                if index != Some(states)
+                    || state.trim().is_empty()
+                    || (states == 1 && label != "<Initial predicate>")
+                {
+                    return false;
+                }
+            }
+            2116 | 2264 | 2217 => return false,
+            _ => {}
+        }
+    }
+    phase == 2 && states > 0
+}
+
 #[allow(
     clippy::too_many_lines,
     reason = "the classification rules read best as one ordered sequence"
@@ -621,6 +659,13 @@ fn decide(t: &Transcript, facts: &RunFacts<'_>, errors: &[&Message]) -> Decision
             Verdict::Unclassified,
             None,
             Some("exit code 0 without a TLC_SUCCESS message".to_owned()),
+        );
+    }
+    if exit == 12 && !facts.simulate && finite_temporal_prefix(t, errors) {
+        return Decision::new(
+            Verdict::LivenessViolation,
+            Some(2116),
+            Some("finite temporal prefix: LiveCheck prints 2116 but records safety error 2110 (exit 12)".to_owned()),
         );
     }
     let candidates: Vec<&&Message> = errors
@@ -925,6 +970,55 @@ mod tests {
             run(&s, 13).trace.map(|t| t.ending),
             Some(TraceEnding::Stuttering)
         );
+    }
+
+    #[test]
+    fn finite_temporal_prefix_matches_pinned_trace_and_rejects_mutants() {
+        const CAPTURE: &str = include_str!(
+            "../../tests/fixtures/temporal-prefix/tlc-2026.10.06.014338/QtEmpty.stdout"
+        );
+        let r = run(CAPTURE, 12);
+        assert_eq!(r.verdict, Verdict::LivenessViolation);
+        assert_eq!(r.verdict_code, Some(2116));
+        assert_eq!(r.exit_code, Some(12));
+        assert_eq!(r.violated_property.as_deref(), Some("P"));
+        assert_eq!(
+            r.error_class.as_deref(),
+            Some("TLC_TEMPORAL_PROPERTY_VIOLATED")
+        );
+        assert_eq!(r.counts.states_generated, Some(2));
+        assert_eq!(r.counts.distinct_states, Some(1));
+        assert_eq!(r.counts.depth, Some(1));
+        assert_eq!(
+            r.trace.map(|t| (t.length, t.ending)),
+            Some((1, TraceEnding::Finite))
+        );
+        // EC's general message-to-exit mapping remains unchanged.
+        assert_eq!(exit_statuses_for(2116), &[13]);
+        let mutants = [
+            CAPTURE.replace("STARTMSG 2264:1", "STARTMSG 2264:0"),
+            CAPTURE.replace("STARTMSG 2217:4", "STARTMSG 2217:0"),
+            CAPTURE.replace("1: <Initial predicate>", "2: <Initial predicate>"),
+            CAPTURE.replace("x = 0", ""),
+            CAPTURE.replace("<Initial predicate>", "<Next>"),
+            CAPTURE.replace("STARTMSG 2186:0", "STARTMSG 2186:1"),
+            CAPTURE.to_owned() + &msg(2218, 4, "2: Stuttering"),
+            CAPTURE.to_owned() + &msg(2122, 4, "1: Back to state: <Next>"),
+            CAPTURE.to_owned() + &msg(2132, 1, "Assert failed"),
+            CAPTURE.to_owned() + &msg(2193, 0, "Success"),
+        ];
+        for stdout in mutants {
+            assert_eq!(run(&stdout, 12).verdict, Verdict::OracleError);
+        }
+        let minimal = msg(2116, 1, "Temporal property P was violated.")
+            + &msg(2264, 1, "Counterexample")
+            + &msg(2217, 4, "1: <Initial predicate>\nx = 0");
+        assert_eq!(run(&minimal, 12).verdict, Verdict::OracleError);
+        assert_eq!(run(CAPTURE, 0).verdict, Verdict::OracleError);
+        // Exit 255 is explained only by the context header, not by 2116.
+        assert_eq!(run(CAPTURE, 255).verdict, Verdict::Unclassified);
+        let reordered = msg(2217, 4, "1: <Initial predicate>\nx = 0") + CAPTURE;
+        assert_eq!(run(&reordered, 12).verdict, Verdict::OracleError);
     }
 
     #[test]

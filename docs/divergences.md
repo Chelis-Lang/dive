@@ -31,6 +31,12 @@
 
 - **Introspecting specs.** Specs that read `TLCGet("config")` can legitimately behave differently by worker count. For example, Examples `DieHard/MCDieHardest` asserts `TLCGet("config").worker = 1`. dive reports `TLCGet("config").worker` with TLC's meaning, so such specs keep their TLC behaviour under `--workers N`. Whether dive should report the *effective* or the *logical* worker count under deterministic parallel search is an open design point for `dive-stdlib`. ADR 0014 proposes the logical count, 1 (open question 10).
 
+- **Finite temporal prefixes (D-008).** `QtEmpty` prints temporal violation 2116
+  and a finite initial-state trace, but exits with safety status 12 rather than
+  ordinary temporal status 13. The harness preserves both facts and verifies
+  the specific complete stream shape. TLC-exact phase-L checker behavior remains
+  pending; this parser correction does not enable a new checker default.
+
 ## Refusals where SANY accepts
 
 These are not divergences, because `dive` gives no different answer: it refuses with
