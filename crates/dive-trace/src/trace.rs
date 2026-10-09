@@ -25,6 +25,8 @@ pub struct Trace {
     pub ending: Ending,
     /// The claimed number of states, if given.
     pub length: Option<usize>,
+    /// All temporal properties claimed false on a periodic word.
+    pub properties: Vec<String>,
 }
 
 /// The model's variable names, by [`dive_ir::VarId`].
@@ -82,6 +84,7 @@ impl Trace {
             labels: doc.labels.clone(),
             ending,
             length: doc.length,
+            properties: doc.properties.clone(),
         })
     }
 
@@ -108,6 +111,7 @@ impl Trace {
             ending: Some(self.ending.clone()),
             length: self.length,
             source: Source::Dive,
+            properties: self.properties.clone(),
         })
     }
 }

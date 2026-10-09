@@ -458,6 +458,17 @@ pub fn validate_tlc(
             trace: None,
         };
     };
+    if !doc.properties.is_empty() {
+        // The interpretation heuristic scores initial predicates. Preflight
+        // before that evaluation too, so a refusal cannot execute effects.
+        let preflight = Run::new(model, replay).prepare_periodic(&ending, &doc.properties);
+        if let Err(stop) = preflight {
+            return TlcReading {
+                report: report(stop.into(), Vec::new()),
+                trace: None,
+            };
+        }
+    }
     let mut notes = Vec::new();
     let states = match variable_states(model, doc, &mut notes) {
         Ok(s) => s,
@@ -477,6 +488,7 @@ pub fn validate_tlc(
         states: &states,
         ending: &ending,
         labels: &doc.labels,
+        properties: &doc.properties,
         length: doc.length,
         model_values,
         replay,
@@ -618,6 +630,7 @@ struct Search<'a> {
     states: &'a [Map<String, J>],
     ending: &'a Ending,
     labels: &'a [Option<crate::format::Label>],
+    properties: &'a [String],
     length: Option<usize>,
     model_values: &'a [String],
     replay: Option<&'a Replay>,
@@ -676,6 +689,7 @@ impl Search<'_> {
             labels: self.labels.to_vec(),
             ending: self.ending.clone(),
             length: self.length,
+            properties: self.properties.to_vec(),
         };
         let mut run = Run::new(self.model, self.replay);
         let validation = run.validate(&trace);
