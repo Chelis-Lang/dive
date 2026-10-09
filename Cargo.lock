@@ -154,6 +154,12 @@ dependencies = [
 [[package]]
 name = "dive-bench"
 version = "0.0.0"
+dependencies = [
+ "dive-conformance",
+ "serde",
+ "serde_json",
+ "toml",
+]
 
 [[package]]
 name = "dive-check"
