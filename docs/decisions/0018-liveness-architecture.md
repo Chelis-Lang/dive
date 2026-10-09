@@ -385,3 +385,14 @@ until their failure priority is integrated. Fairness/ENABLED expansion,
 TLC-exact planning and lasso choice, complete attribution, and periodic/CLI
 integration remain outstanding. Library-stage diagnostics are `DIVE-L0030`
 through `DIVE-L0035`; atom failures retain their property and source span.
+
+
+### Increment: independent finite enabledness (2026-10-09)
+
+The independent word evaluator now decides direct ENABLED and WF/SF cases with
+ADR 0016 amendment 2's finite covers. Recurring non-stuttering cycle occurrences
+still certify fairness directly. Otherwise GF(~enabled) (WF) and FG(~enabled)
+(SF) are checked at every cycle position. Missing covers refuse.
+`LvWFIntermittent` and `LvStutterEnd` extend the pinned controls to ten words;
+exhaustive two-variable words distinguish WF from SF. Checker-side fairness
+expansion and TLC-exact planning remain pending.

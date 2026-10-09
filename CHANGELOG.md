@@ -73,6 +73,10 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Independent finite-cover successor-existence API with explicit domain,
+  assignment and expression bounds; missing covers refuse by name. Supported
+  deadlock claims certify independently. Direct ENABLED and WF/SF on periodic
+  words decide finite enabledness; ten pinned liveness words validate.
 - Bounded behavior-graph capture through the shared inline safety engine,
   retaining duplicate/seen transitions and explicit implicit stutters without
   changing counters. Incomplete searches never expose complete graphs.

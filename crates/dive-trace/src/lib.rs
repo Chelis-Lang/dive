@@ -8,16 +8,17 @@
 //! have explored are inside the model and violate nothing earlier, and that
 //! the trace ends as it claims. It shares only the core evaluator, the value
 //! library and the binding stage with the checker: it is built without
-//! `dive-eval`'s successor enumerator (the `enumerate` feature), so it never
-//! constructs a state, and a bug in successor generation cannot make it
+//! `dive-eval`'s successor enumerator (the `enumerate` feature), so it cannot call the checker
+//! generator, and a bug in successor generation cannot make it
 //! accept a trace the specification does not allow. `cargo xtask
 //! check-layering` and the gate's standalone `cargo build -p dive-trace`
 //! enforce that.
 //!
 //! Named pure periodic words (`TraceDoc::with_properties`) also check all
 //! behavior temporal conjuncts and the complete violated-property set.
-//! Fairness, `ENABLED`, VIEW/symmetry closing evidence and unnamed legacy
-//! periodic claims remain explicit refusals.
+//! Fairness with recurring actions or finite independently decided enabledness
+//! is supported. Missing finite covers, VIEW/symmetry closing evidence and
+//! unnamed legacy periodic claims remain explicit refusals.
 //!
 //! - [`mod@format`]: the versioned trace format (also TLC's `-dumpTrace json`).
 //! - [`value_json`]: dive's lossless JSON form of values.
@@ -64,6 +65,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod exists;
 pub mod format;
 pub mod mutate;
 mod random_position;

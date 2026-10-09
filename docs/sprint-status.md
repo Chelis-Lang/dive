@@ -54,8 +54,8 @@ it supplies cross-platform evidence, not a substitute for their validation.
   smoke timings come from a busy machine and establish correctness and
   reproducibility of measurement, not achievement of the performance
   targets. Profiling and paired baseline work remain (#28, #53).
-- **M5 coverage:** unsupported library operators and independent deadlock
-  validation remain honest limitations. M6 covers temporal and symmetry
+- **M5 coverage:** unsupported library operators and deadlocks lacking finite
+  independent covers remain honest limitations. M6 covers temporal and symmetry
   refusals; they must not be removed merely to raise the agreement count.
 
 ## M6 critical path
@@ -75,8 +75,9 @@ a bounded final-only pure coordinator now captures real model graphs.
 Named pure concrete periodic counterexamples validate
 independently, including closing edges and the complete property set.
 Recurring non-stuttering action occurrences now certify WF/SF independently
-on a supplied cycle. Eight pinned counterexamples validate; fairness needing
-ENABLED and VIEW/symmetry closing evidence are still refused.
+on a supplied cycle. Ten pinned counterexamples validate; finite covers independently decide
+ENABLED and WF/SF without recurring occurrences. Missing covers and
+VIEW/symmetry closing evidence remain refused.
 A final-only pure library coordinator now uses bounded capture through the
 shared inline safety engine: four pinned models match TLC counts in both
 stores and yield independently valid candidates, while four WF models refuse

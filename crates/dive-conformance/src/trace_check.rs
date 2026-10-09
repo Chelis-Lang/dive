@@ -12,12 +12,10 @@
 //! counterexample must validate (positive controls), and every
 //! by-construction mutant of it must be rejected (negative controls).
 //!
-//! **Deadlock.** The validator cannot check that a state has no successor
-//! without the successor enumerator, and refuses by name (ADR 0016,
-//! amendment 1). The harness then accepts a deadlock counterexample only if
-//! every other check passed *and* its last state equals the last state of
-//! the golden's own counterexample, which the oracle reported as
-//! deadlocked: the oracle, not the implementation, vouches for the claim.
+//! **Deadlock.** Independent finite covers certify supported deadlocks without
+//! the checker enumerator (ADR 0016 amendment 2). For missing covers only,
+//! the harness requires every other check to pass and the final state to equal
+//! the golden's deadlocked state. Refusal never proves absence.
 
 use std::path::{Path, PathBuf};
 
@@ -214,6 +212,11 @@ fn golden_last_state(
     let doc = tlc_document(golden)?;
     let (report, trace) = spec.read(&doc);
     match (&report.validation, trace) {
+        (Validation::Valid, Some(t)) => t
+            .states
+            .last()
+            .cloned()
+            .ok_or_else(|| "empty trace".to_owned()),
         (Validation::Unsupported(u), Some(t)) if u == dive_trace_deadlock() => t
             .states
             .last()
