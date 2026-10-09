@@ -120,3 +120,12 @@ the successor value. Planning checks instantiated levels before classifying
 an atom or folding a constant. The independent word evaluator resolves those
 contexts separately. Action/temporal arguments and higher-order operators
 remain named refusals.
+
+Finite constant-domain quantifiers inside state/action predicates now retain
+all instantiated body scopes during planning and independent word validation.
+This includes quantified actions in WF/SF. Independent necessary covers combine
+existential alternatives and universal constraints, then check the entire original
+relation for each assignment. Nested domains may read already bound outer values;
+state-dependent domains remain refused by temporal preflight, while independent
+ENABLED can decide a finite domain using its concrete current state. Primed and
+infinite domains, effects, missing covers and explicit budgets remain refusals.

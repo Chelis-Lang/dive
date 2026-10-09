@@ -29,3 +29,14 @@ the command above, substituting `EnabledScopedCover`.
 exits 11 with the concrete 0,1 trace. Capture it with the same command and
 its module name. A separate no-finite-cover deadlock remains Unsupported in
 the API controls, preserving the absence-proof fallback.
+
+
+`EnabledQuantifiedCover` is a clean pinned 36-state ENABLED probe. Three
+identities cover existential alternatives, inconsistent universal constraints,
+and empty existential domains (108 independent decisions). Generated with:
+
+```sh
+DIVE_CACHE_DIR=<verified-cache> cargo run -p dive-conformance --release -- dev capture \
+  --oracle tlc-2026.10.06.014338 --specs crates/dive-trace/tests/fixtures/specs \
+  --out crates/dive-trace/tests/fixtures EnabledQuantifiedCover
+```
