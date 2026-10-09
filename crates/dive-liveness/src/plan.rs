@@ -1,15 +1,15 @@
 //! Pure bound-predicate lowering to the formula language kernel.
 //!
 //! This M6 L1 foundation expands WF/SF through enabledness and non-stuttering
-//! occurrences. TLC's DNF/order, temporal quantification and numbering remain
+//! occurrences. TLC's DNF/order and numbering remain
 //! pending. Refusals name the
 //! source expression; callers must not remove a model's liveness refusal merely
 //! because an individual predicate lowers successfully.
 
-use std::collections::BTreeSet;
-
 use dive_eval::{ConstBinding, EvalError, Scope, SlotView, St, StateRef};
-use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, QuantKind, StdOp};
+use dive_ir::{
+    Arg, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, QuantKind, StdOp,
+};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -244,20 +244,83 @@ impl Lower<'_> {
         }
     }
 
-    // Conservative: parameters/substitutions could hide temporal operands or
-    // checker reads. Do not classify them from uninstantiated SANY levels.
+    // Constant arguments become values before entering a user definition. This
+    // makes its SANY levels valid for planning without evaluating a state thunk.
+    fn constant_call(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        def: DefId,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<Scope, PlanningError> {
+        self.step()?;
+        if depth > 256 || args.len() > self.limits.formula_nodes {
+            return Err(PlanningError::formula(
+                self.model,
+                self.root_expr,
+                FormulaError::Limit("constant call bindings/depth"),
+            ));
+        }
+        let ev = &self.model.evaluator;
+        let d = self.model.ir.def(def);
+        if d.recursive
+            || d.std.is_some()
+            || ev.is_value_override(def)
+            || d.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(self.refused(expr, "recursive/overridden/higher-order temporal call"));
+        }
+        let mut values = Vec::with_capacity(args.len());
+        for arg in args {
+            let Arg::Expr { expr: arg, .. } = arg else {
+                return Err(self.refused(expr, "operator argument in temporal call"));
+            };
+            if self.model.ir.node(*arg).level != Level::Constant {
+                return Err(self.refused(*arg, "nonconstant temporal operator argument"));
+            }
+            self.pure_scoped(*arg, scope, depth + 1)?;
+            values.push(
+                ev.eval_scoped(scope, *arg, &St::constant())
+                    .map_err(|e| self.refused(*arg, format!("constant temporal argument: {e}")))?,
+            );
+        }
+        ev.scope_call_values(scope, def, values)
+            .map_err(|e| self.refused(expr, e.to_string()))
+    }
+
     fn pure_atom(&mut self, expr: ExprId, scope: &Scope) -> Result<(), PlanningError> {
-        let mut todo = vec![expr];
-        let mut seen = BTreeSet::new();
-        while let Some(e) = todo.pop() {
+        self.pure_scoped(expr, scope, 0)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "scoped purity walk and explicit refusal paths"
+    )]
+    fn pure_scoped(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<(), PlanningError> {
+        // The same expression may occur under distinct parameter values. Do not
+        // deduplicate by expression ID: every context must be checked.
+        let mut todo = vec![(expr, scope.clone(), depth)];
+        while let Some((e, scope, depth)) = todo.pop() {
             self.step()?;
-            if !seen.insert(e) {
-                continue;
+            if depth > 256 {
+                return Err(PlanningError::formula(
+                    self.model,
+                    self.root_expr,
+                    FormulaError::Limit("scoped predicate depth"),
+                ));
             }
             let ir = &self.model.ir;
+            let ev = &self.model.evaluator;
             let n = ir.node(e);
             if n.effects
                 .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+                || ev.scope_shares_side_effects(&scope)
             {
                 return Err(self.refused(
                     e,
@@ -265,64 +328,47 @@ impl Lower<'_> {
                 ));
             }
             match &n.expr {
-                Expr::Local(r)
-                    if !matches!(
-                        self.model.evaluator.scope_slot(scope, *r),
-                        SlotView::Value(_)
-                    ) =>
-                {
+                Expr::Local(r) if !matches!(ev.scope_slot(&scope, *r), SlotView::Value(_)) => {
                     return Err(self.refused(e, "opaque scoped predicate atom"));
                 }
-                Expr::SubstRef { .. } => {
-                    return Err(self.refused(e, "opaque substituted predicate atom"));
+                Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
+                    return Err(self.refused(e, "opaque substituted/LET predicate atom"));
                 }
-                Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
+                Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
-                        let def = ir.def(self.model.evaluator.redirected(d));
+                        let d = ev.redirected(d);
+                        let def = ir.def(d);
                         if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
                             return Err(self.refused(
                                 e,
                                 "nonconstant/recursive/parameterized constant override",
                             ));
                         }
-                        todo.push(def.body);
+                        let sc = ev
+                            .scope_enter(&scope, d)
+                            .map_err(|err| self.refused(e, err.to_string()))?;
+                        todo.push((def.body, sc, depth + 1));
                     }
                     None => return Err(self.refused(e, "unbound predicate constant")),
                 },
                 _ => {}
             }
-            let mut operators = Vec::new();
-            match &n.expr {
-                Expr::Def(d) => operators.push(OpRef::Def(*d)),
-                Expr::Apply { callee, args } => {
-                    operators.push(callee.clone());
-                    operators.extend(args.iter().filter_map(|a| {
-                        if let Arg::Op { op, .. } = a {
-                            Some(op.clone())
-                        } else {
-                            None
-                        }
-                    }));
-                }
-                _ => {}
-            }
-            for op in operators {
+            let call = match &n.expr {
+                Expr::Def(d) => Some((OpRef::Def(*d), &[][..])),
+                Expr::Apply { callee, args } => Some((callee.clone(), args.as_ref())),
+                _ => None,
+            };
+            if let Some((op, args)) = call {
                 let standard = match op {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
-                        let d = self.model.evaluator.redirected(d);
-                        if self.model.evaluator.is_value_override(d) {
-                            continue;
-                        }
+                        let d = ev.redirected(d);
                         let def = ir.def(d);
-                        if def.std.is_none() && (def.recursive || !def.params.is_empty()) {
-                            return Err(
-                                self.refused(e, "recursive/parameterized predicate definition")
-                            );
-                        }
-                        if def.std.is_none() {
-                            todo.push(def.body);
+                        if !ev.is_value_override(d) && def.std.is_none() {
+                            let sc = self.constant_call(e, &scope, d, args, depth + 1)?;
+                            todo.push((def.body, sc, depth + 1));
+                            continue;
                         }
                         def.std
                     }
@@ -334,8 +380,16 @@ impl Lower<'_> {
                 if standard == Some(StdOp::TlcTLCGet) {
                     return Err(self.refused(e, "TLCGet requires the liveness search host"));
                 }
+                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    return Err(self.refused(e, "higher-order predicate argument"));
+                }
             }
-            todo.extend(n.expr.children());
+            todo.extend(
+                n.expr
+                    .children()
+                    .into_iter()
+                    .map(|c| (c, scope.clone(), depth + 1)),
+            );
         }
         Ok(())
     }
@@ -464,6 +518,14 @@ impl Lower<'_> {
                     Node::Or(children)
                 }
             }
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } => {
+                let d = ev.redirected(*d);
+                let sc = self.constant_call(expr, scope, d, args, depth)?;
+                return self.expr(ir.def(d).body, &sc, depth);
+            }
             Expr::Def(d) => {
                 let d = ev.redirected(*d);
                 if ev.is_value_override(d) || ir.def(d).recursive || !ir.def(d).params.is_empty() {
@@ -553,7 +615,8 @@ impl Lower<'_> {
 /// Lowers a pure bound temporal predicate into the language kernel, retaining
 /// each atom's scope. Supports boolean combinations, `[]`, `<>`, `~>`, pure
 /// constant conditionals, direct ENABLED, WF/SF over pure actions and
-/// state-level subscripts, and zero-arity temporal definitions. Planning alone
+/// state-level subscripts, finite constant domains and pure constant-argument
+/// temporal definitions. Planning alone
 /// does not validate a behavior or enable model-checking liveness.
 ///
 /// # Errors
