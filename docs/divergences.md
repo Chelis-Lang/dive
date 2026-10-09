@@ -161,3 +161,8 @@ D-013 INSTANCE predicate coverage includes pure value/variable substitutions,
 nested contexts and priming. Six pinned `Is*` probes match final truth/counts
 in both profiles/stores. Operator substitutions and independent substituted
 disabledness proofs remain refused; strict TLC temporal selection is pending.
+
+D-013 finite-data coverage includes constant-domain set maps, filters and
+function constructors with retained local contexts. Seven pinned `Bc*` probes
+match final truth/counts in both profiles/stores; dynamic domains and effects
+remain refused. Strict TLC temporal selection/timing remains pending.

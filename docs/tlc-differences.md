@@ -758,6 +758,24 @@ operator substitutions and unproven substituted disabledness remain named
 refusals. This is supported-language coverage, not TLC-exact temporal selection
 or stopping. Evidence: `crates/dive-api/tests/fixtures/temporal-substitutions/`.
 
+**D-013 finite-data update:** temporal predicates can use set maps, set filters
+and function constructors over finite constant domains. For example:
+
+```tla
+P == []<>({IF b THEN x ELSE FALSE : b \in BOOLEAN} = BOOLEAN)
+```
+
+With a Boolean variable initially TRUE and a toggling Next action, TLC reports
+a violation: infinite stuttering at FALSE fails P. It generates 3 states,
+retains 2 distinct states and reaches depth 2. Both dive profiles/stores match
+this result and independently validate the returned periodic witness. Local
+bindings and captured state remain separate through nested constructors and
+function arguments. The empty-domain case is supported; state-dependent
+domains, effects and explicit resource limits remain named refusals. Evidence:
+`crates/dive-api/tests/fixtures/temporal-constructors/`, seven supported pinned
+truth/count controls and exhaustive short Boolean words. Exact TLC temporal
+selection, stopping and parallel capture remain pending.
+
 ### Symbolic function-set enumeration
 
 The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds
