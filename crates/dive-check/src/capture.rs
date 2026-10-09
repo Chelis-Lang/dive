@@ -12,7 +12,7 @@ use dive_eval::next::{StateVals, Successor};
 use dive_model::{Model, UnsupportedKind};
 
 use crate::engine;
-use crate::{CheckOptions, Collision, Stats, Verdict, Workers};
+use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
 /// Explicit entry-count bounds for retained graph data.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -85,7 +85,7 @@ pub enum Exploration {
     Complete(Box<Complete>),
     /// A safety stop, unsupported feature, resource bound or internal failure.
     /// No partial graph is exposed as complete.
-    Stopped(Verdict),
+    Stopped(Box<CheckResult>),
 }
 
 pub(crate) struct Collector<K> {
@@ -243,22 +243,31 @@ fn limit(s: &str) -> Verdict {
 /// ```
 #[must_use]
 pub fn explore(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
+    let started = std::time::Instant::now();
     let run = || explore_inner(model, opts, limits);
-    std::thread::scope(|scope| {
+    let mut result = std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
             .spawn_scoped(scope, run)
         {
             Ok(thread) => thread
                 .join()
-                .unwrap_or_else(|_| Exploration::Stopped(bug("exploration thread panicked"))),
-            Err(e) => Exploration::Stopped(bug(&format!("cannot start exploration thread: {e}"))),
+                .unwrap_or_else(|_| stopped(bug("exploration thread panicked"), model, opts)),
+            Err(e) => stopped(
+                bug(&format!("cannot start exploration thread: {e}")),
+                model,
+                opts,
+            ),
         }
-    })
+    });
+    if let Exploration::Stopped(stop) = &mut result {
+        stop.elapsed = started.elapsed();
+    }
+    result
 }
 
 fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
-    let refuse = |s: String| Exploration::Stopped(Verdict::Unsupported { feature: s });
+    let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if model.evaluator.options() != &opts.eval {
         return refuse("graph capture evaluator profile mismatch".into());
     }
@@ -288,49 +297,53 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
         model.settings.check_deadlock,
     )));
     engine::startup_counters(&host);
-    let mut output: Vec<String> = model
-        .output
-        .iter()
-        .filter_map(|m| match m {
-            dive_model::Message::Print(s) => Some(s.clone()),
-            dive_model::Message::Warning { .. } => None,
-        })
-        .collect();
-    let warnings = model
-        .output
-        .iter()
-        .filter_map(|m| match m {
-            dive_model::Message::Warning { code, message } => Some((code.code(), message.clone())),
-            dive_model::Message::Print(_) => None,
-        })
-        .collect();
-    match model.check_assumptions() {
+    let mut result = crate::bare(Verdict::Success, opts, &model.ir);
+    crate::messages(&model.output, &mut result);
+    let assumptions = model.check_assumptions();
+    result.output.extend(model.take_output());
+    match assumptions {
         AssumptionOutcome::AllTrue => {}
         AssumptionOutcome::False { message, .. } => {
-            return Exploration::Stopped(Verdict::AssumptionFalse { message });
+            result.verdict = Verdict::AssumptionFalse { message };
+            return Exploration::Stopped(Box::new(result));
         }
         AssumptionOutcome::Error { error, message, .. } => {
-            return Exploration::Stopped(crate::class::assumption_error(&error, message));
+            result.verdict = crate::class::assumption_error(&error, message);
+            return Exploration::Stopped(Box::new(result));
         }
     }
-    output.extend(model.take_output());
     let outcome = engine::search_graph(model, opts, &host, limits);
-    if outcome.verdict != Verdict::Success {
-        return Exploration::Stopped(outcome.verdict);
+    result.verdict = outcome.verdict;
+    result.stats = outcome.stats;
+    result.tlc_prints_stats = outcome.tlc_prints_stats;
+    result.counterexample = outcome.counterexample;
+    result.collision = outcome.collision;
+    result.workers = outcome.workers;
+    result.output.extend(outcome.output);
+    result.notes = outcome.notes;
+    if result.verdict != Verdict::Success {
+        return Exploration::Stopped(Box::new(result));
     }
-    match (outcome.graph, outcome.stats) {
-        (Some(graph), Some(stats)) => {
-            output.extend(outcome.output);
-            Exploration::Complete(Box::new(Complete {
-                options: opts.clone(),
-                graph,
-                stats,
-                collision: outcome.collision,
-                workers: outcome.workers,
-                output,
-                warnings,
-            }))
-        }
-        _ => Exploration::Stopped(bug("completed exploration did not return graph/statistics")),
+    match (outcome.graph, result.stats) {
+        (Some(graph), Some(stats)) => Exploration::Complete(Box::new(Complete {
+            options: opts.clone(),
+            graph,
+            stats,
+            collision: result.collision,
+            workers: result.workers,
+            output: result.output,
+            warnings: result.warnings,
+        })),
+        _ => stopped(
+            bug("completed exploration did not return graph/statistics"),
+            model,
+            opts,
+        ),
     }
+}
+
+fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration {
+    let mut result = crate::bare(verdict, opts, &model.ir);
+    crate::messages(&model.output, &mut result);
+    Exploration::Stopped(Box::new(result))
 }

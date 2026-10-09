@@ -141,6 +141,7 @@ dependencies = [
  "dive-config",
  "dive-eval",
  "dive-ir",
+ "dive-liveness",
  "dive-model",
  "dive-sema",
  "dive-stdlib",

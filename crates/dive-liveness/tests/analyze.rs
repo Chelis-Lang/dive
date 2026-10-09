@@ -209,7 +209,7 @@ fn fairness_limits_and_safety_stops_do_not_guess_holds() {
         &opts,
     );
     assert!(
-        matches!(analyze_final(&model,&opts,Limits::default()),Err(AnalysisError::Exploration(v)) if matches!(*v,Verdict::InvariantViolated { .. }))
+        matches!(analyze_final(&model,&opts,Limits::default()),Err(AnalysisError::Exploration(v)) if matches!(v.verdict,Verdict::InvariantViolated { .. }))
     );
 }
 

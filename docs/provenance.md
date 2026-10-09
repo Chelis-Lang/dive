@@ -100,3 +100,9 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | Scoped checker enabledness (`dive-eval/src/next.rs` `enabled_scoped`) | Existing `Tool.enabled` and StepAngle CHANGED continuation at pin `94d0c50` | MIT | Exposes the existing generator-side path to fairness atoms; deliberately independent of the validator finite-cover procedure. |
 | WF/SF formula expansion and candidate attribution (`dive-liveness/src/plan.rs`, `formula.rs`, `analyze.rs`) | TLA+ fairness identities and direct periodic-word semantics; ADR 0018 increment | Own design | Ten pinned violations and three successes match counts; all candidates independently validate. Complete false-property set tested separately from tableau visits. No TLC numbering/selection claim. |
+
+
+The final temporal API coordinator (`dive-api::temporal`) binds and validates
+through separate evaluator instances. This orchestration is an original design;
+it ports no Java algorithm. It uses the previously recorded safety exploration,
+formula/product and independent trace semantics.
