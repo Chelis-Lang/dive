@@ -5,7 +5,7 @@ use dive_eval::St;
 use dive_liveness::Graph;
 use dive_liveness::formula::{AtomKind, Limits, Tableau, compile};
 use dive_liveness::plan::{Plan, lower};
-use dive_liveness::search::{Acceptance, find_lasso};
+use dive_liveness::product::{Labels, Limits as ProductLimits, Product};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 use std::sync::Arc;
@@ -51,44 +51,41 @@ fn accepts(model: &Model, plan: &Plan, t: &Tableau, word: &[Value], back: usize)
             .collect();
         values.push(row);
     }
-    let fits = |pos: usize, n: usize| {
-        t.nodes[n]
-            .literals
-            .iter()
-            .all(|lit| values[pos][lit.atom.index] == lit.positive)
-    };
-    let width = t.nodes.len();
-    let mut edges = vec![vec![]; word.len() * width];
-    for pos in 0..word.len() {
-        let next = if pos + 1 == word.len() { back } else { pos + 1 };
-        for n in 0..width {
-            if fits(pos, n) {
-                edges[pos * width + n] = t.nodes[n]
-                    .successors
-                    .iter()
-                    .filter(|s| fits(next, **s))
-                    .map(|s| next * width + s)
-                    .collect();
-            }
-        }
-    }
-    let roots = t.roots.iter().copied().filter(|n| fits(0, *n)).collect();
-    let recurrent = edges.iter().map(|es| vec![true; es.len()]).collect();
-    let states = (0..t.promise_count)
-        .map(|p| {
-            (0..word.len() * width)
-                .map(|v| t.nodes[v % width].fulfilled[p])
-                .collect()
-        })
+    let edges = (0..word.len())
+        .map(|pos| vec![if pos + 1 == word.len() { back } else { pos + 1 }])
         .collect();
-    find_lasso(
-        &Graph::new(edges, roots).expect("product"),
-        &Acceptance {
-            recurrent,
-            states,
-            actions: vec![],
-        },
+    let labels = Labels {
+        states: plan
+            .atoms
+            .iter()
+            .enumerate()
+            .map(|(i, a)| {
+                values
+                    .iter()
+                    .map(|row| a.kind == AtomKind::State && row[i])
+                    .collect()
+            })
+            .collect(),
+        actions: plan
+            .atoms
+            .iter()
+            .enumerate()
+            .map(|(i, a)| {
+                values
+                    .iter()
+                    .map(|row| vec![a.kind == AtomKind::Action && row[i]])
+                    .collect()
+            })
+            .collect(),
+    };
+    Product::new(
+        &Graph::new(edges, vec![0]).expect("word"),
+        t,
+        &labels,
+        ProductLimits::default(),
     )
+    .expect("product")
+    .find_lasso()
     .expect("search")
     .is_some()
 }
