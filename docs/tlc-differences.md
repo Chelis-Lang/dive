@@ -526,7 +526,36 @@ and the oracle parser correction remain tracked in issue #77.
 
 ## D-015: Symmetry functions must actually be permutations
 
-**Status:** planned, owner-approved rejection in the default profile. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The default profile will name and reject the offending function. `--compat=tlc` retains TLC's acceptance. Evidence: ADR 0019 §1 and its pinned-oracle non-bijective probe; the numerical state-space comparison is to be recorded when this option is implemented.
+**Status:** checked and TLC-compatible closure kernels implemented; model binding and reduction remain planned. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
+
+**Foundation update, 2026-10-09.** The bounded symmetry-closure kernel now
+has a checked setting that rejects non-bijective maps, including collisions
+with implicitly fixed model values. Its TLC setting preserves malformed-map
+closure and exact insertion order. All 1,329 direct pinned-kernel inputs match;
+valid cases match in both settings. This is a library foundation: binding,
+startup warnings and state reduction remain open, so model checking with
+`SYMMETRY` still refuses by name. Evidence and reproduction:
+`crates/dive-model/tests/fixtures/symmetry-group/README.md`.
+
+**Minimal measured missed violation.**
+
+```tla
+CONSTANT a, b
+VARIABLE x
+Init == x = a
+Next == x' \in {a, b}
+Bad == {[p \in {a, b} |-> a], [p \in {a, b} |-> p]}
+Sym == Bad
+Inv == x = a
+```
+
+Bind `a` and `b` to model values and check `Inv`. With `SYMMETRY Sym`, the
+pinned TLC reports success: 3 generated, 1 distinct, depth 1. Without symmetry,
+it finds `x = b` violating `Inv`: 3 generated, 2 distinct, depth 2, exit 12.
+The collapsing map is not a bijection; it merges the violating state into the
+initial state's key. The normal-CLI SyNonBiject/SyNonBijectNone transcripts
+are in the symmetry-group fixture directory. Current dive model checking
+refuses symmetry, and its checked library kernel rejects this map.
 
 ## D-016: The declared symmetry can be audited
 
@@ -541,6 +570,28 @@ The approved interface is `--allow-io=env,files,exec`, with no categories grante
 ---
 
 ## Under consideration
+
+### Empty symmetry sets crash TLC
+
+```tla
+VARIABLE x
+Init == x = TRUE
+Next == UNCHANGED x
+Sym == {}
+```
+
+With `INIT Init`, `NEXT Next` and `SYMMETRY Sym`, the pinned TLC exits 255
+with GENERAL and an `IllegalArgumentException`, rather than explaining that
+there are no permutations. SANY accepts the module. TLC's closure kernel
+allocates a set with capacity `size - 1`; zero and one supplied function throw
+when called directly. Normal binding often disables singleton cases first
+with warning 2300, so these two stages must be tested separately.
+
+The raw minimal SyEmpty capture and direct-kernel inputs are in
+`crates/dive-model/tests/fixtures/symmetry-group/`. The new Rust kernel reports
+`TooFewGenerators` instead of panicking. Model binding/reduction are still
+refused; no new result-changing default for empty declarations is adopted.
+
 
 These are recorded candidates. They are not decided, and nothing in dive behaves differently for them yet.
 

@@ -135,3 +135,24 @@ Symmetry does not change simulation's safety checking, since simulation does no 
 ## Owner decisions, 2026-10-09
 
 The intended default is `--symmetry-liveness=unreduced`, disabling reduction for the entire liveness run and reporting unreduced counts. This supersedes §4's refusal default; `refuse` stays an option and `--compat=tlc` retains the quotient path. Reject non-bijective functions in the default profile; preserve TLC's acceptance in compat mode. Build `--check-symmetry` as an opt-in audit. These are approved designs, not claims that the currently unsupported features are implemented.
+
+## S1 closure increment, 2026-10-09
+
+The public `dive_model::symmetry` kernel closes ordered model-value index maps
+with TLC's exact composition/insertion order. Identity is implicit; duplicate
+generators are removed. Checked mode rejects non-bijections after identity
+extension; TLC mode retains their finite closure. Universe, map, dense-cell
+and work limits refuse without exposing partial groups. A direct pinned Java
+driver supplies 1,329 order-sensitive controls, including malformed maps.
+
+The Java kernel throws for fewer than two supplied functions; the Rust kernel
+returns `TooFewGenerators`. A raw normal-CLI SyEmpty capture records GENERAL,
+exit 255. Tool-level lookup, normalization and too-small/unused-set warnings
+remain open, as do canonicalization, reduction and symmetric trace evidence.
+No SYMMETRY checker refusal is lifted by this increment.
+
+Nine additional raw binding/error/warning captures include SyNonBiject:
+TLC reports success with a collapsing map (3 generated / 1 distinct / depth 1),
+while the unreduced control reports the real Inv violation (3 / 2 / depth 2).
+They establish the next binding stage's evidence, not its implementation.
+Issue #104 tracks the remaining binding, warnings and canonicalization work.
