@@ -250,6 +250,11 @@ pub struct TlcJob<'a> {
     pub xmx: &'a str,
     /// `-seed`. Goldens always use 0; `dev capture --seed` sets others.
     pub seed: i64,
+    /// `-lncheck`. Goldens always use `final`, as upstream Examples CI does;
+    /// `dev capture --lncheck` sets others (liveness probes).
+    pub lncheck: &'a str,
+    /// `-fp`. Goldens always use 0; `dev capture --fp` sets others.
+    pub fp: u32,
     /// Pass `-dumpTrace json <file>` (when the oracle supports it). Only the
     /// trace pass sets this: the flag changes which Java overrides TLC
     /// installs, so a run with it is never the source of a verdict, count
@@ -476,7 +481,8 @@ impl OracleEnv {
             cmd.args(["-simulate", &format!("num={traces}")]);
         }
         cmd.args(["-workers", &job.workers.to_string()])
-            .args(["-lncheck", "final", "-cleanup", "-tool", "-fp", "0"])
+            .args(["-lncheck", job.lncheck, "-cleanup", "-tool"])
+            .args(["-fp", &job.fp.to_string()])
             .args(["-seed", &job.seed.to_string()])
             .arg("-metadir")
             .arg(scratch.path().join("states"));
