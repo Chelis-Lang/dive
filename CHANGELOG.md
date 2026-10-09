@@ -44,6 +44,14 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- M6 design: ADRs 0017 (TLC's liveness semantics), 0018 (liveness in dive) and 0019
+  (symmetry), all proposed, and `docs/design/m6-plan.md`. 43 TLC probes for liveness,
+  fairness and symmetry in `crates/dive-liveness/tests/fixtures/tlc-probes/`, with
+  evidence that TLC's liveness counterexample is deterministic at one worker but
+  depends on the fingerprint polynomial, and that symmetry with liveness both misses
+  and invents violations.
+- `dive-conformance dev capture --lncheck MODE --workers N --fp N`, for probes of TLC's
+  other liveness modes. Goldens are unchanged.
 - Standard library breadth (M5, WP-C3), each operator a port of the Java method TLC
   runs, with its errors:
   - the `Bags` overrides, and the CommunityModules operators that corpus models use:

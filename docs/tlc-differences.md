@@ -190,9 +190,23 @@ Measured on the pinned TLC:
 
 **What TLC does.** Symmetry reduction lets TLC explore only one representative of each group of states that differ only by a permutation of interchangeable values, such as process ids. Combined with liveness checking ("something good eventually happens"), symmetry can make TLC miss real violations. TLC knows this. It prints a warning ("Declaring symmetry during liveness checking is dangerous. It might cause TLC to miss violations…", `EC.TLC_FEATURE_UNSUPPORTED_LIVENESS_SYMMETRY`), but then carries on and can report success.
 
+Measured on the pinned TLC, it goes wrong in both directions:
+
+- **A missed violation.** `x` moves between three interchangeable model values `a`, `b`, `c` at every step, under weak fairness. `PROPERTY []<>(x = a)` is false: `a, b, c, b, c, …` never returns to `a`. Without `SYMMETRY`, TLC finds that counterexample. With `SYMMETRY Permutations({a, b, c})`, TLC prints the warning and reports **no error**, after exploring 1 state.
+
+  ```tla
+  Next == x' \in S \ {x}
+  Spec == Init /\ [][Next]_x /\ WF_x(Next)
+  InfOftenA == []<>(x = a)
+  ```
+
+- **A false violation.** A token alternates between two interchangeable processes under weak fairness, and the property "every process holds the token infinitely often", `\A p \in S : []<>(tok = p)`, is true. The spec and the property are both symmetric. With `SYMMETRY`, TLC reports `Temporal property Fair was violated`, with a counterexample of one state followed by "Stuttering". The fairness condition forbids that behaviour.
+
 **What dive does.** By default dive refuses to give a verdict for this combination. It explains why, and suggests how to proceed: drop the symmetry for the liveness run, or opt into TLC's behaviour knowingly. "No error found" should never be an answer that the tool itself suspects may be wrong.
 
-**Evidence.** ADR 0010 (owner decision of 2026-10-08), probe P4 (another checker raised a false liveness alarm under symmetry).
+Under `--symmetry-liveness=tlc` dive reproduces TLC's answers, both wrong ones included. A counterexample that comes from TLC's symmetry reduction and is not a real behaviour of the spec is labelled as such.
+
+**Evidence.** ADR 0010 (owner decision of 2026-10-08); ADR 0019 §4; probes `SymLiveMissed`, `SymLiveMissedNone`, `SymLiveSymProp` and `SymLiveWarn` in `crates/dive-liveness/tests/fixtures/tlc-probes/`; survey probe P4 (another checker raised a false liveness alarm under symmetry).
 
 ---
 
@@ -434,6 +448,9 @@ valid: the 7-state trace validates
 ## Under consideration
 
 These are recorded candidates. They are not decided, and nothing in dive behaves differently for them yet.
+
+- **Which liveness counterexample is reported.** TLC's liveness counterexample depends on the order of its internal hash tables, so it depends on the fingerprint polynomial (`-fp`), which TLC picks at random unless you set it. On the Examples spec `MCDistributedReplicatedLog`, six polynomials gave five different counterexamples, of 4, 5 or 6 states, naming either `InSync` or `AllExtending and InSync` as violated. TLC's choice is also not the shortest available: for `[]<>(x = 0)` on a counter `0, 1, 2` with no fairness, TLC shows three states and then stuttering, where stuttering after two states already violates the property. dive's proposed default (`--lasso=short`) reports a counterexample with the shortest possible prefix, the same one at any polynomial and any worker count. TLC's exact choice would stay available as `--lasso=tlc`, in `--compat=tlc`. The verdict and the state counts are the same either way. Open question 14; ADRs 0017 and 0018; probes in `crates/dive-liveness/tests/fixtures/tlc-probes/`.
+- **Liveness under a state constraint.** TLC checks liveness on the graph that `CONSTRAINT` leaves, while `ENABLED` (and so fairness) still sees the successors the constraint removed. A behaviour that leaves the model is not considered at all. For `x' = x + 1` under weak fairness with `CONSTRAINT x < 3`, TLC reports that `<>(x = 5)` holds, although no state inside the model has `x = 5` (probe `LvConstraint`). With `ACTION_CONSTRAINT` the cut graph can also produce a counterexample that the unconstrained spec does not have (probe `LvActionConstraint`). dive reproduces TLC exactly. A future warning could point out when a liveness verdict depends on a constraint.
 
 - **SANY parser artefacts.** SANY rejects some inputs that look like valid TLA+, apparently because of how its JavaCC parser is implemented:
   - `{a, b \in S}`;
