@@ -821,3 +821,11 @@ independent decisions. Current-state domains are read at that state; primed
 domains and missing finite successor covers refuse rather than certify a false
 deadlock. Complete TLC temporal stopping, planning/selection and parallel
 graph capture remain open.
+
+**D-008 frontend evidence update:** a malformed PlusCal comment can make SANY
+reject or crash after TLA+ grammar parsing succeeds. For example, the existing
+`PcalEndWithoutBegin.tla` case exits 255 with an array index of -1, while the
+pinned root grammar accepts it. `dive analyze` reports `DIVE-E0009` for the
+translation-validation problem; `dive parse` measures the TLA+ grammar only.
+Deep campaigns now retain both facts separately, with no acceptance inferred
+from a generic crash. See `docs/frontend-campaign.md` and issue #98.

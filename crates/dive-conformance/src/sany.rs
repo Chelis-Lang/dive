@@ -97,6 +97,15 @@ pub fn classify(outcome: &ProcessOutcome) -> SanyResult {
         SanyVerdict::ParseError
     } else if SEMANTIC_MARKERS.iter().any(|m| text.contains(m)) {
         SanyVerdict::SemanticError
+    } else if has_errors
+        && text.contains(
+            "An unexpected problem was encountered attempting to validate the specification for ",
+        )
+    {
+        // SpecObj.validateParseUnit reports INTERNAL_ERROR here. It is
+        // called only after ParseUnit.parseFile succeeds, but frontEndParse
+        // still rejects the specification in its parse/loading phase.
+        SanyVerdict::ParseError
     } else {
         SanyVerdict::Unclassified
     };
@@ -205,6 +214,8 @@ pub fn parse_phase(result: &SanyResult, module: &str) -> std::result::Result<Par
                 || text.contains("Cannot find source file for module ")
                 || text.contains("File name '")
                 || text.contains("Circular dependency among .tla files")
+                || (text.contains("*** Errors:")
+                    && text.contains("An unexpected problem was encountered attempting to validate the specification for "))
             {
                 Ok(ParseVerdict::Accept)
             } else {
@@ -342,5 +353,28 @@ mod tests {
         assert!(!r.exit_code_reflects_errors);
         let r = classify(&outcome(255, "Illegal switch: -error-codes\n"));
         assert_eq!(r.verdict, SanyVerdict::Unclassified);
+    }
+
+    #[test]
+    fn recognized_translation_validation_failure_is_not_a_grammar_rejection() {
+        let r = classify(&outcome(
+            255,
+            "*** Errors: 1\n\nIn module M\n\nAn unexpected problem was encountered attempting to validate the specification for M\n",
+        ));
+        assert_eq!(r.verdict, SanyVerdict::ParseError);
+        assert!(!r.accepted);
+        assert_eq!(parse_phase(&r, "M.tla"), Ok(ParseVerdict::Accept));
+        assert_eq!(parse_phase(&r, "Root.tla"), Ok(ParseVerdict::Accept));
+        // An arbitrary exception still supplies no grammar-acceptance fact.
+        let crash = classify(&outcome(
+            255,
+            "Fatal errors while parsing TLA+ spec in file M.tla\njava.lang.ArrayIndexOutOfBoundsException: Index -1 out of bounds for length 10",
+        ));
+        assert!(parse_phase(&crash, "M.tla").is_err());
+        let mention = classify(&outcome(
+            255,
+            "An unexpected problem was encountered attempting to validate the specification for M",
+        ));
+        assert_eq!(mention.verdict, SanyVerdict::Unclassified);
     }
 }

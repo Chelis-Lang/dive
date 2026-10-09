@@ -149,6 +149,7 @@ Run the gate locally before pushing. This is exactly what CI's `Workspace gate` 
 ```sh
 cargo fmt --all --check
 python3 scripts/test-validation-import.py
+python3 -I scripts/test-frontend-campaign.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
@@ -168,7 +169,9 @@ cargo deny --locked check
   those widths (`DIVE_GATE_CORPUS=validation-smoke` and
   `conformance/gates/validation-smoke.txt`). Every model must fully agree.
 - *Deep:* the same workflow with `tier=deep`, run on manual dispatch and before
-  releases.
+  releases. Its separate frontend job runs deterministic syntax/layout/semantic
+  mutations and both SANY-case directories through the pinned oracle. See
+  `docs/frontend-campaign.md`; preserve the complete selection and raw reports.
 - *Not in CI:* benchmarks, profiling and long fuzzing. Run them by hand with
   `dive-bench` and `cargo build --profile profiling`, and record machine details
   with the results.
