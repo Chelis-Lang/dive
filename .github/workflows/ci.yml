@@ -123,5 +123,5 @@ jobs:
         run: |
           target/release/dive-conformance oracle fetch
           target/release/dive-conformance corpus fetch --corpus examples
-      - name: CM1 gate (1 and 4 workers)
-        run: scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4
+      - name: CM1 gate (1, 4 and 8 workers)
+        run: scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8

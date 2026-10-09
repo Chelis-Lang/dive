@@ -322,6 +322,13 @@ impl Evaluator {
         self.core.force_fcn(ev)
     }
 
+    /// [`Evaluator::scope_shares_side_effects`] for an initial predicate or
+    /// action.
+    #[must_use]
+    pub fn action_shares_side_effects(&self, action: &Action) -> bool {
+        crate::env::shares_side_effects(&self.core.ir, &action.env)
+    }
+
     /// Generates the initial states (`Tool.getInitStates`): every initial
     /// predicate in order, the first one enumerated and the others consed as
     /// its continuation. Each state, duplicates included, goes to `sink`

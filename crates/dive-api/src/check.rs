@@ -77,6 +77,12 @@ pub struct CheckRequest {
     pub workers: Option<usize>,
     /// TLC's `-deadlock`: do not check for deadlock.
     pub no_deadlock: bool,
+    /// `--sequential`: every level inline with one logical worker, as
+    /// sequential mode does (ADR 0015 §6). Results are identical.
+    pub sequential: bool,
+    /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
+    /// `dive_check::CheckOptions::chaos`. Results must be identical.
+    pub chaos: Option<u64>,
 }
 
 /// The phase a check ended in.
@@ -145,6 +151,8 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
     };
     opts.no_deadlock = req.no_deadlock;
     opts.workers = workers_requested;
+    opts.sequential = req.sequential;
+    opts.chaos = req.chaos;
     let cfg_path = req
         .config
         .clone()
@@ -309,12 +317,38 @@ impl CheckReport {
             "seed": o.seed,
             "seed_source": if self.seed_given { "flag" } else { "fresh" },
             "deadlock_flag": o.no_deadlock,
-            "workers": {
-                "requested": self.workers_requested,
-                "used": 1,
-                "reason": (self.workers_requested > 1).then_some("the parallel engine (WP-D3) is not implemented yet; levels run inline"),
-            },
+            "workers": self.workers_json(),
         })
+    }
+
+    /// The workers requested and used: `{ requested, used, sequential,
+    /// reason, chaos }`. These, with the timings, are the only fields of the
+    /// document that may differ between worker counts.
+    fn workers_json(&self) -> Value {
+        let w = match &self.phase {
+            Phase::Checked(r) => r.workers.clone(),
+            _ => dive_check::Workers {
+                requested: self.workers_requested,
+                used: 0,
+                sequential: false,
+                reason: Some("no search ran".to_owned()),
+            },
+        };
+        json!({
+            "requested": w.requested,
+            "used": w.used,
+            "sequential": w.sequential,
+            "reason": w.reason,
+            "chaos": self.opts.chaos,
+        })
+    }
+
+    /// The workers used, for the human header.
+    fn workers_used(&self) -> usize {
+        match &self.phase {
+            Phase::Checked(r) => r.workers.used,
+            _ => 0,
+        }
     }
 
     /// The JSON document (schema [`CHECK_SCHEMA_VERSION`]):
@@ -341,7 +375,8 @@ impl CheckReport {
     ///   "options": { "profile", "int", "choose_order", "explore_order",
     ///                "comparisons", "warnings", "store", "fingerprint",
     ///                "seed", "seed_source", "deadlock_flag",
-    ///                "workers": { "requested", "used", "reason" } },
+    ///                "workers": { "requested", "used", "sequential", "reason",
+    ///                             "chaos" } },
     ///   "elapsed_ms" }
     /// ```
     ///
@@ -497,13 +532,19 @@ impl CheckReport {
         };
         let _ = writeln!(
             out,
-            "dive check {}: profile {}, store {}{fp}, seed {}, {} worker(s) requested, 1 used",
+            "dive check {}: profile {}, store {}{fp}, seed {}, {} worker(s) requested, {} used",
             self.file,
             self.profile_name(),
             o.store.name(),
             o.seed,
-            self.workers_requested
+            self.workers_requested,
+            self.workers_used()
         );
+        if let Phase::Checked(r) = &self.phase
+            && let Some(why) = &r.workers.reason
+        {
+            let _ = writeln!(out, "{why}");
+        }
         match &self.phase {
             Phase::SpecRejected(a) => out.push_str(&a.render_human()),
             Phase::ConfigRejected(c) => out.push_str(&c.render_human()),

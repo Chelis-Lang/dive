@@ -39,6 +39,7 @@
 //! `ENABLED`.
 #![forbid(unsafe_code)]
 
+pub mod capture;
 mod community;
 mod core;
 mod env;
@@ -183,6 +184,28 @@ impl Evaluator {
             .as_ref()
             .map(|s| s.take())
             .unwrap_or_default()
+    }
+
+    /// Releases captured output ([`capture::PrintCapture`]) through the
+    /// sink, in the order given. A captured warning is kept only if no
+    /// warning with its text was printed before in the run.
+    pub fn release(&self, lines: Vec<capture::Captured>) {
+        for line in lines {
+            if !line.warning || self.core.first_warning(&line.text) {
+                self.core.sink.print(line.text);
+            }
+        }
+    }
+
+    /// Whether evaluating in `scope` can run an expression with side effects
+    /// (`Print`, `TLCSet`, randomness, ...) through a lazily evaluated value
+    /// that every evaluation shares: a cached `LazyValue` or a lazy function
+    /// bound when the model was bound. Which evaluation forces such a value
+    /// first, and so where its side effects happen, depends on the order of
+    /// evaluation, so a parallel checker must not reorder those evaluations.
+    #[must_use]
+    pub fn scope_shares_side_effects(&self, scope: &Scope) -> bool {
+        env::shares_side_effects(&self.core.ir, &scope.env)
     }
 
     /// An evaluator with its own `Print` sink.

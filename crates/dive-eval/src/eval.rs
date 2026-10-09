@@ -1990,14 +1990,7 @@ impl Core {
             return;
         }
         let msg = format!("@!@!@STARTMSG {code}:3 @!@!@\n{text}\n@!@!@ENDMSG {code} @!@!@");
-        let fresh = self
-            .warned
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
-            .insert(msg.clone());
-        if fresh {
-            self.print(msg);
-        }
+        self.print_warning(msg);
     }
 
     /// `takeExcept` along a path whose every step exists.
