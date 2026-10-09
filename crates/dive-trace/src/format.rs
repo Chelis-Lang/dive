@@ -34,6 +34,9 @@
 //!   | `stuttering` | | the behavior stutters forever after the last state |
 //!   | `assertion`, `error` | `ec` (`error`, optional) | expanding the last state fails |
 //! - `length` (optional) is the claimed number of states; it must match.
+//! - `properties` lists all temporal properties violated by a lasso or
+//!   stuttering word. Legacy documents without names remain unsupported for
+//!   liveness validation. An enclosing report's names must agree with these.
 //!
 //! `dive check --output json` embeds this object as `counterexample.trace`;
 //! [`TraceDoc::from_json`] accepts the object itself, a document that
@@ -225,6 +228,9 @@ pub struct TraceDoc {
     pub length: Option<usize>,
     /// The format.
     pub source: Source,
+    /// All temporal properties claimed to be false on this periodic word.
+    /// Empty for other endings, or for a legacy unnamed liveness document.
+    pub properties: Vec<String>,
 }
 
 impl TraceDoc {
@@ -255,6 +261,7 @@ impl TraceDoc {
             ending: Some(Ending::Behavior),
             length: None,
             source: Source::Dive,
+            properties: Vec::new(),
         })
     }
 
@@ -262,6 +269,14 @@ impl TraceDoc {
     #[must_use]
     pub fn with_ending(mut self, ending: Ending) -> Self {
         self.ending = Some(ending);
+        self
+    }
+
+    /// Names every temporal property this periodic word claims to violate.
+    /// Validation checks the names, their truth values and completeness.
+    #[must_use]
+    pub fn with_properties(mut self, properties: Vec<String>) -> Self {
+        self.properties = properties;
         self
     }
 
@@ -284,7 +299,23 @@ impl TraceDoc {
         .flatten()
         {
             if t.get("format").and_then(J::as_str) == Some(FORMAT) {
-                return Self::from_dive(t);
+                let mut doc = Self::from_dive(t)?;
+                let outer = j.get("counterexample").unwrap_or(j);
+                if let Some(names) = outer.get("properties") {
+                    let names =
+                        strings(Some(names)).ok_or("`properties` must be a list of names")?;
+                    let outer_set: std::collections::BTreeSet<_> = names.iter().collect();
+                    if outer_set.len() != names.len() {
+                        return Err("enclosing report repeats a temporal property name".into());
+                    }
+                    let inner_set: std::collections::BTreeSet<_> = doc.properties.iter().collect();
+                    if doc.properties.is_empty() {
+                        doc.properties = names;
+                    } else if inner_set != outer_set || inner_set.len() != doc.properties.len() {
+                        return Err("enclosing report and trace disagree on `properties`".into());
+                    }
+                }
+                return Ok(doc);
             }
         }
         if let Some(c) = j.get("counterexample") {
@@ -360,6 +391,12 @@ impl TraceDoc {
             ending,
             length,
             source: Source::Dive,
+            properties: match j.get("properties") {
+                None => Vec::new(),
+                Some(names) => {
+                    strings(Some(names)).ok_or("`properties` must be a list of names")?
+                }
+            },
         })
     }
 
@@ -462,6 +499,7 @@ impl TraceDoc {
             ending: None,
             length: None,
             source: Source::Tlc,
+            properties: Vec::new(),
         })
     }
 
@@ -490,6 +528,9 @@ impl TraceDoc {
         });
         if let Some(n) = self.length {
             j["length"] = J::from(n);
+        }
+        if !self.properties.is_empty() {
+            j["properties"] = J::from(self.properties.clone());
         }
         j
     }

@@ -629,6 +629,7 @@ fn trace_doc(
         ending: Some(ending),
         length: Some(cx.states.len()),
         source: dive_trace::Source::Dive,
+        properties: Vec::new(),
     }
     .to_json()
 }

@@ -51,9 +51,12 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 L4's independent temporal word kernel is implemented for pure boolean
 combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
 suffix of all boolean words up to four positions and six pinned TLC liveness
-words. Formula truth alone does not certify a counterexample: behavior and
-fairness checks, named-property claims, the format extensions and harness
-integration remain outstanding. L3 now provides validated SCC decomposition
+words. Named pure periodic counterexamples now validate independently,
+including behavior/closing-edge checks and the complete violated-property
+set. Four pinned pure words validate, four fairness words refuse, and
+closing-edge/property/constraint mutations are rejected. Fairness, independent
+`ENABLED`, VIEW/symmetry closing evidence and harness integration remain
+outstanding. L3 now provides validated SCC decomposition
 and accepting-lasso search over supplied product graphs, including unrestricted
 prefix reachability, all acceptance visits and deterministic witnesses. Tableau
 construction, behavior-graph capture, concrete-state projection and property
