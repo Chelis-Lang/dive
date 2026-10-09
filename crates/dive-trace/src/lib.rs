@@ -62,6 +62,7 @@
 pub mod format;
 pub mod mutate;
 mod random_position;
+pub mod temporal;
 pub mod tlc;
 mod trace;
 mod validate;

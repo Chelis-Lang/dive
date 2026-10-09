@@ -71,6 +71,11 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Independent temporal evaluation over supplied lassos in `dive-trace`:
+  boolean combinations, `[]`, `<>`, `~>` and action atoms, including the
+  closing edge. Fairness, `ENABLED`, temporal quantification and side effects
+  remain explicit refusals. This is the temporal kernel for M6 L4;
+  liveness checking and complete lasso validation are not implemented yet.
 - Approved M6 defaults and the explicit host-I/O grant policy are recorded in
   ADRs, the charter appendix, and D-005 / D-013–D-017. These options remain planned.
 - M6 design: ADRs 0017 (TLC's liveness semantics), 0018 (liveness in dive) and 0019
