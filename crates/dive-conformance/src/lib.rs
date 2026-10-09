@@ -45,3 +45,6 @@ pub mod upstream;
 pub mod util;
 
 pub use error::{Error, Result};
+
+/// Non-gating observations of bounded final/short temporal checking.
+pub mod final_study;

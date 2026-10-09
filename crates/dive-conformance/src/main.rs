@@ -40,6 +40,8 @@ COMMANDS:
     corpus list            list models with tier, mode and scope
     golden generate        generate goldens from an oracle
     run                    run an implementation against the goldens and write a report
+    study final            observe dive's schema-2 final/short mode against pinned goldens;
+                           truth/count evidence only, never a strict conformance outcome
     report summarise <report.json>...
                            re-render the summary sections of existing reports into
                            --summary (default docs/conformance.md), one per implementation
@@ -48,7 +50,7 @@ COMMANDS:
                            each by-construction mutant is rejected (negative controls;
                            ADR 0016). Takes the selection options and --golden-oracle
 
-SELECTION (corpus list, golden generate, run, trace-controls):
+SELECTION (corpus list, golden generate, run, trace-controls, study final):
     --corpus <id>          corpus (default: examples); `run` takes several, into one report
     --tier <t>             small | deep | all (default: small)
     --filter <glob>        model/module path glob; repeatable (`*`, `**`, `?`)
@@ -82,7 +84,15 @@ RUN:
     --report-dir <dir>     default: conformance/reports
     --summary <file>       default: docs/conformance.md;  --no-summary to skip
 
-LIMITS (golden generate, run):
+FINAL STUDY:
+    --dive-bin <path>      explicit schema-2 final/short executable
+    --impl-profile P      dive | tlc (tlc reports named final/short overrides)
+    --golden-oracle <id>   pinned single-worker final goldens
+    --workers <list>       requested widths; observations run sequentially
+    --out <path>          separate study JSON; never writes docs/conformance.md
+                           seeds/fingerprint fixed at 0; no --jobs/--java/--impl
+
+LIMITS (golden generate, run; timeout options also apply to study final):
     --jobs <n>             parallel oracle runs (default: min(4, cpus/2))
     --xmx <size>           JVM heap per run (default: 3g)
     --timeout <secs>       fixed per-model timeout (default: derived from recorded runtime)
@@ -295,6 +305,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
             pipeline::corpus_fetch(&config, &cache, &o.corpus)?;
             Ok(false)
         }
+        ["study", "final"] => cmd_final_study(&config, &cache, &root, o),
         ["corpus", "list"] => {
             out(&pipeline::corpus_list(
                 &config,
@@ -399,6 +410,72 @@ fn cmd_trace_controls(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> 
         eprintln_safe(&format!("finding: {f}"));
     }
     Ok(!findings.is_empty())
+}
+
+/// Non-gating final/short observation; does not write the conformance summary.
+fn cmd_final_study(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool> {
+    if o.imp.is_some()
+        || !o.impl_options.is_empty()
+        || o.java.is_some()
+        || o.no_sany
+        || o.sany_only
+        || o.sany_phase.is_some()
+        || o.crosscheck
+        || o.summary.is_some()
+        || o.lncheck.is_some()
+        || o.seed.is_some()
+        || o.fp.is_some()
+        || o.specs.is_some()
+        || o.jobs.is_some()
+        || o.oracle.is_some()
+        || o.reason.is_some()
+        || !o.positional.is_empty()
+    {
+        return Err(Error::Usage("study final takes selection, --dive-bin, --impl-profile dive|tlc, --workers, timeout and --out options; modes/seeds are fixed".into()));
+    }
+    let profile = match &o.impl_profile {
+        Some(p) => Profile::parse(p)?,
+        None => Profile::from_env()?.unwrap_or_default(),
+    };
+    let opts = dive_conformance::final_study::Options {
+        corpora: if o.corpus.is_empty() {
+            vec!["examples".into()]
+        } else {
+            o.corpus.clone()
+        },
+        selection: selection(o),
+        oracle: o
+            .golden_oracle
+            .clone()
+            .unwrap_or(config.oracles.default_oracle()?.id.clone()),
+        binary: o
+            .dive_bin
+            .clone()
+            .unwrap_or_else(|| root.join("target/release/dive")),
+        profile,
+        workers: o.workers.clone().unwrap_or_else(|| vec![1]),
+        limits: limits(o),
+    };
+    let report = dive_conformance::final_study::run(config, cache, &opts)?;
+    let path = o.out.clone().unwrap_or_else(|| {
+        o.report_dir
+            .clone()
+            .unwrap_or_else(|| root.join("conformance/reports/studies"))
+            .join(format!(
+                "{}-final-short.json",
+                dive_conformance::util::unix_now()
+            ))
+    });
+    report.write(&path)?;
+    out(&format!(
+        "{}\n{} model/worker observations: {:?}; {} findings\nreport: {}\n",
+        report.claim,
+        report.rows.len(),
+        report.totals,
+        report.findings(),
+        path.display()
+    ));
+    Ok(report.findings() > 0)
 }
 
 /// `--sany-phase full|parse`.

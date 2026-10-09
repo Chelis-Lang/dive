@@ -177,6 +177,47 @@ impl DiveImplementation {
         })
     }
 
+    /// Raw black-box model run. Final/short observation is assessed separately
+    /// from the strict schema-1 conformance mapping.
+    pub(crate) fn run_model(
+        &self,
+        req: &ModelRequest<'_>,
+        final_short: bool,
+    ) -> Result<(Vec<String>, ProcessOutcome)> {
+        let cfg = req.corpus_root.join(&req.model.id);
+        let workers = req.workers.to_string();
+        // TLC's goldens run with `-fp 0 -seed 0` (`oracle::run_tlc`).
+        let mut extra: Vec<&std::ffi::OsStr> = vec![
+            "--config".as_ref(),
+            cfg.as_os_str(),
+            "--workers".as_ref(),
+            workers.as_ref(),
+            "--seed".as_ref(),
+            "0".as_ref(),
+            "--fp".as_ref(),
+            "0".as_ref(),
+        ];
+        for p in &self.module_path {
+            extra.push("--module-path".as_ref());
+            extra.push(p.path.as_os_str());
+        }
+        if final_short {
+            extra.extend::<[&std::ffi::OsStr; 4]>([
+                "--lncheck".as_ref(),
+                "final".as_ref(),
+                "--lasso".as_ref(),
+                "short".as_ref(),
+            ]);
+        }
+        self.run(
+            "check",
+            &extra,
+            req.corpus_root,
+            &req.model.module,
+            req.timeout,
+        )
+    }
+
     /// Runs `dive <command> --output json [extra] <file>` from the module's
     /// directory in the corpus checkout. `dive parse` and `dive analyze` only
     /// read files, and the harness checks afterwards that the checkout is
@@ -761,30 +802,7 @@ impl Implementation for DiveImplementation {
                 "action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`)".to_owned(),
             ));
         }
-        let cfg = req.corpus_root.join(&req.model.id);
-        let workers = req.workers.to_string();
-        // TLC's goldens run with `-fp 0 -seed 0` (`oracle::run_tlc`).
-        let mut extra: Vec<&std::ffi::OsStr> = vec![
-            "--config".as_ref(),
-            cfg.as_os_str(),
-            "--workers".as_ref(),
-            workers.as_ref(),
-            "--seed".as_ref(),
-            "0".as_ref(),
-            "--fp".as_ref(),
-            "0".as_ref(),
-        ];
-        for p in &self.module_path {
-            extra.push("--module-path".as_ref());
-            extra.push(p.path.as_os_str());
-        }
-        let (command, outcome) = self.run(
-            "check",
-            &extra,
-            req.corpus_root,
-            &req.model.module,
-            req.timeout,
-        )?;
+        let (command, outcome) = self.run_model(req, false)?;
         Ok(match check_result(&outcome, self.profile == Profile::Tlc) {
             CheckMapping::Refused(why) => ImplResult::Unsupported(why),
             CheckMapping::Result(result) => ImplResult::Completed {
