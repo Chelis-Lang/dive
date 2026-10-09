@@ -160,11 +160,11 @@ fn temporal_validation_does_not_execute_side_effects() {
         "INIT Init\nNEXT Next\n",
     );
     let states = [Arc::from([Some(Value::Bool(true))])];
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
     assert!(
         matches!(evaluate_lasso(&model, &predicate(&model, "P"), &states, 0), Err(TemporalError::Unsupported(s)) if s.contains("side effects"))
     );
-    assert!(model.take_output().is_empty());
+    assert_eq!(model.take_output(), Vec::<String>::new());
 }
 
 #[test]

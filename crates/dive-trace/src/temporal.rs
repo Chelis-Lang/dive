@@ -35,6 +35,25 @@ impl std::error::Error for TemporalError {}
 /// position describes infinite stuttering. This evaluates the formula only:
 /// callers must separately check initial states, transitions and constraints.
 ///
+/// ```
+/// use std::sync::Arc;
+/// use dive_trace::temporal::evaluate_lasso;
+/// use dive_model::Pred;
+/// use dive_value::Value;
+/// let src = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\n\
+///            Next == x' = ~x\nP == []<>x\n====\n";
+/// let analysis = dive_sema::analyze_source("M.tla", src, &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&analysis)?);
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\n").into_config().unwrap();
+/// let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc())?;
+/// let p = model.ir.root_def("P").unwrap();
+/// let pred = Pred::new(model.ir.def(p).body, model.evaluator.scope(p));
+/// let states = vec![Arc::from([Some(Value::Bool(true))]),
+///                   Arc::from([Some(Value::Bool(false))])];
+/// assert_eq!(evaluate_lasso(&model, &pred, &states, 0)?, vec![true, true]);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
 /// # Errors
 /// Invalid words or nonboolean atoms; unsupported fairness, side effects,
 /// temporal quantification, or resource bounds. `ENABLED` is deliberately
