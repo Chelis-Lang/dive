@@ -236,3 +236,9 @@ on a fair stuttering cycle validates independently. Exhaustive short-word and
 finite-assignment controls retain original witnesses and reject used effects,
 checker reads and missing covers. INSTANCE/dynamic substitutions, complete
 TLC planning order, phase-L timing and exact selection remain open.
+
+The scoped INSTANCE increment supports pure value/variable substitutions in
+final temporal predicates and independent periodic words. Six pinned models
+match truth/counts in both profiles/stores; exhaustive short words cover nested
+scopes and priming. Higher-order bindings and substituted finite successor
+proofs remain open, as do full L1 planning order and L2 phase-L semantics.

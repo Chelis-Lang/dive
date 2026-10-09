@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The project will follow
 - `dive-conformance study final`: separate, non-gating final/short truth/count
   observations with fresh independent periodic-witness validation and explicit
   profile, binary, oracle and corpus provenance.
+- Final temporal predicates retain pure INSTANCE value and variable bindings,
+  including nested substitutions and closing-edge priming.
 
 - Final temporal predicates and independent finite successor covers retain
   LET value and operator scopes, including captured state and nested calls.

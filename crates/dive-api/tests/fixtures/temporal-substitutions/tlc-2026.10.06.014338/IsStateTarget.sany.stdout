@@ -1,0 +1,16 @@
+
+****** SANY2 Version 2.2 created 08 July 2020
+
+Parsing file $CWD/IsStateTarget.tla
+Semantic processing of module IsStateTarget
+Semantic errors:
+
+*** Errors: 1
+
+line 8, col 1 to line 8, col 40 of module IsStateTarget
+
+Level error in instantiating module 'Inner':
+The level of the expression or operator substituted for 'C' 
+must be at most 0.
+
+

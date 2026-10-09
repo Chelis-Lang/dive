@@ -137,3 +137,8 @@ used LET values and prove action-call arguments are state-independent before
 binding them as constants. Used effects/checker reads, missing covers and work
 budgets still refuse. Six pinned `Lt*` models match final truth/counts in both
 profiles/stores, with every returned periodic claim independently validated.
+
+Pure INSTANCE value/variable bindings retain captured caller scopes in temporal
+predicates, including nested substitutions, quantifiers and priming. Operator
+substitutions and independently proving disabledness through an INSTANCE remain
+named refusals. Effects and checker reads are rejected before evaluation.

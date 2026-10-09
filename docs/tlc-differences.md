@@ -749,6 +749,15 @@ A fair stuttering ending requires independent disabledness. Effects, checker
 reads, missing covers and explicit budgets remain named refusals; strict TLC
 selection and temporal stopping remain pending.
 
+**D-013 INSTANCE update:** final/short checking follows pure value and variable
+substitutions through nested modules without freezing the current state. Six
+pinned `Is*` models match final truth/counts in both profiles/stores, with every
+periodic claim independently validated. Substituting a state expression for a
+constant remains rejected as in SANY. Effectful/checker-dependent bindings,
+operator substitutions and unproven substituted disabledness remain named
+refusals. This is supported-language coverage, not TLC-exact temporal selection
+or stopping. Evidence: `crates/dive-api/tests/fixtures/temporal-substitutions/`.
+
 ### Symbolic function-set enumeration
 
 The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds
