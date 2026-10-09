@@ -219,7 +219,7 @@ fn attribute(
     cells: usize,
 ) -> Result<Vec<String>, AnalysisError> {
     let mut violated = Vec::new();
-    for (p, (plan, _)) in model.implied_temporals.iter().zip(plans) {
+    for (p, (plan, _)) in model.property_claims().iter().zip(plans) {
         states
             .len()
             .checked_mul(plan.atoms.len())
@@ -284,11 +284,11 @@ pub fn analyze_final(
             "postconditions with temporal checking",
         ));
     }
-    if model.implied_temporals.len() > limits.properties {
+    if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
     let plans: Vec<(Plan, Tableau)> = model
-        .implied_temporals
+        .property_claims()
         .iter()
         .map(|p| {
             let plan = plan::lower_violation(model, &p.pred, limits.formula)
@@ -312,7 +312,7 @@ pub fn analyze_final(
         captured.graph.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau)) in model.implied_temporals.iter().zip(&plans) {
+    for (p, (plan, tableau)) in model.property_claims().iter().zip(&plans) {
         let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
         let product = Product::new(&graph, tableau, &labels, limits.product)
             .map_err(AnalysisError::Product)?;

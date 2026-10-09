@@ -91,7 +91,11 @@ impl Binder<'_> {
                     }
                     let scope = self.ev().scope(d);
                     let body = self.ir().def(d).body;
-                    self.props(name.clone(), body, scope, None)?;
+                    self.props(name.clone(), body, scope.clone(), None)?;
+                    self.configured_properties.push(Named {
+                        name,
+                        pred: Pred::new(body, scope),
+                    });
                 }
                 None => {
                     return Err(BindError::tlc(

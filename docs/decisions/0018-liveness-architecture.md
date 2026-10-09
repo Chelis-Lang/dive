@@ -442,3 +442,26 @@ value semantics. It does not claim TLC-exact lasso selection, phase-L error
 timing or periodic behavior. Ordinary check/CLI integration remains pending.
 The existing permitted `dive-api -> dive-liveness` edge is activated; trace
 validation keeps its independent dependency/feature boundary.
+
+
+### Finite temporal domains and original property claims
+
+The language kernel and independent direct word evaluator expand finite
+constant-domain quantifiers over explicit sets/intervals, including tuple
+bindings. Binding enumeration bounds domain entries and Cartesian contexts
+before retaining them; whole-run binding/byte/time budgets remain separate.
+Root constant bindings are inspected recursively, with hidden effects, checker
+reads, nonconstant/recursive/parameterized definitions and substitutions refused.
+A concrete bound local value is safe; a lazy or unbound slot is not assumed safe.
+
+`dive-model` retains original configured PROPERTY formulas in addition to TLC's
+split role vectors. Those role vectors and safety evaluation order are unchanged.
+Temporal attribution and independent claim validation use the originals: the
+universal `QtVisit` property has two identically named internal roles but one
+configured claim P. The complete original formula, including every binding,
+is checked independently. Missing or extra claims remain errors.
+
+Five new pinned probes match verdict truth and exploration counts in both
+profiles/stores. The `QtEmpty` oracle uses message 2116 and exit 12 for a
+finite-prefix temporal violation; issue #77 tracks the harness classification,
+and full phase-L/TLC trace timing remains pending.

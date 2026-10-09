@@ -228,3 +228,138 @@ fn undecidable_independent_enabledness_is_a_refusal_not_a_violation() {
     );
     assert_eq!(e.code(), "DIVE-A0032");
 }
+
+#[test]
+fn pinned_constant_domain_quantifiers_match_verdicts_and_counts() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-quantifiers");
+    for name in ["QtVisit", "QtFairVisit", "QtStable", "QtEmpty", "QtTuple"] {
+        let src =
+            std::fs::read_to_string(root.join("specs").join(name).join(format!("{name}.tla")))
+                .expect("spec");
+        let cfg =
+            std::fs::read_to_string(root.join("specs").join(name).join(format!("{name}.cfg")))
+                .expect("cfg");
+        let stdout = std::fs::read_to_string(
+            root.join("tlc-2026.10.06.014338")
+                .join(format!("{name}.stdout")),
+        )
+        .expect("oracle");
+        let (ir, cfg) = input(&src, &cfg);
+        for opts in [CheckOptions::tlc(0, 17), CheckOptions::dive(17)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                let opts = CheckOptions {
+                    store,
+                    ..opts.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert!(name == "QtFairVisit" || name == "QtTuple", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert!(
+                            name == "QtVisit" || name == "QtStable" || name == "QtEmpty",
+                            "{name}"
+                        );
+                        assert_eq!(v.validation().validation, Validation::Valid);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn quantified_word_truth_matches_cycle_algebra_and_empty_domain_identities() {
+    let src = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == \\A i \\in {TRUE,FALSE}: []<>(x=i)\nQ == \\E i \\in {TRUE,FALSE}: <>[](x=i)\nE == \\E i \\in {}: []<>x\nA == \\A i \\in {}: []<>x\nT == \\A <<i,j>> \\in {<<TRUE,FALSE>>,<<FALSE,TRUE>>}: []<>(x=i \\/ x=j)\n====\n";
+    let (ir, cfg) = input(src, "INIT Init\nNEXT Next\n");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    for n in 1..=4 {
+        for bits in 0..(1_usize << n) {
+            let values: Vec<bool> = (0..n).map(|i| (bits & (1 << i)) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|b| Arc::from([Some(dive_value::Value::Bool(*b))]))
+                .collect();
+            for back in 0..n {
+                let mixed = values[back..].iter().any(|b| *b) && values[back..].iter().any(|b| !*b);
+                for (name, expected) in [
+                    ("P", mixed),
+                    ("Q", !mixed),
+                    ("E", false),
+                    ("A", true),
+                    ("T", true),
+                ] {
+                    let d = model.ir.root_def(name).expect("predicate");
+                    let pred =
+                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    assert_eq!(
+                        dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                            .expect(name),
+                        vec![expected; n],
+                        "{name} {values:?} back {back}"
+                    );
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        vec![expected; n]
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn quantifier_limits_and_hidden_constant_effects_are_not_success() {
+    let src = "---- MODULE M ----\nEXTENDS Naturals, TLC\nCONSTANT S\nVARIABLE x\nInit == x = 0\nNext == x' = x\nNumbers == 0..1000000000000\nHidden == TLCGet(\"level\")\nP == \\A i \\in S: []<>(x=i)\n====\n";
+    let (ir, cfg) = input(
+        src,
+        "INIT Init\nNEXT Next\nCONSTANT S <- Numbers\nPROPERTY P\n",
+    );
+    let e = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        .expect_err("domain bound before enumeration");
+    assert_eq!(e.code(), "DIVE-L0021", "{e}");
+    let (ir, cfg) = input(
+        src,
+        "INIT Init\nNEXT Next\nCONSTANT S <- Hidden\nPROPERTY P\n",
+    );
+    let e = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+        .expect_err("hidden checker introspection");
+    assert!(
+        e.to_string().contains("TLCGet") || matches!(e, Error::Binding(_)),
+        "{e}"
+    );
+    let src = "---- MODULE M ----\nEXTENDS TLC\nCONSTANT C\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nHidden == PrintT(\"hidden effect\")\nP == []<>(x = C)\n====\n";
+    let (ir, cfg) = input(
+        src,
+        "INIT Init\nNEXT Next\nCONSTANT C <- Hidden\nPROPERTY P\n",
+    );
+    assert!(matches!(
+        temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default()),
+        Err(Error::Analysis(_))
+    ));
+}

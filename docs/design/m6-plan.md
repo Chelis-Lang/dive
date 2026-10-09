@@ -50,8 +50,9 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 
 L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
 bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
-is checked against independent short-word semantics. Parameterized temporal
-operators, quantification, dynamic scopes, TLC's DNF/classification/order and
+is checked against independent short-word semantics. Finite constant-domain quantifiers, tuple bindings and original configured
+property attribution are implemented. Parameterized temporal operators,
+nonconstant/unbounded quantification, dynamic scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
 
 L2 captures bounded complete graphs through the shared inline safety engine,

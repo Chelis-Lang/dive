@@ -473,6 +473,12 @@ validate against a separately bound model. Unsupported validation stays a
 refusal. Safety stops retain their statistics and finite counterexamples.
 This API always selects short lassos, including with TLC value semantics;
 it does not claim TLC-exact selection or periodic/error timing.
+Finite constant-domain quantifiers and tuple bindings are now supported, with
+original configured names retained even when the binder splits roles. Five
+additional pinned probes match verdict truth and counts in both profiles/stores.
+The empty-domain probe uses TLC's finite-prefix exit 12; exact class/trace timing
+and the oracle parser correction remain tracked in issue #77.
+
 
 **Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
 
