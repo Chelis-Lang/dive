@@ -14,6 +14,25 @@ All notable changes to this project are documented here. The project will follow
   stores at 1 and 4 workers, with explicit exclusions for unverified classes
   and ALIAS formatting. Postconditions see final counters; primed-variable
   errors retain the operand’s source location (IR schema 4).
+- Seeded trace replay requires a proof that predicate and generator draw orders
+  agree. It refuses unknown positions, including wide random expansions and
+  coincidental matches, and checks redraw controls without a bounded search.
+- Trace validator (issue #52): counterexamples whose values come from `RandomElement`,
+  `RandomSubset` or `RandomSetOfSubsets` can be validated. Given the checking run's seed
+  and polynomial (`TraceOptions::run`, `dive validate-trace --seed S [--fp N]`), the
+  validator replays the run's draws with `dive-stdlib`'s `RunHost`, built without the
+  successor enumerator: a fresh start-up stream for `Init`, and for each step the stream
+  seeded with TLC's fingerprint of the state it leaves. Draws it cannot place (outside
+  `Init` and the next-state relation, under `VIEW`/`SYMMETRY`, or in an order only the
+  successor generator knows) are refused by name (ADR 0016, amendment 2). New `redraw`
+  negative controls change a drawn value. Probe `P9Random` now agrees under
+  `--compat=tlc` instead of `agree-pending-trace-validation`.
+- Conformance harness (issue #55): under `--impl-profile tlc`, a worker-introspecting
+  model (one that reads `TLCGet("config")`) run at N > 1 workers is compared with TLC's own
+  result at N workers, on verdict and error class only, from worker-specific goldens
+  (`<model>.workers-N.json`, `golden generate --workers N --reason ...`), which never
+  replace the single-worker goldens. The default profile is unchanged (ADR 0004
+  amendment). `MCDieHardest` at 1, 3, 4 and 8 workers now agrees in both profiles.
 - Conformance harness (issue #48): dive's default profile now exits clean on the small
   tier. The D-010 differences in Examples `MissionariesAndCannibals` and
   `acp/ACP_NB_WRONG_TLC` (counts at the violation only) are registered in

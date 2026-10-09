@@ -31,7 +31,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -410,12 +410,13 @@ fn check_command(
 }
 
 /// `dive validate-trace <file> --trace <trace.json> [--config cfg] [--claim ENDING]
-/// [--compat=tlc] [--deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
+/// [--compat=tlc] [--seed N] [--fp N] [--deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...`.
 ///
 /// Validates a counterexample or behavior against the specification with
 /// the independent trace validator (ADR 0016). The trace is in dive's format
 /// or TLC's `-dumpTrace json` (which needs `--claim`, e.g.
-/// `invariant:Inv`). Exit status: 0 valid, 1 invalid (or the specification
+/// `invariant:Inv`). `--seed` (and `--fp`) give the checking run's seed and
+/// polynomial, so that random draws are replayed. Exit status: 0 valid, 1 invalid (or the specification
 /// is rejected), 2 usage or unreadable input, 3 unsupported.
 #[allow(
     clippy::too_many_lines,
@@ -431,6 +432,8 @@ fn validate_trace_command(
     let mut trace: Option<&str> = None;
     let mut claim: Option<&str> = None;
     let mut json = false;
+    let mut seed: Option<i64> = None;
+    let mut fp: Option<usize> = None;
     let mut opts = dive_api::trace::TraceOptions {
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
         ..Default::default()
@@ -476,6 +479,14 @@ fn validate_trace_command(
                 _ => return usage_error(err, "--compat expects `tlc` or `dive`"),
             },
             "--deadlock" | "-deadlock" => opts.no_deadlock = true,
+            "--seed" | "-seed" => match it.next().and_then(|v| dive_api::parse_seed(v)) {
+                Some(s) => seed = Some(s),
+                None => return usage_error(err, "--seed expects a 64-bit integer"),
+            },
+            "--fp" | "-fp" => match it.next().and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n < 131 => fp = Some(n),
+                _ => return usage_error(err, "--fp expects a polynomial index from 0 to 130"),
+            },
             "--library-path" | "--module-path" => {
                 let Some(dir) = it.next() else {
                     return usage_error(err, &format!("{a} expects a directory"));
@@ -507,6 +518,22 @@ fn validate_trace_command(
                 usage()
             ),
         );
+    };
+    // The checking run's seed and polynomial, as `dive check` chose them:
+    // without `--fp`, TLC's (under --compat=tlc) is derived from the seed.
+    opts.run = match (seed, fp) {
+        (Some(s), fp) => Some((
+            s,
+            fp.unwrap_or_else(|| {
+                if opts.compat_tlc {
+                    usize::try_from(s.unsigned_abs() % 131).unwrap_or(0)
+                } else {
+                    0
+                }
+            }),
+        )),
+        (None, Some(_)) => return usage_error(err, "--fp needs --seed"),
+        (None, None) => None,
     };
     let spec = std::path::Path::new(file);
     // TLC's default: the configuration next to the specification.

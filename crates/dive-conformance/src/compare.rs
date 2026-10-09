@@ -236,6 +236,23 @@ pub fn diff_results_with(
     d
 }
 
+/// Differences on the verdict and the error class only: how a run of a
+/// worker-introspecting model at more than one worker is compared with
+/// TLC's result at the same worker count, whose counts, depth and
+/// counterexample are only approximate (ADR 0004, amendment of 2026-10-09).
+#[must_use]
+pub fn diff_verdict_and_class(golden: &OracleResult, observed: &OracleResult) -> Vec<FieldDiff> {
+    let mut d = Vec::new();
+    push(&mut d, "verdict", &golden.verdict, &observed.verdict);
+    push(
+        &mut d,
+        "error_class",
+        &golden.error_class,
+        &observed.error_class,
+    );
+    d
+}
+
 /// Field-by-field differences between SANY results: acceptance and verdict.
 #[must_use]
 pub fn diff_sany(golden: &SanyResult, observed: &SanyResult) -> Vec<FieldDiff> {
