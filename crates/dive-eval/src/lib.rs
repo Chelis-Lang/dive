@@ -264,6 +264,14 @@ impl Evaluator {
         self.core.equals(a, b)
     }
 
+    /// The configured binding of a root constant. This exposes the actual
+    /// value or definition for conservative scoped preflight; it evaluates
+    /// nothing and does not resolve instance substitutions.
+    #[must_use]
+    pub fn constant_binding(&self, constant: dive_ir::ConstId) -> Option<ConstBinding> {
+        self.core.consts.get(constant.index()).cloned().flatten()
+    }
+
     /// The options.
     #[must_use]
     pub fn options(&self) -> &Options {

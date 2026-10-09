@@ -73,6 +73,10 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Final temporal planning and independent word validation support finite
+  constant-domain quantifiers, tuple bindings and inspected pure configured
+  constants. Original PROPERTY formulas preserve complete claim attribution
+  when TLC splits quantified roles. Unbounded/effectful/dynamic cases refuse.
 - `dive-api::temporal::check_final`: bounded final checking for the supported
   pure temporal subset, with independently validated lossless counterexamples,
   complete property claims and retained safety-stop evidence. TLC-exact lasso

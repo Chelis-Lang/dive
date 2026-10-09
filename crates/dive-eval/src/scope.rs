@@ -464,6 +464,86 @@ impl Evaluator {
         Ok(out)
     }
 
+    /// Enumerates a quantifier's finite bindings with entry-count bounds.
+    /// Only explicit sets and intervals are supported. Domain entries and
+    /// Cartesian bindings are each bounded by `limit`, before retaining
+    /// them. Order is the profile's exploration order, first variable fastest.
+    /// This is expression binding, not successor generation.
+    ///
+    /// # Errors
+    /// Missing/nonfinite bounds, domain evaluation or tuple-pattern errors,
+    /// and explicit domain/binding resource limits.
+    pub fn scope_bindings_bounded(
+        &self,
+        scope: &Scope,
+        quant: ExprId,
+        st: &St,
+        limit: usize,
+    ) -> Result<Vec<Scope>> {
+        let core = &self.core;
+        let Expr::Quant { bounds, .. } = core.ir.expr(quant) else {
+            return Err(EvalError::bug("bounded bindings require a quantifier"));
+        };
+        let mut columns = Vec::new();
+        let mut entries = 0_usize;
+        for b in bounds {
+            let dom = b
+                .domain
+                .ok_or_else(|| EvalError::unsupported("unbounded quantifier"))?;
+            let Value::Set(set) = self.eval_scoped(scope, dom, st)? else {
+                return Err(EvalError::unsupported("quantifier domain is not a set"));
+            };
+            if !matches!(
+                set.kind(),
+                dive_value::SetKind::Enum
+                    | dive_value::SetKind::Raw
+                    | dive_value::SetKind::Interval
+            ) {
+                return Err(EvalError::unsupported(
+                    "bounded bindings require an explicit set or interval",
+                ));
+            }
+            if set
+                .raw_elements()
+                .is_some_and(|r| r.len() > limit.saturating_sub(entries))
+            {
+                return Err(EvalError::resource_limit("quantifier domain entries"));
+            }
+            let size = usize::try_from(set.size(core.ctx)?)
+                .map_err(|_| EvalError::resource_limit("quantifier domain entries"))?;
+            entries = entries
+                .checked_add(size)
+                .filter(|n| *n <= limit)
+                .ok_or_else(|| EvalError::resource_limit("quantifier domain entries"))?;
+            let values = core.explore(&set)?;
+            if b.tuple {
+                columns.push((b.vars.to_vec(), true, values));
+            } else {
+                for &v in &b.vars {
+                    columns.push((vec![v], false, values.clone()));
+                }
+            }
+        }
+        let count = columns
+            .iter()
+            .try_fold(1_usize, |n, (_, _, ds)| n.checked_mul(ds.len()))
+            .filter(|n| *n <= limit)
+            .ok_or_else(|| EvalError::resource_limit("quantifier bindings"))?;
+        let mut result = Vec::with_capacity(count);
+        for i in 0..count {
+            let mut scope = scope.clone();
+            let mut quotient = i;
+            for (slots, tuple, values) in &columns {
+                let value = &values[quotient % values.len()];
+                quotient /= values.len();
+                let slots: Vec<_> = slots.iter().map(|s| s.index()).collect();
+                core.bind_one(&mut scope.env, &slots, *tuple, value, quant)?;
+            }
+            result.push(scope);
+        }
+        Ok(result)
+    }
+
     /// Evaluates `expr` in `scope`.
     ///
     /// # Errors

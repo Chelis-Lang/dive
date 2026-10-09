@@ -655,7 +655,7 @@ impl<'a> Run<'a> {
         let mut declared = BTreeSet::new();
         if self
             .model
-            .implied_temporals
+            .property_claims()
             .iter()
             .any(|p| !declared.insert(&p.name))
         {
@@ -671,7 +671,7 @@ impl<'a> Run<'a> {
                     "empty or repeated temporal property name",
                 ));
             }
-            if !self.model.implied_temporals.iter().any(|p| p.name == *name) {
+            if !self.model.property_claims().iter().any(|p| p.name == *name) {
                 return Err(invalid(
                     0,
                     Check::Ending,
@@ -744,7 +744,7 @@ impl<'a> Run<'a> {
             }
             self.passed += 1;
         }
-        for p in &self.model.implied_temporals {
+        for p in self.model.property_claims() {
             let holds = self.temporal_truth(&p.pred, trace, back)?;
             let claimed = trace.properties.contains(&p.name);
             if claimed && holds {

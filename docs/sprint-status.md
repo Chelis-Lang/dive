@@ -92,3 +92,10 @@ host-I/O grants, short deterministic lassos, unreduced symmetry/liveness,
 rejection of malformed permutations, an opt-in symmetry audit, and separate
 default/compat scheduling paths. They remain planned until implemented and
 proven. See [the maintained TLC differences log](tlc-differences.md).
+
+
+The next L1/L4 increment supports finite constant-domain quantifiers, tuple
+bindings and inspected pure configured constants. Original configured PROPERTY
+formulas now retain unambiguous claim names when the binder splits checking
+roles. Five additional pinned probes match verdict truth/counts in both profiles
+and stores. Full TLC finite-prefix class/trace timing remains open (#77).
