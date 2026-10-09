@@ -317,6 +317,45 @@ fn write_fcn(f: &crate::Fcn, ctx: Ctx, mode: Mode, out: &mut String) -> Result<(
     Ok(())
 }
 
+// An enumeration error can print the very set whose enumeration failed.
+// Retrying that expansion repeats the error indefinitely, even for a shallow
+// acyclic value. Keep the original error and let lenient printing use its
+// existing symbolic fallback. This does not change value nesting limits.
+thread_local! {
+    static EXPANDING: std::cell::RefCell<Vec<usize>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+struct Expansion;
+impl Expansion {
+    fn enter(set: &crate::Set) -> Result<Self> {
+        let id = std::sync::Arc::as_ptr(&set.0) as usize;
+        let added = EXPANDING.with(|active| {
+            let mut active = active.borrow_mut();
+            if active.contains(&id) {
+                false
+            } else {
+                active.push(id);
+                true
+            }
+        });
+        if added {
+            Ok(Self)
+        } else {
+            Err(crate::error::ValueError::new(
+                crate::error::ErrorKind::NotEnumerable,
+                "Cannot expand a set again while printing its enumeration error.",
+            ))
+        }
+    }
+}
+impl Drop for Expansion {
+    fn drop(&mut self) {
+        EXPANDING.with(|active| {
+            active.borrow_mut().pop();
+        });
+    }
+}
+
 #[inline(never)]
 #[allow(
     clippy::too_many_lines,
@@ -331,6 +370,7 @@ fn write_set(s: &crate::Set, ctx: Ctx, mode: Mode, out: &mut String) -> Result<(
         }
     };
     let enumerated = |out: &mut String| -> Result<()> {
+        let _expansion = Expansion::enter(s)?;
         let elems = if mode.mark {
             elems_in(s, ctx, true)?
         } else {

@@ -108,3 +108,54 @@ fn large_lazy_sets_are_streamed_for_hash_and_fingerprint() {
         std::cmp::Ordering::Equal
     );
 }
+
+#[test]
+fn nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion() {
+    small_stack(|| {
+        for ctx in [Ctx::tlc(), Ctx::dive()] {
+            let empty_domain = Value::fcn_set(Value::nat(ctx), Value::empty_set(ctx), ctx);
+            let value = Value::fcn_set(
+                empty_domain,
+                Value::set(vec![Value::from(1)], ctx).expect("range"),
+                ctx,
+            );
+            let expected = "[[Nat -> {}] -> {1}]";
+            let error = value
+                .as_set()
+                .expect("set")
+                .elements(ctx)
+                .expect_err("symbolic domain is not enumerable");
+            assert_eq!(error.kind(), ErrorKind::NotEnumerable);
+            assert!(error.message().contains(expected));
+            assert_eq!(print::to_tlc_string_lenient(&value, ctx), expected);
+            assert_eq!(
+                print::to_tlc_string(&value, ctx)
+                    .expect_err("strict printing retains enumeration error")
+                    .kind(),
+                ErrorKind::NotEnumerable
+            );
+            let _ = format!("{value:?}");
+            // A nonempty symbolic domain can trigger the same diagnostic cycle.
+            let one = Value::set(vec![Value::from(1)], ctx).expect("range");
+            let nonempty =
+                Value::fcn_set(Value::fcn_set(Value::nat(ctx), one.clone(), ctx), one, ctx);
+            assert_eq!(
+                print::to_tlc_string_lenient(&nonempty, ctx),
+                "[[Nat -> {1}] -> {1}]"
+            );
+            assert_eq!(
+                nonempty
+                    .as_set()
+                    .expect("set")
+                    .elements(ctx)
+                    .expect_err("not enumerable")
+                    .kind(),
+                ErrorKind::NotEnumerable
+            );
+            assert_eq!(
+                print::to_tlc_string_lenient(&Value::tuple(vec![Value::from(1)]), ctx),
+                "<<1>>"
+            );
+        }
+    });
+}
