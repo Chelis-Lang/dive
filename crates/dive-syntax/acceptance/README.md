@@ -155,3 +155,13 @@ dive-conformance run --impl dive --sany-phase parse --tier all \
 
 The syntax corpus, the tree-sitter corpus, `tests/sany-cases/` and the mutation
 campaign stay here. Mutants are a natural deep-tier job for the harness.
+
+## Deep campaign runner
+
+The deep conformance dispatch now runs both SANY-case directories and a
+deterministic syntax/layout/semantic mutation subset through the pinned
+harness. `scripts/frontend-campaign.py` preserves a complete selection census,
+original module names and byte-copied dependencies in isolated directories.
+Full frontend and direct root-grammar observations remain separate, including
+PlusCal validation failures. See `docs/frontend-campaign.md`; these legacy
+classifiers are not used by the new job.

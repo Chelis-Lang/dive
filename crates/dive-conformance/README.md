@@ -397,3 +397,12 @@ independently. See [the study guide](../../docs/design/final-temporal-study.md)
 and `scripts/final-temporal-study.sh conformance/studies/lm1.txt`. Named refusals
 and all selected model/worker pairs remain visible; these observations never
 count as strict `agree` or alter the conformance gate.
+
+## Deep frontend campaigns
+
+The deep workflow has a separate deterministic mutation/SANY-case job. Its
+runner uses this harness for full SANY goldens and `dive analyze`, then a
+pinned direct grammar driver for `dive parse`. Every selected root is
+accounted for; oracle crashes, malformed reports and missing facts are
+findings. Inputs and reports remain in an external disposable directory,
+and artifacts retain the complete campaign. See `docs/frontend-campaign.md`.

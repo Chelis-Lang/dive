@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "frontend-campaign",
+  "seed": 20261009,
+  "source_commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+  "selection_sha256": "60c2955629aa13ed3d3917fead13fa00809140f72fb454a2d3559ba6c038d6fa",
+  "implementation_sha256": "d945dfd84360116ead1a9895204a1efd6f773e92eef1de2704cd1977c46cb864",
+  "harness_sha256": "9bf455acebc6ee94da9e9512d469b10dfde8c39248430457321bd54ea9a133f2",
+  "selected_modules": 1108,
+  "steps": [
+    {
+      "name": "oracle-verify",
+      "exit_code": 0
+    },
+    {
+      "name": "generate",
+      "exit_code": 0
+    },
+    {
+      "name": "full",
+      "exit_code": 0
+    }
+  ],
+  "totals": {
+    "full": {
+      "agree": 1108
+    },
+    "direct-parse": {
+      "agree": 1108
+    }
+  }
+}
