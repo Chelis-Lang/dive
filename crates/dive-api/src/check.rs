@@ -362,7 +362,7 @@ impl CheckReport {
     ///            | "rejected" | "unsupported" | "resource-limit" | "internal-error",
     ///   "property": string | null, "message": string | null,
     ///   "error_site": string | null,
-    ///   "tlc": { "code", "name", "exit_status", "verified" } | null,
+    ///   "tlc": { "code", "name", "exit_status", "reported", "verified" } | null,
     ///   "statistics": { "generated", "distinct", "left_on_queue", "depth",
     ///                   "initial_generated", "reported_by_tlc" } | null,
     ///   "counterexample": { "length", "ending": "finite",
@@ -380,9 +380,12 @@ impl CheckReport {
     ///   "elapsed_ms" }
     /// ```
     ///
-    /// `tlc` is how TLC classifies the result; `verified: false` means dive
-    /// does not yet reproduce TLC's error class at that site and does not
-    /// claim it. `reported_by_tlc` is false where TLC prints no statistics
+    /// `tlc` is how TLC classifies the result: `code` decides TLC's exit
+    /// status, and `reported` is the code of the error message TLC prints
+    /// first (an invariant that fails to evaluate is reported as
+    /// `TLC_INVARIANT_EVALUATION_FAILED`, for example); `verified: false`
+    /// means dive does not yet reproduce TLC's error class at that site and
+    /// does not claim it. `reported_by_tlc` is false where TLC prints no statistics
     /// (a stop while generating initial states).
     #[must_use]
     #[allow(clippy::too_many_lines, reason = "one document")]
@@ -432,12 +435,11 @@ impl CheckReport {
                     Verdict::AssumptionFalse { message }
                     | Verdict::EvaluationError { message, .. }
                     | Verdict::ModelError { message, .. }
+                    | Verdict::PostconditionFalse { message, .. }
+                    | Verdict::NotCompletelySpecified { message, .. }
                     | Verdict::ResourceLimit { message }
                     | Verdict::InternalError { message } => Value::from(message.as_str()),
                     Verdict::Unsupported { feature } => Value::from(feature.as_str()),
-                    Verdict::NotCompletelySpecified { variables, .. } => {
-                        Value::from(format!("unassigned: {}", variables.join(", ")))
-                    }
                     _ => Value::Null,
                 };
                 if let Verdict::EvaluationError { site, .. } = v {
@@ -448,6 +450,7 @@ impl CheckReport {
                         "code": c.code,
                         "name": c.name,
                         "exit_status": c.exit,
+                        "reported": c.reported,
                         "verified": c.verified,
                     });
                 }
@@ -583,12 +586,14 @@ fn trace_doc(
             Ending::Property(property.clone())
         }
         V::Deadlock => Ending::Deadlock,
-        V::EvaluationError { name, .. } => {
-            if *name == "TLC_VALUE_ASSERT_FAILED" {
+        // The ending names the error itself, not the class TLC's site and
+        // replay give it.
+        V::EvaluationError { cause, .. } => {
+            if cause.ec() == dive_eval::Ec::AssertFailed {
                 Ending::Assertion
             } else {
                 Ending::Error {
-                    ec: Some((*name).to_owned()),
+                    ec: Some(cause.ec().name().to_owned()),
                 }
             }
         }

@@ -574,7 +574,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - temporal properties (liveness checking is not implemented yet) and `SYMMETRY`;
   - simulation mode and action composition (`\cdot`);
   - anything the binding stage or the evaluator refuses (for example `IOUtils`, `Json` and the CommunityModules operators listed above);
-  - evaluation errors whose exact TLC error class at that place is not reproduced yet. dive reports the error and its message, but marks TLC's class as unverified rather than claim it.
+  - evaluation errors whose exact TLC error class depends on value-source metadata not yet retained by dive. The 175-model error matrix identifies ten such cases explicitly; dive reports their messages but marks the deciding class as unverified, and the conformance harness refuses agreement.
 
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
