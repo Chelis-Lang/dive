@@ -168,6 +168,28 @@ fn temporal_validation_does_not_execute_side_effects() {
 }
 
 #[test]
+fn inherited_search_levels_cannot_supply_temporal_truth() {
+    #[derive(Debug)]
+    struct SearchHost;
+    impl dive_eval::Host for SearchHost {
+        fn level(&self) -> Option<i64> {
+            Some(100)
+        }
+    }
+    let model = bound(
+        "---- MODULE Word ----\nEXTENDS TLC\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\nP == [](TLCGet(\"level\") = 100)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    model.evaluator.set_host(Arc::new(SearchHost));
+    let states = [Arc::from([Some(Value::Bool(true))])];
+    let result = evaluate_lasso(&model, &predicate(&model, "P"), &states, 0);
+    assert!(
+        matches!(&result, Err(TemporalError::Unsupported(s)) if s.contains("TLCGet")),
+        "{result:?}"
+    );
+}
+
+#[test]
 fn pinned_tlc_liveness_words_violate_the_reported_property() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-liveness/tests/fixtures/tlc-probes");
@@ -189,7 +211,7 @@ fn pinned_tlc_liveness_words_violate_the_reported_property() {
         let doc = TraceDoc::parse(&raw)
             .expect("document")
             .with_ending(Ending::Behavior);
-        let (_, trace) = dive_trace::validate_doc(&model, &doc, &[]);
+        let (_, trace) = dive_trace::validate_doc(&model, &doc, &[], None);
         let trace = trace.expect("decoded trace");
         // TLC's last action pair carries the back-edge target's 1-based index,
         // including the repeated final state for a stuttering ending.

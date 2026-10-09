@@ -4,7 +4,7 @@
 //! subformula yields a truth value at every position of the given word.
 
 use dive_eval::{Scope, St};
-use dive_ir::{Effects, Expr, ExprId, JunctionKind, Level};
+use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -56,7 +56,8 @@ impl std::error::Error for TemporalError {}
 ///
 /// # Errors
 /// Invalid words or nonboolean atoms; unsupported fairness, side effects,
-/// temporal quantification, or resource bounds. `ENABLED` is deliberately
+/// temporal quantification, opaque scoped atoms, checker introspection or
+/// resource bounds. `ENABLED` is deliberately
 /// refused until independent successor-existence checking is available.
 pub fn evaluate_lasso(
     model: &Model,
@@ -189,6 +190,7 @@ impl Word<'_> {
     }
 
     fn atom(&self, expr: ExprId, scope: &Scope) -> Result<Vec<bool>, TemporalError> {
+        self.check_atom_context(expr)?;
         let mut out = Vec::with_capacity(self.states.len());
         for (i, state) in self.states.iter().enumerate() {
             let next = if i + 1 == self.states.len() {
@@ -213,6 +215,70 @@ impl Word<'_> {
             }
         }
         Ok(out)
+    }
+
+    // `TLCGet("level")` is deliberately not marked impure in the IR, but
+    // its value is a search level, not a function of this periodic word.
+    // Also refuse opaque local thunks/operator parameters: they could hide
+    // such a read even when the conservative effects flags are clear.
+    fn check_atom_context(&self, expr: ExprId) -> Result<(), TemporalError> {
+        let mut todo = vec![expr];
+        let mut seen = std::collections::BTreeSet::new();
+        while let Some(e) = todo.pop() {
+            if !seen.insert(e) {
+                continue;
+            }
+            let node = self.model.ir.expr(e);
+            if matches!(node, Expr::Local(_) | Expr::SubstRef { .. }) {
+                return Err(TemporalError::Unsupported(
+                    "opaque scoped atom in temporal validation".into(),
+                ));
+            }
+            let mut operators = Vec::new();
+            match node {
+                Expr::Def(d) => operators.push(OpRef::Def(*d)),
+                Expr::Apply { callee, args } => {
+                    operators.push(callee.clone());
+                    operators.extend(args.iter().filter_map(|a| {
+                        if let Arg::Op { op, .. } = a {
+                            Some(op.clone())
+                        } else {
+                            None
+                        }
+                    }));
+                }
+                _ => {}
+            }
+            for op in operators {
+                let standard = match op {
+                    OpRef::Std(s) => Some(s),
+                    OpRef::Def(d) => {
+                        let d = self.model.evaluator.redirected(d);
+                        if self.model.evaluator.is_value_override(d) {
+                            continue;
+                        }
+                        let def = self.model.ir.def(d);
+                        if def.std.is_none() {
+                            todo.push(def.body);
+                        }
+                        def.std
+                    }
+                    OpRef::Param(_) | OpRef::Subst(_) | OpRef::Const(_) => {
+                        return Err(TemporalError::Unsupported(
+                            "dynamically bound temporal atom operator".into(),
+                        ));
+                    }
+                    _ => None,
+                };
+                if standard == Some(StdOp::TlcTLCGet) {
+                    return Err(TemporalError::Unsupported(
+                        "TLCGet: checker introspection is not a function of a lasso".into(),
+                    ));
+                }
+            }
+            todo.extend(node.children());
+        }
+        Ok(())
     }
 
     fn future(&self, mut values: Vec<bool>, always: bool) -> Vec<bool> {

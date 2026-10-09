@@ -182,7 +182,11 @@ It runs sequentially after the search, on the same stored graph (with TLC-ordere
 provides the independent truth-vector kernel for pure boolean combinations,
 `[]`, `<>`, `~>` and state/action atoms, including the concrete closing edge.
 It checks word shape and refuses fairness, `ENABLED`, dynamic constant
-bindings, side effects and unsupported constructors. Exhaustive short-word
+bindings, side effects, checker introspection, opaque local/substitution
+atoms and unsupported constructors. In particular, `TLCGet("level")` is not
+marked impure by the IR, but cannot inherit a search host's level when
+evaluating a periodic word. A regression test installs such a host and
+requires an explicit refusal. Exhaustive short-word
 tests check every suffix against direct reachability semantics; six pinned
 TLC liveness words falsify their reported property. This API evaluates a
 formula only. It does not certify the behavior, fairness, claimed property
