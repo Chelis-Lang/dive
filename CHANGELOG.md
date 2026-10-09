@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The project will follow
 ### Fixed
 - Module-only conformance runs honor `--sany-only`; nightly parse checks no
   longer repeat model checking under the shorter parsing timeout.
+- Checker error classification now follows TLC’s initial-state, successor,
+  replay and postcondition paths. A pinned 175-model error matrix checks
+  message codes and texts, exit status, counts and counterexamples in both
+  stores at 1 and 4 workers, with explicit exclusions for unverified classes
+  and ALIAS formatting. Postconditions see final counters; primed-variable
+  errors retain the operand’s source location (IR schema 4).
 - Conformance harness (issue #48): dive's default profile now exits clean on the small
   tier. The D-010 differences in Examples `MissionariesAndCannibals` and
   `acp/ACP_NB_WRONG_TLC` (counts at the violation only) are registered in

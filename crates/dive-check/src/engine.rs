@@ -32,8 +32,11 @@
 //! recorded ordinal. The replayed end state is checked against the state
 //! the search held; any difference is an internal error, never a verdict.
 
+use std::collections::BTreeSet;
+use std::fmt::Write as _;
+
 use dive_eval::next::{Action, Flow, StateVals, Successor};
-use dive_eval::{ErrorClass, EvalError, Evaluator, St};
+use dive_eval::{Ec, EvalError, Evaluator, St};
 use dive_ir::actions::ActionName;
 use dive_store::state::{StateFingerprinter, state_key};
 use dive_store::trace::{StateId, TraceLog};
@@ -44,6 +47,7 @@ use dive_eval::{Counter, RunConfig};
 use dive_stdlib::host::RunHost;
 use dive_stdlib::random::{RandomMode, Streams};
 
+use crate::class;
 use crate::options::CheckOptions;
 use crate::result::{Collision, Counterexample, ErrorSite, Stats, TraceState, Verdict, Workers};
 use dive_model::{Model, Named};
@@ -273,6 +277,41 @@ pub(crate) struct Stop {
     pub(crate) then: Option<TraceState>,
 }
 
+/// What TLC's call-stack replay changes after an invariant failed to
+/// evaluate on a new state (`Search::replay_after`).
+#[derive(Default)]
+pub(crate) struct Replayed {
+    /// States the replay inserted into the seen-state set.
+    pub(crate) distinct: u64,
+    /// States it enqueued.
+    pub(crate) queued: u64,
+    /// The verdict of a further error it met, which decides TLC's class.
+    pub(crate) error: Option<Verdict>,
+}
+
+impl Replayed {
+    /// The stop's verdict once the replay is accounted for.
+    pub(crate) fn apply(self, v: Verdict) -> Verdict {
+        match self.error {
+            Some(Verdict::EvaluationError { cause, .. }) => class::replay_error(v, &cause),
+            Some(refusal) if !refusal.is_verdict() => refusal,
+            None | Some(_) => v,
+        }
+    }
+}
+
+/// Whether a verdict is an invariant that failed to evaluate, after which
+/// TLC's replay goes on past the state (`Search::replay_after`).
+pub(crate) fn resumes(v: &Verdict) -> bool {
+    matches!(
+        v,
+        Verdict::EvaluationError {
+            site: ErrorSite::Invariant,
+            ..
+        }
+    )
+}
+
 /// The name an action is reported under.
 pub(crate) fn action_name(ev: &Evaluator, a: &Action) -> Option<String> {
     match a.name() {
@@ -283,25 +322,10 @@ pub(crate) fn action_name(ev: &Evaluator, a: &Action) -> Option<String> {
     }
 }
 
-/// The verdict for an error raised at `site`.
+/// The verdict for an error raised at `site` while exploring, classified as
+/// TLC classifies it (`class.rs`).
 pub(crate) fn error_verdict(e: &EvalError, site: ErrorSite) -> Verdict {
-    match e.class() {
-        ErrorClass::Eval => Verdict::EvaluationError {
-            site,
-            code: e.ec().code(),
-            name: e.ec().name(),
-            message: e.message().to_owned(),
-        },
-        ErrorClass::Unsupported => Verdict::Unsupported {
-            feature: e.message().to_owned(),
-        },
-        ErrorClass::ResourceLimit => Verdict::ResourceLimit {
-            message: e.message().to_owned(),
-        },
-        ErrorClass::Bug => Verdict::InternalError {
-            message: e.message().to_owned(),
-        },
-    }
+    class::search_error(e, site, None)
 }
 
 pub(crate) fn store_verdict(e: &StoreError) -> Verdict {
@@ -317,25 +341,65 @@ pub(crate) fn values(s: &[Option<Value>]) -> Option<Vec<Value>> {
     s.iter().cloned().collect()
 }
 
-/// Evaluates a check as a boolean.
+/// Evaluates a check as a boolean. A value that is not a boolean is TLC's
+/// `TLC_EXPECTED_VALUE` at the check's location (`Tool.isValid`; fixtures
+/// `ErInvNonBool`, `ErConstrNonBool`, `ErActConstrNonBool`).
 pub(crate) fn holds(m: &Model, c: &Named, st: &St, site: ErrorSite) -> Result<bool, Verdict> {
     match m.eval(&c.pred, st) {
         Ok(Value::Bool(v)) => Ok(v),
-        Ok(_) => Err(Verdict::Unsupported {
-            feature: format!(
-                "{} ({}) is not a boolean (TLC's error for this is not reproduced yet)",
-                c.name,
-                site.name()
-            ),
-        }),
-        Err(e) => Err(error_verdict(&e, site)),
+        Ok(_) => {
+            let e = EvalError::coded(
+                Ec::ExpectedValue,
+                format!(
+                    "TLC expected a boolean value, but did not find one. {}",
+                    m.evaluator.location(c.pred.location)
+                ),
+            );
+            Err(class::search_error(&e, site, Some(&c.name)))
+        }
+        Err(e) => Err(class::search_error(&e, site, Some(&c.name))),
     }
 }
 
-/// The trace state of an emitted successor (or initial state).
-pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> Option<TraceState> {
+/// TLC's text of a state (`TLCStateMut.toString`): `/\ x = v` per variable
+/// in TLC's variable order (`x = v` for a single variable), `null` for an
+/// unassigned one.
+pub(crate) fn state_text(m: &Model, s: &[Option<Value>], ctx: Ctx) -> String {
+    let order = m.ir.tlc_var_order();
+    let single = order.len() == 1;
+    let mut out = String::new();
+    for v in order {
+        let name = &m.ir.decl(m.ir.vars()[v.index()]).name;
+        let val = s.get(v.index()).and_then(Option::as_ref).map_or_else(
+            || "null".to_owned(),
+            |x| {
+                dive_value::print::to_tlc_string(x, ctx).map_or_else(
+                    |_| dive_value::print::to_tlc_string_lenient(x, ctx),
+                    |t| dive_value::print::ppr(&t),
+                )
+            },
+        );
+        if single {
+            let _ = writeln!(out, "{name} = {val}");
+        } else {
+            let _ = writeln!(out, "/\\ {name} = {val}");
+        }
+    }
+    out
+}
+
+/// The trace state of an emitted successor (or initial state). A successor
+/// that leaves variables unassigned is described by TLC's text alone.
+pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> TraceState {
     let ev = &m.evaluator;
-    Some(TraceState {
+    let (values, text) = match values(succ.state) {
+        Some(v) => (v, None),
+        None => (
+            Vec::new(),
+            Some(state_text(m, succ.state, ev.options().ctx)),
+        ),
+    };
+    TraceState {
         label: if initial {
             "<Initial predicate>".to_owned()
         } else {
@@ -346,18 +410,53 @@ pub(crate) fn trace_state(m: &Model, succ: &Successor<'_>, initial: bool) -> Opt
         } else {
             action_name(ev, succ.action)
         },
-        values: values(succ.state)?,
-    })
+        values,
+        text,
+    }
 }
 
-/// The verdict for a successor that leaves variables unassigned.
-pub(crate) fn incomplete(m: &Model, succ: &Successor<'_>, initial: bool) -> Verdict {
-    let variables = succ
+/// The verdict for a successor that leaves variables unassigned, with TLC's
+/// message: `TLC_INITIAL_STATE` for an initial state (`DoInitFunctor`), and
+/// `TLC_STATE_NOT_COMPLETELY_SPECIFIED_NEXT` naming the action when there
+/// are several (`ModelChecker.doNextSetErr`; fixtures `ErInitIncomplete`,
+/// `ErNextIncomplete`).
+pub(crate) fn incomplete(m: &Model, succ: &Successor<'_>, initial: bool, ctx: Ctx) -> Verdict {
+    let variables: Vec<String> = succ
         .unassigned()
         .iter()
         .map(|&i| m.ir.decl(m.ir.vars()[i]).name.clone())
         .collect();
-    Verdict::NotCompletelySpecified { initial, variables }
+    let message = if initial {
+        format!(
+            "current state is not a legal state\nWhile working on the initial state:\n{}",
+            state_text(m, succ.state, ctx)
+        )
+    } else {
+        let are = if variables.len() > 1 { "s are" } else { " is" };
+        let list = variables.join(", ");
+        if m.actions.len() == 1 {
+            format!(
+                "Successor state is not completely specified by the next-state action. The following variable{are} not defined: {list}."
+            )
+        } else {
+            let name = action_name(&m.evaluator, succ.action).unwrap_or_else(|| {
+                let l = succ.action.label();
+                l.trim_start_matches('<')
+                    .split(' ')
+                    .next()
+                    .unwrap_or_default()
+                    .to_owned()
+            });
+            format!(
+                "Successor state is not completely specified by action {name} of the next-state relation. The following variable{are} not defined: {list}."
+            )
+        }
+    };
+    Verdict::NotCompletelySpecified {
+        initial,
+        variables,
+        message,
+    }
 }
 
 /// Whether the state `t` (stepped to from `step`'s `s0`, if any) satisfies
@@ -409,7 +508,10 @@ pub(crate) fn state_key_of<S: Keyed>(
     }
 }
 
-/// The first invariant `t` violates, in cfg order, as the verdict.
+/// The first invariant `t` violates, in cfg order, as the verdict. An
+/// invariant that fails to evaluate is classified as on a new state, which
+/// TLC's replay does not check again; the caller applies
+/// [`class::recurring`] for a state outside the model.
 pub(crate) fn check_invariants(m: &Model, st1: &St, initial: bool) -> Option<Verdict> {
     for c in &m.invariants {
         match holds(m, c, st1, ErrorSite::Invariant) {
@@ -464,14 +566,16 @@ pub(crate) struct Search<'a, S: Keyed> {
 impl<S: Keyed> Search<'_, S> {
     /// One generated state, inline: TLC's `DoInitFunctor.addElement` (no
     /// parent) or `Worker.addElement`. Returns the verdict that stops the
-    /// search, and whether the successor ends the counterexample.
+    /// search, whether the successor ends the counterexample, and whether
+    /// TLC's replay goes on past it (an invariant that failed to evaluate on
+    /// a new state, [`Search::replay_after`]).
     fn on_state(
         &mut self,
         parent: Option<(&StateVals, StateId)>,
         succ: &Successor<'_>,
         new_level: u64,
         next: &mut Vec<(StateVals, StateId)>,
-    ) -> Option<(Verdict, bool)> {
+    ) -> Option<(Verdict, bool, bool)> {
         let r = self.on_state_checks(parent, succ, new_level, next);
         // Back to the level of the state being expanded.
         self.host.set_level(level_of(new_level - 1));
@@ -484,7 +588,7 @@ impl<S: Keyed> Search<'_, S> {
         succ: &Successor<'_>,
         new_level: u64,
         next: &mut Vec<(StateVals, StateId)>,
-    ) -> Option<(Verdict, bool)> {
+    ) -> Option<(Verdict, bool, bool)> {
         self.generated += 1;
         let host = self.host;
         let set = |l: i64| host.set_level(l);
@@ -496,21 +600,27 @@ impl<S: Keyed> Search<'_, S> {
         let initial = parent.is_none();
         let m = self.m;
         if !succ.complete() {
-            return Some((incomplete(m, succ, initial), false));
+            // TLC prints the incomplete successor at the end of the trace
+            // (fixture `ErNextIncomplete`), and an initial state only in
+            // its message (`ErInitIncomplete`).
+            return Some((incomplete(m, succ, initial, self.ctx), !initial, false));
         }
         let t: StateVals = succ.state.into();
         let st1 = St::state(t.clone());
         let st_step = parent.map(|(s0, _)| St::action(s0.clone(), t.clone()));
         let in_model = match in_model(m, &st1, st_step.as_ref(), &levels) {
             Ok(b) => b,
-            Err(v) => return Some((v, true)),
+            Err(v) => return Some((v, true, false)),
         };
         let mut fresh = true;
         let mut new_id = None;
         if in_model {
+            // A state TLC cannot fingerprint (or whose `VIEW` fails) is not
+            // printed: the trace ends at its predecessor (fixtures `ErView*`,
+            // `ErFpInfinite`).
             let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
                 Ok(k) => k,
-                Err(v) => return Some((v, true)),
+                Err(v) => return Some((v, false, false)),
             };
             if self.set.insert(key) {
                 let Ok(ordinal) = u32::try_from(succ.ordinal) else {
@@ -518,6 +628,7 @@ impl<S: Keyed> Search<'_, S> {
                         Verdict::InternalError {
                             message: "more than 2^32 successors of one state".to_owned(),
                         },
+                        false,
                         false,
                     ));
                 };
@@ -527,7 +638,7 @@ impl<S: Keyed> Search<'_, S> {
                 };
                 match id {
                     Ok(id) => new_id = Some(id),
-                    Err(e) => return Some((store_verdict(&e), false)),
+                    Err(e) => return Some((store_verdict(&e), false, false)),
                 }
                 self.depth = self.depth.max(new_level);
             } else {
@@ -536,7 +647,13 @@ impl<S: Keyed> Search<'_, S> {
         }
         if fresh {
             if let Some(v) = check_invariants(m, &st1, initial) {
-                return Some((v, true));
+                // TLC's replay checks a state outside the model again, and
+                // goes on past a new one (`Search::replay_after`).
+                if !in_model {
+                    return Some((class::recurring(v), true, false));
+                }
+                let resume = !initial && resumes(&v);
+                return Some((v, true, resume));
             }
             if initial {
                 for c in &m.implied_inits {
@@ -548,9 +665,10 @@ impl<S: Keyed> Search<'_, S> {
                                     property: c.name.clone(),
                                 },
                                 true,
+                                false,
                             ));
                         }
-                        Err(v) => return Some((v, true)),
+                        Err(v) => return Some((v, true, false)),
                     }
                 }
             }
@@ -558,7 +676,7 @@ impl<S: Keyed> Search<'_, S> {
         if let Some(st) = &st_step {
             levels.from();
             if let Some(v) = check_implied_actions(m, st) {
-                return Some((v, true));
+                return Some((v, true, false));
             }
         }
         if let Some(id) = new_id {
@@ -579,17 +697,32 @@ impl<S: Keyed> Search<'_, S> {
         search_counters(self.host);
         // Initial states: `DoInitFunctor`, on the start-up stream that the
         // constant definitions and assumptions drew from.
+        let ctx = self.ctx;
         let r = ev.init_states(&m.init_actions, &mut |succ: &Successor<'_>| match self
             .on_state(None, succ, 1, next)
         {
             None => Flow::Continue,
-            Some((verdict, with)) => {
+            Some((verdict, with, _)) => {
+                // An error in a check of an initial state names the state
+                // (`DoInitFunctor` records it).
+                let verdict = class::init_error(verdict, Some(&state_text(m, succ.state, ctx)));
+                // doInit prints the recorded state for a RuntimeException,
+                // but not for an EvalException (reported as GENERAL).
+                let with = with
+                    && !matches!(
+                        verdict,
+                        Verdict::EvaluationError { reported: 1000, .. }
+                            | Verdict::EvaluationError {
+                                site: ErrorSite::ImpliedInit,
+                                ..
+                            }
+                    );
                 stop = Some(Stop {
                     verdict,
                     in_init: true,
                     path: None,
                     then: if with {
-                        trace_state(m, succ, true)
+                        Some(trace_state(m, succ, true))
                     } else {
                         None
                     },
@@ -600,14 +733,21 @@ impl<S: Keyed> Search<'_, S> {
         self.initial_generated = self.generated;
         if let Err(e) = r {
             stop = Some(Stop {
-                verdict: error_verdict(&e.error, ErrorSite::Init),
+                verdict: class::init_error(error_verdict(&e.error, ErrorSite::Init), None),
                 in_init: true,
                 path: None,
                 then: None,
             });
         }
         if let Some(s) = stop {
-            return Some((s, self.stats(0)));
+            // After an evaluation error TLC prints its statistics: every
+            // state it inserted is on the queue (it enqueues before
+            // checking), and the depth is 1 once a state was generated
+            // (fixtures `ErInit*`, `ErInvInitState`, `ErConstrInitState`).
+            // After a violation it prints none.
+            let mut stats = self.stats(self.set.len());
+            stats.depth = u64::from(self.generated > 0);
+            return Some((s, stats));
         }
         // No action at all: success if no state was queued, otherwise TLC's
         // `TLC_STATES_AND_NO_NEXT_ACTION`, without statistics
@@ -661,17 +801,21 @@ impl<S: Keyed> Search<'_, S> {
                     return (Some(stop), self.stats(left as u64));
                 }
                 self.host.set_level(level_of(level));
+                let mut resume: Option<u64> = None;
                 let r = ev.successors(&m.actions, s0, &mut |succ: &Successor<'_>| match self
                     .on_state(Some((s0, *id)), succ, level + 1, &mut next)
                 {
                     None => Flow::Continue,
-                    Some((verdict, with)) => {
+                    Some((verdict, with, resumes)) => {
+                        if resumes {
+                            resume = Some(succ.ordinal);
+                        }
                         stop = Some(Stop {
                             verdict,
                             in_init: false,
                             path: Some((*id, s0.clone())),
                             then: if with {
-                                trace_state(m, succ, false)
+                                Some(trace_state(m, succ, false))
                             } else {
                                 None
                             },
@@ -699,9 +843,15 @@ impl<S: Keyed> Search<'_, S> {
                         then: None,
                     });
                 }
-                if let Some(s) = stop {
+                if let Some(mut s) = stop {
                     let left = (count - i - 1) + next.len();
-                    let stats = self.stats(left as u64);
+                    let mut stats = self.stats(left as u64);
+                    if let Some(ordinal) = resume {
+                        let r = self.replay_after(&self.set, s0, ordinal, level, &BTreeSet::new());
+                        stats.distinct += r.distinct;
+                        stats.left_on_queue += r.queued;
+                        s.verdict = r.apply(s.verdict);
+                    }
                     return (Some(s), stats);
                 }
             }
@@ -723,6 +873,129 @@ impl<S: Keyed> Search<'_, S> {
             .map_err(|e| store_verdict(&e))?;
         self.host.expand(fp);
         Ok(())
+    }
+
+    /// TLC's call-stack replay after an invariant failed to evaluate on the
+    /// new state `t`, successor `ordinal` of `s0` (a state of level `level`)
+    /// (`ModelChecker.modelCheckImpl`, `keepCallStack`; `ModelChecker.doNext`).
+    ///
+    /// The replay expands `s0` again, one action at a time, enumerating each
+    /// action in full before checking its successors. `t` is now in the
+    /// seen-state set, so its invariants are not checked again and the replay
+    /// goes on: past `t` it inserts new states (TLC's distinct count, though
+    /// not its generated count, includes them), checks them and enqueues
+    /// them, until a violation or an incomplete state ends it quietly, or a
+    /// further error ends it with that error's class. Fixtures `ErInv*`
+    /// (5 distinct and 2 on the queue where the search found 4 and 1),
+    /// `ErInvReplayProp` (an action property violated on `t` itself) and
+    /// `ErInvReplayError` (a second error, class `TLC_NESTED_EXPRESSION`).
+    ///
+    /// `set` is the seen-state set at the stop, apart from the keys in
+    /// `unseen` (states the parallel engine found after the stop).
+    pub(crate) fn replay_after(
+        &self,
+        set: &S,
+        s0: &StateVals,
+        ordinal: u64,
+        level: u64,
+        unseen: &BTreeSet<S::Key>,
+    ) -> Replayed {
+        let m = self.m;
+        let ev = &m.evaluator;
+        // TLC prints the replay's `Print` output again; dive does not.
+        let _quiet = dive_eval::capture::PrintCapture::start();
+        let mut out = Replayed::default();
+        if self.seed_state(s0).is_err() {
+            return out;
+        }
+        let host = self.host;
+        let set_level = |l: i64| host.set_level(l);
+        let levels = Levels {
+            set: &set_level,
+            here: level_of(level + 1),
+            from: level_of(level),
+        };
+        let mut added: BTreeSet<S::Key> = BTreeSet::new();
+        let mut base = 0u64;
+        let record_error = |v: Verdict, out: &mut Replayed| {
+            if !matches!(
+                v,
+                Verdict::InvariantViolated { .. } | Verdict::ActionPropertyViolated { .. }
+            ) {
+                out.error = Some(v);
+            }
+        };
+        for a in &m.actions {
+            host.set_level(level_of(level));
+            let mut succs: Vec<(u64, Option<StateVals>)> = Vec::new();
+            let r = ev.next_states(a, s0, base, &mut |succ: &Successor<'_>| {
+                succs.push((succ.ordinal, succ.complete().then(|| succ.state.into())));
+                Flow::Continue
+            });
+            match r {
+                Ok(o) => base += o.emitted,
+                Err(e) => {
+                    // The search reached `t` without this error, so it lies
+                    // in `t`'s action or a later one.
+                    out.error = Some(error_verdict(&e.error, ErrorSite::Next));
+                    return out;
+                }
+            }
+            for (o, state) in succs {
+                if o < ordinal {
+                    continue;
+                }
+                let Some(t) = state else {
+                    // `doNextSetErr`: an incomplete state ends it quietly.
+                    return out;
+                };
+                let st1 = St::state(t.clone());
+                let step = St::action(s0.clone(), t.clone());
+                if o == ordinal {
+                    levels.from();
+                    if let Some(v) = check_implied_actions(m, &step) {
+                        record_error(v, &mut out);
+                        return out;
+                    }
+                    continue;
+                }
+                let inside = match in_model(m, &st1, Some(&step), &levels) {
+                    Ok(b) => b,
+                    Err(v) => {
+                        out.error = Some(v);
+                        return out;
+                    }
+                };
+                let mut new = true;
+                if inside {
+                    let key = match state_key_of::<S>(m, self.keyer, self.ctx, &t, &st1) {
+                        Ok(k) => k,
+                        Err(v) => {
+                            out.error = Some(v);
+                            return out;
+                        }
+                    };
+                    new = (!set.contains(&key) || unseen.contains(&key)) && !added.contains(&key);
+                    if new {
+                        added.insert(key);
+                        out.distinct += 1;
+                    }
+                }
+                if new && let Some(v) = check_invariants(m, &st1, false) {
+                    record_error(v, &mut out);
+                    return out;
+                }
+                levels.from();
+                if let Some(v) = check_implied_actions(m, &step) {
+                    record_error(v, &mut out);
+                    return out;
+                }
+                if inside && new {
+                    out.queued += 1;
+                }
+            }
+        }
+        out
     }
 
     pub(crate) fn stats(&self, left_on_queue: u64) -> Stats {
@@ -748,7 +1021,7 @@ impl<S: Keyed> Search<'_, S> {
             let mut sink = |succ: &Successor<'_>| {
                 if succ.ordinal == want {
                     let initial = current.is_none();
-                    found = trace_state(self.m, succ, initial).map(|t| (succ.state.into(), t));
+                    found = Some((succ.state.into(), trace_state(self.m, succ, initial)));
                     Flow::Stop
                 } else {
                     Flow::Continue
@@ -826,27 +1099,53 @@ pub(crate) struct Outcome {
 fn postconditions(m: &Model) -> Option<Verdict> {
     let list = match &m.postconditions {
         Ok(list) => list,
-        Err(e) => return Some(crate::model_error(e)),
+        Err(e) => {
+            let v = crate::model_error(e);
+            return Some(match v {
+                Verdict::ModelError { code, message, .. } => Verdict::ModelError {
+                    code: 1000,
+                    name: "GENERAL".to_owned(),
+                    message: class::general_text(&format!(
+                        "@!@!@STARTMSG {code}:0 @!@!@\n{message}\n@!@!@ENDMSG {code} @!@!@"
+                    )),
+                },
+                other => other,
+            });
+        }
     };
     for pc in list {
+        // TLC looks the name up only now (`Spec.getPostConditionSpecs`). A
+        // definition it evaluated at start-up has become a value, which it
+        // refuses as a constant, with `GENERAL` (fixtures `ErPostConstTrue`,
+        // `ErPostConstFalse`, `ErPostNonBool`).
+        if m.evaluator.precomputed(pc.pred.scope.def()).is_some() {
+            return Some(Verdict::ModelError {
+                code: 1000,
+                name: "GENERAL".to_owned(),
+                message: class::general_text(&format!(
+                    "@!@!@STARTMSG 2233:0 @!@!@\nThe post condition {} cannot be a constant.\n@!@!@ENDMSG 2233 @!@!@",
+                    pc.name
+                )),
+            });
+        }
+        let location = m.evaluator.location(pc.pred.location);
         match m.eval(&pc.pred, &St::constant()) {
             Ok(Value::Bool(true)) => {}
-            Ok(_) => {
+            Ok(Value::Bool(false)) => {
                 return Some(Verdict::PostconditionFalse {
                     property: pc.name.clone(),
+                    message: format!("Postcondition {} at {location} is false.", pc.name),
                 });
             }
-            Err(e) => {
-                return Some(match error_verdict(&e, ErrorSite::Postcondition) {
-                    Verdict::EvaluationError { site, message, .. } => Verdict::EvaluationError {
-                        site,
-                        code: 2405,
-                        name: "TLC_POSTCONDITION_EVALUATION_ERROR",
-                        message,
-                    },
-                    other => other,
-                });
+            // `Tool.isValid`: `TLC_EXPECTED_VALUE` (fixture `ErPostNonBoolVar`).
+            Ok(_) => {
+                let e = EvalError::coded(
+                    Ec::ExpectedValue,
+                    format!("TLC expected a boolean value, but did not find one. {location}"),
+                );
+                return Some(class::postcondition_error(&e, &pc.name, &location));
             }
+            Err(e) => return Some(class::postcondition_error(&e, &pc.name, &location)),
         }
     }
     None
@@ -959,6 +1258,17 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
     let mut output = m.take_output();
     let Some(stop) = stop else {
         let collision = s.set.collision(stats.distinct, stats.generated);
+        // checkPostCondition runs after the complete search, with the
+        // final counters visible through TLCGet.
+        for (counter, value) in [
+            (Counter::Generated, stats.generated),
+            (Counter::Distinct, stats.distinct),
+            (Counter::Queue, stats.left_on_queue),
+            (Counter::Initial, s.initial_generated),
+            (Counter::Diameter, stats.depth),
+        ] {
+            host.set_counter(counter, i64::try_from(value).ok());
+        }
         let verdict = postconditions(m).unwrap_or(Verdict::Success);
         output.extend(m.take_output());
         return Outcome {
@@ -1003,7 +1313,9 @@ fn search_in<S: Keyed>(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcom
         );
     }
     Outcome {
-        tlc_prints_stats: !stop.in_init,
+        // TLC prints statistics after an error in the initial states, not
+        // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
+        tlc_prints_stats: !stop.in_init || matches!(verdict, Verdict::EvaluationError { .. }),
         verdict,
         stats: Some(stats),
         counterexample,

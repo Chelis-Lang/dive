@@ -120,6 +120,7 @@ struct Lowerer<'a> {
     std_bodies: HashMap<NodeId, StdOp>,
     exprs: Vec<Node>,
     sema_nodes: Vec<u32>,
+    prime_origins: Vec<(ExprId, Origin)>,
     refusals: Vec<Refusal>,
     // Scope while lowering one top-level definition.
     frames: Vec<Frame>,
@@ -162,6 +163,7 @@ impl<'a> Lowerer<'a> {
             std_bodies: HashMap::new(),
             exprs: Vec::new(),
             sema_nodes: Vec::new(),
+            prime_origins: Vec::new(),
             refusals: Vec::new(),
             frames: Vec::new(),
             bindings: Vec::new(),
@@ -1426,6 +1428,7 @@ impl<'a> Lowerer<'a> {
                         let origin = self.origin_of(node);
                         let level = self.m.level(node).into();
                         if let Some(n) = self.exprs.get_mut(inner.index()) {
+                            self.prime_origins.push((inner, n.origin));
                             n.expr = p;
                             n.origin = origin;
                             n.level = level;
@@ -1721,6 +1724,7 @@ impl<'a> Lowerer<'a> {
             refusals: self.refusals,
             lexical_names: crate::intern::lexical_names(self.analysis),
             sema_nodes: self.sema_nodes,
+            prime_origins: self.prime_origins,
         };
         crate::analysis::compute_effects(&mut ir);
         crate::analysis::compute_hashes(&mut ir);

@@ -89,7 +89,7 @@ impl From<dive_sema::Level> for Level {
 
 /// The version of the IR's serialized form. Bump it whenever a serialized
 /// type changes; the on-disk cache (ADR 0013 §7) keys on it.
-pub const IR_SCHEMA: u32 = 3;
+pub const IR_SCHEMA: u32 = 4;
 
 /// One lowered specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -111,6 +111,8 @@ pub struct Ir {
     /// For each expression, the index of the `dive-sema` node it was lowered
     /// from (`dive_sema::NodeId::index`).
     pub(crate) sema_nodes: Vec<u32>,
+    /// The operand origin of a primed variable, before prime folding.
+    pub(crate) prime_origins: Vec<(ExprId, Origin)>,
 }
 
 /// An expression node with its annotations.
@@ -418,6 +420,17 @@ impl Ir {
     #[must_use]
     pub fn node(&self, id: ExprId) -> &Node {
         &self.exprs[id.index()]
+    }
+
+    /// The variable operand's source location before a prime was folded
+    /// into its node. TLC reports this location when reading an unassigned
+    /// successor variable, while the node itself keeps the whole prime's
+    /// origin for other diagnostics.
+    #[must_use]
+    pub fn prime_operand_origin(&self, id: ExprId) -> Option<Origin> {
+        self.prime_origins
+            .iter()
+            .find_map(|(expr, origin)| (*expr == id).then_some(*origin))
     }
 
     /// One expression.

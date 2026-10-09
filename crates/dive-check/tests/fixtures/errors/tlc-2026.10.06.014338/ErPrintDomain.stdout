@@ -1,0 +1,108 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 0 and seed 0 with 1 worker on 8 cores with 2731MB heap and 64MB offheap memory [pid: 42217] (Mac OS X 26.5 aarch64, Eclipse Adoptium 17.0.20.1 64bit, MSBDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file $CWD/ErPrintDomain/ErPrintDomain.tla
+Parsing file $TMP/tlc-2036198256243330410/Integers.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file $TMP/tlc-2036198256243330410/TLC.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file $TMP/tlc-2036198256243330410/Naturals.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file $TMP/tlc-2036198256243330410/Sequences.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file $TMP/tlc-2036198256243330410/FiniteSets.tla (jar:file:$DIVE_CACHE_DIR/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module ErPrintDomain
+Linting of module ErPrintDomain
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-09 02:46:08)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2026-10-09 02:46:08.
+@!@!@ENDMSG 2190 @!@!@
+TRUE
+TRUE
+TRUE
+TRUE
+TRUE
+TRUE
+@!@!@STARTMSG 1000:1 @!@!@
+TLC threw an unexpected exception.
+This was probably caused by an error in the spec or model.
+See the User Output or TLC Console for clues to what happened.
+The exception was a java.lang.RuntimeException
+: In applying the function
+(0 :> 0 @@ 1 :> 1),
+the first argument is:
+2
+which is not in its domain.
+
+@!@!@ENDMSG 1000 @!@!@
+TRUE
+TRUE
+@!@!@STARTMSG 2121:1 @!@!@
+The behavior up to this point is:
+@!@!@ENDMSG 2121 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+1: <Initial predicate>
+/\ x = 0
+/\ y = 0
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+2: <Next line 9, col 9 to line 9, col 30 of module ErPrintDomain>
+/\ x = 1
+/\ y = 0
+
+@!@!@ENDMSG 2217 @!@!@
+TRUE
+TRUE
+@!@!@STARTMSG 2217:4 @!@!@
+3: <Next line 9, col 9 to line 9, col 30 of module ErPrintDomain>
+/\ x = 2
+/\ y = 0
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2103:1 @!@!@
+The error occurred when TLC was evaluating the nested
+expressions at the following positions:
+0. Line 9, column 9 to line 9, column 30 in ErPrintDomain
+1. Line 9, column 9 to line 9, column 12 in ErPrintDomain
+2. Line 7, column 9 to line 8, column 31 in ErPrintDomain
+3. Line 7, column 12 to line 7, column 40 in ErPrintDomain
+4. Line 7, column 12 to line 7, column 30 in ErPrintDomain
+5. Line 7, column 12 to line 7, column 16 in ErPrintDomain
+6. Line 7, column 21 to line 7, column 30 in ErPrintDomain
+7. Line 7, column 35 to line 7, column 40 in ErPrintDomain
+8. Line 9, column 17 to line 9, column 30 in ErPrintDomain
+9. Line 9, column 24 to line 9, column 29 in ErPrintDomain
+10. Line 5, column 11 to line 5, column 44 in ErPrintDomain
+11. Line 5, column 20 to line 5, column 44 in ErPrintDomain
+12. Line 5, column 20 to line 5, column 40 in ErPrintDomain
+
+
+@!@!@ENDMSG 2103 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(3) at 2026-10-09 02:46:08: 7 states generated (580 s/min), 5 distinct states found (414 ds/min), 1 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+7 states generated, 5 distinct states found, 1 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2194:0 @!@!@
+The depth of the complete state graph search is 3.
+@!@!@ENDMSG 2194 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 726ms at (2026-10-09 02:46:08)
+@!@!@ENDMSG 2186 @!@!@

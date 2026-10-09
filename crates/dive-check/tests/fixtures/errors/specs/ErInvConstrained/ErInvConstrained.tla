@@ -1,0 +1,11 @@
+---- MODULE ErInvConstrained ----
+\* WP-C4 error-class matrix: an invariant failing on a successor outside the state constraint.
+EXTENDS Integers, TLC
+VARIABLES x, y
+Init == x = 0 /\ y = 0
+Step == \/ x < 3 /\ x' = x + 1 /\ y' = y
+        \/ x' = x /\ y' = 1 - y
+Next == Step
+Constr == x < 2
+Inv == x # 2 \/ 1 \div 0 = 1
+====

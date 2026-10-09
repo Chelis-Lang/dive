@@ -61,6 +61,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+mod class;
 pub mod engine;
 mod host;
 mod options;
@@ -83,8 +84,6 @@ pub use result::{
     CheckResult, Collision, Counterexample, ErrorSite, Stats, TlcClass, TraceState, Verdict,
     Workers, tlc_exit_status,
 };
-
-use crate::engine::error_verdict;
 
 /// Checks the model `cfg` of the lowered specification `ir`.
 ///
@@ -131,7 +130,7 @@ pub(crate) fn model_error(e: &BindError) -> Verdict {
 }
 
 /// The `EC` name of an evaluation error code `dive-eval` raises.
-fn eval_code_name(code: u32) -> &'static str {
+pub(crate) fn eval_code_name(code: u32) -> &'static str {
     match code {
         2215 => "TLC_EXPECTED_VALUE",
         2184 => "TLC_MODULE_APPLY_EMPTY_SEQ",
@@ -237,15 +236,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             return r;
         }
         AssumptionOutcome::Error { error, message, .. } => {
-            r.verdict = match error_verdict(&error, ErrorSite::Assumption) {
-                Verdict::EvaluationError { site, .. } => Verdict::EvaluationError {
-                    site,
-                    code: 2105,
-                    name: "TLC_ASSUMPTION_EVALUATION_ERROR",
-                    message,
-                },
-                other => other,
-            };
+            r.verdict = class::assumption_error(&error, message);
             r.notes = notes;
             return r;
         }
