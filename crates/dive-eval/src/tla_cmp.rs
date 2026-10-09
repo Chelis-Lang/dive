@@ -1,5 +1,4 @@
-//! `--comparisons=tla` (proposed in D-009, open question 12; not the
-//! default): `=` and `\in` answered as TLA+ defines them for functions
+//! `--comparisons=tla` (the owner-approved default, D-009): `=` and `\in` answered as TLA+ defines them for functions
 //! (including tuples and records) and sets, symmetrically and independently of
 //! element order.
 //!
