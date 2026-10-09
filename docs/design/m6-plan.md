@@ -57,6 +57,13 @@ state-dependent temporal quantifier expansion, unbounded quantification,
 opaque scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
 
+The bounded final/short path factors top-level pure recurrence conditions into
+accepting-edge conditions, reuses equal next-obligation expansions and retains
+only reachable state/tableau pairs. Resource defaults are unchanged. DiningPhilosophers
+now matches final truth/counts; the LM1 study has 42 matches and three named
+VIEW refusals at requested widths 1/4/8, with actual capture width 1 and no
+findings. This is not the TLC-exact DNF/classification/numbering pipeline.
+
 L2 captures bounded complete graphs through the shared inline safety engine,
 retaining duplicate edges, full-state implicit stutters, constraints, counts,
 startup output and safety-stop evidence. Phase-L evaluation/error timing,

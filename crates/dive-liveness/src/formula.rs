@@ -7,6 +7,9 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+mod recurrence;
+pub use recurrence::Recurrence;
+
 /// The evaluation domain of an atomic predicate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AtomKind {
@@ -73,6 +76,16 @@ impl std::fmt::Display for FormulaError {
 impl std::error::Error for FormulaError {}
 
 impl Formula {
+    fn terms(&self) -> usize {
+        self.nodes.iter().fold(self.nodes.len(), |count, n| {
+            let children = match n {
+                Node::Bool(_) | Node::Atom(_) => 0,
+                Node::Not(_) | Node::Always(_) | Node::Eventually(_) => 1,
+                Node::And(cs) | Node::Or(cs) => cs.len(),
+            };
+            count.saturating_add(children)
+        })
+    }
     /// Directly evaluates the formula on an ultimately periodic word, without
     /// a tableau or product search. Each row supplies atom truth for a word
     /// position, separately for state and action domains. Action rows include
@@ -270,6 +283,33 @@ impl Normalizer<'_> {
         Ok(i)
     }
 
+    fn disjunction(&mut self, children: Vec<usize>) -> Result<Nnf, FormulaError> {
+        if children.len() > 1 {
+            let recurring = children
+                .iter()
+                .map(|&i| {
+                    if let Nnf::Always(c) = self.nodes[i]
+                        && let Nnf::Eventually(inner) = self.nodes[c]
+                    {
+                        Some(inner)
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Option<Vec<_>>>();
+            if let Some(recurring) = recurring {
+                // On an infinite word, at least one of finitely many
+                // predicates holds infinitely often iff their disjunction
+                // holds infinitely often. Preserve child order and atom ids;
+                // no bound-predicate equivalence or context merging is used.
+                let union = self.intern(Nnf::Or(recurring))?;
+                let eventually = self.intern(Nnf::Eventually(union))?;
+                return Ok(Nnf::Always(eventually));
+            }
+        }
+        Ok(Nnf::Or(children))
+    }
+
     fn normalize(&mut self, i: usize, negative: bool, depth: usize) -> Result<usize, FormulaError> {
         if depth > 256 {
             return Err(FormulaError::Limit("normalization depth"));
@@ -297,7 +337,7 @@ impl Normalizer<'_> {
                 if and {
                     Nnf::And(children)
                 } else {
-                    Nnf::Or(children)
+                    self.disjunction(children)?
                 }
             }
             Node::Always(c) | Node::Eventually(c) => {
@@ -450,15 +490,7 @@ impl Builder {
 /// Explicit formula/depth/tableau/expansion limits. A limit never yields an empty
 /// tableau that could be mistaken for a proof of absence of violations.
 pub fn compile(formula: &Formula, limits: Limits) -> Result<Tableau, FormulaError> {
-    let terms = formula.nodes.iter().fold(formula.nodes.len(), |count, n| {
-        let children = match n {
-            Node::Bool(_) | Node::Atom(_) => 0,
-            Node::Not(_) | Node::Always(_) | Node::Eventually(_) => 1,
-            Node::And(cs) | Node::Or(cs) => cs.len(),
-        };
-        count.saturating_add(children)
-    });
-    if terms > limits.formula_nodes {
+    if formula.terms() > limits.formula_nodes {
         return Err(FormulaError::Limit("formula nodes"));
     }
     let mut norm = Normalizer {
@@ -469,12 +501,28 @@ pub fn compile(formula: &Formula, limits: Limits) -> Result<Tableau, FormulaErro
         memo: BTreeMap::new(),
     };
     let root = norm.normalize(formula.root, false, 0)?;
+    // Normalization can replace a disjunction of recurrence formulas. Only
+    // promises reachable from the resulting root constrain the language.
+    let mut reachable = BTreeSet::new();
+    let mut pending = vec![root];
+    while let Some(i) = pending.pop() {
+        if !reachable.insert(i) {
+            continue;
+        }
+        match &norm.nodes[i] {
+            Nnf::And(cs) | Nnf::Or(cs) => pending.extend(cs),
+            Nnf::Always(c) | Nnf::Eventually(c) => pending.push(*c),
+            Nnf::Bool(_) | Nnf::Lit(_) => {}
+        }
+    }
     let promises = norm
         .nodes
         .iter()
         .enumerate()
         .filter_map(|(i, n)| {
-            if let Nnf::Eventually(c) = n {
+            if let Nnf::Eventually(c) = n
+                && reachable.contains(&i)
+            {
                 Some((i, *c))
             } else {
                 None
@@ -491,9 +539,23 @@ pub fn compile(formula: &Formula, limits: Limits) -> Result<Tableau, FormulaErro
         nodes: Vec::new(),
     };
     let roots = b.expand(vec![root])?;
+    // Expansion starts with empty current-state facts and depends only on the
+    // pending obligations. Distinct nodes can have different literals/promise
+    // bits but identical next obligations; re-expanding those cannot add nodes
+    // or change successor order. Keep a reference to the first finished result
+    // rather than retaining another adjacency list for every cache entry.
+    let mut expanded = BTreeMap::from([(vec![root], None)]);
     let mut cursor = 0;
     while cursor < b.nodes.len() {
-        b.nodes[cursor].successors = b.expand(b.keys[cursor].next.clone())?;
+        let pending = &b.keys[cursor].next;
+        b.nodes[cursor].successors = if let Some(previous) = expanded.get(pending) {
+            previous.map_or_else(|| roots.clone(), |i: usize| b.nodes[i].successors.clone())
+        } else {
+            let pending = pending.clone();
+            let successors = b.expand(pending.clone())?;
+            expanded.insert(pending, Some(cursor));
+            successors
+        };
         cursor += 1;
     }
     Ok(Tableau {

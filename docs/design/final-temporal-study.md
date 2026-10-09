@@ -39,14 +39,14 @@ Its observations guide the next planning/validation increments. Full LM1, H1 and
 TLC compatibility remain open until their complete requirements are proven.
 
 The latest [LM1 TLC-value study](../../conformance/reports/studies/lm1-final-short-tlc.json)
-retains all fifteen models at requested widths 1, 4 and 8: thirty-nine observations
-match final verdict truth/counts and six are named refusals, with no findings.
-The build includes bounded state-dependent predicate domains, finite CHOOSE
-and pure action-helper arguments. FourQueens now
-matches the complete safety stop (62 generated, 40 distinct, depth 5), and
-ChangRoberts matches its final success (227 generated, 137 distinct, depth 10).
-DistributedReplicatedLog now gets past FiniteSetsExt Min/Max and pure
-action-helper arguments. It and DiningPhilosophers reach the tableau-node
-bound; neither limit is interpreted as a successful check. Every deciding field is
-identical across requested widths; successful graph capture reports one actual
-worker. Full LM1, TLC-exact temporal behavior and parallel capture remain open.
+retains all fifteen models at requested widths 1, 4 and 8: forty-two observations
+match final verdict truth/counts and three are named VIEW refusals, with no findings.
+The build includes bounded state-dependent predicate domains, finite CHOOSE,
+pure action-helper arguments, recurrence factoring and reachable products.
+FourQueens matches the complete safety stop (62 generated, 40 distinct, depth 5),
+and ChangRoberts matches its final success (227 generated, 137 distinct, depth 10).
+DiningPhilosophers now matches its success (336 generated, 67 distinct, depth 29).
+DistributedReplicatedLog gets past scoped arguments and formula bounds, then
+refuses VIEW graph capture explicitly. Every deciding field is identical across
+requested widths; successful graph capture reports one actual worker. Full LM1,
+TLC-exact temporal behavior and parallel capture remain open.
