@@ -265,6 +265,12 @@ pub(crate) fn stream(s: &Set, ctx: Ctx, mark: bool) -> Result<Elems> {
             started: false,
         }),
         SetRepr::FcnSet(d, r) => {
+            // SetOfFcnsValue.elements tests emptiness before enumerating the
+            // domain. Keep quiet operations from normalizing nested operands.
+            let _quiet = (!mark).then(crate::value::quiet::Quiet::enter);
+            if crate::tlc::is_empty(&me(), ctx)? {
+                return Ok(Box::new(std::iter::empty()));
+            }
             let dom = component(d, ctx, mark)?;
             if dom.is_empty() {
                 return Ok(Box::new(std::iter::once(Value::tuple(Vec::new()))));
