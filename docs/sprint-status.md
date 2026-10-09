@@ -132,3 +132,10 @@ Six pinned probes match final truth/counts in both profiles/stores; direct
 short-word controls also cover nested forwarding, tuple/state guards and
 priming across the closing edge. Action/temporal and higher-order arguments
 remain refusals. Exact TLC temporal planning/timing/selection is still open.
+
+The separate final/short LM1 study now records all fifteen models at requested
+widths 1, 4 and 8: ten distinct models match truth/counts, five refuse by name,
+with no findings. See [the study guide](design/final-temporal-study.md) and its
+raw report. Actual graph capture remains inline; this is not strict TLC agreement
+or parallel scaling. The next scoped-planning increments are guided by the
+remaining substitution, domain, tableau and independent-validation refusals.
