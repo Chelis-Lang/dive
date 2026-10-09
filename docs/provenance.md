@@ -93,3 +93,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | `dive-check` graph capture (`capture.rs`, `engine.rs`) | Existing ported safety event order above; implicit stuttering follows `tlc2/tool/Worker.java` `doNextCheckLiveness` at pin `94d0c50` (ADR 0018 increment) | MIT semantics / own retention design | Same counters; retains seen/duplicate accepted edges, with explicit bounded incomplete outcomes. Inline only; no phase-L or VIEW/symmetry projection claim. |
 | `dive-liveness` pure final coordinator (`analyze.rs`, `plan.rs` `lower_violation`) | Direct behavior-conjunction AND negated-property language, supplied by the bound model; ADR 0018 increment | Own design | Four pinned pure models match TLC counts in both stores and produce independently validated candidates. Four WF specifications refuse. No TLC-exact selection, complete claim-set, periodic or CLI verdict claim. |
+
+
+| Independent finite covers (`dive-trace/src/exists.rs`) | TLA+ existential action semantics; ADR 0016 amendment 2 | n/a | Original necessary-cover derivation and Cartesian verification, without `dive-eval::next` or graph. Pinned `EnabledFiniteCover` confirms 36 enabledness decisions. |
+| Independent WF/SF enabledness (`dive-trace/src/temporal.rs`) | TLA+ fairness definitions; ADR 0018 §8 | n/a | Recurring non-stuttering occurrence, otherwise GF/FG of independently decided disabledness. Pinned `LvWFIntermittent` and `LvStutterEnd`. |

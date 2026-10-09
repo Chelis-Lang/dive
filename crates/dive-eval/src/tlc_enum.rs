@@ -41,6 +41,7 @@ impl Core {
     /// The elements `x' \in S` (and `x \in S` in an initial predicate) binds,
     /// in TLC's order and multiplicity (`Enumerable.elements()`). Under
     /// `--explore-order=value` the run's value order instead.
+    #[cfg(feature = "enumerate")]
     pub(crate) fn in_elements(self: &Arc<Self>, set: &dive_value::Set) -> Result<Arc<[Value]>> {
         self.tlc_elements(set, "x' \\in S")
     }

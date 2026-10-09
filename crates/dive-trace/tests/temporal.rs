@@ -142,14 +142,23 @@ fn actions_use_the_closing_successor_and_bad_words_refuse() {
 }
 
 #[test]
-fn fairness_without_recurring_action_requires_independent_enabled() {
+fn unfair_stutter_is_false_and_unbounded_enabledness_still_refuses() {
     let model = bound(
         "---- MODULE Word ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nFair == WF_x(Next)\n====\n",
         "INIT Init\nNEXT Next\n",
     );
     let states = [Arc::from([Some(Value::Bool(true))])];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Fair"), &states, 0).expect("finite enabledness"),
+        vec![false]
+    );
+    let unbounded = bound(
+        "---- MODULE Unbounded ----\nEXTENDS Integers\nVARIABLE x\nInit == x = 0\nNext == x' > x\nFair == WF_x(Next)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let states = [Arc::from([Some(0_i64.into())])];
     assert!(
-        matches!(evaluate_lasso(&model, &predicate(&model, "Fair"), &states, 0), Err(TemporalError::Unsupported(s)) if s.contains("ENABLED"))
+        matches!(evaluate_lasso(&unbounded, &predicate(&unbounded, "Fair"), &states, 0), Err(TemporalError::Unsupported(s)) if s.contains("finite cover"))
     );
 }
 
@@ -256,16 +265,73 @@ fn recurring_action_certifies_both_fairness_kinds_on_every_small_word() {
                 });
                 for name in ["W", "S", "EmptyW", "EmptyS", "FalseW", "FalseS"] {
                     let result = evaluate_lasso(&model, &predicate(&model, name), &states, back);
-                    if recurring && matches!(name, "W" | "S") {
-                        assert_eq!(result.expect(name), vec![true; len], "{word:?}, {back}");
-                    } else {
-                        assert!(
-                            matches!(&result, Err(TemporalError::Unsupported(s)) if s.contains("ENABLED")),
-                            "{name}: {word:?}, {back}: {result:?}"
-                        );
-                    }
+                    let expected = recurring || !matches!(name, "W" | "S");
+                    assert_eq!(
+                        result.expect(name),
+                        vec![expected; len],
+                        "{name}: {word:?}, {back}"
+                    );
                 }
             }
         }
     }
+}
+
+#[test]
+fn weak_and_strong_fairness_differ_on_intermittent_enabledness() {
+    let model = bound(
+        "---- MODULE Intermittent ----\nVARIABLES x, y\nInit == x = TRUE /\\ y = FALSE\nNext == x /\\ y' = ~y /\\ UNCHANGED x\nW == WF_y(Next)\nS == SF_y(Next)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    for len in 1..=4 {
+        for bits in 0..(1_usize << (2 * len)) {
+            let word: Vec<(bool, bool)> = (0..len)
+                .map(|i| (bits & (1 << (2 * i)) != 0, bits & (1 << (2 * i + 1)) != 0))
+                .collect();
+            let states: Vec<State> = word
+                .iter()
+                .map(|(x, y)| Arc::from([Some(Value::Bool(*x)), Some(Value::Bool(*y))]))
+                .collect();
+            for back in 0..len {
+                let occurs = (back..len).any(|i| {
+                    let j = if i + 1 == len { back } else { i + 1 };
+                    word[i].0 && word[j].0 && word[i].1 != word[j].1
+                });
+                let weak = occurs || word[back..].iter().any(|(x, _)| !x);
+                let strong = occurs || word[back..].iter().all(|(x, _)| !x);
+                for (name, expected) in [("W", weak), ("S", strong)] {
+                    assert_eq!(
+                        evaluate_lasso(&model, &predicate(&model, name), &states, back)
+                            .expect(name),
+                        vec![expected; len],
+                        "{name}: {word:?}, {back}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn direct_enabledness_is_evaluated_independently_at_every_word_position() {
+    let model = bound(
+        "---- MODULE EnabledWord ----\nVARIABLE x\nInit == x = TRUE\nNext == x /\\ x' = FALSE\nE == ENABLED Next\nN == ~ENABLED Next\nP == []ENABLED Next\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let states = vec![
+        Arc::from([Some(Value::Bool(true))]),
+        Arc::from([Some(Value::Bool(false))]),
+    ];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "E"), &states, 0).expect("enabled"),
+        vec![true, false]
+    );
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "N"), &states, 0).expect("not enabled"),
+        vec![false, true]
+    );
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "P"), &states, 0).expect("always enabled"),
+        vec![false, false]
+    );
 }
