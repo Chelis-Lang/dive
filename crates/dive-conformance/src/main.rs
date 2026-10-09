@@ -141,6 +141,8 @@ struct Opts {
     specs: Option<PathBuf>,
     out: Option<PathBuf>,
     seed: Option<i64>,
+    lncheck: Option<String>,
+    fp: Option<u32>,
     positional: Vec<String>,
 }
 
@@ -203,6 +205,16 @@ fn parse_opts(args: &mut Args) -> Result<Opts> {
                     .ok_or_else(|| Error::Usage("--seed needs a value".to_owned()))?;
                 o.seed = Some(parse_num(&a, &v)?);
             }
+            "--lncheck" => {
+                let v = args.value(&a)?;
+                if !matches!(v.as_str(), "final" | "default" | "off") {
+                    return Err(Error::Usage(format!(
+                        "--lncheck: `{v}` is not one of final, default, off"
+                    )));
+                }
+                o.lncheck = Some(v);
+            }
+            "--fp" => o.fp = Some(parse_num(&a, &args.value(&a)?)?),
             s if s.starts_with("--") => return Err(Error::Usage(format!("unknown option `{s}`"))),
             _ => o.positional.push(a),
         }
@@ -523,11 +535,16 @@ fn eprintln_safe(s: &str) {
     let _ = writeln!(std::io::stderr().lock(), "{s}");
 }
 
-/// `dev capture --oracle <id> --specs <dir> --out <dir> [--seed N] [NAME...]`:
+/// `dev capture --oracle <id> --specs <dir> --out <dir> [--seed N]
+/// [--lncheck MODE] [--workers N] [--fp N] [NAME...]`:
 /// runs the oracle exactly as the harness does on `<dir>/<NAME>/<NAME>.tla`
 /// (+`.cfg`) and records stdout, stderr, exit code and the JSON trace as test
 /// fixtures, plus SANY's output on the module. `--seed` replaces the harness's
-/// `-seed 0` (for randomization fixtures).
+/// `-seed 0` (for randomization fixtures), `--lncheck` its `-lncheck final`
+/// `--workers N` (one count) its `-workers 1` and `--fp N` its `-fp 0` (for
+/// liveness probes). A
+/// multi-worker capture records no JSON trace: the trace pass runs only at
+/// one worker.
 /// The transcript is the clean run's (no `-dumpTrace`); a counterexample's
 /// JSON comes from the cross-checked trace pass, run with the same seed,
 /// whose command is recorded in `.trace.command`.
@@ -550,6 +567,16 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
     let dir = out_dir.join(&oracle);
     std::fs::create_dir_all(&dir).map_err(|e| Error::io(&dir, &e))?;
     let lim = limits(o);
+    let workers = match o.workers.as_deref() {
+        None => 1,
+        Some([n]) => *n,
+        Some(_) => {
+            return Err(Error::Usage(
+                "dev capture takes one --workers count".to_owned(),
+            ));
+        }
+    };
+    let lncheck = o.lncheck.as_deref().unwrap_or("final");
     for name in &o.positional {
         let module = format!("{name}/{name}.tla");
         let config_path = format!("{name}/{name}.cfg");
@@ -559,10 +586,12 @@ fn dev_capture(config: &Config, cache: &Cache, o: &Opts) -> Result<()> {
             config: &config_path,
             mode: CheckMode::Exhaustive,
             features: &[],
-            workers: 1,
+            workers,
             timeout: Duration::from_secs(300),
             xmx: &lim.xmx,
             seed: o.seed.unwrap_or(0),
+            lncheck,
+            fp: o.fp.unwrap_or(0),
             dump_trace: false,
         };
         let inv = env.run_tlc(&job)?;
