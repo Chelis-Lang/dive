@@ -81,6 +81,13 @@ All notable changes to this project are documented here. The project will follow
   and invents violations.
 - `dive-conformance dev capture --lncheck MODE --workers N --fp N`, for probes of TLC's
   other liveness modes. Goldens are unchanged.
+- `dive-bench` (M5, WP-G1): a hand-run benchmark runner, not in CI. It times
+  `dive check` at one worker in the `--compat=tlc` and default profiles on the set in
+  `crates/dive-bench/benchmarks.toml` (`GameOfLife`, `TLCSailfish1`, `EWD998PCal`,
+  `MCBakery`, `MCLamportMutex`, `SimpleRegular`, `MCbtree`, `CoffeeCan1000Beans`),
+  checks every run's verdict and counts against the TLC golden, and reports median
+  CPU time, wall time, distinct states per CPU second and peak RSS against TLC's
+  golden, survey and (with `--tlc`) same-machine single-worker times.
 - Standard library breadth (M5, WP-C3), each operator a port of the Java method TLC
   runs, with its errors:
   - the `Bags` overrides, and the CommunityModules operators that corpus models use:
