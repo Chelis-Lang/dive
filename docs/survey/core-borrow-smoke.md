@@ -39,3 +39,17 @@ DIVE_CACHE_DIR=<verified-cache> cargo run --release -p dive-bench -- \
   --dive-bin <baseline-or-changed-binary> --filter SimpleRegular \
   --reps 1 --profile tlc --workers 1 --runs <raw-jsonl>
 ```
+
+The complete standard-tier strict run also passed: 154 selected models,
+83 agree and 71 explicit unsupported results, with no disagreements,
+pending validations, timeouts or oracle errors. The generated
+[report](../../conformance/reports/20261009T134501007-dive-small.json)
+records the same changed binary hash above, two concurrent jobs and a fixed
+2,400-second timeout. This run includes the slower EWD998 and TLCSailfish
+models. It validates the cleanup; it does not establish a performance gain.
+
+```sh
+DIVE_CACHE_DIR=<verified-cache> cargo run --release -p dive-conformance -- \
+  run --impl dive --dive-bin target/release/dive --profile tlc \
+  --tier small --workers 1 --jobs 2 --timeout 2400 --no-sany --no-summary
+```
