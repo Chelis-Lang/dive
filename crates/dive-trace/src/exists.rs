@@ -215,7 +215,7 @@ impl Search<'_> {
                 }
             }
             Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
-                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                let scopes = self.finite_scopes(expr, scope, prime, depth + 1)?;
                 for sc in scopes {
                     self.scan(*body, &sc, prime, needed, depth + 1)?;
                 }
@@ -325,6 +325,7 @@ impl Search<'_> {
         &mut self,
         expr: ExprId,
         scope: &Scope,
+        prime: bool,
         depth: usize,
     ) -> Result<Vec<Scope>, ExistsError> {
         self.step(depth)?;
@@ -341,7 +342,11 @@ impl Search<'_> {
                 ));
             }
             let mut reads = BTreeSet::new();
-            self.scan(dom, scope, false, &mut reads, depth + 1)?;
+            // A prime outside the quantifier also primes its domain. Binding
+            // from the current state would hide body reads when that domain
+            // is empty, and could falsely certify Disabled. Such domains need
+            // a successor-dependent proof; they must not be guessed here.
+            self.scan(dom, scope, prime, &mut reads, depth + 1)?;
             if !reads.is_empty() {
                 return Err(ExistsError::Unsupported(
                     "primed action quantifier domain".into(),
@@ -497,7 +502,7 @@ impl Search<'_> {
         } else {
             JunctionKind::And
         };
-        let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+        let scopes = self.finite_scopes(expr, scope, false, depth + 1)?;
         let mut combined = None;
         for sc in scopes {
             let rhs = self.cover(body, &sc, depth + 1)?;

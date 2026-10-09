@@ -769,3 +769,17 @@ representation. A singleton range over a non-enumerable domain still refuses
 enumeration; diagnostic printing retains a symbolic fallback instead of
 recursively retrying the failed expansion.
 Evidence: `crates/dive-value/tests/fixtures/printing/`.
+
+### Independent disabledness with primed domains
+
+A prime outside a quantifier also primes its domain. For example, with
+`S = {}` and `t = FALSE`, the action `(\E b \in S : t=b)'` has a concrete
+successor `S = {TRUE}`, `t = TRUE`. Enumerating the current empty domain
+would miss that successor and could incorrectly validate a deadlock. The
+independent validator now refuses successor-dependent primed domains with
+`DIVE-T0020`; constant primed domains still require complete finite covers
+for all body reads. Ordinary current-state empty domains remain decidable.
+This repairs dive's own soundness defect (#94), rather than introducing a
+different TLC default. Evidence: `crates/dive-api/tests/primed_covers.rs`,
+including concrete witnesses, nested quantifiers and an end-to-end deadlock
+claim; the primed-domain regression fails against the old domain scan.
