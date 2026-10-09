@@ -140,6 +140,12 @@ impl Word<'_> {
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
         }
+        if let Expr::Let { body, .. } = &node.expr {
+            let sc = ev
+                .scope_let(scope, expr)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            return self.eval(*body, &sc, depth + 1);
+        }
         if let Expr::Local(r) = &node.expr
             && let SlotView::Lazy(body, sc) = ev.scope_slot(scope, *r)
         {
@@ -446,6 +452,12 @@ impl Word<'_> {
         let ir = &self.model.ir;
         let node = ir.node(expr);
         match &node.expr {
+            Expr::Let { body, .. } => {
+                let sc = ev
+                    .scope_let(scope, expr)
+                    .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                return self.scoped_level(*body, &sc, depth + 1, steps);
+            }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
@@ -562,6 +574,13 @@ impl Word<'_> {
                 ));
             }
             match &meta.expr {
+                Expr::Let { body, .. } => {
+                    let sc = ev
+                        .scope_let(&scope, e)
+                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                    todo.push((*body, sc, depth + 1));
+                    continue;
+                }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                     let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
@@ -579,7 +598,7 @@ impl Word<'_> {
                         ));
                     }
                 },
-                Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
+                Expr::SubstRef { .. } | Expr::Subst { .. } => {
                     return Err(TemporalError::Unsupported(
                         "opaque substituted/LET atom in temporal validation".into(),
                     ));

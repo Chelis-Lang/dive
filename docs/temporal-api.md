@@ -129,3 +129,11 @@ relation for each assignment. Nested domains may read already bound outer values
 state-dependent domains remain refused by temporal preflight, while independent
 ENABLED can decide a finite domain using its concrete current state. Primed and
 infinite domains, effects, missing covers and explicit budgets remain refusals.
+
+Pure `LET` expressions retain their enclosing scope in both planning and
+independent validation. Zero-arity values stay lazy, including captured state
+and priming; local operators keep their parent frame. Independent covers follow
+used LET values and prove action-call arguments are state-independent before
+binding them as constants. Used effects/checker reads, missing covers and work
+budgets still refuse. Six pinned `Lt*` models match final truth/counts in both
+profiles/stores, with every returned periodic claim independently validated.
