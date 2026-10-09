@@ -45,6 +45,7 @@ mod core;
 mod env;
 mod error;
 mod eval;
+mod finite;
 mod host;
 mod lazy;
 #[cfg(feature = "enumerate")]
