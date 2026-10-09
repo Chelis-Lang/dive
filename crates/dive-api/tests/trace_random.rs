@@ -202,6 +202,28 @@ fn a_coincidental_random_match_is_not_a_stream_position_proof() {
 }
 
 #[test]
+fn pinned_tlc_random_trace_with_unproved_placement_is_refused() {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/random-traces");
+    let data =
+        std::fs::read_to_string(root.join("tlc-2026.10.06.014338/RndCoincidence.trace.json"))
+            .expect("pinned trace");
+    let doc = TraceDoc::parse(&data)
+        .expect("TLC trace")
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+    let report = model(
+        &root.join("RndCoincidence/RndCoincidence.tla"),
+        &root.join("RndCoincidence/RndCoincidence.cfg"),
+        true,
+        Some((7, 0)),
+    )
+    .validate(&doc);
+    assert!(
+        matches!(report.validation, Validation::Unsupported(_)),
+        "{report:?}"
+    );
+}
+
+#[test]
 fn tlc_p9random_counterexample_replays() {
     // The TLC golden of probe P9Random (`-seed 0 -fp 0`): x = 730968.
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
