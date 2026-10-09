@@ -120,6 +120,10 @@ pub struct Model {
     pub temporals: Vec<Named>,
     /// Temporal properties to check (liveness).
     pub implied_temporals: Vec<Named>,
+    /// Original configured PROPERTY formulas, before TLC's role splitting.
+    /// These retain configuration names for complete counterexample claims;
+    /// the role vectors above keep TLC's evaluation/checking order unchanged.
+    pub configured_properties: Vec<Named>,
     /// `CONSTRAINT`s.
     pub constraints: Vec<Named>,
     /// `ACTION_CONSTRAINT`s.
@@ -149,6 +153,18 @@ pub struct Model {
 }
 
 impl Model {
+    /// Original configured property claims, or the temporal roles for a model
+    /// without retained originals. A quantified conjunction must be attributed
+    /// as one configured property, not as ambiguous identically named roles.
+    #[must_use]
+    pub fn property_claims(&self) -> &[Named] {
+        if self.configured_properties.is_empty() {
+            &self.implied_temporals
+        } else {
+            &self.configured_properties
+        }
+    }
+
     /// Evaluates a role's predicate.
     ///
     /// # Errors

@@ -3,7 +3,7 @@
 //! the original predicate checks correlations. Missing covers cause refusal.
 
 use crate::State;
-use dive_eval::{Scope, St};
+use dive_eval::{ConstBinding, Scope, St};
 use dive_ir::{Arg, BuiltinOp, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp, VarId};
 use dive_model::{Model, Pred};
 use dive_value::{SetKind, Value};
@@ -112,6 +112,10 @@ impl Search<'_> {
         }
     }
     // Visit all primed reads, including expressions without a cover rule.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit priming, constant-binding and opaque-context preflight rules"
+    )]
     fn scan(
         &mut self,
         expr: ExprId,
@@ -127,7 +131,7 @@ impl Search<'_> {
         let node = self.model.ir.node(expr);
         if node
             .effects
-            .intersects(Effects::IMPURE | Effects::OPEN | Effects::TEMPORAL | Effects::USES_ENABLED)
+            .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
         {
             return Err(ExistsError::Unsupported(
                 "effects, temporal expressions or nested ENABLED".into(),
@@ -205,6 +209,19 @@ impl Search<'_> {
                     self.scan(e, prime, needed, seen, depth + 1)?;
                 }
             }
+            Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
+                Some(ConstBinding::Value(_)) => {}
+                Some(ConstBinding::Def(d)) => {
+                    let def = self.model.ir.def(self.model.evaluator.redirected(d));
+                    if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
+                        return Err(ExistsError::Unsupported(
+                            "nonconstant/recursive/parameterized constant override".into(),
+                        ));
+                    }
+                    self.scan(def.body, prime, needed, seen, depth + 1)?;
+                }
+                None => return Err(ExistsError::Unsupported("unbound action constant".into())),
+            },
             Expr::Local(_) | Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
                 return Err(ExistsError::Unsupported(
                     "opaque local/substitution action context".into(),

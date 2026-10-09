@@ -3,8 +3,8 @@
 //! This module has no tableau, graph search, or successor enumerator. Each
 //! subformula yields a truth value at every position of the given word.
 
-use dive_eval::{Scope, St};
-use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp};
+use dive_eval::{ConstBinding, Scope, SlotView, St};
+use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -93,7 +93,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
     let node = model.ir.node(pred.expr);
     if node
         .effects
-        .intersects(Effects::IMPURE | Effects::OPEN | Effects::USES_ENABLED)
+        .intersects(Effects::IMPURE | Effects::USES_ENABLED)
         || model.evaluator.scope_shares_side_effects(&pred.scope)
     {
         return Err(TemporalError::Unsupported(
@@ -106,7 +106,7 @@ pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), T
         back_to: 0,
         cells: 0,
     }
-    .check_atom_context(pred.expr)
+    .check_atom_context(pred.expr, &pred.scope)
 }
 
 struct Word<'a> {
@@ -135,9 +135,7 @@ impl Word<'_> {
         }
         let ev = &self.model.evaluator;
         let node = self.model.ir.node(expr);
-        if node.effects.intersects(Effects::IMPURE | Effects::OPEN)
-            || ev.scope_shares_side_effects(scope)
-        {
+        if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(TemporalError::Unsupported(
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
@@ -199,6 +197,35 @@ impl Word<'_> {
                 }
                 Ok(values)
             }
+            Expr::Quant { kind, bounds, body } if *kind != QuantKind::Choose => {
+                for bound in bounds {
+                    let Some(dom) = bound.domain else {
+                        return Err(TemporalError::Unsupported(
+                            "unbounded temporal quantifier".into(),
+                        ));
+                    };
+                    if self.model.ir.node(dom).level != Level::Constant {
+                        return Err(TemporalError::Unsupported(
+                            "nonconstant temporal quantifier domain".into(),
+                        ));
+                    }
+                    self.check_atom_context(dom, scope)?;
+                }
+                let scopes = ev
+                    .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
+                    .map_err(|e| {
+                        TemporalError::Unsupported(format!("temporal quantifier bindings: {e}"))
+                    })?;
+                let conjunction = *kind == QuantKind::Forall;
+                let mut values = vec![conjunction; self.states.len()];
+                for scope in scopes {
+                    let rhs = self.eval(*body, &scope, child)?;
+                    for (a, b) in values.iter_mut().zip(rhs) {
+                        *a = if conjunction { *a && b } else { *a || b };
+                    }
+                }
+                Ok(values)
+            }
             Expr::Def(d) => {
                 let d = ev.redirected(*d);
                 if ev.is_value_override(d) || self.model.ir.def(d).recursive {
@@ -232,7 +259,7 @@ impl Word<'_> {
         scope: &Scope,
         strong: bool,
     ) -> Result<Vec<bool>, TemporalError> {
-        self.check_atom_context(sub)?;
+        self.check_atom_context(sub, scope)?;
         if self.model.ir.node(sub).level > Level::State {
             return Err(TemporalError::Unsupported(
                 "action-level fairness subscript".into(),
@@ -292,7 +319,7 @@ impl Word<'_> {
     }
 
     fn atom(&self, expr: ExprId, scope: &Scope) -> Result<Vec<bool>, TemporalError> {
-        self.check_atom_context(expr)?;
+        self.check_atom_context(expr, scope)?;
         let mut out = Vec::with_capacity(self.states.len());
         for (i, state) in self.states.iter().enumerate() {
             let next = if i + 1 == self.states.len() {
@@ -323,23 +350,66 @@ impl Word<'_> {
     // its value is a search level, not a function of this periodic word.
     // Also refuse opaque local thunks/operator parameters: they could hide
     // such a read even when the conservative effects flags are clear.
-    fn check_atom_context(&self, expr: ExprId) -> Result<(), TemporalError> {
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit scoped purity rules, including hidden constant overrides"
+    )]
+    fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
         let mut todo = vec![expr];
         let mut seen = std::collections::BTreeSet::new();
         while let Some(e) = todo.pop() {
             if !seen.insert(e) {
                 continue;
             }
-            let node = self.model.ir.expr(e);
+            let meta = self.model.ir.node(e);
+            if meta
+                .effects
+                .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+            {
+                return Err(TemporalError::Unsupported(
+                    "effectful/temporal operand in periodic predicate".into(),
+                ));
+            }
+            let node = &meta.expr;
             if matches!(node, Expr::Enabled(_)) {
                 return Err(TemporalError::Unsupported(
                     "nested ENABLED in an opaque action/state atom".into(),
                 ));
             }
-            if matches!(node, Expr::Local(_) | Expr::SubstRef { .. }) {
-                return Err(TemporalError::Unsupported(
-                    "opaque scoped atom in temporal validation".into(),
-                ));
+            match node {
+                Expr::Local(r)
+                    if !matches!(
+                        self.model.evaluator.scope_slot(scope, *r),
+                        SlotView::Value(_)
+                    ) =>
+                {
+                    return Err(TemporalError::Unsupported(
+                        "opaque scoped atom in temporal validation".into(),
+                    ));
+                }
+                Expr::SubstRef { .. } => {
+                    return Err(TemporalError::Unsupported(
+                        "substituted atom in temporal validation".into(),
+                    ));
+                }
+                Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
+                    Some(ConstBinding::Value(_)) => {}
+                    Some(ConstBinding::Def(d)) => {
+                        let def = self.model.ir.def(self.model.evaluator.redirected(d));
+                        if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
+                            return Err(TemporalError::Unsupported(
+                                "nonconstant/recursive/parameterized constant override".into(),
+                            ));
+                        }
+                        todo.push(def.body);
+                    }
+                    None => {
+                        return Err(TemporalError::Unsupported(
+                            "unbound temporal constant".into(),
+                        ));
+                    }
+                },
+                _ => {}
             }
             let mut operators = Vec::new();
             match node {
@@ -365,6 +435,11 @@ impl Word<'_> {
                             continue;
                         }
                         let def = self.model.ir.def(d);
+                        if def.std.is_none() && (def.recursive || !def.params.is_empty()) {
+                            return Err(TemporalError::Unsupported(
+                                "recursive/parameterized periodic predicate".into(),
+                            ));
+                        }
                         if def.std.is_none() {
                             todo.push(def.body);
                         }

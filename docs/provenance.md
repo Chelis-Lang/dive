@@ -106,3 +106,9 @@ The final temporal API coordinator (`dive-api::temporal`) binds and validates
 through separate evaluator instances. This orchestration is an original design;
 it ports no Java algorithm. It uses the previously recorded safety exploration,
 formula/product and independent trace semantics.
+
+
+| Component | Reference | License | Relationship |
+|---|---|---|---|
+| Bounded expression contexts (`dive-eval::scope_bindings_bounded`) | `Tool.contexts` / `ContextEnumerator`, pinned tlaplus `94d0c50`; existing `for_each_context` semantics | MIT | Same first-variable-fastest binding/profile enumeration order, explicit domain/context bounds; no successor generator |
+| Original PROPERTY claims and finite temporal expansion | TLA+ finite quantifier semantics; owned `Qt*` oracle transcripts under `crates/dive-api/tests/fixtures/temporal-quantifiers` | original design | Shared binding retains unsplit claims; planner and independent direct word evaluator evaluate them separately |

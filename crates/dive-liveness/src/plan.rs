@@ -8,8 +8,8 @@
 
 use std::collections::BTreeSet;
 
-use dive_eval::{EvalError, Scope, St, StateRef};
-use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, StdOp};
+use dive_eval::{ConstBinding, EvalError, Scope, SlotView, St, StateRef};
+use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, QuantKind, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -246,7 +246,7 @@ impl Lower<'_> {
 
     // Conservative: parameters/substitutions could hide temporal operands or
     // checker reads. Do not classify them from uninstantiated SANY levels.
-    fn pure_atom(&mut self, expr: ExprId) -> Result<(), PlanningError> {
+    fn pure_atom(&mut self, expr: ExprId, scope: &Scope) -> Result<(), PlanningError> {
         let mut todo = vec![expr];
         let mut seen = BTreeSet::new();
         while let Some(e) = todo.pop() {
@@ -256,16 +256,41 @@ impl Lower<'_> {
             }
             let ir = &self.model.ir;
             let n = ir.node(e);
-            if n.effects.intersects(
-                Effects::IMPURE | Effects::OPEN | Effects::TEMPORAL | Effects::USES_ENABLED,
-            ) {
+            if n.effects
+                .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+            {
                 return Err(self.refused(
                     e,
                     "effectful, temporal or ENABLED operand in a pure predicate atom",
                 ));
             }
-            if matches!(n.expr, Expr::Local(_) | Expr::SubstRef { .. }) {
-                return Err(self.refused(e, "opaque scoped predicate atom"));
+            match &n.expr {
+                Expr::Local(r)
+                    if !matches!(
+                        self.model.evaluator.scope_slot(scope, *r),
+                        SlotView::Value(_)
+                    ) =>
+                {
+                    return Err(self.refused(e, "opaque scoped predicate atom"));
+                }
+                Expr::SubstRef { .. } => {
+                    return Err(self.refused(e, "opaque substituted predicate atom"));
+                }
+                Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
+                    Some(ConstBinding::Value(_)) => {}
+                    Some(ConstBinding::Def(d)) => {
+                        let def = ir.def(self.model.evaluator.redirected(d));
+                        if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
+                            return Err(self.refused(
+                                e,
+                                "nonconstant/recursive/parameterized constant override",
+                            ));
+                        }
+                        todo.push(def.body);
+                    }
+                    None => return Err(self.refused(e, "unbound predicate constant")),
+                },
+                _ => {}
             }
             let mut operators = Vec::new();
             match &n.expr {
@@ -291,6 +316,11 @@ impl Lower<'_> {
                             continue;
                         }
                         let def = ir.def(d);
+                        if def.std.is_none() && (def.recursive || !def.params.is_empty()) {
+                            return Err(
+                                self.refused(e, "recursive/parameterized predicate definition")
+                            );
+                        }
                         if def.std.is_none() {
                             todo.push(def.body);
                         }
@@ -342,9 +372,7 @@ impl Lower<'_> {
         let ir = &self.model.ir;
         let ev = &self.model.evaluator;
         let node = ir.node(expr);
-        if node.effects.intersects(Effects::IMPURE | Effects::OPEN)
-            || ev.scope_shares_side_effects(scope)
-        {
+        if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
         }
         if node.level <= Level::Action
@@ -352,7 +380,7 @@ impl Lower<'_> {
                 .effects
                 .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
         {
-            self.pure_atom(expr)?;
+            self.pure_atom(expr, scope)?;
             if node.level == Level::Constant {
                 let b = self.bool_constant(expr, scope)?;
                 return self.push(Node::Bool(b));
@@ -403,6 +431,39 @@ impl Lower<'_> {
                     Node::Or(vec![not_a, b])
                 }
             }
+            Expr::Quant { kind, bounds, body } if *kind != QuantKind::Choose => {
+                for bound in bounds {
+                    let Some(dom) = bound.domain else {
+                        return Err(self.refused(expr, "unbounded temporal quantifier"));
+                    };
+                    if ir.node(dom).level != Level::Constant {
+                        return Err(self.refused(dom, "nonconstant temporal quantifier domain"));
+                    }
+                    self.pure_atom(dom, scope)?;
+                }
+                let scopes = ev
+                    .scope_bindings_bounded(scope, expr, &St::constant(), self.limits.formula_nodes)
+                    .map_err(|e| {
+                        if e.class() == dive_eval::ErrorClass::ResourceLimit {
+                            PlanningError::formula(
+                                self.model,
+                                self.root_expr,
+                                FormulaError::Limit("temporal quantifier bindings"),
+                            )
+                        } else {
+                            self.refused(expr, format!("temporal quantifier bindings: {e}"))
+                        }
+                    })?;
+                let children = scopes
+                    .iter()
+                    .map(|s| self.expr(*body, s, depth))
+                    .collect::<Result<Vec<_>, _>>()?;
+                if *kind == QuantKind::Forall {
+                    Node::And(children)
+                } else {
+                    Node::Or(children)
+                }
+            }
             Expr::Def(d) => {
                 let d = ev.redirected(*d);
                 if ev.is_value_override(d) || ir.def(d).recursive || !ir.def(d).params.is_empty() {
@@ -418,7 +479,7 @@ impl Lower<'_> {
             }
             Expr::Selected(c) | Expr::Label { body: c, .. } => return self.expr(*c, scope, depth),
             Expr::If { cond, then, other } if ir.node(*cond).level == Level::Constant => {
-                self.pure_atom(*cond)?;
+                self.pure_atom(*cond, scope)?;
                 let branch = if self.bool_constant(*cond, scope)? {
                     *then
                 } else {
@@ -427,7 +488,7 @@ impl Lower<'_> {
                 return self.expr(branch, scope, depth);
             }
             Expr::Enabled(action) => {
-                self.pure_atom(*action)?;
+                self.pure_atom(*action, scope)?;
                 return self.special_atom(
                     *action,
                     scope,
@@ -439,8 +500,8 @@ impl Lower<'_> {
                 if ir.node(*sub).level > Level::State {
                     return Err(self.refused(*sub, "action-level fairness subscript"));
                 }
-                self.pure_atom(*action)?;
-                self.pure_atom(*sub)?;
+                self.pure_atom(*action, scope)?;
+                self.pure_atom(*sub, scope)?;
                 let en = self.special_atom(
                     *action,
                     scope,

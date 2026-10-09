@@ -166,6 +166,7 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         implied_actions: std::mem::take(&mut b.implied_actions),
         temporals: std::mem::take(&mut b.temporals),
         implied_temporals: std::mem::take(&mut b.implied_temporals),
+        configured_properties: std::mem::take(&mut b.configured_properties),
         constraints: std::mem::take(&mut b.constraints),
         action_constraints: std::mem::take(&mut b.action_constraints),
         view,
