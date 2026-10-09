@@ -76,6 +76,11 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Opt-in `dive check --lncheck final --lasso short`, using the bounded final
+  temporal backend and independently validated lossless lassos. Version 2
+  reports retain complete property claims, seed, store and actual worker width;
+  TLC value profiles are labeled `tlc+overrides`. Ordinary checks stay on
+  schema 1 and retain strict temporal refusals pending exact integration.
 - Pure state- and temporal-guarded temporal IF formulas in bounded final
   checking and independent periodic-word validation, with named refusals
   for the oracle-rejected action guards and temporal CASE constructors.

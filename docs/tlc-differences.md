@@ -697,3 +697,12 @@ independent validator. It keeps the other forms as named planning refusals in
 both profiles. Supporting more constructors could remove an implementation
 restriction, but is only a recorded candidate. No new default or compatibility
 claim is adopted here.
+
+**D-013 implementation update:** `dive check --lncheck final --lasso short`
+now exposes the bounded final backend. Its periodic counterexamples pass both
+in-memory and lossless-document validation before return. Schema-2 reports
+include the complete false-property set and actual worker width. With
+`--compat=tlc`, the report says `tlc+overrides`; it does not claim TLC-exact
+lasso choice, temporal error classes, finite-prefix stopping or periodic checks.
+Ordinary strict checking remains a named temporal refusal. See
+[command-line access](temporal-api.md#command-line-access).

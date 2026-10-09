@@ -105,3 +105,10 @@ independently, including nested guards and closing-edge positions. Three new
 pinned probes match truth and counts in both profiles/stores. The oracle
 rejects action-guarded temporal IF (2214) and temporal CASE (2213); dive retains
 named planning refusals for these cases, even though SANY accepts their syntax.
+
+The bounded final Rust backend now has explicit CLI/report access with
+`--lncheck final --lasso short`. Temporal violations return independently
+validated lossless lassos, complete property claims and actual worker usage.
+The mixed TLC profile is labeled and makes no exact temporal-class/stopping
+claim. Full phase-L, parallel capture, exact TLC selection and ordinary strict
+conformance integration remain pending.

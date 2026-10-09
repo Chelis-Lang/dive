@@ -32,7 +32,10 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 mod analyze;
 mod check;
 
-pub use check::{CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, Store, check_file, exit};
+pub use check::{
+    CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, Store, TEMPORAL_CHECK_SCHEMA_VERSION,
+    TemporalMode, check_file, exit,
+};
 /// Parses a seed as TLC's `-seed` does (`dive check --seed`).
 pub use dive_stdlib::random::parse_seed;
 

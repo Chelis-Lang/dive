@@ -31,7 +31,8 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -299,6 +300,8 @@ fn check_command(
             .and_then(|v| v.parse().ok()),
         ..dive_api::CheckRequest::default()
     };
+    let mut final_check = false;
+    let mut short_lasso = false;
     let mut file: Option<&str> = None;
     let mut json = false;
     let usage_error = |err: &mut dyn std::io::Write, m: &str| {
@@ -326,6 +329,24 @@ fn check_command(
             "--config" | "-config" => match value() {
                 Some(c) => req.config = Some(c.into()),
                 None => return usage_error(err, "--config expects a .cfg file"),
+            },
+            "--lncheck" => match value().as_deref() {
+                Some("final") => final_check = true,
+                _ => {
+                    return usage_error(
+                        err,
+                        "--lncheck currently supports explicit `final` with --lasso short",
+                    );
+                }
+            },
+            "--lasso" => match value().as_deref() {
+                Some("short") => short_lasso = true,
+                _ => {
+                    return usage_error(
+                        err,
+                        "--lasso currently supports explicit `short` with --lncheck final; TLC-exact selection is pending",
+                    );
+                }
             },
             "--store" => match value().as_deref() {
                 Some("exact") => req.store = dive_api::Store::Exact,
@@ -388,6 +409,17 @@ fn check_command(
     let Some(file) = file else {
         let _ = writeln!(err, "error: `dive check` needs a file\n\n{}", usage());
         return ExitCode::from(EXIT_USAGE);
+    };
+    if final_check != short_lasso {
+        return usage_error(
+            err,
+            "bounded temporal checking needs both --lncheck final and --lasso short",
+        );
+    }
+    req.temporal = if final_check && short_lasso {
+        dive_api::TemporalMode::FinalShort
+    } else {
+        dive_api::TemporalMode::Ordinary
     };
     req.file = file.into();
     let report = match dive_api::check_file(&req) {
