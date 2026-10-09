@@ -424,7 +424,12 @@ impl Word<'_> {
                 ));
             };
             let level = self.scoped_level(*expr, scope, depth + 1, steps)?;
-            if level > Level::State {
+            let maximum = if d.level == Level::Temporal {
+                Level::State
+            } else {
+                Level::Action
+            };
+            if level > maximum {
                 return Err(TemporalError::Unsupported(
                     "action/temporal operator argument".into(),
                 ));

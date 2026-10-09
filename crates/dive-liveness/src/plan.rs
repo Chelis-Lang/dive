@@ -259,7 +259,7 @@ impl Lower<'_> {
         }
     }
 
-    // Constants remain value-bound. Pure state arguments stay lazy so priming
+    // Constants remain value-bound. Pure state/action arguments stay lazy so priming
     // inside the callee still reads the caller's successor, not a frozen value.
     fn scoped_call(
         &mut self,
@@ -292,7 +292,14 @@ impl Lower<'_> {
                 return Err(self.refused(expr, "operator argument in temporal call"));
             };
             let level = self.scoped_level(*arg, scope, depth + 1)?;
-            if level > Level::State {
+            // A pure value/action helper may read an action argument in
+            // the actual edge. Temporal helper arguments remain state-level.
+            let maximum = if d.level == Level::Temporal {
+                Level::State
+            } else {
+                Level::Action
+            };
+            if level > maximum {
                 return Err(self.refused(*arg, "action/temporal operator argument"));
             }
             constant &= level == Level::Constant;
@@ -880,7 +887,7 @@ impl Lower<'_> {
 /// each atom's scope. Supports boolean combinations, `[]`, `<>`, `~>`, pure
 /// constant conditionals, direct ENABLED, WF/SF over pure actions and
 /// state-level subscripts, finite constant domains and temporal definitions
-/// with pure constant/state arguments. Planning alone
+/// with pure constant/state arguments, plus action arguments to value helpers. Planning alone
 /// does not validate a behavior or enable model-checking liveness.
 ///
 /// # Errors

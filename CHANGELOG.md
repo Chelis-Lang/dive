@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final/short temporal predicates retain action-level arguments to pure value
+  helpers, including nested, captured and sequence-prefix calls.
+
 - Final/short temporal predicates support bounded CHOOSE with retained domain
   levels, including pure Min/Max-style calls and state-dependent arguments.
 

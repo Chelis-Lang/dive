@@ -866,3 +866,21 @@ infinite/oversized domains, effects and checker reads remain named refusals.
 Evidence: `crates/dive-api/tests/fixtures/temporal-choose/`, five pinned models
 and exhaustive short-word/context tests. This does not establish strict TLC
 temporal selection, scheduling or parallel graph capture.
+
+**D-013 action-helper update:** a pure value helper may inspect the actual
+current and next state, including through nested and captured arguments:
+
+```tla
+Less(a,b) == a < b
+P == []<><<Less(x,x')>>_x
+```
+
+For x initially 0 and Next alternating 0 and 1, pinned TLC reports a liveness
+violation (exit 13): a stuttering behavior never has a Less step. It generates
+3 states, retains 2 and reaches depth 2. Both dive profiles/stores match final
+truth/counts and independently validate the periodic claim. Sequence-prefix
+helpers such as `IsStrictPrefix(log, log')` use the same retained caller edge.
+Evidence: `crates/dive-api/tests/fixtures/temporal-action-args/`, four pinned
+models and exhaustive short-word/closing-edge controls. Temporal helpers still
+refuse action-level arguments; temporal-valued/higher-order forwarding and
+effects remain unsupported. Full TLC temporal selection and timing are pending.
