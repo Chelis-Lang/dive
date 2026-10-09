@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "run_id": "20261009T122713440-dive-small",
+  "generated_at": "2026-10-09T12:27:13Z",
+  "generator": "dive-conformance 0.0.0",
+  "implementation": "dive",
+  "implementation_oracle": null,
+  "golden_oracle": "tlc-2026.10.06.014338",
+  "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "golden_oracle_role": "gating",
+  "implementation_oracle_role": null,
+  "reference": false,
+  "implementation_dive": {
+    "binary": "target/release/dive",
+    "sha256": "715ddf1bc54f7c85d2aa0c7d4926751e8fa93c1900f2761d2ec3552b94a10366",
+    "version": "dive 0.0.0",
+    "module_path": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      },
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ]
+  },
+  "corpora": [
+    {
+      "id": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "unfetched_submodules": [
+        "specifications/BlockingQueue",
+        "specifications/CCF",
+        "specifications/azure-cosmos-tla",
+        "specifications/microwave"
+      ],
+      "uncovered": [
+        "specifications/CASPaxos/ (no manifest.json)",
+        "specifications/Caesar/ (no manifest.json)",
+        "specifications/DataPort/ (no manifest.json)",
+        "specifications/HLC/ (no manifest.json)",
+        "specifications/L1/ (no manifest.json)",
+        "specifications/MultiPaxos/ (no manifest.json)",
+        "specifications/ParalleRaft/ (no manifest.json)",
+        "specifications/SnapshotIsolation/ (no manifest.json)",
+        "specifications/SyncConsensus/ (no manifest.json)",
+        "specifications/TencentPaxos/ (no manifest.json)",
+        "specifications/Termination/ (no manifest.json)",
+        "specifications/Tla-tortoise-hare/ (no manifest.json)",
+        "specifications/VoldemortKV/ (no manifest.json)",
+        "specifications/async-comm/ (no manifest.json)",
+        "specifications/egalitarian-paxos/ (no manifest.json)",
+        "specifications/fastpaxos/ (no manifest.json)",
+        "specifications/fpaxos/ (no manifest.json)",
+        "specifications/leaderless/ (no manifest.json)",
+        "specifications/losa_ap/ (no manifest.json)",
+        "specifications/losa_rda/ (no manifest.json)",
+        "specifications/m2paxos/ (no manifest.json)",
+        "specifications/mongo-repl-tla/ (no manifest.json)",
+        "specifications/naiad/ (no manifest.json)",
+        "specifications/nfc04/ (no manifest.json)",
+        "specifications/raft/ (no manifest.json)"
+      ]
+    }
+  ],
+  "host": {
+    "os": "macos",
+    "arch": "aarch64",
+    "kernel": "Darwin 25.5.0",
+    "cpus": 8,
+    "memory_bytes": 25769803776
+  },
+  "settings": {
+    "tier": "small",
+    "filters": [
+      "**/EWD998PCal.cfg"
+    ],
+    "workers": [
+      1
+    ],
+    "jobs": 1,
+    "xmx": "3g",
+    "timeout_policy": "fixed 2400 s",
+    "crosscheck_manifest": false,
+    "sany_phase": "full",
+    "impl_options": [],
+    "impl_profile": "tlc",
+    "strict_tier": true
+  },
+  "summary": {
+    "models_selected": 1,
+    "modules_selected": 0,
+    "models": {
+      "agree": 1,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "modules": {
+      "agree": 0,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "models_with_oracle_drift": 0,
+    "oracle_drift_findings": 0,
+    "informational_drift_findings": 0,
+    "worker_verdict_variant": 0,
+    "worker_counts_variant": 0,
+    "worker_depth_variant": 0,
+    "worker_introspecting": 0,
+    "worker_property_variant": 0,
+    "by_corpus": {
+      "examples": {
+        "models": {
+          "agree": 1,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      }
+    }
+  },
+  "models": [
+    {
+      "corpus": "examples",
+      "model": "specifications/ewd998/EWD998PCal.cfg",
+      "module": "specifications/ewd998/EWD998PCal.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 1,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 321370,
+          "states_generated": 2808396,
+          "depth": 47,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 297513,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    }
+  ],
+  "modules": []
+}
