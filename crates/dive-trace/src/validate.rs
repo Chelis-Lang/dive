@@ -256,6 +256,8 @@ pub(crate) struct Run<'a> {
     pub(crate) notes: BTreeSet<String>,
     /// The draws the initial predicate and the steps made, when recording.
     pub(crate) draws: Vec<Draw>,
+    /// Concrete periodic predicates must obey the finite-binding entry bounds.
+    periodic: bool,
 }
 
 impl<'a> Run<'a> {
@@ -278,6 +280,7 @@ impl<'a> Run<'a> {
             passed: 0,
             notes: BTreeSet::new(),
             draws: Vec::new(),
+            periodic: false,
         }
     }
 
@@ -634,7 +637,7 @@ impl<'a> Run<'a> {
     }
 
     pub(crate) fn prepare_periodic(
-        &self,
+        &mut self,
         ending: &Ending,
         properties: &[String],
     ) -> Result<(), Stop> {
@@ -706,6 +709,7 @@ impl<'a> Run<'a> {
                 self.model.evaluator.scope(d),
             ))?;
         }
+        self.periodic = true;
         Ok(())
     }
 
@@ -963,6 +967,11 @@ impl<'a> Run<'a> {
         self.host
             .level
             .store(i64::try_from(level).unwrap_or(i64::MAX), Ordering::Relaxed);
+        if self.periodic {
+            m.evaluator
+                .check_finite_bindings(&pred.scope, pred.expr, st, 4096)
+                .map_err(|e| Stop::Unsupported(e.to_string()))?;
+        }
         match m.eval(pred, st) {
             Ok(Value::Bool(b)) => Ok(b),
             Ok(v) => Err(invalid(

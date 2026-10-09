@@ -47,6 +47,9 @@ pub enum SlotView {
     Unset,
     /// A value.
     Value(Value),
+    /// A pure unknown value for conservative state-level analysis only.
+    /// Forcing it is an explicit error; it is never a guessed runtime value.
+    AnalysisBound,
     /// A lazy argument (`LazyValue`): the expression and the scope it is
     /// evaluated in.
     Lazy(ExprId, Scope),
@@ -407,6 +410,7 @@ impl Evaluator {
         match scope.env.dynamic.lookup(decl) {
             None | Some(Sv::Unset) => SlotView::Unset,
             Some(Sv::Val(v)) => SlotView::Value(v.clone()),
+            Some(Sv::AnalysisBound) => SlotView::AnalysisBound,
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
@@ -427,6 +431,7 @@ impl Evaluator {
         match frame.slots.get(r.slot.index()) {
             None | Some(Sv::Unset) => SlotView::Unset,
             Some(Sv::Val(v)) => SlotView::Value(v.clone()),
+            Some(Sv::AnalysisBound) => SlotView::AnalysisBound,
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
@@ -545,6 +550,35 @@ impl Evaluator {
                 core.bind_one(&mut scope.env, &slots, *tuple, value, quant)?;
             }
             result.push(scope);
+        }
+        Ok(result)
+    }
+
+    /// Binds each finite constructor/quantifier variable to a pure unknown.
+    /// This context is only for conservative level and purity analysis of
+    /// state-dependent domains. It does not evaluate a domain, assume it is
+    /// finite, or choose a sample value. Every slot is conservatively state
+    /// level and cannot be forced by the interpreter. Runtime evaluation
+    /// must use the original scope with concrete bounded domain bindings.
+    ///
+    /// # Errors
+    /// A non-binder expression or an unbounded domain.
+    pub fn scope_binder_analysis(&self, scope: &Scope, expr: ExprId) -> Result<Scope> {
+        let bounds: &[dive_ir::Bound] = match self.core.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => return Err(EvalError::bug("analysis scope requires a finite binder")),
+        };
+        let mut result = scope.clone();
+        for bound in bounds {
+            if bound.domain.is_none() {
+                return Err(EvalError::unsupported("unbounded analysis domain"));
+            }
+            for slot in &bound.vars {
+                result.env.bind(slot.index(), Sv::AnalysisBound);
+            }
         }
         Ok(result)
     }

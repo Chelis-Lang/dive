@@ -164,9 +164,15 @@ disabledness proofs remain refused; strict TLC temporal selection is pending.
 
 D-013 finite-data coverage includes constant-domain set maps, filters and
 function constructors with retained local contexts. Seven pinned `Bc*` probes
-match final truth/counts in both profiles/stores; dynamic domains and effects
-remain refused. Strict TLC temporal selection/timing remains pending.
+match final truth/counts in both profiles/stores; bounded state-dependent
+predicate domains are now supported, while effects remain refused. Strict TLC temporal selection/timing remains pending.
 
 D-013 independent validation now supports finite constructor bindings in necessary
 ENABLED covers (`constructor-covers` probes); primed domains, uncovered reads
 and bounds remain named refusals. No strict temporal compatibility claim changes.
+
+D-013 state-dependent predicate domains are read at each concrete state/edge,
+with pure symbolic bindings only for static level/purity analysis. Eight `Df*`
+probes match final truth/counts in both profiles/stores, and every violation
+validates independently. Infinite/oversized concrete domains and dynamic
+temporal quantifier expansion remain named refusals.

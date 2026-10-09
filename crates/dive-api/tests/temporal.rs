@@ -965,6 +965,7 @@ fn finite_predicate_quantifiers_keep_every_context_and_empty_identity() {
             for back in 0..len {
                 for (name, expected) in [
                     ("Any", true),
+                    ("StateDomain", true),
                     ("All", false),
                     ("EmptyAny", false),
                     ("EmptyAll", true),
@@ -1000,12 +1001,6 @@ fn finite_predicate_quantifiers_keep_every_context_and_empty_identity() {
             }
         }
     }
-    let d = ir.root_def("StateDomain").expect("StateDomain");
-    let p = dive_model::Pred::new(ir.def(d).body, m.evaluator.scope(d));
-    assert!(dive_liveness::plan::lower(&m, &p, dive_liveness::formula::Limits::default()).is_err());
-    assert!(
-        dive_trace::temporal::evaluate_lasso(&m, &p, &[Arc::from([Some(true.into())])], 0).is_err()
-    );
 }
 #[test]
 fn let_scopes_match_pinned_final_truth_and_validate_independently() {
@@ -1494,11 +1489,11 @@ Next == x'=~x
 }
 
 #[test]
-fn effectful_dynamic_and_oversized_constructor_scopes_are_refused() {
+fn effectful_infinite_and_oversized_constructor_scopes_are_refused() {
     for property in [
         r"[]({Print(x,TRUE) : b \in BOOLEAN}={TRUE})",
         r#"[]({TLCGet("level") : b \in BOOLEAN}={TRUE})"#,
-        r"[]({b : b \in IF x THEN BOOLEAN ELSE {}}={})",
+        r"[]({b : b \in Nat}={})",
         r"[]({b : b \in 1..5000}={})",
     ] {
         let source = format!(
@@ -1526,7 +1521,7 @@ fn effectful_dynamic_and_oversized_constructor_scopes_are_refused() {
 }
 
 #[test]
-fn state_dependent_constructor_domain_remains_an_explicit_refusal() {
+fn state_dependent_constructor_domains_use_actual_states_and_match_tlc() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/temporal-constructors");
     let source =
@@ -1537,12 +1532,322 @@ fn state_dependent_constructor_domain_remains_an_explicit_refusal() {
         .expect("oracle");
     assert_eq!(exit.trim(), "0", "TLC supports this domain");
     let (ir, cfg) = input(&source, &cfg);
-    let error = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
-        .expect_err("must refuse, not freeze x at startup");
+    let stdout = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/BcStateDomain.stdout"))
+        .expect("oracle");
+    for options in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+        for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+            let options = CheckOptions {
+                store,
+                ..options.clone()
+            };
+            let report = temporal::check_final(&ir, &cfg, &options, Limits::default())
+                .expect("finite state domains");
+            let Outcome::Holds(c) = report.outcome() else {
+                panic!("{report:?}");
+            };
+            assert_eq!(
+                (c.stats.generated, c.stats.distinct, c.stats.depth),
+                counts(&stdout)
+            );
+        }
+    }
+}
+
+#[test]
+fn state_domain_words_change_bindings_and_preserve_primed_closing_edges() {
+    let (ir, cfg) = input(
+        r"---- MODULE DomainWords ----
+VARIABLE x
+Init == x=FALSE
+Next == x'=~x
+Any == []<>(\E b \in IF x THEN {TRUE} ELSE {} : b)
+All == <>[](\A b \in IF x THEN {} ELSE {FALSE} : b)
+Map == []<>({b : b \in IF x THEN {TRUE} ELSE {}}={TRUE})
+Filter == <>[]({b \in IF x THEN BOOLEAN ELSE {} : b}={TRUE})
+H(f) == []<>(DOMAIN f={TRUE})
+Fn == H([b \in IF x THEN {TRUE} ELSE {} |-> b])
+Nested == []<>(\A b \in {x} : (\E c \in IF b THEN {TRUE} ELSE {} : c))
+Prime == []<><<((\E b \in IF x THEN {TRUE} ELSE {} : b)')>>_x
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for n in 1..=4 {
+        for mask in 0_usize..(1 << n) {
+            let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|v| Arc::from([Some((*v).into())]))
+                .collect();
+            for back in 0..n {
+                let any = values[back..].iter().any(|v| *v);
+                let all = values[back..].iter().all(|v| *v);
+                for (name, expected) in [
+                    ("Any", any),
+                    ("All", all),
+                    ("Map", any),
+                    ("Filter", all),
+                    ("Fn", any),
+                    ("Nested", any),
+                    ("Prime", any && !all),
+                ] {
+                    let d = ir.root_def(name).expect(name);
+                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![expected; n], "{name} {values:?} {back}");
+                    let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let j = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[j].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect(name))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect(name),
+                        direct
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn actual_state_domain_bounds_and_analysis_markers_cannot_claim_truth() {
+    let (ir, cfg) = input(
+        r"---- MODULE DomainBounds ----
+EXTENDS Naturals, TLC
+VARIABLE x
+Init == x=TRUE
+Next == x'=~x
+Large == []({b : b \in IF x THEN 1..5000 ELSE {}}={})
+Opaque == [](\E b \in IF x THEN BOOLEAN ELSE {} : Print(b,TRUE))
+Unbounded == [](\E b \in IF x THEN Nat ELSE {} : b=b)
+DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for name in ["Opaque", "DynamicTemporal"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        assert!(
+            dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
+            "{name}"
+        );
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
+                .is_err(),
+            "{name}"
+        );
+        assert!(model.take_output().is_empty(), "{name}");
+    }
+    for name in ["Large", "Unbounded"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+            .expect("pure dynamic domain planned without reading it");
+        let state: dive_trace::State = Arc::from([Some(true.into())]);
+        assert!(
+            plan.atoms.iter().any(|a| a
+                .evaluate(&model, &dive_eval::St::state(state.clone()))
+                .is_err()),
+            "{name}"
+        );
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
+                .is_err(),
+            "{name}"
+        );
+        assert_eq!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(false.into())])], 0)
+                .expect("empty domain"),
+            vec![true],
+            "{name}"
+        );
+        // Empty current domain is valid. A nonempty later domain must still refuse.
+        assert!(
+            dive_trace::temporal::evaluate_lasso(
+                &model,
+                &p,
+                &[
+                    Arc::from([Some(false.into())]),
+                    Arc::from([Some(true.into())])
+                ],
+                0
+            )
+            .is_err(),
+            "{name}"
+        );
+    }
+    let d = ir.root_def("Large").expect("Large");
+    let dive_ir::Expr::Always(body) = ir.expr(ir.def(d).body) else {
+        panic!("always");
+    };
+    let dive_ir::Expr::Builtin { args, .. } = ir.expr(*body) else {
+        panic!("equality");
+    };
+    let map = &args[0];
+    let dive_ir::Expr::SetMap { expr: local, .. } = ir.expr(*map) else {
+        panic!("map");
+    };
+    let original = model.evaluator.scope(d);
+    let analysis = model
+        .evaluator
+        .scope_binder_analysis(&original, *map)
+        .expect("analysis scope");
+    let st = dive_eval::St::state(Arc::from([Some(true.into())]));
+    let err = model
+        .evaluator
+        .eval_scoped(&analysis, *local, &st)
+        .expect_err("unknown must never become a sample value");
+    assert_eq!(err.class(), dive_eval::ErrorClass::Unsupported);
     assert!(
-        error
-            .to_string()
-            .contains("nonconstant predicate quantifier domain"),
-        "{error}"
+        model.evaluator.eval_scoped(&original, *local, &st).is_err(),
+        "analysis left the original scope unbound"
+    );
+}
+
+#[test]
+fn state_domain_models_match_pinned_final_truth_counts_and_independent_validation() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-state-domains");
+    for name in [
+        "DfMap",
+        "DfFilter",
+        "DfFunction",
+        "DfNested",
+        "DfLazy",
+        "DfPrime",
+        "DfBad",
+        "DfEnabled",
+    ] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("spec");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("cfg");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("exit");
+        let (ir, cfg) = input(&src, &config);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                let options = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit.trim(), "0", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(exit.trim(), "13", "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                        let fresh =
+                            dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
+                                .expect("fresh model");
+                        assert_eq!(
+                            dive_trace::validate_doc(&fresh, v.document(), &cfg.model_values, None)
+                                .0
+                                .validation,
+                            Validation::Valid,
+                            "{name}"
+                        );
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn concrete_binding_guard_reads_successor_domains_without_placeholder_states() {
+    let (ir, cfg) = input(
+        r"---- MODULE ShiftedDomains ----
+VARIABLE x
+Init == x=FALSE
+Next == x'=~x
+Shifted == (\E b \in IF x THEN {TRUE} ELSE {} : b)'
+Still == UNCHANGED x
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    let d = ir.root_def("Shifted").expect("Shifted");
+    let expr = ir.def(d).body;
+    let scope = model.evaluator.scope(d);
+    let before: dive_trace::State = Arc::from([Some(false.into())]);
+    let after: dive_trace::State = Arc::from([Some(true.into())]);
+    let edge = dive_eval::St::action(before.clone(), after.clone());
+    model
+        .evaluator
+        .check_finite_bindings(&scope, expr, &edge, 4096)
+        .expect("actual successor domain");
+    assert_eq!(
+        model
+            .evaluator
+            .eval_scoped(&scope, expr, &edge)
+            .expect("predicate"),
+        true.into()
+    );
+    let reverse = dive_eval::St::action(after, before.clone());
+    model
+        .evaluator
+        .check_finite_bindings(&scope, expr, &reverse, 4096)
+        .expect("empty successor domain");
+    assert_eq!(
+        model
+            .evaluator
+            .eval_scoped(&scope, expr, &reverse)
+            .expect("predicate"),
+        false.into()
+    );
+    let missing = dive_eval::St::state(before);
+    assert!(
+        model
+            .evaluator
+            .check_finite_bindings(&scope, expr, &missing, 4096)
+            .is_err(),
+        "missing state must not reuse the empty current domain"
+    );
+    let still = ir.root_def("Still").expect("Still");
+    model
+        .evaluator
+        .check_finite_bindings(
+            &model.evaluator.scope(still),
+            ir.def(still).body,
+            &missing,
+            4096,
+        )
+        .expect("a walk with no domain needs no successor value");
+    assert!(
+        model
+            .evaluator
+            .check_finite_bindings(&scope, expr, &edge, 0)
+            .is_err(),
+        "zero traversal budget"
     );
 }

@@ -781,8 +781,8 @@ a violation: infinite stuttering at FALSE fails P. It generates 3 states,
 retains 2 distinct states and reaches depth 2. Both dive profiles/stores match
 this result and independently validate the returned periodic witness. Local
 bindings and captured state remain separate through nested constructors and
-function arguments. The empty-domain case is supported; state-dependent
-domains, effects and explicit resource limits remain named refusals. Evidence:
+function arguments. Empty and bounded state-dependent predicate domains are
+supported; effects and explicit resource limits remain named refusals. Evidence:
 `crates/dive-api/tests/fixtures/temporal-constructors/`, seven supported pinned
 truth/count controls and exhaustive short Boolean words. Exact TLC temporal
 selection, stopping and parallel capture remain pending.
@@ -829,3 +829,20 @@ pinned root grammar accepts it. `dive analyze` reports `DIVE-E0009` for the
 translation-validation problem; `dive parse` measures the TLA+ grammar only.
 Deep campaigns now retain both facts separately, with no acceptance inferred
 from a generic crash. See `docs/frontend-campaign.md` and issue #98.
+**D-013 state-domain update:** final/short predicates may quantify or construct
+values over a finite domain that changes with the current state. For example:
+
+```tla
+P == []<>({b : b \in IF x THEN {TRUE} ELSE {}} = {TRUE})
+```
+
+Starting at FALSE with a toggling Next, pinned TLC reports a liveness violation
+(exit 13): infinite stuttering at FALSE leaves the domain empty. It generates
+3 states, retains 2 and reaches depth 2. Both dive profiles/stores match truth
+and counts; a fresh independent validator certifies the periodic witness.
+Planning never picks a sample element or freezes the domain. Concrete evaluation
+checks finite-entry bounds at every state and closing edge. Evidence is in
+`crates/dive-api/tests/fixtures/temporal-state-domains/` (eight pinned models)
+and exhaustive short-word tests. State-dependent expansion of temporal
+quantifiers, infinite/oversized domains and effects still refuse by name.
+Ordinary strict temporal checking and exact TLC selection/timing remain pending.
