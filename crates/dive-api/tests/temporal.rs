@@ -1374,3 +1374,175 @@ P == I!ValueClaim
         "DIVE-L0021"
     );
 }
+
+#[test]
+fn finite_data_constructors_match_pinned_temporal_truth_and_counts() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-constructors");
+    for name in [
+        "BcMapGood",
+        "BcMapBad",
+        "BcFilterGood",
+        "BcFunctionGood",
+        "BcNestedGood",
+        "BcAction",
+        "BcEmpty",
+    ] {
+        let source =
+            std::fs::read_to_string(root.join("specs").join(name).join(format!("{name}.tla")))
+                .expect("spec");
+        let cfg =
+            std::fs::read_to_string(root.join("specs").join(name).join(format!("{name}.cfg")))
+                .expect("cfg");
+        let stdout = std::fs::read_to_string(
+            root.join("tlc-2026.10.06.014338")
+                .join(format!("{name}.stdout")),
+        )
+        .expect("oracle");
+        let exit = std::fs::read_to_string(
+            root.join("tlc-2026.10.06.014338")
+                .join(format!("{name}.exit")),
+        )
+        .expect("exit");
+        let (ir, cfg) = input(&source, &cfg);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                let opts = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit.trim(), "0", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(exit.trim(), "13", "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn constructor_words_retain_bound_variables_and_state_on_the_closing_edge() {
+    let (ir, cfg) = input(
+        r"---- MODULE ConstructorWords ----
+VARIABLE x
+P == []<>({IF b THEN x ELSE FALSE : b \in BOOLEAN}=BOOLEAN)
+Q == <>[]({b \in BOOLEAN : b=x}={TRUE})
+H(f) == []<>(f[TRUE])
+R == H([b \in BOOLEAN |-> IF b THEN x ELSE ~x])
+A == []<><<({x'#x : b \in {TRUE}}={TRUE})>>_x
+Init == x=TRUE
+Next == x'=~x
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for n in 1..=4 {
+        for mask in 0_usize..(1 << n) {
+            let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|v| Arc::from([Some((*v).into())]))
+                .collect();
+            for back in 0..n {
+                let any = values[back..].iter().any(|v| *v);
+                let all = values[back..].iter().all(|v| *v);
+                for (name, truth) in [("P", any), ("Q", all), ("R", any), ("A", any && !all)] {
+                    let d = ir.root_def(name).expect(name);
+                    let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        direct
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn effectful_dynamic_and_oversized_constructor_scopes_are_refused() {
+    for property in [
+        r"[]({Print(x,TRUE) : b \in BOOLEAN}={TRUE})",
+        r#"[]({TLCGet("level") : b \in BOOLEAN}={TRUE})"#,
+        r"[]({b : b \in IF x THEN BOOLEAN ELSE {}}={})",
+        r"[]({b : b \in 1..5000}={})",
+    ] {
+        let source = format!(
+            "---- MODULE ConstructorRefused ----\nEXTENDS Naturals, TLC\nVARIABLE x\nInit == x=TRUE\nNext == x'=~x\nP == {property}\n====\n"
+        );
+        let (ir, cfg) = input(&source, "INIT Init\nNEXT Next\n");
+        let model =
+            dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+        let d = ir.root_def("P").expect("P");
+        let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        assert!(
+            dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err(),
+            "{property}"
+        );
+        let states = vec![Arc::from([Some(true.into())])];
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &pred, &states, 0).is_err(),
+            "{property}"
+        );
+        assert!(
+            model.take_output().is_empty(),
+            "effectful preflight: {property}"
+        );
+    }
+}
+
+#[test]
+fn state_dependent_constructor_domain_remains_an_explicit_refusal() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-constructors");
+    let source =
+        std::fs::read_to_string(root.join("specs/BcStateDomain/BcStateDomain.tla")).expect("spec");
+    let cfg =
+        std::fs::read_to_string(root.join("specs/BcStateDomain/BcStateDomain.cfg")).expect("cfg");
+    let exit = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/BcStateDomain.exit"))
+        .expect("oracle");
+    assert_eq!(exit.trim(), "0", "TLC supports this domain");
+    let (ir, cfg) = input(&source, &cfg);
+    let error = temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+        .expect_err("must refuse, not freeze x at startup");
+    assert!(
+        error
+            .to_string()
+            .contains("nonconstant predicate quantifier domain"),
+        "{error}"
+    );
+}

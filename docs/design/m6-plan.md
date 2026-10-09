@@ -242,3 +242,10 @@ final temporal predicates and independent periodic words. Six pinned models
 match truth/counts in both profiles/stores; exhaustive short words cover nested
 scopes and priming. Higher-order bindings and substituted finite successor
 proofs remain open, as do full L1 planning order and L2 phase-L semantics.
+
+Finite data-constructor increment: set maps, filters and nonrecursive function
+constructors over finite constant domains retain their local contexts in both
+the planner and independent word validator. Seven pinned `Bc*` controls match
+final truth/counts in both profiles/stores; every returned periodic claim is
+independently validated. Dynamic domains, effects and bounds remain refusals.
+This does not complete TLC-exact planning/selection, phase-L or parallel capture.
