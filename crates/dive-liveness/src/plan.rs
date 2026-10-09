@@ -323,6 +323,12 @@ impl Lower<'_> {
         let ev = &self.model.evaluator;
         let node = ir.node(expr);
         match &node.expr {
+            Expr::Let { body, .. } => {
+                let sc = ev
+                    .scope_let(scope, expr)
+                    .map_err(|e| self.refused(expr, e.to_string()))?;
+                return self.scoped_level(*body, &sc, depth + 1);
+            }
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
@@ -443,6 +449,13 @@ impl Lower<'_> {
                 ));
             }
             match &n.expr {
+                Expr::Let { body, .. } => {
+                    let sc = ev
+                        .scope_let(&scope, e)
+                        .map_err(|error| self.refused(e, error.to_string()))?;
+                    todo.push((*body, sc, depth + 1));
+                    continue;
+                }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
                     let scopes = self.finite_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
@@ -456,7 +469,7 @@ impl Lower<'_> {
                     }
                     _ => return Err(self.refused(e, "opaque scoped predicate atom")),
                 },
-                Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
+                Expr::SubstRef { .. } | Expr::Subst { .. } => {
                     return Err(self.refused(e, "opaque substituted/LET predicate atom"));
                 }
                 Expr::Const(c) => match ev.constant_binding(*c) {
@@ -553,6 +566,12 @@ impl Lower<'_> {
         let node = ir.node(expr);
         if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
+        }
+        if let Expr::Let { body, .. } = &node.expr {
+            let sc = ev
+                .scope_let(scope, expr)
+                .map_err(|e| self.refused(expr, e.to_string()))?;
+            return self.expr(*body, &sc, depth + 1);
         }
         if let Expr::Local(r) = &node.expr
             && let SlotView::Lazy(body, sc) = ev.scope_slot(scope, *r)

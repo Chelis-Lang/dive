@@ -496,3 +496,63 @@ fn pinned_quantified_enabledness_matches_all_36_states() {
         }
     }
 }
+
+#[test]
+fn let_bound_necessary_covers_preserve_outer_values_and_real_witnesses() {
+    let m = model(
+        "A == LET n==0 IN x'=n /\\ y'=1\n\
+        B == LET sum==x+y Good==x' \\in 0..2 /\\ y' \\in 0..2 /\\ x'+y'=sum IN Good\n\
+        C == \\E i \\in 0..2 : LET Move(q)==x'=q /\\ y'=1 IN Move(i)\n\
+        D == LET Keep==UNCHANGED <<x,y>> IN Keep\n\
+        Missing == LET Pick(q)==IF q=0 THEN x'=0 ELSE y'=0 IN Pick(0) \\/ Pick(1)\n\
+        StateArg == LET n==x Move(q)==x'=q IN Move(n)\n\
+        Unbounded == LET n==0 IN x'>n\n",
+    );
+    for x in -1..=4 {
+        for y in -1..=4 {
+            let before = state(x, y);
+            for name in ["A", "B", "C", "D"] {
+                let p = pred(&m, name);
+                let brute = (-1..=4).any(|a| {
+                    (-1..=4).any(|b| {
+                        m.eval(&p, &St::action(before.clone(), state(a, b)))
+                            .expect("relation")
+                            == Value::Bool(true)
+                    })
+                });
+                let result =
+                    exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
+                assert_eq!(enabled(&result), brute, "{name} {x} {y}");
+                if let Decision::Enabled { witness } = result {
+                    assert_eq!(
+                        m.eval(&p, &St::action(before.clone(), witness))
+                            .expect("original relation"),
+                        Value::Bool(true)
+                    );
+                }
+            }
+        }
+    }
+    for name in ["Missing", "StateArg", "Unbounded"] {
+        assert!(
+            matches!(
+                exists_successor(&m, &pred(&m, name), &state(0, 0), None, Limits::default()),
+                Err(ExistsError::Unsupported(_))
+            ),
+            "{name}"
+        );
+    }
+    assert!(matches!(
+        exists_successor(
+            &m,
+            &pred(&m, "B"),
+            &state(0, 0),
+            None,
+            Limits {
+                expressions: 3,
+                ..Limits::default()
+            }
+        ),
+        Err(ExistsError::Limit(_))
+    ));
+}

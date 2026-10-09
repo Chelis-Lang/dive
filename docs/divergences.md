@@ -152,3 +152,7 @@ D-013 finite-predicate coverage now includes constant-domain quantified actions
 and state predicates. Six clean `action-quantifiers` probes match final truth/counts;
 independent ENABLED uses necessary covers rather than the checker enumerator.
 Exact TLC temporal ordering, timing and selection remain pending.
+
+D-013 scoped predicate coverage includes pure LET values/operators and
+independent covers over their captured contexts. Six clean `temporal-let`
+probes match final truth/counts; exact TLC temporal selection/timing remains open.
