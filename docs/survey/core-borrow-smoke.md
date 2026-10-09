@@ -50,6 +50,6 @@ models. It validates the cleanup; it does not establish a performance gain.
 
 ```sh
 DIVE_CACHE_DIR=<verified-cache> cargo run --release -p dive-conformance -- \
-  run --impl dive --dive-bin target/release/dive --profile tlc \
+  run --impl dive --dive-bin target/release/dive --impl-profile tlc \
   --tier small --workers 1 --jobs 2 --timeout 2400 --no-sany --no-summary
 ```
