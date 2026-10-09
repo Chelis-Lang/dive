@@ -1,0 +1,71 @@
+# The G1 benchmark set (docs/design/m5-plan.md, ADR 0006): Examples models
+# timed with `dive check` at one worker, in both profiles, against TLC.
+# Run by hand, never in CI: `cargo run --release -p dive-bench -- --help`.
+#
+# Each entry names an Examples model by its corpus-relative `.cfg` (the
+# golden's model id). `survey` names the row of
+# docs/survey/data/bench-summary.csv with TLC's and tla-mc's measured
+# single-worker times, where the survey ran the model.
+#
+# `cfg` replaces the model's configuration. It is used only to drop
+# temporal properties, which dive refuses in M5 (liveness): the bench then
+# runs dive and TLC on the same safety-only configuration, and checks the
+# golden's counts, which a safety-only run of a successful model reproduces.
+
+[[bench]]
+name = "GameOfLife"
+model = "specifications/GameOfLife/GameOfLife.cfg"
+survey = "GameOfLife"
+why = "heavy per-state evaluation: recursive operator, CHOOSE, set maps (issue #53)"
+
+[[bench]]
+name = "TLCSailfish1"
+model = "specifications/dag-consensus/TLCSailfish1.cfg"
+why = "filters, CHOOSE and EXCEPT over records of sets (issue #53)"
+
+[[bench]]
+name = "EWD998PCal"
+model = "specifications/ewd998/EWD998PCal.cfg"
+why = "a refinement checked as an implied action through INSTANCE substitutions (issue #53)"
+
+[[bench]]
+name = "MCBakery"
+model = "specifications/Bakery-Boulangerie/MCBakery.cfg"
+survey = "MCBakery"
+why = "function-heavy; the initial states are an inductive invariant (ADR 0006 set)"
+
+[[bench]]
+name = "MCLamportMutex"
+model = "specifications/lamport_mutex/MCLamportMutex.cfg"
+survey = "MCLamportMutex"
+why = "sequence-heavy message channels, 724k states (ADR 0006 set)"
+
+[[bench]]
+name = "SimpleRegular"
+model = "specifications/TeachingConcurrency/SimpleRegular.cfg"
+survey = "SimpleRegular"
+why = "small actions over functions, 278k states (ADR 0006 set)"
+
+[[bench]]
+name = "MCbtree"
+model = "specifications/btree/MCbtree.cfg"
+survey = "MCbtree"
+why = "set- and function-heavy (ADR 0006 set)"
+
+[[bench]]
+name = "CoffeeCan1000Beans"
+model = "specifications/CoffeeCan/CoffeeCan1000Beans.cfg"
+survey = "CoffeeCan1000Beans"
+why = "a state-space hog with simple arithmetic actions (ADR 0006 set)"
+# The survey's times include TLC's liveness checking of these properties;
+# compare against a TLC run of this configuration (`--tlc`) instead.
+cfg = """
+CONSTANTS
+    MaxBeanCount = 1000
+
+SPECIFICATION
+    Spec
+
+INVARIANTS
+    TypeInvariant
+"""
