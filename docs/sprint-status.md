@@ -174,3 +174,13 @@ and counts in both profiles/stores and independently validate. The latest LM1
 study still has 39 matches and 6 named refusals with no findings, but both
 remaining models now reach the tableau-node bound rather than a scoped-language
 refusal. Exact TLC planning/timing/selection and parallel capture remain open.
+
+The fairness/product increment factors pure recurring conditions out of temporal
+memory and retains only reachable products, keeping resource defaults unchanged.
+Three five-process pinned probes match final truth/counts in both profiles/stores,
+including mixed weak/strong fairness and an independently rejected unfair mutant.
+The latest LM1 final/short study now records 42 truth/count matches (14 models)
+and three VIEW refusals (one model), with zero findings at requested widths 1/4/8.
+DiningPhilosophers matches 336 generated states, 67 distinct states and depth 29.
+MCDistributedReplicatedLog now reaches the explicit VIEW graph-capture restriction.
+Actual capture remains width 1; strict TLC temporal conformance is still pending.

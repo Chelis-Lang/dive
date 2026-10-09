@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final/short liveness factors pure recurrence conditions out of temporal
+  memory, reuses shared tableau expansions and retains only reachable product
+  pairs, with unchanged resource defaults and deterministic witness ordering.
+
 - Final/short temporal predicates retain action-level arguments to pure value
   helpers, including nested, captured and sequence-prefix calls.
 

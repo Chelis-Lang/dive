@@ -163,3 +163,13 @@ binding primitive, matching TLA+ value/action operator application and TLC
 `Tool.evalAppl` at `94d0c50` (MIT reference). Four `Aa*` probes and independent
 short-word algebra verify retained before/after context; the validator uses no
 checker successor enumerator.
+
+Temporal recurrence factoring and reachable-product construction in
+`dive-liveness::formula::recurrence` / `product` are original implementations of
+the infinite-word identity `( []<>A \/ []<>B ) <=> []<>(A \/ B)` and conjunctive
+Buchi acceptance (ADR 0018). Atom ids/scopes are never merged. Tableau expansion
+reuse preserves the first expansion's order; retained product pairs are
+renumbered in the original `(state, tableau)` order. Evidence includes independent
+short-word/path-closure checks, resource and discovery-order controls, and three
+`Fw*` probes from the pinned TLC `94d0c50` (MIT reference). No search algorithm
+is added to the independent validator.

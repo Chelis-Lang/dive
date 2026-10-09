@@ -3,13 +3,13 @@
   "kind": "final-temporal-study",
   "claim": "Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
   "generator": "dive-conformance 0.0.0",
-  "generated_at": "2026-10-09T21:18:10Z",
+  "generated_at": "2026-10-09T22:38:59Z",
   "oracle": "tlc-2026.10.06.014338",
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
   "base_profile": "tlc",
   "implementation": {
     "binary": "/Users/jeff/code/dive-perf-work/target/release/dive",
-    "sha256": "aef86ab6a8941a56b7e62c17fb7cd371b9f4054e5706ca424bcc1f68c891dc0c",
+    "sha256": "62bc8577aef390ded5134c0a487a6c40fd48d2e6b554ec9ec334feb351914e86",
     "version": "dive 0.0.0",
     "module_path": [
       {
@@ -75,7 +75,7 @@
         "CoffeeCan.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 2140,
+      "elapsed_ms": 1112,
       "document": {
         "collision": {
           "actual": null,
@@ -88,7 +88,7 @@
         "config": "$CWD/CoffeeCan100Beans.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 2110,
+        "elapsed_ms": 1091,
         "error_site": null,
         "file": "CoffeeCan.tla",
         "message": null,
@@ -189,7 +189,7 @@
         "CoffeeCan.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 1961,
+      "elapsed_ms": 1286,
       "document": {
         "collision": {
           "actual": null,
@@ -202,7 +202,7 @@
         "config": "$CWD/CoffeeCan100Beans.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 1935,
+        "elapsed_ms": 1262,
         "error_site": null,
         "file": "CoffeeCan.tla",
         "message": null,
@@ -303,7 +303,7 @@
         "CoffeeCan.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 1422,
+      "elapsed_ms": 1873,
       "document": {
         "collision": {
           "actual": null,
@@ -316,7 +316,7 @@
         "config": "$CWD/CoffeeCan100Beans.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 1389,
+        "elapsed_ms": 1846,
         "error_site": null,
         "file": "CoffeeCan.tla",
         "message": null,
@@ -386,8 +386,8 @@
       "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
       "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
       "workers": 1,
-      "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
         "/Users/jeff/code/dive-perf-work/target/release/dive",
@@ -416,24 +416,27 @@
         "short",
         "DiningPhilosophers.tla"
       ],
-      "exit_code": 3,
-      "elapsed_ms": 34,
+      "exit_code": 0,
+      "elapsed_ms": 232,
       "document": {
-        "collision": null,
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "9.8E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
         "command": "check",
         "config": "$CWD/DiningPhilosophers.cfg",
         "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
+        "diagnostics": [],
+        "elapsed_ms": 201,
         "error_site": null,
         "file": "DiningPhilosophers.tla",
-        "message": "temporal formula resource limit: tableau nodes",
-        "notes": [],
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
         "options": {
           "choose_order": "tlc",
           "comparisons": "tlc",
@@ -470,18 +473,25 @@
           "warnings": true,
           "workers": {
             "chaos": null,
-            "reason": "no search ran",
+            "reason": "behavior graph capture currently uses the inline engine",
             "requested": 1,
-            "sequential": false,
-            "used": 0
+            "sequential": true,
+            "used": 1
           }
         },
         "output": [],
         "property": null,
         "schema_version": 2,
-        "statistics": null,
+        "statistics": {
+          "depth": 29,
+          "distinct": 67,
+          "generated": 336,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
         "tlc": null,
-        "verdict": "resource-limit",
+        "verdict": "success",
         "warnings": []
       }
     },
@@ -490,8 +500,8 @@
       "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
       "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
       "workers": 4,
-      "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "success",
       "command": [
         "/Users/jeff/code/dive-perf-work/target/release/dive",
@@ -520,23 +530,246 @@
         "short",
         "DiningPhilosophers.tla"
       ],
-      "exit_code": 3,
-      "elapsed_ms": 33,
+      "exit_code": 0,
+      "elapsed_ms": 250,
       "document": {
-        "collision": null,
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "9.8E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
         "command": "check",
         "config": "$CWD/DiningPhilosophers.cfg",
         "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
+        "diagnostics": [],
+        "elapsed_ms": 219,
         "error_site": null,
         "file": "DiningPhilosophers.tla",
-        "message": "temporal formula resource limit: tableau nodes",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 4,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 29,
+          "distinct": 67,
+          "generated": 336,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "workers": 8,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/DiningPhilosophers.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "DiningPhilosophers.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 317,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "9.8E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/DiningPhilosophers.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 297,
+        "error_site": null,
+        "file": "DiningPhilosophers.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 8,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 29,
+          "distinct": 67,
+          "generated": 336,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "workers": 1,
+      "outcome": "unsupported",
+      "detail": "unsupported: graph capture with VIEW or SYMMETRY",
+      "golden_verdict": "liveness-violation",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/MCDistributedReplicatedLog.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "MCDistributedReplicatedLog.tla"
+      ],
+      "exit_code": 3,
+      "elapsed_ms": 85,
+      "document": {
+        "collision": null,
+        "command": "check",
+        "config": "$CWD/MCDistributedReplicatedLog.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 3,
+        "error_site": null,
+        "file": "MCDistributedReplicatedLog.tla",
+        "message": "graph capture with VIEW or SYMMETRY",
         "notes": [],
         "options": {
           "choose_order": "tlc",
@@ -574,7 +807,106 @@
           "warnings": true,
           "workers": {
             "chaos": null,
-            "reason": "no search ran",
+            "reason": null,
+            "requested": 1,
+            "sequential": false,
+            "used": 0
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": null,
+        "tlc": null,
+        "verdict": "unsupported",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "workers": 4,
+      "outcome": "unsupported",
+      "detail": "unsupported: graph capture with VIEW or SYMMETRY",
+      "golden_verdict": "liveness-violation",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/MCDistributedReplicatedLog.cfg",
+        "--workers",
+        "4",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "MCDistributedReplicatedLog.tla"
+      ],
+      "exit_code": 3,
+      "elapsed_ms": 86,
+      "document": {
+        "collision": null,
+        "command": "check",
+        "config": "$CWD/MCDistributedReplicatedLog.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 1,
+        "error_site": null,
+        "file": "MCDistributedReplicatedLog.tla",
+        "message": "graph capture with VIEW or SYMMETRY",
+        "notes": [],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": null,
             "requested": 4,
             "sequential": false,
             "used": 0
@@ -585,25 +917,25 @@
         "schema_version": 2,
         "statistics": null,
         "tlc": null,
-        "verdict": "resource-limit",
+        "verdict": "unsupported",
         "warnings": []
       }
     },
     {
       "corpus": "examples",
       "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
       "workers": 8,
       "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
-      "golden_verdict": "success",
+      "detail": "unsupported: graph capture with VIEW or SYMMETRY",
+      "golden_verdict": "liveness-violation",
       "command": [
         "/Users/jeff/code/dive-perf-work/target/release/dive",
         "check",
         "--output",
         "json",
         "--config",
-        "$CWD/DiningPhilosophers.cfg",
+        "$CWD/MCDistributedReplicatedLog.cfg",
         "--workers",
         "8",
         "--seed",
@@ -622,427 +954,110 @@
         "final",
         "--lasso",
         "short",
-        "DiningPhilosophers.tla"
+        "MCDistributedReplicatedLog.tla"
       ],
       "exit_code": 3,
+      "elapsed_ms": 44,
+      "document": {
+        "collision": null,
+        "command": "check",
+        "config": "$CWD/MCDistributedReplicatedLog.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 0,
+        "error_site": null,
+        "file": "MCDistributedReplicatedLog.tla",
+        "message": "graph capture with VIEW or SYMMETRY",
+        "notes": [],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": null,
+            "requested": 8,
+            "sequential": false,
+            "used": 0
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": null,
+        "tlc": null,
+        "verdict": "unsupported",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+      "workers": 1,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/CatEvenBoxes.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Cat.tla"
+      ],
+      "exit_code": 0,
       "elapsed_ms": 42,
       "document": {
-        "collision": null,
-        "command": "check",
-        "config": "$CWD/DiningPhilosophers.cfg",
-        "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
-        "error_site": null,
-        "file": "DiningPhilosophers.tla",
-        "message": "temporal formula resource limit: tableau nodes",
-        "notes": [],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "no search ran",
-            "requested": 8,
-            "sequential": false,
-            "used": 0
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": null,
-        "tlc": null,
-        "verdict": "resource-limit",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
-      "workers": 1,
-      "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
-      "golden_verdict": "liveness-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MCDistributedReplicatedLog.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MCDistributedReplicatedLog.tla"
-      ],
-      "exit_code": 3,
-      "elapsed_ms": 36,
-      "document": {
-        "collision": null,
-        "command": "check",
-        "config": "$CWD/MCDistributedReplicatedLog.cfg",
-        "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
-        "error_site": null,
-        "file": "MCDistributedReplicatedLog.tla",
-        "message": "temporal formula resource limit: tableau nodes",
-        "notes": [],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "no search ran",
-            "requested": 1,
-            "sequential": false,
-            "used": 0
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": null,
-        "tlc": null,
-        "verdict": "resource-limit",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
-      "workers": 4,
-      "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
-      "golden_verdict": "liveness-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MCDistributedReplicatedLog.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MCDistributedReplicatedLog.tla"
-      ],
-      "exit_code": 3,
-      "elapsed_ms": 35,
-      "document": {
-        "collision": null,
-        "command": "check",
-        "config": "$CWD/MCDistributedReplicatedLog.cfg",
-        "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
-        "error_site": null,
-        "file": "MCDistributedReplicatedLog.tla",
-        "message": "temporal formula resource limit: tableau nodes",
-        "notes": [],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "no search ran",
-            "requested": 4,
-            "sequential": false,
-            "used": 0
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": null,
-        "tlc": null,
-        "verdict": "resource-limit",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
-      "workers": 8,
-      "outcome": "unsupported",
-      "detail": "resource-limit: temporal formula resource limit: tableau nodes",
-      "golden_verdict": "liveness-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MCDistributedReplicatedLog.cfg",
-        "--workers",
-        "8",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MCDistributedReplicatedLog.tla"
-      ],
-      "exit_code": 3,
-      "elapsed_ms": 35,
-      "document": {
-        "collision": null,
-        "command": "check",
-        "config": "$CWD/MCDistributedReplicatedLog.cfg",
-        "counterexample": null,
-        "diagnostics": [
-          {
-            "code": "DIVE-L0030",
-            "message": "temporal formula resource limit: tableau nodes"
-          }
-        ],
-        "elapsed_ms": 0,
-        "error_site": null,
-        "file": "MCDistributedReplicatedLog.tla",
-        "message": "temporal formula resource limit: tableau nodes",
-        "notes": [],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "no search ran",
-            "requested": 8,
-            "sequential": false,
-            "used": 0
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": null,
-        "tlc": null,
-        "verdict": "resource-limit",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
-      "workers": 1,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/CatEvenBoxes.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Cat.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 33,
-      "document": {
         "collision": {
           "actual": null,
           "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
@@ -1155,7 +1170,7 @@
         "Cat.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 35,
+      "elapsed_ms": 58,
       "document": {
         "collision": {
           "actual": null,
@@ -1269,7 +1284,7 @@
         "Cat.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 47,
+      "elapsed_ms": 53,
       "document": {
         "collision": {
           "actual": null,
@@ -1282,7 +1297,7 @@
         "config": "$CWD/CatEvenBoxes.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 2,
+        "elapsed_ms": 3,
         "error_site": null,
         "file": "Cat.tla",
         "message": null,
@@ -1383,7 +1398,7 @@
         "Cat.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 41,
+      "elapsed_ms": 40,
       "document": {
         "collision": {
           "actual": null,
@@ -1396,7 +1411,7 @@
         "config": "$CWD/CatOddBoxes.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 3,
+        "elapsed_ms": 6,
         "error_site": null,
         "file": "Cat.tla",
         "message": null,
@@ -1497,7 +1512,7 @@
         "Cat.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 43,
+      "elapsed_ms": 36,
       "document": {
         "collision": {
           "actual": null,
@@ -1510,7 +1525,7 @@
         "config": "$CWD/CatOddBoxes.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 1,
+        "elapsed_ms": 9,
         "error_site": null,
         "file": "Cat.tla",
         "message": null,
@@ -1725,423 +1740,7 @@
         "MC.tla"
       ],
       "exit_code": 12,
-      "elapsed_ms": 35,
-      "document": {
-        "collision": null,
-        "command": "check",
-        "config": "$CWD/MC.cfg",
-        "counterexample": {
-          "ending": "finite",
-          "length": 5,
-          "states": [
-            {
-              "action": null,
-              "index": 1,
-              "label": "<Initial predicate>",
-              "text": "/\\ todo = {<<>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
-              "values": {
-                "pc": "nxtQ",
-                "sols": [],
-                "todo": [
-                  []
-                ]
-              }
-            },
-            {
-              "action": "nxtQ",
-              "index": 2,
-              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-              "text": "/\\ todo = {<<1>>, <<2>>, <<3>>, <<4>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
-              "values": {
-                "pc": "nxtQ",
-                "sols": [],
-                "todo": [
-                  [
-                    1
-                  ],
-                  [
-                    2
-                  ],
-                  [
-                    3
-                  ],
-                  [
-                    4
-                  ]
-                ]
-              }
-            },
-            {
-              "action": "nxtQ",
-              "index": 3,
-              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>, <<2, 4>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
-              "values": {
-                "pc": "nxtQ",
-                "sols": [],
-                "todo": [
-                  [
-                    1
-                  ],
-                  [
-                    3
-                  ],
-                  [
-                    4
-                  ],
-                  [
-                    2,
-                    4
-                  ]
-                ]
-              }
-            },
-            {
-              "action": "nxtQ",
-              "index": 4,
-              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>, <<2, 4, 1>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
-              "values": {
-                "pc": "nxtQ",
-                "sols": [],
-                "todo": [
-                  [
-                    1
-                  ],
-                  [
-                    3
-                  ],
-                  [
-                    4
-                  ],
-                  [
-                    2,
-                    4,
-                    1
-                  ]
-                ]
-              }
-            },
-            {
-              "action": "nxtQ",
-              "index": 5,
-              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>}\n/\\ sols = {<<2, 4, 1, 3>>}\n/\\ pc = \"nxtQ\"\n",
-              "values": {
-                "pc": "nxtQ",
-                "sols": [
-                  [
-                    2,
-                    4,
-                    1,
-                    3
-                  ]
-                ],
-                "todo": [
-                  [
-                    1
-                  ],
-                  [
-                    3
-                  ],
-                  [
-                    4
-                  ]
-                ]
-              }
-            }
-          ],
-          "trace": {
-            "ending": {
-              "kind": "invariant",
-              "name": "NoSolutions"
-            },
-            "format": "dive-trace",
-            "length": 5,
-            "states": [
-              {
-                "action": null,
-                "values": {
-                  "pc": "nxtQ",
-                  "sols": {
-                    "set": []
-                  },
-                  "todo": {
-                    "set": [
-                      {
-                        "seq": []
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "action": {
-                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-                  "name": "nxtQ"
-                },
-                "values": {
-                  "pc": "nxtQ",
-                  "sols": {
-                    "set": []
-                  },
-                  "todo": {
-                    "set": [
-                      {
-                        "seq": [
-                          1
-                        ]
-                      },
-                      {
-                        "seq": [
-                          2
-                        ]
-                      },
-                      {
-                        "seq": [
-                          3
-                        ]
-                      },
-                      {
-                        "seq": [
-                          4
-                        ]
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "action": {
-                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-                  "name": "nxtQ"
-                },
-                "values": {
-                  "pc": "nxtQ",
-                  "sols": {
-                    "set": []
-                  },
-                  "todo": {
-                    "set": [
-                      {
-                        "seq": [
-                          1
-                        ]
-                      },
-                      {
-                        "seq": [
-                          3
-                        ]
-                      },
-                      {
-                        "seq": [
-                          4
-                        ]
-                      },
-                      {
-                        "seq": [
-                          2,
-                          4
-                        ]
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "action": {
-                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-                  "name": "nxtQ"
-                },
-                "values": {
-                  "pc": "nxtQ",
-                  "sols": {
-                    "set": []
-                  },
-                  "todo": {
-                    "set": [
-                      {
-                        "seq": [
-                          1
-                        ]
-                      },
-                      {
-                        "seq": [
-                          3
-                        ]
-                      },
-                      {
-                        "seq": [
-                          4
-                        ]
-                      },
-                      {
-                        "seq": [
-                          2,
-                          4,
-                          1
-                        ]
-                      }
-                    ]
-                  }
-                }
-              },
-              {
-                "action": {
-                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
-                  "name": "nxtQ"
-                },
-                "values": {
-                  "pc": "nxtQ",
-                  "sols": {
-                    "set": [
-                      {
-                        "seq": [
-                          2,
-                          4,
-                          1,
-                          3
-                        ]
-                      }
-                    ]
-                  },
-                  "todo": {
-                    "set": [
-                      {
-                        "seq": [
-                          1
-                        ]
-                      },
-                      {
-                        "seq": [
-                          3
-                        ]
-                      },
-                      {
-                        "seq": [
-                          4
-                        ]
-                      }
-                    ]
-                  }
-                }
-              }
-            ],
-            "variables": [
-              "todo",
-              "sols",
-              "pc"
-            ],
-            "version": 1
-          }
-        },
-        "diagnostics": [],
-        "elapsed_ms": 2,
-        "error_site": null,
-        "file": "MC.tla",
-        "message": null,
-        "notes": [],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 1,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": "NoSolutions",
-        "schema_version": 2,
-        "statistics": {
-          "depth": 5,
-          "distinct": 40,
-          "generated": 62,
-          "initial_generated": 1,
-          "left_on_queue": 25,
-          "reported_by_tlc": true
-        },
-        "tlc": {
-          "code": 2110,
-          "exit_status": 12,
-          "name": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
-          "reported": 2110,
-          "verified": true
-        },
-        "verdict": "invariant-violation",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
-      "workers": 4,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "safety-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MC.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MC.tla"
-      ],
-      "exit_code": 12,
-      "elapsed_ms": 36,
+      "elapsed_ms": 34,
       "document": {
         "collision": null,
         "command": "check",
@@ -2494,7 +2093,7 @@
           "workers": {
             "chaos": null,
             "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 4,
+            "requested": 1,
             "sequential": true,
             "used": 1
           }
@@ -2525,7 +2124,7 @@
       "corpus": "examples",
       "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
       "model": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
-      "workers": 8,
+      "workers": 4,
       "outcome": "matches-truth-and-counts",
       "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
       "golden_verdict": "safety-violation",
@@ -2537,7 +2136,7 @@
         "--config",
         "$CWD/MC.cfg",
         "--workers",
-        "8",
+        "4",
         "--seed",
         "0",
         "--fp",
@@ -2557,7 +2156,7 @@
         "MC.tla"
       ],
       "exit_code": 12,
-      "elapsed_ms": 31,
+      "elapsed_ms": 29,
       "document": {
         "collision": null,
         "command": "check",
@@ -2868,7 +2467,423 @@
           }
         },
         "diagnostics": [],
-        "elapsed_ms": 2,
+        "elapsed_ms": 3,
+        "error_site": null,
+        "file": "MC.tla",
+        "message": null,
+        "notes": [],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 4,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": "NoSolutions",
+        "schema_version": 2,
+        "statistics": {
+          "depth": 5,
+          "distinct": 40,
+          "generated": 62,
+          "initial_generated": 1,
+          "left_on_queue": 25,
+          "reported_by_tlc": true
+        },
+        "tlc": {
+          "code": 2110,
+          "exit_status": 12,
+          "name": "TLC_INVARIANT_VIOLATED_BEHAVIOR",
+          "reported": 2110,
+          "verified": true
+        },
+        "verdict": "invariant-violation",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+      "workers": 8,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "safety-violation",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/MC.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "MC.tla"
+      ],
+      "exit_code": 12,
+      "elapsed_ms": 33,
+      "document": {
+        "collision": null,
+        "command": "check",
+        "config": "$CWD/MC.cfg",
+        "counterexample": {
+          "ending": "finite",
+          "length": 5,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": "<Initial predicate>",
+              "text": "/\\ todo = {<<>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
+              "values": {
+                "pc": "nxtQ",
+                "sols": [],
+                "todo": [
+                  []
+                ]
+              }
+            },
+            {
+              "action": "nxtQ",
+              "index": 2,
+              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+              "text": "/\\ todo = {<<1>>, <<2>>, <<3>>, <<4>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
+              "values": {
+                "pc": "nxtQ",
+                "sols": [],
+                "todo": [
+                  [
+                    1
+                  ],
+                  [
+                    2
+                  ],
+                  [
+                    3
+                  ],
+                  [
+                    4
+                  ]
+                ]
+              }
+            },
+            {
+              "action": "nxtQ",
+              "index": 3,
+              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>, <<2, 4>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
+              "values": {
+                "pc": "nxtQ",
+                "sols": [],
+                "todo": [
+                  [
+                    1
+                  ],
+                  [
+                    3
+                  ],
+                  [
+                    4
+                  ],
+                  [
+                    2,
+                    4
+                  ]
+                ]
+              }
+            },
+            {
+              "action": "nxtQ",
+              "index": 4,
+              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>, <<2, 4, 1>>}\n/\\ sols = {}\n/\\ pc = \"nxtQ\"\n",
+              "values": {
+                "pc": "nxtQ",
+                "sols": [],
+                "todo": [
+                  [
+                    1
+                  ],
+                  [
+                    3
+                  ],
+                  [
+                    4
+                  ],
+                  [
+                    2,
+                    4,
+                    1
+                  ]
+                ]
+              }
+            },
+            {
+              "action": "nxtQ",
+              "index": 5,
+              "label": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+              "text": "/\\ todo = {<<1>>, <<3>>, <<4>>}\n/\\ sols = {<<2, 4, 1, 3>>}\n/\\ pc = \"nxtQ\"\n",
+              "values": {
+                "pc": "nxtQ",
+                "sols": [
+                  [
+                    2,
+                    4,
+                    1,
+                    3
+                  ]
+                ],
+                "todo": [
+                  [
+                    1
+                  ],
+                  [
+                    3
+                  ],
+                  [
+                    4
+                  ]
+                ]
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "kind": "invariant",
+              "name": "NoSolutions"
+            },
+            "format": "dive-trace",
+            "length": 5,
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "pc": "nxtQ",
+                  "sols": {
+                    "set": []
+                  },
+                  "todo": {
+                    "set": [
+                      {
+                        "seq": []
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "action": {
+                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+                  "name": "nxtQ"
+                },
+                "values": {
+                  "pc": "nxtQ",
+                  "sols": {
+                    "set": []
+                  },
+                  "todo": {
+                    "set": [
+                      {
+                        "seq": [
+                          1
+                        ]
+                      },
+                      {
+                        "seq": [
+                          2
+                        ]
+                      },
+                      {
+                        "seq": [
+                          3
+                        ]
+                      },
+                      {
+                        "seq": [
+                          4
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "action": {
+                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+                  "name": "nxtQ"
+                },
+                "values": {
+                  "pc": "nxtQ",
+                  "sols": {
+                    "set": []
+                  },
+                  "todo": {
+                    "set": [
+                      {
+                        "seq": [
+                          1
+                        ]
+                      },
+                      {
+                        "seq": [
+                          3
+                        ]
+                      },
+                      {
+                        "seq": [
+                          4
+                        ]
+                      },
+                      {
+                        "seq": [
+                          2,
+                          4
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "action": {
+                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+                  "name": "nxtQ"
+                },
+                "values": {
+                  "pc": "nxtQ",
+                  "sols": {
+                    "set": []
+                  },
+                  "todo": {
+                    "set": [
+                      {
+                        "seq": [
+                          1
+                        ]
+                      },
+                      {
+                        "seq": [
+                          3
+                        ]
+                      },
+                      {
+                        "seq": [
+                          4
+                        ]
+                      },
+                      {
+                        "seq": [
+                          2,
+                          4,
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "action": {
+                  "location": "<nxtQ line 78, col 9 to line 92, col 48 of module QueensPluscal>",
+                  "name": "nxtQ"
+                },
+                "values": {
+                  "pc": "nxtQ",
+                  "sols": {
+                    "set": [
+                      {
+                        "seq": [
+                          2,
+                          4,
+                          1,
+                          3
+                        ]
+                      }
+                    ]
+                  },
+                  "todo": {
+                    "set": [
+                      {
+                        "seq": [
+                          1
+                        ]
+                      },
+                      {
+                        "seq": [
+                          3
+                        ]
+                      },
+                      {
+                        "seq": [
+                          4
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "variables": [
+              "todo",
+              "sols",
+              "pc"
+            ],
+            "version": 1
+          }
+        },
+        "diagnostics": [],
+        "elapsed_ms": 1,
         "error_site": null,
         "file": "MC.tla",
         "message": null,
@@ -2973,7 +2988,7 @@
         "Prisoners.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 213,
+      "elapsed_ms": 92,
       "document": {
         "collision": {
           "actual": null,
@@ -2986,7 +3001,7 @@
         "config": "$CWD/Prisoners.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 195,
+        "elapsed_ms": 70,
         "error_site": null,
         "file": "Prisoners.tla",
         "message": null,
@@ -3087,7 +3102,7 @@
         "Prisoners.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 200,
+      "elapsed_ms": 90,
       "document": {
         "collision": {
           "actual": null,
@@ -3100,7 +3115,7 @@
         "config": "$CWD/Prisoners.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 179,
+        "elapsed_ms": 69,
         "error_site": null,
         "file": "Prisoners.tla",
         "message": null,
@@ -3201,7 +3216,7 @@
         "Prisoners.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 224,
+      "elapsed_ms": 92,
       "document": {
         "collision": {
           "actual": null,
@@ -3214,7 +3229,7 @@
         "config": "$CWD/Prisoners.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 169,
+        "elapsed_ms": 70,
         "error_site": null,
         "file": "Prisoners.tla",
         "message": null,
@@ -3294,690 +3309,6 @@
         "json",
         "--config",
         "$CWD/Prisoner.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 44,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "2.9E-17",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/Prisoner.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 13,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 1,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 5,
-          "distinct": 16,
-          "generated": 49,
-          "initial_generated": 1,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
-      "workers": 4,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/Prisoner.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 37,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "2.9E-17",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/Prisoner.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 18,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 4,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 5,
-          "distinct": 16,
-          "generated": 49,
-          "initial_generated": 1,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
-      "workers": 8,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/Prisoner.cfg",
-        "--workers",
-        "8",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 62,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "2.9E-17",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/Prisoner.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 23,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 8,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 5,
-          "distinct": 16,
-          "generated": 49,
-          "initial_generated": 1,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
-      "workers": 1,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/PrisonerLightUnknown.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 72,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "4.2E-16",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/PrisonerLightUnknown.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 49,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 1,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 10,
-          "distinct": 62,
-          "generated": 188,
-          "initial_generated": 2,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
-      "workers": 4,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/PrisonerLightUnknown.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 69,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "4.2E-16",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/PrisonerLightUnknown.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 30,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 4,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 10,
-          "distinct": 62,
-          "generated": 188,
-          "initial_generated": 2,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
-      "workers": 8,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/PrisonerLightUnknown.cfg",
-        "--workers",
-        "8",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "Prisoner.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 60,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "4.2E-16",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/PrisonerLightUnknown.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 39,
-        "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 8,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 10,
-          "distinct": 62,
-          "generated": 188,
-          "initial_generated": 2,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
-      "workers": 1,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/PrisonerSolo.cfg",
         "--workers",
         "1",
         "--seed",
@@ -4004,6 +3335,690 @@
         "collision": {
           "actual": null,
           "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "2.9E-17",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/Prisoner.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 7,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 1,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 5,
+          "distinct": 16,
+          "generated": 49,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+      "workers": 4,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/Prisoner.cfg",
+        "--workers",
+        "4",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 32,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "2.9E-17",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/Prisoner.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 7,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 4,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 5,
+          "distinct": 16,
+          "generated": 49,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+      "workers": 8,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/Prisoner.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 30,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "2.9E-17",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/Prisoner.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 7,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 8,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 5,
+          "distinct": 16,
+          "generated": 49,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+      "workers": 1,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/PrisonerLightUnknown.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 32,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "4.2E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/PrisonerLightUnknown.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 25,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 1,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 10,
+          "distinct": 62,
+          "generated": 188,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+      "workers": 4,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/PrisonerLightUnknown.cfg",
+        "--workers",
+        "4",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 31,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "4.2E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/PrisonerLightUnknown.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 25,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 4,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 10,
+          "distinct": 62,
+          "generated": 188,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+      "workers": 8,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/PrisonerLightUnknown.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 31,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "4.2E-16",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/PrisonerLightUnknown.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 24,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 8,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 10,
+          "distinct": 62,
+          "generated": 188,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+      "workers": 1,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/PrisonerSolo.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "Prisoner.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 31,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
           "optimistic": "1.1E-19",
           "scheme": "tlc",
           "store": "fingerprint"
@@ -4113,7 +4128,7 @@
         "Prisoner.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 34,
+      "elapsed_ms": 31,
       "document": {
         "collision": {
           "actual": null,
@@ -4126,7 +4141,7 @@
         "config": "$CWD/PrisonerSolo.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 1,
+        "elapsed_ms": 0,
         "error_site": null,
         "file": "Prisoner.tla",
         "message": null,
@@ -4227,7 +4242,7 @@
         "Prisoner.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 30,
+      "elapsed_ms": 31,
       "document": {
         "collision": {
           "actual": null,
@@ -4240,7 +4255,7 @@
         "config": "$CWD/PrisonerSolo.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 1,
+        "elapsed_ms": 0,
         "error_site": null,
         "file": "Prisoner.tla",
         "message": null,
@@ -4341,7 +4356,7 @@
         "Prisoner.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 78,
+      "elapsed_ms": 31,
       "document": {
         "collision": {
           "actual": null,
@@ -4455,7 +4470,7 @@
         "Prisoner.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 53,
+      "elapsed_ms": 28,
       "document": {
         "collision": {
           "actual": null,
@@ -4468,7 +4483,7 @@
         "config": "$CWD/PrisonerSoloLightUnknown.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 2,
+        "elapsed_ms": 0,
         "error_site": null,
         "file": "Prisoner.tla",
         "message": null,
@@ -4569,7 +4584,7 @@
         "Prisoner.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 46,
+      "elapsed_ms": 29,
       "document": {
         "collision": {
           "actual": null,
@@ -4581,706 +4596,706 @@
         "command": "check",
         "config": "$CWD/PrisonerSoloLightUnknown.cfg",
         "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 0,
+        "error_site": null,
+        "file": "Prisoner.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 8,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 2,
+          "distinct": 4,
+          "generated": 6,
+          "initial_generated": 2,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+      "workers": 1,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/LiveHourClock.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "LiveHourClock.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 30,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "7.8E-18",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/LiveHourClock.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 0,
+        "error_site": null,
+        "file": "LiveHourClock.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 1,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 1,
+          "distinct": 12,
+          "generated": 24,
+          "initial_generated": 12,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+      "workers": 4,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/LiveHourClock.cfg",
+        "--workers",
+        "4",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "LiveHourClock.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 31,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "7.8E-18",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/LiveHourClock.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 1,
+        "error_site": null,
+        "file": "LiveHourClock.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 4,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 1,
+          "distinct": 12,
+          "generated": 24,
+          "initial_generated": 12,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+      "workers": 8,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "success",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/LiveHourClock.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "LiveHourClock.tla"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 27,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "7.8E-18",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/LiveHourClock.cfg",
+        "counterexample": null,
+        "diagnostics": [],
+        "elapsed_ms": 1,
+        "error_site": null,
+        "file": "LiveHourClock.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 8,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "property": null,
+        "schema_version": 2,
+        "statistics": {
+          "depth": 1,
+          "distinct": 12,
+          "generated": 24,
+          "initial_generated": 12,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "success",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "workers": 1,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "liveness-violation",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/MCRealTimeHourClock.cfg",
+        "--workers",
+        "1",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "MCRealTimeHourClock.tla"
+      ],
+      "exit_code": 13,
+      "elapsed_ms": 32,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "5.6E-15",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/MCRealTimeHourClock.cfg",
+        "counterexample": {
+          "back_to": 2,
+          "ending": "lasso",
+          "length": 2,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": null,
+              "values": {
+                "hr": 1,
+                "now": 1,
+                "t": 0
+              }
+            },
+            {
+              "action": null,
+              "index": 2,
+              "label": null,
+              "values": {
+                "hr": 1,
+                "now": 4,
+                "t": 3
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "back_to": 1,
+              "kind": "lasso"
+            },
+            "format": "dive-trace",
+            "length": 2,
+            "properties": [
+              "ErrorTemporal"
+            ],
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "hr": 1,
+                  "now": 1,
+                  "t": 0
+                }
+              },
+              {
+                "action": null,
+                "values": {
+                  "hr": 1,
+                  "now": 4,
+                  "t": 3
+                }
+              }
+            ],
+            "variables": [
+              "hr",
+              "now",
+              "t"
+            ],
+            "version": 1
+          },
+          "validation": "valid"
+        },
+        "diagnostics": [],
+        "elapsed_ms": 4,
+        "error_site": null,
+        "file": "MCRealTimeHourClock.tla",
+        "message": null,
+        "notes": [
+          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
+        ],
+        "options": {
+          "choose_order": "tlc",
+          "comparisons": "tlc",
+          "deadlock_flag": false,
+          "explore_order": "tlc",
+          "fingerprint": {
+            "polynomial_index": 0,
+            "polynomial_source": "flag",
+            "scheme": "tlc"
+          },
+          "int": "tlc",
+          "lasso": "short",
+          "lncheck": "final",
+          "profile": "tlc+overrides",
+          "seed": 0,
+          "seed_source": "flag",
+          "store": "fingerprint",
+          "temporal_bounds": {
+            "acceptance_cells": 8000000,
+            "atom_cells": 8000000,
+            "edges": 8000000,
+            "formula_nodes": 4096,
+            "formula_steps": 1000000,
+            "generated": 32000000,
+            "kind": "entry-counts",
+            "product_edges": 8000000,
+            "product_steps": 32000000,
+            "product_vertices": 1000000,
+            "properties": 256,
+            "states": 1000000,
+            "tableau_nodes": 4096
+          },
+          "tlc_exact_temporal": false,
+          "warnings": true,
+          "workers": {
+            "chaos": null,
+            "reason": "behavior graph capture currently uses the inline engine",
+            "requested": 1,
+            "sequential": true,
+            "used": 1
+          }
+        },
+        "output": [],
+        "properties": [
+          "ErrorTemporal"
+        ],
+        "property": "ErrorTemporal",
+        "schema_version": 2,
+        "statistics": {
+          "depth": 2,
+          "distinct": 216,
+          "generated": 696,
+          "initial_generated": 72,
+          "left_on_queue": 0,
+          "reported_by_tlc": false
+        },
+        "tlc": null,
+        "verdict": "liveness-violation",
+        "warnings": []
+      }
+    },
+    {
+      "corpus": "examples",
+      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "workers": 4,
+      "outcome": "matches-truth-and-counts",
+      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "golden_verdict": "liveness-violation",
+      "command": [
+        "/Users/jeff/code/dive-perf-work/target/release/dive",
+        "check",
+        "--output",
+        "json",
+        "--config",
+        "$CWD/MCRealTimeHourClock.cfg",
+        "--workers",
+        "4",
+        "--seed",
+        "0",
+        "--fp",
+        "0",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+        "--module-path",
+        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+        "--module-path",
+        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "MCRealTimeHourClock.tla"
+      ],
+      "exit_code": 13,
+      "elapsed_ms": 33,
+      "document": {
+        "collision": {
+          "actual": null,
+          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+          "optimistic": "5.6E-15",
+          "scheme": "tlc",
+          "store": "fingerprint"
+        },
+        "command": "check",
+        "config": "$CWD/MCRealTimeHourClock.cfg",
+        "counterexample": {
+          "back_to": 2,
+          "ending": "lasso",
+          "length": 2,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": null,
+              "values": {
+                "hr": 1,
+                "now": 1,
+                "t": 0
+              }
+            },
+            {
+              "action": null,
+              "index": 2,
+              "label": null,
+              "values": {
+                "hr": 1,
+                "now": 4,
+                "t": 3
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "back_to": 1,
+              "kind": "lasso"
+            },
+            "format": "dive-trace",
+            "length": 2,
+            "properties": [
+              "ErrorTemporal"
+            ],
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "hr": 1,
+                  "now": 1,
+                  "t": 0
+                }
+              },
+              {
+                "action": null,
+                "values": {
+                  "hr": 1,
+                  "now": 4,
+                  "t": 3
+                }
+              }
+            ],
+            "variables": [
+              "hr",
+              "now",
+              "t"
+            ],
+            "version": 1
+          },
+          "validation": "valid"
+        },
         "diagnostics": [],
         "elapsed_ms": 3,
         "error_site": null,
-        "file": "Prisoner.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 8,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 2,
-          "distinct": 4,
-          "generated": 6,
-          "initial_generated": 2,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
-      "workers": 1,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/LiveHourClock.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "LiveHourClock.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 30,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "7.8E-18",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/LiveHourClock.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 4,
-        "error_site": null,
-        "file": "LiveHourClock.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 1,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 1,
-          "distinct": 12,
-          "generated": 24,
-          "initial_generated": 12,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
-      "workers": 4,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/LiveHourClock.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "LiveHourClock.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 49,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "7.8E-18",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/LiveHourClock.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 9,
-        "error_site": null,
-        "file": "LiveHourClock.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 4,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 1,
-          "distinct": 12,
-          "generated": 24,
-          "initial_generated": 12,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
-      "workers": 8,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "success",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/LiveHourClock.cfg",
-        "--workers",
-        "8",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "LiveHourClock.tla"
-      ],
-      "exit_code": 0,
-      "elapsed_ms": 59,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "7.8E-18",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/LiveHourClock.cfg",
-        "counterexample": null,
-        "diagnostics": [],
-        "elapsed_ms": 5,
-        "error_site": null,
-        "file": "LiveHourClock.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 8,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "property": null,
-        "schema_version": 2,
-        "statistics": {
-          "depth": 1,
-          "distinct": 12,
-          "generated": 24,
-          "initial_generated": 12,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "success",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
-      "workers": 1,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "liveness-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MCRealTimeHourClock.cfg",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MCRealTimeHourClock.tla"
-      ],
-      "exit_code": 13,
-      "elapsed_ms": 39,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "5.6E-15",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/MCRealTimeHourClock.cfg",
-        "counterexample": {
-          "back_to": 2,
-          "ending": "lasso",
-          "length": 2,
-          "states": [
-            {
-              "action": null,
-              "index": 1,
-              "label": null,
-              "values": {
-                "hr": 1,
-                "now": 1,
-                "t": 0
-              }
-            },
-            {
-              "action": null,
-              "index": 2,
-              "label": null,
-              "values": {
-                "hr": 1,
-                "now": 4,
-                "t": 3
-              }
-            }
-          ],
-          "trace": {
-            "ending": {
-              "back_to": 1,
-              "kind": "lasso"
-            },
-            "format": "dive-trace",
-            "length": 2,
-            "properties": [
-              "ErrorTemporal"
-            ],
-            "states": [
-              {
-                "action": null,
-                "values": {
-                  "hr": 1,
-                  "now": 1,
-                  "t": 0
-                }
-              },
-              {
-                "action": null,
-                "values": {
-                  "hr": 1,
-                  "now": 4,
-                  "t": 3
-                }
-              }
-            ],
-            "variables": [
-              "hr",
-              "now",
-              "t"
-            ],
-            "version": 1
-          },
-          "validation": "valid"
-        },
-        "diagnostics": [],
-        "elapsed_ms": 19,
-        "error_site": null,
-        "file": "MCRealTimeHourClock.tla",
-        "message": null,
-        "notes": [
-          "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned."
-        ],
-        "options": {
-          "choose_order": "tlc",
-          "comparisons": "tlc",
-          "deadlock_flag": false,
-          "explore_order": "tlc",
-          "fingerprint": {
-            "polynomial_index": 0,
-            "polynomial_source": "flag",
-            "scheme": "tlc"
-          },
-          "int": "tlc",
-          "lasso": "short",
-          "lncheck": "final",
-          "profile": "tlc+overrides",
-          "seed": 0,
-          "seed_source": "flag",
-          "store": "fingerprint",
-          "temporal_bounds": {
-            "acceptance_cells": 8000000,
-            "atom_cells": 8000000,
-            "edges": 8000000,
-            "formula_nodes": 4096,
-            "formula_steps": 1000000,
-            "generated": 32000000,
-            "kind": "entry-counts",
-            "product_edges": 8000000,
-            "product_steps": 32000000,
-            "product_vertices": 1000000,
-            "properties": 256,
-            "states": 1000000,
-            "tableau_nodes": 4096
-          },
-          "tlc_exact_temporal": false,
-          "warnings": true,
-          "workers": {
-            "chaos": null,
-            "reason": "behavior graph capture currently uses the inline engine",
-            "requested": 1,
-            "sequential": true,
-            "used": 1
-          }
-        },
-        "output": [],
-        "properties": [
-          "ErrorTemporal"
-        ],
-        "property": "ErrorTemporal",
-        "schema_version": 2,
-        "statistics": {
-          "depth": 2,
-          "distinct": 216,
-          "generated": 696,
-          "initial_generated": 72,
-          "left_on_queue": 0,
-          "reported_by_tlc": false
-        },
-        "tlc": null,
-        "verdict": "liveness-violation",
-        "warnings": []
-      }
-    },
-    {
-      "corpus": "examples",
-      "corpus_pin": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
-      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
-      "workers": 4,
-      "outcome": "matches-truth-and-counts",
-      "detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
-      "golden_verdict": "liveness-violation",
-      "command": [
-        "/Users/jeff/code/dive-perf-work/target/release/dive",
-        "check",
-        "--output",
-        "json",
-        "--config",
-        "$CWD/MCRealTimeHourClock.cfg",
-        "--workers",
-        "4",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
-        "--module-path",
-        "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
-        "--module-path",
-        "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
-        "--lncheck",
-        "final",
-        "--lasso",
-        "short",
-        "MCRealTimeHourClock.tla"
-      ],
-      "exit_code": 13,
-      "elapsed_ms": 43,
-      "document": {
-        "collision": {
-          "actual": null,
-          "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
-          "optimistic": "5.6E-15",
-          "scheme": "tlc",
-          "store": "fingerprint"
-        },
-        "command": "check",
-        "config": "$CWD/MCRealTimeHourClock.cfg",
-        "counterexample": {
-          "back_to": 2,
-          "ending": "lasso",
-          "length": 2,
-          "states": [
-            {
-              "action": null,
-              "index": 1,
-              "label": null,
-              "values": {
-                "hr": 1,
-                "now": 1,
-                "t": 0
-              }
-            },
-            {
-              "action": null,
-              "index": 2,
-              "label": null,
-              "values": {
-                "hr": 1,
-                "now": 4,
-                "t": 3
-              }
-            }
-          ],
-          "trace": {
-            "ending": {
-              "back_to": 1,
-              "kind": "lasso"
-            },
-            "format": "dive-trace",
-            "length": 2,
-            "properties": [
-              "ErrorTemporal"
-            ],
-            "states": [
-              {
-                "action": null,
-                "values": {
-                  "hr": 1,
-                  "now": 1,
-                  "t": 0
-                }
-              },
-              {
-                "action": null,
-                "values": {
-                  "hr": 1,
-                  "now": 4,
-                  "t": 3
-                }
-              }
-            ],
-            "variables": [
-              "hr",
-              "now",
-              "t"
-            ],
-            "version": 1
-          },
-          "validation": "valid"
-        },
-        "diagnostics": [],
-        "elapsed_ms": 2,
-        "error_site": null,
         "file": "MCRealTimeHourClock.tla",
         "message": null,
         "notes": [
@@ -5383,7 +5398,7 @@
         "MCRealTimeHourClock.tla"
       ],
       "exit_code": 13,
-      "elapsed_ms": 46,
+      "elapsed_ms": 32,
       "document": {
         "collision": {
           "actual": null,
@@ -5458,7 +5473,7 @@
           "validation": "valid"
         },
         "diagnostics": [],
-        "elapsed_ms": 4,
+        "elapsed_ms": 3,
         "error_site": null,
         "file": "MCRealTimeHourClock.tla",
         "message": null,
@@ -5562,7 +5577,7 @@
         "MCChangRoberts.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 342,
+      "elapsed_ms": 257,
       "document": {
         "collision": {
           "actual": null,
@@ -5575,7 +5590,7 @@
         "config": "$CWD/MCChangRoberts.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 290,
+        "elapsed_ms": 225,
         "error_site": null,
         "file": "MCChangRoberts.tla",
         "message": null,
@@ -5676,7 +5691,7 @@
         "MCChangRoberts.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 386,
+      "elapsed_ms": 242,
       "document": {
         "collision": {
           "actual": null,
@@ -5689,7 +5704,7 @@
         "config": "$CWD/MCChangRoberts.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 318,
+        "elapsed_ms": 229,
         "error_site": null,
         "file": "MCChangRoberts.tla",
         "message": null,
@@ -5790,7 +5805,7 @@
         "MCChangRoberts.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 409,
+      "elapsed_ms": 303,
       "document": {
         "collision": {
           "actual": null,
@@ -5803,7 +5818,7 @@
         "config": "$CWD/MCChangRoberts.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 368,
+        "elapsed_ms": 274,
         "error_site": null,
         "file": "MCChangRoberts.tla",
         "message": null,
@@ -5904,7 +5919,7 @@
         "SyncTerminationDetection.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 101,
+      "elapsed_ms": 60,
       "document": {
         "collision": {
           "actual": null,
@@ -5917,7 +5932,7 @@
         "config": "$CWD/SyncTerminationDetection.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 70,
+        "elapsed_ms": 52,
         "error_site": null,
         "file": "SyncTerminationDetection.tla",
         "message": null,
@@ -6018,7 +6033,7 @@
         "SyncTerminationDetection.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 95,
+      "elapsed_ms": 60,
       "document": {
         "collision": {
           "actual": null,
@@ -6031,7 +6046,7 @@
         "config": "$CWD/SyncTerminationDetection.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 73,
+        "elapsed_ms": 54,
         "error_site": null,
         "file": "SyncTerminationDetection.tla",
         "message": null,
@@ -6132,7 +6147,7 @@
         "SyncTerminationDetection.tla"
       ],
       "exit_code": 0,
-      "elapsed_ms": 117,
+      "elapsed_ms": 61,
       "document": {
         "collision": {
           "actual": null,
@@ -6145,7 +6160,7 @@
         "config": "$CWD/SyncTerminationDetection.cfg",
         "counterexample": null,
         "diagnostics": [],
-        "elapsed_ms": 70,
+        "elapsed_ms": 51,
         "error_site": null,
         "file": "SyncTerminationDetection.tla",
         "message": null,
@@ -6212,7 +6227,7 @@
     }
   ],
   "totals": {
-    "matches-truth-and-counts": 39,
-    "unsupported": 6
+    "matches-truth-and-counts": 42,
+    "unsupported": 3
   }
 }

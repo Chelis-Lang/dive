@@ -5,9 +5,9 @@
 //! loop closure. These APIs do not enumerate states or evaluate predicates.
 
 use crate::Graph;
-use crate::formula::{AtomKind, Tableau};
+use crate::formula::{AtomKind, Recurrence, Tableau};
 use crate::search::{Acceptance, Lasso, SearchError, Step, find_lasso};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Truth values of all supplied atomic predicates.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -22,11 +22,11 @@ pub struct Labels {
 /// Resource bounds for explicit product construction.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limits {
-    /// Maximum behavior-vertex/tableau-node pairs, including unreachable pairs.
+    /// Maximum reachable behavior-vertex/tableau-node pairs.
     pub vertices: usize,
     /// Maximum retained product edges.
     pub edges: usize,
-    /// Maximum boolean cells for product promise and recurrent-edge labels.
+    /// Maximum boolean cells for promises, recurrence and recurrent-edge labels.
     pub acceptance_cells: usize,
     /// Maximum pair, behavior-edge and candidate-transition inspections.
     pub steps: usize,
@@ -71,8 +71,179 @@ impl std::error::Error for ProductError {}
 pub struct Product {
     graph: Graph,
     acceptance: Acceptance,
-    width: usize,
+    behavior_states: Vec<usize>,
     original_edges: Vec<Vec<usize>>,
+}
+
+struct Builder<'a> {
+    graph: &'a Graph,
+    tableau: &'a Tableau,
+    labels: &'a Labels,
+    conditions: &'a [Recurrence],
+    limits: Limits,
+    pairs: Vec<(usize, usize)>,
+    ids: BTreeMap<(usize, usize), usize>,
+    edges: Vec<Vec<usize>>,
+    original_edges: Vec<Vec<usize>>,
+    edge_count: usize,
+    steps: usize,
+}
+
+impl Builder<'_> {
+    fn inspect(&mut self) -> Result<(), ProductError> {
+        self.steps = self
+            .steps
+            .checked_add(1)
+            .filter(|s| *s <= self.limits.steps)
+            .ok_or(ProductError::Limit("transition steps"))?;
+        Ok(())
+    }
+
+    fn acceptance_cells(&self, size: usize, edges: usize) -> Result<(), ProductError> {
+        size.checked_mul(self.tableau.promise_count)
+            .and_then(|n| {
+                edges
+                    .checked_mul(self.conditions.len().checked_add(1)?)
+                    .and_then(|e| n.checked_add(e))
+            })
+            .filter(|n| *n <= self.limits.acceptance_cells)
+            .ok_or(ProductError::Limit("acceptance cells"))?;
+        Ok(())
+    }
+
+    fn fits_state(&self, v: usize, n: usize) -> bool {
+        self.tableau.nodes[n].literals.iter().all(|lit| {
+            lit.atom.kind != AtomKind::State
+                || self.labels.states[lit.atom.index][v] == lit.positive
+        })
+    }
+
+    fn visit(&mut self, v: usize, n: usize) -> Result<usize, ProductError> {
+        if let Some(&id) = self.ids.get(&(v, n)) {
+            return Ok(id);
+        }
+        let id = self.pairs.len();
+        let size = id
+            .checked_add(1)
+            .filter(|n| *n <= self.limits.vertices)
+            .ok_or(ProductError::Limit("vertices"))?;
+        self.acceptance_cells(size, self.edge_count)?;
+        self.ids.insert((v, n), id);
+        self.pairs.push((v, n));
+        self.edges.push(Vec::new());
+        self.original_edges.push(Vec::new());
+        Ok(id)
+    }
+
+    fn expand(&mut self, id: usize) -> Result<(), ProductError> {
+        self.inspect()?;
+        let (v, n) = self.pairs[id];
+        for e in 0..self.graph.edges[v].len() {
+            self.inspect()?;
+            let target = self.graph.edges[v][e];
+            // Current action literals constrain this outgoing edge, including
+            // loop closure. A destination's action literals constrain its own
+            // outgoing edges when that pair is expanded.
+            if !self.tableau.nodes[n].literals.iter().all(|lit| {
+                lit.atom.kind != AtomKind::Action
+                    || self.labels.actions[lit.atom.index][v][e] == lit.positive
+            }) {
+                continue;
+            }
+            for j in 0..self.tableau.nodes[n].successors.len() {
+                self.inspect()?;
+                let next = self.tableau.nodes[n].successors[j];
+                if !self.fits_state(target, next) {
+                    continue;
+                }
+                self.edge_count = self
+                    .edge_count
+                    .checked_add(1)
+                    .filter(|n| *n <= self.limits.edges)
+                    .ok_or(ProductError::Limit("edges"))?;
+                self.acceptance_cells(self.pairs.len(), self.edge_count)?;
+                let destination = self.visit(target, next)?;
+                self.edges[id].push(destination);
+                self.original_edges[id].push(e);
+            }
+        }
+        Ok(())
+    }
+
+    fn finish(self, roots: BTreeSet<usize>) -> Result<Product, ProductError> {
+        // Discovery order must never choose the witness. Renumber retained
+        // pairs in the original Cartesian (behavior, tableau) order. Removing
+        // unreachable ids preserves every reachable tie-break and edge order.
+        let ordered: Vec<usize> = self.ids.into_values().collect();
+        let mut renumber = vec![0; self.pairs.len()];
+        for (new, &old) in ordered.iter().enumerate() {
+            renumber[old] = new;
+        }
+        let mut edges = self.edges;
+        let mut original = self.original_edges;
+        let edges: Vec<Vec<usize>> = ordered
+            .iter()
+            .map(|&old| {
+                let mut row = std::mem::take(&mut edges[old]);
+                for target in &mut row {
+                    *target = renumber[*target];
+                }
+                row
+            })
+            .collect();
+        let original_edges: Vec<Vec<usize>> = ordered
+            .iter()
+            .map(|&old| std::mem::take(&mut original[old]))
+            .collect();
+        let states = (0..self.tableau.promise_count)
+            .map(|p| {
+                ordered
+                    .iter()
+                    .map(|&old| self.tableau.nodes[self.pairs[old].1].fulfilled[p])
+                    .collect()
+            })
+            .collect();
+        let recurrent = edges.iter().map(|row| vec![true; row.len()]).collect();
+        let actions = self
+            .conditions
+            .iter()
+            .map(|condition| {
+                ordered
+                    .iter()
+                    .enumerate()
+                    .map(|(id, &old)| {
+                        let v = self.pairs[old].0;
+                        original_edges[id]
+                            .iter()
+                            .map(|&e| {
+                                condition.evaluate(|atom| match atom.kind {
+                                    AtomKind::State => self.labels.states[atom.index][v],
+                                    AtomKind::Action => self.labels.actions[atom.index][v][e],
+                                })
+                            })
+                            .collect()
+                    })
+                    .collect()
+            })
+            .collect();
+        let roots = roots
+            .into_iter()
+            .map(|old| renumber[old])
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let graph = Graph::new(edges, roots).map_err(|e| ProductError::Shape(e.to_string()))?;
+        Ok(Product {
+            graph,
+            acceptance: Acceptance {
+                recurrent,
+                states,
+                actions,
+            },
+            behavior_states: ordered.iter().map(|&old| self.pairs[old].0).collect(),
+            original_edges,
+        })
+    }
 }
 
 fn validate(graph: &Graph, tableau: &Tableau, labels: &Labels) -> Result<(), ProductError> {
@@ -130,101 +301,64 @@ impl Product {
         labels: &Labels,
         limits: Limits,
     ) -> Result<Self, ProductError> {
+        Self::with_recurrences(graph, tableau, labels, &[], limits)
+    }
+
+    /// Constructs the reachable product with additional infinitely-recurring
+    /// boolean conditions extracted by [`crate::formula::Formula::factor_recurrences`].
+    /// Conditions constrain the recurrent walk, including closing edges; they
+    /// never filter a finite prefix. Each condition contributes one acceptance
+    /// cell per retained edge, subject to the same explicit resource budget.
+    ///
+    /// # Errors
+    /// Malformed inputs/condition atom references or explicit resource limits.
+    pub fn with_recurrences(
+        graph: &Graph,
+        tableau: &Tableau,
+        labels: &Labels,
+        conditions: &[Recurrence],
+        limits: Limits,
+    ) -> Result<Self, ProductError> {
         validate(graph, tableau, labels)?;
-        let width = tableau.nodes.len();
-        let size = graph
-            .edges
-            .len()
-            .checked_mul(width)
-            .filter(|n| *n <= limits.vertices)
-            .ok_or(ProductError::Limit("vertices"))?;
-        let promise_cells = size
-            .checked_mul(tableau.promise_count)
-            .filter(|n| *n <= limits.acceptance_cells)
-            .ok_or(ProductError::Limit("acceptance cells"))?;
-        let fits_state = |v: usize, n: usize| {
-            tableau.nodes[n].literals.iter().all(|lit| {
-                lit.atom.kind != AtomKind::State || labels.states[lit.atom.index][v] == lit.positive
-            })
-        };
-        let mut edges = vec![Vec::new(); size];
-        let mut original_edges = vec![Vec::new(); size];
-        let mut edge_count = 0_usize;
-        let mut steps = 0_usize;
-        let mut inspect = || {
-            steps = steps
-                .checked_add(1)
-                .filter(|s| *s <= limits.steps)
-                .ok_or(ProductError::Limit("transition steps"))?;
-            Ok::<(), ProductError>(())
-        };
-        for (v, targets) in graph.edges.iter().enumerate() {
-            for (n, node) in tableau.nodes.iter().enumerate() {
-                inspect()?;
-                if !fits_state(v, n) {
-                    continue;
-                }
-                let id = v * width + n;
-                for (e, &target) in targets.iter().enumerate() {
-                    inspect()?;
-                    // Action literals belong to the CURRENT tableau node,
-                    // and depend on this particular outgoing behavior edge.
-                    if !node.literals.iter().all(|lit| {
-                        lit.atom.kind != AtomKind::Action
-                            || labels.actions[lit.atom.index][v][e] == lit.positive
-                    }) {
-                        continue;
-                    }
-                    for &next in &node.successors {
-                        inspect()?;
-                        if !fits_state(target, next) {
-                            continue;
-                        }
-                        edge_count = edge_count
-                            .checked_add(1)
-                            .filter(|s| *s <= limits.edges)
-                            .ok_or(ProductError::Limit("edges"))?;
-                        if promise_cells
-                            .checked_add(edge_count)
-                            .is_none_or(|n| n > limits.acceptance_cells)
-                        {
-                            return Err(ProductError::Limit("acceptance cells"));
-                        }
-                        edges[id].push(target * width + next);
-                        original_edges[id].push(e);
-                    }
-                }
+        for atom in conditions.iter().flat_map(Recurrence::atoms) {
+            let count = match atom.kind {
+                AtomKind::State => labels.states.len(),
+                AtomKind::Action => labels.actions.len(),
+            };
+            if atom.index >= count {
+                return Err(ProductError::Shape(
+                    "recurrence predicate outside label table".into(),
+                ));
             }
         }
+        let mut builder = Builder {
+            graph,
+            tableau,
+            labels,
+            conditions,
+            limits,
+            pairs: Vec::new(),
+            ids: BTreeMap::new(),
+            edges: Vec::new(),
+            original_edges: Vec::new(),
+            edge_count: 0,
+            steps: 0,
+        };
         let mut roots = BTreeSet::new();
         for &v in &graph.roots {
             for &n in &tableau.roots {
-                inspect()?;
-                if fits_state(v, n) {
-                    roots.insert(v * width + n);
+                builder.inspect()?;
+                if builder.fits_state(v, n) {
+                    roots.insert(builder.visit(v, n)?);
                 }
             }
         }
-        let roots = roots.into_iter().collect();
-        let recurrent = edges.iter().map(|r| vec![true; r.len()]).collect();
-        let states = (0..tableau.promise_count)
-            .map(|p| {
-                (0..size)
-                    .map(|v| tableau.nodes[v % width].fulfilled[p])
-                    .collect()
-            })
-            .collect();
-        let graph = Graph::new(edges, roots).map_err(|e| ProductError::Shape(e.to_string()))?;
-        Ok(Self {
-            graph,
-            acceptance: Acceptance {
-                recurrent,
-                states,
-                actions: vec![],
-            },
-            width,
-            original_edges,
-        })
+        let mut cursor = 0;
+        while cursor < builder.pairs.len() {
+            builder.expand(cursor)?;
+            cursor += 1;
+        }
+        builder.finish(roots)
     }
 
     /// Finds an accepting behavior and projects its edge positions back to
@@ -245,15 +379,15 @@ impl Product {
             steps
                 .iter()
                 .map(|s| Step {
-                    from: s.from / self.width,
+                    from: self.behavior_states[s.from],
                     edge: self.original_edges[s.from][s.edge],
-                    to: s.to / self.width,
+                    to: self.behavior_states[s.to],
                 })
                 .collect()
         };
         Ok(Some(Lasso {
-            root: lasso.root / self.width,
-            entry: lasso.entry / self.width,
+            root: self.behavior_states[lasso.root],
+            entry: self.behavior_states[lasso.entry],
             prefix: project(&lasso.prefix),
             cycle: project(&lasso.cycle),
         }))
