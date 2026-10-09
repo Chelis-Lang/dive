@@ -179,12 +179,12 @@ Measured on the pinned TLC:
 
 ---
 
-## D-005: Symmetry with liveness checking is refused
+## D-005: Symmetry with liveness uses the full state space
 
 | | |
 |---|---|
 | **Kind** | Different answer |
-| **Default** | Refuse the combination, with an explicit diagnostic |
+| **Intended default** | Unreduced checking; disable symmetry for the whole liveness run |
 | **TLC behaviour** | `--symmetry-liveness=tlc` (included in `--compat=tlc`): warn and proceed |
 | **Status** | planned (with `dive-liveness`) |
 
@@ -202,13 +202,15 @@ Measured on the pinned TLC, it goes wrong in both directions:
 
 - **A false violation.** A token alternates between two interchangeable processes under weak fairness, and the property "every process holds the token infinitely often", `\A p \in S : []<>(tok = p)`, is true. The spec and the property are both symmetric. With `SYMMETRY`, TLC reports `Temporal property Fair was violated`, with a counterexample of one state followed by "Stuttering". The fairness condition forbids that behaviour.
 
-**What dive does.** By default dive refuses to give a verdict for this combination. It explains why, and suggests how to proceed: drop the symmetry for the liveness run, or opt into TLC's behaviour knowingly. "No error found" should never be an answer that the tool itself suspects may be wrong.
+**What dive will do.** The approved default checks the whole unreduced state space and reports that symmetry was disabled. An explicit `refuse` mode remains available. These modes are not implemented yet; current runs still refuse temporal properties and symmetry by name.
 
 Under `--symmetry-liveness=tlc` dive reproduces TLC's answers, both wrong ones included. A counterexample that comes from TLC's symmetry reduction and is not a real behaviour of the spec is labelled as such.
 
 **Evidence.** ADR 0010 (owner decision of 2026-10-08); ADR 0019 §4; probes `SymLiveMissed`, `SymLiveMissedNone`, `SymLiveSymProp` and `SymLiveWarn` in `crates/dive-liveness/tests/fixtures/tlc-probes/`; survey probe P4 (another checker raised a false liveness alarm under symmetry).
 
 ---
+
+**Owner update, 2026-10-09.** The intended default is now `--symmetry-liveness=unreduced`: ignore `SYMMETRY` for the entire liveness run, including its safety checks, and report the unreduced counts. This replaces the earlier approved refusal default. `=refuse` remains available. `--compat=tlc` selects `=tlc`, including TLC's missed and false violations in the probes. Today these modes are planned; symmetry and temporal properties remain explicit refusals. Compare the sound mode against TLC run without symmetry, rather than excusing arbitrary verdict differences.
 
 ## D-006: `CHOOSE` does not depend on unrelated text in the module
 
@@ -442,6 +444,34 @@ valid: the 7-state trace validates
 **Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Liveness counterexamples and error traces are checked step by step, but their final claim is refused for now. See *Where dive is currently more limited than TLC*.
 
 **Evidence.** ADR 0016 and its amendment 1. `dive-conformance trace-controls` runs TLC's own counterexamples through the validator: 12 of TLC's 15 safety counterexamples in the Examples goldens validate, and 3 are refused by name (two on evaluator operators not implemented yet, one whose `ALIAS` hides the variables). Every deliberately broken copy of them (a state dropped, two states swapped, a value changed, the trace cut short, the wrong invariant claimed) is rejected.
+
+---
+
+## D-013: A deterministic short liveness counterexample
+
+**Status:** planned, owner-approved default. `--lasso=short` chooses a shortest prefix and a deterministic short cycle. It does not promise the globally shortest lasso. `--lasso=tlc`, included in `--compat=tlc`, reproduces TLC's selection.
+
+**Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
+
+## D-014: Periodic liveness checking has a replayable schedule
+
+**Status:** planned, owner-approved default. `--lncheck=deterministic` checks at the documented level boundaries in ADR 0018. `--compat=tlc` retains TLC's wall-clock scheduling for `--lncheck=default`; `--lncheck=final` checks the complete graph and remains the golden setting.
+
+**Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
+
+## D-015: Symmetry functions must actually be permutations
+
+**Status:** planned, owner-approved rejection in the default profile. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The default profile will name and reject the offending function. `--compat=tlc` retains TLC's acceptance. Evidence: ADR 0019 §1 and its pinned-oracle non-bijective probe; the numerical state-space comparison is to be recorded when this option is implemented.
+
+## D-016: The declared symmetry can be audited
+
+**Status:** planned, opt-in. The `SymAsym` and `SymAsymLate` probes declare symmetry that the transition relation does not respect. TLC trusts the declaration, so the reduced search can hide behaviors. `--check-symmetry` will check initial states, successors, invariants, constraints and VIEW under the declared generators and report the first counterexample to the declaration. Ordinary runs, including `--compat=tlc`, omit this expensive audit. Evidence: ADR 0019 §6 and the probe transcripts; implementation measurements are pending.
+
+## D-017: Host access requires explicit grants
+
+**Status:** planned; host-access operators currently refuse by name. `IOEnv`, `IOExec`, `CSVWrite` and serialization operators can read the host or execute effects while a spec runs. For example, Examples `TLC/TestGraphs` reads `IOEnv` at startup and `ewd998/EWD998ChanTrace` reads it in its next-state relation. These dependencies cannot be replayed from the random seed alone.
+
+The approved interface is `--allow-io=env,files,exec`, with no categories granted by default. Environment and file access come first; process execution stays deferred. Even `--compat=tlc` requires explicit grants and reports restricted compatibility when relevant operators are refused. Granted access and external inputs are recorded in the run. Evidence: the current named refusals and the 22 host-access assumptions in CommunityModules `AllTests`; no granted-access measurements exist yet.
 
 ---
 
