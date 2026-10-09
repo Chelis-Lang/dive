@@ -728,7 +728,7 @@ impl Gen<'_, '_> {
     /// `getNextStates(action, pred, acts, c, ...)` / `getInitStates(init,
     /// acts, c, ...)`.
     fn step(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
-        let core = self.core.clone();
+        let core = self.core;
         let _g = core.enter(e)?;
         let node = core.ir.node(e);
         match &node.expr {
@@ -921,7 +921,7 @@ impl Gen<'_, '_> {
         acts: &Acts,
         env: &Env,
     ) -> Result<Flow> {
-        let core = self.core.clone();
+        let core = self.core;
         let var = if self.init {
             core.var_of(env, lhs, false)?
         } else {
@@ -1028,7 +1028,7 @@ impl Gen<'_, '_> {
 
     /// `processUnchanged` (`Tool.java:1557-1661`).
     fn unchanged(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
-        let core = self.core.clone();
+        let core = self.core;
         let _g = core.enter(e)?;
         if let Some(var) = core.var_of(env, e, false)? {
             let Some(val0) = self.s0.get(var).cloned() else {
@@ -1101,7 +1101,7 @@ impl Gen<'_, '_> {
         acts: &Acts,
         env: &Env,
     ) -> Result<Flow> {
-        let core = self.core.clone();
+        let core = self.core;
         let st = if self.init {
             self.st()
         } else {
@@ -1148,7 +1148,7 @@ impl Gen<'_, '_> {
     /// constant or a Java override, looked up and followed or evaluated
     /// (`Tool.java:1112-1158` and `getNextStatesApplUsrDefOp`).
     fn user_op(&mut self, e: ExprId, acts: &Acts, env: &Env) -> Result<Flow> {
-        let core = self.core.clone();
+        let core = self.core;
         let st = self.st();
         match core.op_target(env, &st, e)? {
             OpTarget::Body(env1, body) => self.step(body, acts, &env1),
@@ -1680,7 +1680,7 @@ impl Expander<'_> {
     }
 
     fn expand(&mut self, t: &ActionTree, env: &Env) -> std::result::Result<(), Split1> {
-        let core = self.core.clone();
+        let core = self.core;
         let st = St {
             s0: StateRef::Empty,
             s1: StateRef::Empty,
@@ -1802,7 +1802,7 @@ impl Expander<'_> {
         constant_args: bool,
         env: &Env,
     ) -> std::result::Result<(), Split1> {
-        let core = self.core.clone();
+        let core = self.core;
         let name = ActionName::Def(def);
         if !constant_args {
             self.push(expr, env, name);
@@ -1994,7 +1994,7 @@ impl Enab {
         env: &Env,
         s1: StateVals,
     ) -> Result<Option<StateVals>> {
-        let core = self.core.clone();
+        let core = &self.core;
         let _g = core.enter(e)?;
         match &core.ir.node(e).expr {
             Expr::Let { defs, body } => {
@@ -2228,7 +2228,7 @@ impl Enab {
         env: &Env,
         s1: StateVals,
     ) -> Result<Option<StateVals>> {
-        let core = self.core.clone();
+        let core = &self.core;
         let Some(var) = core.primed_var(env, lhs, true)? else {
             return match self.eval(env, &s1, e)? {
                 Ev::V(Value::Bool(true)) => self.cont(acts, s1),
@@ -2326,7 +2326,7 @@ impl Enab {
         env: &Env,
         s1: StateVals,
     ) -> Result<Option<StateVals>> {
-        let core = self.core.clone();
+        let core = &self.core;
         let _g = core.enter(e)?;
         if let Some(var) = core.var_of(env, e, true)? {
             let v0 = core.force_fcn(self.eval(env, &s1, e)?)?;
