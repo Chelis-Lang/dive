@@ -156,3 +156,10 @@ Finite CHOOSE predicate scopes extend the original conservative analysis in
 at `94d0c50` (MIT). Five `Cf*` probes, independent short-word algebra and
 captured-domain level controls supply evidence. No Java search/enumerator is
 used by the independent validator.
+
+Pure action-helper argument scopes (`dive-liveness::plan`, `dive-trace::temporal`)
+use the original conservative argument analysis and shared lazy-expression
+binding primitive, matching TLA+ value/action operator application and TLC
+`Tool.evalAppl` at `94d0c50` (MIT reference). Four `Aa*` probes and independent
+short-word algebra verify retained before/after context; the validator uses no
+checker successor enumerator.

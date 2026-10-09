@@ -2076,3 +2076,141 @@ PF == F(IF x THEN {TRUE} ELSE {})
         }
     }
 }
+
+#[test]
+fn pure_action_arguments_preserve_nested_caller_edges_on_every_closing_word() {
+    let (ir, cfg) = input(
+        r"---- MODULE ActionWords ----
+EXTENDS Naturals,Sequences
+VARIABLE x
+Init == x=0
+Next == x'=1-x
+Less(a,b) == a<b
+Relay(a,b) == Less(a,b)
+Saved(a,b) == LET Before == a IN Before<b
+Prefix(a,b) == Len(a)<Len(b) /\ SubSeq(b,1,Len(a))=a
+P == []<><<Less(x,x')>>_x
+Q == []<><<Relay(x,x')>>_x
+R == []<><<Saved(x,x')>>_x
+S == []<><<Prefix(IF x=0 THEN <<>> ELSE <<1>>,IF x'=0 THEN <<>> ELSE <<1>>)>>_x
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for n in 1..=4 {
+        for mask in 0_usize..(1 << n) {
+            let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|v| Arc::from([Some(i64::from(*v).into())]))
+                .collect();
+            for back in 0..n {
+                let truth = values[back..].iter().any(|v| *v) && values[back..].iter().any(|v| !*v);
+                for name in ["P", "Q", "R", "S"] {
+                    let d = ir.root_def(name).expect(name);
+                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
+                    let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let j = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[j].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect(name))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect(name),
+                        direct
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn action_argument_effects_and_temporal_helper_forwarding_remain_refusals() {
+    let (ir, cfg) = input(
+        r#"---- MODULE ActionRefused ----
+EXTENDS Naturals,TLC
+VARIABLE x
+Init == x=0
+Next == x'=1-x
+Less(a,b) == a<b
+Identity(a) == a
+Temporal(a) == []<><<a>>_x
+P == []<><<Less(x,Print(x',x'))>>_x
+Q == []<><<Less(x,TLCGet("level"))>>_x
+R == Identity([]<>(x=0))
+S == Temporal(x'=1)
+====
+"#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for name in ["P", "Q", "R", "S"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        assert!(
+            dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
+            "{name}"
+        );
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(0.into())])], 0)
+                .is_err(),
+            "{name}"
+        );
+        assert!(
+            model.take_output().is_empty(),
+            "{name}: no evaluation during preflight"
+        );
+    }
+}
+
+#[test]
+fn pinned_action_argument_models_match_final_truth_counts_and_validate() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-action-args");
+    for name in ["AaMath", "AaNested", "AaCaptured", "AaSequence"] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("spec");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("exit");
+        assert_eq!(exit.trim(), "13", "{name}");
+        let (ir, cfg) = input(&source, &config);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                let options = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &options, Limits::default()).expect(name);
+                let Outcome::Violation(v) = report.outcome() else {
+                    panic!("{name}: {report:?}");
+                };
+                assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                let c = &v.candidate().exploration;
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
