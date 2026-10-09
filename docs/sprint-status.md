@@ -71,12 +71,18 @@ Independent fairness and successor-existence checking
 remain outstanding. The independent truth-vector and graph APIs are
 foundations. The graph/tableau product preserves per-edge atom truth and
 projects accepting witnesses without discarding repeated obligations;
-behavior-graph capture and model coordination are still pending. Named pure concrete periodic counterexamples now validate
+a bounded final-only pure coordinator now captures real model graphs.
+Named pure concrete periodic counterexamples validate
 independently, including closing edges and the complete property set.
 Recurring non-stuttering action occurrences now certify WF/SF independently
 on a supplied cycle. Eight pinned counterexamples validate; fairness needing
 ENABLED and VIEW/symmetry closing evidence are still refused.
-These APIs do not yet produce model-checking liveness verdicts.
+A final-only pure library coordinator now uses bounded capture through the
+shared inline safety engine: four pinned models match TLC counts in both
+stores and yield independently valid candidates, while four WF models refuse
+before exploration. The ordinary `dive check` path still refuses temporal
+models. Full phase-L/parallel capture, fairness/ENABLED, complete property
+attribution and TLC-exact planning/selection remain pending.
 
 Approved defaults are recorded in ADRs and the differences log: explicit
 host-I/O grants, short deterministic lassos, unreduced symmetry/liveness,

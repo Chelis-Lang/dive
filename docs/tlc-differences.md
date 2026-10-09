@@ -445,7 +445,7 @@ valid: the 7-state trace validates
 
 **Random values.** A trace whose values come from `RandomElement` or the `Randomization` operators is checked against the run's seed: give `dive validate-trace` the `--seed` (and `--fp`) that `dive check` reported. The validator draws the same values while it evaluates `Init` and each step, so a changed value is rejected. Without the seed, it refuses by name.
 
-**Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Pure concrete liveness words now validate when the trace supplies the complete, nonempty `properties` list. The validator checks the closing edge, all behavior temporal conjuncts, and that exactly the claimed temporal properties are false. Fairness, `ENABLED`, effects, VIEW/symmetry closing evidence and unnamed legacy liveness words are still refused. Error traces are checked step by step, but re-raising their final error remains unsupported. Random values drawn outside `Init` and the next-state relation (in an invariant, say), under a `VIEW` or `SYMMETRY`, or in an order only the successor generator knows (one action's draws before another's, when the trace took the second) are refused by name too. See *Where dive is currently more limited than TLC*.
+**Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Pure concrete liveness words now validate when the trace supplies the complete, nonempty `properties` list. The validator checks the closing edge, all behavior temporal conjuncts, and that exactly the claimed temporal properties are false. Fairness not certified by recurring action occurrences, `ENABLED`, effects, VIEW/symmetry closing evidence and unnamed legacy liveness words are still refused. Error traces are checked step by step, but re-raising their final error remains unsupported. Random values drawn outside `Init` and the next-state relation (in an invariant, say), under a `VIEW` or `SYMMETRY`, or in an order only the successor generator knows (one action's draws before another's, when the trace took the second) are refused by name too. See *Where dive is currently more limited than TLC*.
 
 **Periodic-word evidence.** Eight pinned liveness traces validate, including four with recurring fair actions. A non-stuttering occurrence on the repeated cycle proves both weak and strong fairness; occurrences only in the prefix, stutters and empty subscripts do not. Without that certificate, fairness still refuses until enabledness is independently established. `LvStutterActionConstraint` demonstrates that TLC adds implicit stuttering even under `ACTION_CONSTRAINT x' # x`: the pinned oracle reports a one-state stuttering violation at `x = FALSE` (exit 13, 3 generated / 2 distinct / depth 2). dive permits that implicit stutter while checking constraints on generated transitions. Closing-edge and property-claim mutations are rejected (`crates/dive-trace/tests/lasso_claims.rs`; ADR 0018 §8). This validator does not yet enable liveness model checking.
 
@@ -456,6 +456,15 @@ valid: the 7-state trace validates
 ## D-013: A deterministic short liveness counterexample
 
 **Status:** planned, owner-approved default. `--lasso=short` chooses a shortest prefix and a deterministic short cycle. It does not promise the globally shortest lasso. `--lasso=tlc`, included in `--compat=tlc`, reproduces TLC's selection.
+
+**Library progress.** Bounded graph/tableau search now selects short candidates
+on supplied graphs. A final-only pure library coordinator captures through
+the existing safety engine: four pinned models match TLC's state counts in
+both stores and every candidate validates independently. Four specifications
+with weak fairness refuse before exploration. The capture currently runs
+inline and reports that width. Complete property attribution, exact TLC
+selection, parallel/periodic capture and CLI options remain pending; this does
+not turn on liveness verdicts in `dive check`.
 
 **Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
 
@@ -585,6 +594,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
+  - temporal checking still refuses at the CLI; the pure final library coordinator currently captures inline and does not provide TLC-exact selection or a complete attributed report;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;

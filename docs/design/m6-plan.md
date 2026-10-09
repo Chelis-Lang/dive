@@ -156,3 +156,12 @@ Measured by L10 and S4 against the pinned TLC, with the survey's method:
 ## Shipping amendment, 2026-10-09
 
 Questions 14–17 are answered in `docs/open-questions.md`. Implement S3 with `unreduced` as the default, preserving `refuse` and `tlc`. Extend L7 to build two distinct scheduling paths: deterministic level boundaries in the default profile and TLC's actual wall-clock trigger in compat mode. Under final checking, keep full golden comparison. Default unreduced runs are tested against oracle runs without symmetry; no blanket verdict exemption is permitted. Reject malformed permutations by default, and keep S5's model-symmetry audit opt-in. Update SM3's default acceptance cases to sound unreduced verdicts rather than refusals.
+
+
+The next L2/L3 increment adds bounded inline capture through the existing
+safety engine and a final-only pure library coordinator. Four pinned models
+match counts in both stores and produce independently valid candidates;
+four WF models refuse before exploration. Full phase-L/parallel graph capture,
+TLC planning/selection, fairness/ENABLED and complete property attribution are
+still required. `dive check` continues to refuse temporal models while this
+library foundation is integrated.
