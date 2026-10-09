@@ -51,7 +51,12 @@ How it works, in short: dive explores one breadth-first level at a time. Workers
 
 **Sequential mode.** A few specs observe TLC's evaluation order directly, so no parallel search can reproduce them: they write TLC registers (`TLCSet`), read live counters (`TLCGet("distinct")` and friends), draw random values (TLC draws from one stream per expanded state), perform I/O, or have side effects inside lazily evaluated sets or functions. dive detects these statically and checks them with one worker, in TLC's order. The output says so: the header reads `4 worker(s) requested, 1 used` followed by the reason, and the JSON `options.workers` block has `"sequential": true` and the reason. `--sequential` forces this mode for any spec; results never change.
 
-**Measured.** On the Examples small tier under `--compat=tlc`, every model gives byte-identical results at 1, 3, 4 and 8 workers and under chaos scheduling, and agrees with TLC's single-worker golden. Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
+**Measured.** On the Examples small tier (`--workers 1,3,4,8`):
+- **Default profile.** Every checked model gives the same results at every worker count.
+- **Byte-identical JSON.** For the 60 agreeing models that run in under a minute, the JSON report (timing and thread fields aside) is byte-identical at 1, 3, 4 and 8 workers and under chaos scheduling, in both profiles.
+- **`--compat=tlc`.** 70 models agree with TLC's single-worker golden at every worker count. The one exception is by design: `DieHard/MCDieHardest` asserts `TLCGet("config").worker = 1`. Under `--compat=tlc` dive reports the physical worker count as TLC does (D-011), so at `--workers 4` the assumption fails exactly as it does in TLC at `-workers 4`. In the default profile it reports 1 and the model agrees at every worker count.
+
+Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 
 **Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, `crates/dive-check/tests/invariance.rs` (every probe and a wide spec stopping with every kind of event, at 1–64 workers, under chaos, in both profiles and stores), and the harness worker-invariance reports in `docs/conformance.md`.
 

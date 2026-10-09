@@ -111,6 +111,9 @@ All notable changes to this project are documented here. The project will follow
     sequential mode.
   - JSON `options.workers` gains `sequential` and `chaos`; `used` is the number of
     threads the search ran on (0 when the run ended before the search).
+  - The required `Conformance gate` runs the CM1 list at 1, 4 and 8 workers
+    (`scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8`; 17 s
+    locally against 12 s at 1 and 4).
 - `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
   level engine run inline with one logical worker, over `dive-model`'s bound model:
   - initial states, invariants (on new and out-of-model states), implied initial

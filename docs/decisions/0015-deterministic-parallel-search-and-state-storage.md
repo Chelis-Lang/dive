@@ -426,3 +426,68 @@ average about 15), so treat these divan medians as indicative.
 | Encode, decode of that state (121 bytes) | 0.7 µs, 2.9 µs |
 
 Against ADR 0006's baselines for `CoffeeCan1000Beans`: at one worker TLC spends about 11 µs per generated state (22.2 s for 2,000,002), and at eight workers its peak RSS is about 2.6 KB per distinct state (1287 MB), against about 550 bytes for tla-mc (277 MB). The store's share in dive is about 29 bytes of fingerprint set and trace log per state, or 15 MB in all, and about 0.15 µs per generated successor at one thread.
+
+### Implementation and measurements (WP-D3)
+
+Implemented in `crates/dive-check/src/parallel.rs` (the level engine), `pool.rs` (the workers), `engine.rs` (initial states, the inline engine, replay) and `host.rs`, with `dive_eval::capture` for `Print`. Where the code differs from the text above, the code is as follows, and the order, the counts and the results are exactly §1–§3's.
+
+**Units and positions.** A level's work is a sequence of units: one per state, or, on a narrow level (fewer than two states per worker and more than one action), one per (state, action). A successor's position is `(i, a, j)`: its state's index, the unit's action (0 for a whole-state unit) and its ordinal within the unit. A narrow level's trace-log ordinals are fixed up from the per-action counts after phase 1. An event key adds the check phase (0 completeness and enumeration errors, 1 constraints, `VIEW` and fingerprinting, 2 invariants, 3 implied actions, 9 deadlock). The narrow-level deadlock check sums a state's per-action counts once phase 1 is done.
+
+**Phase 1.** Workers claim blocks of units (about 16 per worker, 1 to 256 units) through an atomic counter; each block's output goes into a slot indexed by block id. The seen-state set is behind an `RwLock`, read-locked by every worker for the phase and write-locked by the coordinator for phase 2. A successor's key is computed once, after the constraints; if the set does not contain it, it becomes a candidate whose payload is the state and its action. A block stops at its first event. The early cut is an `AtomicU64` holding the smallest unit with an event.
+
+**Phase 2** is `StateSet::resolve` over every worker's buffer, on one thread below 4,096 candidates and on every worker above.
+
+**Phase 3** checks the invariants of the winners (in position order) in chunks claimed like blocks, skipping winners at or after phase 1's first event. The winners in position order are the next frontier, so no per-block bitmap is needed.
+
+**Frontier.** The frontier is held as shared `StateVals` (reference-counted values), not encoded: encoding belongs with disk spill (D5) and is revisited with the benchmark round (§8).
+
+**Workers.** A pool of scoped threads lives for the whole search (each with `dive_eval::RECOMMENDED_STACK`), so a search with thousands of levels does not start thousands of threads. Each phase is a job every thread runs once; the coordinator runs it as worker 0 and waits for the rest, which is the barrier. A phase with a single block runs inline on the coordinator. A worker panic is caught and reported as an internal error.
+
+**`Print`.** While a worker evaluates, `Print`, `PrintT` and once-per-run warnings go into a thread-local capture. The engine tags each batch with the event key of the evaluation (enumeration output with the position of the successor that follows it), sorts the level's batches by key, keeps those at or before E\*, and releases them through the evaluator's sink. Once-per-run warnings are deduplicated at release, in that order, against the run's warning history.
+
+**Sequential mode** (`dive_model::Model::sequential`) is decided statically from the IR, over the checking path (the roles, what their scopes bind lazily, the assumptions and the configuration's bindings). It triggers on:
+- `TLCSet`;
+- `TLCGet` of a live counter or a register, or of a computed key;
+- the random operators (one stream per expanded state, shared by the next-state relation and the checks of its successors);
+- I/O and introspection operators;
+- side effects inside a set filter or a function that TLC evaluates lazily, or inside a cached lazy value bound with the model (`Evaluator::scope_shares_side_effects`, `action_shares_side_effects`). These run once, by whichever evaluation forces them first.
+
+`--sequential` forces the mode. The run reports `workers: { requested, used: 1, sequential: true, reason }`. `TLCGet("level")` does not force it. WP-C3's `RunHost` keeps one level for the run, so the evaluator's host (`EngineHost`) answers `TLCGet("level")` from a thread-local value while a parallel phase runs, and from `RunHost` otherwise. Randomness, registers, `TLCSet("exit")` and the counters stay with `RunHost`'s one logical worker, which only the inline engine drives.
+
+**Chaos mode** (`--chaos SEED` or `DIVE_CHAOS`, hidden, test-only) randomizes, per level:
+- block and chunk sizes;
+- the order in which blocks and chunks are claimed;
+- whether a level is split by action;
+- whether a phase runs inline;
+- the resolve's thread count and shard order.
+
+It also yields at random points.
+
+**Validation.**
+- `crates/dive-check/tests/invariance.rs`: every probe and harness fixture, and `fixtures/invariance/Wide.tla` (wide levels, a split action, `Print` with `TLCGet("level")` from the next-state relation, invariants, constraints and implied actions, stopping part-way through a level with each kind of event), give results identical to the inline engine. This holds at 1, 2, 3, 4, 8 and 64 workers and under 6 to 12 chaos seeds, in both profiles and both stores. `probes.rs` compares every probe with TLC's transcript at 1, 3 and 8 workers, and `tlc_module.rs` compares WP-C3's TLC-module fixtures at 1 and 4.
+- Harness, Examples small tier, `--workers 1,3,4,8`:
+  - Under `--compat=tlc`, 70 models agree at every worker count, with zero worker variance in counts and depth. One model, `MCDieHardest`, agrees at 1 worker and fails its `ASSUME TLCGet("config").worker = 1` at 3, 4 and 8, as TLC does at `-workers N` (D-011's compat setting). 69 are unsupported.
+  - In the default profile, 69 agree, including `MCDieHardest` at every worker count, and 69 are unsupported. Two disagree, both D-010's canonical-order stops (`MissionariesAndCannibals`, `ACP_NB_WRONG_TLC`), identically at every worker count. Worker variance is zero in verdict, counts, depth and property.
+- Byte-identical JSON: for the 60 agreeing models that take under a minute, `dive check --output json` is byte-identical, timing and the `options.workers` block removed, at 1, 3, 4 and 8 workers and under four chaos seeds (at 2, 3, 4 and 8 workers), in both profiles. That covers counterexamples with their lossless `trace` document, `Print` output and notes.
+
+**Scaling, indicative.** Measured 2026-10-09 on the shared Apple M3 (8 cores: 4 performance, 4 efficiency; 24 GB), with release builds, one repetition. The load average stayed between 20 and 44 throughout, from other agents' work. The pinned TLC ran 2.2× slower than in the survey's quiet session (`MCLamportMutex` at 1 worker: 28.1 s against 12.9 s), so these are **not performance data**. Both tools ran under `--compat=tlc` semantics (`-fp 0 -seed 0`), with the harness's classpath and module path. Every run's generated and distinct counts were identical across tools and worker counts. Each cell is wall time, then distinct states per second:
+
+| Model (distinct, depth) | dive 1 | dive 2 | dive 4 | dive 8 | TLC 1 | TLC 8 |
+|---|---|---|---|---|---|---|
+| `TeachingConcurrency/SimpleRegular` (277,726, 25) | 19.5 s, 14k/s | 13.3 s, 21k/s | 11.2 s, 25k/s | 10.5 s, 26k/s | 6.2 s, 45k/s | 3.3 s, 84k/s |
+| `Disruptor/MCDisruptor_MPMC` (112,929, 81) | 14.9 s, 8k/s | 9.2 s, 12k/s | 7.9 s, 14k/s | 6.1 s, 18k/s | 2.7 s, 42k/s | 1.3 s, 88k/s |
+| `lamport_mutex/MCLamportMutex` (724,274, 61) | 29.9 s, 24k/s | 52.6 s, 14k/s | 38.2 s, 19k/s | 41.6 s, 17k/s | 28.1 s, 26k/s | 11.1 s, 65k/s |
+| `btree/MCbtree` (374,727, 38) | 127.9 s, 3k/s | 104.1 s, 4k/s | 68.1 s, 6k/s | 58.5 s, 6k/s | 68.2 s, 5k/s | 15.5 s, 24k/s |
+
+What the numbers show:
+- **1 to 8 workers.** dive gains 1.9–2.4× on `SimpleRegular`, `MCDisruptor_MPMC` and `MCbtree`. TLC gains 1.9–4.4× on the same models.
+- **`MCLamportMutex` is load noise.** Its 1-worker time ranged from 29.9 s to 95.6 s across three runs in this session, because the run got as little as 40% of a core. Its 8-worker runs took 36.5–41.6 s.
+- **The harness's own timings agree.** The small-tier run at `--workers 1,3,4,8` (four models at a time) shows 1→8 wall-time ratios of 3.3× (`MCLamportMutex`), 4.5× (`SimpleRegular`) and 4.6× (`MCbtree`).
+- **CPU time.** `/usr/bin/time` shows total CPU time growing about 2.8× from 1 to 8 workers on every model measured (for example 13.4 s to 38.2 s on `SimpleRegular`). Two causes contribute:
+  - the efficiency cores, which take half the work at 8 workers at roughly half speed;
+  - contention the profile attributes to the system allocator and to lock waits on values shared between threads (`OnceLock` caches, reference counts), at about 12% each, with about 7% of samples idle at the barriers.
+
+  The encoded frontier of §8 (private decoded copies per worker) and an allocator review are G2's first candidates.
+- **Against TLC, per state.** dive at 1 worker is about 1–6× slower per state than TLC at 1 worker on these models. That is the evaluator's cost (G2), not the engine's.
+
+The method and how to reproduce it are in `crates/dive-bench/README.md`. Re-measure on a quiet machine before quoting any of these numbers.
