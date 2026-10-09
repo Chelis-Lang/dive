@@ -63,6 +63,13 @@ fn value_fixtures_match_tlc() {
     run_set(&root, |text| !text.contains("VARIABLE"));
 }
 
+/// End-to-end finite facts without enumerating an infinite function operand.
+#[test]
+fn symbolic_function_emptiness_matches_clean_tlc_assumptions() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../dive-value/tests/fixtures/printing");
+    run_set(&root, |text| !text.contains("MODULE NonenumerableFunction"));
+}
+
 fn run_set(root: &Path, keep: impl Fn(&str) -> bool) {
     let specs = root.join("specs");
     let mut names: Vec<String> = fs::read_dir(&specs)

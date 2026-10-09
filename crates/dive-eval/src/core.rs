@@ -237,6 +237,16 @@ impl Core {
             }
             SetKind::FcnSet => {
                 if let (Some((_, d)), Some((_, r))) = (comps.first(), comps.get(1)) {
+                    // Pure structural emptiness can short-circuit before a
+                    // symbolic domain/range is enumerated. Do not evaluate a
+                    // deferred predicate an extra time during preflight.
+                    if structural_set_operand(d)
+                        && structural_set_operand(r)
+                        && (dive_value::tlc::is_empty(d, self.ctx)?
+                            || dive_value::tlc::is_empty(r, self.ctx)?)
+                    {
+                        return Ok(());
+                    }
                     if is_user_value(d) {
                         return Err(EvalError::general(format!(
                             "Attempted to enumerate a set of the form [D -> R],but the domain D:\n{}\ncannot be enumerated.",
@@ -285,16 +295,38 @@ impl Core {
     /// TLC's error for the size of a lazy set with a component that is a
     /// special set constant (`UserValue.size`).
     pub(crate) fn size_guard(&self, set: &dive_value::Set) -> Result<()> {
+        if let Some((d, r)) = set.as_fcn_set()
+            && structural_set_operand(d)
+            && structural_set_operand(r)
+        {
+            if dive_value::tlc::is_empty(d, self.ctx)? || dive_value::tlc::is_empty(r, self.ctx)? {
+                return Ok(());
+            }
+            // SetOfFcnsValue.size asks for the range before the domain,
+            // and a singleton range never asks for the domain's cardinality.
+            self.component_size_guard(r)?;
+            if let Value::Set(rs) = r
+                && rs.size(self.ctx)? == 1
+            {
+                return Ok(());
+            }
+            return self.component_size_guard(d);
+        }
         for (_, c) in set.components() {
-            if is_user_value(&c) {
-                return Err(EvalError::general(format!(
-                    "Attempted to compute the number of elements in the overridden value {}.",
-                    self.ppr(&c)
-                )));
-            }
-            if let Value::Set(cs) = &c {
-                self.size_guard(cs)?;
-            }
+            self.component_size_guard(&c)?;
+        }
+        Ok(())
+    }
+
+    fn component_size_guard(&self, c: &Value) -> Result<()> {
+        if is_user_value(c) {
+            return Err(EvalError::general(format!(
+                "Attempted to compute the number of elements in the overridden value {}.",
+                self.ppr(c)
+            )));
+        }
+        if let Value::Set(cs) = c {
+            self.size_guard(cs)?;
         }
         Ok(())
     }
@@ -503,3 +535,24 @@ pub(crate) fn is_enumerable(v: &Value) -> bool {
 
 /// The value order in which `TLC` enumerates normalized sets.
 pub(crate) const TLC_ORDER: ValueOrder = ValueOrder::Tlc;
+
+// Structural isEmpty/size checks cannot execute a lazy predicate. Keep existing
+// guarded refusals for deferred operands until their evaluation order is ported.
+fn structural_set_operand(value: &Value) -> bool {
+    let mut todo = vec![value.clone()];
+    while let Some(v) = todo.pop() {
+        if let Value::Fcn(f) = &v {
+            todo.extend(f.iter().flat_map(|(d, v)| [d, v.clone()]));
+            continue;
+        }
+        let Value::Set(s) = v else { continue };
+        if s.kind() == SetKind::Deferred {
+            return false;
+        }
+        if let Some(elements) = s.raw_elements() {
+            todo.extend(elements.iter().cloned());
+        }
+        todo.extend(s.components().into_iter().map(|(_, v)| v));
+    }
+    true
+}
