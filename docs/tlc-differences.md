@@ -749,3 +749,12 @@ A fair stuttering ending requires independent disabledness. Effects, checker
 reads, missing covers and explicit budgets remain named refusals; strict TLC
 selection and temporal stopping remain pending.
 
+### Symbolic function-set enumeration
+
+The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds
+(`EmptySymbolicFunction`, two generated states, one distinct state, depth 1).
+The current value enumerator refuses this symbolic domain by name. Diagnostic
+printing now retains the symbolic form rather than recursively retrying the
+failed expansion and aborting the process. Finite empty-domain/range recognition
+remains a library-coverage follow-up; this refusal is not TLC conformance.
+Evidence: `crates/dive-value/tests/fixtures/printing/`.
