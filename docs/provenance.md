@@ -173,3 +173,15 @@ renumbered in the original `(state, tableau)` order. Evidence includes independe
 short-word/path-closure checks, resource and discovery-order controls, and three
 `Fw*` probes from the pinned TLC `94d0c50` (MIT reference). No search algorithm
 is added to the independent validator.
+
+## Symmetry closure foundation
+
+`dive-model/src/symmetry.rs` matches `MVPerms.permutationSubgroup` and
+`MVPerm.compose` at tlaplus `94d0c50` (MIT): generators first, identity and
+duplicate removal, ordered frontier closure, and first-map-then-second-map
+composition. The bounded dense index representation, checked bijectivity and
+resource refusals are original implementations. The 1,329 direct Java-kernel
+fixtures include malformed maps. This does not port `Tool.getSymmetryPerms`,
+its warnings, canonicalization or state/trace reduction yet. The original MIT
+Java driver and raw SyEmpty capture are in
+`crates/dive-model/tests/fixtures/symmetry-group/`.

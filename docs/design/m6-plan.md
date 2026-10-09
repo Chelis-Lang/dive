@@ -84,7 +84,13 @@ state-dependent temporal quantifier domains remain open. Finite constant-domain
 quantified actions are supported. The validator still builds without the
 checker's successor enumerator.
 
-L6–L10, symmetry S1–S5 and the full model conformance milestones remain open.
+S1 now has a bounded closure kernel matching 1,329 direct pinned Java cases,
+including non-bijective maps in TLC mode and explicit checked-mode rejection.
+Raw SyEmpty evidence records the empty-generator failure. Config binding and
+warnings remain open, and SYMMETRY checking is still refused.
+
+L6–L10, the remaining symmetry S1–S5 work and the full model conformance
+milestones remain open.
 
 ## Work packages
 
