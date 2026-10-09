@@ -3,8 +3,10 @@
 //! the original predicate checks correlations. Missing covers cause refusal.
 
 use crate::State;
-use dive_eval::{ConstBinding, Scope, St};
-use dive_ir::{Arg, BuiltinOp, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp, VarId};
+use dive_eval::{ConstBinding, Scope, SlotView, St};
+use dive_ir::{
+    Arg, BuiltinOp, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp, VarId,
+};
 use dive_model::{Model, Pred};
 use dive_value::{SetKind, Value};
 use std::collections::{BTreeMap, BTreeSet};
@@ -119,19 +121,17 @@ impl Search<'_> {
     fn scan(
         &mut self,
         expr: ExprId,
+        scope: &Scope,
         prime: bool,
         needed: &mut BTreeSet<VarId>,
-        seen: &mut BTreeSet<(ExprId, bool)>,
         depth: usize,
     ) -> Result<(), ExistsError> {
         self.step(depth)?;
-        if !seen.insert((expr, prime)) {
-            return Ok(());
-        }
         let node = self.model.ir.node(expr);
         if node
             .effects
             .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+            || self.model.evaluator.scope_shares_side_effects(scope)
         {
             return Err(ExistsError::Unsupported(
                 "effects, temporal expressions or nested ENABLED".into(),
@@ -143,7 +143,7 @@ impl Search<'_> {
                 args,
             } => {
                 for e in args {
-                    self.scan(*e, true, needed, seen, depth + 1)?;
+                    self.scan(*e, scope, true, needed, depth + 1)?;
                 }
             }
             Expr::Var { var, primed } => {
@@ -151,10 +151,10 @@ impl Search<'_> {
                     needed.insert(*var);
                 }
             }
-            Expr::Prime(e) | Expr::Unchanged(e) => self.scan(*e, true, needed, seen, depth + 1)?,
+            Expr::Prime(e) | Expr::Unchanged(e) => self.scan(*e, scope, true, needed, depth + 1)?,
             Expr::StepBox { action, sub } | Expr::StepAngle { action, sub } => {
-                self.scan(*action, prime, needed, seen, depth + 1)?;
-                self.scan(*sub, true, needed, seen, depth + 1)?;
+                self.scan(*action, scope, prime, needed, depth + 1)?;
+                self.scan(*sub, scope, true, needed, depth + 1)?;
             }
             Expr::Def(d) => {
                 let d = self.model.evaluator.redirected(*d);
@@ -169,7 +169,12 @@ impl Search<'_> {
                         return Err(ExistsError::Unsupported("checker introspection".into()));
                     }
                     if def.std.is_none() {
-                        self.scan(def.body, prime, needed, seen, depth + 1)?;
+                        let sc = self
+                            .model
+                            .evaluator
+                            .scope_enter(scope, d)
+                            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                        self.scan(def.body, &sc, prime, needed, depth + 1)?;
                     }
                 }
             }
@@ -192,9 +197,8 @@ impl Search<'_> {
                         let d = self.model.evaluator.redirected(*d);
                         let def = self.model.ir.def(d);
                         if !self.model.evaluator.is_value_override(d) && def.std.is_none() {
-                            return Err(ExistsError::Unsupported(
-                                "parameterized action application".into(),
-                            ));
+                            let sc = self.constant_call(scope, d, args, depth + 1)?;
+                            return self.scan(def.body, &sc, prime, needed, depth + 1);
                         }
                         if def.std == Some(StdOp::TlcTLCGet) {
                             return Err(ExistsError::Unsupported("checker introspection".into()));
@@ -206,22 +210,33 @@ impl Search<'_> {
                     _ => {}
                 }
                 for e in node.expr.children() {
-                    self.scan(e, prime, needed, seen, depth + 1)?;
+                    self.scan(e, scope, prime, needed, depth + 1)?;
                 }
             }
             Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
                 Some(ConstBinding::Value(_)) => {}
                 Some(ConstBinding::Def(d)) => {
-                    let def = self.model.ir.def(self.model.evaluator.redirected(d));
+                    let d = self.model.evaluator.redirected(d);
+                    let def = self.model.ir.def(d);
                     if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
                         return Err(ExistsError::Unsupported(
                             "nonconstant/recursive/parameterized constant override".into(),
                         ));
                     }
-                    self.scan(def.body, prime, needed, seen, depth + 1)?;
+                    let sc = self
+                        .model
+                        .evaluator
+                        .scope_enter(scope, d)
+                        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+                    self.scan(def.body, &sc, prime, needed, depth + 1)?;
                 }
                 None => return Err(ExistsError::Unsupported("unbound action constant".into())),
             },
+            Expr::Local(r)
+                if matches!(
+                    self.model.evaluator.scope_slot(scope, *r),
+                    SlotView::Value(_)
+                ) => {}
             Expr::Local(_) | Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
                 return Err(ExistsError::Unsupported(
                     "opaque local/substitution action context".into(),
@@ -229,12 +244,53 @@ impl Search<'_> {
             }
             _ => {
                 for e in node.expr.children() {
-                    self.scan(e, prime, needed, seen, depth + 1)?;
+                    self.scan(e, scope, prime, needed, depth + 1)?;
                 }
             }
         }
         Ok(())
     }
+    // Necessary covers may inspect a parameter only after proving its actual
+    // argument is pure constant data. No state/action thunk is evaluated early.
+    fn constant_call(
+        &mut self,
+        scope: &Scope,
+        def: DefId,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<Scope, ExistsError> {
+        self.step(depth)?;
+        let ev = &self.model.evaluator;
+        let d = self.model.ir.def(def);
+        if args.len() > self.limits.expressions {
+            return Err(ExistsError::Limit("constant argument bindings"));
+        }
+        if d.recursive
+            || d.std.is_some()
+            || ev.is_value_override(def)
+            || d.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(ExistsError::Unsupported(
+                "recursive/overridden/higher-order action call".into(),
+            ));
+        }
+        let mut values = Vec::with_capacity(args.len());
+        for arg in args {
+            let Arg::Expr { expr, .. } = arg else {
+                return Err(ExistsError::Unsupported("operator action argument".into()));
+            };
+            if self.model.ir.node(*expr).level != Level::Constant {
+                return Err(ExistsError::Unsupported(
+                    "nonconstant action argument".into(),
+                ));
+            }
+            self.scan(*expr, scope, false, &mut BTreeSet::new(), depth + 1)?;
+            values.push(self.read(*expr, scope, &St::constant())?);
+        }
+        ev.scope_call_values(scope, def, values)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))
+    }
+
     fn enter(&self, scope: &Scope, d: dive_ir::DefId) -> Result<(ExprId, Scope), ExistsError> {
         let d = self.model.evaluator.redirected(d);
         let s = self
@@ -395,6 +451,24 @@ impl Search<'_> {
                 let (body, s) = self.enter(scope, *d)?;
                 self.cover(body, &s, depth + 1)
             }
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } if self
+                .model
+                .ir
+                .def(self.model.evaluator.redirected(*d))
+                .std
+                .is_none()
+                && !self
+                    .model
+                    .evaluator
+                    .is_value_override(self.model.evaluator.redirected(*d)) =>
+            {
+                let d = self.model.evaluator.redirected(*d);
+                let sc = self.constant_call(scope, d, args, depth + 1)?;
+                self.cover(self.model.ir.def(d).body, &sc, depth + 1)
+            }
             Expr::Label { body, .. } | Expr::Selected(body) => self.cover(*body, scope, depth + 1),
             Expr::Junction { kind, items, .. } => self.junction(*kind, items, scope, depth),
             Expr::If { cond, then, other } if self.model.ir.node(*cond).level <= Level::State => {
@@ -446,15 +520,14 @@ pub fn exists_successor(
         steps: 0,
     };
     let mut needed = BTreeSet::new();
-    let mut seen = BTreeSet::new();
-    cx.scan(action.expr, false, &mut needed, &mut seen, 0)?;
+    cx.scan(action.expr, &action.scope, false, &mut needed, 0)?;
     if let Some(sub) = nonstuttering {
         if model.ir.node(sub.expr).level > Level::State {
             return Err(ExistsError::Unsupported(
                 "action-level change subscript".into(),
             ));
         }
-        cx.scan(sub.expr, true, &mut needed, &mut seen, 0)?;
+        cx.scan(sub.expr, &sub.scope, true, &mut needed, 0)?;
     }
     let cover = cx.cover(action.expr, &action.scope, 0)?;
     if cover.impossible {

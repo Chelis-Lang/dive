@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Step","location":{"beginLine":5,"beginColumn":12,"endLine":5,"endColumn":24,"module":"DeadlockScopedCover"},"context":{"k":1},"parameters":["k"]},[2,{"x":1}]]],"state":[[1,{"x":0}],[2,{"x":1}]]},"vars":["x"]}

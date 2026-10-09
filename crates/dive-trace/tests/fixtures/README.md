@@ -17,3 +17,15 @@ cargo run -p dive-conformance --release -- dev capture \
 The harness captured raw commands, streams, exits and SANY output. Reason:
 prove independent finite-cover enabledness against the pinned canonical tool.
 The trace-capture side pass is never used as the deciding result.
+
+`EnabledScopedCover` adds nested scalar/tuple value-bound operators and two
+applications of the same relation under different arguments. TLC checks three
+ENABLED identities on all 36 initial states (72 generated, depth 1, exit 0).
+The independent tests also enumerate concrete successor assignments and verify
+every returned witness against the original scoped relation. Capture it with
+the command above, substituting `EnabledScopedCover`.
+
+`DeadlockScopedCover` validates the formerly opaque `Step(1)` deadlock: TLC
+exits 11 with the concrete 0,1 trace. Capture it with the same command and
+its module name. A separate no-finite-cover deadlock remains Unsupported in
+the API controls, preserving the absence-proof fallback.

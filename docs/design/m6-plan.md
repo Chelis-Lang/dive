@@ -202,3 +202,11 @@ context rather than deduplicating by expression ID. Five additional pinned
 probes match final truth/counts in both profiles/stores, with independent
 periodic validation. State/action arguments, higher-order operators and missing
 independent ENABLED covers remain named refusals.
+
+L5 scoped-cover increment: independent successor existence follows pure
+constant-argument calls and value-bound locals, preserving every context when
+collecting primed reads and deriving necessary covers. A pinned 36-state
+ENABLED probe agrees with three arithmetic identities; witnesses are checked
+against original relations. Three temporal probes match final truth/counts
+in both profiles/stores, including a fair stuttering word requiring disabledness
+rather than recurrence. Lazy state arguments and missing covers remain refusals.

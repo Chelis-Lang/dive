@@ -714,3 +714,11 @@ oracle's final verdict truth and state counts in both profiles/stores. Each
 returned lasso validates independently. Broader lazy/higher-order arguments,
 phase-L timing and TLC-exact selection remain pending; no new default or
 compatibility claim is introduced.
+
+**D-013 validation update:** independent finite ENABLED covers now preserve
+constant scalar/tuple arguments through action calls. A pinned 36-state probe
+checks three ENABLED identities, and a fair stuttering counterexample requires
+disabledness rather than a recurring action certificate. Three additional
+`scoped-fairness` probes match final truth/counts in both profiles/stores.
+Missing covers remain validation refusals; this expands the validated subset
+without claiming TLC-exact temporal selection or error timing.

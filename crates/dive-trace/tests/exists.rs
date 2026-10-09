@@ -200,3 +200,128 @@ fn pinned_tlc_enabledness_matches_every_finite_cover_state() {
         }
     }
 }
+
+#[test]
+fn constant_action_calls_preserve_contexts_and_return_real_witnesses() {
+    let m = model(
+        "Relation(a,b) == x' \\in {a,b} /\\ y' \\in 0..1 /\\ x'+y'=x+y\nWrap(pair) == Relation(pair[1],pair[2])\nR01 == Wrap(<<0,1>>)\nR12 == Wrap(<<1,2>>)\nUnion == Relation(0,1) \\/ Relation(1,2)\n",
+    );
+    for x in -1..=4 {
+        for y in -1..=4 {
+            let before = state(x, y);
+            for (name, min, max) in [("R01", 0, 2), ("R12", 1, 3), ("Union", 0, 3)] {
+                let p = pred(&m, name);
+                let result =
+                    exists_successor(&m, &p, &before, None, Limits::default()).expect(name);
+                let brute = (0..=2).any(|a| {
+                    (0..=1).any(|b| {
+                        m.eval(&p, &St::action(before.clone(), state(a, b)))
+                            .expect("evaluate")
+                            == Value::Bool(true)
+                    })
+                });
+                assert_eq!(enabled(&result), brute, "{name} {x} {y}");
+                assert_eq!(
+                    enabled(&result),
+                    (min..=max).contains(&(x + y)),
+                    "{name} {x} {y}"
+                );
+                if let Decision::Enabled { witness } = result {
+                    assert_eq!(
+                        m.eval(&p, &St::action(before.clone(), witness))
+                            .expect("witness"),
+                        Value::Bool(true)
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn scoped_covers_keep_missing_bounds_and_lazy_arguments_as_refusals() {
+    let m = model(
+        "Pick(i) == IF i=0 THEN x'=0 ELSE y'=0\nUnion == Pick(0) \\/ Pick(1)\nStateArg == Pick(x)\nUnbounded(i) == x'>i\nNoCover == Unbounded(0)\nMove(i) == x'=i /\\ UNCHANGED y\nGood == Move(1)\nSub == x\n",
+    );
+    for name in ["Union", "StateArg", "NoCover"] {
+        assert!(
+            matches!(
+                exists_successor(&m, &pred(&m, name), &state(0, 0), None, Limits::default()),
+                Err(ExistsError::Unsupported(_))
+            ),
+            "{name}"
+        );
+    }
+    let sub = pred(&m, "Sub");
+    assert!(enabled(
+        &exists_successor(
+            &m,
+            &pred(&m, "Good"),
+            &state(0, 0),
+            Some(&sub),
+            Limits::default()
+        )
+        .expect("changed")
+    ));
+    assert!(matches!(
+        exists_successor(
+            &m,
+            &pred(&m, "Good"),
+            &state(1, 0),
+            Some(&sub),
+            Limits::default()
+        )
+        .expect("only stutter"),
+        Decision::Disabled
+    ));
+    let limits = Limits {
+        expressions: 3,
+        ..Limits::default()
+    };
+    assert!(matches!(
+        exists_successor(&m, &pred(&m, "Good"), &state(0, 0), None, limits),
+        Err(ExistsError::Limit(_))
+    ));
+}
+
+#[test]
+fn pinned_scoped_enabledness_agrees_on_all_initial_states() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+    let source =
+        std::fs::read_to_string(root.join("specs/EnabledScopedCover/EnabledScopedCover.tla"))
+            .expect("source");
+    let cfg = std::fs::read_to_string(root.join("specs/EnabledScopedCover/EnabledScopedCover.cfg"))
+        .expect("cfg");
+    let a = dive_sema::analyze_source(
+        "EnabledScopedCover.tla",
+        &source,
+        &dive_sema::Options::default(),
+    );
+    assert!(a.accepted(), "{a:?}");
+    let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+    let cfg = dive_config::parse(&cfg).into_config().expect("config");
+    let m = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    let oracle = root.join("tlc/tlc-2026.10.06.014338");
+    assert_eq!(
+        std::fs::read_to_string(oracle.join("EnabledScopedCover.exit"))
+            .expect("exit")
+            .trim(),
+        "0"
+    );
+    let stdout = std::fs::read_to_string(oracle.join("EnabledScopedCover.stdout")).expect("stdout");
+    assert!(stdout.contains("72 states generated, 36 distinct states found"));
+    for x in -1..=4 {
+        for y in -1..=4 {
+            for (name, min, max) in [("R01", 0, 2), ("R12", 1, 3), ("Union", 0, 3)] {
+                let result =
+                    exists_successor(&m, &pred(&m, name), &state(x, y), None, Limits::default())
+                        .expect(name);
+                assert_eq!(
+                    enabled(&result),
+                    (min..=max).contains(&(x + y)),
+                    "{name} {x} {y}"
+                );
+            }
+        }
+    }
+}

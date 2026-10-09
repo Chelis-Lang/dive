@@ -120,3 +120,9 @@ through nested and quantified calls. Five pinned probes match final truth and
 counts in both profiles and stores; every returned periodic claim independently
 validates. Lazy state arguments, higher-order operators and missing finite
 ENABLED covers remain explicit refusals.
+
+Independent finite ENABLED covers now support pure constant-argument action
+operators and value-bound locals. They agree with pinned TLC on 108 decisions
+across 36 initial states. Three new final temporal probes match truth/counts
+in both profiles/stores; the violation requires independent disabledness to
+validate fairness. General lazy/higher-order contexts remain open.
