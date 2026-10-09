@@ -740,3 +740,13 @@ checks 108 independent ENABLED decisions, including contradictory universal
 constraints and an empty existential domain. Missing covers and exhausted budgets
 still refuse. This expands supported semantics without a new default or exact
 TLC temporal-conformance claim.
+
+### Symbolic function-set enumeration
+
+The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds
+(`EmptySymbolicFunction`, two generated states, one distinct state, depth 1).
+The current value enumerator refuses this symbolic domain by name. Diagnostic
+printing now retains the symbolic form rather than recursively retrying the
+failed expansion and aborting the process. Finite empty-domain/range recognition
+remains a library-coverage follow-up; this refusal is not TLC conformance.
+Evidence: `crates/dive-value/tests/fixtures/printing/`.

@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Value printing breaks recursive diagnostic expansion of a non-enumerable
+  function set, retaining a named error and symbolic fallback on small stacks.
+
 - Bounded final temporal checking supports finite constant-domain state/action
   predicates; independent ENABLED covers certify finite forall/exists actions,
   including tuple bindings and empty-domain identities.
