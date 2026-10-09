@@ -1,9 +1,36 @@
 # dive-bench
 
 Benchmarks of `dive check` against the pinned TLC. They run by hand, never in
-the per-change gate (AGENTS.md, "Testing tiers"). The crate itself is still a
-placeholder (WP-G1); this file records the measurements taken so far and how
-to repeat them.
+the per-change gate (AGENTS.md, "Testing tiers"). The runner records CPU and
+wall time, peak RSS, verdict and state counts for each repetition and worker
+count. Failed or unverified runs fail the command and do not contribute to
+timing summaries. It checks corpus integrity and typed golden provenance.
+
+```sh
+cargo build --release --locked -p dive-cli -p dive-bench
+cargo run --release --locked -p dive-bench -- --list
+cargo run --release --locked -p dive-bench -- \
+  --filter SimpleRegular --profile both --workers 1,4,8 --reps 3 --tlc \
+  --runs conformance/reports/benchmark-runs.jsonl
+```
+
+Use a quiet machine and the pinned cache fetched by the conformance harness.
+Every JSON line includes the machine, runner revision and dirty status,
+binary SHA-256, corpus commit, oracle pin, seed and fingerprint polynomial.
+The binary hash identifies the actual executable, which may differ from the
+runner's checkout. Keep the console report alongside the raw JSON lines.
+
+Speed-up means the median of **paired wall-time ratios** from successful
+TLC and dive runs of the same configuration and repetition on this machine.
+Historical survey and golden timings are displayed as context; they never
+serve as a denominator for current performance claims. CPU rates and RSS
+are reported separately. Without `--tlc`, no TLC speed-up is claimed.
+
+The CoffeeCan benchmark removes temporal properties explicitly and applies
+the identical safety configuration to both tools. Its timings cannot be
+compared with the historical full-liveness survey. The runner currently
+requires successful goldens with generated and distinct counts; violation
+and error-path performance measurements require a separate benchmark set.
 
 ## Parallel scaling (WP-D3, 2026-10-09, indicative)
 

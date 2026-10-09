@@ -20,7 +20,7 @@ use dive_conformance::util::TempDir;
 use serde_json::{Value, json};
 
 const USAGE: &str = "\
-dive-bench: time `dive check` at one worker on the G1 benchmark set
+dive-bench: time `dive check` on the G1 benchmark set
 
 usage: dive-bench [options]
 
@@ -145,6 +145,11 @@ struct Prepared {
 }
 
 fn main() -> ExitCode {
+    #[cfg(unix)]
+    if let Err(e) = dive_conformance::process::install_signal_handler() {
+        eprintln!("error: {e}");
+        return ExitCode::from(2);
+    }
     let opts = match parse_args() {
         Ok(o) => o,
         Err(e) if e.is_empty() => {
@@ -199,12 +204,8 @@ fn run(opts: &Opts) -> Result<bool, String> {
     let oracle = config.oracles.default_oracle().map_err(err)?.id.clone();
     let corpus = config.corpora.corpus("examples").map_err(err)?;
     let corpus_root = cache.checkout_dir(&corpus.id, &corpus.commit);
-    if !corpus_root.is_dir() {
-        return Err(format!(
-            "the Examples corpus is not fetched at {}; run `dive-conformance corpus fetch --corpus examples`",
-            corpus_root.display()
-        ));
-    }
+    dive_conformance::fetch::verified_checkout(&corpus_root, &corpus.commit, "Examples")
+        .map_err(err)?;
     let module_path =
         dive_conformance::dive::module_search_path(&config, &cache, &oracle).map_err(err)?;
     let dive_bin = if opts.dive_bin.is_absolute() {
@@ -229,19 +230,28 @@ fn run(opts: &Opts) -> Result<bool, String> {
             "examples",
             &b.model,
         );
-        let g: Value = serde_json::from_str(
-            &std::fs::read_to_string(&gpath).map_err(|e| format!("{}: {e}", gpath.display()))?,
-        )
-        .map_err(err)?;
-        let module = g["model"]["module"]
-            .as_str()
-            .ok_or("golden without model.module")?
-            .to_owned();
+        let g = dive_conformance::golden::read_model_golden(&gpath).map_err(err)?;
+        if g.oracle != oracle
+            || g.corpus != "examples"
+            || g.model.id != b.model
+            || g.workers != 1
+            || g.provenance.corpus_commit != corpus.commit
+            || g.provenance.oracle.sha256 != config.oracles.oracle(&oracle).map_err(err)?.sha256
+            || g.result.verdict != dive_conformance::tlc::result::Verdict::Success
+            || g.result.counts.distinct_states.is_none()
+            || g.result.counts.states_generated.is_none()
+        {
+            return Err(format!(
+                "{}: benchmark requires a successful, counted golden matching the pins",
+                gpath.display()
+            ));
+        }
+        let module = g.model.module.clone();
         let expected = Expected {
-            verdict: g["result"]["verdict"].as_str().unwrap_or("?").to_owned(),
-            distinct: g["result"]["counts"]["distinct_states"].as_u64(),
-            generated: g["result"]["counts"]["states_generated"].as_u64(),
-            elapsed_ms: g["provenance"]["elapsed_ms"].as_u64(),
+            verdict: g.result.verdict.as_str().to_owned(),
+            distinct: g.result.counts.distinct_states,
+            generated: g.result.counts.states_generated,
+            elapsed_ms: Some(g.provenance.elapsed_ms),
         };
         let (root, own) = if let Some(cfg) = &b.cfg {
             let dir = TempDir::new_in(scratch.path(), "corpus").map_err(err)?;
@@ -277,9 +287,13 @@ fn run(opts: &Opts) -> Result<bool, String> {
         let wrapper = scratch.path().join("java-timed");
         let mut script = String::from("#!/bin/sh\nexec /usr/bin/time");
         for a in time_args(&time_out) {
-            let _ = write!(script, " '{}'", a.to_string_lossy());
+            let _ = write!(script, " {}", shell_quote(&a.to_string_lossy()));
         }
-        let _ = writeln!(script, " '{}' \"$@\"", real.path.display());
+        let _ = writeln!(
+            script,
+            " {} \"$@\"",
+            shell_quote(&real.path.to_string_lossy())
+        );
         std::fs::write(&wrapper, script).map_err(err)?;
         #[cfg(unix)]
         {
@@ -304,7 +318,15 @@ fn run(opts: &Opts) -> Result<bool, String> {
     if tlc_env.is_some() {
         impls.push("tlc".to_owned());
     }
-    print_machine(&dive_bin);
+    let mut provenance = print_machine(&dive_bin);
+    provenance["binary_sha256"] =
+        json!(dive_conformance::hash::sha256_file(&dive_bin).map_err(err)?);
+    provenance["oracle"] =
+        json!({"id":oracle, "sha256":config.oracles.oracle(&oracle).map_err(err)?.sha256});
+    provenance["corpus_commit"] = json!(corpus.commit);
+    provenance["seed"] = json!(0);
+    provenance["fp"] = json!(0);
+    println!("provenance: {provenance}");
     let mut runs: Vec<Run> = Vec::new();
     let mut all_correct = true;
     for rep in 0..opts.reps {
@@ -331,7 +353,7 @@ fn run(opts: &Opts) -> Result<bool, String> {
                     r.note
                 );
                 if let Some(path) = &opts.runs {
-                    append_json(path, &r)?;
+                    append_json(path, &r, &provenance)?;
                 }
                 runs.push(r);
             }
@@ -344,7 +366,7 @@ fn run(opts: &Opts) -> Result<bool, String> {
     Ok(all_correct)
 }
 
-fn print_machine(dive_bin: &Path) {
+fn print_machine(dive_bin: &Path) -> Value {
     let capture = |prog: &str, args: &[&str]| {
         Command::new(prog)
             .args(args)
@@ -375,6 +397,14 @@ fn print_machine(dive_bin: &Path) {
     println!("load average at start: {load}");
     println!("dive: {version} ({})", dive_bin.display());
     println!();
+    json!({"cpu":cpu, "cpus":cpus, "os":capture("uname", &["-sm"]),
+        "load_at_start":load, "binary_version":version,
+        "runner_revision":capture("git", &["rev-parse", "HEAD"]),
+        "runner_dirty": !capture("git", &["status", "--porcelain"]).is_empty()})
+}
+
+fn shell_quote(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "'\\''"))
 }
 
 fn read_usage(path: &Path) -> Option<Usage> {
@@ -441,6 +471,7 @@ fn run_dive(
     let mut cmd = Command::new("/usr/bin/time");
     cmd.current_dir(dir).env_remove("DIVE_COMPAT").args(&args);
     let out_dir = TempDir::new_in(&std::env::temp_dir(), "dive-bench-run").map_err(err)?;
+    let _ = std::fs::remove_file(time_out);
     let outcome = run_with_timeout(&mut cmd, opts.timeout, out_dir.path()).map_err(err)?;
     let usage = read_usage(time_out);
     let v: Value = serde_json::from_str(outcome.stdout.trim()).unwrap_or(Value::Null);
@@ -451,7 +482,11 @@ fn run_dive(
     };
     let distinct = v["statistics"]["distinct"].as_u64();
     let generated = v["statistics"]["generated"].as_u64();
-    let (correct, mut note) = check(p, &verdict, distinct, generated);
+    let (mut correct, mut note) = check(p, &verdict, distinct, generated);
+    if outcome.exit_code != Some(0) || v["tlc"]["verified"] != true {
+        correct = false;
+        note.push_str("; process did not exit successfully with a verified verdict");
+    }
     if verdict == "no-report" {
         outcome
             .stderr
@@ -491,8 +526,11 @@ fn run_tlc(
         timeout: opts.timeout,
         xmx: &opts.xmx,
         seed: 0,
+        fp: 0,
+        lncheck: "final",
         dump_trace: false,
     };
+    let _ = std::fs::remove_file(time_out);
     let inv = env.run_tlc(&job).map_err(err)?;
     let usage = read_usage(time_out);
     let counts = tlc_counts(&inv.outcome.stdout);
@@ -518,9 +556,11 @@ fn run_tlc(
     })
 }
 
-fn append_json(path: &Path, r: &Run) -> Result<(), String> {
+fn append_json(path: &Path, r: &Run, provenance: &Value) -> Result<(), String> {
     use std::io::Write as _;
     let line = json!({
+        "schema_version": 1,
+        "provenance": provenance,
         "bench": r.bench,
         "impl": r.implementation,
         "rep": r.rep + 1,
@@ -554,12 +594,18 @@ struct Summary {
 fn summarise(runs: &[&Run]) -> Summary {
     let cpu: Vec<f64> = runs
         .iter()
+        .filter(|r| r.correct)
         .filter_map(|r| r.usage.map(|u| u.cpu_s()))
         .collect();
-    let wall: Vec<f64> = runs.iter().map(|r| r.wall_s).collect();
+    let wall: Vec<f64> = runs
+        .iter()
+        .filter(|r| r.correct)
+        .map(|r| r.wall_s)
+        .collect();
     #[allow(clippy::cast_precision_loss, reason = "megabytes for display")]
     let rss: Vec<f64> = runs
         .iter()
+        .filter(|r| r.correct)
         .filter_map(|r| r.usage.map(|u| u.max_rss_bytes as f64 / f64::from(1 << 20)))
         .collect();
     Summary {
@@ -628,6 +674,30 @@ fn fmt_opt(x: Option<f64>, digits: usize) -> String {
     x.map_or("—".to_owned(), |v| format!("{v:.digits$}"))
 }
 
+/// Pair successful runs from the same repetition before computing a median.
+/// Historical wall times and current CPU times are never comparable ratios.
+fn paired_wall_ratio(
+    runs: &[Run],
+    bench: &str,
+    baseline: &str,
+    implementation: &str,
+) -> Option<f64> {
+    let ratios: Vec<f64> = runs
+        .iter()
+        .filter(|r| {
+            r.correct && r.bench == bench && r.implementation == implementation && r.wall_s > 0.0
+        })
+        .filter_map(|r| {
+            runs.iter()
+                .find(|b| {
+                    b.correct && b.bench == bench && b.implementation == baseline && b.rep == r.rep
+                })
+                .map(|b| b.wall_s / r.wall_s)
+        })
+        .collect();
+    median(&ratios)
+}
+
 fn report(prepared: &[Prepared], impls: &[String], runs: &[Run], survey: &str) {
     println!("## Per run medians (CPU = user + sys)\n");
     println!(
@@ -666,10 +736,10 @@ fn report(prepared: &[Prepared], impls: &[String], runs: &[Run], survey: &str) {
     }
     println!("\n## Against TLC and tla-mc at one worker\n");
     println!(
-        "TLC here: this machine, `-workers 1`, wall (CPU). Golden: the golden's `elapsed_ms`. Survey: \
-         docs/survey/data/bench-summary.csv medians (wall). Speed-up: TLC time / dive CPU time: \
-         TLC here's CPU time when measured (JIT and GC threads included), else the survey's wall time, \
-         else the golden's; never the survey or golden for a replaced configuration.\n"
+        "TLC here: this machine, `-workers 1`, wall (CPU). Golden and survey times are historical \
+         context only. Speed-up is the median paired TLC/dive wall-time ratio from successful \
+         runs of the same model configuration and repetition on this machine. Without --tlc, \
+         no speed-up is claimed.\n"
     );
     println!(
         "| Benchmark | distinct | dive tlc CPU s | dive default CPU s | TLC here s | TLC golden s | TLC survey s | tla-mc survey s | speed-up (tlc profile) |"
@@ -689,15 +759,7 @@ fn report(prepared: &[Prepared], impls: &[String], runs: &[Run], survey: &str) {
         let tlc_survey = sv("tlc").map(|s| s.wall_s);
         #[allow(clippy::cast_precision_loss, reason = "seconds for display")]
         let golden = p.expected.elapsed_ms.map(|ms| ms as f64 / 1000.0);
-        let reference = here
-            .and_then(|s| s.cpu)
-            .or(if p.bench.cfg.is_some() {
-                None
-            } else {
-                tlc_survey
-            })
-            .or(if p.bench.cfg.is_some() { None } else { golden });
-        let speed = reference.zip(dt.or(dd)).map(|(t, d)| t / d.max(1e-3));
+        let speed = paired_wall_ratio(runs, &p.bench.name, "tlc", "dive-tlc");
         println!(
             "| {} | {} | {} | {} | {} | {} | {} | {} | {} |",
             p.bench.name,
@@ -716,5 +778,53 @@ fn report(prepared: &[Prepared], impls: &[String], runs: &[Run], survey: &str) {
             fmt_opt(sv("tla-mc").map(|s| s.wall_s), 2),
             speed.map_or("—".to_owned(), |x| format!("{x:.2}×")),
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample(implementation: &str, rep: usize, wall_s: f64, correct: bool) -> Run {
+        Run {
+            bench: "model".to_owned(),
+            implementation: implementation.to_owned(),
+            rep,
+            usage: None,
+            wall_s,
+            verdict: "success".to_owned(),
+            distinct: Some(1),
+            generated: Some(1),
+            correct,
+            note: String::new(),
+        }
+    }
+
+    #[test]
+    fn ratios_require_successful_current_pairs() {
+        let runs = [
+            sample("tlc", 0, 10.0, true),
+            sample("dive-tlc", 0, 5.0, true),
+            sample("tlc", 1, 100.0, false),
+            sample("dive-tlc", 1, 1.0, true),
+            sample("dive-tlc", 2, 1.0, true),
+        ];
+        assert_eq!(
+            paired_wall_ratio(&runs, "model", "tlc", "dive-tlc"),
+            Some(2.0)
+        );
+        assert_eq!(
+            paired_wall_ratio(&runs, "model", "historical", "dive-tlc"),
+            None
+        );
+        let summary = summarise(&runs.iter().collect::<Vec<_>>());
+        assert_eq!(summary.n, 5);
+        assert_eq!(summary.ok, 4);
+        assert_eq!(summary.wall, Some(3.0));
+    }
+
+    #[test]
+    fn wrapper_arguments_quote_apostrophes_and_shell_syntax() {
+        assert_eq!(shell_quote("it's $(a)"), "'it'\\''s $(a)'");
     }
 }

@@ -1,7 +1,7 @@
 //! `dive-bench`: benchmarks against TLC baselines (M5 WP-G1). Run by hand,
 //! never in the per-change CI gate.
 //!
-//! The `dive-bench` binary times `dive check` at one worker, in the
+//! The `dive-bench` binary times `dive check` at selected worker counts, in the
 //! `--compat=tlc` and default profiles, on the fixed benchmark set in
 //! `benchmarks.toml`. Every run is checked against the model's TLC golden
 //! (verdict, distinct and generated states): a fast wrong answer is a
@@ -14,6 +14,11 @@
 //! - the survey's measured medians (`docs/survey/data/bench-summary.csv`);
 //! - with `--tlc`, TLC runs of the same configuration on this machine, timed
 //!   the same way.
+//!
+//! Speed-up claims use paired wall times from current successful runs with
+//! `--tlc`. Historical timings are context only. Failed runs are excluded
+//! from timing summaries and make the command fail. Each raw JSON line
+//! includes the binary hash and pin provenance.
 //!
 //! This library holds the parts with no process handling: the benchmark
 //! set, resource-usage parsing and the statistics.
@@ -65,6 +70,19 @@ pub fn load_benchmarks(text: &str) -> Result<Vec<Bench>, String> {
     }
     let mut names = std::collections::BTreeSet::new();
     for b in &file.bench {
+        if std::path::Path::new(&b.model).components().any(|c| {
+            matches!(
+                c,
+                std::path::Component::ParentDir
+                    | std::path::Component::RootDir
+                    | std::path::Component::Prefix(_)
+            )
+        }) {
+            return Err(format!(
+                "benchmark `{}`: model must stay within the corpus",
+                b.name
+            ));
+        }
         if !names.insert(b.name.as_str()) {
             return Err(format!("duplicate benchmark `{}`", b.name));
         }
