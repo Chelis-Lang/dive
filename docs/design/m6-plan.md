@@ -249,3 +249,10 @@ the planner and independent word validator. Seven pinned `Bc*` controls match
 final truth/counts in both profiles/stores; every returned periodic claim is
 independently validated. Dynamic domains, effects and bounds remain refusals.
 This does not complete TLC-exact planning/selection, phase-L or parallel capture.
+
+L5 constructor-cover increment: independent scanning binds finite constructor
+bodies with their actual current-state values, tracking each primed read before
+necessary-cover search. Four pinned fairness cases match final truth/counts in
+both profiles/stores, and all periodic claims validate independently. Forty-eight
+ENABLED decisions agree with the pinned eight-state identity probe. Primed
+domains, missing covers and budgets remain refusals; broader L5 remains open.

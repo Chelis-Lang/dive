@@ -812,3 +812,12 @@ This repairs dive's own soundness defect (#94), rather than introducing a
 different TLC default. Evidence: `crates/dive-api/tests/primed_covers.rs`,
 including concrete witnesses, nested quantifiers and an end-to-end deadlock
 claim; the primed-domain regression fails against the old domain scan.
+
+**D-013 independent-constructor update:** finite set maps, filters and function
+constructors retain lexical scopes during independent ENABLED checks. Three
+pinned fair-stuttering violations and one success match final truth/counts in
+both profiles/stores. The eight-state `EnabledConstructorCover` pins 48
+independent decisions. Current-state domains are read at that state; primed
+domains and missing finite successor covers refuse rather than certify a false
+deadlock. Complete TLC temporal stopping, planning/selection and parallel
+graph capture remain open.
