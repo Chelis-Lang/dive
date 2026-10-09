@@ -47,3 +47,18 @@ Each question is open until it is answered here or recorded in an ADR.
     - **The proposal.** An explicit opt-in, `--allow-io=env,files,exec` (any subset; the default is none), recorded in the run's `options` block. `--compat=tlc` would *not* imply it: TLC's behaviour here is a safety hazard, not a semantic choice. With `env`, `IOEnv` reads a snapshot of the environment taken once at start-up (as TLC's static initializer does). With `files`, reads and writes are confined to the specification's directory unless a path is given explicitly. With `exec`, processes run with the specification's directory as working directory, and their output is captured into the run's report.
     - **Determinism.** Results that depend on I/O cannot be replayed from the seed alone. Runs that used it would say so, and the harness would treat such models as non-deterministic oracles (like simulation counts).
     - **Recommended:** build `env` and `files` first (they unblock the two small-tier models and most `AllTests` assumptions); defer `exec`.
+14. **The liveness counterexample in the default profile.** TLC's liveness counterexample at one worker is deterministic, but it is an artefact of its hash-bucket edge order. With a different fingerprint polynomial (`-fp`), the same spec gives a different lasso, length and even set of named violated properties: 6 of 21 measured models changed, `MCDistributedReplicatedLog` five ways (ADR 0017 §10). TLC's choice is neither the shortest nor the first in exploration order (probes `LvNoFair`, `LvTwoLoopsRev`).
+    - **The options:**
+      - **(a)** `--lasso=short` by default: dive's documented choice, with a shortest prefix and a short cycle, independent of fingerprints and worker count (ADR 0018 §5). TLC's exact choice stays available as `--lasso=tlc`, which is part of `--compat=tlc` and proven against the goldens. Default-profile runs then differ from the goldens in counterexample length and named properties only, registered as D-013. Verdict and counts are unchanged.
+      - **(b)** `--lasso=tlc` by default as well.
+    - **Recommended:** (a). It gives shorter counterexamples and is stable under `--fp`.
+    - `--compat=tlc` is unaffected either way.
+15. **Symmetry with liveness: a sound mode.** D-005 refuses the combination by default. A third mode, `--symmetry-liveness=unreduced`, would ignore `SYMMETRY` for a run that checks liveness and say so. It reports the unreduced spec's counts and its true liveness verdict. The probes show TLC both missing a violation (`SymLiveMissed`) and reporting a false one (`SymLiveSymProp`) under symmetry (ADR 0019 §4).
+    - **The question.** Build it? And should it replace `refuse` as the default?
+    - **Recommended:** build it, keep `refuse` as the default, and name `unreduced` in the refusal's diagnostic.
+16. **Non-bijective symmetry functions.** TLC accepts a "permutation" such as `[a |-> b, b |-> b]` in a `SYMMETRY` set without complaint, closes the set under composition, and reduces unsoundly (ADR 0019 §1).
+    - **The proposal.** In the default profile, refuse with a diagnostic naming the function. TLC's behaviour stays under `--compat=tlc`.
+    - Until this is answered, both profiles match TLC and dive warns.
+17. **`--check-symmetry`.** An opt-in audit that checks, for every explored state and every generator, that the successor relation, invariants, constraints and `VIEW` are invariant under the permutation (ADR 0019 §6). TLC trusts a `SYMMETRY` declaration silently, and a wrong one silently changes counts (probes `SymAsym`, `SymAsymLate`).
+    - **The question.** Should it stay opt-in, or be on by default for small models?
+    - **Recommended:** opt-in.

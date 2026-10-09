@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"tok":"a"}],{"name":"UnnamedAction","location":{"beginLine":0,"beginColumn":0,"endLine":0,"endColumn":0,"module":"--TLA+ BUILTINS--"}},[1,{"tok":"a"}]]],"state":[[1,{"tok":"a"}]]},"vars":["tok"]}

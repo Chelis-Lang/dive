@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0,"y":0}],{"name":"Next","location":{"beginLine":9,"beginColumn":9,"endLine":9,"endColumn":59,"module":"LvView"}},[2,{"x":1,"y":1}]],[[2,{"x":1,"y":1}],{"name":"Next","location":{"beginLine":9,"beginColumn":9,"endLine":9,"endColumn":59,"module":"LvView"}},[1,{"x":0,"y":0}]]],"state":[[1,{"x":0,"y":0}],[2,{"x":1,"y":1}]]},"vars":["x","y"]}

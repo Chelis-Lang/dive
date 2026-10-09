@@ -295,6 +295,8 @@ pub fn run_oracle_model_traced(env: &OracleEnv, req: &ModelRequest<'_>) -> Resul
         timeout: req.timeout,
         xmx: req.xmx,
         seed: 0,
+        lncheck: "final",
+        fp: 0,
         dump_trace: false,
     };
     let inv = env.run_tlc(&job)?;
