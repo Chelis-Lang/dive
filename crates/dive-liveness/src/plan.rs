@@ -487,6 +487,22 @@ impl Lower<'_> {
                 };
                 return self.expr(branch, scope, depth);
             }
+            Expr::If { cond, then, other } => {
+                if ir.node(*cond).level == Level::Action {
+                    return Err(self.refused(
+                        *cond,
+                        "TLC liveness rejects action-level conditional guards",
+                    ));
+                }
+                // Temporal truth is pointwise: C /\ T \/ ~C /\ E.
+                let guard = self.expr(*cond, scope, depth)?;
+                let yes = self.expr(*then, scope, depth)?;
+                let no = self.expr(*other, scope, depth)?;
+                let yes = self.push(Node::And(vec![guard, yes]))?;
+                let not_guard = self.push(Node::Not(guard))?;
+                let no = self.push(Node::And(vec![not_guard, no]))?;
+                Node::Or(vec![yes, no])
+            }
             Expr::Enabled(action) => {
                 self.pure_atom(*action, scope)?;
                 return self.special_atom(

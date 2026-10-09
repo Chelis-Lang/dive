@@ -363,3 +363,188 @@ fn quantifier_limits_and_hidden_constant_effects_are_not_success() {
         Err(Error::Analysis(_))
     ));
 }
+
+#[test]
+fn conditional_word_truth_uses_current_state_or_temporal_guard() {
+    let source = "---- MODULE M ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n\
+    P == IF x THEN []x ELSE <>x\nQ == IF ~x THEN []<>x ELSE <>[]~x\n\
+    R == IF ~~x THEN []x ELSE <>x\n\
+    T == IF []<>x THEN <>[]x ELSE <>[]~x\n\
+    O == IF x THEN IF ~x THEN FALSE ELSE []x ELSE <>x\n====\n";
+    let (ir, cfg) = input(source, "INIT Init\nNEXT Next\n");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+    for n in 1..=4 {
+        for bits in 0..(1_usize << n) {
+            let values: Vec<bool> = (0..n).map(|i| bits & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|b| Arc::from([Some(dive_value::Value::Bool(*b))]))
+                .collect();
+            for back in 0..n {
+                let gf = values[back..].iter().any(|b| *b);
+                let fg = values[back..].iter().all(|b| *b);
+                for name in ["P", "Q", "R", "T", "O"] {
+                    let expected: Vec<bool> = (0..n)
+                        .map(|i| {
+                            let mut reachable = Vec::new();
+                            let mut at = i;
+                            while !reachable.contains(&at) {
+                                reachable.push(at);
+                                at = if at + 1 == n { back } else { at + 1 };
+                            }
+                            let always = reachable.iter().all(|j| values[*j]);
+                            let eventual = reachable.iter().any(|j| values[*j]);
+                            match name {
+                                "P" | "R" | "O" => {
+                                    if values[i] {
+                                        always
+                                    } else {
+                                        eventual
+                                    }
+                                }
+                                "Q" => {
+                                    if !values[i] {
+                                        gf
+                                    } else {
+                                        !gf
+                                    }
+                                }
+                                "T" => {
+                                    if gf {
+                                        fg
+                                    } else {
+                                        !gf
+                                    }
+                                }
+                                _ => panic!("expected formula"),
+                            }
+                        })
+                        .collect();
+                    let d = model.ir.root_def(name).expect("definition");
+                    let pred =
+                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    assert_eq!(
+                        dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                            .expect(name),
+                        expected,
+                        "{name} {values:?} back {back}"
+                    );
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        expected,
+                        "plan {name} {values:?} back {back}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pinned_temporal_conditionals_match_oracle_counts_in_both_profiles_and_stores() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-conditionals");
+    for name in ["CdState", "CdFair", "CdTemporalGuard"] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("stdout");
+        let exit: i32 =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+                .expect("exit")
+                .trim()
+                .parse()
+                .expect("code");
+        let (ir, cfg) = input(&source, &config);
+        for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                opts.store = store;
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let complete = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit, 0, "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(exit, 13, "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid);
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (
+                        complete.stats.generated,
+                        complete.stats.distinct,
+                        complete.stats.depth
+                    ),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn incomplete_cases_and_effectful_conditional_branches_are_refused() {
+    let source = "---- MODULE M ----\nEXTENDS TLC\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == CASE x -> []<>x\nQ == IF x THEN []<>x ELSE []PrintT(\"hidden\")\n====\n";
+    for name in ["P", "Q"] {
+        let (ir, cfg) = input(source, &format!("INIT Init\nNEXT Next\nPROPERTY {name}\n"));
+        let error = temporal::check_final(&ir, &cfg, &CheckOptions::dive(0), Limits::default())
+            .expect_err("undefined/effectful conditional cannot become a verdict");
+        assert!(matches!(error, Error::Analysis(_)), "{error}");
+    }
+}
+
+#[test]
+fn oracle_rejected_temporal_conditionals_remain_named_refusals() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-conditionals");
+    for (name, deciding_code) in [("CdAction", 2214), ("CdCaseOverlap", 2213)] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("stdout");
+        assert!(
+            stdout.contains(&format!("STARTMSG {deciding_code}:1")),
+            "{name}: {stdout}"
+        );
+        let (ir, cfg) = input(&source, &config);
+        for opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            let error = temporal::check_final(&ir, &cfg, &opts, Limits::default())
+                .expect_err("no verdict for oracle-rejected formula");
+            assert!(matches!(error, Error::Analysis(_)), "{name}: {error}");
+            assert!(
+                error.to_string().contains(if name == "CdAction" {
+                    "action-level conditional"
+                } else {
+                    "Case"
+                }),
+                "{error}"
+            );
+        }
+    }
+}
