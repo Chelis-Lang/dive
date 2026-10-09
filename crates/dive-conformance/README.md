@@ -8,6 +8,10 @@ The differential conformance harness. It:
 
 Read with ADRs [0002](../../docs/decisions/0002-oracle-pinning.md) (pins), [0003](../../docs/decisions/0003-golden-format-and-provenance.md) (goldens, invocation, classification), [0004](../../docs/decisions/0004-worker-count-and-depth-semantics.md) (workers and depth) and [0005](../../docs/decisions/0005-reuse-examples-manifests.md) (Examples manifests).
 
+The generated `validation-smoke` corpus covers 16 pinned ValidationTestSuite
+models and 20 modules. See `docs/conformance-corpora.md` for its complete
+selected-case census, scope, licence and reproduction procedure.
+
 ## Design
 
 ```text

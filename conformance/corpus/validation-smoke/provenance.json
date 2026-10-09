@@ -1,0 +1,31 @@
+{
+  "anomalous": false,
+  "case_features": [
+    "Eq",
+    "Let",
+    "InstanceNamedWith",
+    "Enabled",
+    "BoolTrue"
+  ],
+  "commit": "fe99cff1ca48535bdbfc99fd95bd2706f056c12f",
+  "dependencies": {
+    "Jinja2": "3.1.2",
+    "MarkupSafe": "2.1.5",
+    "PyYAML": "6.0.3"
+  },
+  "license": "Apache-2.0",
+  "oracle_results": "generated separately by dive-conformance; no result assumed",
+  "plug_features": [
+    "BoolTrue",
+    "BoolFalse"
+  ],
+  "python": "3.9",
+  "reference_checkers": "not executed",
+  "repo": "https://github.com/tlaplus/ValidationTestSuite",
+  "schema_version": 1,
+  "symmetry": false,
+  "workers_options": [
+    "1",
+    "2"
+  ]
+}
