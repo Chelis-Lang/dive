@@ -23,6 +23,16 @@ commit = "fe99cff1ca48535bdbfc99fd95bd2706f056c12f" # 2026-09-10
 license = "Apache-2.0"
 layout = "tbd"
 
+# Bounded generated subset of the source-only ValidationTestSuite above.
+# selection.json accounts for every selected case, including reference variants
+# and upstream skips. Runtime/truth are unknown until measured by our oracle;
+# these models are in the deep tier. See docs/conformance-corpora.md.
+[[corpus]]
+id = "validation-smoke"
+path = "conformance/corpus/validation-smoke"
+license = "Apache-2.0"
+layout = "examples-manifest"
+
 [[corpus]]
 id = "tlaplus-tests"
 repo = "https://github.com/tlaplus/tlaplus"

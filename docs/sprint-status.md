@@ -139,3 +139,10 @@ with no findings. See [the study guide](design/final-temporal-study.md) and its
 raw report. Actual graph capture remains inline; this is not strict TLC agreement
 or parallel scaling. The next scoped-planning increments are guided by the
 remaining substitution, domain, tableau and independent-validation refusals.
+
+ValidationTestSuite now has a reproducible bounded smoke import: all 36
+selected cases accounted for, 16 imported models and 20 modules, with generated
+pinned goldens. All 16 models fully agree under the TLC profile at 1, 4 and 8
+workers and all 20 modules agree with SANY. The required conformance check
+includes this set. Broader generator and JUnit-model coverage remain open in
+#2; see `docs/conformance-corpora.md`.
