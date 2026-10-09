@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Independent successor-existence proofs retain value-bound action-call scopes,
+  allowing finite ENABLED/fairness decisions without sharing the checker
+  enumerator. Missing covers and lazy state arguments still refuse.
 - Final temporal planning and independent word validation inspect each scoped
   call separately; pure constant scalar/tuple arguments now bind through nested
   and quantified temporal operators. State-dependent and effectful arguments

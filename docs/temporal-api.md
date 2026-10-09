@@ -104,3 +104,10 @@ independent word validator each check their own scoped arguments and work/depth
 bounds. Lazy state arguments and hidden checker-register reads are refused;
 parameterized actions whose ENABLED proof lacks an independent finite cover
 also remain validation refusals.
+
+Independent ENABLED/fairness proofs now follow pure constant-argument action
+calls and value-bound locals. Covers retain each call's scalar/tuple context,
+and every witness is tested against the original relation. Missing primed
+variable covers, lazy state arguments and higher-order calls still refuse.
+The `SfDisabled` probe specifically requires false ENABLED on its stuttering
+cycle; a recurring action cannot stand in for this proof.

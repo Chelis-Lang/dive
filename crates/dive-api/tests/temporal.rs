@@ -689,3 +689,61 @@ fn temporal_call_purity_walk_consumes_the_planning_budget() {
         .expect_err("small budget cannot report success");
     assert_eq!(err.code(), "DIVE-L0021");
 }
+
+#[test]
+fn scoped_fairness_and_enabledness_match_pinned_truth_and_independent_validation() {
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/scoped-fairness");
+    for name in ["SfDisabled", "SfEnabled", "SfReach"] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let code: i32 =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+                .expect("exit")
+                .trim()
+                .parse()
+                .expect("number");
+        let (ir, cfg) = input(&src, &config);
+        for mut opts in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                opts.store = store;
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let evidence = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(code, 0, "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert_eq!(code, 13, "{name}");
+                        assert_eq!(v.validation().validation, Validation::Valid);
+                        assert_eq!(v.document().properties, ["P"]);
+                        // Only state 1 repeats: Go(1) never occurs in this cycle.
+                        // WF must be proved from disabledness, not recurrence.
+                        assert!(
+                            v.candidate().states[v.candidate().back_to..]
+                                .iter()
+                                .all(|s| s[0] == Some(dive_value::Value::from(1_i64)))
+                        );
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (
+                        evidence.stats.generated,
+                        evidence.stats.distinct,
+                        evidence.stats.depth
+                    ),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}

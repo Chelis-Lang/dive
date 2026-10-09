@@ -133,7 +133,7 @@ None is implemented.
 
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
-| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant-argument operators, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; phase-L/TLC-exact selection pending. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
+| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; phase-L/TLC-exact selection pending. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
 | D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | planned; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | planned; ADR 0019 non-bijective probe |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
