@@ -187,11 +187,10 @@ fn tlc_probe_counterexamples_validate_and_their_mutants_do_not() {
     let all = probe_controls();
     for (id, c) in &all {
         let Ok(c) = c else { continue };
-        // A deadlock is refused by name, after every other check passed.
-        let deadlock = matches!(id.as_str(), "DeadlockMidLevel" | "StutterSpec");
+        // Both finite deadlock probes now prove absence independently.
         assert_eq!(
-            matches!(c.positive.validation, Validation::Unsupported(_)),
-            deadlock,
+            c.positive.validation,
+            Validation::Valid,
             "{id}: {:?}",
             c.positive
         );
@@ -210,8 +209,16 @@ fn deadlock_needs_the_model_to_check_it() {
     .with_ending(Ending::Deadlock);
     let checks =
         SpecModel::from_source("D.tla", spec, "INIT Init\nNEXT Next\n", &tlc()).expect("model");
+    assert_eq!(checks.validate(&doc).validation, Validation::Valid);
+    let opaque = spec.replace(
+        "Next == x = 0 /\\ x' = 1",
+        "Step(k) == x < k /\\ x' = x + 1\nNext == Step(1)",
+    );
+    let opaque = opaque.replace("VARIABLE x", "EXTENDS Naturals\nVARIABLE x");
+    let unknown = SpecModel::from_source("D.tla", &opaque, "INIT Init\nNEXT Next\n", &tlc())
+        .expect("opaque model");
     assert_eq!(
-        checks.validate(&doc).validation,
+        unknown.validate(&doc).validation,
         Validation::Unsupported(dive_trace_deadlock().to_owned())
     );
     let no = SpecModel::from_source(
@@ -229,7 +236,7 @@ fn deadlock_needs_the_model_to_check_it() {
 
 fn dive_trace_deadlock() -> &'static str {
     // The reason `dive-trace` gives; spelled out so a change is deliberate.
-    "deadlock: that the last state has no successor cannot be checked without the successor enumerator, which the independent validator does not have (ADR 0016, amendment 1); every other check passed"
+    "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)"
 }
 
 #[test]

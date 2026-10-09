@@ -9,6 +9,7 @@ use dive_model::{Model, Pred};
 use dive_value::Value;
 
 use crate::State;
+use crate::exists::{Decision, Limits, exists_successor};
 
 /// Why temporal evaluation cannot establish a truth value.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -55,11 +56,11 @@ impl std::error::Error for TemporalError {}
 /// ```
 ///
 /// # Errors
-/// Invalid words or nonboolean atoms; unsupported fairness without recurring
-/// action occurrences, side effects,
+/// Invalid words or nonboolean atoms; unsupported fairness whose enabledness
+/// lacks a complete finite cover, side effects,
 /// temporal quantification, opaque scoped atoms, checker introspection or
-/// resource bounds. `ENABLED` is deliberately
-/// refused until independent successor-existence checking is available.
+/// resource bounds. Direct `ENABLED` uses independent finite covers; opaque
+/// embedded enabledness or missing covers remain explicit refusals.
 pub fn evaluate_lasso(
     model: &Model,
     formula: &Pred,
@@ -141,16 +142,25 @@ impl Word<'_> {
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
         }
-        if node.effects.contains(Effects::USES_ENABLED) {
-            return Err(TemporalError::Unsupported(
-                "ENABLED: independent successor-existence checking is not implemented".into(),
-            ));
-        }
-        if node.level <= Level::Action && !node.effects.contains(Effects::TEMPORAL) {
+        if node.level <= Level::Action
+            && !node
+                .effects
+                .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
+        {
             return self.atom(expr, scope);
         }
         let child = depth + 1;
         match &node.expr {
+            Expr::Enabled(action) => self
+                .states
+                .iter()
+                .map(|state| {
+                    let pred = Pred::new(*action, scope.clone());
+                    exists_successor(self.model, &pred, state, None, Limits::default())
+                        .map(|d| matches!(d, Decision::Enabled { .. }))
+                        .map_err(|e| TemporalError::Unsupported(format!("ENABLED: {e}")))
+                })
+                .collect(),
             Expr::Always(e) | Expr::Eventually(e) => {
                 let always = matches!(node.expr, Expr::Always(_));
                 let values = self.eval(*e, scope, child)?;
@@ -203,7 +213,7 @@ impl Word<'_> {
             }
             Expr::Selected(e) | Expr::Label { body: e, .. } => self.eval(*e, scope, child),
             Expr::Wf { sub, action } | Expr::Sf { sub, action } => {
-                self.recurring_action(*action, *sub, scope)
+                self.fairness(*action, *sub, scope, matches!(node.expr, Expr::Sf { .. }))
             }
             other => Err(TemporalError::Unsupported(format!(
                 "temporal constructor {}",
@@ -215,11 +225,12 @@ impl Word<'_> {
     // GF <<A>>_v implies both WF_v(A) and SF_v(A). This sufficient
     // condition needs no ENABLED search or witness. Checking only the finite
     // prefix would be unsound: the occurrence must be on the repeated cycle.
-    fn recurring_action(
+    fn fairness(
         &self,
         action: ExprId,
         sub: ExprId,
         scope: &Scope,
+        strong: bool,
     ) -> Result<Vec<bool>, TemporalError> {
         self.check_atom_context(sub)?;
         if self.model.ir.node(sub).level > Level::State {
@@ -259,7 +270,24 @@ impl Word<'_> {
         if recurrent {
             Ok(vec![true; self.states.len()])
         } else {
-            Err(TemporalError::Unsupported("fairness: no recurring <<A>>_v occurrence certifies the claim; independent ENABLED checking is not implemented".into()))
+            let action = Pred::new(action, scope.clone());
+            let sub = Pred::new(sub, scope.clone());
+            let disabled: Vec<bool> = self.states[self.back_to..]
+                .iter()
+                .map(|state| {
+                    exists_successor(self.model, &action, state, Some(&sub), Limits::default())
+                        .map(|d| matches!(d, Decision::Disabled))
+                        .map_err(|e| TemporalError::Unsupported(format!("fairness ENABLED: {e}")))
+                })
+                .collect::<Result<_, _>>()?;
+            // WF = GF(~enabled) OR GF(occurs); SF = FG(~enabled) OR GF(occurs).
+            // On this repeated finite cycle GF and FG reduce to any and all.
+            let holds = if strong {
+                disabled.iter().all(|b| *b)
+            } else {
+                disabled.iter().any(|b| *b)
+            };
+            Ok(vec![holds; self.states.len()])
         }
     }
 
@@ -303,6 +331,11 @@ impl Word<'_> {
                 continue;
             }
             let node = self.model.ir.expr(e);
+            if matches!(node, Expr::Enabled(_)) {
+                return Err(TemporalError::Unsupported(
+                    "nested ENABLED in an opaque action/state atom".into(),
+                ));
+            }
             if matches!(node, Expr::Local(_) | Expr::SubstRef { .. }) {
                 return Err(TemporalError::Unsupported(
                     "opaque scoped atom in temporal validation".into(),

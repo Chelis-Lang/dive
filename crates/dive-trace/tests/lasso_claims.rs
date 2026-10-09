@@ -91,7 +91,7 @@ fn temporal_behavior_conjuncts_must_hold_and_recurring_action_certifies_fairness
         .expect("word")
         .with_ending(Ending::Stuttering)
         .with_properties(vec!["P".into()]);
-    assert!(matches!(result(&m,&stutter),Validation::Unsupported(s) if s.contains("ENABLED")));
+    assert!(matches!(result(&m,&stutter),Validation::Invalid(f) if f.check == Check::Fairness));
 }
 
 #[test]
@@ -165,6 +165,8 @@ fn pinned_liveness_words_validate_including_recurring_fair_actions() {
         "LvActionProp",
         "LvLassoMid",
         "LvStutterActionConstraint",
+        "LvWFIntermittent",
+        "LvStutterEnd",
     ] {
         let src =
             std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
@@ -197,7 +199,7 @@ fn pinned_liveness_words_validate_including_recurring_fair_actions() {
         }
     }
     assert!(
-        valid == 8,
+        valid == 10,
         "controls must exercise actual certification, got {valid}"
     );
 }

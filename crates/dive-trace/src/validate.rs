@@ -150,7 +150,7 @@ pub struct Report {
 }
 
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
-pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: that the last state has no successor cannot be checked without the successor enumerator, which the independent validator does not have (ADR 0016, amendment 1); every other check passed";
+pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)";
 
 /// The checking run's random streams, for replaying its draws: the seed
 /// and seeding mode ([`Streams`]) and the fingerprint polynomial's index
@@ -605,7 +605,27 @@ impl<'a> Run<'a> {
             }
         }
         Ok(match goal {
-            Goal::Deadlock => Some(DEADLOCK_UNSUPPORTED.to_owned()),
+            Goal::Deadlock => {
+                use crate::exists::{Decision, Limits, exists_successor};
+                if let Some(next) = &m.next {
+                    match exists_successor(m, next, &trace.states[last], None, Limits::default()) {
+                        Ok(Decision::Disabled) => None,
+                        Ok(Decision::Enabled { .. }) => {
+                            return Err(invalid(
+                                last,
+                                Check::Ending,
+                                "the claimed deadlock has a successor",
+                            ));
+                        }
+                        Err(e) => {
+                            self.notes.insert(e.to_string());
+                            Some(DEADLOCK_UNSUPPORTED.to_owned())
+                        }
+                    }
+                } else {
+                    Some(DEADLOCK_UNSUPPORTED.to_owned())
+                }
+            }
             Goal::Liveness(why) | Goal::ErrorEnd(why) => Some(why.to_owned()),
             Goal::Invariant(_) | Goal::ImpliedInit(_) | Goal::ImpliedAction(_) | Goal::Behavior => {
                 None
