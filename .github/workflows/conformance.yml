@@ -123,6 +123,7 @@ jobs:
           target/release/dive-conformance run \
             --impl dive \
             --sany-phase parse \
+            --sany-only \
             --corpus examples --corpus tlaplus-tests --corpus community-modules \
             --tier "$TIER" \
             --jobs 2 \

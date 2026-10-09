@@ -145,7 +145,7 @@ dive-conformance run --impl tlc:tlc-1.7.4 --no-summary             # cross-oracl
 dive-conformance run --impl tlc --workers 1,4 --filter 'specifications/ewd840/*'
 cargo build --release -p dive-cli                                  # then, for dive's front end:
 dive-conformance run --impl dive --tier all --corpus examples --corpus tlaplus-tests --corpus community-modules
-dive-conformance run --impl dive --sany-phase parse --corpus tlaplus-tests   # dive parse vs SANY's parse phase
+dive-conformance run --impl dive --sany-phase parse --sany-only --corpus tlaplus-tests   # dive parse vs SANY's parse phase
 ```
 
 **`dev capture`** (`--oracle ID --specs DIR --out DIR [--seed N] [--lncheck MODE] [--workers N] [--fp N] NAME...`) runs an oracle exactly as the harness does on `DIR/NAME/NAME.tla` and `.cfg`, and records the raw stdout, stderr, exit code, JSON trace and SANY output. The fixtures under `tests/fixtures/tlc/` were made this way. `--seed N` replaces the harness's `-seed 0`; the randomization fixtures in `crates/dive-stdlib/tests/fixtures/random/` use it. `--lncheck MODE` (`final`, `default` or `off`) replaces `-lncheck final`, `--workers N` (one count) replaces `-workers 1`, and `--fp N` replaces `-fp 0`. They record TLC's other modes as oracle facts for probes (the liveness probes in `crates/dive-liveness/tests/fixtures/tlc-probes/` use all three); goldens never use them. A capture with more than one worker has no JSON trace, because the trace pass runs only at one worker. Like golden generation, it records the clean run (no `-dumpTrace`); a counterexample's `.trace.json` comes from the cross-checked trace pass, run with the same `-seed`, whose command line is in `.trace.command`. Transcripts captured before issue #35 were made with `-dumpTrace json` on the deciding run: their `.command` ends in `-dumpTrace json $TMP/trace.json`, and their SANY lines show `_JsonTrace`, `TLCExt`, `Json` and `Integers` being parsed.
@@ -372,3 +372,7 @@ Each note has a minimal spec under `tests/fixtures/specs/` and captured transcri
 - Simulation results are compared by verdict only; the simulation is pinned with `-seed 0`.
 - External adapters are parsed but not executed.
 - The harness targets macOS and Linux. Process-group killing uses Unix process groups.
+
+`run --sany-only` compares modules without running model checking. Use it
+with `--sany-phase parse` for parser-only conformance; `--no-sany` selects
+model checking alone. Combining these two selection flags is a usage error.
