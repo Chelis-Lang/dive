@@ -427,3 +427,18 @@ Capture still runs inline. Ordinary `dive check` remains refusing while phase-L
 errors/counts, exact planning/selection, parallel/periodic capture, VIEW,
 symmetry and report/API integration are completed. This library increment does
 not claim full TLC compatibility or enable CLI liveness verdicts.
+
+
+### Final temporal API increment
+
+`dive-api::temporal::check_final` binds fresh models for analysis and independent
+validation. It returns a periodic violation only when both the in-memory word
+and its lossless trace document validate; an unsupported validation result
+remains an error, and a refuted candidate is an internal inconsistency. Safety
+stops preserve the full `CheckResult`, including trace, statistics and output.
+
+This API always uses final checking and short-lasso selection, even with TLC
+value semantics. It does not claim TLC-exact lasso selection, phase-L error
+timing or periodic behavior. Ordinary check/CLI integration remains pending.
+The existing permitted `dive-api -> dive-liveness` edge is activated; trace
+validation keeps its independent dependency/feature boundary.

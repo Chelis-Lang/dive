@@ -6,7 +6,7 @@
 //! their complete configured property set.
 //! The CLI retains its liveness refusal until that integration is complete.
 
-use dive_check::{CheckOptions, Verdict, capture};
+use dive_check::{CheckOptions, CheckResult, capture};
 use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 
@@ -81,7 +81,7 @@ pub enum AnalysisError {
     /// Product construction or acceptance search failed.
     Product(product::ProductError),
     /// Safety exploration stopped or refused.
-    Exploration(Box<Verdict>),
+    Exploration(Box<CheckResult>),
     /// Atom evaluation failed or was nonboolean, retaining property/source.
     Atom {
         /// Property being checked.
@@ -122,7 +122,7 @@ impl std::fmt::Display for AnalysisError {
             Self::Planning(e) => e.fmt(f),
             Self::Tableau(e) => e.fmt(f),
             Self::Product(e) => e.fmt(f),
-            Self::Exploration(v) => write!(f, "liveness exploration stopped: {v:?}"),
+            Self::Exploration(v) => write!(f, "liveness exploration stopped: {:?}", v.verdict),
             Self::Atom {
                 property,
                 source,
@@ -300,7 +300,7 @@ pub fn analyze_final(
         .collect::<Result<_, AnalysisError>>()?;
     let captured = match capture::explore(model, opts, limits.capture) {
         capture::Exploration::Complete(c) => *c,
-        capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(Box::new(v))),
+        capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
     };
     let graph = Graph::new(
         captured

@@ -467,6 +467,13 @@ inline and reports that width. TLC-exact planning/selection, phase-L error
 accounting, parallel/periodic capture and CLI options remain pending. Ordinary
 `dive check` still refuses temporal model checking.
 
+The Rust API [`dive_api::temporal::check_final`](temporal-api.md) returns a
+periodic violation only after both its in-memory word and lossless trace
+validate against a separately bound model. Unsupported validation stays a
+refusal. Safety stops retain their statistics and finite counterexamples.
+This API always selects short lassos, including with TLC value semantics;
+it does not claim TLC-exact selection or periodic/error timing.
+
 **Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
 
 ## D-014: Periodic liveness checking has a replayable schedule
