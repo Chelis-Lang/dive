@@ -505,11 +505,11 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
             Some(2)
         );
     }
-    // A formula whose scope needs an unsupported parameter is refused
+    // A higher-order formula whose scope is still unsupported is refused
     // before it can produce a temporal verdict.
     let opaque = temp_file(
         "OpaqueTemporal.tla",
-        "---- MODULE OpaqueTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nT(p) == []<>p\nP == T(x)\n====\n",
+        "---- MODULE OpaqueTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nT(p) == []<>p\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n",
     );
     assert!(
         std::fs::write(
