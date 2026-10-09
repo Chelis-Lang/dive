@@ -5,6 +5,10 @@
 //! pinned SHA-256 and only then renamed into place. A mismatch deletes the
 //! file and is a hard error.
 //!
+//! Each step that creates a cache entry holds the entry's advisory lock
+//! ([`Cache::lock`]) and checks again under it, so concurrent harness
+//! processes sharing one cache never write the same entry at once.
+//!
 //! GitHub release assets on private repositories cannot be fetched from the
 //! browser URL, even with a token (GitHub answers 404). For those the harness
 //! resolves the asset through the REST API (`GET
@@ -213,6 +217,12 @@ impl Fetcher {
             verify_file(&dest, sha256, what)?;
             return Ok((dest, FetchStatus::Cached));
         }
+        let _lock = self.cache.lock(&format!("sha256-{sha256}"))?;
+        if dest.is_file() {
+            // Another process downloaded it while this one waited.
+            verify_file(&dest, sha256, what)?;
+            return Ok((dest, FetchStatus::Cached));
+        }
         let dir = dest
             .parent()
             .ok_or_else(|| Error::Io(format!("{} has no parent", dest.display())))?;
@@ -253,6 +263,10 @@ impl Fetcher {
         if let Ok(java) = find_java(&dir) {
             return Ok((java, status));
         }
+        let _lock = self.cache.lock(&format!("jre-{sha256}"))?;
+        if let Ok(java) = find_java(&dir) {
+            return Ok((java, status));
+        }
         let parent = self.cache.root().join("jre");
         let staging = crate::util::TempDir::new_in(&parent, "unpack")?;
         capture(
@@ -269,6 +283,8 @@ impl Fetcher {
     }
 
     /// Ensures `repo` is checked out at `commit` under `git/<id>/<commit>`.
+    /// Safe to call from several processes at once: one checks out, the
+    /// others wait and then find it cached.
     ///
     /// # Errors
     /// Fails if git fails or the checkout is not at `commit`.
@@ -283,6 +299,14 @@ impl Fetcher {
             verify_head(&dir, commit)?;
             return Ok((dir, FetchStatus::Cached));
         }
+        let _lock = self.cache.lock(&format!("checkout-{id}-{commit}"))?;
+        if checkout_marker(&dir).is_file() {
+            // Another process checked it out while this one waited.
+            verify_head(&dir, commit)?;
+            return Ok((dir, FetchStatus::Cached));
+        }
+        // An interrupted earlier checkout: start again. Under the lock, no
+        // other fetch is writing here.
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).map_err(|e| Error::io(&dir, &e))?;
         let git = |args: &[&str]| capture(Command::new("git").arg("-C").arg(&dir).args(args));

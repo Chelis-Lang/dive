@@ -126,16 +126,25 @@ pub enum Layout {
     Tbd,
 }
 
-/// One pinned corpus (`[[corpus]]`).
+/// One pinned corpus (`[[corpus]]`): either an upstream git repository
+/// pinned by commit (`repo` and `commit`), or a dive-owned corpus kept in
+/// this repository (`path`), identified by the digest of its files
+/// ([`crate::corpus::tree_digest`]).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Corpus {
     /// Stable id, e.g. `examples`.
     pub id: String,
-    /// Git repository URL.
+    /// Git repository URL. Empty for an in-repository corpus.
+    #[serde(default)]
     pub repo: String,
-    /// Full commit SHA.
+    /// Full commit SHA. Empty for an in-repository corpus.
+    #[serde(default)]
     pub commit: String,
+    /// In-repository corpus: its directory, relative to the repository root
+    /// (under `conformance/`). Mutually exclusive with `repo` and `commit`.
+    #[serde(default)]
+    pub path: Option<String>,
     /// SPDX licence.
     pub license: String,
     /// Layout.
@@ -375,11 +384,29 @@ impl CorporaFile {
             toml::from_str(text).map_err(|e| Error::Config(format!("corpora.toml: {e}")))?;
         check_unique("corpus", file.corpus.iter().map(|c| c.id.as_str()))?;
         for c in &file.corpus {
-            if !is_commit(&c.commit) {
-                return Err(Error::Config(format!(
-                    "corpus `{}`: commit must be a full SHA",
-                    c.id
-                )));
+            match &c.path {
+                None if !is_commit(&c.commit) => {
+                    return Err(Error::Config(format!(
+                        "corpus `{}`: commit must be a full SHA",
+                        c.id
+                    )));
+                }
+                Some(_) if !c.repo.is_empty() || !c.commit.is_empty() => {
+                    return Err(Error::Config(format!(
+                        "corpus `{}`: give `path` (in this repository) or `repo` and `commit`, not both",
+                        c.id
+                    )));
+                }
+                Some(p)
+                    if !p.starts_with("conformance/")
+                        || p.split('/').any(|c| c == ".." || c == "." || c.is_empty()) =>
+                {
+                    return Err(Error::Config(format!(
+                        "corpus `{}`: path `{p}` must be a plain relative path under conformance/",
+                        c.id
+                    )));
+                }
+                None | Some(_) => {}
             }
             if c.layout != Layout::ModulesOnly && (!c.include.is_empty() || !c.exclude.is_empty()) {
                 return Err(Error::Config(format!(
@@ -483,7 +510,29 @@ mod tests {
             cfg.corpora.corpus("examples")?.layout,
             Layout::ExamplesManifest
         );
+        assert_eq!(
+            cfg.corpora.corpus("probes")?.path.as_deref(),
+            Some("conformance/corpus/probes")
+        );
         Ok(())
+    }
+
+    #[test]
+    fn in_repository_corpora() {
+        let ok = "[[corpus]]\nid = \"p\"\npath = \"conformance/corpus/p\"\nlicense = \"MIT\"\nlayout = \"examples-manifest\"\n";
+        let file = CorporaFile::parse(ok);
+        assert!(file.is_ok_and(|f| f.corpus[0].path.is_some()));
+        let sha = "0".repeat(40);
+        for bad in [
+            ok.replace("path = ", &format!("commit = \"{sha}\"\npath = ")),
+            ok.replace("path = ", "repo = \"https://x\"\npath = "),
+            ok.replace("conformance/corpus/p", "conformance/../p"),
+            ok.replace("conformance/corpus/p", "/abs/conformance/p"),
+            ok.replace("conformance/corpus/p", "elsewhere/p"),
+            ok.replace("path = \"conformance/corpus/p\"\n", ""),
+        ] {
+            assert!(CorporaFile::parse(&bad).is_err(), "{bad}");
+        }
     }
 
     #[test]

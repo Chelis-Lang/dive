@@ -1,0 +1,37 @@
+{
+  "sources": [
+    "docs/survey/competitive.md#appendix-probe-specs"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/P2Choose/P2Choose.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/P2Choose/P2Choose_seq.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "specifications/P2Choose/P2Choose_set.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "success"
+        },
+        {
+          "path": "specifications/P2Choose/P2Choose_str.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    }
+  ]
+}

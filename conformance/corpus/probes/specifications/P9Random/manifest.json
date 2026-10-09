@@ -1,0 +1,25 @@
+{
+  "sources": [
+    "docs/survey/competitive.md#appendix-probe-specs"
+  ],
+  "authors": [
+    "dive"
+  ],
+  "tags": [
+    "probe"
+  ],
+  "modules": [
+    {
+      "path": "specifications/P9Random/P9Random.tla",
+      "features": [],
+      "models": [
+        {
+          "path": "specifications/P9Random/P9Random.cfg",
+          "runtime": "00:00:01",
+          "mode": "exhaustive search",
+          "result": "safety failure"
+        }
+      ]
+    }
+  ]
+}

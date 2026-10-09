@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Conformance harness (issue #48): dive's default profile now exits clean on the small
+  tier. The D-010 differences in Examples `MissionariesAndCannibals` and
+  `acp/ACP_NB_WRONG_TLC` (counts at the violation only) are registered in
+  `conformance/expected-divergences.toml` and reported as `expected-divergence`.
+  Registry entries now list the `fields` they may excuse, and never excuse trace
+  validation. The nightly conformance workflow also runs the default profile on the
+  tier's models.
+- Conformance harness (issue #46): concurrent harness processes can share one
+  `DIVE_CACHE_DIR`. Downloads, JRE unpacking, checkouts and jar module extraction run
+  under a per-entry advisory file lock (`locks/` in the cache) and re-check under it.
+  The README and `AGENTS.md` document a per-worktree `DIVE_CACHE_DIR` for parallel agents.
+- `dive-sema` (issue #30): `DIVE-E0005` (a module defined twice, SANY 4223) is documented
+  as a semantic-phase error, as SANY reports it, not a parse-phase one. The harness
+  already classified it as `semantic-error`.
 - `dive-store` and `dive check` (issue #42): the default profile's two-level state
   fingerprint combined per-value FP64 fingerprints with FP64 again, which is affine
   over GF(2), so the same change made to two variables could cancel; Examples
@@ -54,6 +68,22 @@ All notable changes to this project are documented here. The project will follow
   by name, none wrong. Examples `DieHard/MCDieHardest`,
   `MisraReachability/MCReachabilityTestRandomGraphs` and `ewd998/EWD998PCal` now agree
   with TLC under `--compat=tlc`.
+- Conformance (issue #18): the competitive-analysis probes (P1–P9, M1–M2) are the
+  dive-owned corpus `probes` (`conformance/corpus/probes/`, Examples layout), with TLC
+  and SANY goldens from the gating oracle. In-repository corpora are pinned by the
+  SHA-256 of their files (ADR 0005, amendment 1). Under `--compat=tlc`, `dive check`
+  agrees on 11 of the 14 models at 1 and 4 workers and refuses 2 by name (`Json!ToJson`,
+  liveness); `P9Random` agrees on every compared field but is pending trace validation,
+  because the validator has no random stream to replay `RandomElement`. The default profile's answers for P1 (unbounded
+  integers, D-004) and P2's string case (canonical `CHOOSE`, D-006) are registered
+  expected divergences. The nightly runs the corpus.
+- Conformance: the competitors' measured invocations are external adapters in
+  `conformance/adapters/`. The adapter schema gains provenance, library modes, a worker
+  limit, environment templates, refusal exit codes, ordered output rules and count
+  extractors.
+- `dive check` claims TLC's class for a spec SANY would reject (`TLC_PARSING_FAILED`,
+  3002, exit 150) in both profiles, verified against the harness fixtures and the M1/M2
+  probe goldens; the harness compares it.
 - `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
   level engine run inline with one logical worker, over `dive-model`'s bound model:
   - initial states, invariants (on new and out-of-model states), implied initial

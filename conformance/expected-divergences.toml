@@ -9,17 +9,22 @@
 #                   strict-tier agreement
 #
 # Under `dive`, a disagreement matching an entry below, with the entry's
-# expected verdict, is reported as `expected-divergence`. It is never counted
+# expected verdict and with every differing field among the entry's
+# `fields`, is reported as `expected-divergence`. It is never counted
 # as `agree`. Everything else is `disagree`. The registry never applies under
 # `tlc` or `tlc+overrides`, and an entry naming them is a configuration error.
 #
-# Entry shape (every field required except one of profile/option):
+# Entry shape (every field required except one of profile/option). `fields`
+# are globs over the compared fields (`verdict`, `error_class`,
+# `violated_property`, `counts.*`, `trace.length`, `trace.ending`); list only
+# those that actually differ. Trace validation can never be excused.
 #
 # [[divergence]]
 # id = "big-integers"                         # stable, unique
 # pattern = "specifications/**/MC*.cfg"       # model or module path glob
 # profile = "dive"                            # or: option = "int=big"
 # expected_verdict = "success"                # dive's verdict where TLC differs
+# fields = ["verdict", "error_class"]         # the fields that may differ
 # justification = "dive uses arbitrary-precision integers by default"
 # link = "docs/divergences.md#integer-overflow"
 #
@@ -27,3 +32,52 @@
 # TLC_MODULE_OVERFLOW at 32 bits), and refusing symmetry with liveness
 # (TLC only warns). Entries are added once dive implements them, with the
 # affected models identified.
+
+# D-010: canonical exploration order (owner-approved default, 2026-10-08).
+# Exploring sets in canonical rather than TLC's interning order reaches the
+# same violation at the same depth, with the same property and counterexample
+# length, but stops after a different number of states. Only the counts at the
+# stop differ; under --compat=tlc both models agree (CM1 gate).
+
+[[divergence]]
+id = "d010-missionaries-and-cannibals"
+pattern = "specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = ["counts.states_generated"]
+justification = "Canonical exploration order (D-010) generates one more state (226 vs TLC's 225) before reaching the same Solution violation at the same depth"
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d010-acp-nb-wrong-tlc"
+pattern = "specifications/acp/ACP_NB_WRONG_TLC.cfg"
+profile = "dive"
+expected_verdict = "safety-violation"
+fields = [
+  "counts.distinct_states",
+  "counts.states_generated",
+  "counts.states_left_on_queue",
+]
+justification = "Canonical exploration order (D-010) reaches the same AC1 violation at the same depth after 12645 distinct / 64357 generated / 970 queued states (TLC: 11852 / 59286 / 1248)"
+link = "docs/divergences.md#registry"
+
+# Probes (conformance/corpus/probes; docs/survey/competitive.md) whose default
+# profile answer differs from TLC's by owner-approved design.
+
+[[divergence]]
+id = "d004-p1-overflow"
+pattern = "specifications/P1Overflow/P1Overflow.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["verdict", "error_class", "counts.*"]
+justification = "Unbounded integers (D-004): x reaches 2147483648, where TLC's 32-bit integers raise TLC_INTEGER_TOO_BIG; in TLA+ the invariant holds and the search ends after 3 states, as dive reports"
+link = "docs/divergences.md#registry"
+
+[[divergence]]
+id = "d006-p2-choose-str"
+pattern = "specifications/P2Choose/P2Choose_str.cfg"
+profile = "dive"
+expected_verdict = "success"
+fields = ["verdict", "error_class", "violated_property", "counts.*", "trace.length", "trace.ending"]
+justification = "Canonical CHOOSE order (D-006): CHOOSE e \\in {\"zeta\", \"alpha\", \"mid\"} : TRUE is \"alpha\" in the canonical order and \"zeta\" in TLC's interning order. TLA+ fixes neither, so SLex holds under dive's default and is violated under TLC's"
+link = "docs/divergences.md#registry"

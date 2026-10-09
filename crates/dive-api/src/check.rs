@@ -375,9 +375,15 @@ impl CheckReport {
         match &self.phase {
             Phase::SpecRejected(a) => {
                 doc["diagnostics"] = a.to_json()["diagnostics"].clone();
-                if self.profile == Profile::Tlc {
-                    doc["tlc"] = json!({"code": 3002, "name": "TLC_PARSING_FAILED", "exit_status": 150, "verified": false});
-                }
+                // TLC reports every spec SANY rejects, in its parse or its
+                // semantic phase, as `TLC_PARSING_FAILED` (3002), exit 150.
+                // Verified against captured runs of the pinned TLC: harness
+                // fixtures `ParseError` and `SemanticError`, and the goldens
+                // of the probes `M1Syntax` (a syntax error) and `M2Undefined`
+                // (an undefined name) in `conformance/corpus/probes/`. Like
+                // every other verdict's class, it is reported in both
+                // profiles.
+                doc["tlc"] = json!({"code": 3002, "name": "TLC_PARSING_FAILED", "exit_status": 150, "verified": true});
             }
             Phase::ConfigRejected(c) => {
                 doc["diagnostics"] = c.to_json()["diagnostics"].clone();
