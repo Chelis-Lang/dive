@@ -131,3 +131,7 @@ Symmetry does not change simulation's safety checking, since simulation does no 
 - **Revisit:**
   - when simulation is built;
   - after the first symmetry benchmarks (the sort-based canonical form).
+
+## Owner decisions, 2026-10-09
+
+The intended default is `--symmetry-liveness=unreduced`, disabling reduction for the entire liveness run and reporting unreduced counts. This supersedes §4's refusal default; `refuse` stays an option and `--compat=tlc` retains the quotient path. Reject non-bijective functions in the default profile; preserve TLC's acceptance in compat mode. Build `--check-symmetry` as an opt-in audit. These are approved designs, not claims that the currently unsupported features are implemented.

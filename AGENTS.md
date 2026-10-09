@@ -26,7 +26,9 @@ The charter's appendix records factual corrections made since it was written.
   - `--compat=tlc` is the single global switch (also `DIVE_COMPAT=tlc` and the
     config key) that makes *every* behaviour precisely TLC-equivalent, including
     defaults like the worker count, seeding, exit codes and output conventions.
-    Full conformance is enforced in that mode. Every new option must declare its
+    Host access is the owner-approved exception: spec I/O requires explicit category
+    grants even in compat mode, and relevant restrictions must be reported (D-017).
+    Full conformance is enforced on supported behavior. Every new option must declare its
     TLC-equivalent setting.
   - Wherever TLC imposes a handcuff, build a named dive option that does better:
     single-worker exactness, unseeded or unreplayable randomness, 32-bit
