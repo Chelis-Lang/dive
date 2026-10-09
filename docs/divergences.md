@@ -181,3 +181,9 @@ D-013 finite predicate coverage includes bounded CHOOSE and pure Min/Max-style
 operators over constant or state-dependent domains. Domain levels are retained
 even when bodies ignore their binders. Five `Cf*` probes match final truth/counts
 in both profiles/stores; existing canonical/TLC choice ordering is unchanged.
+
+D-013 pure value/action helpers now retain action-level caller arguments (for
+example `IsStrictPrefix(log, log')`). Four `Aa*` probes match final truth/counts
+in both profiles/stores with independent periodic validation. Temporal-helper
+action arguments, temporal-valued/higher-order forwarding and effects remain
+refused; this does not enable strict TLC temporal checking.
