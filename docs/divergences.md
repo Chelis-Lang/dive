@@ -156,3 +156,8 @@ Exact TLC temporal ordering, timing and selection remain pending.
 D-013 scoped predicate coverage includes pure LET values/operators and
 independent covers over their captured contexts. Six clean `temporal-let`
 probes match final truth/counts; exact TLC temporal selection/timing remains open.
+
+D-013 INSTANCE predicate coverage includes pure value/variable substitutions,
+nested contexts and priming. Six pinned `Is*` probes match final truth/counts
+in both profiles/stores. Operator substitutions and independent substituted
+disabledness proofs remain refused; strict TLC temporal selection is pending.

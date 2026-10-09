@@ -140,6 +140,20 @@ impl Word<'_> {
                 "side effects or dynamically bound constants in temporal validation".into(),
             ));
         }
+        if let Expr::Subst { body, .. } = &node.expr {
+            let sc = ev
+                .scope_subst(scope, expr)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+            return self.eval(*body, &sc, depth + 1);
+        }
+        if let Expr::SubstRef {
+            decl,
+            primed: false,
+        } = &node.expr
+            && let SlotView::Lazy(body, sc) = ev.scope_subst_slot(scope, *decl)
+        {
+            return self.eval(body, &sc, depth + 1);
+        }
         if let Expr::Let { body, .. } = &node.expr {
             let sc = ev
                 .scope_let(scope, expr)
@@ -452,6 +466,28 @@ impl Word<'_> {
         let ir = &self.model.ir;
         let node = ir.node(expr);
         match &node.expr {
+            Expr::Subst { body, .. } => {
+                let sc = ev
+                    .scope_subst(scope, expr)
+                    .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                return self.scoped_level(*body, &sc, depth + 1, steps);
+            }
+            Expr::SubstRef { decl, primed } => {
+                let level = match ev.scope_subst_slot(scope, *decl) {
+                    SlotView::Value(_) => Level::Constant,
+                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps)?,
+                    _ => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque substituted level".into(),
+                        ));
+                    }
+                };
+                return Ok(if *primed && level != Level::Constant {
+                    Level::Action
+                } else {
+                    level
+                });
+            }
             Expr::Let { body, .. } => {
                 let sc = ev
                     .scope_let(scope, expr)
@@ -598,11 +634,25 @@ impl Word<'_> {
                         ));
                     }
                 },
-                Expr::SubstRef { .. } | Expr::Subst { .. } => {
-                    return Err(TemporalError::Unsupported(
-                        "opaque substituted/LET atom in temporal validation".into(),
-                    ));
+                Expr::Subst { body, .. } => {
+                    let sc = ev
+                        .scope_subst(&scope, e)
+                        .map_err(|error| TemporalError::Unsupported(error.to_string()))?;
+                    todo.push((*body, sc, depth + 1));
+                    continue;
                 }
+                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
+                    SlotView::Value(_) => {}
+                    SlotView::Lazy(body, sc) => {
+                        todo.push((body, sc, depth + 1));
+                        continue;
+                    }
+                    _ => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque substituted predicate atom".into(),
+                        ));
+                    }
+                },
                 Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
