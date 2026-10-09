@@ -71,6 +71,12 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Independent validation of named pure liveness counterexamples: the optional
+  trace `properties` list names every violated temporal property. Init, all
+  edges including loop closure, constraints, safety and behavior predicates,
+  and property truth are checked separately from graph search. Implicit
+  stutters preserve TLC’s action-constraint semantics. Fairness, ENABLED,
+  VIEW/symmetry and unnamed legacy liveness claims remain explicit refusals.
 - Independent temporal evaluation over supplied lassos in `dive-trace`:
   boolean combinations, `[]`, `<>`, `~>` and action atoms, including the
   closing edge. Fairness, `ENABLED`, temporal quantification and side effects

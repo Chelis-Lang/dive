@@ -65,6 +65,10 @@ pub enum Check {
     /// The claimed ending does not hold: the invariant or property is not
     /// violated, or the model has no such invariant or property.
     Ending,
+    /// A temporal conjunct of the behavior specification is false.
+    Fairness,
+    /// A claimed temporal property holds, or a violated property was omitted.
+    Temporal,
 }
 
 impl Check {
@@ -84,6 +88,8 @@ impl Check {
             Self::ImpliedInit => "implied-init",
             Self::ImpliedAction => "implied-action",
             Self::Ending => "ending",
+            Self::Fairness => "fairness",
+            Self::Temporal => "temporal",
         }
     }
 }
@@ -438,6 +444,10 @@ impl<'a> Run<'a> {
                 ));
             }
         }
+        let named_lasso = !trace.properties.is_empty();
+        if named_lasso {
+            self.prepare_periodic(&trace.ending, &trace.properties)?;
+        }
         // The ASSUMEs draw from the start-up stream, after the constant
         // definitions (evaluated when the model was bound).
         let startup = self.base(trace, Place::Startup);
@@ -488,7 +498,11 @@ impl<'a> Run<'a> {
                         .as_ref()
                         .is_some_and(|p| crate::random_position::aligned(m, p, step, false));
                     self.replayed(trace, Place::Expand(k - 1), Some(k), aligned, |run| {
-                        run.next(step, k, "the step into this state")
+                        if named_lasso && trace.states[k - 1] == trace.states[k] {
+                            Ok(()) // The implicit full-state stuttering closure.
+                        } else {
+                            run.next(step, k, "the step into this state")
+                        }
                     })?;
                     if let Some(label) = &trace.labels[k] {
                         self.label(trace, &label.name, step, k)?;
@@ -505,7 +519,9 @@ impl<'a> Run<'a> {
                         format!("CONSTRAINT {} is false, but only the last state of an invariant violation may lie outside the model", c.name)
                     })?;
                 }
-                if let Some(step) = &step {
+                if let Some(step) = &step
+                    && !(named_lasso && trace.states[k - 1] == trace.states[k])
+                {
                     for c in &m.action_constraints {
                         self.require(&c.pred, step, k, Check::ActionConstraint, || {
                             format!("ACTION_CONSTRAINT {} is false, but only the last step of an invariant violation may lie outside the model", c.name)
@@ -563,6 +579,10 @@ impl<'a> Run<'a> {
                 }
             }
         }
+        if named_lasso {
+            self.periodic_end(trace)?;
+            return Ok(None);
+        }
         if let Ending::Lasso { back_to } = trace.ending {
             if m.view.is_some() {
                 // TLC closes the loop on the VIEW's value, not the state's:
@@ -591,6 +611,151 @@ impl<'a> Run<'a> {
                 None
             }
         })
+    }
+
+    pub(crate) fn prepare_periodic(
+        &self,
+        ending: &Ending,
+        properties: &[String],
+    ) -> Result<(), Stop> {
+        if !matches!(ending, Ending::Lasso { .. } | Ending::Stuttering) {
+            return Err(invalid(
+                0,
+                Check::Ending,
+                "temporal property names require a periodic ending",
+            ));
+        }
+        if self.model.view.is_some() || self.model.symmetry.is_some() {
+            return Err(Stop::Unsupported(
+                "periodic validation under VIEW or SYMMETRY needs concrete closing-state evidence"
+                    .into(),
+            ));
+        }
+        let mut names = BTreeSet::new();
+        let mut declared = BTreeSet::new();
+        if self
+            .model
+            .implied_temporals
+            .iter()
+            .any(|p| !declared.insert(&p.name))
+        {
+            return Err(Stop::Unsupported(
+                "split temporal properties with ambiguous repeated names".into(),
+            ));
+        }
+        for name in properties {
+            if name.is_empty() || !names.insert(name) {
+                return Err(invalid(
+                    0,
+                    Check::Ending,
+                    "empty or repeated temporal property name",
+                ));
+            }
+            if !self.model.implied_temporals.iter().any(|p| p.name == *name) {
+                return Err(invalid(
+                    0,
+                    Check::Ending,
+                    format!("the model has no temporal property named `{name}`"),
+                ));
+            }
+        }
+        let check = |pred: &Pred| {
+            crate::temporal::check_periodic_context(self.model, pred)
+                .map_err(|e| Stop::Unsupported(e.to_string()))
+        };
+        for init in &self.model.init {
+            check(&init.pred)?;
+        }
+        if let Some(next) = &self.model.next {
+            check(next)?;
+        }
+        for p in self
+            .model
+            .constraints
+            .iter()
+            .chain(&self.model.action_constraints)
+            .chain(&self.model.invariants)
+            .chain(&self.model.implied_inits)
+            .chain(&self.model.implied_actions)
+        {
+            check(&p.pred)?;
+        }
+        for &d in &self.model.assumptions {
+            check(&Pred::new(
+                self.model.ir.def(d).body,
+                self.model.evaluator.scope(d),
+            ))?;
+        }
+        Ok(())
+    }
+
+    fn periodic_end(&mut self, trace: &Trace) -> Result<(), Stop> {
+        let last = trace.states.len() - 1;
+        let back = match trace.ending {
+            Ending::Lasso { back_to } => back_to,
+            Ending::Stuttering => last,
+            _ => return Err(Stop::Unsupported("internal nonperiodic ending".into())),
+        };
+        let stutter = trace.states[last] == trace.states[back];
+        let step = St::action(trace.states[last].clone(), trace.states[back].clone());
+        if !stutter {
+            self.next(&step, last, "the closing step")?;
+            for c in &self.model.action_constraints {
+                self.require(&c.pred, &step, last, Check::ActionConstraint, || {
+                    format!("ACTION_CONSTRAINT {} is false on the closing step", c.name)
+                })?;
+            }
+        }
+        for p in &self.model.implied_actions {
+            self.require(&p.pred, &step, last, Check::ImpliedAction, || {
+                format!("action property {} is false on the closing step", p.name)
+            })?;
+        }
+        for p in &self.model.temporals {
+            if !self.temporal_truth(&p.pred, trace, back)? {
+                return Err(invalid(
+                    0,
+                    Check::Fairness,
+                    format!(
+                        "behavior temporal conjunct {} is false on this word",
+                        p.name
+                    ),
+                ));
+            }
+            self.passed += 1;
+        }
+        for p in &self.model.implied_temporals {
+            let holds = self.temporal_truth(&p.pred, trace, back)?;
+            let claimed = trace.properties.contains(&p.name);
+            if claimed && holds {
+                return Err(invalid(
+                    0,
+                    Check::Temporal,
+                    format!("temporal property {} holds on this word", p.name),
+                ));
+            }
+            if !claimed && !holds {
+                return Err(invalid(
+                    0,
+                    Check::Temporal,
+                    format!("violated temporal property {} was omitted", p.name),
+                ));
+            }
+            self.passed += 1;
+        }
+        Ok(())
+    }
+
+    fn temporal_truth(&self, pred: &Pred, trace: &Trace, back: usize) -> Result<bool, Stop> {
+        use crate::temporal::TemporalError;
+        match crate::temporal::evaluate_lasso(self.model, pred, &trace.states, back) {
+            Ok(values) => values
+                .first()
+                .copied()
+                .ok_or_else(|| Stop::Unsupported("internal empty temporal truth vector".into())),
+            Err(TemporalError::Invalid(detail)) => Err(invalid(0, Check::Temporal, detail)),
+            Err(TemporalError::Unsupported(detail)) => Err(Stop::Unsupported(detail)),
+        }
     }
 
     fn goal(&self, ending: &Ending, last: usize) -> Result<Goal, Stop> {
@@ -628,9 +793,9 @@ impl<'a> Run<'a> {
                 if *back_to > last {
                     return Err(invalid(last, Check::Shape, format!("the lasso loops back to state {back_to}, past the end")));
                 }
-                Goal::Liveness("liveness: the steps and the loop back (unless noted) were checked, but the temporal property is not (liveness counterexamples are not validated yet)")
+                Goal::Liveness("liveness: the steps and the loop back (unless noted) were checked, but named temporal-property claims are missing")
             }
-            Ending::Stuttering => Goal::Liveness("liveness: the steps were checked, but the temporal property is not (liveness counterexamples are not validated yet)"),
+            Ending::Stuttering => Goal::Liveness("liveness: the steps were checked, but named temporal-property claims are missing"),
             Ending::Assertion | Ending::Error { .. } => Goal::ErrorEnd("an error while expanding the last state: the steps were checked, but re-raising the error needs the successor generator, which the independent validator does not have"),
         })
     }
