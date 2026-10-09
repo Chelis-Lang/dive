@@ -188,3 +188,10 @@ independently, including nested guards and closing-edge positions. Three new
 pinned probes match truth and counts in both profiles/stores. The oracle
 rejects action-guarded temporal IF (2214) and temporal CASE (2213); dive retains
 named planning refusals for these cases, even though SANY accepts their syntax.
+
+The final-only backend is now exposed with explicit `dive check --lncheck final
+--lasso short`, and `CheckRequest::temporal = TemporalMode::FinalShort`. The opt-in report uses
+schema 2 and labels TLC profiles as mixed; ordinary schema-1 checks retain
+strict temporal refusals. The mode's counts are complete exploration counts,
+not claims about TLC phase-L stopping. H1's full corpus adapter and TLC-exact
+selection/phase-L integration remain open.

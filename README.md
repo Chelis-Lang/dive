@@ -33,3 +33,9 @@ cargo nextest run --workspace
 ```
 
 The toolchain is pinned in `rust-toolchain.toml`, and rustup installs it automatically.
+
+For the supported bounded temporal subset, opt into final checking and an
+independently validated short lasso with
+`dive check Model.tla --lncheck final --lasso short --output json`.
+See [temporal checking](docs/temporal-api.md#command-line-access) for scope,
+lossless traces and compatibility limits.

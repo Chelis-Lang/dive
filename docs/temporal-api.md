@@ -64,3 +64,34 @@ Pure `IF` formulas use their guard's truth at each position, including temporal
 guards and nested conditionals. Action-level guards and temporal `CASE` remain
 explicit refusals: the pinned TLC also rejects them during liveness planning.
 A formula with an effectful branch is refused before planning executes it.
+
+## Command-line access
+
+The same backend is available explicitly:
+
+```sh
+dive check Model.tla --lncheck final --lasso short --store exact --seed 17 --output json
+```
+
+Both flags are required. The model must have a temporal property; ordinary
+safety checks use the existing command without these flags. Supported final
+checking returns success or independently validated periodic counterexamples;
+unsupported formulas, missing independent covers and limits return no verdict.
+Safety violations found during exploration retain their full original report.
+
+Opt-in requests use JSON schema 2. Ordinary checks retain schema 1. A temporal
+violation includes `properties`, a lossless `counterexample.trace`, a 1-based
+`counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
+document itself retains its own schema and 0-based back edge. Save the trace
+field and replay it with `dive validate-trace` against the same spec/config.
+
+`--compat=tlc` with these explicit overrides is labeled `tlc+overrides`. It
+selects TLC's values and reports temporal violations with exit 13, but does
+not claim TLC-exact lasso selection, finite-prefix stopping, temporal error
+classes or periodic scheduling. The `tlc` class field stays null for temporal
+holds/violations. Default-profile violations exit 10. The ordinary strict
+conformance path retains its temporal refusal until those counterparts land.
+
+Capture currently runs inline even when more workers were requested; actual
+width and its reason are reported. Bounds are counts of retained entries,
+not a hard byte-memory limit; they exclude preceding model binding.
