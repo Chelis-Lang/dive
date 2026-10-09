@@ -5,6 +5,7 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Independent ENABLED validation preserves finite set/filter/function bindings, including current-state domains; primed domains and missing successor covers remain explicit refusals.
 - Independent disabledness validation refuses successor-dependent primed
   quantifier domains instead of binding them from the current state.
 

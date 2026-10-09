@@ -147,3 +147,8 @@ Pure finite constant-domain set maps, filters and function constructors retain
 local bindings and captured state in temporal predicates. State-dependent
 domains and recursive constructors remain explicit refusals. See the `Bc*`
 probes in `crates/dive-api/tests/fixtures/temporal-constructors/`.
+
+Independent ENABLED covers also preserve finite set-map, filter and nonrecursive
+function-constructor scopes. Concrete current-state domains are supported there,
+while successor-dependent primed domains and missing finite covers remain refused.
+This does not broaden the planner to state-dependent domains.

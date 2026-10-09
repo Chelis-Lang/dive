@@ -133,3 +133,8 @@ formula/product and independent trace semantics.
 
 | Primed independent quantifier domains (`dive-trace::exists`) | Original necessary-cover soundness rule: enclosing prime affects domains as well as bodies; finite current-state bindings are not a proof about successors | n/a | #94 regression provides concrete satisfying successors before checking refusals; no successor enumerator dependency |
 | Finite data-constructor temporal scopes (`dive-eval::scope`, `dive-liveness::plan`, `dive-trace::temporal`) | Context bindings matched against `ContextEnumerator`, `SetOfAllValue`, `SetPredValue` and `FcnLambdaValue` at `94d0c50`; level/purity walks and periodic words original | MIT reference; original implementation | Seven clean `Bc*` truth/count probes, exhaustive short words, bounded constant-domain bindings and named dynamic/effect refusals; no validator enumerator or exact TLC temporal-selection claim |
+
+Finite-constructor independent covers inspect `SetOfAllValue`, `SetPredValue`
+and `FcnLambdaValue` binding semantics at TLC commit `94d0c50` (MIT). The
+necessary-cover search remains an original, separately implemented procedure;
+it does not call `Tool.getNextStates` or the checker enumerator.
