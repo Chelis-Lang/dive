@@ -371,6 +371,12 @@ impl Word<'_> {
                 i + 1
             };
             let st = St::action(state.clone(), self.states[next].clone());
+            self.model
+                .evaluator
+                .check_finite_bindings(scope, expr, &st, 4096)
+                .map_err(|e| {
+                    TemporalError::Unsupported(format!("temporal atom at position {i}: {e}"))
+                })?;
             match self.model.evaluator.eval_scoped(scope, expr, &st) {
                 Ok(Value::Bool(b)) => out.push(b),
                 Ok(v) => {
@@ -475,6 +481,7 @@ impl Word<'_> {
             Expr::SubstRef { decl, primed } => {
                 let level = match ev.scope_subst_slot(scope, *decl) {
                     SlotView::Value(_) => Level::Constant,
+                    SlotView::AnalysisBound => Level::State,
                     SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps)?,
                     _ => {
                         return Err(TemporalError::Unsupported(
@@ -497,6 +504,7 @@ impl Word<'_> {
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::AnalysisBound => Ok(Level::State),
                     SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1, steps),
                     _ => Err(TemporalError::Unsupported(
                         "opaque scoped temporal level".into(),
@@ -523,7 +531,7 @@ impl Word<'_> {
             Expr::Quant { kind, body, .. }
                 if *kind != QuantKind::Choose && node.level != Level::Temporal =>
             {
-                let scopes = self.finite_scopes(expr, scope, depth + 1, steps)?;
+                let scopes = self.predicate_scopes(expr, scope, depth + 1, steps)?;
                 let mut level = node.level;
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
@@ -533,7 +541,7 @@ impl Word<'_> {
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
             | Expr::FcnCons { body, .. } => {
-                let scopes = self.finite_scopes(expr, scope, depth + 1, steps)?;
+                let scopes = self.predicate_scopes(expr, scope, depth + 1, steps)?;
                 let mut level = node.level;
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
@@ -550,6 +558,49 @@ impl Word<'_> {
             level = level.max(self.scoped_level(child, scope, depth + 1, steps)?);
         }
         Ok(level)
+    }
+
+    // Analysis binds pure unknowns; evaluation always uses the original scope.
+    fn predicate_scopes(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<Vec<Scope>, TemporalError> {
+        let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => {
+                return Err(TemporalError::Unsupported(
+                    "predicate scopes require a binder".into(),
+                ));
+            }
+        };
+        let mut dynamic = false;
+        for bound in bounds {
+            let dom = bound
+                .domain
+                .ok_or_else(|| TemporalError::Unsupported("unbounded predicate domain".into()))?;
+            let level = self.scoped_level(dom, scope, depth + 1, steps)?;
+            if level > Level::State {
+                return Err(TemporalError::Unsupported(
+                    "action/temporal predicate domain".into(),
+                ));
+            }
+            self.check_scoped_context(dom, scope, depth + 1, steps)?;
+            dynamic |= level == Level::State;
+        }
+        if !dynamic {
+            return self.finite_scopes(expr, scope, depth + 1, steps);
+        }
+        self.model
+            .evaluator
+            .scope_binder_analysis(scope, expr)
+            .map(|sc| vec![sc])
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))
     }
 
     fn finite_scopes(
@@ -634,19 +685,19 @@ impl Word<'_> {
                     continue;
                 }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
-                    let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
+                    let scopes = self.predicate_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
+                    let scopes = self.predicate_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
-                    SlotView::Value(_) => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(e, sc) => {
                         todo.push((e, sc, depth + 1));
                         continue;
@@ -665,7 +716,7 @@ impl Word<'_> {
                     continue;
                 }
                 Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
-                    SlotView::Value(_) => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(body, sc) => {
                         todo.push((body, sc, depth + 1));
                         continue;

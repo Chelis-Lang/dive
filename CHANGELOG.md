@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final/short temporal predicates evaluate bounded state-dependent quantifier,
+  set and function domains in each actual state/edge, with independent periodic
+  validation and explicit refusals for infinite/oversized domains.
+
 - Independent ENABLED validation preserves finite set/filter/function bindings, including current-state domains; primed domains and missing successor covers remain explicit refusals.
 - Deep frontend campaigns use pinned SANY full checks and independent root-grammar observations, with deterministic mutations, complete case accounting and isolated copies.
 - Independent disabledness validation refuses successor-dependent primed

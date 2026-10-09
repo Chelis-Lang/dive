@@ -211,6 +211,8 @@ pub(crate) enum Sv {
     Unset,
     /// A value.
     Val(Value),
+    /// A pure unknown binder value used only by static level/purity analysis.
+    AnalysisBound,
     /// A lazy function.
     Fcn(Arc<LazyFcn>),
     /// A `LazyValue`.
@@ -474,7 +476,7 @@ pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
                         dyns.push(d);
                     }
                 }
-                Sv::Unset | Sv::Val(_) | Sv::Op(_) => {}
+                Sv::Unset | Sv::Val(_) | Sv::AnalysisBound | Sv::Op(_) => {}
             }
         } else {
             return false;
