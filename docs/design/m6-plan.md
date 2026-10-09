@@ -51,7 +51,8 @@ Questions 14–17 are resolved in `docs/open-questions.md`.
 L1 has bounded boolean/always/eventually formulas, generalized Buchi tableaux,
 bound pure predicates, direct ENABLED and WF/SF expansion. Its language kernel
 is checked against independent short-word semantics. Finite constant-domain quantifiers, tuple bindings and original configured
-property attribution are implemented. Pure constant/state-argument temporal operators are supported; action/temporal and higher-order arguments,
+property attribution are implemented. Pure constant/state-argument temporal operators are supported; pure value/action helpers also accept action arguments.
+Temporal-helper action arguments, temporal-valued and higher-order forwarding,
 state-dependent temporal quantifier expansion, unbounded quantification,
 opaque scopes, TLC's DNF/classification/order and
 exact tableau numbering remain open.
@@ -264,3 +265,9 @@ non-evaluable unknown bindings, never sampled values. Independent validation
 uses bounded concrete preflight without the successor enumerator. The final/short
 LM1 study now matches truth/counts on thirteen models and refuses two; this is
 not the full LM1/strict conformance exit.
+
+The pure action-helper increment retains primed arguments in caller scope,
+including nested, captured and sequence-prefix calls. Four pinned `Aa*` models
+match final truth/counts in both profiles/stores, with independent periodic
+validation and exhaustive closing-edge controls. Temporal helper forwarding
+limits remain explicit.
