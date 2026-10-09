@@ -42,7 +42,14 @@ pub(crate) fn is_infinite(s: &Set) -> bool {
         SetRepr::Nat | SetRepr::Int | SetRepr::Strings => true,
         SetRepr::Seq(r) => quiet_component_size(r) != Some(0),
         SetRepr::Subset(b) => inf(b),
-        SetRepr::FcnSet(d, r) => inf(d) || inf(r),
+        SetRepr::FcnSet(d, r) => {
+            // Empty domains admit the empty function; empty ranges admit no
+            // functions on a nonempty domain. A singleton range also yields
+            // a finite singleton, even when its function cannot be enumerated.
+            quiet_component_size(d) != Some(0)
+                && !matches!(quiet_component_size(r), Some(0 | 1))
+                && (inf(d) || inf(r))
+        }
         SetRepr::RcdSet(fs) => fs.iter().any(|(_, v)| inf(v)),
         SetRepr::Product(fs) => fs.iter().any(inf),
         _ => false,
@@ -78,12 +85,24 @@ pub(crate) fn quiet_size(s: &Set) -> Option<u128> {
             (n < 128).then(|| 1u128 << n)
         }
         SetRepr::FcnSet(d, r) => {
-            let dn = quiet_component_size(d)?;
-            if dn == 0 {
+            if !matches!(d, Value::Set(_)) {
+                return None;
+            }
+            let dn = quiet_component_size(d);
+            if dn == Some(0) {
                 return Some(1);
             }
             let rn = quiet_component_size(r)?;
-            rn.checked_pow(u32::try_from(dn).ok()?)
+            if rn == 0 && dn.is_none() {
+                // An opaque domain might still be empty. Prove which case
+                // holds instead of mistaking failed enumeration for nonemptiness.
+                let _quiet = crate::value::quiet::Quiet::enter();
+                return Some(u128::from(is_empty(d, quiet).ok()?));
+            }
+            if rn == 0 || rn == 1 {
+                return Some(rn);
+            }
+            rn.checked_pow(u32::try_from(dn?).ok()?)
         }
         SetRepr::RcdSet(fs) => product_size(fs.iter().map(|(_, v)| v)),
         SetRepr::Product(fs) => product_size(fs.iter()),

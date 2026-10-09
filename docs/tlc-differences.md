@@ -753,8 +753,10 @@ selection and temporal stopping remain pending.
 
 The pinned oracle prints `[[Nat -> {}] -> {1}]` as `{<<>>}` and succeeds
 (`EmptySymbolicFunction`, two generated states, one distinct state, depth 1).
-The current value enumerator refuses this symbolic domain by name. Diagnostic
-printing now retains the symbolic form rather than recursively retrying the
-failed expansion and aborting the process. Finite empty-domain/range recognition
-remains a library-coverage follow-up; this refusal is not TLC conformance.
+The value layer now recognizes empty function ranges before enumerating their
+domains, and recognizes the singleton empty function without enumerating its
+range. Size, equality, hashing, fingerprints and printing agree with the finite
+representation. A singleton range over a non-enumerable domain still refuses
+enumeration; diagnostic printing retains a symbolic fallback instead of
+recursively retrying the failed expansion.
 Evidence: `crates/dive-value/tests/fixtures/printing/`.

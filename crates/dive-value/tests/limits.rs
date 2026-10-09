@@ -119,20 +119,19 @@ fn nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion() {
                 Value::set(vec![Value::from(1)], ctx).expect("range"),
                 ctx,
             );
-            let expected = "[[Nat -> {}] -> {1}]";
-            let error = value
-                .as_set()
-                .expect("set")
-                .elements(ctx)
-                .expect_err("symbolic domain is not enumerable");
-            assert_eq!(error.kind(), ErrorKind::NotEnumerable);
-            assert!(error.message().contains(expected));
+            let expected = "{<<>>}";
+            assert_eq!(
+                value
+                    .as_set()
+                    .expect("set")
+                    .elements(ctx)
+                    .expect("empty domain"),
+                std::sync::Arc::from([Value::tuple(Vec::new())])
+            );
             assert_eq!(print::to_tlc_string_lenient(&value, ctx), expected);
             assert_eq!(
-                print::to_tlc_string(&value, ctx)
-                    .expect_err("strict printing retains enumeration error")
-                    .kind(),
-                ErrorKind::NotEnumerable
+                print::to_tlc_string(&value, ctx).expect("strict print"),
+                expected
             );
             let _ = format!("{value:?}");
             // A nonempty symbolic domain can trigger the same diagnostic cycle.
@@ -158,4 +157,92 @@ fn nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion() {
             );
         }
     });
+}
+
+#[test]
+fn symbolic_function_emptiness_preserves_size_hash_equality_and_fingerprints() {
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let empty = Value::empty_set(ctx);
+        let unit = Value::set(vec![Value::tuple(Vec::new())], ctx).expect("unit");
+        let one = Value::set(vec![Value::from(1)], ctx).expect("one");
+        let no_functions = Value::fcn_set(Value::nat(ctx), empty.clone(), ctx);
+        let empty_domain = Value::fcn_set(no_functions.clone(), one.clone(), ctx);
+        let infinite_range = Value::fcn_set(empty.clone(), Value::nat(ctx), ctx);
+        for (value, expected, size) in [
+            (&no_functions, &empty, 0),
+            (&empty_domain, &unit, 1),
+            (&infinite_range, &unit, 1),
+        ] {
+            assert_eq!(value.as_set().expect("set").size(ctx).expect("size"), size);
+            assert!(!value.as_set().expect("set").is_infinite());
+            assert_eq!(value, expected);
+            assert_eq!(value.hash64(), expected.hash64());
+            assert!(tlc::equals(value, expected, ctx).expect("equals"));
+            let fp = TlcFingerprint::new(0).expect("poly");
+            assert_eq!(
+                fp.fingerprint(value, ctx).expect("fp"),
+                fp.fingerprint(expected, ctx).expect("fp")
+            );
+        }
+        // Cardinality one does not make an infinite-domain function enumerable.
+        let symbolic = Value::fcn_set(Value::nat(ctx), one, ctx);
+        assert_eq!(symbolic.as_set().expect("set").size(ctx).expect("size"), 1);
+        assert!(!symbolic.as_set().expect("set").is_infinite());
+        assert_eq!(
+            symbolic
+                .as_set()
+                .expect("set")
+                .elements(ctx)
+                .expect_err("nonenumerable domain")
+                .kind(),
+            ErrorKind::NotEnumerable
+        );
+    }
+}
+
+#[derive(Debug)]
+struct UnknownDomain;
+impl dive_value::DeferredSet for UnknownDomain {
+    fn kind(&self) -> dive_value::DeferredKind {
+        dive_value::DeferredKind::Filter
+    }
+    fn elements(&self, _: Ctx) -> Result<Vec<Value>, dive_value::ValueError> {
+        Err(dive_value::ValueError::new(
+            ErrorKind::NotEnumerable,
+            "unknown domain",
+        ))
+    }
+    fn member(&self, _: &Value, _: Ctx) -> Option<Result<bool, dive_value::ValueError>> {
+        None
+    }
+}
+
+#[test]
+fn unknown_domain_is_not_inferred_nonempty_from_failed_enumeration() {
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let opaque = Value::fcn_set(
+            Value::deferred(std::sync::Arc::new(UnknownDomain), ctx),
+            Value::empty_set(ctx),
+            ctx,
+        );
+        assert_eq!(
+            opaque
+                .as_set()
+                .expect("set")
+                .size(ctx)
+                .expect_err("unknown empty domain")
+                .kind(),
+            ErrorKind::NotEnumerable
+        );
+        assert!(opaque.as_set().expect("set").elements(ctx).is_err());
+        assert!(print::to_tlc_string(&opaque, ctx).is_err());
+        assert_ne!(opaque.hash64(), Value::empty_set(ctx).hash64());
+        let invalid = Value::fcn_set(
+            Value::TRUE,
+            Value::set(vec![Value::from(1)], ctx).expect("range"),
+            ctx,
+        );
+        assert!(invalid.as_set().expect("set").size(ctx).is_err());
+        assert!(invalid.as_set().expect("set").elements(ctx).is_err());
+    }
 }
