@@ -42,7 +42,7 @@ use serde_json::{Map, Value as J};
 
 use crate::format::{Ending, TraceDoc};
 use crate::trace::{Trace, decode_state, variables};
-use crate::validate::{Check, Failure, Report, Run, Validation};
+use crate::validate::{Check, Failure, Replay, Report, Run, Validation};
 
 /// The most interpretations tried exhaustively (`2^10`).
 const EXHAUSTIVE_LIMIT: u32 = 10;
@@ -432,7 +432,12 @@ fn variable_states(
     clippy::too_many_lines,
     reason = "one search, read top to bottom: default, hill-climb, exhaustive, verdict"
 )]
-pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> TlcReading {
+pub fn validate_tlc(
+    model: &Model,
+    doc: &TraceDoc,
+    model_values: &[String],
+    replay: Option<&Replay>,
+) -> TlcReading {
     let length = doc.states.len();
     let report = |validation, notes| Report {
         validation,
@@ -474,6 +479,7 @@ pub fn validate_tlc(model: &Model, doc: &TraceDoc, model_values: &[String]) -> T
         labels: &doc.labels,
         length: doc.length,
         model_values,
+        replay,
         forced: &analysis.forced,
         free: &free,
         conjuncts: init_conjuncts(model),
@@ -614,6 +620,7 @@ struct Search<'a> {
     labels: &'a [Option<crate::format::Label>],
     length: Option<usize>,
     model_values: &'a [String],
+    replay: Option<&'a Replay>,
     forced: &'a BTreeMap<Decision, bool>,
     free: &'a [Decision],
     conjuncts: Vec<(Scope, ExprId)>,
@@ -670,7 +677,7 @@ impl Search<'_> {
             ending: self.ending.clone(),
             length: self.length,
         };
-        let mut run = Run::new(self.model);
+        let mut run = Run::new(self.model, self.replay);
         let validation = run.validate(&trace);
         Outcome {
             validation,

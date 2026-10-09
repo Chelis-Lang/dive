@@ -98,7 +98,8 @@ pub struct ModelGolden {
     pub corpus: String,
     /// The model.
     pub model: GoldenModel,
-    /// `-workers` (always 1 for goldens, ADR 0004).
+    /// `-workers`: 1, except in a worker-specific golden
+    /// ([`worker_golden_path`], ADR 0004).
     pub workers: u32,
     /// The oracle's result.
     pub result: OracleResult,
@@ -163,6 +164,24 @@ pub fn model_golden_path(root: &Path, oracle: &str, corpus: &str, model_id: &str
     root.join(oracle)
         .join(corpus)
         .join(format!("{}.json", sanitise(model_id)))
+}
+
+/// Path of the worker-specific TLC golden for `model_id` at `workers`
+/// workers: TLC's own result at that worker count, kept beside the
+/// single-worker golden (never replacing it) for a worker-introspecting
+/// model, against which `--compat=tlc` runs at that count are compared on
+/// verdict and error class only (ADR 0004, amendment of 2026-10-09).
+#[must_use]
+pub fn worker_golden_path(
+    root: &Path,
+    oracle: &str,
+    corpus: &str,
+    model_id: &str,
+    workers: u32,
+) -> PathBuf {
+    root.join(oracle)
+        .join(corpus)
+        .join(format!("{}.workers-{workers}.json", sanitise(model_id)))
 }
 
 /// Path of the SANY golden for `module`.

@@ -56,6 +56,11 @@ SELECTION (corpus list, golden generate, run, trace-controls):
 GOLDEN GENERATE:
     --oracle <id>          oracle (default: the default oracle)
     --reason <text>        recorded reason; required to overwrite existing goldens
+    --workers <list>       TLC -workers (default: 1). A count above 1 writes worker-specific
+                           goldens (<model>.workers-<n>.json) beside the single-worker ones,
+                           which it never touches, for worker-introspecting models only, and
+                           requires --reason. `run --impl-profile tlc` compares those models
+                           at that count with them, on verdict and error class (ADR 0004)
     --no-sany | --sany-only
 
 RUN:
@@ -319,6 +324,7 @@ fn dispatch(cmd: &[String], o: &Opts) -> Result<bool> {
                 limits: limits(o),
                 models: !o.sany_only,
                 sany: !o.no_sany,
+                workers: o.workers.clone().unwrap_or_else(|| vec![1]),
             };
             let failures = pipeline::golden_generate(&config, &cache, &env, &opts)?;
             if failures > 0 {

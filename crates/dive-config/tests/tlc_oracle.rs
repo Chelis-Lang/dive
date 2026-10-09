@@ -511,6 +511,11 @@ fn small_tier_goldens_agree() {
             Ok(v) => v,
             Err(e) => unreachable!("{}: {e}", f.display()),
         };
+        // Worker-specific goldens (ADR 0004) record TLC at several workers;
+        // the configuration facts are the single-worker golden's.
+        if g["workers"] != 1 {
+            continue;
+        }
         let id = g["model"]["id"].as_str().unwrap_or_default();
         let Some(bytes) = corpus.get(id) else {
             unreachable!("golden {id} has no cfg in the corpus file")

@@ -16,6 +16,9 @@ dive-value.workspace = true
 # `cargo build -p dive-trace` in the gate enforce this.
 dive-eval = { path = "../dive-eval", default-features = false }
 dive-model = { path = "../dive-model", default-features = false }
+# The run's random streams, replayed (D-002): `dive-stdlib` depends on
+# `dive-eval` with the enumerator off too.
+dive-stdlib.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
