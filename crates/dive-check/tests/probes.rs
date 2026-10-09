@@ -152,6 +152,10 @@ fn dive(r: &CheckResult) -> Tlc {
 }
 
 fn run(tla: &Path, cfg: &Path, store: StoreMode) -> CheckResult {
+    run_with(tla, cfg, store, 1)
+}
+
+fn run_with(tla: &Path, cfg: &Path, store: StoreMode, workers: usize) -> CheckResult {
     let analysis = dive_sema::analyze_file(tla, &dive_sema::Options::default()).expect("readable");
     assert!(analysis.accepted(), "{} rejected", tla.display());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lowers"));
@@ -160,6 +164,7 @@ fn run(tla: &Path, cfg: &Path, store: StoreMode) -> CheckResult {
         .expect("cfg parses");
     let mut opts = CheckOptions::tlc(0, 0);
     opts.store = store;
+    opts.workers = workers;
     check(&ir, &cfg, &opts)
 }
 
@@ -168,11 +173,16 @@ fn compare(name: &str, dir: &Path, transcripts: &Path) -> Result<(), String> {
         .map_err(|e| format!("{name}: {e}"))?;
     let want = tlc(&stdout);
     let mut first: Option<Tlc> = None;
-    for store in [StoreMode::Fingerprint, StoreMode::Exact] {
-        let r = run(
+    // Every worker count must reproduce TLC's single-worker run (ADR 0015).
+    let settings = [StoreMode::Fingerprint, StoreMode::Exact]
+        .into_iter()
+        .flat_map(|store| [1, 3, 8].map(|w| (store, w)));
+    for (store, workers) in settings {
+        let r = run_with(
             &dir.join(format!("{name}.tla")),
             &dir.join(format!("{name}.cfg")),
             store,
+            workers,
         );
         if !r.verdict.is_verdict() {
             return Err(format!("{name}: no verdict: {:?}", r.verdict));
@@ -189,11 +199,15 @@ fn compare(name: &str, dir: &Path, transcripts: &Path) -> Result<(), String> {
                 return Err(format!("{name}: TLC {w:?}\n dive {got:?}"));
             }
         } else if got != want {
-            return Err(format!("{name} ({store:?}): TLC {want:?}\n dive {got:?}"));
+            return Err(format!(
+                "{name} ({store:?}, {workers} workers): TLC {want:?}\n dive {got:?}"
+            ));
         }
         if let Some(f) = &first {
             if *f != got {
-                return Err(format!("{name}: exact mode differs from fingerprint mode"));
+                return Err(format!(
+                    "{name}: {workers} workers in {store:?} mode differ from 1 in fingerprint mode"
+                ));
             }
         } else {
             first = Some(got);

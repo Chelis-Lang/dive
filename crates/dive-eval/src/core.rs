@@ -321,9 +321,34 @@ impl Core {
         }
     }
 
-    /// Prints a line through the sink.
+    /// Prints a line through the sink, or into the thread's
+    /// [`crate::capture::PrintCapture`].
     pub(crate) fn print(&self, text: String) {
-        self.sink.print(text);
+        if let Some(text) = crate::capture::push(text, false) {
+            self.sink.print(text);
+        }
+    }
+
+    /// Prints a once-per-run warning (`MP.printWarning`'s history): into the
+    /// thread's capture, deduplicated when it is released, or through the
+    /// sink if it is the first with this text.
+    pub(crate) fn print_warning(&self, msg: String) {
+        if crate::capture::active() {
+            let _ = crate::capture::push(msg, true);
+        } else if self.first_warning(&msg) {
+            self.sink.print(msg);
+        }
+    }
+
+    /// Records a warning in the run's history; whether it is new.
+    pub(crate) fn first_warning(&self, msg: &str) -> bool {
+        let mut warned = self.warned.lock().unwrap_or_else(PoisonError::into_inner);
+        if warned.contains(msg) {
+            false
+        } else {
+            warned.insert(msg.to_owned());
+            true
+        }
     }
 
     /// Enters one level of evaluation depth.

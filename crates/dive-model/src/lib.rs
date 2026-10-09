@@ -177,7 +177,9 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         },
         assumptions,
         unsupported: Vec::new(),
+        sequential: Vec::new(),
     };
     model.unsupported = reach::unsupported(b, &model);
+    model.sequential = reach::sequential(b, &model);
     Ok(model)
 }
