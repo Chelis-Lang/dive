@@ -149,3 +149,10 @@ bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
 | Component | Reference | License | Evidence |
 |---|---|---|---|
 | State-dependent finite predicate preflight (`dive-eval::finite`, `scope_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original conservative scoped analysis and bounded concrete walks; TLA+ quantifier/constructor truth compared with TLC `ContextEnumerator`, `SetOfAllValue`, `SetPredValue`, `FcnLambdaValue` at `94d0c50` | Original implementation; MIT reference | Eight `Df*` pinned truth/count probes, independent periodic validation and exhaustive short words; no sample values, frozen domains or validator successor enumeration |
+
+Finite CHOOSE predicate scopes extend the original conservative analysis in
+`dive-liveness::plan` and `dive-trace::temporal`; evaluation continues to use
+`dive-eval::Core::eval_choose`, matching TLC `Tool.java` bounded CHOOSE evaluation
+at `94d0c50` (MIT). Five `Cf*` probes, independent short-word algebra and
+captured-domain level controls supply evidence. No Java search/enumerator is
+used by the independent validator.

@@ -528,11 +528,10 @@ impl Word<'_> {
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
                 }
             }
-            Expr::Quant { kind, body, .. }
-                if *kind != QuantKind::Choose && node.level != Level::Temporal =>
-            {
-                let scopes = self.predicate_scopes(expr, scope, depth + 1, steps)?;
-                let mut level = node.level;
+            Expr::Quant { body, .. } if node.level != Level::Temporal => {
+                let (scopes, domain_level) =
+                    self.predicate_scopes(expr, scope, depth + 1, steps)?;
+                let mut level = node.level.max(domain_level);
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
                 }
@@ -541,8 +540,9 @@ impl Word<'_> {
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
             | Expr::FcnCons { body, .. } => {
-                let scopes = self.predicate_scopes(expr, scope, depth + 1, steps)?;
-                let mut level = node.level;
+                let (scopes, domain_level) =
+                    self.predicate_scopes(expr, scope, depth + 1, steps)?;
+                let mut level = node.level.max(domain_level);
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
                 }
@@ -567,7 +567,7 @@ impl Word<'_> {
         scope: &Scope,
         depth: usize,
         steps: &mut usize,
-    ) -> Result<Vec<Scope>, TemporalError> {
+    ) -> Result<(Vec<Scope>, Level), TemporalError> {
         let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
@@ -579,7 +579,7 @@ impl Word<'_> {
                 ));
             }
         };
-        let mut dynamic = false;
+        let mut domain_level = Level::Constant;
         for bound in bounds {
             let dom = bound
                 .domain
@@ -591,15 +591,17 @@ impl Word<'_> {
                 ));
             }
             self.check_scoped_context(dom, scope, depth + 1, steps)?;
-            dynamic |= level == Level::State;
+            domain_level = domain_level.max(level);
         }
-        if !dynamic {
-            return self.finite_scopes(expr, scope, depth + 1, steps);
+        if domain_level == Level::Constant {
+            return self
+                .finite_scopes(expr, scope, depth + 1, steps)
+                .map(|sc| (sc, domain_level));
         }
         self.model
             .evaluator
             .scope_binder_analysis(scope, expr)
-            .map(|sc| vec![sc])
+            .map(|sc| (vec![sc], domain_level))
             .map_err(|e| TemporalError::Unsupported(e.to_string()))
     }
 
@@ -684,15 +686,15 @@ impl Word<'_> {
                     todo.push((*body, sc, depth + 1));
                     continue;
                 }
-                Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
-                    let scopes = self.predicate_scopes(e, &scope, depth + 1, steps)?;
+                Expr::Quant { body, .. } => {
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let scopes = self.predicate_scopes(e, &scope, depth + 1, steps)?;
+                    let (scopes, _) = self.predicate_scopes(e, &scope, depth + 1, steps)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
