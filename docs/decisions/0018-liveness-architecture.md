@@ -118,11 +118,22 @@ After the search (`-lncheck final`), or at a periodic check (§7), the graph is 
 For one (OoS, PEM):
 
 1. **The product.** Nodes are `(state, tableau node)`. Initial nodes are initial states paired with every consistent initial tableau node, in TLC's order. An edge `(s, n) → (t, m)` exists when `s → t` is a graph edge (or the stutter loop) and `m` is a successor of `n` consistent with `t`'s bits. Edges that fail the PEM's EA conditions are pruned. Without a tableau, the product is the graph.
-2. **Accepting components.** Compute the strongly connected components of the pruned product reachable from the initial nodes. A component is **accepting** if all of these hold (ADR 0017 §4):
+2. **Accepting components.** First find vertices reachable from the initial nodes in the **unpruned** product. Compute SCCs of the EA-pruned product over all those vertices: the finite prefix may fail EA, which only constrains recurrence. A component is **accepting** if all of these hold (ADR 0017 §4):
    - it is non-trivial, or it is one node with a self-loop that satisfies EA (the stutter loop included);
    - each AE-state condition holds at one of its nodes;
    - each AE-action condition holds on one of its internal edges;
    - each promise is fulfilled by one of its nodes.
+
+   **Implementation evidence, 2026-10-09:** probe `LvEAPrefix` starts at
+   `x = 0`, where the EA condition `x > 0` is false, then reaches a violating
+   stuttering loop at `x = 1`. The pinned TLC exits 13 with two states.
+   Pruning before reachability would miss this violation. TLC's `LiveWorker`
+   schedules destinations of EA-failing edges as additional roots;
+   `Graph::filter_for_cycles` instead uses every unpruned reachable vertex as
+   a root for decomposition. The canonical prefix search remains unpruned.
+   Iterative SCC tests cover all directed four-vertex graphs against mutual
+   reachability and a 50,000-vertex cycle without recursion. This is an SCC
+   foundation, not yet an accepting-component or lasso search.
 3. **The choice. This is dive's documented, deterministic choice.**
    - Let `d(v)` be the breadth-first distance of product node `v` from the initial nodes, ignoring EA pruning, as TLC's prefix search does.
    - The reported component is the accepting component containing the node of smallest `d`. Ties go to the smallest state id, then the smallest tableau index.
