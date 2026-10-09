@@ -35,8 +35,9 @@ include the closing edge. Both the in-memory word and its serialized form must
 pass validation before the API returns a violation.
 
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
-zero-arity definitions, direct `ENABLED`, and weak/strong fairness over supported
-pure actions. Temporal parameters, quantification, dynamic scopes, effects and
+zero-arity definitions, finite constant-domain quantifiers with explicit sets
+or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
+pure actions. Temporal parameters, nonconstant/unbounded quantification, dynamic scopes, effects and
 checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.
@@ -44,7 +45,7 @@ covers return a validation refusal even if analysis finds a candidate.
 Capture runs inline and reports the actual width and the requested width.
 The limits bound formula entries, graph states/edges/generated work, labels and
 product construction; these are **entry/work counts**, not byte limits or a
-wall-clock deadline. Fingerprint mode retains the safety engine's collision
+wall-clock deadline, and do not bound the preceding binding stage. Fingerprint mode retains the safety engine's collision
 qualifications; exact mode stores full states.
 
 This API uses final checking and deterministic short-lasso selection. Passing
@@ -52,3 +53,9 @@ This API uses final checking and deterministic short-lasso selection. Passing
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
 It does not replace the strict TLC conformance path. Ordinary `dive check`
 continues to refuse temporal models while that integration is completed.
+
+
+Original configured PROPERTY formulas are retained for attribution. A universal
+property may split into several checking roles, but its counterexample claim is
+still the original configuration name; all roles are checked without guessing
+which repeated internal name means which binding.
