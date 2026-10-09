@@ -28,6 +28,7 @@ usage: dive-bench [options]
   --reps <n>          interleaved repetitions (default: 3)
   --profile <p>       tlc, default or both (default: both)
   --filter <name>     run only this benchmark (repeatable)
+  --workers <list>    dive worker counts, e.g. 1,2,4,8 (default: 1); TLC runs at 1
   --tlc               also time the pinned TLC, -workers 1, on this machine
   --xmx <size>        TLC heap (default: 3g, as the harness)
   --timeout <secs>    per run (default: 1800)
@@ -45,6 +46,7 @@ struct Opts {
     dive_bin: PathBuf,
     reps: usize,
     profiles: Vec<&'static str>,
+    workers: Vec<usize>,
     filters: Vec<String>,
     tlc: bool,
     xmx: String,
@@ -59,6 +61,7 @@ fn parse_args() -> Result<Opts, String> {
         dive_bin: PathBuf::from("target/release/dive"),
         reps: 3,
         profiles: vec!["tlc", "default"],
+        workers: vec![1],
         filters: Vec::new(),
         tlc: false,
         xmx: "3g".to_owned(),
@@ -82,6 +85,13 @@ fn parse_args() -> Result<Opts, String> {
                 }
             }
             "--filter" => o.filters.push(val()?),
+            "--workers" => {
+                o.workers = val()?
+                    .split(',')
+                    .map(|w| w.trim().parse::<usize>().ok().filter(|&n| n > 0))
+                    .collect::<Option<Vec<_>>>()
+                    .ok_or("--workers expects positive numbers, e.g. 1,2,4,8")?;
+            }
             "--tlc" => o.tlc = true,
             "--xmx" => o.xmx = val()?,
             "--timeout" => {
@@ -285,7 +295,12 @@ fn run(opts: &Opts) -> Result<bool, String> {
 
     let survey_csv = std::fs::read_to_string(repo.join("docs/survey/data/bench-summary.csv"))
         .unwrap_or_default();
-    let mut impls: Vec<String> = opts.profiles.iter().map(|p| format!("dive-{p}")).collect();
+    let mut impls: Vec<String> = Vec::new();
+    for p in &opts.profiles {
+        for &w in &opts.workers {
+            impls.push(dive_impl(p, w));
+        }
+    }
     if tlc_env.is_some() {
         impls.push("tlc".to_owned());
     }
@@ -323,6 +338,9 @@ fn run(opts: &Opts) -> Result<bool, String> {
         }
     }
     report(&prepared, &impls, &runs, &survey_csv);
+    if opts.workers.len() > 1 {
+        report_scaling(&prepared, &opts.profiles, &opts.workers, &runs);
+    }
     Ok(all_correct)
 }
 
@@ -404,20 +422,13 @@ fn run_dive(
     let file = module.file_name().ok_or("module without file name")?;
     let mut args: Vec<OsString> = time_args(time_out);
     args.push(bin.as_os_str().to_owned());
-    for a in [
-        "check",
-        "--output",
-        "json",
-        "--workers",
-        "1",
-        "--seed",
-        "0",
-        "--fp",
-        "0",
-    ] {
+    let (profile, workers) = parse_impl(imp);
+    for a in ["check", "--output", "json", "--seed", "0", "--fp", "0"] {
         args.push(a.into());
     }
-    if imp == "dive-tlc" {
+    args.push("--workers".into());
+    args.push(workers.to_string().into());
+    if profile == "tlc" {
         args.push("--compat=tlc".into());
     }
     args.push("--config".into());
@@ -558,6 +569,58 @@ fn summarise(runs: &[&Run]) -> Summary {
         rss_mb: median(&rss),
         ok: runs.iter().filter(|r| r.correct).count(),
         n: runs.len(),
+    }
+}
+
+/// The implementation name of a dive profile at a worker count: `dive-tlc`,
+/// `dive-default`, with `-w<n>` beyond one worker.
+fn dive_impl(profile: &str, workers: usize) -> String {
+    if workers == 1 {
+        format!("dive-{profile}")
+    } else {
+        format!("dive-{profile}-w{workers}")
+    }
+}
+
+/// The profile and worker count of a dive implementation name.
+fn parse_impl(imp: &str) -> (&str, usize) {
+    let rest = imp.strip_prefix("dive-").unwrap_or(imp);
+    match rest.rsplit_once("-w") {
+        Some((p, w)) if w.parse::<usize>().is_ok() => (p, w.parse().unwrap_or(1)),
+        _ => (rest, 1),
+    }
+}
+
+/// Wall time and CPU time against one worker, per profile and worker count.
+fn report_scaling(prepared: &[Prepared], profiles: &[&str], workers: &[usize], runs: &[Run]) {
+    println!("\n## Scaling (median wall and CPU, against the same profile at 1 worker)\n");
+    println!("| Benchmark | profile | workers | wall s | speed-up | CPU s | CPU / 1-worker CPU |");
+    println!("|---|---|---|---|---|---|---|");
+    for p in prepared {
+        for prof in profiles {
+            let at = |w: usize| {
+                let imp = dive_impl(prof, w);
+                let rs: Vec<&Run> = runs
+                    .iter()
+                    .filter(|r| r.bench == p.bench.name && r.implementation == imp)
+                    .collect();
+                summarise(&rs)
+            };
+            let one = at(1);
+            for &w in workers {
+                let s = at(w);
+                println!(
+                    "| {} | {} | {} | {} | {} | {} | {} |",
+                    p.bench.name,
+                    prof,
+                    w,
+                    fmt_opt(s.wall, 2),
+                    fmt_opt(one.wall.zip(s.wall).map(|(a, b)| a / b.max(1e-3)), 2),
+                    fmt_opt(s.cpu, 2),
+                    fmt_opt(one.cpu.zip(s.cpu).map(|(a, b)| b / a.max(1e-3)), 2),
+                );
+            }
+        }
     }
 }
 
