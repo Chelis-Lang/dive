@@ -10,8 +10,24 @@ cargo run --release -p dive-conformance -- dev capture \
   --timeout 10 EmptySymbolicFunction NonenumerableFunction
 ```
 
-The empty symbolic domain prints `{<<>>}` and succeeds in TLC. Dive's current
-coverage refusal stays visible; this package fixes the recursive error printer,
-not that enumeration gap. A 2 MiB regression deterministically aborts with the
-old printer and completes with symbolic diagnostics with the expansion guard.
-The ordinary adversarial generator and its limits remain unchanged.
+The empty symbolic domain prints `{<<>>}` and succeeds in TLC. Dive now
+requires this same output. A 2 MiB regression deterministically aborts with
+the old printer; the expansion guard retains named errors for the genuinely
+non-enumerable case. The ordinary adversarial generator and its limits remain
+unchanged.
+
+## Empty-domain/range coverage
+
+Five additional clean probes (`EmptySymbolicSize`, `EmptySymbolicEnumerate`,
+`EmptyDomainInfiniteRange`, `SingletonInfiniteDomain`, `EmptySymbolicQuantifier`) all succeed with two
+generated states, one distinct state and depth one. They pin cardinality,
+finite-set predicates and equality to finite representations. Cardinality one
+does not imply enumerability of an infinite-domain function.
+
+Regenerate with the command above, passing these five model names. The empty
+symbolic diagnostic regression now requires the oracle's `{<<>>}` output; the
+nonempty symbolic regression still requires a named error on a small stack.
+
+Evaluator preflight short circuits structural operands only. Deferred predicate
+operands retain their existing guarded behavior so preflight never introduces
+an extra spec evaluation. Empty deferred-function coverage remains open.

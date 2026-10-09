@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The project will follow
 
 - Final temporal predicates and independent finite successor covers retain
   LET value and operator scopes, including captured state and nested calls.
+- Empty symbolic function ranges and domains enumerate without expanding an
+  infinite operand, preserving finite size, equality, hashing and fingerprints.
 
 - Value printing breaks recursive diagnostic expansion of a non-enumerable
   function set, retaining a named error and symbolic fallback on small stacks.
