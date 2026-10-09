@@ -213,25 +213,8 @@ impl Word<'_> {
                 }
                 Ok(values)
             }
-            Expr::Quant { kind, bounds, body } if *kind != QuantKind::Choose => {
-                for bound in bounds {
-                    let Some(dom) = bound.domain else {
-                        return Err(TemporalError::Unsupported(
-                            "unbounded temporal quantifier".into(),
-                        ));
-                    };
-                    if self.scoped_level(dom, scope, child, &mut 0)? != Level::Constant {
-                        return Err(TemporalError::Unsupported(
-                            "nonconstant temporal quantifier domain".into(),
-                        ));
-                    }
-                    self.check_atom_context(dom, scope)?;
-                }
-                let scopes = ev
-                    .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
-                    .map_err(|e| {
-                        TemporalError::Unsupported(format!("temporal quantifier bindings: {e}"))
-                    })?;
+            Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                let scopes = self.finite_scopes(expr, scope, child, &mut 0)?;
                 let conjunction = *kind == QuantKind::Forall;
                 let mut values = vec![conjunction; self.states.len()];
                 for scope in scopes {
@@ -489,6 +472,16 @@ impl Word<'_> {
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
                 }
             }
+            Expr::Quant { kind, body, .. }
+                if *kind != QuantKind::Choose && node.level != Level::Temporal =>
+            {
+                let scopes = self.finite_scopes(expr, scope, depth + 1, steps)?;
+                let mut level = node.level;
+                for sc in scopes {
+                    level = level.max(self.scoped_level(*body, &sc, depth + 1, steps)?);
+                }
+                return Ok(level);
+            }
             _ => {}
         }
         if node.level == Level::Temporal {
@@ -499,6 +492,37 @@ impl Word<'_> {
             level = level.max(self.scoped_level(child, scope, depth + 1, steps)?);
         }
         Ok(level)
+    }
+
+    fn finite_scopes(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<Vec<Scope>, TemporalError> {
+        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
+            return Err(TemporalError::Unsupported(
+                "finite scopes require a quantifier".into(),
+            ));
+        };
+        for bound in bounds {
+            let Some(dom) = bound.domain else {
+                return Err(TemporalError::Unsupported(
+                    "unbounded predicate quantifier".into(),
+                ));
+            };
+            if self.scoped_level(dom, scope, depth + 1, steps)? != Level::Constant {
+                return Err(TemporalError::Unsupported(
+                    "nonconstant predicate quantifier domain".into(),
+                ));
+            }
+            self.check_scoped_context(dom, scope, depth + 1, steps)?;
+        }
+        self.model
+            .evaluator
+            .scope_bindings_bounded(scope, expr, &St::constant(), 4096)
+            .map_err(|e| TemporalError::Unsupported(format!("predicate quantifier bindings: {e}")))
     }
 
     fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
@@ -538,6 +562,11 @@ impl Word<'_> {
                 ));
             }
             match &meta.expr {
+                Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                    let scopes = self.finite_scopes(e, &scope, depth + 1, steps)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
                     SlotView::Value(_) => {}
                     SlotView::Lazy(e, sc) => {

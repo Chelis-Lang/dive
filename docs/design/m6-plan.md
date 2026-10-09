@@ -71,7 +71,8 @@ L4 validates named periodic words, all behavior temporal conjuncts, closing
 edges, constraints and complete property claims. L5 independently decides
 necessary finite successor covers for supported deadlocks, ENABLED and fairness;
 missing covers remain named refusals. VIEW/symmetry evidence, wider scopes and
-quantified actions remain open. The validator still builds without the
+state-dependent temporal quantifier domains remain open. Finite constant-domain
+quantified actions are supported. The validator still builds without the
 checker's successor enumerator.
 
 L6–L10, symmetry S1–S5 and the full model conformance milestones remain open.
@@ -217,3 +218,13 @@ forwarding, tuple arguments, pointwise guards and primed non-stuttering atoms
 match six pinned final outcomes/counts in both profiles/stores, with independent
 periodic validation and exhaustive short-word controls. Higher-order and
 action/temporal arguments, phase-L timing and exact selection remain open.
+
+L1/L4/L5 finite-predicate increment: forall/exists bind each finite body context
+before scoped level and purity checks. Six `Qf*` probes match final truth/counts
+in both profiles/stores and every returned lasso validates independently. The
+independent cover search unions existential alternatives, combines necessary
+universal constraints, and checks the entire original quantified relation for
+each complete assignment; 108 decisions match the pinned 36-state ENABLED
+probe. State-dependent finite domains are supported in that concrete-state
+existential procedure but remain refusals in temporal planning/word preflight.
+Missing/primed/infinite domains and explicit budgets never mean disabledness.

@@ -347,6 +347,16 @@ impl Lower<'_> {
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1);
                 }
             }
+            Expr::Quant { kind, body, .. }
+                if *kind != QuantKind::Choose && node.level != Level::Temporal =>
+            {
+                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                let mut level = node.level;
+                for sc in scopes {
+                    level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
+                }
+                return Ok(level);
+            }
             _ => {}
         }
         if node.level == Level::Temporal {
@@ -357,6 +367,41 @@ impl Lower<'_> {
             level = level.max(self.scoped_level(child, scope, depth + 1)?);
         }
         Ok(level)
+    }
+
+    fn finite_scopes(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Vec<Scope>, PlanningError> {
+        self.step()?;
+        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
+            return Err(self.refused(expr, "finite scopes require a quantifier"));
+        };
+        for bound in bounds {
+            let Some(dom) = bound.domain else {
+                return Err(self.refused(expr, "unbounded predicate quantifier"));
+            };
+            if self.scoped_level(dom, scope, depth + 1)? != Level::Constant {
+                return Err(self.refused(dom, "nonconstant predicate quantifier domain"));
+            }
+            self.pure_scoped(dom, scope, depth + 1)?;
+        }
+        self.model
+            .evaluator
+            .scope_bindings_bounded(scope, expr, &St::constant(), self.limits.formula_nodes)
+            .map_err(|e| {
+                if e.class() == dive_eval::ErrorClass::ResourceLimit {
+                    PlanningError::formula(
+                        self.model,
+                        self.root_expr,
+                        FormulaError::Limit("predicate quantifier bindings"),
+                    )
+                } else {
+                    self.refused(expr, format!("predicate quantifier bindings: {e}"))
+                }
+            })
     }
 
     fn pure_atom(&mut self, expr: ExprId, scope: &Scope) -> Result<(), PlanningError> {
@@ -398,6 +443,11 @@ impl Lower<'_> {
                 ));
             }
             match &n.expr {
+                Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                    let scopes = self.finite_scopes(e, &scope, depth + 1)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
                     SlotView::Value(_) => {}
                     SlotView::Lazy(body, sc) => {
@@ -577,29 +627,8 @@ impl Lower<'_> {
                     Node::Or(vec![not_a, b])
                 }
             }
-            Expr::Quant { kind, bounds, body } if *kind != QuantKind::Choose => {
-                for bound in bounds {
-                    let Some(dom) = bound.domain else {
-                        return Err(self.refused(expr, "unbounded temporal quantifier"));
-                    };
-                    if self.scoped_level(dom, scope, depth)? != Level::Constant {
-                        return Err(self.refused(dom, "nonconstant temporal quantifier domain"));
-                    }
-                    self.pure_atom(dom, scope)?;
-                }
-                let scopes = ev
-                    .scope_bindings_bounded(scope, expr, &St::constant(), self.limits.formula_nodes)
-                    .map_err(|e| {
-                        if e.class() == dive_eval::ErrorClass::ResourceLimit {
-                            PlanningError::formula(
-                                self.model,
-                                self.root_expr,
-                                FormulaError::Limit("temporal quantifier bindings"),
-                            )
-                        } else {
-                            self.refused(expr, format!("temporal quantifier bindings: {e}"))
-                        }
-                    })?;
+            Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                let scopes = self.finite_scopes(expr, scope, depth)?;
                 let children = scopes
                     .iter()
                     .map(|s| self.expr(*body, s, depth))

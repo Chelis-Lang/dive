@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded final temporal checking supports finite constant-domain state/action
+  predicates; independent ENABLED covers certify finite forall/exists actions,
+  including tuple bindings and empty-domain identities.
+
+
 ### Fixed
 - Independent successor-existence proofs retain value-bound action-call scopes,
   allowing finite ENABLED/fairness decisions without sharing the checker
