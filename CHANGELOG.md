@@ -77,6 +77,11 @@ All notable changes to this project are documented here. The project will follow
   and property truth are checked separately from graph search. Implicit
   stutters preserve TLC’s action-constraint semantics. Fairness, ENABLED,
   VIEW/symmetry and unnamed legacy liveness claims remain explicit refusals.
+- Bounded temporal formula/tableau kernel for boolean, always and eventually
+  formulas over supplied state/action atoms. Negations normalize by duality;
+  every eventuality has an acceptance promise. Malformed references and
+  construction limits are errors. Model lowering and TLC-exact planning remain
+  pending; the kernel alone does not produce model-checking verdicts.
 - Independent temporal evaluation over supplied lassos in `dive-trace`:
   boolean combinations, `[]`, `<>`, `~>` and action atoms, including the
   closing edge. Fairness, `ENABLED`, temporal quantification and side effects

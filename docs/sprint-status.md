@@ -55,7 +55,10 @@ it supplies cross-platform evidence, not a substitute for their validation.
 
 Follow [the M6 plan](design/m6-plan.md): temporal formula/tableau planning,
 behavior-graph capture, then integrated accepting-lasso search and
-property attribution. Independent fairness and successor-existence checking
+property attribution. A bounded formula/tableau language kernel now checks
+boolean combinations, always and eventually over supplied state/action atoms.
+Bound-model lowering, fairness expansion and TLC-exact planning remain pending.
+Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
 foundations. Named pure concrete periodic counterexamples now validate
