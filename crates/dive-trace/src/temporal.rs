@@ -85,6 +85,28 @@ pub fn evaluate_lasso(
     cx.eval(formula.expr, &formula.scope, 0)
 }
 
+/// Preflight for finite predicates used to certify a periodic behavior.
+/// Refuse search-dependent or opaque reads before evaluating anything.
+pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), TemporalError> {
+    let node = model.ir.node(pred.expr);
+    if node
+        .effects
+        .intersects(Effects::IMPURE | Effects::OPEN | Effects::USES_ENABLED)
+        || model.evaluator.scope_shares_side_effects(&pred.scope)
+    {
+        return Err(TemporalError::Unsupported(
+            "side effects, dynamic bindings or ENABLED in periodic behavior validation".into(),
+        ));
+    }
+    Word {
+        model,
+        states: &[],
+        back_to: 0,
+        cells: 0,
+    }
+    .check_atom_context(pred.expr)
+}
+
 struct Word<'a> {
     model: &'a Model,
     states: &'a [State],

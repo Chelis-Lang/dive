@@ -58,8 +58,10 @@ behavior-graph capture, then integrated accepting-lasso search and
 property attribution. Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
-foundations; they do not yet certify a liveness counterexample or produce
-model-checking liveness verdicts.
+foundations. Named pure concrete periodic counterexamples now validate
+independently, including closing edges and the complete property set.
+Fairness, ENABLED and VIEW/symmetry closing evidence are still refused.
+These APIs do not yet produce model-checking liveness verdicts.
 
 Approved defaults are recorded in ADRs and the differences log: explicit
 host-I/O grants, short deterministic lassos, unreduced symmetry/liveness,
