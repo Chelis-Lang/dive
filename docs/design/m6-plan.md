@@ -58,9 +58,15 @@ closing-edge/property/constraint mutations are rejected. Fairness, independent
 `ENABLED`, VIEW/symmetry closing evidence and harness integration remain
 outstanding. L3 now provides validated SCC decomposition
 and accepting-lasso search over supplied product graphs, including unrestricted
-prefix reachability, all acceptance visits and deterministic witnesses. Tableau
-construction, behavior-graph capture, concrete-state projection and property
-attribution remain outstanding. L1–L2 and L5–L10 remain planned.
+prefix reachability, all acceptance visits and deterministic witnesses. TLC-exact formula/tableau planning,
+behavior-graph capture, concrete-state projection and property
+attribution remain outstanding. L1 now has a bounded, flat boolean/always/
+eventually formula kernel with negation normalization and generalized Buchi
+tableaux over supplied state/action atoms. Exhaustive short-word tests compare
+the accepted language with direct temporal semantics; an omitted promise is
+caught by a planted-bug control. Bound-model lowering, fairness expansion,
+TLC's DNF/classification/order and tableau numbering remain outstanding.
+L2 and L5–L10 remain planned.
 
 ## Work packages
 

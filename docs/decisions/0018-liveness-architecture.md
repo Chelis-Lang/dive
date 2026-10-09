@@ -55,6 +55,20 @@ The result is a `LivenessPlan`:
 
 The pipeline is the same in both profiles: it is semantics.
 
+**Language kernel, 2026-10-09:** `dive_liveness::formula` provides checked
+flat formula references, bounded negation normalization and generalized Buchi
+tableaux for boolean combinations, `[]` and `<>` over supplied state/action
+atoms. Each eventuality creates a promise that cannot defer forever. Input
+terms, normalized nodes, expansion steps/frontier and tableau size are bounded;
+a limit is an error, never an empty language. Deterministic construction is
+checked twice for every test formula. The tableau's product with every short
+two-atom periodic word is searched for acceptance and compared with direct
+infinite-word semantics (133 formulas, 166,516 word/back-edge combinations).
+A planted omission of promise acceptance admits the bogus forever-defer run.
+This is dive's own language implementation, not TLC's node numbering or full
+`astToLive` port. Model scopes, operator expansion, quantifiers, fairness,
+DNF/classification and TLC-exact order are still required before L1 is complete.
+
 ### 3. The behaviour graph, built by the deterministic search
 
 The graph is stored **once**, as the state graph labelled with atom bits. The product with each tableau is not stored. It is explored on the fly by the searches (§5, §6), with pure bit operations.
