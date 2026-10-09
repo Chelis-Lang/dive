@@ -883,8 +883,16 @@ fn run_model(
         let worker_golden = if compat && m.worker_introspecting && workers > 1 {
             let path =
                 worker_golden_path(golden_root, &opts.golden_oracle, &corpus.id, &m.id, workers);
-            path.exists()
-                .then(|| usable_worker_golden(&path, corpus, m, golden_sha256, workers))
+            path.exists().then(|| {
+                usable_worker_golden(
+                    &path,
+                    corpus,
+                    m,
+                    &opts.golden_oracle,
+                    golden_sha256,
+                    workers,
+                )
+            })
         } else {
             None
         };
@@ -1098,11 +1106,15 @@ fn usable_worker_golden(
     path: &Path,
     corpus: &CorpusIndex,
     m: &ModelEntry,
+    oracle_id: &str,
     golden_sha256: &str,
     workers: u32,
 ) -> std::result::Result<ModelGolden, String> {
     let g = read_model_golden(path).map_err(|e| e.to_string())?;
     let shown = path.display();
+    if g.oracle != oracle_id || g.corpus != corpus.id {
+        return Err(format!("{shown} names a different oracle or corpus"));
+    }
     if g.workers != workers {
         return Err(format!(
             "{shown} records -workers {}, not {workers}",
