@@ -138,3 +138,10 @@ Finite-constructor independent covers inspect `SetOfAllValue`, `SetPredValue`
 and `FcnLambdaValue` binding semantics at TLC commit `94d0c50` (MIT). The
 necessary-cover search remains an original, separately implemented procedure;
 it does not call `Tool.getNextStates` or the checker enumerator.
+
+The frontend campaign grammar driver invokes `TLAplusParser.parse` and
+`moduleName` exactly as `ParseUnit.parseFile` uses them at TLC `94d0c50`
+(MIT). The reported PlusCal validation error is classified from
+`SpecObj.validateParseUnit` / `SANY.frontEndParse`; generic exceptions never
+establish a root-grammar fact. See `scripts/java/README.md` for source and
+bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
