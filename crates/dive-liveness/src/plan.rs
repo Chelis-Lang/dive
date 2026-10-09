@@ -41,6 +41,8 @@ pub struct PredicateAtom {
     pub kind: AtomKind,
     /// Predicate, enabledness or non-stuttering action semantics.
     pub test: AtomTest,
+    /// Maximum concrete bindings per predicate binder.
+    pub binding_limit: usize,
 }
 
 impl PredicateAtom {
@@ -51,6 +53,7 @@ impl PredicateAtom {
     /// Missing state, nonboolean predicate or a core evaluation error.
     pub fn evaluate(&self, model: &Model, st: &St) -> Result<bool, EvalError> {
         let ev = &model.evaluator;
+        ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
         if let AtomTest::Enabled { sub } = self.test {
             let StateRef::Vals(current) = &st.s0 else {
                 return Err(EvalError::general("ENABLED atom requires a current state"));
@@ -75,6 +78,18 @@ impl PredicateAtom {
                     "non-stuttering atom requires two states",
                 ));
             };
+            ev.check_finite_bindings(
+                &self.pred.scope,
+                sub,
+                &St::state(before.clone()),
+                self.binding_limit,
+            )?;
+            ev.check_finite_bindings(
+                &self.pred.scope,
+                sub,
+                &St::state(after.clone()),
+                self.binding_limit,
+            )?;
             let a = ev.eval_scoped(&self.pred.scope, sub, &St::state(before.clone()))?;
             let b = ev.eval_scoped(&self.pred.scope, sub, &St::state(after.clone()))?;
             return ev.equal_values(&a, &b).map(|same| !same);
@@ -332,6 +347,7 @@ impl Lower<'_> {
             Expr::SubstRef { decl, primed } => {
                 let level = match ev.scope_subst_slot(scope, *decl) {
                     SlotView::Value(_) => Level::Constant,
+                    SlotView::AnalysisBound => Level::State,
                     SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1)?,
                     _ => return Err(self.refused(expr, "opaque substituted level")),
                 };
@@ -350,6 +366,7 @@ impl Lower<'_> {
             Expr::Local(r) => {
                 return match ev.scope_slot(scope, *r) {
                     SlotView::Value(_) => Ok(Level::Constant),
+                    SlotView::AnalysisBound => Ok(Level::State),
                     SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1),
                     _ => Err(self.refused(expr, "opaque scoped level")),
                 };
@@ -374,7 +391,7 @@ impl Lower<'_> {
             Expr::Quant { kind, body, .. }
                 if *kind != QuantKind::Choose && node.level != Level::Temporal =>
             {
-                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                let scopes = self.predicate_scopes(expr, scope, depth + 1)?;
                 let mut level = node.level;
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
@@ -384,7 +401,7 @@ impl Lower<'_> {
             Expr::SetMap { expr: body, .. }
             | Expr::SetFilter { pred: body, .. }
             | Expr::FcnCons { body, .. } => {
-                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                let scopes = self.predicate_scopes(expr, scope, depth + 1)?;
                 let mut level = node.level;
                 for sc in scopes {
                     level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
@@ -401,6 +418,44 @@ impl Lower<'_> {
             level = level.max(self.scoped_level(child, scope, depth + 1)?);
         }
         Ok(level)
+    }
+
+    // Only static analysis uses the unknown bindings. A retained atom keeps
+    // its original scope and reads bounded concrete domains at each state/edge.
+    fn predicate_scopes(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<Vec<Scope>, PlanningError> {
+        self.step()?;
+        let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => return Err(self.refused(expr, "predicate scopes require a binder")),
+        };
+        let mut dynamic = false;
+        for bound in bounds {
+            let dom = bound
+                .domain
+                .ok_or_else(|| self.refused(expr, "unbounded predicate domain"))?;
+            let level = self.scoped_level(dom, scope, depth + 1)?;
+            if level > Level::State {
+                return Err(self.refused(dom, "action/temporal predicate domain"));
+            }
+            self.pure_scoped(dom, scope, depth + 1)?;
+            dynamic |= level == Level::State;
+        }
+        if !dynamic {
+            return self.finite_scopes(expr, scope, depth + 1);
+        }
+        self.model
+            .evaluator
+            .scope_binder_analysis(scope, expr)
+            .map(|sc| vec![sc])
+            .map_err(|e| self.refused(expr, e.to_string()))
     }
 
     fn finite_scopes(
@@ -489,19 +544,19 @@ impl Lower<'_> {
                     continue;
                 }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
-                    let scopes = self.finite_scopes(e, &scope, depth + 1)?;
+                    let scopes = self.predicate_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::SetMap { expr: body, .. }
                 | Expr::SetFilter { pred: body, .. }
                 | Expr::FcnCons { body, .. } => {
-                    let scopes = self.finite_scopes(e, &scope, depth + 1)?;
+                    let scopes = self.predicate_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;
                 }
                 Expr::Local(r) => match ev.scope_slot(&scope, *r) {
-                    SlotView::Value(_) => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(body, sc) => {
                         todo.push((body, sc, depth + 1));
                         continue;
@@ -516,7 +571,7 @@ impl Lower<'_> {
                     continue;
                 }
                 Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
-                    SlotView::Value(_) => {}
+                    SlotView::Value(_) | SlotView::AnalysisBound => {}
                     SlotView::Lazy(body, sc) => {
                         todo.push((body, sc, depth + 1));
                         continue;
@@ -595,6 +650,7 @@ impl Lower<'_> {
             pred: Pred::new(expr, scope.clone()),
             kind,
             test,
+            binding_limit: self.limits.formula_nodes,
         });
         self.push(Node::Atom(Atom { kind, index }))
     }
@@ -675,6 +731,7 @@ impl Lower<'_> {
                 pred: Pred::new(expr, scope.clone()),
                 kind,
                 test: AtomTest::Predicate,
+                binding_limit: self.limits.formula_nodes,
             });
             return self.push(Node::Atom(Atom { kind, index }));
         }

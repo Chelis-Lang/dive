@@ -19,8 +19,9 @@ passes fresh independent validation. Exhaustive Boolean words of lengths 1–4
 check every closing edge against direct cycle algebra, including function
 arguments that retain captured state lazily.
 
-BcStateDomain also succeeds in TLC, but remains an explicit dive refusal:
-a state-dependent constructor domain must not be frozen as constant data.
+BcStateDomain succeeds in both TLC and final/short dive. Its state-dependent
+domain is evaluated at each actual state, never frozen as constant data.
+See `../temporal-state-domains/` for the expanded bounded controls.
 Effects, checker reads and oversized domains refuse without executing an
 effectful preflight. Recursive constructors and opaque independent ENABLED
 covers remain unsupported. This does not prove TLC-exact planning, temporal

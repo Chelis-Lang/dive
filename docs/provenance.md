@@ -132,7 +132,7 @@ formula/product and independent trace semantics.
 | Generated ValidationTestSuite smoke corpus | `testgen.spec.render_spec` / `prepare_testcases` and `testgen.feature.combine`, ValidationTestSuite `fe99cff1ca48535bdbfc99fd95bd2706f056c12f` | Apache-2.0, NVIDIA copyright preserved | 16 unmodified single-worker TLC sides; all 36 selected cases accounted for; oracle facts generated separately; adapter original |
 
 | Primed independent quantifier domains (`dive-trace::exists`) | Original necessary-cover soundness rule: enclosing prime affects domains as well as bodies; finite current-state bindings are not a proof about successors | n/a | #94 regression provides concrete satisfying successors before checking refusals; no successor enumerator dependency |
-| Finite data-constructor temporal scopes (`dive-eval::scope`, `dive-liveness::plan`, `dive-trace::temporal`) | Context bindings matched against `ContextEnumerator`, `SetOfAllValue`, `SetPredValue` and `FcnLambdaValue` at `94d0c50`; level/purity walks and periodic words original | MIT reference; original implementation | Seven clean `Bc*` truth/count probes, exhaustive short words, bounded constant-domain bindings and named dynamic/effect refusals; no validator enumerator or exact TLC temporal-selection claim |
+| Finite data-constructor temporal scopes (`dive-eval::scope`, `dive-liveness::plan`, `dive-trace::temporal`) | Context bindings matched against `ContextEnumerator`, `SetOfAllValue`, `SetPredValue` and `FcnLambdaValue` at `94d0c50`; level/purity walks and periodic words original | MIT reference; original implementation | Seven clean `Bc*` truth/count probes, exhaustive short words, bounded predicate bindings and named effect/resource refusals; no validator enumerator or exact TLC temporal-selection claim |
 
 Finite-constructor independent covers inspect `SetOfAllValue`, `SetPredValue`
 and `FcnLambdaValue` binding semantics at TLC commit `94d0c50` (MIT). The
@@ -145,3 +145,7 @@ The frontend campaign grammar driver invokes `TLAplusParser.parse` and
 `SpecObj.validateParseUnit` / `SANY.frontEndParse`; generic exceptions never
 establish a root-grammar fact. See `scripts/java/README.md` for source and
 bytecode pins, and `docs/frontend-campaign.md` for the separate measurements.
+
+| Component | Reference | License | Evidence |
+|---|---|---|---|
+| State-dependent finite predicate preflight (`dive-eval::finite`, `scope_binder_analysis`, `dive-liveness::plan`, `dive-trace::temporal`) | Original conservative scoped analysis and bounded concrete walks; TLA+ quantifier/constructor truth compared with TLC `ContextEnumerator`, `SetOfAllValue`, `SetPredValue`, `FcnLambdaValue` at `94d0c50` | Original implementation; MIT reference | Eight `Df*` pinned truth/count probes, independent periodic validation and exhaustive short words; no sample values, frozen domains or validator successor enumeration |

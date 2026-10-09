@@ -146,3 +146,17 @@ pinned goldens. All 16 models fully agree under the TLC profile at 1, 4 and 8
 workers and all 20 modules agree with SANY. The required conformance check
 includes this set. Broader generator and JUnit-model coverage remain open in
 #2; see `docs/conformance-corpora.md`.
+
+The deep frontend campaign is now a reproducible workflow job: all 340 local
+SANY cases and 768 seeded Examples mutations, with grammar measured separately
+from semantic/level acceptance. All 1,108 cases agree in each phase locally;
+the frontend-only Linux run 37989445200 passed. Issues #29 and #98 are closed.
+
+Bounded state-dependent predicate domains now retain actual state/edge context.
+Eight pinned probes match final truth/counts in both profiles/stores, including
+independently validated enabledness and closing-edge priming. The latest LM1
+final/short study has 39 matches and 6 explicit refusals (13 of 15 models
+supported), with no findings. FourQueens matches its safety stop and ChangRoberts
+its final success. DistributedReplicatedLog retains an opaque scoped-level
+refusal; DiningPhilosophers reaches the tableau-node bound. Actual graph capture
+is still inline, and none of this is strict TLC temporal parity.
