@@ -323,6 +323,24 @@ impl Lower<'_> {
         let ev = &self.model.evaluator;
         let node = ir.node(expr);
         match &node.expr {
+            Expr::Subst { body, .. } => {
+                let sc = ev
+                    .scope_subst(scope, expr)
+                    .map_err(|e| self.refused(expr, e.to_string()))?;
+                return self.scoped_level(*body, &sc, depth + 1);
+            }
+            Expr::SubstRef { decl, primed } => {
+                let level = match ev.scope_subst_slot(scope, *decl) {
+                    SlotView::Value(_) => Level::Constant,
+                    SlotView::Lazy(e, sc) => self.scoped_level(e, &sc, depth + 1)?,
+                    _ => return Err(self.refused(expr, "opaque substituted level")),
+                };
+                return Ok(if *primed && level != Level::Constant {
+                    Level::Action
+                } else {
+                    level
+                });
+            }
             Expr::Let { body, .. } => {
                 let sc = ev
                     .scope_let(scope, expr)
@@ -469,9 +487,21 @@ impl Lower<'_> {
                     }
                     _ => return Err(self.refused(e, "opaque scoped predicate atom")),
                 },
-                Expr::SubstRef { .. } | Expr::Subst { .. } => {
-                    return Err(self.refused(e, "opaque substituted/LET predicate atom"));
+                Expr::Subst { body, .. } => {
+                    let sc = ev
+                        .scope_subst(&scope, e)
+                        .map_err(|error| self.refused(e, error.to_string()))?;
+                    todo.push((*body, sc, depth + 1));
+                    continue;
                 }
+                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&scope, *decl) {
+                    SlotView::Value(_) => {}
+                    SlotView::Lazy(body, sc) => {
+                        todo.push((body, sc, depth + 1));
+                        continue;
+                    }
+                    _ => return Err(self.refused(e, "opaque substituted predicate atom")),
+                },
                 Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
@@ -566,6 +596,20 @@ impl Lower<'_> {
         let node = ir.node(expr);
         if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
+        }
+        if let Expr::Subst { body, .. } = &node.expr {
+            let sc = ev
+                .scope_subst(scope, expr)
+                .map_err(|e| self.refused(expr, e.to_string()))?;
+            return self.expr(*body, &sc, depth + 1);
+        }
+        if let Expr::SubstRef {
+            decl,
+            primed: false,
+        } = &node.expr
+            && let SlotView::Lazy(body, sc) = ev.scope_subst_slot(scope, *decl)
+        {
+            return self.expr(body, &sc, depth + 1);
         }
         if let Expr::Let { body, .. } = &node.expr {
             let sc = ev

@@ -1140,3 +1140,237 @@ fn used_let_effects_and_checker_reads_refuse_without_evaluation() {
         );
     }
 }
+
+#[test]
+fn instance_substitutions_match_pinned_final_truth_and_validate_independently() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-substitutions");
+    for name in [
+        "IsReach",
+        "IsStable",
+        "IsAction",
+        "IsQuant",
+        "IsNested",
+        "IsComplement",
+    ] {
+        let src =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("source");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("exit");
+        let (ir, cfg) = input(&src, &config);
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                let opts = CheckOptions {
+                    store,
+                    ..base.clone()
+                };
+                let report =
+                    temporal::check_final(&ir, &cfg, &opts, Limits::default()).expect(name);
+                let c = match report.outcome() {
+                    Outcome::Holds(c) => {
+                        assert_eq!(exit.trim(), "0", "{name}");
+                        c.as_ref()
+                    }
+                    Outcome::Violation(v) => {
+                        assert!(matches!(exit.trim(), "12" | "13"), "{name}: {exit}");
+                        assert_eq!(v.validation().validation, Validation::Valid, "{name}");
+                        assert_eq!(v.document().properties, ["P"]);
+                        &v.candidate().exploration
+                    }
+                    Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                };
+                assert_eq!(
+                    (c.stats.generated, c.stats.distinct, c.stats.depth),
+                    counts(&stdout),
+                    "{name}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn instance_state_expression_cannot_replace_a_constant_declaration() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/temporal-substitutions");
+    let src = std::fs::read_to_string(root.join("specs/IsStateTarget/IsStateTarget.tla"))
+        .expect("source");
+    let exit = std::fs::read_to_string(root.join("tlc-2026.10.06.014338/IsStateTarget.sany.exit"))
+        .expect("oracle");
+    assert_eq!(exit.trim(), "4");
+    let analysis =
+        dive_sema::analyze_source("IsStateTarget.tla", &src, &dive_sema::Options::default());
+    assert!(
+        !analysis.accepted(),
+        "state substitution for a constant was accepted"
+    );
+}
+
+#[test]
+fn substituted_words_keep_nested_state_and_priming_lazy() {
+    let (ir, cfg) = input(
+        r"---- MODULE InstanceWords ----
+---- MODULE Middle ----
+---- MODULE Leaf ----
+CONSTANT C
+VARIABLE v
+P == []<>(v=C)
+Q == <>[](v=C)
+R == []<>(v=C) /\ []<>(v#C)
+A == []<><<v'#v>>_v
+====
+CONSTANT MC
+VARIABLE w
+J == INSTANCE Leaf WITH C <- MC, v <- ~w
+P == J!P
+Q == J!Q
+R == J!R
+A == J!A
+====
+VARIABLE x
+I == INSTANCE Middle WITH MC <- TRUE, w <- x
+Init == x=TRUE
+Next == x'=~x
+P == I!P
+Q == I!Q
+R == I!R
+A == I!A
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    for n in 1..=4 {
+        for mask in 0_usize..(1 << n) {
+            let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+            let states: Vec<dive_trace::State> = values
+                .iter()
+                .map(|v| Arc::from([Some((*v).into())]))
+                .collect();
+            for back in 0..n {
+                let any = values[back..].iter().any(|v| *v);
+                let all = values[back..].iter().all(|v| *v);
+                for (name, truth) in [
+                    ("P", !all),
+                    ("Q", !any),
+                    ("R", any && !all),
+                    ("A", any && !all),
+                ] {
+                    let d = ir.root_def(name).expect(name);
+                    let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                        .expect(name);
+                    assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
+                    let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
+                        .expect(name);
+                    let rows: Vec<Vec<bool>> = (0..n)
+                        .map(|i| {
+                            let next = if i + 1 == n { back } else { i + 1 };
+                            let st = dive_eval::St::action(states[i].clone(), states[next].clone());
+                            plan.atoms
+                                .iter()
+                                .map(|a| a.evaluate(&model, &st).expect("atom"))
+                                .collect()
+                        })
+                        .collect();
+                    assert_eq!(
+                        plan.formula
+                            .evaluate_word(&rows, &rows, back, 1_000_000)
+                            .expect("formula"),
+                        direct,
+                        "{name}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn effectful_substitutions_refuse_before_evaluation() {
+    let (ir, cfg) = input(
+        r#"---- MODULE InstanceEffects ----
+EXTENDS TLC
+---- MODULE Inner ----
+VARIABLE v
+Claim == []<>(v=TRUE)
+====
+VARIABLE x
+E == INSTANCE Inner WITH v <- Print(x,x)
+R == INSTANCE Inner WITH v <- (TLCGet("level")=0)
+Init == x=TRUE
+Next == x'=x
+EP == E!Claim
+RP == R!Claim
+====
+"#,
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    let _ = model.take_output();
+    for name in ["EP", "RP"] {
+        let d = ir.root_def(name).expect(name);
+        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        assert!(dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err());
+        assert!(
+            dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
+                .is_err()
+        );
+        assert!(
+            model.take_output().is_empty(),
+            "effect executed during preflight"
+        );
+    }
+}
+
+#[test]
+fn unsupported_substitution_bindings_and_disabledness_never_claim_truth() {
+    let (ir, cfg) = input(
+        r"---- MODULE InstanceLimits ----
+---- MODULE Inner ----
+CONSTANT F(_)
+VARIABLE v
+OpClaim == []<>F(v)
+Disabled == []~ENABLED (v'=~v)
+ValueClaim == []<>v
+====
+VARIABLE x
+Identity(p) == p
+I == INSTANCE Inner WITH F <- Identity, v <- x
+Init == x=TRUE
+Next == x'=~x
+OP == I!OpClaim
+EN == I!Disabled
+P == I!ValueClaim
+====
+",
+        "INIT Init\nNEXT Next\n",
+    );
+    let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+    let states = [Arc::from([Some(true.into())])];
+    let op = ir.root_def("OP").expect("OP");
+    let op = dive_model::Pred::new(ir.def(op).body, model.evaluator.scope(op));
+    assert!(dive_liveness::plan::lower(&model, &op, Limits::default().formula).is_err());
+    assert!(dive_trace::temporal::evaluate_lasso(&model, &op, &states, 0).is_err());
+    let en = ir.root_def("EN").expect("EN");
+    let en = dive_model::Pred::new(ir.def(en).body, model.evaluator.scope(en));
+    assert!(
+        dive_trace::temporal::evaluate_lasso(&model, &en, &states, 0).is_err(),
+        "substituted disabledness needs a separate finite cover proof"
+    );
+    let p = ir.root_def("P").expect("P");
+    let p = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p));
+    let mut limit = Limits::default().formula;
+    limit.expansion_steps = 3;
+    assert_eq!(
+        dive_liveness::plan::lower(&model, &p, limit)
+            .expect_err("budget")
+            .code(),
+        "DIVE-L0021"
+    );
+}
