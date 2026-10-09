@@ -11,7 +11,7 @@ use dive_eval::{St, next::StateVals};
 use dive_model::Model;
 
 use crate::Graph;
-use crate::formula::{self, AtomKind, Tableau};
+use crate::formula::{self, AtomKind, Recurrence, Tableau};
 use crate::plan::{self, Plan, PlanningError};
 use crate::product::{self, Labels, Product};
 
@@ -213,13 +213,13 @@ fn labels(
 
 fn attribute(
     model: &Model,
-    plans: &[(Plan, Tableau)],
+    plans: &[(Plan, Tableau, Vec<Recurrence>)],
     states: &[StateVals],
     back: usize,
     cells: usize,
 ) -> Result<Vec<String>, AnalysisError> {
     let mut violated = Vec::new();
-    for (p, (plan, _)) in model.property_claims().iter().zip(plans) {
+    for (p, (plan, _, _)) in model.property_claims().iter().zip(plans) {
         states
             .len()
             .checked_mul(plan.atoms.len())
@@ -287,15 +287,19 @@ pub fn analyze_final(
     if model.property_claims().len() > limits.properties {
         return Err(AnalysisError::Limit("properties"));
     }
-    let plans: Vec<(Plan, Tableau)> = model
+    let plans: Vec<(Plan, Tableau, Vec<Recurrence>)> = model
         .property_claims()
         .iter()
         .map(|p| {
             let plan = plan::lower_violation(model, &p.pred, limits.formula)
                 .map_err(AnalysisError::Planning)?;
+            let (core, conditions) = plan
+                .formula
+                .factor_recurrences(limits.formula.formula_nodes)
+                .map_err(AnalysisError::Tableau)?;
             let tableau =
-                formula::compile(&plan.formula, limits.formula).map_err(AnalysisError::Tableau)?;
-            Ok((plan, tableau))
+                formula::compile(&core, limits.formula).map_err(AnalysisError::Tableau)?;
+            Ok((plan, tableau, conditions))
         })
         .collect::<Result<_, AnalysisError>>()?;
     let captured = match capture::explore(model, opts, limits.capture) {
@@ -312,10 +316,11 @@ pub fn analyze_final(
         captured.graph.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau)) in model.property_claims().iter().zip(&plans) {
+    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(&plans) {
         let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
-        let product = Product::new(&graph, tableau, &labels, limits.product)
-            .map_err(AnalysisError::Product)?;
+        let product =
+            Product::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
+                .map_err(AnalysisError::Product)?;
         if let Some(lasso) = product.find_lasso().map_err(AnalysisError::Product)? {
             let steps = lasso.prefix.iter().chain(&lasso.cycle);
             let states: Vec<StateVals> = steps

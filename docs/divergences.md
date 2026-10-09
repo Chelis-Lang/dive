@@ -187,3 +187,10 @@ example `IsStrictPrefix(log, log')`). Four `Aa*` probes match final truth/counts
 in both profiles/stores with independent periodic validation. Temporal-helper
 action arguments, temporal-valued/higher-order forwarding and effects remain
 refused; this does not enable strict TLC temporal checking.
+
+D-013 bounded final/short fairness uses separate recurring-edge conditions and
+reachable products, without increasing resource defaults. Three five-process
+`fairness-factoring` probes match final truth/counts in both profiles/stores;
+fresh independent validation rejects an unfair stuttering mutant. DiningPhilosophers
+also matches; the remaining LM1 refusal names VIEW graph capture. Exact TLC
+planning, scheduling, lasso choice and parallel capture remain pending.

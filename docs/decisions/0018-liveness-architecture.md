@@ -465,3 +465,25 @@ Five new pinned probes match verdict truth and exploration counts in both
 profiles/stores. The `QtEmpty` oracle uses message 2116 and exit 12 for a
 finite-prefix temporal violation; issue #77 tracks the harness classification,
 and full phase-L/TLC trace timing remains pending.
+
+### Increment: recurrence conditions and reachable products
+
+The bounded final/short coordinator factors top-level pure `[]<>B` conditions
+into generalized Buchi edge acceptance, including finite disjunctions of these
+conditions. B can mix state and action atoms; action truth belongs to the current
+outgoing edge, including closure. Conditions do not prune finite prefixes.
+Nested temporal operands remain in the general tableau. Full TLC DNF, EA/AE
+classification and numbering remain separate, pending work.
+
+Only reachable state/tableau pairs are retained, then renumbered in the original
+(state, tableau) order. Original parallel-edge positions and promise/condition
+cells are retained; malformed unreachable input still fails validation. All
+entry/work limits remain explicit, with unchanged defaults and no byte-budget
+claim. Shared conjunction/disjunction DAG expansion has independent work bounds.
+
+Evidence: 140 formulas over 175,280 short word/back-edge cases, 24 factored
+formulas over 30,048 cases, independent branching-graph closure controls and
+three clean five-process `Fw*` TLC probes. Fresh independent validation rejects
+unfair witness mutants. The LM1 final/short study has 42 truth/count matches
+and three named VIEW refusals with no findings; actual graph capture remains
+one worker and strict TLC temporal conformance remains pending.

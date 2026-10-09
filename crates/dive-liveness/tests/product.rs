@@ -2,7 +2,9 @@
 #![allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
 
 use dive_liveness::Graph;
-use dive_liveness::formula::{Atom, AtomKind, Formula, Limits as FormulaLimits, Node, compile};
+use dive_liveness::formula::{
+    Atom, AtomKind, Formula, Limits as FormulaLimits, Literal, Node, Tableau, TableauNode, compile,
+};
 use dive_liveness::product::{Labels, Limits, Product, ProductError};
 
 fn formula(nodes: Vec<Node>) -> dive_liveness::formula::Tableau {
@@ -81,6 +83,164 @@ fn parallel_edge_positions_are_preserved_and_dead_ends_are_not_stutters() {
         .expect("search")
         .is_none()
     );
+}
+
+#[test]
+fn reachable_pairs_fit_small_budgets_without_ignoring_invalid_inputs() {
+    let graph = Graph::new((0..10_000).map(|i| vec![i]).collect(), vec![0])
+        .expect("mostly unreachable behavior vertices");
+    let mut tableau = Tableau {
+        nodes: (0..200)
+            .map(|i| TableauNode {
+                literals: vec![],
+                successors: vec![i],
+                fulfilled: vec![true],
+            })
+            .collect(),
+        roots: vec![0],
+        promise_count: 1,
+    };
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    let limits = Limits {
+        vertices: 1,
+        edges: 1,
+        acceptance_cells: 2,
+        steps: 4,
+    };
+    let lasso = Product::new(&graph, &tableau, &labels, limits)
+        .expect("one reachable pair, not two million Cartesian pairs")
+        .find_lasso()
+        .expect("search")
+        .expect("self loop");
+    assert_eq!(
+        (
+            lasso.root,
+            lasso.entry,
+            lasso.prefix.len(),
+            lasso.cycle.len()
+        ),
+        (0, 0, 0, 1)
+    );
+    assert_eq!(
+        (lasso.cycle[0].from, lasso.cycle[0].edge, lasso.cycle[0].to),
+        (0, 0, 0)
+    );
+    tableau.nodes[199].successors = vec![200];
+    assert!(matches!(
+        Product::new(&graph, &tableau, &labels, limits),
+        Err(ProductError::Shape(_))
+    ));
+    tableau.nodes[199].successors = vec![199];
+    tableau.nodes[199].literals.push(Literal {
+        atom: Atom {
+            kind: AtomKind::State,
+            index: 0,
+        },
+        positive: true,
+    });
+    assert!(matches!(
+        Product::new(&graph, &tableau, &labels, limits),
+        Err(ProductError::Shape(_))
+    ));
+}
+
+#[test]
+fn pair_discovery_order_does_not_choose_the_projected_witness() {
+    let graph = Graph::new(vec![vec![0, 0], vec![1, 1]], vec![1, 0]).expect("reverse roots");
+    let tableau = Tableau {
+        nodes: [true, false]
+            .into_iter()
+            .enumerate()
+            .map(|(i, positive)| TableauNode {
+                literals: vec![Literal {
+                    atom: Atom {
+                        kind: AtomKind::Action,
+                        index: 0,
+                    },
+                    positive,
+                }],
+                successors: vec![i],
+                fulfilled: vec![],
+            })
+            .collect(),
+        roots: vec![1, 0],
+        promise_count: 0,
+    };
+    let labels = Labels {
+        states: vec![],
+        actions: vec![vec![vec![false, true], vec![false, true]]],
+    };
+    let lasso = Product::new(&graph, &tableau, &labels, Limits::default())
+        .expect("product")
+        .find_lasso()
+        .expect("search")
+        .expect("loop");
+    assert_eq!((lasso.root, lasso.entry), (0, 0));
+    // Discovery starts with (1,1), but the canonical entry is (0,0),
+    // whose action literal requires the second original parallel edge.
+    assert_eq!(lasso.cycle.len(), 1);
+    assert_eq!(
+        (lasso.cycle[0].from, lasso.cycle[0].edge, lasso.cycle[0].to),
+        (0, 1, 0)
+    );
+}
+
+#[test]
+fn reachable_growth_cannot_exceed_vertices_or_promise_cells_silently() {
+    let graph = Graph::new(vec![vec![1], vec![1]], vec![0]).expect("reachable successor");
+    let tableau = Tableau {
+        nodes: vec![TableauNode {
+            literals: vec![],
+            successors: vec![0],
+            fulfilled: vec![true],
+        }],
+        roots: vec![0],
+        promise_count: 1,
+    };
+    let labels = Labels {
+        states: vec![],
+        actions: vec![],
+    };
+    for (limits, kind) in [
+        (
+            Limits {
+                vertices: 1,
+                ..Limits::default()
+            },
+            "vertices",
+        ),
+        (
+            Limits {
+                acceptance_cells: 3,
+                ..Limits::default()
+            },
+            "acceptance cells",
+        ),
+    ] {
+        assert_eq!(
+            Product::new(&graph, &tableau, &labels, limits),
+            Err(ProductError::Limit(kind))
+        );
+    }
+    let lasso = Product::new(
+        &graph,
+        &tableau,
+        &labels,
+        Limits {
+            vertices: 2,
+            edges: 2,
+            acceptance_cells: 4,
+            ..Limits::default()
+        },
+    )
+    .expect("exact entry budgets")
+    .find_lasso()
+    .expect("search")
+    .expect("reachable loop");
+    assert_eq!((lasso.root, lasso.entry, lasso.prefix.len()), (0, 1, 1));
 }
 
 fn reachable(start: usize, len: usize, back: usize) -> Vec<usize> {
