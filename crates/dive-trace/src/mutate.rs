@@ -16,17 +16,25 @@
 //! | `truncate`: remove the last state, keep the claim (invariant and property endings only) | the claimed invariant or property held at the new last state, or the search would have stopped there |
 //! | `claim-Q`: claim a different invariant or property `Q` | `Q` either holds at the end, or is listed after the violated one, which is then false first |
 //! | `relabel-k`: label step `k` with another action of the trace that is false on it | the label must hold on the step |
+//! | `redraw-k-v`: a directly assigned random value is replaced by a different draw under another seed (only with the run's [`Replay`]) | a certified stream position fixes the assigned value; the independent validator must refute the mutation before it is included |
 //!
 //! Labels on the steps a mutation touches are removed, so a mutant is
 //! rejected for its states, not its labels. The `change` mutants assume
 //! every variable is constrained by the next-state relation, as TLC's
-//! successor generator requires.
+//! successor generator requires. The `redraw` mutants assume that the
+//! variable gets its value only from that draw. They are produced only
+//! for traces whose draw positions are certified, and checked individually.
+
+use std::collections::BTreeSet;
 
 use dive_model::Model;
+use dive_stdlib::host::RunHost;
+use dive_stdlib::random::Streams;
 use dive_value::Value;
 
 use crate::format::Ending;
 use crate::trace::Trace;
+use crate::validate::{Replay, Run, Validation};
 
 /// The model value the `change` mutants use. It must not occur in the
 /// specification or configuration.
@@ -42,12 +50,14 @@ pub struct Mutant {
 }
 
 /// The by-construction mutants of `trace` (see the module documentation).
+/// `replay` is the checking run's random streams, if known: with it, the
+/// `redraw` mutants change values the trace drew.
 #[must_use]
 #[allow(
     clippy::too_many_lines,
     reason = "the table in the module documentation, one block per row"
 )]
-pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
+pub fn mutants(model: &Model, trace: &Trace, replay: Option<&Replay>) -> Vec<Mutant> {
     let n = trace.states.len();
     let mut out = Vec::new();
     let base = Trace {
@@ -153,6 +163,75 @@ pub fn mutants(model: &Model, trace: &Trace) -> Vec<Mutant> {
     }
     if let Some(t) = relabel(model, &base) {
         out.push(t);
+    }
+    if let Some(r) = replay {
+        out.extend(redraws(model, &base, r));
+    }
+    out
+}
+
+/// One mutant per variable that a replayed draw set: the variable gets
+/// another value the same operator, applied to the same arguments, draws
+/// from a stream of another seed. Include it only when the independent
+/// validator refutes it at a certified stream position.
+fn redraws(model: &Model, trace: &Trace, replay: &Replay) -> Vec<Mutant> {
+    let draws = {
+        let mut run = Run::new(model, Some(replay));
+        run.record_draws();
+        if !run.validate(trace).is_valid() {
+            return Vec::new();
+        }
+        std::mem::take(&mut run.draws)
+    };
+    let ctx = model.evaluator.options().ctx;
+    let vars = crate::trace::variables(model);
+    let len = trace.states.len();
+    let streams = replay.streams();
+    let mut seen = BTreeSet::new();
+    let mut out = Vec::new();
+    for d in &draws {
+        let at = d.state;
+        for (i, v) in trace.states[at].iter().enumerate() {
+            if v.as_ref() != Some(&d.value)
+                || (at > 0 && trace.states[at - 1][i].as_ref() == Some(&d.value))
+                || seen.contains(&(at, i))
+            {
+                continue;
+            }
+            let draw = |host: &RunHost| match dive_eval::Host::random(host, d.op, &d.args, ctx) {
+                Some(Ok(value)) => Some(value),
+                _ => None,
+            };
+            let other = (1..=32).find_map(|j| {
+                let host = RunHost::new(
+                    Streams::new(streams.seed().wrapping_add(j), streams.mode()),
+                    None,
+                );
+                draw(&host).filter(|value| *value != d.value)
+            });
+            let Some(replacement) = other else {
+                continue;
+            };
+            seen.insert((at, i));
+            let mut mutant = trace.clone();
+            let mut values: Vec<Option<Value>> = mutant.states[at].to_vec();
+            values[i] = Some(replacement);
+            mutant.states[at] = values.into();
+            mutant.labels[at] = None;
+            if at + 1 < len {
+                mutant.labels[at + 1] = None;
+            }
+            if !matches!(
+                Run::new(model, Some(replay)).validate(&mutant),
+                Validation::Invalid(_)
+            ) {
+                continue;
+            }
+            out.push(Mutant {
+                name: format!("redraw-{at}-{}", vars[i]),
+                trace: mutant,
+            });
+        }
     }
     out
 }

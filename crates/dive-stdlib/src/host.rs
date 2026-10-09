@@ -83,6 +83,28 @@ impl RunHost {
         *self.stream.lock().unwrap_or_else(PoisonError::into_inner) = self.streams.state(fp);
     }
 
+    /// The current stream, at its current position.
+    #[must_use]
+    pub fn stream(&self) -> Stream {
+        *self.stream.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// Continues from `stream` (a snapshot taken with [`RunHost::stream`]).
+    pub fn set_stream(&self, stream: Stream) {
+        *self.stream.lock().unwrap_or_else(PoisonError::into_inner) = stream;
+    }
+
+    /// Advances the current stream by `words` generator steps, as that many
+    /// draws of one word each would (one `java.util.Random.next` call, or
+    /// one counter step of dive's stream). The trace validator uses it to
+    /// look for a check's draws later in a stream.
+    pub fn skip(&self, words: u64) {
+        let mut s = self.stream.lock().unwrap_or_else(PoisonError::into_inner);
+        for _ in 0..words {
+            let _ = s.next_bits(32);
+        }
+    }
+
     /// The level `TLCGet("level")` reports from now on (TLC's `s0.getLevel()`).
     pub fn set_level(&self, level: i64) {
         self.level.store(level, Ordering::Relaxed);
@@ -183,5 +205,22 @@ mod tests {
         assert!(!host.exit_requested());
         assert!(host.request_exit());
         assert!(host.exit_requested());
+    }
+
+    #[test]
+    fn skipping_matches_drawing_one_word_at_a_time() {
+        for mode in [RandomMode::Tlc, RandomMode::Dive] {
+            let host = RunHost::new(Streams::new(7, mode), None);
+            host.expand(42);
+            let start = host.stream();
+            let mut by_hand = start;
+            for _ in 0..5 {
+                let _ = by_hand.next_bits(31);
+            }
+            host.skip(5);
+            assert_eq!(host.stream(), by_hand);
+            host.set_stream(start);
+            assert_eq!(host.stream(), host.streams().state(42));
+        }
     }
 }

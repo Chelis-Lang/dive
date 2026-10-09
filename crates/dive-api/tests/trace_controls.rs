@@ -55,7 +55,9 @@ fn golden_controls() -> Vec<(String, Result<Controls, String>)> {
     for f in files {
         let g: J = serde_json::from_str(&std::fs::read_to_string(&f).expect("read")).expect("json");
         let r = &g["result"];
-        if r["verdict"] != "safety-violation" {
+        // Worker-specific goldens (ADR 0004) are TLC at several workers,
+        // whose counterexamples are only approximately shortest.
+        if g["workers"] != 1 || r["verdict"] != "safety-violation" {
             continue;
         }
         let id = g["model"]["id"].as_str().expect("id").to_owned();

@@ -59,9 +59,14 @@ pub struct TraceOptions {
     /// TLC's `-deadlock` flag: the model does not check for deadlock.
     pub no_deadlock: bool,
     /// The checking run's `-seed` and `-fp` index, when known (the TLC
-    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them, and
+    /// goldens use `-seed 0 -fp 0`): `TLCGet("config")` reports them,
     /// constant definitions and `ASSUME`s draw from the run's start-up
-    /// stream. Without them, both are refused by name.
+    /// stream, and the validator replays the run's random draws in the
+    /// initial predicate and the steps (TLC's seeding under `compat_tlc`,
+    /// dive's otherwise; D-002). Without them, all of these are refused by
+    /// name.
+    /// Random checks are decisive only where generator and predicate draw
+    /// positions can be proved equal; other orders are explicitly refused.
     pub run: Option<(i64, usize)>,
     /// Modules searched before the standard modules.
     pub library_paths: Vec<PathBuf>,
@@ -74,6 +79,7 @@ pub struct TraceOptions {
 pub struct SpecModel {
     model: dive_model::Model,
     model_values: Vec<String>,
+    replay: Option<dive_trace::Replay>,
 }
 
 impl SpecModel {
@@ -135,17 +141,23 @@ impl SpecModel {
             feature: e.to_string(),
         })?;
         let ir = Arc::new(ir);
-        let host = opts.run.map(|(seed, _)| {
-            let mode = if opts.compat_tlc {
-                dive_stdlib::random::RandomMode::Tlc
-            } else {
-                dive_stdlib::random::RandomMode::Dive
-            };
-            Arc::new(dive_stdlib::host::RunHost::new(
-                dive_stdlib::random::Streams::new(seed, mode),
-                None,
-            ))
-        });
+        let mode = if opts.compat_tlc {
+            dive_stdlib::random::RandomMode::Tlc
+        } else {
+            dive_stdlib::random::RandomMode::Dive
+        };
+        let replay = match opts.run {
+            Some((seed, fp_index)) => Some(
+                dive_trace::Replay::new(dive_stdlib::random::Streams::new(seed, mode), fp_index)
+                    .ok_or_else(|| ApiError::Rejected {
+                        message: format!(
+                            "fingerprint polynomial index {fp_index} is out of range (0..131)"
+                        ),
+                    })?,
+            ),
+            None => None,
+        };
+        let host = replay.map(|r| Arc::new(dive_stdlib::host::RunHost::new(r.streams(), None)));
         let bind_opts = dive_model::BindOptions {
             no_deadlock: opts.no_deadlock,
             host: host.clone().map(|h| -> Arc<dyn dive_eval::Host> { h }),
@@ -175,6 +187,7 @@ impl SpecModel {
             Ok(model) => Ok(Self {
                 model,
                 model_values,
+                replay,
             }),
             Err(f) => match &f.error.kind {
                 dive_model::ErrorKind::Unsupported { feature } => Err(ApiError::Unsupported {
@@ -210,14 +223,16 @@ impl SpecModel {
     /// [`dive_trace::validate_doc`]).
     #[must_use]
     pub fn read(&self, doc: &TraceDoc) -> (Report, Option<Trace>) {
-        on_big_stack(|| dive_trace::validate_doc(&self.model, doc, &self.model_values))
-            .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
+        on_big_stack(|| {
+            dive_trace::validate_doc(&self.model, doc, &self.model_values, self.replay.as_ref())
+        })
+        .unwrap_or_else(|e| (thread_failed(&e, doc.states.len()), None))
     }
 
     /// Validates a trace already read against this model.
     #[must_use]
     pub fn validate_trace(&self, trace: &Trace) -> Report {
-        on_big_stack(|| dive_trace::validate(&self.model, trace))
+        on_big_stack(|| dive_trace::validate(&self.model, trace, self.replay.as_ref()))
             .unwrap_or_else(|e| thread_failed(&e, trace.states.len()))
     }
 
@@ -225,7 +240,8 @@ impl SpecModel {
     /// ([`dive_trace::mutate`]): negative controls.
     #[must_use]
     pub fn mutants(&self, trace: &Trace) -> Vec<Mutant> {
-        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace)).unwrap_or_default()
+        on_big_stack(|| dive_trace::mutate::mutants(&self.model, trace, self.replay.as_ref()))
+            .unwrap_or_default()
     }
 
     /// The trace in dive's format.
