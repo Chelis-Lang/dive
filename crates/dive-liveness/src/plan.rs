@@ -381,6 +381,16 @@ impl Lower<'_> {
                 }
                 return Ok(level);
             }
+            Expr::SetMap { expr: body, .. }
+            | Expr::SetFilter { pred: body, .. }
+            | Expr::FcnCons { body, .. } => {
+                let scopes = self.finite_scopes(expr, scope, depth + 1)?;
+                let mut level = node.level;
+                for sc in scopes {
+                    level = level.max(self.scoped_level(*body, &sc, depth + 1)?);
+                }
+                return Ok(level);
+            }
             _ => {}
         }
         if node.level == Level::Temporal {
@@ -400,8 +410,12 @@ impl Lower<'_> {
         depth: usize,
     ) -> Result<Vec<Scope>, PlanningError> {
         self.step()?;
-        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
-            return Err(self.refused(expr, "finite scopes require a quantifier"));
+        let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => return Err(self.refused(expr, "finite scopes require a finite binder")),
         };
         for bound in bounds {
             let Some(dom) = bound.domain else {
@@ -475,6 +489,13 @@ impl Lower<'_> {
                     continue;
                 }
                 Expr::Quant { kind, body, .. } if *kind != QuantKind::Choose => {
+                    let scopes = self.finite_scopes(e, &scope, depth + 1)?;
+                    todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
+                    continue;
+                }
+                Expr::SetMap { expr: body, .. }
+                | Expr::SetFilter { pred: body, .. }
+                | Expr::FcnCons { body, .. } => {
                     let scopes = self.finite_scopes(e, &scope, depth + 1)?;
                     todo.extend(scopes.into_iter().map(|sc| (*body, sc, depth + 1)));
                     continue;

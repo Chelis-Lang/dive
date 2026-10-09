@@ -464,7 +464,8 @@ impl Evaluator {
         Ok(out)
     }
 
-    /// Enumerates a quantifier's finite bindings with entry-count bounds.
+    /// Enumerates finite bindings of a quantifier, set filter/map or function
+    /// constructor with entry-count bounds.
     /// Only explicit sets and intervals are supported. Domain entries and
     /// Cartesian bindings are each bounded by `limit`, before retaining
     /// them. Order is the profile's exploration order, first variable fastest.
@@ -481,8 +482,12 @@ impl Evaluator {
         limit: usize,
     ) -> Result<Vec<Scope>> {
         let core = &self.core;
-        let Expr::Quant { bounds, .. } = core.ir.expr(quant) else {
-            return Err(EvalError::bug("bounded bindings require a quantifier"));
+        let bounds: &[dive_ir::Bound] = match core.ir.expr(quant) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => return Err(EvalError::bug("bounded bindings require a finite binder")),
         };
         let mut columns = Vec::new();
         let mut entries = 0_usize;
