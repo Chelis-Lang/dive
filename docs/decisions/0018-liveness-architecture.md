@@ -133,7 +133,12 @@ For one (OoS, PEM):
    a root for decomposition. The canonical prefix search remains unpruned.
    Iterative SCC tests cover all directed four-vertex graphs against mutual
    reachability and a 50,000-vertex cycle without recursion. This is an SCC
-   foundation, not yet an accepting-component or lasso search.
+   foundation. `dive-liveness::search::find_lasso` additionally tests supplied
+   acceptance labels, preserves parallel-edge positions, and constructs the
+   shortest prefix and deterministic covering walk described below. It is
+   independently checked against finite closed-walk search over all two-vertex
+   edge/visit labels. Temporal planning, product construction, concrete-state
+   projection and property attribution remain outstanding.
 3. **The choice. This is dive's documented, deterministic choice.**
    - Let `d(v)` be the breadth-first distance of product node `v` from the initial nodes, ignoring EA pruning, as TLC's prefix search does.
    - The reported component is the accepting component containing the node of smallest `d`. Ties go to the smallest state id, then the smallest tableau index.

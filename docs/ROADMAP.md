@@ -7,6 +7,9 @@ Milestones match the GitHub milestones on `Chelis-Lang/dive`. Each milestone end
 
 The charter's soundness contract applies throughout.
 
+See [the current sprint status](sprint-status.md) for shipped work, the latest
+conformance evidence and the remaining M1, M5 and M6 packages.
+
 ## M0: Foundation
 
 Delivers:
