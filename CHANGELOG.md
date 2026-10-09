@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- TLC finite-prefix temporal violations are classified from their deciding
+  message and complete finite trace, preserving the observed safety exit 12.
+  Cyclic violations still require the ordinary temporal exit mapping.
 - Successor traversal borrows the evaluator core instead of incrementing and
   decrementing its shared reference count at each recursive rule.
 - Module-only conformance runs honor `--sany-only`; nightly parse checks no
