@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":0}],{"name":"Go","location":{"beginLine":4,"beginColumn":7,"endLine":4,"endColumn":54,"module":"CcMapDisabled"}},[2,{"x":1}]],[[2,{"x":1}],{"name":"Go","location":{"beginLine":4,"beginColumn":7,"endLine":4,"endColumn":54,"module":"CcMapDisabled"}},[2,{"x":1}]]],"state":[[1,{"x":0}],[2,{"x":1}]]},"vars":["x"]}

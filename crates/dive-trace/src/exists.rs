@@ -220,6 +220,14 @@ impl Search<'_> {
                     self.scan(*body, &sc, prime, needed, depth + 1)?;
                 }
             }
+            Expr::SetMap { expr: body, .. }
+            | Expr::SetFilter { pred: body, .. }
+            | Expr::FcnCons { body, .. } => {
+                let scopes = self.finite_scopes(expr, scope, prime, depth + 1)?;
+                for sc in scopes {
+                    self.scan(*body, &sc, prime, needed, depth + 1)?;
+                }
+            }
             Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
                 Some(ConstBinding::Value(_)) => {}
                 Some(ConstBinding::Def(d)) => {
@@ -319,8 +327,9 @@ impl Search<'_> {
             .map_err(|e| ExistsError::Unsupported(e.to_string()))
     }
 
-    // A quantifier's bound values are concrete data in the current state.
-    // Never bind a primed domain or speculate about an unbounded domain.
+    // Finite binder values are concrete data in the current state. A prime
+    // applies to a constructor's domain as well as its body; never speculate
+    // about successor-dependent or unbounded domains.
     fn finite_scopes(
         &mut self,
         expr: ExprId,
@@ -329,8 +338,12 @@ impl Search<'_> {
         depth: usize,
     ) -> Result<Vec<Scope>, ExistsError> {
         self.step(depth)?;
-        let Expr::Quant { bounds, .. } = self.model.ir.expr(expr) else {
-            return Err(ExistsError::Invalid("expected bounded quantifier".into()));
+        let bounds: &[dive_ir::Bound] = match self.model.ir.expr(expr) {
+            Expr::Quant { bounds, .. }
+            | Expr::SetMap { bounds, .. }
+            | Expr::FcnCons { bounds, .. } => bounds,
+            Expr::SetFilter { bound, .. } => std::slice::from_ref(bound),
+            _ => return Err(ExistsError::Invalid("expected finite binder".into())),
         };
         for bound in bounds {
             let dom = bound
