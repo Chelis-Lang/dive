@@ -2,7 +2,7 @@
 # Runs `dive check --compat=tlc` on a fixed list of Examples models against the
 # committed TLC goldens and fails unless every one of them agrees.
 #
-#   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4] [extra run args...]
+#   scripts/conformance-gate.sh conformance/gates/cm1.txt [--workers 1,4,8] [extra run args...]
 #
 # Needs release builds of the harness and of dive
 # (`cargo build --release --locked -p dive-conformance -p dive-cli`) and the

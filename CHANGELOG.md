@@ -84,6 +84,36 @@ All notable changes to this project are documented here. The project will follow
 - `dive check` claims TLC's class for a spec SANY would reject (`TLC_PARSING_FAILED`,
   3002, exit 150) in both profiles, verified against the harness fixtures and the M1/M2
   probe goldens; the harness compares it.
+- `dive check --workers N` and `dive-check` (M5, WP-D3): the deterministic parallel
+  engine of ADR 0015. Each level runs in three phases on a pool of workers that lives
+  for the whole search: expansion with work stealing over blocks of states (narrow
+  levels are split by action), a per-shard resolve in which the earliest position in
+  TLC's order wins, and invariant checks on the new states. The search stops at the
+  first event in TLC's order with ADR 0015 §3's closed-form counts, so verdict, counts,
+  depth, counterexample, `Print` output and the JSON report (except timing and the
+  `options.workers` block) are identical at every worker count, and equal TLC's
+  single-worker results under `--compat=tlc`.
+  - **Sequential mode**: specs whose checking path writes TLC registers, reads live
+    counters or registers, draws random values, performs I/O, reads checker state, or
+    has side effects inside lazily evaluated values are detected from the IR's effects
+    (`dive_model::Model::sequential`) and checked inline with one logical worker; the
+    output says so (`N worker(s) requested, 1 used` and the reason; JSON
+    `options.workers.sequential` and `reason`). `--sequential` forces it.
+  - **Ordered `Print`**: `dive_eval::capture` captures output per worker thread; the
+    engine releases it in TLC's order, up to the stopping event. Once-per-run warnings
+    are deduplicated at release, in order.
+  - **Chaos mode** (hidden, test-only): `--chaos SEED` or `DIVE_CHAOS=SEED` randomizes
+    block and chunk sizes, claim orders, the narrow-level split, inline phases, the
+    resolve's shard order and thread count, and inserts yields.
+  - `TLCGet("level")` is reported per worker thread while levels run in parallel
+    (`dive_check`'s engine host wraps WP-C3's `RunHost`); randomness, registers,
+    `TLCSet("exit")` and live counters keep `RunHost`'s single logical worker through
+    sequential mode.
+  - JSON `options.workers` gains `sequential` and `chaos`; `used` is the number of
+    threads the search ran on (0 when the run ended before the search).
+  - The required `Conformance gate` runs the CM1 list at 1, 4 and 8 workers
+    (`scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8`; 17 s
+    locally against 12 s at 1 and 4).
 - `dive check` and `dive-check` (M5, WP-D2): the sequential checking engine, ADR 0015's
   level engine run inline with one logical worker, over `dive-model`'s bound model:
   - initial states, invariants (on new and out-of-model states), implied initial

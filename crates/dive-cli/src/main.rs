@@ -31,7 +31,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -293,6 +293,10 @@ fn check_command(
 ) -> ExitCode {
     let mut req = dive_api::CheckRequest {
         compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
+        // Test-only (hidden): chaos scheduling for determinism testing.
+        chaos: std::env::var("DIVE_CHAOS")
+            .ok()
+            .and_then(|v| v.parse().ok()),
         ..dive_api::CheckRequest::default()
     };
     let mut file: Option<&str> = None;
@@ -359,6 +363,13 @@ fn check_command(
                 }
             }
             "-deadlock" => req.no_deadlock = true,
+            "--sequential" => req.sequential = true,
+            // Hidden, test-only: randomized scheduling that must not change
+            // any result (ADR 0015 §2, chaos mode).
+            "--chaos" => match value().as_deref().map(str::parse::<u64>) {
+                Some(Ok(seed)) => req.chaos = Some(seed),
+                _ => return usage_error(err, "--chaos expects a 64-bit unsigned seed"),
+            },
             "--library-path" | "--module-path" => match value() {
                 Some(dir) if flag == "--library-path" => req.library_paths.push(dir.into()),
                 Some(dir) => req.module_paths.push(dir.into()),

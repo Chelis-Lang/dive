@@ -131,6 +131,10 @@ pub struct Model {
     pub assumptions: Vec<DefId>,
     /// Features this model uses that dive does not check yet.
     pub unsupported: Vec<Unsupported>,
+    /// Why the model must be checked in sequential mode, with one logical
+    /// worker evaluating in TLC's order (ADR 0015 §6); empty when a parallel
+    /// search gives the same results. Each entry names the feature.
+    pub sequential: Vec<String>,
 }
 
 impl Model {

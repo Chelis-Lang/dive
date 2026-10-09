@@ -28,7 +28,7 @@ In every case below:
 | **Kind** | Same answer, better path |
 | **Default** | Deterministic parallel search; workers on by default |
 | **TLC behaviour** | `--workers 1` reproduces TLC's exact breadth-first results |
-| **Status** | the search itself is implemented (`dive check`, M5 WP-D2): one logical worker, TLC's exact single-worker results under `--compat=tlc`. The parallel engine is planned (WP-D3); until then `--workers N` runs sequentially and says so in its output. |
+| **Status** | implemented (`dive check --workers N`, M5 WP-D3): the deterministic parallel engine of ADR 0015. Every result is identical at every worker count and under randomized scheduling, and equals TLC's `-workers 1` golden under `--compat=tlc`. Specs that depend on TLC's sequential side effects run in *sequential mode* and say so (see below). |
 
 **What TLC does.** With more than one worker, TLC's breadth-first search is only approximately breadth-first (`tlc2/tool/TLCTrace.java`; tlaplus#883). Three things change from run to run and with the worker count:
 
@@ -47,7 +47,18 @@ On Examples `DieHard` with 4 workers, TLC reports depth 9 for a 7-state countere
 
 **What dive does.** Parallel search is designed to be deterministic. Any worker count gives the same verdict, the same state counts, the same depth, and the same shortest counterexample as TLC's single-worker run. You get the speed of parallel checking without giving up exactness.
 
-**Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, and the harness worker-invariance reports in `docs/conformance.md`.
+How it works, in short: dive explores one breadth-first level at a time. Workers expand states in parallel, but every successor carries its *position* in TLC's single-worker order, and when two workers find the same new state the one with the earlier position wins. The first violation, deadlock or error in that order stops the search, and the counts are computed for exactly that point. Which worker happened to do what never enters the result. `Print` output is buffered and released in TLC's order too.
+
+**Sequential mode.** A few specs observe TLC's evaluation order directly, so no parallel search can reproduce them: they write TLC registers (`TLCSet`), read live counters (`TLCGet("distinct")` and friends), draw random values (TLC draws from one stream per expanded state), perform I/O, or have side effects inside lazily evaluated sets or functions. dive detects these statically and checks them with one worker, in TLC's order. The output says so: the header reads `4 worker(s) requested, 1 used` followed by the reason, and the JSON `options.workers` block has `"sequential": true` and the reason. `--sequential` forces this mode for any spec; results never change.
+
+**Measured.** On the Examples small tier (`--workers 1,3,4,8`):
+- **Default profile.** Every checked model gives the same results at every worker count.
+- **Byte-identical JSON.** For the 60 agreeing models that run in under a minute, the JSON report (timing and thread fields aside) is byte-identical at 1, 3, 4 and 8 workers and under chaos scheduling, in both profiles.
+- **`--compat=tlc`.** 70 models agree with TLC's single-worker golden at every worker count. The one exception is by design: `DieHard/MCDieHardest` asserts `TLCGet("config").worker = 1`. Under `--compat=tlc` dive reports the physical worker count as TLC does (D-011), so at `--workers 4` the assumption fails exactly as it does in TLC at `-workers 4`. In the default profile it reports 1 and the model agrees at every worker count.
+
+Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
+
+**Evidence.** Probe P8 in `docs/survey/competitive.md`, ADR 0004, ADR 0010, ADR 0015, `crates/dive-check/tests/invariance.rs` (every probe and a wide spec stopping with every kind of event, at 1–64 workers, under chaos, in both profiles and stores), and the harness worker-invariance reports in `docs/conformance.md`.
 
 ---
 

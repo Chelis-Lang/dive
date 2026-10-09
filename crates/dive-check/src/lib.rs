@@ -62,7 +62,10 @@
 #![forbid(unsafe_code)]
 
 pub mod engine;
+mod host;
 mod options;
+mod parallel;
+mod pool;
 mod render;
 mod result;
 
@@ -78,7 +81,7 @@ pub use options::CheckOptions;
 pub use render::{format_trace_state, render_human};
 pub use result::{
     CheckResult, Collision, Counterexample, ErrorSite, Stats, TlcClass, TraceState, Verdict,
-    tlc_exit_status,
+    Workers, tlc_exit_status,
 };
 
 use crate::engine::error_verdict;
@@ -172,6 +175,13 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         output: Vec::new(),
         warnings: Vec::new(),
         notes: Vec::new(),
+        // No search has run yet.
+        workers: Workers {
+            requested: opts.workers.max(1),
+            used: 0,
+            sequential: false,
+            reason: None,
+        },
         elapsed: std::time::Duration::ZERO,
     }
 }
@@ -188,17 +198,11 @@ fn messages(out: &[Message], r: &mut CheckResult) {
 #[allow(clippy::too_many_lines, reason = "the phases of a run, in TLC's order")]
 fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
     let mut notes = Vec::new();
-    if opts.workers > 1 {
-        notes.push(format!(
-            "--workers {}: the parallel engine (WP-D3) is not implemented yet, so this run used 1 worker. Results are identical at any worker count by construction (ADR 0015).",
-            opts.workers
-        ));
-    }
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {
         eval: opts.eval,
         no_deadlock: opts.no_deadlock,
-        host: Some(host.clone()),
+        host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
     let m = match dive_model::bind(ir.clone(), cfg, &bind_opts) {
         Ok(m) => m,
@@ -252,6 +256,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     r.tlc_prints_stats = outcome.tlc_prints_stats;
     r.counterexample = outcome.counterexample;
     r.collision = outcome.collision;
+    r.workers = outcome.workers;
     r.output.extend(outcome.output);
     notes.extend(outcome.notes);
     if r.counterexample.is_some()
