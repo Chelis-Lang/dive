@@ -53,8 +53,9 @@ combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
 suffix of all boolean words up to four positions and six pinned TLC liveness
 words. Named pure periodic counterexamples now validate independently,
 including behavior/closing-edge checks and the complete violated-property
-set. Four pinned pure words validate, four fairness words refuse, and
-closing-edge/property/constraint mutations are rejected. Fairness, independent
+set. Eight pinned words validate, including recurring-action fairness
+certificates; closing-edge/property/constraint mutations are rejected.
+Fairness without a recurring non-stuttering action, independent
 `ENABLED`, VIEW/symmetry closing evidence and harness integration remain
 outstanding. L3 now provides validated SCC decomposition
 and accepting-lasso search over supplied product graphs, including unrestricted

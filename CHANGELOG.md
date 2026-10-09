@@ -73,11 +73,16 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Independent fairness certificates for supplied periodic counterexamples:
+  a recurring non-stuttering action establishes both weak and strong fairness.
+  Prefix-only occurrences, unchanged subscripts and false actions cannot
+  certify fairness. Other cases still require independent enabledness checking
+  and refuse explicitly; this does not enable liveness model checking.
 - Independent validation of named pure liveness counterexamples: the optional
   trace `properties` list names every violated temporal property. Init, all
   edges including loop closure, constraints, safety and behavior predicates,
   and property truth are checked separately from graph search. Implicit
-  stutters preserve TLC’s action-constraint semantics. Fairness, ENABLED,
+  stutters preserve TLC’s action-constraint semantics. Unestablished fairness, ENABLED,
   VIEW/symmetry and unnamed legacy liveness claims remain explicit refusals.
 - Pure bound liveness predicate planning into the formula/tableau kernel,
   preserving state/action scopes. Unsupported constructs and resource limits

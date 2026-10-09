@@ -227,7 +227,7 @@ It runs sequentially after the search, on the same stored graph (with TLC-ordere
 **Implementation, 2026-10-09:** `dive_trace::temporal::evaluate_lasso`
 provides the independent truth-vector kernel for pure boolean combinations,
 `[]`, `<>`, `~>` and state/action atoms, including the concrete closing edge.
-It checks word shape and refuses fairness, `ENABLED`, dynamic constant
+It checks word shape and refuses unestablished fairness, `ENABLED`, dynamic constant
 bindings, side effects, checker introspection, opaque local/substitution
 atoms and unsupported constructors. In particular, `TLCGet("level")` is not
 marked impure by the IR, but cannot inherit a search host's level when
@@ -238,11 +238,24 @@ TLC liveness words falsify their reported property. This API evaluates a
 formula only. `validate_doc` now certifies pure concrete periodic behaviors
 with a complete, nonempty `properties` claim: Init, every transition including
 the closing edge, constraints, safety predicates, behavior temporal conjuncts
-and the truth of every configured temporal property. Four pinned positive
-controls validate; four fairness controls refuse by name. Mutants exercise
+and the truth of every configured temporal property. Eight pinned positive
+controls validate, including four with recurring fair actions. Mutants exercise
 closing edges, constraints, omitted or incorrect names, and wrapper conflicts.
-Legacy unnamed words, fairness/`ENABLED`, effects, `VIEW`, symmetry and ambiguous
+Legacy unnamed words, fairness needing `ENABLED`, effects, `VIEW`, symmetry and ambiguous
 repeated property names remain explicit refusals. Full L4 remains pending.
+
+**Recurring-action fairness certificate:** a supplied cycle containing
+`<<A>>_v` establishes `[]<><<A>>_v`, which implies both `WF_v(A)` and
+`SF_v(A)` without an enabledness search. The independent validator evaluates
+`A` and compares the subscript on the actual edge, including loop closure,
+using the run's equality profile. Occurrences only in the finite prefix,
+action-true stutters and empty/unchanged subscripts cannot certify fairness.
+Every small boolean word/back edge is tested for both fairness kinds, with
+false-action and empty-subscript controls. If no recurring occurrence is
+established, the result is unsupported; this implementation neither proves
+nor disproves enabledness from the supplied trace. L5 remains required for
+fair stuttering and enabledness-dependent cases.
+
 
 The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and `stuttering` endings. The optional `properties` list is implemented and omitted when empty, preserving safety report output. An enclosing report and its inner trace must agree on the claimed set. The remaining fields are planned:
 - `closing`: the concrete closing successor, under `VIEW`;

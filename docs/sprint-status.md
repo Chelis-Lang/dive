@@ -64,7 +64,9 @@ Independent fairness and successor-existence checking
 remain outstanding. The independent truth-vector and graph APIs are
 foundations. Named pure concrete periodic counterexamples now validate
 independently, including closing edges and the complete property set.
-Fairness, ENABLED and VIEW/symmetry closing evidence are still refused.
+Recurring non-stuttering action occurrences now certify WF/SF independently
+on a supplied cycle. Eight pinned counterexamples validate; fairness needing
+ENABLED and VIEW/symmetry closing evidence are still refused.
 These APIs do not yet produce model-checking liveness verdicts.
 
 Approved defaults are recorded in ADRs and the differences log: explicit
