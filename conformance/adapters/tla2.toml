@@ -1,0 +1,31 @@
+# tla2, as measured in docs/survey/competitive.md ("Method", per-tool
+# invocations). For reproducible re-measurement with
+# `dive-conformance run --impl adapter:conformance/adapters/tla2.toml`.
+# Not run in CI; adapters are parsed and validated, and executed from M2.
+# Assumes `tla2` on PATH, run from the spec directory. Measured on a patched
+# build of the publish mirror (its upstream and git dependencies are gone).
+name = "tla2"
+source = "joweeba/tla2 @ 5e828d3 (Apache-2.0)"
+check = ["tla2", "check", "{module}", "--config", "{config}", "--workers", "{workers}", "--output", "json", "--force", "--bfs-only"]
+library = "env"
+# Exit 2: an error or a refusal (the probes' parse and semantic errors).
+refused_exit_codes = [2]
+
+[env]
+TLA_PATH = "{library}"
+
+# Exit 1 also covers refusals: its human output reports an unsupported
+# liveness form as "Liveness failure". The JSON `result.error_type` tells them
+# apart, so refusals are matched first. The survey did not record the other
+# `result.status` and `error_type` values; until they are mapped, an exit 1
+# that no rule explains is unclassified, never a guess.
+[exit_codes]
+0 = "success"
+
+[[rules]]
+json = "/result/error_type"
+equals = "runtime_error"
+refused = true
+
+[counts]
+distinct_states = { json = "/statistics/states_distinct" }

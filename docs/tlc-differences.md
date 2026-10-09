@@ -359,7 +359,14 @@ With `INVARIANT InvAlpha InvZeta`, the pinned TLC reports `InvZeta` after 2 stat
 
 **What dive does.** In the default profile, dive explores sets in the canonical order, as it does for `CHOOSE` (D-006), so the whole default profile is independent of the module text. Complete searches give the same states, totals and depth as TLC. Only *which* of several violations at the same depth is reported first, and the counts at that stop, can differ. dive flags runs where that happened. `--explore-order=tlc` (part of `--compat=tlc`) reproduces TLC's order exactly.
 
-**Evidence.** Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`; `crates/dive-eval/tests/options.rs`.
+**Evidence.** Probe `StringOrderViolation` in `crates/dive-check/tests/fixtures/tlc-probes/`; `crates/dive-eval/tests/options.rs`. Two Examples models show it in the default profile, with the same violated property, depth and counterexample length as TLC, and only the counts at the stop differing:
+
+| Model | TLC (distinct / generated / queued) | dive default profile |
+|---|---|---|
+| `MissionariesAndCannibals` (`Solution`) | 61 / 225 / 11 | 61 / 226 / 11 |
+| `acp/ACP_NB_WRONG_TLC` (`AC1`) | 11,852 / 59,286 / 1,248 | 12,645 / 64,357 / 970 |
+
+Both are registered as expected divergences in `conformance/expected-divergences.toml`, narrowed to the fields that differ. Under `--compat=tlc` both agree with TLC exactly (the CM1 conformance gate).
 
 ---
 

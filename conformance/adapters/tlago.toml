@@ -1,0 +1,23 @@
+# tlago, as measured in docs/survey/competitive.md ("Method", per-tool
+# invocations). A port of TLC: TLC's flags, exit codes and output lines.
+# For reproducible re-measurement with
+# `dive-conformance run --impl adapter:conformance/adapters/tlago.toml`.
+# Not run in CI; adapters are parsed and validated, and executed from M2.
+# Assumes `tlago` on PATH, run from the spec directory.
+name = "tlago"
+source = "glycerine/tlago @ 905e94f (MIT)"
+check = ["tlago", "-workers", "{workers}", "-config", "{config}", "-lncheck", "final", "-cleanup", "-metadir", "{scratch}/meta", "-I", "{library}", "{module}"]
+library = "flag"
+
+# TLC's exit codes for verdicts. TLC's error exit codes (75, 150, 151, 255)
+# each cover several error classes, so they are left unclassified here.
+[exit_codes]
+0 = "success"
+10 = "assumption-failure"
+11 = "deadlock"
+12 = "safety-violation"
+13 = "liveness-violation"
+
+[counts]
+distinct_states = { pattern = '([0-9,]+) distinct states found' }
+states_generated = { pattern = '([0-9,]+) states generated' }
