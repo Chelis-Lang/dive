@@ -69,6 +69,22 @@ This is dive's own language implementation, not TLC's node numbering or full
 `astToLive` port. Model scopes, operator expansion, quantifiers, fairness,
 DNF/classification and TLC-exact order are still required before L1 is complete.
 
+**Bound pure planning, 2026-10-09:** `dive_liveness::plan::lower`
+retains each state/action predicate in its bound `Pred` scope and lowers
+boolean combinations, `[]`, `<>`, `~>`, pure constant conditionals and
+zero-arity temporal definitions to the language kernel. Seven pinned TLC
+counterexample words falsify their lowered property; ten synthetic TLA+
+formulas agree with direct word semantics at every back edge. Fairness,
+ENABLED, opaque/dynamic scopes, effects, checker reads, temporal quantification
+and unsupported constructors remain named planning refusals. Diagnostics
+retain both the requested predicate and failing operand spans/locations:
+`DIVE-L0020` unsupported, `DIVE-L0021` resource limit, `DIVE-L0022` an internal
+formula-reference inconsistency. These are library planning diagnostics;
+TLC's planning error codes/order are not claimed. This activates the already
+permitted `dive-liveness` edges to IR, evaluator, values and model binding;
+the checker/trace dependency boundary is unchanged. The full L1 pipeline
+and graph integration remain outstanding.
+
 ### 3. The behaviour graph, built by the deterministic search
 
 The graph is stored **once**, as the state graph labelled with atom bits. The product with each tableau is not stored. It is explored on the fly by the searches (§5, §6), with pure bit operations.
@@ -117,6 +133,20 @@ That is about **24 bytes per state and 6–8 bytes per edge**, for every OoS tog
 - A graph that cannot be held or spilled within the limits ends the run as a **resource limit**, naming the budget. It is never an approximate check.
 
 **Worker invariance.** Atom bits are functions of states and pairs. Ids and edge order are fixed by 𝒪. Blocks append in block order. So the graph is byte-identical at any worker count and under chaos scheduling (ADR 0015 §2), and everything after it is a function of the graph.
+
+
+**Explicit product foundation, 2026-10-09:** `dive_liveness::product`
+combines a supplied behavior graph with the language tableau. State atoms
+label vertices; action atoms label each actual outgoing edge, including
+parallel edges and the closing transition. Dense ids follow `(state, tableau)`
+order. Promise visits feed the accepting-lasso search; projection retains
+original edge positions and repeated concrete vertices with different
+obligations. Callers must supply stutter edges; dead ends are never silently
+made into behaviors. Invalid label shapes and explicit vertex, edge, work
+and acceptance-memory bounds are errors, not absence of acceptance. Short
+words are checked against direct temporal truth and every two-vertex graph
+against an independent path-closure oracle. This is not TLC's product/node
+numbering, graph capture or an integrated model-checking verdict.
 
 ### 4. Constraints, `VIEW`, symmetry
 
@@ -211,7 +241,7 @@ It runs sequentially after the search, on the same stored graph (with TLC-ordere
 **Implementation, 2026-10-09:** `dive_trace::temporal::evaluate_lasso`
 provides the independent truth-vector kernel for pure boolean combinations,
 `[]`, `<>`, `~>` and state/action atoms, including the concrete closing edge.
-It checks word shape and refuses fairness, `ENABLED`, dynamic constant
+It checks word shape and refuses unestablished fairness, `ENABLED`, dynamic constant
 bindings, side effects, checker introspection, opaque local/substitution
 atoms and unsupported constructors. In particular, `TLCGet("level")` is not
 marked impure by the IR, but cannot inherit a search host's level when
@@ -222,11 +252,24 @@ TLC liveness words falsify their reported property. This API evaluates a
 formula only. `validate_doc` now certifies pure concrete periodic behaviors
 with a complete, nonempty `properties` claim: Init, every transition including
 the closing edge, constraints, safety predicates, behavior temporal conjuncts
-and the truth of every configured temporal property. Four pinned positive
-controls validate; four fairness controls refuse by name. Mutants exercise
+and the truth of every configured temporal property. Eight pinned positive
+controls validate, including four with recurring fair actions. Mutants exercise
 closing edges, constraints, omitted or incorrect names, and wrapper conflicts.
-Legacy unnamed words, fairness/`ENABLED`, effects, `VIEW`, symmetry and ambiguous
+Legacy unnamed words, fairness needing `ENABLED`, effects, `VIEW`, symmetry and ambiguous
 repeated property names remain explicit refusals. Full L4 remains pending.
+
+**Recurring-action fairness certificate:** a supplied cycle containing
+`<<A>>_v` establishes `[]<><<A>>_v`, which implies both `WF_v(A)` and
+`SF_v(A)` without an enabledness search. The independent validator evaluates
+`A` and compares the subscript on the actual edge, including loop closure,
+using the run's equality profile. Occurrences only in the finite prefix,
+action-true stutters and empty/unchanged subscripts cannot certify fairness.
+Every small boolean word/back edge is tested for both fairness kinds, with
+false-action and empty-subscript controls. If no recurring occurrence is
+established, the result is unsupported; this implementation neither proves
+nor disproves enabledness from the supplied trace. L5 remains required for
+fair stuttering and enabledness-dependent cases.
+
 
 The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and `stuttering` endings. The optional `properties` list is implemented and omitted when empty, preserving safety report output. An enclosing report and its inner trace must agree on the claimed set. The remaining fields are planned:
 - `closing`: the concrete closing successor, under `VIEW`;
