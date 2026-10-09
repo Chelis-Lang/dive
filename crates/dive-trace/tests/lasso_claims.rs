@@ -13,7 +13,11 @@ const SPEC: &str = "---- MODULE Claims ----\nVARIABLE x\nInit == x = FALSE\n\
 
 fn bound(source: &str, cfg: &str) -> Model {
     let name = source.split_whitespace().nth(2).expect("name");
-    let a = dive_sema::analyze_source(&format!("{name}.tla"), source, &Default::default());
+    let a = dive_sema::analyze_source(
+        &format!("{name}.tla"),
+        source,
+        &dive_sema::Options::default(),
+    );
     let ir = Arc::new(dive_ir::lower(&a).expect("lower"));
     let cfg = dive_config::parse(cfg).into_config().expect("config");
     dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind")
@@ -182,7 +186,7 @@ fn pinned_liveness_words_validate_or_refuse_by_name_never_turn_invalid() {
         match r {
             Validation::Valid => valid += 1,
             Validation::Unsupported(s) => {
-                assert!(!s.is_empty());
+                assert_ne!(s, "");
                 assert!(
                     matches!(
                         name,

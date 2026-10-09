@@ -14,6 +14,11 @@
 //! check-layering` and the gate's standalone `cargo build -p dive-trace`
 //! enforce that.
 //!
+//! Named pure periodic words (`TraceDoc::with_properties`) also check all
+//! behavior temporal conjuncts and the complete violated-property set.
+//! Fairness, `ENABLED`, VIEW/symmetry closing evidence and unnamed legacy
+//! periodic claims remain explicit refusals.
+//!
 //! - [`mod@format`]: the versioned trace format (also TLC's `-dumpTrace json`).
 //! - [`value_json`]: dive's lossless JSON form of values.
 //! - [`validate()`]: the checks, giving [`Validation::Valid`],

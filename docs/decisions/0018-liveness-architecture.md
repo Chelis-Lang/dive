@@ -205,11 +205,16 @@ evaluating a periodic word. A regression test installs such a host and
 requires an explicit refusal. Exhaustive short-word
 tests check every suffix against direct reachability semantics; six pinned
 TLC liveness words falsify their reported property. This API evaluates a
-formula only. It does not certify the behavior, fairness, claimed property
-set or a `VIEW`/symmetry closing edge; complete L4 validation remains pending.
+formula only. `validate_doc` now certifies pure concrete periodic behaviors
+with a complete, nonempty `properties` claim: Init, every transition including
+the closing edge, constraints, safety predicates, behavior temporal conjuncts
+and the truth of every configured temporal property. Four pinned positive
+controls validate; four fairness controls refuse by name. Mutants exercise
+closing edges, constraints, omitted or incorrect names, and wrapper conflicts.
+Legacy unnamed words, fairness/`ENABLED`, effects, `VIEW`, symmetry and ambiguous
+repeated property names remain explicit refusals. Full L4 remains pending.
 
-The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and `stuttering` endings. It gains:
-- `properties`: the claimed violated properties;
+The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and `stuttering` endings. The optional `properties` list is implemented and omitted when empty, preserving safety report output. An enclosing report and its inner trace must agree on the claimed set. The remaining fields are planned:
 - `closing`: the concrete closing successor, under `VIEW`;
 - `permutation`: under `--symmetry-liveness=tlc`, the model-value permutation mapping the closing successor to state `k`'s class.
 
@@ -217,7 +222,7 @@ The validator checks, with the core evaluator only (no enumerator, no search):
 
 1. **The behaviour.** ADR 0016 checks 1–5 over every step. This includes the loop step `(s_{n-1}, s_k)`, or `(s_{n-1}, closing)` with `VIEW(closing) = VIEW(s_k)`. For a stuttering ending, the step `(s_{n-1}, s_{n-1})` is a stutter and needs no check. Every state, the last included, must be inside the model. Generated transitions must satisfy the action constraints. Implicit full-state stuttering steps are always permitted and bypass the action constraints, as TLC adds them after successor filtering (`Worker.doNextCheckLiveness`, lines 171–172). Probe `LvStutterActionConstraint` requires `x' # x` but TLC still reports the one-state stuttering violation at `x = FALSE` (exit 13, 3 generated / 2 distinct / depth 2). The validator must preserve that distinction on the prefix and closing edge.
 2. **Fairness.** Every temporal conjunct of the behaviour specification (`Model::temporals`) must be **true** on the ultimately periodic behaviour.
-3. **The properties.** Every claimed property must be **false** on it. Under `--lasso=tlc`, every unclaimed property must be true, since TLC names all the violated ones.
+3. **The properties.** Every claimed property must be **false** on it. Every unclaimed temporal property must be true: the format promises a complete set, in every profile.
 
 **Evaluation on a lasso.** Steps 2 and 3 use a direct temporal evaluator over the lasso's positions `0 … n-1`, with `succ(n-1) = k`, or `n-1` for stuttering.
 - Each subformula gets a truth vector over positions, computed bottom-up.
