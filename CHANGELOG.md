@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Module-only conformance runs honor `--sany-only`; nightly parse checks no
+  longer repeat model checking under the shorter parsing timeout.
 - Conformance harness (issue #48): dive's default profile now exits clean on the small
   tier. The D-010 differences in Examples `MissionariesAndCannibals` and
   `acp/ACP_NB_WRONG_TLC` (counts at the violation only) are registered in

@@ -121,6 +121,7 @@ fn options(repo: &Path, filters: Vec<String>) -> RunOptions {
             timeout_cap: Duration::from_secs(5),
         },
         crosscheck_manifest: true,
+        models: true,
         sany: true,
         report_dir: repo.join("reports"),
         summary_path: Some(repo.join("conformance.md")),
@@ -146,6 +147,28 @@ fn summary_totals_equal_the_selection() -> TestResult {
     // Two runs in the same millisecond still get distinct report ids.
     let again = pipeline::run(&config, &cache, &Refuser, None, &options(&repo, vec![]))?;
     assert_ne!(again.run_id, report.run_id);
+    Ok(())
+}
+
+#[test]
+fn module_only_runs_do_not_select_models() -> TestResult {
+    let tmp = dive_conformance::util::TempDir::new("modules-only")?;
+    let (repo, cache) = setup(tmp.path())?;
+    let config = Config::load(&repo)?;
+    for phase in [
+        dive_conformance::sany::SanyPhase::Full,
+        dive_conformance::sany::SanyPhase::Parse,
+    ] {
+        let mut opts = options(&repo, vec![]);
+        opts.models = false;
+        opts.sany_phase = phase;
+        let report = pipeline::run(&config, &cache, &Refuser, None, &opts)?;
+        assert_eq!(report.summary.models_selected, 0);
+        assert_eq!(report.summary.modules_selected, 2);
+        assert!(report.models.is_empty());
+        assert_eq!(report.modules.len(), 2);
+        assert_eq!(report.summary.models.values().sum::<usize>(), 0);
+    }
     Ok(())
 }
 
