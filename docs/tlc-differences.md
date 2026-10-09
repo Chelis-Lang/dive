@@ -69,7 +69,7 @@ Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
 | **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
 | **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
-| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. Under `--compat=tlc` the draws are TLC's bit for bit (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. |
+| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. Under `--compat=tlc` the draws are TLC's bit for bit (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator replays the draws too: given the run's seed and polynomial (`dive validate-trace --seed S [--fp N]`; the conformance harness passes the goldens' `-seed 0 -fp 0`), it checks a counterexample's drawn values against the run's streams, and refuses by name a draw it cannot place (ADR 0016, amendment 2). |
 
 **What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
@@ -417,7 +417,9 @@ so that TLC is guaranteed to find a shortest counterexample. Run with `-workers 
 
 **What dive does.** dive's parallel search is, by construction, TLC's single-worker search executed in parallel (D-001, ADR 0015). So by default dive reports the logical worker count, 1, at any `--workers` setting. Specs like `MCDieHardest` therefore run at full parallel speed and get exactly the guarantee they ask for. dive's own output still reports the physical thread count.
 
-**Evidence.** Harness worker-invariance report (`MCDieHardest`), ADR 0014 §7, ADR 0015.
+**Conformance.** Under `--compat=tlc` such a spec can behave differently at different worker counts, exactly as TLC does. The conformance harness therefore compares a spec that reads `TLCGet("config")`, run under `--compat=tlc` with more than one worker, with TLC's own result at the same worker count, on the verdict and the error class (ADR 0004, amendment of 2026-10-09). In the default profile the single-worker result applies at every worker count.
+
+**Evidence.** Harness worker-invariance report (`MCDieHardest`), ADR 0014 §7, ADR 0015. `MCDieHardest` at 1, 3, 4 and 8 workers agrees with TLC in both profiles: under `--compat=tlc`, at 3, 4 and 8 workers both TLC and dive fail the assumption (`TLC_ASSUMPTION_FALSE`).
 
 ---
 
@@ -441,7 +443,9 @@ valid: the 7-state trace validates
 
 `dive validate-trace` reads dive's own trace format, whose values are exact, and TLC's `-dumpTrace json`, which it reads by trying the interpretations of the ambiguous parts (see ADR 0016). From Rust, `dive_api::trace::SpecModel` checks a program's own recorded states against a specification.
 
-**Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Liveness counterexamples and error traces are checked step by step, but their final claim is refused for now. See *Where dive is currently more limited than TLC*.
+**Random values.** A trace whose values come from `RandomElement` or the `Randomization` operators is checked against the run's seed: give `dive validate-trace` the `--seed` (and `--fp`) that `dive check` reported. The validator draws the same values while it evaluates `Init` and each step, so a changed value is rejected. Without the seed, it refuses by name.
+
+**Limits.** The validator cannot itself confirm that a state is deadlocked, because that needs a search for successors. It checks everything else and then refuses the claim by name. dive's conformance harness confirms such deadlocks against TLC's own counterexample instead. Liveness counterexamples and error traces are checked step by step, but their final claim is refused for now. Random values drawn outside `Init` and the next-state relation (in an invariant, say), under a `VIEW` or `SYMMETRY`, or in an order only the successor generator knows (one action's draws before another's, when the trace took the second) are refused by name too. See *Where dive is currently more limited than TLC*.
 
 **Evidence.** ADR 0016 and its amendment 1. `dive-conformance trace-controls` runs TLC's own counterexamples through the validator: 12 of TLC's 15 safety counterexamples in the Examples goldens validate, and 3 are refused by name (two on evaluator operators not implemented yet, one whose `ALIAS` hides the variables). Every deliberately broken copy of them (a state dropped, two states swapped, a value changed, the trace cut short, the wrong invariant claimed) is rejected.
 
@@ -582,7 +586,8 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   - the final claim of a liveness counterexample (the temporal property), and of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
   - traces whose states leave variables unassigned (partial implementation traces), which need a search;
-  - whatever the evaluator refuses, and draws of the random operators and reads of the live counters, which depend on the search rather than on the trace. `TLCGet("level")` is the level of the state being checked, and `TLCGet("config")` is provided when the run's `-seed` and `-fp` are known (the conformance harness passes the goldens'). Registers follow the trace's own steps.
+  - whatever the evaluator refuses, and reads of the live counters, which depend on the search rather than on the trace. `TLCGet("level")` is the level of the state being checked, and `TLCGet("config")` is provided when the run's `-seed` and `-fp` are known (the conformance harness passes the goldens'). Registers follow the trace's own steps;
+  - draws of the random operators without the run's `-seed` and `-fp`. With them, draws in `Init` and the next-state relation are replayed from the run's streams. Still refused: a draw in an invariant, constraint, property or label, any draw under a `VIEW` or `SYMMETRY`, an `ASSUME` that draws and fails on a fresh start-up stream, and a step that holds only with its draws taken further into the stream than a predicate reaches them (the successor generator drew for other successors first, ADR 0016 amendment 2).
 
   A step label that names an operator with parameters is noted and not checked.
 - **Configurations embedded in a `.tla` file.** TLC can read a configuration from a `---- CONFIG Name ----` section of a `.tla` file. `dive parse --config X.tla` refuses this as `unsupported`.
@@ -612,3 +617,5 @@ This page is the narrative companion to the terse registry in [`docs/divergences
   - the status and the evidence.
 - When an entry's status changes (planned → implemented → default), update it in the same PR as the code.
 - Write for users who know TLA+ and TLC but not dive's internals. Link to ADRs for the design detail rather than repeating it.
+
+Seeded trace validation certifies straight-line assignments behind unprimed guards. Quantified or multi-successor random actions remain unsupported even if their draws happen to match: a finite random-stream search cannot prove placement. The minimal `RndWide` and `RndCoincidence` fixtures exercise these refusals (ADR 0016 amendment 2).

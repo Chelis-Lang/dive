@@ -5,10 +5,11 @@ use dive_conformance::cache::Cache;
 use dive_conformance::compare::{CompareContext, Outcome, diff_results};
 use dive_conformance::config::Config;
 use dive_conformance::corpus::ModelMode;
+use dive_conformance::divergence::Profile;
 use dive_conformance::error::Result as DResult;
 use dive_conformance::golden::{
     GOLDEN_SCHEMA, GoldenModel, ModelGolden, Provenance, SanyGolden, model_golden_path,
-    sany_golden_path, to_pretty,
+    sany_golden_path, to_pretty, worker_golden_path,
 };
 use dive_conformance::implementation::{ImplResult, Implementation, ModelRequest};
 use dive_conformance::oracle::{Capabilities, Java, JavaSource, OracleProvenance};
@@ -147,6 +148,11 @@ const MANIFEST: &str = r#"{
 }"#;
 
 fn world() -> Result<World, Box<dyn std::error::Error>> {
+    world_with("---- MODULE X ----\n====\n")
+}
+
+/// [`world`] with `x_tla` as the text of `X.tla`.
+fn world_with(x_tla: &str) -> Result<World, Box<dyn std::error::Error>> {
     let tmp = dive_conformance::util::TempDir::new("review")?;
     // Corpus repository.
     let src = tmp.path().join("src");
@@ -157,7 +163,7 @@ fn world() -> Result<World, Box<dyn std::error::Error>> {
         "*\n!*/\n!*.tla\n!*.cfg\n!manifest.json\n!.gitignore\n*_TTrace_*.tla\n",
     )?;
     std::fs::write(spec.join("manifest.json"), MANIFEST)?;
-    std::fs::write(spec.join("X.tla"), "---- MODULE X ----\n====\n")?;
+    std::fs::write(spec.join("X.tla"), x_tla)?;
     std::fs::write(spec.join("X.cfg"), "\n")?;
     std::fs::write(spec.join("Helper.tla"), "---- MODULE Helper ----\n====\n")?;
     git(&src, &["init", "-q"])?;
@@ -204,6 +210,19 @@ impl World {
     }
 
     fn write_model_golden(&self, result: OracleResult) -> TestResult {
+        self.write_golden_at(result, 1, None)
+    }
+
+    /// Writes the golden at `workers` (a worker-specific one above 1),
+    /// recording `reason`.
+    fn write_golden_at(
+        &self,
+        result: OracleResult,
+        workers: u32,
+        reason: Option<&str>,
+    ) -> TestResult {
+        let mut provenance = provenance(&self.jar_sha, &self.commit);
+        provenance.reason = reason.map(str::to_owned);
         let g = ModelGolden {
             schema: GOLDEN_SCHEMA,
             kind: "tlc-model".to_owned(),
@@ -216,16 +235,26 @@ impl World {
                 features: vec![],
                 counts_comparable: true,
             },
-            workers: 1,
+            workers,
             result,
-            provenance: provenance(&self.jar_sha, &self.commit),
+            provenance,
         };
-        let p = model_golden_path(
-            &self.golden_root(),
-            ORACLE,
-            "examples",
-            "specifications/x/X.cfg",
-        );
+        let p = if workers == 1 {
+            model_golden_path(
+                &self.golden_root(),
+                ORACLE,
+                "examples",
+                "specifications/x/X.cfg",
+            )
+        } else {
+            worker_golden_path(
+                &self.golden_root(),
+                ORACLE,
+                "examples",
+                "specifications/x/X.cfg",
+                workers,
+            )
+        };
         std::fs::create_dir_all(p.parent().ok_or("parent")?)?;
         std::fs::write(p, to_pretty(&g)?)?;
         Ok(())
@@ -576,4 +605,216 @@ fn m6_trace_ending_is_compared() {
         counts_comparable: true,
     };
     assert_ne!(diff_results(&golden, &observed, ctx), Vec::new());
+}
+
+// ------------------------------------------ worker-introspecting models
+
+/// A spec that reads `TLCGet("config")`, like Examples `MCDieHardest`.
+const INTROSPECTING: &str =
+    "---- MODULE X ----\nEXTENDS TLC\nASSUME TLCGet(\"config\").worker = 1\n====\n";
+
+fn success(distinct: u64) -> OracleResult {
+    OracleResult {
+        verdict: Verdict::Success,
+        verdict_code: None,
+        error_class: None,
+        exit_code: Some(0),
+        exit_status: Some("SUCCESS".to_owned()),
+        violated_property: None,
+        trace: None,
+        error_codes: vec![],
+        counts: Counts {
+            distinct_states: Some(distinct),
+            states_generated: Some(distinct),
+            states_left_on_queue: Some(0),
+            depth: Some(1),
+        },
+        ..safety(0, 0, 0, 0)
+    }
+}
+
+fn assumption_false() -> OracleResult {
+    OracleResult {
+        verdict: Verdict::AssumptionFailure,
+        verdict_code: Some(2104),
+        error_class: Some("TLC_ASSUMPTION_FALSE".to_owned()),
+        exit_code: Some(12),
+        exit_status: Some("VIOLATION_ASSUMPTION".to_owned()),
+        violated_property: None,
+        trace: None,
+        error_codes: vec![2104],
+        counts: Counts::default(),
+        ..safety(0, 0, 0, 0)
+    }
+}
+
+/// Behaves as TLC (and `dive --compat=tlc`) does on [`INTROSPECTING`]: the
+/// assumption fails above one worker. Under the default profile the logical
+/// count is 1, so it never fails.
+struct WorkerFake {
+    profile: Option<Profile>,
+}
+
+impl Implementation for WorkerFake {
+    fn name(&self) -> String {
+        "fake".to_owned()
+    }
+    fn is_oracle(&self) -> bool {
+        false
+    }
+    fn profile(&self) -> Option<Profile> {
+        self.profile.clone()
+    }
+    fn check_model(&self, req: &ModelRequest<'_>) -> DResult<ImplResult<OracleResult>> {
+        let physical = matches!(self.profile, Some(Profile::Tlc));
+        Ok(ImplResult::Completed {
+            result: if physical && req.workers > 1 {
+                // Counts as only approximate as TLC's: never compared.
+                OracleResult {
+                    counts: Counts {
+                        distinct_states: Some(99),
+                        ..Counts::default()
+                    },
+                    ..assumption_false()
+                }
+            } else {
+                success(5)
+            },
+            command: vec![],
+            elapsed: Duration::ZERO,
+        })
+    }
+    fn parse_module(&self, _r: &Path, _m: &str, _t: Duration) -> DResult<ImplResult<SanyResult>> {
+        Ok(ImplResult::Completed {
+            result: accept(),
+            command: vec![],
+            elapsed: Duration::ZERO,
+        })
+    }
+}
+
+fn introspecting_world() -> Result<World, Box<dyn std::error::Error>> {
+    let w = world_with(INTROSPECTING)?;
+    w.write_model_golden(success(5))?;
+    w.write_sany_golden("specifications/x/X.tla", &w.jar_sha)?;
+    w.write_sany_golden("specifications/x/Helper.tla", &w.jar_sha)?;
+    Ok(w)
+}
+
+/// Issue #55 (ADR 0004, amendment of 2026-10-09): under `--compat=tlc` a
+/// worker-introspecting model at N > 1 workers is compared with TLC at N
+/// workers, on verdict and error class only.
+#[test]
+fn compat_worker_introspecting_runs_compare_with_tlc_at_the_same_count() -> TestResult {
+    let w = introspecting_world()?;
+    for n in [3, 4, 8] {
+        w.write_golden_at(
+            OracleResult {
+                counts: Counts {
+                    distinct_states: Some(7),
+                    ..Counts::default()
+                },
+                ..assumption_false()
+            },
+            n,
+            Some("test"),
+        )?;
+    }
+    let report = w.run(
+        &WorkerFake {
+            profile: Some(Profile::Tlc),
+        },
+        vec![1, 3, 4, 8],
+    )?;
+    let m = &report.models[0];
+    assert!(m.worker_introspecting);
+    assert_eq!(m.outcome, Outcome::Agree, "{:?}", m.runs);
+    for r in &m.runs {
+        assert_eq!(r.outcome, Outcome::Agree, "{r:?}");
+        if r.workers > 1 {
+            assert!(
+                r.detail
+                    .as_deref()
+                    .is_some_and(|d| d.contains("verdict and error class")),
+                "{r:?}"
+            );
+        }
+    }
+    // The single-worker golden is untouched and still applies at 1.
+    assert_eq!(m.runs[0].verdict, Some(Verdict::Success));
+    Ok(())
+}
+
+/// Without a worker-specific golden the single-worker golden applies, on
+/// every field.
+#[test]
+fn compat_without_a_worker_golden_compares_with_the_single_worker_one() -> TestResult {
+    let w = introspecting_world()?;
+    let report = w.run(
+        &WorkerFake {
+            profile: Some(Profile::Tlc),
+        },
+        vec![1, 4],
+    )?;
+    assert_eq!(report.models[0].outcome, Outcome::Disagree);
+    Ok(())
+}
+
+/// The default profile reports the logical worker count, 1: the
+/// single-worker golden applies at every count, even with worker-specific
+/// goldens present.
+#[test]
+fn default_profile_ignores_worker_goldens() -> TestResult {
+    let w = introspecting_world()?;
+    w.write_golden_at(assumption_false(), 4, Some("test"))?;
+    let report = w.run(&WorkerFake { profile: None }, vec![1, 4])?;
+    assert_eq!(report.models[0].outcome, Outcome::Agree);
+    // A run that failed the assumption at 4 workers would disagree there.
+    let report = w.run(
+        &WorkerFake {
+            profile: Some(Profile::Dive),
+        },
+        vec![4],
+    )?;
+    assert_eq!(report.models[0].outcome, Outcome::Agree);
+    Ok(())
+}
+
+/// A worker-specific golden without a recorded reason is refused.
+#[test]
+fn worker_golden_needs_a_reason() -> TestResult {
+    let w = introspecting_world()?;
+    w.write_golden_at(assumption_false(), 4, None)?;
+    let report = w.run(
+        &WorkerFake {
+            profile: Some(Profile::Tlc),
+        },
+        vec![4],
+    )?;
+    let m = &report.models[0];
+    assert_eq!(m.outcome, Outcome::OracleError, "{:?}", m.runs);
+    assert!(
+        m.runs[0]
+            .detail
+            .as_deref()
+            .is_some_and(|d| d.contains("--reason")),
+        "{:?}",
+        m.runs
+    );
+    Ok(())
+}
+
+/// A different verdict or error class than TLC's at that count disagrees.
+#[test]
+fn compat_worker_golden_still_compares_the_verdict() -> TestResult {
+    let w = introspecting_world()?;
+    w.write_golden_at(success(5), 4, Some("test"))?;
+    let report = w.run(
+        &WorkerFake {
+            profile: Some(Profile::Tlc),
+        },
+        vec![4],
+    )?;
+    assert_eq!(report.models[0].outcome, Outcome::Disagree);
+    Ok(())
 }

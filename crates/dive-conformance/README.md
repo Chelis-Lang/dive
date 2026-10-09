@@ -85,7 +85,7 @@ The seeded entries explain the v1.7.4-vs-pin report: CommunityModules, `TLCExt`/
 - For TLC, a model's outcome is its single-worker run. Multi-worker runs appear only in the worker-invariance section.
 - For anything else, every worker count must match, and any variance is `disagree`.
 - v1.7.4 may omit violated temporal-property names, because its capability probe shows it never prints them.
-- Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`.
+- Models whose module reads `TLCGet("config")` are flagged `worker_introspecting`. Under `--impl-profile tlc` (or `tlc+overrides`), dive reports the physical worker count as TLC does (D-011), so such a model's run at N > 1 workers is compared with the worker-specific golden at N, if there is one, on the verdict and error class only, and is left out of the worker-invariance judgement (ADR 0004, amendment of 2026-10-09). Without one, the single-worker golden applies on every field. The default profile reports the logical count, 1, and always uses the single-worker golden.
 - Simulation models compare verdict-level fields only.
 - Every selected model and module gets exactly one outcome; one without a golden is `oracle-error`. The exception is an implementation that refuses every model (`Implementation::models_unsupported`): its models are `unsupported`, and the detail notes a missing golden. The summary asserts that the totals equal the selection.
 
@@ -111,7 +111,7 @@ oracle fetch [--oracle ID]       # download + verify gating oracles (or ID), cla
 oracle verify [--oracle ID]      # re-verify the cache and print the gating oracles' (or ID's) probed capabilities
 corpus fetch [--corpus ID]      # git checkout of pinned corpora; submodules are recorded, not fetched
 corpus list  [--tier small|deep|all] [--filter GLOB]
-golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only]
+golden generate [--oracle ID] [--tier T] [--filter GLOB]... [--reason TEXT] [--no-sany|--sany-only] [--workers 1,4]
 run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
     [--corpus ID]... [--golden-oracle ID] [--workers 1,4] [--crosscheck-manifest] [--tier T] [--filter GLOB]...
     [--sany-phase full|parse] [--dive-bin PATH] [--impl-profile P] [--impl-option N[=V]]...
@@ -140,6 +140,8 @@ run --impl tlc|tlc:<oracle-id>|dive|adapter:<file.toml>
 
 ```sh
 dive-conformance golden generate --tier small                     # all small models + SANY goldens
+dive-conformance golden generate --tier all --no-sany --filter 'specifications/DieHard/MCDieHardest.cfg' \
+    --workers 3,4,8 --reason "<why>"                                 # worker-specific goldens (worker-introspecting models only)
 dive-conformance run --impl tlc --crosscheck-manifest              # self-consistency + manifest drift
 dive-conformance run --impl tlc:tlc-1.7.4 --no-summary             # cross-oracle diff vs default goldens (reference: never gates)
 dive-conformance run --impl tlc --workers 1,4 --filter 'specifications/ewd840/*'
@@ -324,6 +326,7 @@ Goldens are generated, never edited (charter rule 6; ADR 0003).
 - for `tlc-1.7.4`, an 11-model smoke set with SANY goldens for its modules, as regression anchors;
 - for the gating oracle:
   - 141 Examples model goldens (the small tier and more) and SANY goldens for all 424 Examples modules;
+  - worker-specific goldens (`<model>.workers-N.json`, ADR 0004): `MCDieHardest` at 3, 4 and 8 workers. They are generated with `golden generate --workers N --reason ...`, only for worker-introspecting models, always with a reason, and never replace a single-worker golden;
   - SANY goldens for `tlaplus-tests` (807 of 808 modules; one SANY crash is excluded in `corpora.toml`);
   - SANY goldens for `community-modules` (78 modules);
   - for the `probes` corpus, 14 model goldens and 12 SANY goldens.

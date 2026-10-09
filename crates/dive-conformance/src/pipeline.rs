@@ -3,7 +3,7 @@
 use crate::cache::Cache;
 use crate::compare::{
     CompareContext, ComparePolicy, FieldDiff, Outcome, WorkerPoint, crosscheck_manifest,
-    diff_results_with, diff_sany, worker_invariance,
+    diff_results_with, diff_sany, diff_verdict_and_class, worker_invariance,
 };
 use crate::config::{Config, Layout};
 use crate::corpus::{CorpusIndex, ModelEntry, ModelMode, ModuleEntry, Tier, enumerate};
@@ -12,7 +12,7 @@ use crate::fetch::{FetchStatus, Fetcher, dirty_paths, verified_checkout};
 use crate::golden::{
     GOLDEN_SCHEMA, GoldenModel, ModelGolden, Provenance, SanyGolden, WriteStatus, golden_root,
     model_golden_path, read_model_golden, read_sany_golden, sany_golden_path, to_pretty,
-    write_golden,
+    worker_golden_path, write_golden,
 };
 use crate::implementation::{
     ImplResult, Implementation, ModelRequest, OracleModelRun, run_oracle_model_traced,
@@ -338,6 +338,11 @@ pub struct GenerateOptions {
     pub models: bool,
     /// Generate SANY goldens.
     pub sany: bool,
+    /// TLC's `-workers` for the TLC goldens: 1 writes the goldens. A count
+    /// above 1 writes worker-specific goldens ([`worker_golden_path`]),
+    /// only for worker-introspecting models and only with a reason; it
+    /// never touches a single-worker golden (ADR 0004).
+    pub workers: Vec<u32>,
 }
 
 fn provenance(
@@ -440,24 +445,49 @@ pub fn golden_generate(
             m.out_of_scope.as_deref().unwrap_or("")
         ));
     }
-    check_path_collisions(runnable.iter().map(|m| {
-        (
-            m.id.as_str(),
-            model_golden_path(&root, &env.oracle.id, &corpus.id, &m.id),
-        )
-    }))?;
-    let total = runnable.len();
+    if opts.workers.iter().any(|&w| w > 1)
+        && opts.reason.as_deref().is_none_or(|r| r.trim().is_empty())
+    {
+        return Err(Error::Usage(
+            "worker-specific goldens (--workers above 1) require --reason \"<why>\"".to_owned(),
+        ));
+    }
+    let golden_path = |m: &ModelEntry, w: u32| {
+        if w == 1 {
+            model_golden_path(&root, &env.oracle.id, &corpus.id, &m.id)
+        } else {
+            worker_golden_path(&root, &env.oracle.id, &corpus.id, &m.id, w)
+        }
+    };
+    let mut jobs: Vec<(&ModelEntry, u32)> = Vec::new();
+    for &w in &opts.workers {
+        for m in &runnable {
+            if w > 1 && !m.worker_introspecting {
+                log(&format!(
+                    "skipped       {} at {w} workers: not worker-introspecting, so its single-worker golden applies at every worker count",
+                    m.id
+                ));
+                continue;
+            }
+            jobs.push((m, w));
+        }
+    }
+    check_path_collisions(
+        jobs.iter()
+            .map(|(m, w)| (m.id.as_str(), golden_path(m, *w))),
+    )?;
+    let total = jobs.len();
     log(&format!(
         "generating {total} TLC golden(s) with {} ({} job(s), -Xmx{})",
         env.oracle.id, opts.limits.jobs, opts.limits.xmx
     ));
     let done = AtomicUsize::new(0);
-    parallel_map(&runnable, opts.limits.jobs, |_, m| {
+    parallel_map(&jobs, opts.limits.jobs, |_, &(m, workers)| {
         let timeout = opts.limits.timeout_for(m, None);
         let req = ModelRequest {
             corpus_root: &corpus.root,
             model: m,
-            workers: 1,
+            workers,
             timeout,
             xmx: &opts.limits.xmx,
         };
@@ -515,19 +545,24 @@ pub fn golden_generate(
                     kind: "tlc-model".to_owned(),
                     oracle: env.oracle.id.clone(),
                     corpus: corpus.id.clone(),
-                    model: GoldenModel::from(*m),
-                    workers: 1,
+                    model: GoldenModel::from(m),
+                    workers,
                     result,
                     provenance: prov,
                 };
-                let path = model_golden_path(&root, &env.oracle.id, &corpus.id, &m.id);
+                let path = golden_path(m, workers);
                 match to_pretty(&golden)
                     .and_then(|t| write_golden(&path, &t, opts.reason.as_deref()))
                 {
                     Ok(status) => log(&format!(
-                        "[{n}/{total}] {:<26} {} ({:.1}s, {})",
+                        "[{n}/{total}] {:<26} {}{} ({:.1}s, {})",
                         verdict.as_str(),
                         m.id,
+                        if workers == 1 {
+                            String::new()
+                        } else {
+                            format!(" at {workers} workers")
+                        },
                         elapsed.as_secs_f64(),
                         match status {
                             WriteStatus::Created => "created",
@@ -832,8 +867,39 @@ fn run_model(
         oracle_leniency: imp.is_oracle(),
         may_omit_property: imp.is_oracle() && imp.omits_property_names(),
     };
+    // Under `--compat=tlc`, `TLCGet("config").worker` is the physical
+    // worker count, as in TLC (D-011), so a model that reads it may
+    // legitimately behave as TLC does at that count: it is compared with
+    // TLC's own run at the same count, on verdict and error class (ADR 0004,
+    // amendment of 2026-10-09). The default profile reports the logical
+    // count, 1, so the single-worker golden applies at every count there.
+    let compat = !imp.is_oracle()
+        && matches!(
+            imp.profile(),
+            Some(crate::divergence::Profile::Tlc | crate::divergence::Profile::TlcWithOverrides(_))
+        );
     let mut points = Vec::new();
     for &workers in &opts.workers {
+        let worker_golden = if compat && m.worker_introspecting && workers > 1 {
+            let path =
+                worker_golden_path(golden_root, &opts.golden_oracle, &corpus.id, &m.id, workers);
+            path.exists()
+                .then(|| usable_worker_golden(&path, corpus, m, golden_sha256, workers))
+        } else {
+            None
+        };
+        if let Some(Err(why)) = &worker_golden {
+            report.runs.push(record_from(
+                workers,
+                Outcome::OracleError,
+                None,
+                vec![],
+                Duration::ZERO,
+                Some(why.clone()),
+            ));
+            continue;
+        }
+        let worker_golden = worker_golden.and_then(std::result::Result::ok);
         let req = ModelRequest {
             corpus_root: &corpus.root,
             model: m,
@@ -863,20 +929,36 @@ fn run_model(
             Ok(ImplResult::Completed {
                 result, elapsed, ..
             }) => {
-                points.push(WorkerPoint {
-                    workers,
-                    verdict: result.verdict,
-                    distinct_states: result.counts.distinct_states,
-                    states_generated: result.counts.states_generated,
-                    depth: result.counts.depth,
-                    violated_property: result.violated_property.clone(),
-                });
+                // A run compared with TLC at its own worker count is not
+                // part of the worker-invariance judgement: there the
+                // variance is TLC's own.
+                if worker_golden.is_none() {
+                    points.push(WorkerPoint {
+                        workers,
+                        verdict: result.verdict,
+                        distinct_states: result.counts.distinct_states,
+                        states_generated: result.counts.states_generated,
+                        depth: result.counts.depth,
+                        violated_property: result.violated_property.clone(),
+                    });
+                }
                 let ctx = CompareContext {
                     workers,
                     counts_comparable: m.counts_comparable,
                 };
-                let mut diffs = diff_results_with(&golden.result, &result, ctx, policy);
-                let mut trace_note = None;
+                let mut diffs = match &worker_golden {
+                    Some(g) => diff_verdict_and_class(&g.result, &result),
+                    None => diff_results_with(&golden.result, &result, ctx, policy),
+                };
+                let mut trace_note = match &worker_golden {
+                    Some(_) => Some(format!(
+                        "compared with TLC at {workers} workers on verdict and error class (the model reads TLCGet(\"config\"); ADR 0004)"
+                    )),
+                    None if compat && m.worker_introspecting && workers > 1 => Some(format!(
+                        "no worker-specific golden at {workers} workers; compared with the single-worker golden"
+                    )),
+                    None => None,
+                };
                 if !imp.is_oracle() && result.trace.is_some() {
                     // Charter rule 2: a counterexample must be independently
                     // replayed before it can count. The harness validates it
@@ -895,7 +977,11 @@ fn run_model(
                             expected: true.into(),
                             actual: false.into(),
                         });
-                        trace_note = Some(format!("trace not validated: {}", check.detail));
+                        let note = format!("trace not validated: {}", check.detail);
+                        trace_note = Some(match trace_note {
+                            Some(n) => format!("{n}; {note}"),
+                            None => note,
+                        });
                     }
                 }
                 let outcome = match result.verdict {
@@ -1004,6 +1090,56 @@ fn run_model(
         report.worker_invariance = Some(inv);
     }
     report
+}
+
+/// Reads and checks the worker-specific golden at `path`. `Err` carries the
+/// detail of an `oracle-error` outcome.
+fn usable_worker_golden(
+    path: &Path,
+    corpus: &CorpusIndex,
+    m: &ModelEntry,
+    golden_sha256: &str,
+    workers: u32,
+) -> std::result::Result<ModelGolden, String> {
+    let g = read_model_golden(path).map_err(|e| e.to_string())?;
+    let shown = path.display();
+    if g.workers != workers {
+        return Err(format!(
+            "{shown} records -workers {}, not {workers}",
+            g.workers
+        ));
+    }
+    if g.provenance.corpus_commit != corpus.commit {
+        return Err(format!(
+            "{shown} was generated at corpus commit {}, but {} is pinned",
+            g.provenance.corpus_commit, corpus.commit
+        ));
+    }
+    if g.provenance.oracle.sha256 != golden_sha256 {
+        return Err(format!(
+            "{shown} was generated by jar {}, but {golden_sha256} is pinned",
+            g.provenance.oracle.sha256
+        ));
+    }
+    if g.provenance
+        .reason
+        .as_deref()
+        .is_none_or(|r| r.trim().is_empty())
+    {
+        return Err(format!("{shown} records no --reason"));
+    }
+    if g.model != GoldenModel::from(m) {
+        return Err(format!(
+            "{shown} describes a different model entry (manifest changed); regenerate"
+        ));
+    }
+    if !g.result.verdict.is_oracle_fact() {
+        return Err(format!(
+            "{shown}: golden verdict is {}",
+            g.result.verdict.as_str()
+        ));
+    }
+    Ok(g)
 }
 
 /// Reads and checks the SANY golden of `module`. `Err` carries the detail

@@ -300,6 +300,7 @@ dependencies = [
  "dive-ir",
  "dive-model",
  "dive-sema",
+ "dive-stdlib",
  "dive-value",
  "serde_json",
 ]
