@@ -35,9 +35,9 @@ include the closing edge. Both the in-memory word and its serialized form must
 pass validation before the API returns a violation.
 
 The supported language includes pure boolean combinations, `[]`, `<>`, `~>`,
-zero-arity definitions, finite constant-domain quantifiers with explicit sets
+zero-arity definitions, pure constant-argument operators, finite constant-domain quantifiers with explicit sets
 or intervals (including tuple bindings), direct `ENABLED`, and weak/strong fairness over supported
-pure actions. Temporal parameters, nonconstant/unbounded quantification, dynamic scopes, effects and
+pure actions. State/action-dependent arguments, higher-order calls, nonconstant/unbounded quantification, dynamic scopes, effects and
 checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.
@@ -52,7 +52,7 @@ This API uses final checking and deterministic short-lasso selection. Passing
 `CheckOptions::tlc` selects TLC's value/arithmetic/ordering semantics, but does
 not select TLC's exact lasso, periodic schedule or evaluation-error timing.
 It does not replace the strict TLC conformance path. Ordinary `dive check`
-continues to refuse temporal models while that integration is completed.
+retains its temporal refusal unless final/short checking is explicitly selected.
 
 
 Original configured PROPERTY formulas are retained for attribution. A universal
@@ -95,3 +95,12 @@ conformance path retains its temporal refusal until those counterparts land.
 Capture currently runs inline even when more workers were requested; actual
 width and its reason are reported. Bounds are counts of retained entries,
 not a hard byte-memory limit; they exclude preceding model binding.
+
+Constant arguments are inspected for purity before evaluation and become value
+bindings in each call's retained scope. For example, `Visit(i) == []<>(x=i)`
+can be called as `Visit(2)` or from a constant-domain temporal quantifier.
+Repeated calls with different values keep separate contexts. The planner and
+independent word validator each check their own scoped arguments and work/depth
+bounds. Lazy state arguments and hidden checker-register reads are refused;
+parameterized actions whose ENABLED proof lacks an independent finite cover
+also remain validation refusals.

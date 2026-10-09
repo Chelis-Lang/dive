@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 ### Fixed
+- Final temporal planning and independent word validation inspect each scoped
+  call separately; pure constant scalar/tuple arguments now bind through nested
+  and quantified temporal operators. State-dependent and effectful arguments
+  remain named refusals.
 - TLC finite-prefix temporal violations are classified from their deciding
   message and complete finite trace, preserving the observed safety exit 12.
   Cyclic violations still require the ordinary temporal exit mapping.

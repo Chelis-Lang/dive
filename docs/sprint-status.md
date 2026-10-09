@@ -3,7 +3,8 @@
 M0 and M2–M4 are complete. The safety checker, independent trace validator
 and deterministic parallel search are implemented and protected by the CM1
 PR gate at 1, 4 and 8 workers. M1 and M5 remain open for the work below.
-M6 has independent temporal-word evaluation and graph-search foundations;
+M6 has independent temporal-word evaluation and graph-search foundations.
+Explicit final/short temporal checking is available; ordinary strict
 `dive check` still refuses temporal model checking and symmetry by name.
 
 ## Latest strict model evidence
@@ -85,7 +86,7 @@ The public Rust temporal API returns periodic violations only after independent
 validation of the in-memory word and lossless document, retaining full safety
 stop evidence. The ordinary `dive check` path still refuses
 temporal models. Full phase-L/parallel capture, broader temporal/scoped
-constructors, CLI integration and TLC-exact planning/selection remain pending.
+constructors, strict CLI conformance and TLC-exact planning/selection remain pending.
 
 Approved defaults are recorded in ADRs and the differences log: explicit
 host-I/O grants, short deterministic lassos, unreduced symmetry/liveness,
@@ -98,7 +99,8 @@ The next L1/L4 increment supports finite constant-domain quantifiers, tuple
 bindings and inspected pure configured constants. Original configured PROPERTY
 formulas now retain unambiguous claim names when the binder splits checking
 roles. Five additional pinned probes match verdict truth/counts in both profiles
-and stores. Full TLC finite-prefix class/trace timing remains open (#77).
+and stores. The harness now classifies finite-prefix temporal violations correctly (#77);
+full checker finite-prefix stopping/timing remains open.
 
 Pure state- and temporal-guarded `IF` formulas now lower pointwise and validate
 independently, including nested guards and closing-edge positions. Three new
@@ -112,3 +114,9 @@ validated lossless lassos, complete property claims and actual worker usage.
 The mixed TLC profile is labeled and makes no exact temporal-class/stopping
 claim. Full phase-L, parallel capture, exact TLC selection and ordinary strict
 conformance integration remain pending.
+
+Pure constant-argument temporal operators now retain scalar/tuple bindings
+through nested and quantified calls. Five pinned probes match final truth and
+counts in both profiles and stores; every returned periodic claim independently
+validates. Lazy state arguments, higher-order operators and missing finite
+ENABLED covers remain explicit refusals.

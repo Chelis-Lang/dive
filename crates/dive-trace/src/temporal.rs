@@ -4,7 +4,7 @@
 //! subformula yields a truth value at every position of the given word.
 
 use dive_eval::{ConstBinding, Scope, SlotView, St};
-use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp};
+use dive_ir::{Arg, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, QuantKind, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
@@ -58,7 +58,7 @@ impl std::error::Error for TemporalError {}
 /// # Errors
 /// Invalid words or nonboolean atoms; unsupported fairness whose enabledness
 /// lacks a complete finite cover, side effects,
-/// temporal quantification, opaque scoped atoms, checker introspection or
+/// unbounded/dynamic temporal quantification, opaque scoped atoms, checker introspection or
 /// resource bounds. Direct `ENABLED` uses independent finite covers; opaque
 /// embedded enabledness or missing covers remain explicit refusals.
 pub fn evaluate_lasso(
@@ -242,6 +242,14 @@ impl Word<'_> {
                     .map(|((guard, yes), no)| if guard { yes } else { no })
                     .collect())
             }
+            Expr::Apply {
+                callee: OpRef::Def(d),
+                args,
+            } => {
+                let d = ev.redirected(*d);
+                let scope = self.constant_call(scope, d, args, child, &mut 0)?;
+                self.eval(self.model.ir.def(d).body, &scope, child)
+            }
             Expr::Def(d) => {
                 let d = ev.redirected(*d);
                 if ev.is_value_override(d) || self.model.ir.def(d).recursive {
@@ -362,62 +370,111 @@ impl Word<'_> {
         Ok(out)
     }
 
-    // `TLCGet("level")` is deliberately not marked impure in the IR, but
-    // its value is a search level, not a function of this periodic word.
-    // Also refuse opaque local thunks/operator parameters: they could hide
-    // such a read even when the conservative effects flags are clear.
+    // Value-bound constant arguments cannot hide a state-dependent thunk. This
+    // validation walk is separate from the planner and consumes its own bound.
+    fn constant_call(
+        &self,
+        scope: &Scope,
+        def: DefId,
+        args: &[Arg],
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<Scope, TemporalError> {
+        let ev = &self.model.evaluator;
+        let d = self.model.ir.def(def);
+        if depth > 256
+            || args.len() > 4096
+            || d.recursive
+            || d.std.is_some()
+            || ev.is_value_override(def)
+            || d.params.iter().any(|p| p.arity != 0)
+        {
+            return Err(TemporalError::Unsupported(
+                "recursive/overridden/higher-order or bounded temporal call".into(),
+            ));
+        }
+        let mut values = Vec::with_capacity(args.len());
+        for arg in args {
+            let Arg::Expr { expr, .. } = arg else {
+                return Err(TemporalError::Unsupported(
+                    "operator argument in temporal call".into(),
+                ));
+            };
+            if self.model.ir.node(*expr).level != Level::Constant {
+                return Err(TemporalError::Unsupported(
+                    "nonconstant temporal operator argument".into(),
+                ));
+            }
+            self.check_scoped_context(*expr, scope, depth + 1, steps)?;
+            values.push(ev.eval_scoped(scope, *expr, &St::constant()).map_err(|e| {
+                TemporalError::Unsupported(format!("constant temporal argument: {e}"))
+            })?);
+        }
+        ev.scope_call_values(scope, def, values)
+            .map_err(|e| TemporalError::Unsupported(e.to_string()))
+    }
+
+    fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
+        self.check_scoped_context(expr, scope, 0, &mut 0)
+    }
+
     #[allow(
         clippy::too_many_lines,
-        reason = "explicit scoped purity rules, including hidden constant overrides"
+        reason = "independent scoped purity walk and refusal paths"
     )]
-    fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
-        let mut todo = vec![expr];
-        let mut seen = std::collections::BTreeSet::new();
-        while let Some(e) = todo.pop() {
-            if !seen.insert(e) {
-                continue;
+    fn check_scoped_context(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(), TemporalError> {
+        // ExprId alone is not a context: inspect each distinct application.
+        let mut todo = vec![(expr, scope.clone(), depth)];
+        while let Some((e, scope, depth)) = todo.pop() {
+            *steps = steps.saturating_add(1);
+            if depth > 256 || *steps > 100_000 {
+                return Err(TemporalError::Unsupported(
+                    "scoped temporal purity resource bound".into(),
+                ));
             }
-            let meta = self.model.ir.node(e);
+            let ev = &self.model.evaluator;
+            let ir = &self.model.ir;
+            let meta = ir.node(e);
             if meta
                 .effects
                 .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
+                || ev.scope_shares_side_effects(&scope)
             {
                 return Err(TemporalError::Unsupported(
                     "effectful/temporal operand in periodic predicate".into(),
                 ));
             }
-            let node = &meta.expr;
-            if matches!(node, Expr::Enabled(_)) {
-                return Err(TemporalError::Unsupported(
-                    "nested ENABLED in an opaque action/state atom".into(),
-                ));
-            }
-            match node {
-                Expr::Local(r)
-                    if !matches!(
-                        self.model.evaluator.scope_slot(scope, *r),
-                        SlotView::Value(_)
-                    ) =>
-                {
+            match &meta.expr {
+                Expr::Local(r) if !matches!(ev.scope_slot(&scope, *r), SlotView::Value(_)) => {
                     return Err(TemporalError::Unsupported(
                         "opaque scoped atom in temporal validation".into(),
                     ));
                 }
-                Expr::SubstRef { .. } => {
+                Expr::SubstRef { .. } | Expr::Subst { .. } | Expr::Let { .. } => {
                     return Err(TemporalError::Unsupported(
-                        "substituted atom in temporal validation".into(),
+                        "opaque substituted/LET atom in temporal validation".into(),
                     ));
                 }
-                Expr::Const(c) => match self.model.evaluator.constant_binding(*c) {
+                Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
-                        let def = self.model.ir.def(self.model.evaluator.redirected(d));
+                        let d = ev.redirected(d);
+                        let def = ir.def(d);
                         if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
                             return Err(TemporalError::Unsupported(
                                 "nonconstant/recursive/parameterized constant override".into(),
                             ));
                         }
-                        todo.push(def.body);
+                        let sc = ev
+                            .scope_enter(&scope, d)
+                            .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+                        todo.push((def.body, sc, depth + 1));
                     }
                     None => {
                         return Err(TemporalError::Unsupported(
@@ -427,37 +484,21 @@ impl Word<'_> {
                 },
                 _ => {}
             }
-            let mut operators = Vec::new();
-            match node {
-                Expr::Def(d) => operators.push(OpRef::Def(*d)),
-                Expr::Apply { callee, args } => {
-                    operators.push(callee.clone());
-                    operators.extend(args.iter().filter_map(|a| {
-                        if let Arg::Op { op, .. } = a {
-                            Some(op.clone())
-                        } else {
-                            None
-                        }
-                    }));
-                }
-                _ => {}
-            }
-            for op in operators {
+            let call = match &meta.expr {
+                Expr::Def(d) => Some((OpRef::Def(*d), &[][..])),
+                Expr::Apply { callee, args } => Some((callee.clone(), args.as_ref())),
+                _ => None,
+            };
+            if let Some((op, args)) = call {
                 let standard = match op {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
-                        let d = self.model.evaluator.redirected(d);
-                        if self.model.evaluator.is_value_override(d) {
+                        let d = ev.redirected(d);
+                        let def = ir.def(d);
+                        if !ev.is_value_override(d) && def.std.is_none() {
+                            let sc = self.constant_call(&scope, d, args, depth + 1, steps)?;
+                            todo.push((def.body, sc, depth + 1));
                             continue;
-                        }
-                        let def = self.model.ir.def(d);
-                        if def.std.is_none() && (def.recursive || !def.params.is_empty()) {
-                            return Err(TemporalError::Unsupported(
-                                "recursive/parameterized periodic predicate".into(),
-                            ));
-                        }
-                        if def.std.is_none() {
-                            todo.push(def.body);
                         }
                         def.std
                     }
@@ -473,8 +514,18 @@ impl Word<'_> {
                         "TLCGet: checker introspection is not a function of a lasso".into(),
                     ));
                 }
+                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    return Err(TemporalError::Unsupported(
+                        "higher-order periodic predicate argument".into(),
+                    ));
+                }
             }
-            todo.extend(node.children());
+            todo.extend(
+                meta.expr
+                    .children()
+                    .into_iter()
+                    .map(|c| (c, scope.clone(), depth + 1)),
+            );
         }
         Ok(())
     }
