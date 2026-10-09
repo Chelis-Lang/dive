@@ -38,9 +38,12 @@ keep these in the report rather than relaxing equality.
 Its observations guide the next planning/validation increments. Full LM1, H1 and
 TLC compatibility remain open until their complete requirements are proven.
 
-The first [LM1 TLC-value study](../../conformance/reports/studies/lm1-final-short-tlc.json)
-retains all fifteen models at requested widths 1, 4 and 8: thirty observations
-match final verdict truth/counts and fifteen are named refusals. Every deciding
+The latest [LM1 TLC-value study](../../conformance/reports/studies/lm1-final-short-tlc.json)
+retains all fifteen models at requested widths 1, 4 and 8: thirty-three observations
+match final verdict truth/counts and twelve are named refusals, with no findings.
+The build includes finite temporal constructors (PR #96). RealTimeHourClock's
+violation now matches truth/counts and validates through a freshly bound independent
+model. DistributedReplicatedLog, FourQueens and ChangRoberts still refuse dynamic
+domains, and DiningPhilosophers reaches the tableau-node bound. Every deciding
 field is identical across requested widths; successful capture reports one
-actual worker. Both LM1 temporal-violation examples still refuse, so this is
-coverage evidence and not completion of the LM1 checkpoint or a scaling claim.
+actual worker. Full LM1 and parallel graph capture remain open.

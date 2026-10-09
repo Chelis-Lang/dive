@@ -166,3 +166,7 @@ D-013 finite-data coverage includes constant-domain set maps, filters and
 function constructors with retained local contexts. Seven pinned `Bc*` probes
 match final truth/counts in both profiles/stores; dynamic domains and effects
 remain refused. Strict TLC temporal selection/timing remains pending.
+
+D-013 independent validation now supports finite constructor bindings in necessary
+ENABLED covers (`constructor-covers` probes); primed domains, uncovered reads
+and bounds remain named refusals. No strict temporal compatibility claim changes.
