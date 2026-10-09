@@ -33,14 +33,26 @@ This is the implementation plan for milestone M6 (`docs/ROADMAP.md`, "Checking f
 - the report `conformance/reports/20261009T005202798-dive-small.json`: 140 small-tier models, of which 69 agree, 2 disagree (D-010) and 69 are unsupported. 53 of the unsupported are refused for temporal properties; one of those, `SDP_Attack_Spec`, is also refused for `Bitwise!Xor`. 11 are refused for `SYMMETRY`, and none of those also checks liveness;
 - the goldens: 2 of the 53 are liveness violations (`MCDistributedReplicatedLog`, `MCRealTimeHourClock`) and 2 are safety violations found before liveness runs (`QueensPluscal` `FourQueens`, `SDP_Attack_Spec`).
 
-## Owner decisions needed
+## Approved defaults
 
-Listed in `docs/open-questions.md` as questions 14–17. None blocks starting work; each affects only the default profile, or an opt-in mode.
+Questions 14–17 are resolved in `docs/open-questions.md`.
 
-- **Q14, the default-profile counterexample.** `--lasso=short` (dive's documented choice: shortest prefix, independent of fingerprints) or `--lasso=tlc`. It decides whether the default profile's liveness violations are `agree` or a registered expected divergence (D-013, proposed).
-- **Q15, `--symmetry-liveness=unreduced`.** Build a sound mode that ignores `SYMMETRY` when checking liveness, and decide whether it should replace `refuse` as the default.
-- **Q16, non-bijective symmetry functions.** Refuse them in the default profile? TLC accepts them silently and reduces unsoundly.
-- **Q17, `--check-symmetry`.** An opt-in audit that the declared symmetry is one. Should it ever be on by default?
+- **Q14:** `--lasso=short` is the default: shortest prefix and a deterministic
+  short cycle. TLC's choice remains under `--lasso=tlc` and `--compat=tlc`.
+- **Q15:** `--symmetry-liveness=unreduced` disables symmetry for the entire
+  run and reports that choice. Keep the explicit `refuse` and `tlc` modes.
+- **Q16:** reject non-bijective symmetry declarations by default, preserving
+  TLC's permissive behavior in compat mode.
+- **Q17:** the `--check-symmetry` model audit is opt-in.
+
+## Implementation status
+
+L4's independent temporal word kernel is implemented for pure boolean
+combinations, `[]`, `<>`, `~>` and state/action atoms. Its tests cover every
+suffix of all boolean words up to four positions and six pinned TLC liveness
+words. Formula truth alone does not certify a counterexample: behavior and
+fairness checks, named-property claims, the format extensions and harness
+integration remain outstanding. L1–L3 and L5–L10 remain planned.
 
 ## Work packages
 

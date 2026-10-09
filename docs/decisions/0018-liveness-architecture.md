@@ -12,7 +12,7 @@ ADR 0017 specifies what TLC's liveness checker does, and what conformance compar
 - **ADR 0015.** The search is the deterministic, level-synchronous engine with order 𝒪. Liveness must not reintroduce scheduling into results.
 - **ADR 0016.** `dive-trace` validates without the search code and without the successor enumerator.
 - **ADR 0006.** `ElevatorLivenessMedium` in ≤ 0.5 s (TLC 5.9 s at 8 workers; tla-mc 0.14 s), with a full tableau and no shape restrictions.
-- **D-005.** Symmetry with liveness is refused by default and TLC's behaviour is available under `--symmetry-liveness=tlc` (ADR 0019).
+- **D-005.** Symmetry with liveness uses the sound `unreduced` mode by default; TLC's behaviour is available under `--symmetry-liveness=tlc` (ADR 0019).
 
 TLC builds a product of the state graph and each tableau eagerly, on disk, once per order of solution (OoS). It stores state bits once per (state, tableau node) pair, and runs Tarjan with a hash-order edge list (ADR 0017 §3–§4). dive keeps TLC's semantics and changes the data structures.
 
@@ -178,6 +178,20 @@ It runs sequentially after the search, on the same stored graph (with TLC-ordere
 
 ### 8. Validating lassos (`dive-trace`)
 
+**Implementation, 2026-10-09:** `dive_trace::temporal::evaluate_lasso`
+provides the independent truth-vector kernel for pure boolean combinations,
+`[]`, `<>`, `~>` and state/action atoms, including the concrete closing edge.
+It checks word shape and refuses fairness, `ENABLED`, dynamic constant
+bindings, side effects, checker introspection, opaque local/substitution
+atoms and unsupported constructors. In particular, `TLCGet("level")` is not
+marked impure by the IR, but cannot inherit a search host's level when
+evaluating a periodic word. A regression test installs such a host and
+requires an explicit refusal. Exhaustive short-word
+tests check every suffix against direct reachability semantics; six pinned
+TLC liveness words falsify their reported property. This API evaluates a
+formula only. It does not certify the behavior, fairness, claimed property
+set or a `VIEW`/symmetry closing edge; complete L4 validation remains pending.
+
 The trace format (ADR 0016 amendment 1, §6) already has `lasso` (`back_to`) and `stuttering` endings. It gains:
 - `properties`: the claimed violated properties;
 - `closing`: the concrete closing successor, under `VIEW`;
@@ -208,13 +222,14 @@ This evaluator shares nothing with the tableau, the DNF or the SCC search. It is
 
 ### 9. Symmetry with liveness (D-005)
 
-- **`--symmetry-liveness=refuse`** (default): refused before the search with `DIVE-L0010` (ADR 0019 §4).
+- **`--symmetry-liveness=unreduced`** (default): disable symmetry for the whole run and report it (ADR 0019 §4). Check both safety and liveness on the full graph.
+- **`--symmetry-liveness=refuse`**: refused before the search with `DIVE-L0010` (ADR 0019 §4).
 - **`--symmetry-liveness=tlc`** (in `--compat=tlc`):
   - warning 2279;
   - canonical keys as nodes, with node atoms from the explored representative;
   - action atoms and tableau consistency from the concrete pair and successor (§3, §4), and the duplicate-edge rule.
   - Exit criteria: probes `SymLiveWarn` (success), `SymLiveMissed` (success, a missed violation) and `SymLiveSymProp` (TLC's false violation, one state then stuttering).
-- A sound `unreduced` mode is proposed in ADR 0019 §4 as an open question.
+- The owner approved the sound `unreduced` mode on 2026-10-09.
 
 ### 10. Sequential mode
 
