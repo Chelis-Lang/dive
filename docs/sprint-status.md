@@ -167,3 +167,10 @@ match final truth/counts in both profiles/stores; exhaustive word and domain
 level controls pass. LM1 stays at 39 matches and 6 refusals, with zero findings:
 DistributedReplicatedLog gets past Min/Max and now reaches the explicit
 action-argument refusal; DiningPhilosophers remains at the tableau bound.
+
+Pure value/action helpers now retain primed caller arguments, including nested,
+captured and sequence-prefix calls. Four pinned `Aa*` models match final truth
+and counts in both profiles/stores and independently validate. The latest LM1
+study still has 39 matches and 6 named refusals with no findings, but both
+remaining models now reach the tableau-node bound rather than a scoped-language
+refusal. Exact TLC planning/timing/selection and parallel capture remain open.
