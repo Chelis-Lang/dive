@@ -638,6 +638,8 @@ pub struct RunOptions {
     pub limits: Limits,
     /// Compare goldens with the Examples manifests.
     pub crosscheck_manifest: bool,
+    /// Compare model-checking goldens. Disable for module-only runs.
+    pub models: bool,
     /// Also compare SANY goldens.
     pub sany: bool,
     /// Where to write the JSON report.
@@ -1210,7 +1212,11 @@ pub fn run(
     let root = golden_root(&config.repo_root);
     let mut selected = Vec::new();
     for corpus in &corpora {
-        let models = opts.selection.models(corpus)?;
+        let models = if opts.models {
+            opts.selection.models(corpus)?
+        } else {
+            Vec::new()
+        };
         let modules = if opts.sany {
             opts.selection.modules(corpus)?
         } else {

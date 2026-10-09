@@ -268,6 +268,7 @@ impl World {
                 timeout_cap: Duration::from_secs(5),
             },
             crosscheck_manifest: false,
+            models: true,
             sany: true,
             report_dir: self.repo.join("reports"),
             summary_path: None,

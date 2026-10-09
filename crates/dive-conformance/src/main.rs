@@ -64,6 +64,7 @@ RUN:
     --workers <list>       worker counts, e.g. 1,4 (default: 1)
     --crosscheck-manifest  compare goldens with the Examples manifests (oracle drift)
     --no-sany              skip SANY goldens
+    --sany-only            compare modules only, without running model checking
     --sany-phase <p>       full (default): compare full SANY (dive: `dive analyze`);
                            parse: compare SANY's parse-phase verdict of each module's own
                            file, derived from the same goldens (dive: `dive parse`)
@@ -423,6 +424,11 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             "--dive-bin applies to --impl dive only".to_owned(),
         ));
     }
+    if o.no_sany && o.sany_only {
+        return Err(Error::Usage(
+            "--no-sany and --sany-only conflict".to_owned(),
+        ));
+    }
     let opts = RunOptions {
         corpora: if o.corpus.is_empty() {
             vec!["examples".to_owned()]
@@ -435,6 +441,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         workers: o.workers.clone().unwrap_or_else(|| vec![1]),
         limits: limits(o),
         crosscheck_manifest: o.crosscheck,
+        models: !o.sany_only,
         sany: !o.no_sany,
         report_dir: o
             .report_dir
