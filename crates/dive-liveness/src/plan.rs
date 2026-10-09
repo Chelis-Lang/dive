@@ -1,18 +1,36 @@
 //! Pure bound-predicate lowering to the formula language kernel.
 //!
-//! This is the first part of M6 L1. It does not implement TLC's DNF/order,
-//! fairness, temporal quantification or tableau numbering. Refusals name the
+//! This M6 L1 foundation expands WF/SF through enabledness and non-stuttering
+//! occurrences. TLC's DNF/order, temporal quantification and numbering remain
+//! pending. Refusals name the
 //! source expression; callers must not remove a model's liveness refusal merely
 //! because an individual predicate lowers successfully.
 
 use std::collections::BTreeSet;
 
-use dive_eval::{Scope, St};
+use dive_eval::{EvalError, Scope, St, StateRef};
 use dive_ir::{Arg, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
 
 use crate::formula::{Atom, AtomKind, Formula, FormulaError, Limits, Node};
+
+/// The semantics of a bound atom in the temporal language.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AtomTest {
+    /// Evaluate the original predicate as a boolean.
+    Predicate,
+    /// Existential successor existence, optionally requiring subscript change.
+    Enabled {
+        /// State-level subscript for `<<A>>_v`, if requested.
+        sub: Option<ExprId>,
+    },
+    /// The action holds and the state-level subscript changes on this edge.
+    Nonstuttering {
+        /// State-level subscript.
+        sub: ExprId,
+    },
+}
 
 /// A pure state or action predicate retained in its bound scope.
 #[derive(Clone, Debug)]
@@ -21,6 +39,48 @@ pub struct PredicateAtom {
     pub pred: Pred,
     /// The predicate's evaluation domain.
     pub kind: AtomKind,
+    /// Predicate, enabledness or non-stuttering action semantics.
+    pub test: AtomTest,
+}
+
+impl PredicateAtom {
+    /// Evaluates an atom in the model's retained scope. ENABLED uses TLC's
+    /// checker-side search, independently of the retained behavior graph.
+    ///
+    /// # Errors
+    /// Missing state, nonboolean predicate or a core evaluation error.
+    pub fn evaluate(&self, model: &Model, st: &St) -> Result<bool, EvalError> {
+        let ev = &model.evaluator;
+        if let AtomTest::Enabled { sub } = self.test {
+            let StateRef::Vals(current) = &st.s0 else {
+                return Err(EvalError::general("ENABLED atom requires a current state"));
+            };
+            return ev.enabled_scoped(&self.pred.scope, self.pred.expr, sub, current.clone());
+        }
+        let holds = match model.eval(&self.pred, st)? {
+            Value::Bool(b) => b,
+            v => {
+                return Err(EvalError::general(format!(
+                    "temporal predicate is {}, not boolean",
+                    v.kind_name()
+                )));
+            }
+        };
+        if !holds {
+            return Ok(false);
+        }
+        if let AtomTest::Nonstuttering { sub } = self.test {
+            let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
+                return Err(EvalError::general(
+                    "non-stuttering atom requires two states",
+                ));
+            };
+            let a = ev.eval_scoped(&self.pred.scope, sub, &St::state(before.clone()))?;
+            let b = ev.eval_scoped(&self.pred.scope, sub, &St::state(after.clone()))?;
+            return ev.equal_values(&a, &b).map(|same| !same);
+        }
+        Ok(holds)
+    }
 }
 
 /// A formula over bound predicates. Atom indices refer to `atoms`.
@@ -250,6 +310,22 @@ impl Lower<'_> {
         Ok(())
     }
 
+    fn special_atom(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        kind: AtomKind,
+        test: AtomTest,
+    ) -> Result<usize, PlanningError> {
+        let index = self.atoms.len();
+        self.atoms.push(PredicateAtom {
+            pred: Pred::new(expr, scope.clone()),
+            kind,
+            test,
+        });
+        self.push(Node::Atom(Atom { kind, index }))
+    }
+
     #[allow(
         clippy::too_many_lines,
         reason = "explicit supported temporal constructors and refusal paths"
@@ -266,17 +342,16 @@ impl Lower<'_> {
         let ir = &self.model.ir;
         let ev = &self.model.evaluator;
         let node = ir.node(expr);
-        if node
-            .effects
-            .intersects(Effects::IMPURE | Effects::OPEN | Effects::USES_ENABLED)
+        if node.effects.intersects(Effects::IMPURE | Effects::OPEN)
             || ev.scope_shares_side_effects(scope)
         {
-            return Err(self.refused(
-                expr,
-                "effects, dynamic bindings or ENABLED in pure temporal planning",
-            ));
+            return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
         }
-        if node.level <= Level::Action && !node.effects.contains(Effects::TEMPORAL) {
+        if node.level <= Level::Action
+            && !node
+                .effects
+                .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
+        {
             self.pure_atom(expr)?;
             if node.level == Level::Constant {
                 let b = self.bool_constant(expr, scope)?;
@@ -291,6 +366,7 @@ impl Lower<'_> {
             self.atoms.push(PredicateAtom {
                 pred: Pred::new(expr, scope.clone()),
                 kind,
+                test: AtomTest::Predicate,
             });
             return self.push(Node::Atom(Atom { kind, index }));
         }
@@ -350,8 +426,44 @@ impl Lower<'_> {
                 };
                 return self.expr(branch, scope, depth);
             }
-            Expr::Wf { .. } | Expr::Sf { .. } => {
-                return Err(self.refused(expr, "fairness expansion is not implemented"));
+            Expr::Enabled(action) => {
+                self.pure_atom(*action)?;
+                return self.special_atom(
+                    *action,
+                    scope,
+                    AtomKind::State,
+                    AtomTest::Enabled { sub: None },
+                );
+            }
+            Expr::Wf { sub, action } | Expr::Sf { sub, action } => {
+                if ir.node(*sub).level > Level::State {
+                    return Err(self.refused(*sub, "action-level fairness subscript"));
+                }
+                self.pure_atom(*action)?;
+                self.pure_atom(*sub)?;
+                let en = self.special_atom(
+                    *action,
+                    scope,
+                    AtomKind::State,
+                    AtomTest::Enabled { sub: Some(*sub) },
+                )?;
+                let action = self.special_atom(
+                    *action,
+                    scope,
+                    AtomKind::Action,
+                    AtomTest::Nonstuttering { sub: *sub },
+                )?;
+                let disabled = self.push(Node::Not(en))?;
+                let recurring = self.push(Node::Eventually(action))?;
+                let recurring = self.push(Node::Always(recurring))?;
+                let not_enabled = if matches!(node.expr, Expr::Wf { .. }) {
+                    let some = self.push(Node::Eventually(disabled))?;
+                    self.push(Node::Always(some))?
+                } else {
+                    let all = self.push(Node::Always(disabled))?;
+                    self.push(Node::Eventually(all))?
+                };
+                Node::Or(vec![not_enabled, recurring])
             }
             other => {
                 return Err(self.refused(expr, format!("temporal constructor {}", other.tag())));
@@ -363,11 +475,12 @@ impl Lower<'_> {
 
 /// Lowers a pure bound temporal predicate into the language kernel, retaining
 /// each atom's scope. Supports boolean combinations, `[]`, `<>`, `~>`, pure
-/// constant conditionals and zero-arity temporal definitions. Planning alone
+/// constant conditionals, direct ENABLED, WF/SF over pure actions and
+/// state-level subscripts, and zero-arity temporal definitions. Planning alone
 /// does not validate a behavior or enable model-checking liveness.
 ///
 /// # Errors
-/// Effects, fairness, ENABLED, dynamic/opaque scopes, unsupported temporal
+/// Effects, nested opaque ENABLED, dynamic/opaque scopes, unsupported temporal
 /// constructors, constant evaluation failures and explicit construction bounds.
 pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
     let mut cx = Lower {

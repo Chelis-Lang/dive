@@ -97,3 +97,6 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | Independent finite covers (`dive-trace/src/exists.rs`) | TLA+ existential action semantics; ADR 0016 amendment 2 | n/a | Original necessary-cover derivation and Cartesian verification, without `dive-eval::next` or graph. Pinned `EnabledFiniteCover` confirms 36 enabledness decisions. |
 | Independent WF/SF enabledness (`dive-trace/src/temporal.rs`) | TLA+ fairness definitions; ADR 0018 §8 | n/a | Recurring non-stuttering occurrence, otherwise GF/FG of independently decided disabledness. Pinned `LvWFIntermittent` and `LvStutterEnd`. |
+
+| Scoped checker enabledness (`dive-eval/src/next.rs` `enabled_scoped`) | Existing `Tool.enabled` and StepAngle CHANGED continuation at pin `94d0c50` | MIT | Exposes the existing generator-side path to fairness atoms; deliberately independent of the validator finite-cover procedure. |
+| WF/SF formula expansion and candidate attribution (`dive-liveness/src/plan.rs`, `formula.rs`, `analyze.rs`) | TLA+ fairness identities and direct periodic-word semantics; ADR 0018 increment | Own design | Ten pinned violations and three successes match counts; all candidates independently validate. Complete false-property set tested separately from tableau visits. No TLC numbering/selection claim. |

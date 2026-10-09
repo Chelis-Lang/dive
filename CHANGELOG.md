@@ -73,6 +73,11 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- WF/SF and direct ENABLED planning via scoped checker-side atoms. Bounded
+  final temporal candidates now carry their complete false-property set,
+  attributed by direct word truth and checked independently. Ten pinned
+  violations and three successes match TLC counts in both stores; CLI temporal
+  verdicts and TLC-exact planning/selection remain pending.
 - Independent finite-cover successor-existence API with explicit domain,
   assignment and expression bounds; missing covers refuse by name. Supported
   deadlock claims certify independently. Direct ENABLED and WF/SF on periodic

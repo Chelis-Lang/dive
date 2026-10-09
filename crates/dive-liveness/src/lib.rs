@@ -5,10 +5,11 @@
 //! constructs a deterministic witness over a supplied product graph.
 //! [`formula::compile`] provides a bounded boolean/always/eventually tableau
 //! kernel over supplied atoms. [`plan::lower`] retains pure bound predicates
-//! and scopes. Fairness expansion and TLC-exact formula order,
-//! behavior-graph capture, model coordination and property attribution remain
-//! planned. [`product::Product`] combines supplied behavior graphs/tableaux
-//! and projects witnesses; this crate does not produce model verdicts.
+//! and scopes and expands WF/SF with checker-side enabledness. The bounded
+//! final-only [`analyze::analyze_final`] coordinator captures model graphs and
+//! finds candidates with their complete attributed property set. Independent
+//! validation is required. TLC-exact planning/selection, parallel graph capture,
+//! periodic scheduling and CLI verdict integration remain pending.
 #![forbid(unsafe_code)]
 
 mod graph;
