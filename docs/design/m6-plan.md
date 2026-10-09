@@ -172,3 +172,12 @@ direct ENABLED and WF/SF truth without recurring occurrences. Ten pinned named
 words validate, adding `LvWFIntermittent` and `LvStutterEnd`. Unbounded/opaque
 actions, temporal quantification, dynamic scopes and opaque nested ENABLED
 remain refused. Full L5 and checker-side fairness expansion remain open.
+
+
+L1/L3 fairness increment: WF/SF and direct ENABLED lower to explicit scoped
+atoms. Checker enabledness uses TLC's existing generator-side search; the
+validator uses its separate finite-cover procedure. Ten pinned violations and
+three successes match final counts in both stores; all candidates independently
+validate. Direct periodic-word truth attributes their complete property set,
+with omission/extra-claim controls. Full TLC planning order, phase-L accounting,
+exact selection and CLI integration remain pending.

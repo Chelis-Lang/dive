@@ -65,7 +65,8 @@ behavior-graph capture, then integrated accepting-lasso search and
 property attribution. A bounded formula/tableau language kernel now checks
 boolean combinations, always and eventually over supplied state/action atoms.
 Pure bound predicates lower to that kernel with retained scopes and source
-diagnostics; fairness/dynamic contexts and TLC-exact planning remain pending.
+diagnostics and WF/SF enabledness expansion; dynamic contexts and TLC-exact
+planning remain pending.
 Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
@@ -78,12 +79,11 @@ Recurring non-stuttering action occurrences now certify WF/SF independently
 on a supplied cycle. Ten pinned counterexamples validate; finite covers independently decide
 ENABLED and WF/SF without recurring occurrences. Missing covers and
 VIEW/symmetry closing evidence remain refused.
-A final-only pure library coordinator now uses bounded capture through the
-shared inline safety engine: four pinned models match TLC counts in both
-stores and yield independently valid candidates, while four WF models refuse
-before exploration. The ordinary `dive check` path still refuses temporal
-models. Full phase-L/parallel capture, fairness/ENABLED, complete property
-attribution and TLC-exact planning/selection remain pending.
+The final-only bounded library coordinator now matches ten pinned violations
+and three successes in both stores, with complete property attribution and
+independently valid candidates. The ordinary `dive check` path still refuses
+temporal models. Full phase-L/parallel capture, broader temporal/scoped
+constructors, CLI integration and TLC-exact planning/selection remain pending.
 
 Approved defaults are recorded in ADRs and the differences log: explicit
 host-I/O grants, short deterministic lassos, unreduced symmetry/liveness,

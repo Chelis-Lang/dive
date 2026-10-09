@@ -28,26 +28,26 @@ fn pred(model: &Model, name: &str) -> Pred {
 }
 
 fn accepts(model: &Model, plan: &Plan, t: &Tableau, word: &[Value], back: usize) -> bool {
+    let states: Vec<dive_eval::next::StateVals> =
+        word.iter().map(|v| Arc::from([Some(v.clone())])).collect();
+    accepts_states(model, plan, t, &states, back)
+}
+
+fn accepts_states(
+    model: &Model,
+    plan: &Plan,
+    t: &Tableau,
+    word: &[dive_eval::next::StateVals],
+    back: usize,
+) -> bool {
     let mut values = Vec::new();
     for pos in 0..word.len() {
         let next = if pos + 1 == word.len() { back } else { pos + 1 };
-        let st = St::action(
-            Arc::from([Some(word[pos].clone())]),
-            Arc::from([Some(word[next].clone())]),
-        );
+        let st = St::action(word[pos].clone(), word[next].clone());
         let row: Vec<bool> = plan
             .atoms
             .iter()
-            .map(|a| {
-                match model
-                    .evaluator
-                    .eval_scoped(&a.pred.scope, a.pred.expr, &st)
-                    .expect("atom")
-                {
-                    Value::Bool(b) => b,
-                    v => panic!("atom was {}", v.kind_name()),
-                }
-            })
+            .map(|a| a.evaluate(model, &st).expect("atom"))
             .collect();
         values.push(row);
     }
@@ -169,13 +169,13 @@ fn bound_boolean_temporal_and_action_formulas_match_direct_words() {
 fn unsupported_planning_never_executes_effects_or_guesses_a_scope() {
     let model = bound(
         "---- MODULE Refusal ----\nEXTENDS TLC\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\n\
-        Fair == WF_x(Next)\nEffect == []Print(x,x)\nRead == [](TLCGet(\"level\") = 0)\n\
+        F(a) == WF_x(a)\nFair == F(Next)\nEffect == []Print(x,x)\nRead == [](TLCGet(\"level\") = 0)\n\
         T(p) == []p\nParam == T(x)\nBad == <>1\n====\n",
         "INIT Init\nNEXT Next\n",
     );
     let _ = model.take_output();
     for (name, reason) in [
-        ("Fair", "fairness"),
+        ("Fair", "constructor"),
         ("Effect", "effects"),
         ("Read", "TLCGet"),
         ("Param", "constructor"),
@@ -254,14 +254,85 @@ fn pinned_counterexample_words_falsify_the_lowered_property() {
         let plan = lower(&model, &pred(&model, "Prop"), Limits::default()).expect(name);
         let t = compile(&plan.formula, Limits::default()).expect("tableau");
         assert!(!accepts(&model, &plan, &t, &word, back), "{name}");
-        // This checks property truth only, not the behavior's fairness.
         for fairness in &model.temporals {
-            let refusal = lower(&model, &fairness.pred, Limits::default())
-                .expect_err("fairness remains pending");
+            let plan = lower(&model, &fairness.pred, Limits::default()).expect("fairness");
+            let t = compile(&plan.formula, Limits::default()).expect("fair tableau");
             assert!(
-                refusal.to_string().contains("fairness"),
-                "{name}: {refusal}"
+                accepts(&model, &plan, &t, &word, back),
+                "{name}: behavior fairness must hold"
             );
+        }
+    }
+}
+
+#[test]
+fn fairness_language_matches_infinite_boolean_words() {
+    let model = bound(
+        "---- MODULE FairWords ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = ~x\nW == WF_x(Next)\nS == SF_x(Next)\nN == ~WF_x(Next)\nE == []ENABLED Next\nEmptyW == WF_<<>>(Next)\nFalseS == SF_x(FALSE)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    for name in ["W", "S", "N", "E", "EmptyW", "FalseS"] {
+        let plan = lower(&model, &pred(&model, name), Limits::default()).expect(name);
+        let t = compile(&plan.formula, Limits::default()).expect("tableau");
+        for len in 1..=4 {
+            for bits in 0..(1_usize << len) {
+                let word: Vec<Value> = (0..len)
+                    .map(|i| Value::Bool(bits & (1 << i) != 0))
+                    .collect();
+                for back in 0..len {
+                    let recurring = (back..len)
+                        .any(|i| word[i] != word[if i + 1 == len { back } else { i + 1 }]);
+                    let expected = match name {
+                        "W" | "S" => recurring,
+                        "N" => !recurring,
+                        _ => true,
+                    };
+                    assert_eq!(
+                        accepts(&model, &plan, &t, &word, back),
+                        expected,
+                        "{name}: {word:?} {back}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn fairness_product_distinguishes_weak_and_strong_intermittent_enabledness() {
+    let model = bound(
+        "---- MODULE Intermittent ----\nVARIABLES x, y\nInit == x = TRUE /\\ y = FALSE\nNext == x /\\ y' = ~y /\\ UNCHANGED x\nW == WF_y(Next)\nS == SF_y(Next)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    for name in ["W", "S"] {
+        let plan = lower(&model, &pred(&model, name), Limits::default()).expect(name);
+        let t = compile(&plan.formula, Limits::default()).expect("tableau");
+        for len in 1..=3 {
+            for bits in 0..(1_usize << (2 * len)) {
+                let word: Vec<(bool, bool)> = (0..len)
+                    .map(|i| (bits & (1 << (2 * i)) != 0, bits & (1 << (2 * i + 1)) != 0))
+                    .collect();
+                let states: Vec<dive_eval::next::StateVals> = word
+                    .iter()
+                    .map(|(x, y)| Arc::from([Some(Value::Bool(*x)), Some(Value::Bool(*y))]))
+                    .collect();
+                for back in 0..len {
+                    let occurs = (back..len).any(|i| {
+                        let j = if i + 1 == len { back } else { i + 1 };
+                        word[i].0 && word[j].0 && word[i].1 != word[j].1
+                    });
+                    let disabled = if name == "W" {
+                        word[back..].iter().any(|(x, _)| !x)
+                    } else {
+                        word[back..].iter().all(|(x, _)| !x)
+                    };
+                    assert_eq!(
+                        accepts_states(&model, &plan, &t, &states, back),
+                        occurs || disabled,
+                        "{name}: {word:?} {back}"
+                    );
+                }
+            }
         }
     }
 }
