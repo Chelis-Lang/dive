@@ -3,7 +3,7 @@
 
 use dive_liveness::Graph;
 use dive_liveness::formula::{
-    Atom, AtomKind, Formula, FormulaError, Limits, Node, Tableau, compile,
+    Atom, AtomKind, Formula, FormulaError, Limits, Literal, Node, Tableau, TableauNode, compile,
 };
 use dive_liveness::search::{Acceptance, find_lasso};
 
@@ -195,7 +195,84 @@ fn cases() -> Vec<Vec<Node>> {
     ]);
     all.push(vec![Node::And(vec![])]);
     all.push(vec![Node::Or(vec![])]);
+    all.extend(recurrence_cases());
     all
+}
+
+fn recurrence_cases() -> Vec<Vec<Node>> {
+    let mut all = Vec::new();
+    // Weak fairness has this recurrence disjunction. Also check negation,
+    // conjunction, mixed domains, nested temporal children and a third branch.
+    for inner in [false, true] {
+        let mut nodes = vec![atom(AtomKind::State), atom(AtomKind::Action)];
+        let a = if inner {
+            nodes.push(Node::Always(0));
+            2
+        } else {
+            0
+        };
+        nodes.push(Node::Eventually(a));
+        nodes.push(Node::Always(nodes.len() - 1));
+        let left = nodes.len() - 1;
+        nodes.push(Node::Eventually(1));
+        nodes.push(Node::Always(nodes.len() - 1));
+        let right = nodes.len() - 1;
+        nodes.push(Node::Or(vec![left, right]));
+        all.push(nodes.clone());
+        nodes.push(Node::Not(nodes.len() - 1));
+        all.push(nodes.clone());
+        nodes.push(Node::And(vec![left, nodes.len() - 1]));
+        all.push(nodes);
+    }
+    all.push(vec![
+        atom(AtomKind::State),
+        atom(AtomKind::Action),
+        Node::Not(0),
+        Node::Eventually(0),
+        Node::Always(3),
+        Node::Eventually(1),
+        Node::Always(5),
+        Node::Eventually(2),
+        Node::Always(7),
+        Node::Or(vec![4, 6, 8]),
+    ]);
+    all
+}
+
+#[test]
+fn recurrent_disjunction_uses_one_live_promise_and_keeps_action_edges() {
+    let nodes = vec![
+        atom(AtomKind::State),
+        atom(AtomKind::Action),
+        Node::Eventually(0),
+        Node::Always(2),
+        Node::Eventually(1),
+        Node::Always(4),
+        Node::Or(vec![3, 5]),
+    ];
+    let t = compile(
+        &Formula::new(nodes, 6).expect("recurrence"),
+        Limits::default(),
+    )
+    .expect("tableau");
+    assert_eq!(
+        t.promise_count, 1,
+        "discarded normalization promises are not live"
+    );
+    assert_eq!(t.nodes.len(), 3);
+    for (word, back, holds) in [
+        (vec![1, 0], 0, true),
+        (vec![0, 2], 0, true),
+        (vec![1, 0], 1, false),
+        (vec![2, 0], 1, false),
+        (vec![0], 0, false),
+    ] {
+        let (g, acceptance) = product(&t, &word, back);
+        assert_eq!(
+            find_lasso(&g, &acceptance).expect("search").is_some(),
+            holds
+        );
+    }
 }
 
 #[test]
@@ -243,6 +320,93 @@ fn unfulfilled_eventuality_cannot_defer_forever() {
     // A planted omission of the promise check admits the bogus forever-defer path.
     acceptance.states.clear();
     assert!(find_lasso(&g, &acceptance).expect("planted bug").is_some());
+}
+
+#[test]
+fn shared_next_obligations_preserve_distinct_promises_and_successor_order() {
+    let f = Formula::new(
+        vec![
+            atom(AtomKind::State),
+            atom(AtomKind::Action),
+            Node::Eventually(0),
+            Node::Eventually(1),
+            Node::And(vec![2, 3]),
+            Node::Always(4),
+        ],
+        5,
+    )
+    .expect("two recurring obligations");
+    let state = Literal {
+        atom: Atom {
+            kind: AtomKind::State,
+            index: 0,
+        },
+        positive: true,
+    };
+    let action = Literal {
+        atom: Atom {
+            kind: AtomKind::Action,
+            index: 0,
+        },
+        positive: true,
+    };
+    // Captured before expansion reuse: promise bits, literal domains and
+    // successor order must stay identical, including the second node's order.
+    let expected = Tableau {
+        roots: vec![0, 1, 2, 3],
+        promise_count: 2,
+        nodes: vec![
+            TableauNode {
+                literals: vec![state, action],
+                successors: vec![0, 1, 2, 3],
+                fulfilled: vec![true, true],
+            },
+            TableauNode {
+                literals: vec![state],
+                successors: vec![0, 2, 1, 3],
+                fulfilled: vec![true, false],
+            },
+            TableauNode {
+                literals: vec![action],
+                successors: vec![0, 1, 2, 3],
+                fulfilled: vec![false, true],
+            },
+            TableauNode {
+                literals: vec![],
+                successors: vec![0, 1, 2, 3],
+                fulfilled: vec![false, false],
+            },
+        ],
+    };
+    // The old construction requires 84 work items. Reusing the root expansion
+    // uses 72 while retaining the exact automaton and both acceptance promises.
+    let limits = Limits {
+        expansion_steps: 72,
+        ..Limits::default()
+    };
+    assert_eq!(compile(&f, limits).expect("shared expansion"), expected);
+    assert_eq!(
+        compile(
+            &f,
+            Limits {
+                expansion_steps: 71,
+                ..limits
+            }
+        ),
+        Err(FormulaError::Limit("expansion steps"))
+    );
+    let (g, acceptance) = product(&expected, &[1, 2], 0);
+    assert!(
+        find_lasso(&g, &acceptance)
+            .expect("alternating fulfillment")
+            .is_some()
+    );
+    let (g, acceptance) = product(&expected, &[1], 0);
+    assert!(
+        find_lasso(&g, &acceptance)
+            .expect("missing action promise")
+            .is_none()
+    );
 }
 
 #[test]

@@ -884,3 +884,31 @@ Evidence: `crates/dive-api/tests/fixtures/temporal-action-args/`, four pinned
 models and exhaustive short-word/closing-edge controls. Temporal helpers still
 refuse action-level arguments; temporal-valued/higher-order forwarding and
 effects remain unsupported. Full TLC temporal selection and timing are pending.
+
+**D-013 fairness storage update:** final/short checking handles five independently
+fair processes without materializing every combination of recurring choices:
+
+```tla
+Init == x = [p \in 1..5 |-> FALSE]
+Flip(p) == x' = [x EXCEPT ![p] = ~@]
+Next == \E p \in 1..5 : Flip(p)
+Spec == Init /\ [][Next]_x /\ (\A p \in 1..5 : WF_x(Flip(p)))
+P == \A p \in 1..5 : []<>(x[p])
+```
+
+Pinned TLC finds no violation: 161 generated states, 32 distinct states, depth 6.
+Removing the fifth process's fairness violates P (exit 13) at the same counts.
+Dive's explicit final/short mode matches both results in both profiles/stores;
+the weak-fairness probes fit a 64-node tableau bound that unfactored construction
+exceeds. Every reported violation is independently validated. A witness mutated
+to stutter forever is rejected specifically for violating fairness.
+
+Recurring conditions are checked on the infinite cycle, including its closing
+edge. They do not constrain the finite prefix. Reachable products preserve state,
+parallel-edge and witness tie-break order; resource defaults are unchanged.
+Evidence: `crates/dive-api/tests/fixtures/fairness-factoring/`, independent
+short-word/path-closure controls and the generated LM1 final/short study.
+DiningPhilosophers now matches TLC's final truth/counts; MCDistributedReplicatedLog
+remains refused for VIEW capture. Actual capture is still one worker. Full TLC
+temporal planning, selection and timing remain pending; `--compat=tlc` alone
+retains the strict temporal refusal until those are proven.

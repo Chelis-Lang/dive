@@ -2214,3 +2214,104 @@ fn pinned_action_argument_models_match_final_truth_counts_and_validate() {
         }
     }
 }
+
+#[test]
+fn pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutants() {
+    let root =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/fairness-factoring");
+    for name in ["FwFive", "FwMissing", "FwMixed"] {
+        let source =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.tla"))).expect("spec");
+        let config =
+            std::fs::read_to_string(root.join(format!("specs/{name}/{name}.cfg"))).expect("config");
+        let stdout =
+            std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.stdout")))
+                .expect("oracle");
+        let exit = std::fs::read_to_string(root.join(format!("tlc-2026.10.06.014338/{name}.exit")))
+            .expect("exit");
+        assert_eq!(exit.trim(), if name == "FwMissing" { "13" } else { "0" });
+        let (ir, cfg) = input(&source, &config);
+        let mut limits = Limits::default();
+        if name != "FwMixed" {
+            limits.formula.tableau_nodes = 64;
+            let model =
+                dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("model");
+            let p = &model.property_claims()[0];
+            let plan = dive_liveness::plan::lower_violation(&model, &p.pred, limits.formula)
+                .expect("plan");
+            assert!(
+                matches!(
+                    dive_liveness::formula::compile(&plan.formula, limits.formula),
+                    Err(dive_liveness::formula::FormulaError::Limit(_))
+                ),
+                "unfactored {name}"
+            );
+        }
+        for base in [CheckOptions::tlc(0, 0), CheckOptions::dive(0)] {
+            for store in [StoreMode::Exact, StoreMode::Fingerprint] {
+                for workers in [1, 4, 8] {
+                    let opts = CheckOptions {
+                        store,
+                        workers,
+                        ..base.clone()
+                    };
+                    let report = temporal::check_final(&ir, &cfg, &opts, limits).expect(name);
+                    let c = match report.outcome() {
+                        Outcome::Holds(c) => {
+                            assert_ne!(name, "FwMissing");
+                            c.as_ref()
+                        }
+                        Outcome::Violation(v) => {
+                            assert_eq!(name, "FwMissing");
+                            assert_eq!(v.validation().validation, Validation::Valid);
+                            fairness_validation_controls(&ir, &cfg, &opts, v.document());
+                            &v.candidate().exploration
+                        }
+                        Outcome::Safety(r) => panic!("{name}: {:?}", r.verdict),
+                    };
+                    assert_eq!(
+                        (c.stats.generated, c.stats.distinct, c.stats.depth),
+                        counts(&stdout),
+                        "{name}"
+                    );
+                    assert_eq!((c.workers.requested, c.workers.used), (workers, 1));
+                }
+            }
+        }
+    }
+}
+
+fn fairness_validation_controls(
+    ir: &Arc<dive_ir::Ir>,
+    cfg: &dive_config::ModelConfig,
+    opts: &CheckOptions,
+    source: &dive_trace::TraceDoc,
+) {
+    let model = dive_model::bind(
+        ir.clone(),
+        cfg,
+        &dive_model::BindOptions {
+            eval: opts.eval,
+            ..dive_model::BindOptions::tlc()
+        },
+    )
+    .expect("fresh model");
+    let mut doc =
+        dive_trace::TraceDoc::parse(&source.to_json().to_string()).expect("lossless witness");
+    assert_eq!(
+        dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+            .0
+            .validation,
+        Validation::Valid
+    );
+    doc.ending = Some(dive_trace::Ending::Lasso {
+        back_to: doc.states.len() - 1,
+    });
+    let validation = dive_trace::validate_doc(&model, &doc, &cfg.model_values, None)
+        .0
+        .validation;
+    assert!(
+        matches!(validation,Validation::Invalid(ref failure) if failure.check == dive_trace::Check::Fairness),
+        "a forever-stuttering ending must fail temporal fairness: {validation:?}"
+    );
+}
