@@ -831,7 +831,7 @@ fn native_checkpoint_spill_budgets_pass_option_admission_before_input_error() {
         args.extend(flags);
         let output = dive(&args);
         assert_eq!(output.status.code(), Some(2));
-        assert!(output.stdout.is_empty());
+        assert_eq!(output.stdout, [] as [u8; 0]);
         assert!(
             String::from_utf8_lossy(&output.stderr).contains("cannot read missing-native-spec.tla")
         );
