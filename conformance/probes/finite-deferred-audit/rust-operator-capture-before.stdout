@@ -1,0 +1,3 @@
+Q effects Effects(4)
+result Ok([Scope { env: Env { frame: Frame { def: DefId(90), depth: 0, slots: [Op(Std(TlcPrintT)), Unset, Val(<<FALSE>>)], parent: None }, dynamic: Dyn { subst: None, at: None, cut: None } }, wrapper: None }, Scope { env: Env { frame: Frame { def: DefId(90), depth: 0, slots: [Op(Std(TlcPrintT)), Unset, Val(<<TRUE>>)], parent: None }, dynamic: Dyn { subst: None, at: None, cut: None } }, wrapper: None }])
+output ["<<FALSE>>", "<<TRUE>>"]

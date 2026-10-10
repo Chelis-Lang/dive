@@ -75,8 +75,8 @@ and a corresponding certification schema before the label can change.
 | F-003 | Configuration parsing | implemented | 1 | [tlc_oracle.rs](../crates/dive-config/tests/tlc_oracle.rs) |
 | F-004 | Model/configuration binding and startup | partial | 6 | [startup.rs](../crates/dive-model/tests/startup.rs) |
 | F-005 | Values, equality, order, laziness and representation | partial | 6 | [tlc_differential.rs](../crates/dive-value/tests/tlc_differential.rs) |
-| F-006 | Evaluation scopes, recursion and higher-order operators | partial | 3 | [temporal.rs](../crates/dive-api/tests/temporal.rs) |
-| F-007 | Finite domains, successor enumeration and independent ENABLED | partial | 3 | [constructor_covers.rs](../crates/dive-api/tests/constructor_covers.rs) |
+| F-006 | Evaluation scopes, recursion and higher-order operators | partial | 3 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [recursive refusal probes](../conformance/probes/finite-deferred-audit/README.md) |
+| F-007 | Finite domains, successor enumeration and independent ENABLED | partial | 3 | [constructor_covers.rs](../crates/dive-api/tests/constructor_covers.rs), [deferred_domains.rs](../crates/dive-api/tests/deferred_domains.rs) |
 | F-008 | Native override discovery and installation | partial | 6 | [lower.rs](../crates/dive-ir/tests/lower.rs) |
 | F-009 | Standard-module operators | partial | 6 | [tlc_fixtures.rs](../crates/dive-eval/tests/tlc_fixtures.rs) |
 | F-010 | CommunityModules operators and TLA+ fallback definitions | partial | 6 | [README.md](../crates/dive-eval/tests/fixtures/examples/README.md) |
@@ -261,6 +261,29 @@ F-007 now includes budgeted finite lazy constructor controls. Its complete
 seven named refusals, two resource bounds and one timeout. These controls widen
 the implementation without completing or certifying the domain family.
 
+
+F-007 also includes six paired captured-filter/map/state-dependent-domain probes
+checked in 72 final/short profile/store/requested-worker settings, with fresh
+independent property-word controls and fully validated violating reports. Input
+work is charged before predicates run; original capture scopes, profile order
+and priming are retained. Exact phase-L semantics and full domain coverage are
+not certified. The ten-row study above is unchanged until a new immutable
+whole-selection report accounts for every outcome.
+
+The same probe group retains two recursive LET function controls that remain
+explicitly refused in both profiles, with the exact opaque scoped-level diagnosis.
+This is F-006 gap evidence, not recursive or higher-order implementation credit.
+Both family statuses remain partial and require audit before certification.
+
+
+F-007 captured-filter purity also refuses opaque Rust operator captures before
+predicate evaluation: call-site IR effects cannot prove a programmatically
+supplied operator pure. The retained native repro and both-profile no-output
+regression document this F-006 limit without changing family statuses.
+
+Missing captured-expression metadata supplied through the Rust scope API is
+also unknown, not a purity proof. Its no-panic refusal control retains this
+limit without changing the shared-side-effect helper or family accounting.
 
 Runtime-name regression work (#122/#124) preserves the census: checker startup
 has three clean pinned seed controls, and independent TLC-order validation

@@ -1092,6 +1092,20 @@ remain pending. Evidence is in `conformance/probes/finite-deferred-audit/`,
 The prior ten-model report is unchanged: passing these minimal guards is not
 credit for its nine refusals/bounds and one timeout.
 
+
+Captured operators passed through the Rust scope API remain an explicit limit:
+static IR call-site effects do not prove them pure. Bounded captured filters
+refuse such contexts before invoking the predicate, including pure supplied
+operators until a scoped proof exists. Captured thunks/functions also require
+closed effects. The native `rust-operator-capture-before.*` repro in the same
+probe directory records the avoided PrintT purity bypass; it is not a TLC
+behaviour difference or checking result.
+
+Unknown or missing capture metadata also refuses before predicate execution.
+A Rust caller can construct an unchecked expression ID; the captured-filter
+proof rejects it without a panic, rather than treating the absence of metadata
+as proof of purity. General caller-created IR validation is a separate API gap.
+
 ### Current limitation: runtime names in TLC order (#122)
 
 A model such as `s' = (CHOOSE t \in {ToString(x), ToString(x+1)} : TRUE)`
