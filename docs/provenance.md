@@ -282,3 +282,24 @@ constructor gap is tracked separately as #129 and is not silently certified.
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
 | `dive-pluscal` source parser (`parser.rs`, `lexer.rs`, `ast.rs`) | tlaplus `pcal/ParseAlgorithm.java` (`GetVarDecls`, `GetPVarDecl`, `GetProcedure`, `GetProcess`, `GetStmtSeq`, `GetCStmtSeq`, `GetIf`, `GetWhile`, `GetEither`, `InnerGetWith`, `GetAssign`, calls/labels/separators); `Tokenize.java` (`IsDelimiter`, `parenDepth`, quantifier/record-field rules), `PcalBuiltInSymbols.java`, `PcalCharReader.java`, `AST.java`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Grammar semantics adapted to a source-preserving arena AST. Macro expansion/labels/control-flow normalization and translation remain pending; expression scanner counts nesting and does not validate TLA syntax. Pinned primary/secondary evidence and limitations in ADR 0022 and docs/pluscal-parser.md |
+
+## Bounded TLC planning
+
+| Increment | Reference | License | Matched behavior |
+|---|---|---|---|
+
+| Bounded TLC planning projection (`dive-liveness/src/tlc_plan.rs`) | `tlc2/tool/liveness/Liveness.java` `parseLiveness`, `processLiveness`, `classifyExpr`, `addToBin`; `LNConj`/`LNDisj` `pushNeg`, `simplify`, `toDNF`, `flattenSingleJunctions`, `equals`; `LNAll`/`LNEven`/`LNNeg`/`LNBool` normalization; `LNState`/`LNAction` `tagExpr`; pinned commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Matched transformation/grouping semantics with original occurrence order; original bounded arena and work preflight. Raw supplied-formula and actual FastTool projections in `conformance/probes/tlc-planning`. Binary tableau/promise numbering is not ported or certified. ADR 0025 |
+
+The private strict-shape lowering selector matches `Liveness.astToLive`'s WF
+form `[]<>(~ENABLED <<A>>_v \/ <<A>>_v)`. The existing language kernel retains
+its equivalent form and behavior. Normalization does not evaluate callbacks;
+model binding delegates to the original conservative scope/effect planner.
+The independent word checks use `dive-trace`'s separate periodic/ENABLED
+algorithms; no validator dependency on this projection was introduced.
+
+The `TpLocal` identity probe records TLC's separate Action/configured name
+`Live` and derived temporal-name vector `Identity`. `BoundProjection` preserves
+original `configured_properties` predicates/names separately from role inputs;
+its role table matches the derived pinned field. Future action attribution
+through tableau/witness execution remains a separate representation obligation
+(#134). Grouped formula truth does not certify that attribution.

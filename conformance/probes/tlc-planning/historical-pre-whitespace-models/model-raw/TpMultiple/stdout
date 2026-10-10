@@ -1,0 +1,29 @@
+properties	P;Q;R
+temporal_role_names	P;Q;R
+configured_properties	P;Q;R
+tagged	C(G(E(D(N(s1),a2))),D(N(G(E(s3))),N(E(G(s4))),N(E(s5))))
+pushed	C(G(E(D(N(s1),a2))),D(E(G(N(s3))),G(E(N(s4))),G(N(s5))))
+simplified	C(G(E(D(N(s1),a2))),D(E(G(N(s3))),G(E(N(s4))),G(N(s5))))
+dnf	D(C(G(E(D(N(s1),a2))),E(G(N(s3)))),C(G(E(D(N(s1),a2))),G(N(s5))),C(G(E(D(N(s1),a2))),G(E(N(s4)))))
+groups	2
+g0.temporal	null
+g0.p0	AEAction=0|AEState=|EAAction=1
+g0.p1	AEAction=0|AEState=0|EAAction=
+g0.state	N(s4)
+g0.action	D(N(s1),a2);N(s3)
+g1.temporal	G(N(s5))
+g1.p0	AEAction=0|AEState=|EAAction=
+g1.state	
+g1.action	D(N(s1),a2)
+actual.groups	2
+actual.g0.state	N(s4)
+actual.g0.action	D(N(s1),a2);N(s3)
+actual.g0.p0	AEAction=0|AEState=|EAAction=1
+actual.g0.p1	AEAction=0|AEState=0|EAAction=
+actual.g0.promises	
+actual.g0.tableauNodes	0
+actual.g1.state	
+actual.g1.action	D(N(s1),a2)
+actual.g1.p0	AEAction=0|AEState=|EAAction=
+actual.g1.promises	
+actual.g1.tableauNodes	1

@@ -1,0 +1,19 @@
+tagged	C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(N(G(E(s5))),N(G(s6))))
+pushed	C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(E(G(N(s5))),E(N(s6))))
+simplified	C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(E(G(N(s5))),E(N(s6))))
+dnf	D(C(E(G(a1)),E(G(a3)),E(G(N(s5)))),C(E(G(a1)),E(G(a3)),E(N(s6))),C(E(G(a1)),G(E(a4)),E(G(N(s5)))),C(E(G(a1)),G(E(a4)),E(N(s6))),C(G(E(a2)),E(G(a3)),E(G(N(s5)))),C(G(E(a2)),E(G(a3)),E(N(s6))),C(G(E(a2)),G(E(a4)),E(G(N(s5)))),C(G(E(a2)),G(E(a4)),E(N(s6))))
+groups	2
+g0.temporal	null
+g0.p0	AEAction=|AEState=|EAAction=0,1,2
+g0.p1	AEAction=3|AEState=|EAAction=0,2
+g0.p2	AEAction=4|AEState=|EAAction=1,2
+g0.p3	AEAction=4,3|AEState=|EAAction=2
+g0.state	
+g0.action	a1;a3;N(s5);a4;a2
+g1.temporal	E(N(s6))
+g1.p0	AEAction=|AEState=|EAAction=0,1
+g1.p1	AEAction=2|AEState=|EAAction=0
+g1.p2	AEAction=3|AEState=|EAAction=1
+g1.p3	AEAction=3,2|AEState=|EAAction=
+g1.state	
+g1.action	a1;a3;a4;a2

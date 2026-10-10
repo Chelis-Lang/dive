@@ -1,0 +1,21 @@
+tagged	C(D(s1,s2),D(s3,s4))
+pushed	C(D(s1,s2),D(s3,s4))
+simplified	C(D(s1,s2),D(s3,s4))
+dnf	D(C(s1,s3),C(s1,s4),C(s2,s3),C(s2,s4))
+groups	4
+g0.temporal	C(s1,s3)
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	
+g1.temporal	C(s1,s4)
+g1.p0	AEAction=|AEState=|EAAction=
+g1.state	
+g1.action	
+g2.temporal	C(s2,s3)
+g2.p0	AEAction=|AEState=|EAAction=
+g2.state	
+g2.action	
+g3.temporal	C(s2,s4)
+g3.p0	AEAction=|AEState=|EAAction=
+g3.state	
+g3.action	

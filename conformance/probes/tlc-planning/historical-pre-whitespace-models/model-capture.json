@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Separate configured Action identity from pinned derived temporal-name vector for field-specific planning evidence",
+  "timestamp": "2026-10-10T13:14:16.267379+00:00",
+  "source_sha256": "a3891ff98de16549c55984708055722ee944ccab88885c6d89b7606ae0efe602",
+  "selection_sha256": "bc13431e38223d2ebd31678fd3ce19c7f50e63f442285e66c281ae95f16ee778",
+  "compiler": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Note: /Users/jeff/code/dive-planning-normalization-work/conformance/probes/tlc-planning/PlanningProbe.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n"
+  },
+  "command": [
+    "java",
+    "-cp",
+    "<temporary compiled probe>:<pinned jar>",
+    "tlc2.tool.liveness.PlanningProbe",
+    "--model",
+    "<module>",
+    "<config>"
+  ],
+  "rows": [
+    {
+      "name": "TpRecurrence",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpRecurrence/TpRecurrence.tla": "01b75970985dd05aad0ed19f9932f3fb0209231cca40981c1beff07c487326a8",
+        "models/TpRecurrence/TpRecurrence.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd"
+      },
+      "stdout_sha256": "4df4dde53ca0c6f8808d714ff2fde59065b4b04df988ffda0ea114034a34b054",
+      "stderr_sha256": "79c2aa4fe1ad09d48a82f750691caebf5031940f0105b5f4622bb457cf2ac979"
+    },
+    {
+      "name": "TpStable",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "N(E(G(s1)))",
+        "pushed": "G(E(N(s1)))",
+        "simplified": "G(E(N(s1)))",
+        "dnf": "G(E(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "N(s1)",
+        "g0.action": "",
+        "actual.groups": "1",
+        "actual.g0.state": "N(s1)",
+        "actual.g0.action": "",
+        "actual.g0.p0": "AEAction=|AEState=0|EAAction=",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpStable/TpStable.tla": "8c69b7813eef573f066d9970d8dbc15738c1760f9d22fc882ee94216ddfddef6",
+        "models/TpStable/TpStable.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd"
+      },
+      "stdout_sha256": "68b5f400dff1873695edc51c1a2ca7d676864c5f37f5d70237cdbab26bc0fc97",
+      "stderr_sha256": "0b2a39ba7997c5985d411b4b6464d37506fe9c694ecb079773d7a9a6917d4cd3"
+    },
+    {
+      "name": "TpNested",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "N(G(D(N(s1),E(s2))))",
+        "pushed": "E(C(s1,G(N(s2))))",
+        "simplified": "E(C(s1,G(N(s2))))",
+        "dnf": "E(C(s1,G(N(s2))))",
+        "groups": "1",
+        "g0.temporal": "E(C(s1,G(N(s2))))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=",
+        "actual.g0.promises": "E(C(s1,G(N(s2))))",
+        "actual.g0.tableauNodes": "3"
+      },
+      "source_sha256": {
+        "models/TpNested/TpNested.tla": "d744d52ebac2d733e1dc920f5b25d3dfc374bf369a3cb00f608332225c9704b9",
+        "models/TpNested/TpNested.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd"
+      },
+      "stdout_sha256": "736f51473c75aa26845341503e5779a84cee5a1f9b52ce77168e11b369420bef",
+      "stderr_sha256": "e38e22cd910c7cbf369c935d3c8eb4702083abda14edd8815b3350cfacaf7a28"
+    },
+    {
+      "name": "TpWeak",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "C(G(E(D(N(s1),a2))),N(G(E(s3))))",
+        "pushed": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "simplified": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "dnf": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "g0.state": "",
+        "g0.action": "D(N(s1),a2);N(s3)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "D(N(s1),a2);N(s3)",
+        "actual.g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpWeak/TpWeak.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpWeak/TpWeak.tla": "167840da90ef3eaeab5970c6adff7587e741192943352de79e21b35ef47704c5"
+      },
+      "stdout_sha256": "2d5cd4504e9cd04600fe53c803e1ed9811d29350c08a89012a51c7528c1e62b7",
+      "stderr_sha256": "1451abd2244d61a60ddafe1ba49dcdb461372102268cf540dca43d3a66c5354d"
+    },
+    {
+      "name": "TpStrong",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "C(D(E(G(N(s1))),G(E(a2))),N(E(G(s3))))",
+        "pushed": "C(D(E(G(N(s1))),G(E(a2))),G(E(N(s3))))",
+        "simplified": "C(D(E(G(N(s1))),G(E(a2))),G(E(N(s3))))",
+        "dnf": "D(C(E(G(N(s1))),G(E(N(s3)))),C(G(E(a2)),G(E(N(s3)))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=0",
+        "g0.p1": "AEAction=1|AEState=0|EAAction=",
+        "g0.state": "N(s3)",
+        "g0.action": "N(s1);a2",
+        "actual.groups": "1",
+        "actual.g0.state": "N(s3)",
+        "actual.g0.action": "N(s1);a2",
+        "actual.g0.p0": "AEAction=|AEState=0|EAAction=0",
+        "actual.g0.p1": "AEAction=1|AEState=0|EAAction=",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpStrong/TpStrong.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpStrong/TpStrong.tla": "89f9534f93c16bd2196b60248aff4e968d1b0041889fb7416be1a0bf434a55d4"
+      },
+      "stdout_sha256": "9dcc4960af475ac441c51120f90fd6767e501b44f5301c7bfca9ad3f776cd1e5",
+      "stderr_sha256": "1cc81724b348ed366364062ffe7a2e94a0fe81ca2589ce4a89d7db339be1cd4f"
+    },
+    {
+      "name": "TpMultiple",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "P;Q;R",
+        "temporal_role_names": "P;Q;R",
+        "configured_properties": "P;Q;R",
+        "tagged": "C(G(E(D(N(s1),a2))),D(N(G(E(s3))),N(E(G(s4))),N(E(s5))))",
+        "pushed": "C(G(E(D(N(s1),a2))),D(E(G(N(s3))),G(E(N(s4))),G(N(s5))))",
+        "simplified": "C(G(E(D(N(s1),a2))),D(E(G(N(s3))),G(E(N(s4))),G(N(s5))))",
+        "dnf": "D(C(G(E(D(N(s1),a2))),E(G(N(s3)))),C(G(E(D(N(s1),a2))),G(N(s5))),C(G(E(D(N(s1),a2))),G(E(N(s4)))))",
+        "groups": "2",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "g0.p1": "AEAction=0|AEState=0|EAAction=",
+        "g0.state": "N(s4)",
+        "g0.action": "D(N(s1),a2);N(s3)",
+        "g1.temporal": "G(N(s5))",
+        "g1.p0": "AEAction=0|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "D(N(s1),a2)",
+        "actual.groups": "2",
+        "actual.g0.state": "N(s4)",
+        "actual.g0.action": "D(N(s1),a2);N(s3)",
+        "actual.g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "actual.g0.p1": "AEAction=0|AEState=0|EAAction=",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0",
+        "actual.g1.state": "",
+        "actual.g1.action": "D(N(s1),a2)",
+        "actual.g1.p0": "AEAction=0|AEState=|EAAction=",
+        "actual.g1.promises": "",
+        "actual.g1.tableauNodes": "1"
+      },
+      "source_sha256": {
+        "models/TpMultiple/TpMultiple.tla": "674d77c22e519b86174bd60253fcb8a55b172991b3d8fee732510a5045b84f1d",
+        "models/TpMultiple/TpMultiple.cfg": "9106b7ed785964ed027c756711952447231a49d6931ccbe80c9589c08b096c83"
+      },
+      "stdout_sha256": "66c078d0a68b1b1eddda85e6a5d9071c290c870757d5475773c47f6a025a7b61",
+      "stderr_sha256": "16787e9965efff2146af548af046ead6e419b5e89e5833e7d9b74598fa09b851"
+    },
+    {
+      "name": "TpLocal",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Identity",
+        "configured_properties": "Live",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpLocal/TpLocal.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpLocal/TpLocal.tla": "44342c9699049d29edec2f7422708094a9fe53950503f3b47adede77603fda6a"
+      },
+      "stdout_sha256": "861c1c2d4e33edc95534d892fcd127c823a570c5fc5df67cf237d3fbc24f9202",
+      "stderr_sha256": "223fecc6ae6e7cf14021657d4af63f7d877c66593a3ed1a2ce735c77e321b8a9"
+    },
+    {
+      "name": "TpForward",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Identity",
+        "configured_properties": "Live",
+        "tagged": "N(E(G(s1)))",
+        "pushed": "G(E(N(s1)))",
+        "simplified": "G(E(N(s1)))",
+        "dnf": "G(E(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "N(s1)",
+        "g0.action": "",
+        "actual.groups": "1",
+        "actual.g0.state": "N(s1)",
+        "actual.g0.action": "",
+        "actual.g0.p0": "AEAction=|AEState=0|EAAction=",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpForward/TpForward.tla": "7e299c7106391da61c0cec7f153cd52c1226cf478040188f53d778da880a1d86",
+        "models/TpForward/TpForward.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd"
+      },
+      "stdout_sha256": "022d276378c3dd75f12ad76b13eaac4b393540a664a9868ff1e93b15ff15b8e8",
+      "stderr_sha256": "45dcb089b60ccfd73c9f3699c1d7409b73fc5dedca9d5085e3790d353d66db94"
+    },
+    {
+      "name": "TpActionBad",
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "source_sha256": {
+        "models/TpActionBad/TpActionBad.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpActionBad/TpActionBad.tla": "3b229f898c61e003fb8e96c01ce169010e42a3c796875e2814fc9b6140264043"
+      },
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "31458795959ed6a25cfa4b568510063043bd3fbbae300756a0abd7ea758c9ded"
+    },
+    {
+      "name": "TpEnabled",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Identity",
+        "configured_properties": "Live",
+        "tagged": "C(G(E(D(N(s1),a2))),N(G(E(s3))))",
+        "pushed": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "simplified": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "dnf": "C(G(E(D(N(s1),a2))),E(G(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "g0.state": "",
+        "g0.action": "D(N(s1),a2);N(s3)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "D(N(s1),a2);N(s3)",
+        "actual.g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpEnabled/TpEnabled.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpEnabled/TpEnabled.tla": "367e19512307369710f50f53a06dd8ef1304daca93600d04f449926505055baa"
+      },
+      "stdout_sha256": "27e69c0751f3da2e872a62f997dea1244fb5840677ee78156e8fc046b3bc0748",
+      "stderr_sha256": "f25b9c0d09aed2ab6dfe3594952c82377e8d24a7e2a26c9e838c17b8ad529876"
+    },
+    {
+      "name": "TpConstants",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Live",
+        "configured_properties": "Live",
+        "tagged": "N(E(T))",
+        "pushed": "G(F)",
+        "simplified": "G(F)",
+        "dnf": "G(F)",
+        "groups": "1",
+        "g0.temporal": "G(F)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "1"
+      },
+      "source_sha256": {
+        "models/TpConstants/TpConstants.tla": "9ac1540406a42e05cb92ba8374952a3b724fbe7a2616f849bfcb28feb4804be3",
+        "models/TpConstants/TpConstants.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd"
+      },
+      "stdout_sha256": "6da6766f410702ede26d7e9244dba86a1b1fd0e38c057feccda93254d3827d1d",
+      "stderr_sha256": "a0939db3cfb0c22ecafb77a08cfb1746485a1fe67403fa9307abbb12b17e487a"
+    },
+    {
+      "name": "TpInstance",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "I!Claim",
+        "configured_properties": "Live",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "source_sha256": {
+        "models/TpInstance/TpInstance.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/TpInstance/TpPart.tla": "8163c20b3e034b939d24220a6882b36c81c27403e4cdcc09e16385fbaf1ee361",
+        "models/TpInstance/TpInstance.tla": "996c3575a43a8ede645a1c7072c68c9390c8b52fe9938471fde8bb390af331af"
+      },
+      "stdout_sha256": "0ae943e3b1b67a959178cc6795a82e74a7a5c78b94e54b910b6282b027ba3617",
+      "stderr_sha256": "8d9667c41a27d6cfefcf9e36d6a5c14184ce0b51a318d09b706cb4001907d853"
+    }
+  ]
+}

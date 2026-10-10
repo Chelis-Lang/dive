@@ -1,0 +1,10 @@
+tagged	N(C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4)))))
+pushed	D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))
+simplified	D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))
+dnf	D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))
+groups	1
+g0.temporal	null
+g0.p0	AEAction=0|AEState=|EAAction=1
+g0.p1	AEAction=2|AEState=|EAAction=3
+g0.state	
+g0.action	N(a1);N(a2);N(a3);N(a4)

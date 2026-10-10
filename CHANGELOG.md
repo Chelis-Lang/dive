@@ -38,6 +38,14 @@ All notable changes to this project are documented here. The project will follow
   worker selection seeds. Depth-bound stops never claim model safety, and every
   claimed violation is independently certified. Remaining mode/output contracts
   refuse by name; TLC's stale cross-root witness is retained as reference evidence.
+
+- Add a bounded diagnostic TLC planning projection: predicate occurrence tags,
+  negation/simplification/DNF stages, ordered EA/AE and OOS/PEM grouping, and
+  original configured property identities. Field-level pinned Java controls and
+  independent scoped-word checks cover fairness and retained arguments. Strict
+  integrated liveness/tableau identities remain unsupported; existing limits,
+  checking behavior and defaults are unchanged.
+
 - Retain pure temporal expression arguments through local and nested substituted
   caller scopes on the final/short path, including supported ENABLED formulas.
   Fresh independent periodic/whole-trace controls cover closing edges and forged

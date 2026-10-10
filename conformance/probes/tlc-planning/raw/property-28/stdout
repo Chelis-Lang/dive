@@ -1,0 +1,6 @@
+tagged	N(E(a1))
+pushed	G(N(a1))
+simplified	G(N(a1))
+dnf	G(N(a1))
+refusal	util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A.
+refusal_code	2214
