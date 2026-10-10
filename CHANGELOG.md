@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
+
 - Native pure safety checkpoints pause and resume through the deterministic worker
   pool, including supported VIEW/safety symmetry, cross-width recovery and
   ordered counter-limit stops. Boundary-zero pauses report one actual worker
