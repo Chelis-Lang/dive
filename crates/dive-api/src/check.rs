@@ -118,7 +118,7 @@ enum Phase {
     /// Independently validated bounded final temporal analysis.
     Temporal(Box<crate::temporal::Report>),
     /// No temporal verdict: a refusal, limit or internal failure.
-    TemporalError(Box<crate::temporal::Error>),
+    TemporalError(Box<crate::temporal::Failure>),
 }
 
 /// The outcome of `dive check`.
@@ -234,7 +234,7 @@ fn check_backend(
     temporal: TemporalMode,
 ) -> Phase {
     if temporal == TemporalMode::FinalShort {
-        return match crate::temporal::check_final(
+        return match crate::temporal::check_final_with_evidence(
             ir,
             config,
             options,
@@ -284,7 +284,7 @@ impl CheckReport {
                 crate::temporal::Outcome::Violation(_) => "liveness-violation",
                 crate::temporal::Outcome::Safety(_) => "internal-error",
             },
-            Phase::TemporalError(e) => temporal_failure_kind(e),
+            Phase::TemporalError(e) => temporal_failure_kind(e.error()),
         }
     }
 
@@ -319,7 +319,7 @@ impl CheckReport {
                 }
                 crate::temporal::Outcome::Safety(_) => exit::INTERNAL,
             },
-            Phase::TemporalError(e) => match temporal_failure_kind(e) {
+            Phase::TemporalError(e) => match temporal_failure_kind(e.error()) {
                 "internal-error" => exit::INTERNAL,
                 "model-error" => exit::REJECTED,
                 _ => exit::UNSUPPORTED,
@@ -414,6 +414,20 @@ impl CheckReport {
     /// reason, chaos }`. These, with the timings, are the only fields of the
     /// document that may differ between worker counts.
     fn workers_json(&self) -> Value {
+        if let Phase::TemporalError(failure) = &self.phase {
+            return match failure.workers(self.workers_requested) {
+                Some(w) => json!({
+                    "requested": w.requested, "used": w.used,
+                    "sequential": w.sequential, "reason": w.reason,
+                    "chaos": self.opts.chaos,
+                }),
+                None => json!({
+                    "requested": self.workers_requested, "used": null,
+                    "sequential": null, "reason": "execution evidence unavailable",
+                    "chaos": self.opts.chaos,
+                }),
+            };
+        }
         let w = self
             .result()
             .map(|r| &r.workers)
@@ -439,11 +453,16 @@ impl CheckReport {
     }
 
     /// The workers used, for the human header.
-    fn workers_used(&self) -> usize {
+    fn workers_used(&self) -> String {
         match &self.phase {
-            Phase::Checked(r) => r.workers.used,
-            Phase::Temporal(r) => temporal_complete(r).map_or(0, |c| c.workers.used),
-            _ => 0,
+            Phase::Checked(r) => r.workers.used.to_string(),
+            Phase::Temporal(r) => temporal_complete(r)
+                .map_or(0, |c| c.workers.used)
+                .to_string(),
+            Phase::TemporalError(failure) => failure
+                .workers(self.workers_requested)
+                .map_or_else(|| "unknown".into(), |w| w.used.to_string()),
+            _ => "0".into(),
         }
     }
 
@@ -527,8 +546,17 @@ impl CheckReport {
             Phase::Temporal(r) => temporal_json(&mut doc, r, self.opts.tlc_fingerprints),
             Phase::TemporalError(e) => {
                 doc["message"] = json!(e.to_string());
-                doc["diagnostics"] = json!([{"code": e.code(), "message": e.to_string()}]);
-                if let crate::temporal::Error::Binding(failure) = e.as_ref() {
+                doc["diagnostics"] = json!([{"code": e.error().code(), "message": e.to_string()}]);
+                doc["execution"] =
+                    json!({"stage": e.stage().name(), "capture_completed": e.capture_completed()});
+                doc["elapsed_ms"] =
+                    json!(u64::try_from(e.elapsed().as_millis()).unwrap_or(u64::MAX));
+                if let Some(capture) = e.exploration() {
+                    temporal_evidence_json(&mut doc, capture, self.opts.tlc_fingerprints);
+                    doc["notes"] = json!([
+                        "Capture completed, but temporal checking failed; these statistics are exploration evidence, not a temporal verdict."
+                    ]);
+                } else if let crate::temporal::Error::Binding(failure) = e.error() {
                     doc["warnings"] = json!(
                         failure
                             .output
@@ -555,6 +583,9 @@ impl CheckReport {
                 }
             }
             Phase::Checked(r) => {
+                if self.temporal_final_short {
+                    doc["execution"] = json!({"stage": "capture", "capture_completed": false});
+                }
                 let ctx = self.opts.eval.ctx;
                 let v = &r.verdict;
                 doc["property"] = v.property().map_or(Value::Null, Value::from);
@@ -686,8 +717,23 @@ impl CheckReport {
                 let _ = writeln!(
                     out,
                     "{}: {e}; no verdict produced",
-                    temporal_failure_kind(e)
+                    temporal_failure_kind(e.error())
                 );
+                let _ = writeln!(out, "Execution stage: {}", e.stage().name());
+                if let Some(capture) = e.exploration() {
+                    for (_, warning) in &capture.warnings {
+                        let _ = writeln!(out, "Warning: {warning}");
+                    }
+                    for line in &capture.output {
+                        let _ = writeln!(out, "{line}");
+                    }
+                    let stats = &capture.stats;
+                    let _ = writeln!(
+                        out,
+                        "Capture completed: {} generated, {} distinct, depth {}; no temporal verdict.",
+                        stats.generated, stats.distinct, stats.depth
+                    );
+                }
             }
             Phase::Checked(r) => {
                 for (_, w) in &r.warnings {
@@ -785,6 +831,7 @@ fn temporal_failure_kind(error: &crate::temporal::Error) -> &'static str {
         | Error::Document(_)
         | Error::Analysis(
             AnalysisError::Inconsistent(_)
+            | AnalysisError::CaptureThread(_)
             | AnalysisError::Tableau(FormulaError::Reference(_))
             | AnalysisError::Planning(PlanningError::Formula {
                 error: FormulaError::Reference(_),
@@ -819,6 +866,34 @@ fn temporal_complete(report: &crate::temporal::Report) -> Option<&dive_check::ca
 
 const TEMPORAL_NOTE: &str = "Bounded final/short analysis: TLC-exact lasso selection, finite-prefix stopping, temporal error classes and periodic scheduling are not claimed. Only independently validated periodic counterexamples are returned.";
 
+fn temporal_evidence_json(
+    doc: &mut Value,
+    capture: &dive_liveness::analyze::ExplorationEvidence,
+    tlc_fingerprints: bool,
+) {
+    let s = &capture.stats;
+    doc["statistics"] = json!({
+        "generated": s.generated, "distinct": s.distinct,
+        "left_on_queue": s.left_on_queue, "depth": s.depth,
+        "initial_generated": s.initial_generated, "reported_by_tlc": false,
+    });
+    doc["output"] = json!(capture.output);
+    doc["warnings"] = json!(
+        capture
+            .warnings
+            .iter()
+            .map(|(code, message)| { json!({"code": code, "message": message}) })
+            .collect::<Vec<_>>()
+    );
+    if let Some(collision) = &capture.collision {
+        doc["collision"] = json!({
+            "store": "fingerprint", "scheme": if tlc_fingerprints {"tlc"} else {"dive"},
+            "optimistic": collision.optimistic, "actual": collision.actual,
+            "assumption": "fingerprints behave as random 64-bit values (TLC's assumption too)",
+        });
+    }
+}
+
 fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerprints: bool) {
     let Some(complete) = temporal_complete(report) else {
         doc["verdict"] = json!("internal-error");
@@ -826,6 +901,7 @@ fn temporal_json(doc: &mut Value, report: &crate::temporal::Report, tlc_fingerpr
         return;
     };
     let s = &complete.stats;
+    doc["execution"] = json!({"stage": "complete", "capture_completed": true});
     doc["statistics"] = json!({
         "generated": s.generated, "distinct": s.distinct,
         "left_on_queue": s.left_on_queue, "depth": s.depth,
@@ -932,4 +1008,103 @@ fn temporal_limits_json() -> Value {
         "acceptance_cells": limits.product.acceptance_cells,
         "product_steps": limits.product.steps,
     })
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, clippy::panic, reason = "test assertions")]
+mod evidence_controls {
+    use super::*;
+
+    fn limited_report(stage: dive_liveness::analyze::Stage) -> CheckReport {
+        let source = "---- MODULE M ----\nEXTENDS TLC\nASSUME PrintT(\"boot\")\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nP == []<>x\n====\n";
+        let analysis = dive_sema::analyze_source("M.tla", source, &Options::default());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY P\n")
+            .into_config()
+            .expect("configuration");
+        let mut opts = CheckOptions::tlc(0, 0);
+        opts.workers = 4;
+        let mut limits = dive_liveness::analyze::Limits::default();
+        match stage {
+            dive_liveness::analyze::Stage::Product => limits.product.acceptance_cells = 0,
+            dive_liveness::analyze::Stage::Capture => limits.capture.states = 1,
+            _ => limits.properties = 0,
+        }
+        let phase = match crate::temporal::check_final_with_evidence(&ir, &cfg, &opts, limits) {
+            Err(failure) => Phase::TemporalError(Box::new(failure)),
+            Ok(report) => match report.outcome() {
+                crate::temporal::Outcome::Safety(stop) => Phase::Checked(stop.clone()),
+                _ => panic!("a resource bound cannot produce a temporal verdict"),
+            },
+        };
+        CheckReport {
+            file: "M.tla".into(),
+            config: "M.cfg".into(),
+            profile: Profile::Tlc,
+            opts,
+            seed_given: true,
+            fp_given: true,
+            workers_requested: 4,
+            temporal_final_short: true,
+            phase,
+        }
+    }
+
+    #[test]
+    fn failed_product_report_retains_capture_but_never_a_verdict() {
+        let report = limited_report(dive_liveness::analyze::Stage::Product);
+        let json = report.to_json();
+        assert_eq!(json["schema_version"], TEMPORAL_CHECK_SCHEMA_VERSION);
+        assert_eq!(json["verdict"], "resource-limit");
+        assert_eq!(json["options"]["profile"], "tlc+overrides");
+        assert_eq!(json["options"]["workers"]["used"], 1);
+        assert_eq!(json["options"]["workers"]["requested"], 4);
+        assert_eq!(json["execution"]["stage"], "product");
+        assert_eq!(json["execution"]["capture_completed"], true);
+        assert_eq!(json["statistics"]["generated"], 3);
+        assert_eq!(json["statistics"]["distinct"], 2);
+        assert_eq!(json["statistics"]["depth"], 2);
+        assert_eq!(json["statistics"]["reported_by_tlc"], false);
+        assert_eq!(json["output"], json!(["\"boot\""]));
+        assert!(json["counterexample"].is_null());
+        assert!(json["tlc"].is_null());
+        assert_eq!(report.exit_code(), exit::UNSUPPORTED);
+        let human = report.render_human();
+        assert!(human.contains("4 worker(s) requested, 1 used"));
+        assert!(
+            human.contains(
+                "Capture completed: 3 generated, 2 distinct, depth 2; no temporal verdict."
+            )
+        );
+        assert!(!human.contains("no search ran"));
+    }
+
+    #[test]
+    fn planning_report_proves_no_capture_without_statistics() {
+        let report = limited_report(dive_liveness::analyze::Stage::Planning);
+        let json = report.to_json();
+        assert_eq!(json["options"]["workers"]["used"], 0);
+        assert_eq!(json["options"]["workers"]["reason"], "no search ran");
+        assert_eq!(json["execution"]["stage"], "planning");
+        assert_eq!(json["execution"]["capture_completed"], false);
+        assert!(json["statistics"].is_null());
+        assert!(json["collision"].is_null());
+        assert_eq!(json["verdict"], "resource-limit");
+    }
+    #[test]
+    fn capture_stop_report_retains_partial_work_and_stage() {
+        let report = limited_report(dive_liveness::analyze::Stage::Capture);
+        let json = report.to_json();
+        assert_eq!(json["execution"]["stage"], "capture");
+        assert_eq!(json["execution"]["capture_completed"], false);
+        assert_eq!(json["options"]["workers"]["used"], 1);
+        assert_eq!(json["verdict"], "resource-limit");
+        assert!(!json["statistics"].is_null());
+        // A resource stop retains its finite diagnostic prefix, not a
+        // certified counterexample claim.
+        assert_eq!(json["counterexample"]["ending"], "finite");
+        assert!(json["counterexample"]["trace"].is_null());
+        assert!(json["tlc"].is_null());
+        assert_eq!(report.exit_code(), exit::UNSUPPORTED);
+    }
 }

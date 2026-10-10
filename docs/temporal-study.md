@@ -23,6 +23,20 @@ metadata defect. The raw document is retained unchanged; a reported zero does
 not prove no work occurred. Five timeouts have no result document. Requested
 width is one.
 
+New final/short reports retain execution evidence on failures (#109). Schema 2
+adds an `execution` object with `stage` and `capture_completed`; a failed
+post-capture product or atom evaluation retains capture statistics, output,
+warnings and collision qualifications while remaining a refusal/resource
+failure. These are dive exploration facts (`reported_by_tlc: false`), not a
+temporal verdict. Unknown execution after a thread failure uses `null` worker
+usage and capture completion, rather than asserting zero. Before-search binding
+and planning failures still prove zero capture workers. Ordinary schema-1
+checks are unchanged. Rust callers can use
+`dive_api::temporal::check_final_with_evidence` or
+`dive_liveness::analyze::analyze_final_with_evidence`; the original error-returning
+entry points remain available. This correction does not rewrite the historical
+53-model artifact or improve its conformance totals.
+
 This is explicit `--lncheck final --lasso short` with TLC values, reported as
 `tlc+overrides`. It proves neither exact TLC temporal error classes, phase-L
 stopping, property-set selection nor exact lassos. It does not increase strict
