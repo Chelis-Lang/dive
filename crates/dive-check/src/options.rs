@@ -13,6 +13,14 @@ pub struct CheckOptions {
     /// Parent directory for private transient frontier files; system temp by
     /// default. Files are explicitly cleaned and failures reported.
     pub frontier_directory: Option<std::path::PathBuf>,
+    /// Separate retained predecessor capacity budget. `None` preserves the
+    /// in-memory TLC counterpart; zero immediately spills native records.
+    /// Seen sets, frontiers, candidates, graphs and reconstructed paths are
+    /// outside this limit. Only ordinary safety BFS is admitted.
+    pub predecessor_memory_bytes: Option<usize>,
+    /// Parent of private transient predecessor directories. Requires a budget;
+    /// omitted uses the system temporary directory. Not a checkpoint location.
+    pub predecessor_directory: Option<std::path::PathBuf>,
     /// The profile: dive's default or `--compat=tlc`.
     pub profile: Profile,
     /// Evaluation options (`Options::tlc()` under `--compat=tlc`).
@@ -63,6 +71,8 @@ impl CheckOptions {
         Self {
             frontier_memory_bytes: None,
             frontier_directory: None,
+            predecessor_memory_bytes: None,
+            predecessor_directory: None,
             profile: Profile::Tlc,
             eval: Options::tlc(),
             store: StoreMode::Fingerprint,
@@ -82,6 +92,8 @@ impl CheckOptions {
         Self {
             frontier_memory_bytes: None,
             frontier_directory: None,
+            predecessor_memory_bytes: None,
+            predecessor_directory: None,
             profile: Profile::Dive,
             eval: Options::dive(),
             store: StoreMode::Fingerprint,

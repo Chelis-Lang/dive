@@ -77,6 +77,13 @@ pub struct CheckRequest {
     /// Parent directory for private transient frontier spill files. Requires
     /// [`Self::frontier_memory_bytes`]; a directory alone is rejected.
     pub frontier_directory: Option<PathBuf>,
+    /// Separate retained predecessor-record capacity budget for safety BFS.
+    /// Zero spills immediately; omitted preserves the in-memory counterpart.
+    /// Reconstruction buffers and all other search storage are outside it.
+    pub predecessor_memory_bytes: Option<usize>,
+    /// Parent of private transient log directories. Requires a budget; omitted
+    /// uses the system temporary directory. Files are removed before certification.
+    pub predecessor_directory: Option<PathBuf>,
     /// The root module file.
     pub file: PathBuf,
     /// The configuration; `<file stem>.cfg` beside it by default, as in TLC.
@@ -141,17 +148,32 @@ pub struct CheckReport {
     phase: Phase,
 }
 
+fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
+    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
+        return Err(crate::ApiError::Rejected {
+            message: "DIVE-A0100: frontier_directory requires frontier_memory_bytes".into(),
+        });
+    }
+    if req.predecessor_directory.is_some() && req.predecessor_memory_bytes.is_none() {
+        return Err(crate::ApiError::Rejected {
+            message: "DIVE-A0101: predecessor directory requires predecessor memory budget".into(),
+        });
+    }
+    if req.predecessor_memory_bytes.is_some() && req.temporal != TemporalMode::Ordinary {
+        return Err(crate::ApiError::Unsupported {
+            feature: "predecessor spill with bounded temporal checking is not implemented".into(),
+        });
+    }
+    Ok(())
+}
+
 /// Loads, binds and checks the request.
 ///
 /// # Errors
 /// [`crate::ApiError`] if the request is inconsistent or the root file or
 /// configuration cannot be read. Request admission precedes file access.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
-    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
-        return Err(crate::ApiError::Rejected {
-            message: "DIVE-A0100: frontier_directory requires frontier_memory_bytes".into(),
-        });
-    }
+    admit_storage_request(req)?;
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
@@ -191,6 +213,9 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
     opts.workers = workers_requested;
     opts.sequential = req.sequential;
     opts.chaos = req.chaos;
+    opts.predecessor_memory_bytes = req.predecessor_memory_bytes;
+    opts.predecessor_directory
+        .clone_from(&req.predecessor_directory);
     let cfg_path = req
         .config
         .clone()
@@ -417,6 +442,8 @@ impl CheckReport {
             "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
             "frontier_record_bytes_limit": o.frontier_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
             "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
+            "predecessor_memory_bytes": o.predecessor_memory_bytes,
+            "predecessor_path_steps_limit": o.predecessor_memory_bytes.map(|_| dive_store::predecessor::MAX_PATH_STEPS),
         });
         if self.temporal_final_short {
             options["lncheck"] = json!("final");
@@ -616,6 +643,22 @@ impl CheckReport {
                 });
                 if self.temporal_final_short {
                     doc["execution"] = json!({"stage": "capture", "capture_completed": false});
+                }
+                if self.opts.predecessor_memory_bytes.is_some() {
+                    let p = &r.predecessor;
+                    doc["predecessor_storage"] = json!({
+                        "scope": "predecessor-record-capacity-only",
+                        "retained_bytes_before_cleanup": p.storage.retained_bytes,
+                        "peak_retained_bytes": p.storage.peak_retained_bytes,
+                        "confirmed_write_bytes": p.storage.written_bytes,
+                        "committed_records": p.storage.records,
+                        "spilled": p.storage.spilled,
+                        "write_accounting_complete": p.failures.is_empty(),
+                        "cleanup_completed": p.cleanup_completed,
+                        "failures": p.failures,
+                        "deciding_event_before_failure": p.deciding_event_before_failure,
+                        "excludes": ["seen-set", "frontiers", "candidate-vectors", "graphs", "reconstructed-paths", "decoded-states", "allocator-workspace"]
+                    });
                 }
                 let ctx = self.opts.eval.ctx;
                 let v = &r.verdict;

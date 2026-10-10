@@ -27,6 +27,8 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
                     let report = check_file(&CheckRequest {
                         frontier_memory_bytes: None,
                         frontier_directory: None,
+                        predecessor_memory_bytes: None,
+                        predecessor_directory: None,
                         file: file.clone(),
                         config: Some(config.clone()),
                         library_paths: Vec::new(),
