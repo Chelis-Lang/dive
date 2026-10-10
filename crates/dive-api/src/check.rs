@@ -71,6 +71,11 @@ pub enum TemporalMode {
 /// What to check and how.
 #[derive(Clone, Debug, Default)]
 pub struct CheckRequest {
+    /// Opt-in encoded frontier budget per current/next queue, in bytes. This
+    /// does not bound seen sets, candidates, traces, graphs or process memory.
+    pub frontier_memory_bytes: Option<usize>,
+    /// Parent directory for private transient frontier spill files.
+    pub frontier_directory: Option<PathBuf>,
     /// The root module file.
     pub file: PathBuf,
     /// The configuration; `<file stem>.cfg` beside it by default, as in TLC.
@@ -174,6 +179,8 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
         Store::Exact => StoreMode::Exact,
     };
     opts.no_deadlock = req.no_deadlock;
+    opts.frontier_memory_bytes = req.frontier_memory_bytes;
+    opts.frontier_directory.clone_from(&req.frontier_directory);
     opts.workers = workers_requested;
     opts.sequential = req.sequential;
     opts.chaos = req.chaos;
@@ -400,6 +407,9 @@ impl CheckReport {
             "seed_source": if self.seed_given { "flag" } else { "fresh" },
             "deadlock_flag": o.no_deadlock,
             "workers": self.workers_json(),
+            "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
+            "frontier_record_bytes_limit": o.frontier_memory_bytes.map(|_| dive_store::spill::MAX_RECORD_BYTES),
+            "frontier_codec_nodes_per_value_limit": o.frontier_memory_bytes.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
         });
         if self.temporal_final_short {
             options["lncheck"] = json!("final");
@@ -519,6 +529,7 @@ impl CheckReport {
             "statistics": Value::Null,
             "counterexample": Value::Null,
             "collision": Value::Null,
+            "frontier_storage": Value::Null,
             "output": [],
             "warnings": [],
             "diagnostics": [],
@@ -583,6 +594,19 @@ impl CheckReport {
                 }
             }
             Phase::Checked(r) => {
+                doc["frontier_storage"] = json!({
+                    "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
+                    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+                    "memory_bytes_per_queue": r.frontier.memory_bytes_per_queue,
+                    "max_record_bytes": r.frontier.max_record_bytes,
+                    "max_codec_nodes_per_value": r.frontier.memory_bytes_per_queue.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
+                    "peak_retained_bytes": r.frontier.peak_retained_bytes,
+                    "retained_bytes": r.frontier.retained_bytes,
+                    "committed_spill_bytes": r.frontier.spilled_bytes,
+                    "write_accounting_complete": r.frontier.failures.is_empty(),
+                    "failures": r.frontier.failures,
+                    "search_event_before_storage_failure": r.frontier.deciding_event_before_failure,
+                });
                 if self.temporal_final_short {
                     doc["execution"] = json!({"stage": "capture", "capture_completed": false});
                 }

@@ -315,6 +315,9 @@ fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration
 
 fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
+    if opts.frontier_memory_bytes.is_some() {
+        return refuse("frontier spill with behavior graph capture is not yet certified".into());
+    }
     if model.evaluator.options() != &opts.eval {
         return refuse("graph capture evaluator profile mismatch".into());
     }

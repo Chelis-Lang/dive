@@ -586,3 +586,62 @@ fn simulate_is_a_seeded_finite_sample_and_refuses_unbuilt_modes() {
         );
     }
 }
+
+#[test]
+#[allow(clippy::expect_used, reason = "CLI JSON assertions")]
+fn frontier_spill_flags_and_directory_dependency() {
+    let spec = temp_file(
+        "SpillFlags.tla",
+        "---- MODULE SpillFlags ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\n====\n",
+    );
+    let cfg = spec.with_extension("cfg");
+    std::fs::write(&cfg, "INIT Init\nNEXT Next\n").expect("cfg");
+    let path = spec.to_string_lossy();
+    let out = dive(&[
+        "check",
+        &path,
+        "--compat=tlc",
+        "--frontier-memory-bytes",
+        "0",
+        "--output",
+        "json",
+    ]);
+    assert_eq!(out.status.code(), Some(0));
+    let json: serde_json::Value = serde_json::from_slice(&out.stdout).expect("JSON");
+    assert_eq!(json["verdict"], "success");
+    assert_eq!(json["frontier_storage"]["memory_bytes_per_queue"], 0);
+    assert_eq!(json["frontier_storage"]["retained_bytes"], 0);
+    assert!(
+        json["frontier_storage"]["committed_spill_bytes"]
+            .as_u64()
+            .is_some_and(|n| n > 0)
+    );
+    for args in [
+        vec!["check", &path, "--frontier-directory", "."],
+        vec!["check", &path, "--frontier-memory-bytes", "bad"],
+    ] {
+        assert_eq!(dive(&args).status.code(), Some(2));
+    }
+    for args in [
+        vec![
+            "simulate",
+            &path,
+            "--traces",
+            "1",
+            "--frontier-memory-bytes",
+            "0",
+        ],
+        vec![
+            "dfid",
+            &path,
+            "--max-level",
+            "2",
+            "--frontier-memory-bytes",
+            "0",
+        ],
+    ] {
+        let refused = dive(&args);
+        assert_eq!(refused.status.code(), Some(3));
+        assert_eq!(refused.stdout, [] as [u8; 0]);
+    }
+}

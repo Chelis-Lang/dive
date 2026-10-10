@@ -157,6 +157,17 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(512))]
 
     #[test]
+    fn frontier_bound_admits_lossless_values_without_underestimating(
+        v in any_value(ValueOrder::Tlc),
+        w in any_value(ValueOrder::Canonical),
+    ) {
+        for (v,order) in [(v,ValueOrder::Tlc),(w,ValueOrder::Canonical)] {
+            let bound=codec::frontier_size_bound(&v,64*1024*1024).expect("callback-free finite representation");
+            prop_assert!(encode(&v,ctx_for(order)).len() <= bound);
+        }
+    }
+
+    #[test]
     fn lossless_round_trip_preserves_representation(
         v in any_value(ValueOrder::Tlc),
         w in any_value(ValueOrder::Canonical),
@@ -370,4 +381,51 @@ fn unknown_tokens_are_errors() {
     let bytes = encode(&Value::string(&NAMES, "zz"), ctx);
     let r = codec::decode(&mut bytes.as_slice(), &mut |_| None);
     assert_eq!(r.map_err(|e| e.kind()), Err(dive_value::ErrorKind::Codec));
+}
+
+#[derive(Debug)]
+struct NoCallback(Arc<std::sync::atomic::AtomicUsize>);
+impl DeferredSet for NoCallback {
+    fn kind(&self) -> DeferredKind {
+        DeferredKind::Filter
+    }
+    fn elements(&self, _: Ctx) -> dive_value::Result<Vec<Value>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Ok(vec![Value::TRUE])
+    }
+    fn member(&self, _: &Value, _: Ctx) -> Option<dive_value::Result<bool>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Some(Ok(true))
+    }
+}
+#[test]
+fn frontier_admission_never_invokes_nested_deferred_callbacks() {
+    use std::sync::atomic::Ordering;
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let lazy = Value::deferred(Arc::new(NoCallback(calls.clone())), ctx);
+        // Direct and Raw constructors do not hash/enumerate the child.
+        for fresh in [lazy.clone(), Value::set_raw(vec![lazy.clone()], ctx)] {
+            assert_eq!(calls.load(Ordering::Relaxed), 0);
+            assert!(codec::frontier_size_bound(&fresh, 64 * 1024 * 1024).is_err());
+            assert_eq!(calls.load(Ordering::Relaxed), 0);
+        }
+        // Existing tuple/record constructors hash children, so measure their
+        // construction separately. Admission must add exactly zero callbacks,
+        // even when construction has already cached deferred elements.
+        let tuple = Value::tuple(vec![lazy.clone()]);
+        let record = Value::record(vec![(NAMES.intern("frontier"), lazy)], ctx).expect("record");
+        let nested = Value::tuple(vec![Value::set_raw(vec![tuple.clone()], ctx)]);
+        for constructed in [tuple, record, nested] {
+            let before = calls.load(Ordering::Relaxed);
+            eprintln!("constructor baseline {ctx:?}: {before} callbacks");
+            assert!(codec::frontier_size_bound(&constructed, 64 * 1024 * 1024).is_err());
+            assert_eq!(calls.load(Ordering::Relaxed), before);
+        }
+        assert!(
+            codec::frontier_size_bound(&Value::tuple(vec![Value::TRUE; 65537]), usize::MAX)
+                .is_err()
+        );
+        assert!(codec::frontier_size_bound(&Value::Int(1), 0).is_err());
+    }
 }

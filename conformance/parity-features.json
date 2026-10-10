@@ -160,7 +160,7 @@
         "conformance/probes/temporal-forwarding/README.md",
         "crates/dive-api/tests/temporal_forwarding.rs"
       ],
-      "notes": "Budgeted finite lazy constructors pass paired oracle and independent-validator controls. The complete ten-model final/short follow-up has zero completed matches: seven unsupported, two resource bounds and one timeout; deferred domains and substituted scopes remain open.",
+      "notes": "Budgeted finite lazy constructors and pure bounded deferred filters/maps pass paired oracle and independent-validator controls. Scoped direct/local/nested temporal arguments retain caller expressions. The historical ten-model final/short follow-up remains zero completed matches: seven unsupported, two resource bounds and one timeout. Opaque/recursive captures and exported INSTANCE temporal formals remain explicit refusals; neither new slice changes that historical report.",
       "evidence_updates": [
         "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
       ],
@@ -303,6 +303,11 @@
         "F-016",
         "F-018",
         "F-031"
+      ],
+      "additional_evidence": [
+        "crates/dive-check/tests/frontier_spill.rs",
+        "crates/dive-api/tests/frontier_spill.rs",
+        "docs/frontier-storage.md"
       ]
     },
     {
@@ -673,18 +678,19 @@
     {
       "id": "F-031",
       "name": "Bounded-memory stores, frontiers, graphs and SCC spill",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 7,
       "pinned_source": "tlc2/tool/queue/DiskStateQueue.java",
-      "rust_evidence": "crates/dive-store/src/lib.rs",
-      "conformance_evidence": "docs/design/m5-plan.md",
+      "rust_evidence": "crates/dive-store/src/spill.rs",
+      "conformance_evidence": "crates/dive-check/tests/frontier_spill.rs",
       "issues": [
         28,
         53,
-        108
+        108,
+        128
       ],
-      "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence.",
+      "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence. Delivered safety frontier only: both profiles/stores, ordered witnesses, tiny budgets and explicit filesystem failure; seen/candidates/traces/graphs/SCC spill and recovery remain pending.",
       "interactions": [
         "F-014",
         "F-020",
