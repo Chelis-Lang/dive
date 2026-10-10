@@ -35,7 +35,7 @@ impl Binder<'_> {
     }
 
     /// The initial predicates (`getInitStateSpec`) as actions, numbered from 0.
-    pub(crate) fn init_actions(&self) -> Vec<Action> {
+    pub(crate) fn init_actions(&self) -> R<Vec<Action>> {
         self.init
             .iter()
             .enumerate()
@@ -43,6 +43,7 @@ impl Binder<'_> {
                 let name = init.def.map_or(ActionName::Unnamed, ActionName::Def);
                 self.ev()
                     .predicate_in(&init.pred.scope, init.pred.expr, name, i)
+                    .map_err(|e| crate::BindError::unsupported(e.to_string()))
             })
             .collect()
     }
@@ -59,12 +60,11 @@ impl Binder<'_> {
             && let Expr::Subst { bindings, .. } = ir.expr(next.location)
             && !bindings.is_empty()
         {
-            return Ok(vec![self.ev().predicate_in(
-                &next.scope,
-                next.expr,
-                name,
-                first,
-            )]);
+            return Ok(vec![
+                self.ev()
+                    .predicate_in(&next.scope, next.expr, name, first)
+                    .map_err(|e| crate::BindError::unsupported(e.to_string()))?,
+            ]);
         }
         let tree = split(
             &ir,

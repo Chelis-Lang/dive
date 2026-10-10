@@ -58,7 +58,7 @@ fn state(m: &Model, mask: usize, t: bool) -> dive_trace::State {
 }
 fn pred(m: &Model, name: &str) -> Pred {
     let d = m.ir.root_def(name).expect(name);
-    Pred::new(m.ir.def(d).body, m.evaluator.scope(d))
+    Pred::new(m.ir.def(d).body, m.evaluator.scope(d).expect("valid scope"))
 }
 #[test]
 fn finite_constructor_decisions_match_every_concrete_boolean_assignment() {

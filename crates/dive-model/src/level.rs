@@ -44,6 +44,7 @@ pub(crate) struct LevelCx<'a> {
     marks: HashSet<DefId>,
     substs: Vec<SubstLevel>,
     depth: u32,
+    error: Option<dive_eval::EvalError>,
 }
 
 impl<'a> LevelCx<'a> {
@@ -53,11 +54,25 @@ impl<'a> LevelCx<'a> {
             marks: HashSet::new(),
             substs: Vec::new(),
             depth: 0,
+            error: None,
+        }
+    }
+
+    pub(crate) fn try_level(&mut self, e: ExprId, scope: &Scope) -> Result<u8, crate::BindError> {
+        self.t
+            .ev()
+            .validate_scope(scope)
+            .map_err(|e| crate::BindError::unsupported(e.to_string()))?;
+        let level = self.level(e, scope);
+        if let Some(e) = self.error.take() {
+            Err(crate::BindError::unsupported(e.to_string()))
+        } else {
+            Ok(level)
         }
     }
 
     /// `getLevelBound(expr, c)` where `c` is what `scope` binds.
-    pub(crate) fn level(&mut self, e: ExprId, scope: &Scope) -> u8 {
+    fn level(&mut self, e: ExprId, scope: &Scope) -> u8 {
         // Deep recursion only through pathological definitions; TLC would
         // overflow its stack. Treat the rest as level 0, conservatively the
         // bound TLC computes for what it cannot look into.
@@ -137,7 +152,13 @@ impl<'a> LevelCx<'a> {
                 let mut l = 0;
                 let mut marked = Vec::new();
                 for &d in defs {
-                    let s = self.t.ev().scope_unbound(scope, d);
+                    let s = match self.t.ev().scope_unbound(scope, d) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            self.error = Some(e);
+                            return 0;
+                        }
+                    };
                     l = l.max(self.level(ir.def(d).body, &s));
                     if self.marks.insert(d) {
                         marked.push(d);
@@ -256,7 +277,13 @@ impl<'a> LevelCx<'a> {
         if !self.marks.insert(d) {
             return 0;
         }
-        let s = self.t.ev().scope_unbound(scope, d);
+        let s = match self.t.ev().scope_unbound(scope, d) {
+            Ok(s) => s,
+            Err(e) => {
+                self.error = Some(e);
+                return 0;
+            }
+        };
         let l = self.level(self.t.ir.def(d).body, &s);
         self.marks.remove(&d);
         l

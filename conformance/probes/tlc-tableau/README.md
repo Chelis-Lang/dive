@@ -63,3 +63,10 @@ The hash verifier covers the complete current and historical selections and
 raw bytes, including failures, and checks the native source matrix. The Java
 JDK/compiler requirement is local diagnostic tooling, not an added runtime
 dependency. No hand-edited golden files or corpus verdicts are introduced.
+
+The evaluator admission integration preserves the prior source matrices exactly
+against archived native source bytes. The separate
+`conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json`
+hashes the current union of planning, context and particle/tableau controls.
+Both historical and current controls are verified; no pinned selection, raw
+transcript or earlier observation is replaced.

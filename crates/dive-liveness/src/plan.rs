@@ -1102,6 +1102,14 @@ fn lower_with_shape(
         steps: 0,
         root_expr: pred.expr,
     };
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| cx.refused(pred.expr, e.to_string()))?;
+    model
+        .evaluator
+        .validate_predicate(&pred.scope, pred.expr)
+        .map_err(|e| cx.refused(pred.expr, e.to_string()))?;
     let root = cx.expr(pred.expr, &pred.scope, 0)?;
     let formula =
         Formula::new(cx.nodes, root).map_err(|e| PlanningError::formula(model, pred.expr, e))?;

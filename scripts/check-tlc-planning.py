@@ -68,7 +68,23 @@ def main():
     matrix = load('source-matrix.json')
     assert matrix['base_commit'] == '0b02e46'
     for path, digest in matrix['source_sha256'].items():
-        assert sha(ROOT / path) == digest
+        assert sha(PROBE / 'historical-before-context-source' / path) == digest, path
+    delivery = load('context-delivery-planning-source-matrix.json')
+    for path, digest in delivery['source_sha256'].items():
+        assert sha(PROBE / 'native-source-0b02e46' / path) == digest, path
+    current = load('context-admission-source-matrix.json')
+    assert current['base_commit'] == '8f451ff'
+    assert current['historical_matrix_sha256'] == sha(PROBE / 'context-delivery-planning-source-matrix.json')
+    for path, digest in current['source_sha256'].items():
+        assert sha(PROBE / 'historical-context-source' / path) == digest
+    combined = load('combined-context-tableau-source-matrix.json')
+    assert combined['historical_context_matrix_sha256'] == sha(PROBE / 'context-admission-source-matrix.json')
+    assert combined['historical_pre_context_planning_matrix_sha256'] == sha(PROBE / 'source-matrix.json')
+    tableau = ROOT / 'conformance/probes/tlc-tableau/source-matrix.json'
+    assert combined['historical_tableau_matrix_sha256'] == sha(tableau)
+    assert set(combined['source_sha256']) == set(current['source_sha256']) | set(json.loads(tableau.read_text())['source_sha256']) | set(combined['integration_extra_sources'])
+    for path, digest in combined['source_sha256'].items():
+        assert sha(ROOT / path) == digest, path
     print('verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models')
 
 if __name__ == '__main__':

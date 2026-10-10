@@ -268,8 +268,11 @@ calls rejected by the pinned oracle remain named refusals; recursive/higher-orde
 scope support remains partial. No result-changing default or resource limit changed.
 
 D-013 temporal endpoint checks also refuse missing scoped expression/definition
-metadata without panics. The separate public evaluator-constructor context gap
-(#129, F-035) remains open; this does not claim arbitrary caller IR validation.
+metadata without panics. Public evaluator construction and scope admission now reject malformed IDs,
+redirect signatures/cycles and foreign captures before interning or callbacks
+(ADR 0028, #129). Bare indices still cannot prove foreign provenance, and this
+does not certify arbitrary caller-supplied semantic annotations; F-035 stays
+partial. The same malformed-input checks apply in both compatibility profiles.
 
 D-013 planning progress now includes a bounded, separate TLC normalization and
 pre-tableau grouping projection (ADR 0025, `tlc-planning` controls). It preserves
@@ -299,3 +302,10 @@ unproved generated-name/binder collisions in both profiles and admits an
 artifact only after complete-module syntax/name/level analysis. No alternate
 naming default is adopted. Minimal example, raw evidence and pending options
 are recorded in `docs/tlc-differences.md` and `docs/pluscal-translation.md`.
+
+D-008 public Rust admission additionally checks model/evaluator ownership at
+independent proof entry points. Opaque deferred bindings refuse without invoking
+caller callbacks; native captures are inspected structurally. Original panic and
+pre-interning observations are retained in
+`crates/dive-api/tests/fixtures/public-context/`. These are native safety controls,
+not TLC parity certification or a new result-changing default.

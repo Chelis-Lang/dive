@@ -610,6 +610,10 @@ fn configured_projection_matches_independent_scoped_word_interpreter() {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "the negative context/effect matrix keeps all admission boundaries together"
+)]
 fn model_projection_refuses_effects_opaque_captures_and_unchecked_ids_before_output() {
     let source = r#"---- MODULE PlanningHost ----
 EXTENDS TLC
@@ -644,11 +648,17 @@ LiveProperty == []<>(TLCGet("level") = 0)
         ] {
             let mut model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
             let p = ir.root_def("P").expect("P");
-            let mut pred = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p));
+            let mut pred = dive_model::Pred::new(
+                ir.def(p).body,
+                model.evaluator.scope(p).expect("valid scope"),
+            );
             match case {
                 "PrintProperty" | "LiveProperty" => {
                     let d = ir.root_def(case).expect("property");
-                    pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    pred = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                 }
                 "opaque" => {
                     let d = ir.root_def("Capture").expect("capture");
@@ -668,7 +678,7 @@ LiveProperty == []<>(TLCGet("level") = 0)
                 "badroot" => pred.expr = dive_ir::ExprId(u32::MAX),
                 "badcapture" => {
                     let d = ir.root_def("Identity").expect("Identity");
-                    let scope = model
+                    let error = model
                         .evaluator
                         .scope_apply(
                             &pred.scope,
@@ -678,8 +688,10 @@ LiveProperty == []<>(TLCGet("level") = 0)
                                 pass: dive_ir::Pass::Lazy,
                             }],
                         )
-                        .expect("unchecked capture");
-                    pred = dive_model::Pred::new(ir.def(d).body, scope);
+                        .expect_err("malformed capture refused before projection");
+                    assert!(error.message().contains("DIVE-EVAL-C001"));
+                    assert_eq!(model.take_output(), Vec::<String>::new());
+                    continue;
                 }
                 "baddef" => {
                     let mut json = serde_json::to_value(ir.as_ref()).expect("IR serialization");

@@ -50,7 +50,10 @@ fn state(model: &Model, populated: bool) -> dive_trace::State {
 }
 fn pred(model: &Model, name: &str) -> Pred {
     let d = model.ir.root_def(name).expect(name);
-    Pred::new(model.ir.def(d).body, model.evaluator.scope(d))
+    Pred::new(
+        model.ir.def(d).body,
+        model.evaluator.scope(d).expect("valid scope"),
+    )
 }
 #[test]
 fn primed_domains_cannot_be_scanned_as_current_empty_sets() {

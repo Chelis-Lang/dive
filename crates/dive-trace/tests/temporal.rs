@@ -22,7 +22,10 @@ fn bound(source: &str, config: &str) -> Model {
 
 fn predicate(model: &Model, name: &str) -> Pred {
     let d = model.ir.root_def(name).expect("definition");
-    Pred::new(model.ir.def(d).body, model.evaluator.scope(d))
+    Pred::new(
+        model.ir.def(d).body,
+        model.evaluator.scope(d).expect("valid scope"),
+    )
 }
 
 fn reachable(start: usize, len: usize, back: usize) -> Vec<usize> {

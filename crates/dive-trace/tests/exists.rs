@@ -23,7 +23,7 @@ fn model(body: &str) -> Model {
 }
 fn pred(m: &Model, name: &str) -> Pred {
     let d = m.ir.root_def(name).expect(name);
-    Pred::new(m.ir.def(d).body, m.evaluator.scope(d))
+    Pred::new(m.ir.def(d).body, m.evaluator.scope(d).expect("valid scope"))
 }
 fn state(x: i64, y: i64) -> State {
     Arc::from([Some(x.into()), Some(y.into())])

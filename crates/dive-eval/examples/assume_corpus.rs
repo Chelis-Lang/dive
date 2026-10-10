@@ -95,7 +95,7 @@ fn main() {
             }
         };
         *specs.entry("evaluated").or_default() += 1;
-        let ev = Evaluator::new(model, opts);
+        let ev = Evaluator::new(model, opts).expect("valid evaluator context");
         let ids: Vec<_> = ev
             .assumptions()
             .into_iter()

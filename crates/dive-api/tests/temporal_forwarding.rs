@@ -66,7 +66,10 @@ fn forwarding_preserves_truth_at_all_positions_and_closing_edges() {
                             _ => truth,
                         };
                         let d = ir.root_def(name).expect(name);
-                        let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                        let pred = Pred::new(
+                            ir.def(d).body,
+                            model.evaluator.scope(d).expect("valid scope"),
+                        );
                         let direct =
                             dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                                 .expect(name);
@@ -135,7 +138,10 @@ R == Identity(Higher(Hidden))
     let model = dive_model::bind(ir.clone(), &cfg, &BindOptions::tlc()).expect("model");
     for name in ["P", "Q", "R"] {
         let d = ir.root_def(name).expect(name);
-        let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let pred = Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err(),
             "{name}"
@@ -159,7 +165,10 @@ fn forwarded_context_walk_is_bounded_without_forcing_temporal_values() {
     let (ir, cfg) = input(SOURCE, "INIT Init\nNEXT Next\n");
     let model = dive_model::bind(ir.clone(), &cfg, &BindOptions::tlc()).expect("model");
     let d = ir.root_def("R").expect("R");
-    let p = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+    let p = Pred::new(
+        ir.def(d).body,
+        model.evaluator.scope(d).expect("valid scope"),
+    );
     let mut limits = Limits::default().formula;
     limits.expansion_steps = 3;
     let error =
@@ -238,7 +247,10 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                             let model = dive_model::bind(ir.clone(), &cfg, &bind)
                                 .expect("fresh independent model");
                             let d = ir.root_def("P").expect("property");
-                            let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                            let pred = Pred::new(
+                                ir.def(d).body,
+                                model.evaluator.scope(d).expect("valid scope"),
+                            );
                             assert!(
                                 dive_trace::temporal::evaluate_lasso(
                                     &model,
@@ -324,7 +336,10 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
 
                                 // Fresh periodic truth is checked separately from whole-behavior validation.
                                 let d = ir.root_def("P").expect("property");
-                                let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                                let pred = Pred::new(
+                                    ir.def(d).body,
+                                    model.evaluator.scope(d).expect("valid scope"),
+                                );
                                 let alternating: Vec<dive_trace::State> = [false, true]
                                     .into_iter()
                                     .map(|v| Arc::from([Some(v.into())]))
@@ -379,7 +394,10 @@ P == []<>x
     for options in [BindOptions::tlc(), BindOptions::dive()] {
         let model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
         let d = ir.root_def("Capture").expect("capturing operator");
-        let caller = model.evaluator.scope(ir.root_def("P").expect("caller"));
+        let caller = model
+            .evaluator
+            .scope(ir.root_def("P").expect("caller"))
+            .expect("valid scope");
         let scope = model
             .evaluator
             .scope_apply(
@@ -462,10 +480,13 @@ fn unchecked_expression_and_definition_endpoints_refuse_without_panics() {
         for capture in [false, true] {
             let model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
             let p = ir.root_def("P").expect("caller");
-            let mut pred = Pred::new(dive_ir::ExprId(u32::MAX), model.evaluator.scope(p));
+            let pred = Pred::new(
+                dive_ir::ExprId(u32::MAX),
+                model.evaluator.scope(p).expect("valid scope"),
+            );
             if capture {
                 let d = ir.root_def("Identity").expect("operator");
-                let scope = model
+                let error = model
                     .evaluator
                     .scope_apply(
                         &pred.scope,
@@ -475,8 +496,10 @@ fn unchecked_expression_and_definition_endpoints_refuse_without_panics() {
                             pass: dive_ir::Pass::Lazy,
                         }],
                     )
-                    .expect("unchecked caller capture");
-                pred = Pred::new(ir.def(d).body, scope);
+                    .expect_err("malformed lazy capture rejected before evaluation");
+                assert!(error.message().contains("DIVE-EVAL-C001"));
+                assert_eq!(model.take_output(), Vec::<String>::new());
+                continue;
             }
             let plan = dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
                 .expect_err("unchecked ID cannot certify");
@@ -500,7 +523,7 @@ fn unchecked_expression_and_definition_endpoints_refuse_without_panics() {
         let mut json = serde_json::to_value(ir.as_ref()).expect("IR serialization");
         json["exprs"][body.index()]["expr"] = serde_json::json!({"Def":u32::MAX});
         model.ir = Arc::new(serde_json::from_value(json).expect("unchecked IR"));
-        let pred = Pred::new(body, model.evaluator.scope(p));
+        let pred = Pred::new(body, model.evaluator.scope(p).expect("valid scope"));
         assert_eq!(
             dive_liveness::plan::lower(&model, &pred, Limits::default().formula)
                 .expect_err("bad definition")

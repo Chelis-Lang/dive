@@ -159,6 +159,8 @@ python3 scripts/test-validation-import.py
 python3 -I scripts/test-frontend-campaign.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
+python3 -I scripts/check-tlc-planning.py
+python3 -I scripts/check-tlc-tableau.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
