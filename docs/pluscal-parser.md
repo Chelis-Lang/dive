@@ -11,8 +11,10 @@ display positions. No Java runtime is used.
 delimiter/quantifier counting rules, without TLA syntax/semantic validation.
 Primary and secondary probes accept `(1]`, `[1)`, `<<1}` and `[1, end]` at this
 stage; those slices must be validated later. Macro expansion, labels/name checks,
-translation/checksums, automatic module-region discovery, historical dialects
-and translator options remain pending. `dive translate` still refuses translation.
+full translation/checksums, historical dialects and translator options remain
+pending. A separate [bounded sequential translation path](pluscal-translation.md)
+now admits a single algorithm in a module comment; source acceptance alone does
+not imply translation acceptance.
 
 Default bounds: 1 MiB source, 100,000 significant tokens, 50,000 counted nodes
 and nesting 128. Hard byte/depth ceilings: 4 MiB/256. Temporary lexer storage is

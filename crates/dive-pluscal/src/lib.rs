@@ -1,8 +1,8 @@
 //! Native source-mapped PlusCal grammar parsing (ADR 0022).
 //!
 //! [`parse`] produces a source AST, not a translated TLA+ specification.
-//! Macro expansion, label insertion, name checking and translation remain
-//! separate pending stages. Expression slices retain counted nesting and are
+//! [`translate`] supports a bounded explicitly labelled sequential path;
+//! processes, macros and automatic labels remain separate pending stages. Expression slices retain counted nesting and are
 //! neither syntax-checked as TLA+ expressions nor evaluated.
 //! No Java runtime is used by this crate.
 //!
@@ -18,8 +18,14 @@
 pub mod ast;
 mod lexer;
 mod parser;
+#[path = "translate/mod.rs"]
+mod translation;
 pub use parser::{Options, parse, parse_at};
 use serde::{Deserialize, Serialize};
+pub use translation::{
+    Translation, TranslationError, TranslationMap, TranslationOptions, TranslationStage,
+    TranslationWarning, translate, translate_at,
+};
 
 /// Stable native PlusCal diagnostic categories.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

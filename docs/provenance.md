@@ -328,3 +328,17 @@ production tableau expansion or SCC backend. Original scoped word/witness
 validation continues through standalone `dive-trace`; no dependency on
 `dive-liveness` was added. Configured/Action and derived role names remain
 separate projected fields, not interchangeable attribution evidence.
+
+
+## Native sequential PlusCal normalization and generation
+
+| dive component | Source | Licence | Nature |
+|---|---|---|---|
+| `dive-pluscal` sequential action normalization (`translate/lower.rs`) | `pcal/PcalTranslate.java`: `Explode`, `ExplodeStmtSeq`, `CopyAndExplodeLastStmt`, conditional/either/with expansion, while/next-label placement; `pcal/PcalTLAGen.java`: program-counter omission decision; `pcal/PcalSymTab.java`: variable/label admission context; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded explicit-label sequential semantics adapted to native action trees. Automatic labels, processes/procedures/macros and name disambiguation remain refused. |
+| `dive-pluscal` TLA body generation (`translate/emit.rs`) | `pcal/PcalTLAGen.java`: `GenInit`, `GenLabeledStmt`, `GenStmtSeq`, assignment/if/either/with generation, `SortSass`, `NeedsParentheses`; `pcal/TLAExpr.java`: lexical variable substitution and record/field distinction; `pcal/ParseAlgorithm.GetAssert`: assertion keyword position; same revision | MIT | Sequential priming, simultaneous pre-group reads, variable ordering, branch identities, assertions and spec/termination bodies match admitted pinned cases. Multiline expression layout and binder substitution remain refused. Native byte associations do not claim the upstream map/checksum format. |
+
+The complete clean translator/SANY matrix and generated-model validation controls
+are in `crates/dive-pluscal/translation-acceptance/`. Both surface syntaxes, token
+streams and span/trivia-free CST structure are checked. TLC runs only in the
+development capture tools; the Rust runtime invokes no Java or external translator.
+No algorithm is borrowed from competitor implementations.

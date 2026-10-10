@@ -26,10 +26,13 @@ Since the preserved standard report below, the verified increments now include:
 - Seeded finite safety simulation and native DFID. Each mode reports its actual
   scope and named refusals; neither implies complete simulation/DFID parity.
 - Ordered parallel temporal graph capture, plus a bounded TLC normalization,
-  DNF and order-of-solution projection. These planning artifacts do not lift
+  DNF, order-of-solution and particle/tableau projections. These planning artifacts do not lift
   ordinary strict temporal model-checking refusals.
 - A native PlusCal source parser with field-level AST controls against the pin.
-  Source parsing does not imply translation, rewrite or checksum parity.
+  Source parsing does not imply translation, rewrite or checksum parity. A
+  separate explicitly labelled sequential C/P translation slice now compares
+  generated operator trees and checks admitted enclosing modules; processes,
+  procedures, macros, automatic labels, rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;
