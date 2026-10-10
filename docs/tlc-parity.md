@@ -239,3 +239,10 @@ F-007 now includes budgeted finite lazy constructor controls. Its complete
 [ten-model follow-up](lazy-domain-study.md) records zero completed corpus matches,
 seven named refusals, two resource bounds and one timeout. These controls widen
 the implementation without completing or certifying the domain family.
+
+
+Runtime-name regression work (#122/#124) preserves the census: checker startup
+has three clean pinned seed controls, and independent TLC-order validation
+refuses namespace history it cannot establish from a witness. Canonical
+validation remains decisive. These repairs do not certify their containing
+families or change the 37-family denominator.

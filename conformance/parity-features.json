@@ -63,7 +63,8 @@
       "conformance_evidence": "crates/dive-model/tests/startup.rs",
       "issues": [
         61,
-        104
+        104,
+        122
       ],
       "acceptance": "Match constant replacement, property splitting, startup effects and deciding error order for all configuration services.",
       "interactions": [
@@ -71,7 +72,8 @@
         "F-017",
         "F-019",
         "F-027"
-      ]
+      ],
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required."
     },
     {
       "id": "F-005",
@@ -247,14 +249,17 @@
       "pinned_source": "tlc2/tool/Worker.java",
       "rust_evidence": "crates/dive-check/src/lib.rs",
       "conformance_evidence": "crates/dive-check/tests/invariance.rs",
-      "issues": [],
+      "issues": [
+        122
+      ],
       "acceptance": "Worker/chaos equivalence extends from safety to temporal/symmetry; runtime-sensitive sequential fallback and requested/actual worker information remain truthful.",
       "interactions": [
         "F-012",
         "F-020",
         "F-027",
         "F-033"
-      ]
+      ],
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required."
     },
     {
       "id": "F-014",
@@ -560,14 +565,17 @@
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/check.rs",
       "conformance_evidence": "crates/dive-api/tests/trace_controls.rs",
-      "issues": [],
+      "issues": [
+        124
+      ],
       "acceptance": "TLC trace loading, generated trace specs, binary/JSON/state/DOT dumps, ALIAS and exploration preserve evaluation side effects; retain clean oracle run when dumpTrace perturbs overrides.",
       "interactions": [
         "F-016",
         "F-022",
         "F-026",
         "F-027"
-      ]
+      ],
+      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required."
     },
     {
       "id": "F-030",
@@ -671,7 +679,9 @@
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs",
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
-      "issues": [],
+      "issues": [
+        124
+      ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
         "F-024",
@@ -680,7 +690,8 @@
         "F-033",
         "F-034",
         "F-037"
-      ]
+      ],
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required."
     },
     {
       "id": "F-036",

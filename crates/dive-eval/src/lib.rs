@@ -255,6 +255,17 @@ impl Evaluator {
         }
     }
 
+    /// Interns the actual configuration strings constructed eagerly by
+    /// TLC's `AbstractChecker.createConfig`, after [`Self::intern_checker_names`]
+    /// and before assumptions. Even a spec that never reads the config can
+    /// observe these tokens through runtime `CHOOSE` ordering.
+    pub fn intern_bfs_config(&self, config: &RunConfig) {
+        self.core.names.intern("bfs");
+        self.core.names.intern(&config.seed.to_string());
+        self.core.names.intern(&config.fingerprint.to_string());
+        self.core.names.intern(&config.install);
+    }
+
     /// Compares two given values with this evaluator's comparison profile.
     /// This is the equality used by the interpreter, including TLC's errors
     /// under `Comparisons::Tlc` and the approved TLA+ comparison semantics.
