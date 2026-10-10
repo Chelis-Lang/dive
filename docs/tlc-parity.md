@@ -365,3 +365,20 @@ latter field, while the configured-property table retains `Live`. All eleven
 completed controls match those separate fields. Retaining action attribution
 through future tableau/witness execution remains a separate representation
 obligation (#134); grouping equality does not certify property attribution.
+
+### Bounded TLC particle/tableau identities (#136)
+
+ADR 0027 adds a separate diagnostic stage for balanced binary syntax, ordered
+particle closure/representatives, initial particles, first-encounter graph
+numbering, duplicate edges, state predicates and ordered promises/fulfillment.
+The 137-row complete selection retains 126 exact completed projections, five
+normalization failures, four direct structural/action refusals and two SANY
+refusals. Both invalid and corrected INSTANCE controls and the complete initial
+136-row snapshot remain auditable. Independent periodic/scoped word checks and
+fresh whole-witness mutants cover truth and closing edges. Original
+configured/Action names remain separate from derived temporal role labels.
+
+F-019/F-020/F-021/F-022 remain partial/audit-required. This artifact does not
+implement phase-L retention/timing, strict graph/SCC execution, witness selection
+or attribution through execution; existing strict liveness refusals are intact.
+No historical corpus outcomes receive extra matches from these diagnostics.
