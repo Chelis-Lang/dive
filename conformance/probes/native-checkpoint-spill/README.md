@@ -44,3 +44,13 @@ retains that source and build log; correcting the spellings changed no productio
 behavior or assertion. Runtime effects/names, checker reads, deferred evaluator
 values, temporal graph state and broader family certification remain pending.
 F-032 stays partial. See the runnable [CLI/Rust guide](../../../docs/native-checkpoint.md#recovery-with-transient-disk-storage).
+
+The first complete local gate ran every test: 856 of 857 passed. Its CLI
+checkpoint-option test still expected frontier/log byte budgets to be refused.
+The implementation now admits those options and correctly reaches the missing
+input diagnostic. `development/first-complete-workspace-gate/` retains the exact
+old test, full log and raw missing-input captures; `before-cli-contract-authorities/`
+retains the pre-repair manifests and exact source bytes. The repaired CLI control
+requires exit 2, the input error, empty stdout and no archive for frontier, log
+and both budgets, while retaining temporal/orphan-option refusals. No production
+code or oracle expectation changed for that repair.

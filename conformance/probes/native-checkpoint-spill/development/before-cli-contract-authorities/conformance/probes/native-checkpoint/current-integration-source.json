@@ -1,0 +1,17 @@
+{
+  "scope": "current combined source; frozen original delivery retained separately; staged deterministic pure safety parallel recovery",
+  "source_sha256": {
+    "crates/dive-api/src/check.rs": "bf5b2e5dde6e53fae99b222cecbde0387909aafe916b182b4493977ec51eb363",
+    "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+    "crates/dive-check/src/checkpoint.rs": "c9ea3d6b0127651b674fd0b69995281d622aca9243525b018872ecc0ba5b2296",
+    "crates/dive-check/src/engine.rs": "cbc42d60ec115a45b6801589eea94c174b3dd760700a7c0b8e529f2c6e96303a",
+    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-cli/src/main.rs": "0d04f84cb4e7658676ee4ffebcebcdc175240a9c43684c32c8f891dabd422d33",
+    "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
+    "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
+    "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
+    "scripts/check-native-checkpoint.py": "1dc7e25decea6795de0534ce01eb9c6b15f6ba14d9b6d34a002a5551df72a4e6",
+    "crates/dive-cli/tests/cli.rs": "46f1b028780bd7589f79600564dec41e08697bcbac929d249d6c4aae92f87103"
+  },
+  "current_integration_scope": "current combined pure finite safety recovery with configured VIEW/symmetry, deterministic worker pool and independent frontier/predecessor transient budgets; original frozen histories unchanged; no full-family certification"
+}

@@ -1,0 +1,40 @@
+{
+  "source_commit": "d7a7349653b4b489f2692084800a744266fa3f78",
+  "source_sha256": {
+    "crates/dive-cli/tests/cli.rs": "46f1b028780bd7589f79600564dec41e08697bcbac929d249d6c4aae92f87103"
+  },
+  "workspace_result": "856/857 passed; CLI checkpoint-option test still expected the former blanket spill refusal",
+  "nextest_seconds": 2246.887,
+  "production_changed_for_repair": false,
+  "frontier": {
+    "args": [
+      "check",
+      "missing-native-spec.tla",
+      "--checkpoint",
+      "unused.cp",
+      "--checkpoint-after-levels",
+      "0",
+      "--frontier-memory-bytes",
+      "0"
+    ],
+    "exit": 2,
+    "stderr_sha256": "156666cdd8ffb7f3f0c771c7a149e3e04901250cf4d70ed087e022df99553273",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "predecessor": {
+    "args": [
+      "check",
+      "missing-native-spec.tla",
+      "--checkpoint",
+      "unused.cp",
+      "--checkpoint-after-levels",
+      "0",
+      "--predecessor-memory-bytes",
+      "0"
+    ],
+    "exit": 2,
+    "stderr_sha256": "156666cdd8ffb7f3f0c771c7a149e3e04901250cf4d70ed087e022df99553273",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "binary_sha256": "7bf501cdf5b95a4c8f89ebc514bb6b985d9a3a1554089432d0729c0efacdb48c"
+}
