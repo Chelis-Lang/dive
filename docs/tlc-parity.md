@@ -11,7 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: 7 have an implemented core, 24 are partial, and 6 are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 25 are partial, and 5 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -100,7 +100,7 @@ and a corresponding certification schema before the label can change.
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | missing | 7 | [m5-plan.md](design/m5-plan.md) |
+| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [scope and limits](frontier-storage.md); other stores/graphs remain resident |
 | F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-parser.md](pluscal-parser.md): source AST only; translation pending |

@@ -356,6 +356,8 @@ pub struct Collision {
 /// The result of a check.
 #[derive(Clone, Debug)]
 pub struct CheckResult {
+    /// Frontier-only encoded/disk retention and cleanup evidence.
+    pub frontier: crate::FrontierUsage,
     /// The verdict.
     pub verdict: Verdict,
     /// Statistics at the stop, when the search started.
