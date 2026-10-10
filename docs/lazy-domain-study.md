@@ -53,7 +53,9 @@ controls cover both value profiles, both stores and requested worker counts
 1, 4 and 8: 96 checks. Every violation is independently validated; fresh
 validator models accept the alternating Boolean word and reject its stuttering
 mutant. The complete workspace gate passed 592 Rust tests with no skips, plus
-12 Python controls.
+12 Python controls. The current-main integration subsequently passed 601
+Rust tests and the same Python controls; the historical study artifact and
+source/binary pins below remain unchanged.
 
 ## Evidence limits
 
