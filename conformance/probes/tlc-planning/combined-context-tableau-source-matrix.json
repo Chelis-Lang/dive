@@ -19,7 +19,7 @@
     "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
     "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
     "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
-    "crates/dive-liveness/tests/tlc_tableau.rs": "cf6826e36aa9a0e607c0c9aadf3ba52b2db4ed2070b05ee5bc8bc60467300e05",
+    "crates/dive-liveness/tests/tlc_tableau.rs": "26bfdee43c9abe5c769b1d5bbad76e71e9c8241b2dcea293532a58f0d038cdd2",
     "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
     "scripts/check-tlc-planning.py": "7528ab3d6eca3de8ad17a81f461c7232aac02276542093215c74faa83798589b",
     "scripts/check-tlc-tableau.py": "101e5ad96edf880d6643e7290f384d2653cbba36077fdede633d2b2628d6a0f4",

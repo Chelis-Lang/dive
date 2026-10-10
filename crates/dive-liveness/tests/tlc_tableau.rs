@@ -700,6 +700,10 @@ fn complete_raw_source_selection_hashes_are_verified() {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one complete effect/context matrix covers constructor and planning admission"
+)]
 fn tableau_pipeline_refuses_effects_opaque_captures_and_unchecked_ids_before_output() {
     let source = r#"---- MODULE PlanningHost ----
 EXTENDS TLC
