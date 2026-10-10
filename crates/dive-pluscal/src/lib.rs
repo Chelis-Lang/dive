@@ -21,6 +21,8 @@
 pub mod ast;
 mod lexer;
 mod parser;
+/// Bounded source editing and translation-body checksum interoperability.
+pub mod rewrite;
 #[path = "translate/mod.rs"]
 mod translation;
 pub use parser::{Options, parse, parse_at};

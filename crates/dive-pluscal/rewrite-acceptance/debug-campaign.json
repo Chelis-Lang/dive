@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "historical_only": true,
+  "native_sha256": "88025a5447591207842fee12d46c81419f0bf4c77032b4999eb4a137852f5cf2",
+  "example_sha256": "85762f15a1ccd7053c32aa119dadc41fd9c143b5720d851c780be6aa169882bf",
+  "comparator_sha256": "f0d342e26aeead4e550e0b093de718cd1be4ad8e11267c59565ae9580a2abbc0",
+  "archive_sha256": "9034098f534f7cabefccfcb8c8d5f16c3eb0a3734e163a71b561a725e533a666",
+  "paths": [
+    "native",
+    "partial-headers/native",
+    "corrected-c/native",
+    "fair-checksum/native",
+    "comparison.json",
+    "debug-comparator.py",
+    "artifact-validation",
+    "finite-models",
+    "guide",
+    "bounds-controls.json",
+    "mutation-controls.json"
+  ],
+  "family_certified": false
+}

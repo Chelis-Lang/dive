@@ -309,3 +309,17 @@ use and admission. Generation is nonproof; strict runtime-name witness replay,
 scoped renaming, unproved multiline fairness domains and sequential procedure
 modifiers remain separately refused or pending. Original malformed modifier
 controls and primary SANY-invalid artifacts remain uncredited historical evidence.
+
+## D-020: fair-algorithm checksum collision (candidate)
+
+The pinned PlusCal translator computes `7c28162a` for every tested `--fair`
+algorithm, because its ternary checksum expression hashes only `"fair"` and
+omits the normalized AST. Changing `x=0` to `x=9` without changing the translation
+leaves `Validator` reporting `NO_DIVERGENCE`. C/P primary bodies still have different
+TLA CRCs. No native corrected default or full algorithm-CRC implementation is
+adopted. Native `--rewrite --checksums tla` disables algorithm CRC explicitly;
+`--checksums full` refuses by name. Compatibility reproduction of the full
+algorithm CRC remains pending exact AST serialization. See D-020 in the
+[user log](tlc-differences.md), D-008 for separate artifact admission, and
+`crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
+source-edit controls.

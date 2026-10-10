@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-rewrite-work/crates/dive-pluscal/rewrite-acceptance/compare.py", line 63, in <module>
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--native',type=Path,required=True);p.add_argument('--example',type=Path,required=True);raise SystemExit(compare(p.parse_args()))
+  File "/Users/jeff/code/dive-pluscal-rewrite-work/crates/dive-pluscal/rewrite-acceptance/compare.py", line 45, in compare
+    text=(primary/row['translated']['path']).read_bytes();assert sha(text)==row['translated']['sha256'];body=body_of(text.decode())
+  File "/Users/jeff/code/dive-pluscal-rewrite-work/crates/dive-pluscal/rewrite-acceptance/compare.py", line 12, in body_of
+    lines=text.splitlines(keepends=True);beg=next(i for i,l in enumerate(lines) if '\\* BEGIN' in l and 'TRANSLATION' in l);end=next(i for i,l in enumerate(lines[beg+1:],beg+1) if '\\* END' in l and 'TRANSLATION' in l);return ''.join(lines[beg+1:end])
+StopIteration

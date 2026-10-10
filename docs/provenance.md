@@ -286,3 +286,9 @@ development-only reference evidence; runtime translation remains native.
 | Native component | Pinned reference | License | Adaptation and evidence boundary |
 | --- | --- | --- | --- |
 | `dive-pluscal` caller reachability and fairness generation (`translate/fairness.rs`, process/procedure context in `process.rs` and `procedures.rs`, Spec emission in `emit.rs`) | `pcal.ParseAlgorithm.GetCall`, `pcal.PcalFixIDs.FixMultiprocess`, `pcal.PcalTLAGen.GenSpec`, `FormulaPair`, `ProcessFairness`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Syntactic call order and declaration-ordered closure adapted to bounded sparse traversal, per-caller WF/SF and +/- ownership, UTF-16 significant junction grouping. Complete clean primary captures, SANY/operator-CST and finite counts/replay remain separate stages. Quotas and conservative disjointness are native design; no scoped renaming, sequential-modifier or liveness-execution certification. |
+
+## Native bounded PlusCal block editing
+
+| Native component | Pinned reference | License | Adaptation and evidence boundary |
+| --- | --- | --- | --- |
+| `dive-pluscal::rewrite`, `dive-api::rewrite`, CLI editing policy | `pcal.trans.performTranslation`, `findTokenPair`; `pcal.Validator.CHECKSUM_PATTERN`, `checksum(Vector)`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Native bounded span selection and pure replacement, UTF-8 line-concatenation CRC32 and recognized header fields. Explicit partial sentinel, overwrite grant and byte quotas are native policy. Primary-body exact-byte editing is development-only evidence; native generated artifacts have separate admission controls. Full normalized/name-fixed AST CRC, exact generator formatting and file writes remain pending; fair CRC collision retained as D-020. |

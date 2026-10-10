@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded in-memory PlusCal block replacement through `dive translate --rewrite`
+  and Rust APIs. Explicit `--checksums tla` records body CRC and disables unproved
+  algorithm checking; modified bodies need `--replace-modified`. Full AST CRC
+  and file writes remain named unsupported. See `docs/pluscal-rewriting.md`.
+
 - Native process-owned procedure fairness for bounded finite callers: reachable
   WF/SF clauses, process/procedure label modifiers and pinned option precedence,
   with formula/closure quotas. Scoped renaming and strict namespace witnesses

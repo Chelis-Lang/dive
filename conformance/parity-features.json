@@ -660,7 +660,7 @@
       "phase": 8,
       "pinned_source": "pcal/ParseAlgorithm.java",
       "rust_evidence": "crates/dive-pluscal/src/lib.rs",
-      "conformance_evidence": "docs/pluscal-process-procedures.md",
+      "conformance_evidence": "docs/pluscal-process-procedures.md; docs/pluscal-rewriting.md (bounded explicit body CRC/source editing, no full AST CRC/file-format/proof credit)",
       "issues": [
         126,
         131,
@@ -670,7 +670,8 @@
         160,
         162,
         163,
-        171
+        171,
+        172
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently. Disjoint sequential recursive call/return and bounded normalized source evidence do not certify process-owned/scoped renaming, strict namespace witnesses or full translator parity.",
       "interactions": [
@@ -776,7 +777,7 @@
       "phase": 9,
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs",
-      "conformance_evidence": "docs/pluscal-process-procedures.md",
+      "conformance_evidence": "docs/pluscal-process-procedures.md; docs/pluscal-rewriting.md (bounded explicit body CRC/source editing, no full AST CRC/file-format/proof credit)",
       "issues": [
         124,
         131,
@@ -786,7 +787,8 @@
         160,
         162,
         163,
-        171
+        171,
+        172
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator. Disjoint sequential recursive call/return and bounded normalized source evidence do not certify process-owned/scoped renaming, strict namespace witnesses or full translator parity.",
       "interactions": [

@@ -23,6 +23,10 @@
 #![forbid(unsafe_code)]
 
 mod config;
+mod rewrite;
+pub use rewrite::{
+    ChecksumPolicy, RewriteOptions, RewriteReport, RewriteRequest, rewrite_file, rewrite_source,
+};
 mod translate;
 /// Native PlusCal fairness selection, including pinned translator option spellings.
 pub use dive_pluscal::FairnessOption as TranslationFairness;
