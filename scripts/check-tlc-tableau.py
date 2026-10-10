@@ -1,5 +1,6 @@
 """Verify complete pinned tableau selections, raw captures and native source hashes."""
 import hashlib
+import gzip
 import json
 from pathlib import Path
 
@@ -73,6 +74,15 @@ def main():
         assert sha(PROBE / 'historical-before-context-source' / path) == digest, path
     combined = load(PROBE / '../tlc-planning/combined-context-tableau-source-matrix.json')
     assert combined['historical_tableau_matrix_sha256'] == sha(PROBE / 'source-matrix.json')
+    assert len(combined['historical_integrations']) >= 1
+    for snapshot in combined['historical_integrations']:
+        history_path = ROOT / snapshot['matrix_path']
+        assert sha(history_path) == snapshot['matrix_sha256']
+        historical = json.loads(history_path.read_text())
+        archive = ROOT / snapshot['source_archive']
+        for path, digest in historical['source_sha256'].items():
+            data = gzip.decompress((archive / (path + '.gz')).read_bytes())
+            assert hashlib.sha256(data).hexdigest() == digest, path
     for path, digest in combined['source_sha256'].items():
         assert sha(ROOT / path) == digest, path
     print('verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes')

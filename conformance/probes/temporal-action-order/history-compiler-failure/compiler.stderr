@@ -1,0 +1,9 @@
+/Users/jeff/code/dive-temporal-atom-order-work/conformance/probes/temporal-action-order/ActionOrderProbe.java:23: error: reference to Context is ambiguous
+    result=mode.equals("runtime")?tool.eval(body(tool,"Runtime"),Context.Empty,s1,s2,EvalControl.Clear).toString():""+new LNAction(body(tool,mode.equals("bad-sub")?"FalseBody":"Body"),Context.Empty,body(tool,mode.equals("bad-sub")?"BadSub":"Sub"),mode.equals("box")).eval(tool,s1,s2);
+                                                                 ^
+  both class tlc2.util.Context in tlc2.util and class tla2sany.semantic.Context in tla2sany.semantic match
+/Users/jeff/code/dive-temporal-atom-order-work/conformance/probes/temporal-action-order/ActionOrderProbe.java:23: error: reference to Context is ambiguous
+    result=mode.equals("runtime")?tool.eval(body(tool,"Runtime"),Context.Empty,s1,s2,EvalControl.Clear).toString():""+new LNAction(body(tool,mode.equals("bad-sub")?"FalseBody":"Body"),Context.Empty,body(tool,mode.equals("bad-sub")?"BadSub":"Sub"),mode.equals("box")).eval(tool,s1,s2);
+                                                                                                                                                                                        ^
+  both class tlc2.util.Context in tlc2.util and class tla2sany.semantic.Context in tla2sany.semantic match
+2 errors

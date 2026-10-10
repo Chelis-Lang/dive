@@ -444,7 +444,8 @@
         109,
         117,
         130,
-        136
+        136,
+        149
       ],
       "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
       "interactions": [
@@ -457,7 +458,8 @@
       "implementation_notes": "Ordered parallel capture retains accepted duplicate/seen edges, original labels/ordinals, concrete discovery IDs, roots and implicit stutters. Separate per-source scratch admission gives deterministic resource refusals, with unchanged logical defaults. Inline/1/4/8/chaos controls cover both profiles/stores and validated final/short witnesses. VIEW/SYM/random/effects, phase-L precedence and TLC-exact integrated liveness remain gaps.",
       "additional_evidence": [
         "conformance/probes/tlc-planning/README.md",
-        "crates/dive-liveness/tests/tlc_planning.rs"
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/temporal-action-order/README.md"
       ],
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
@@ -517,7 +519,8 @@
       "conformance_evidence": "crates/dive-liveness/tests/lassos.rs",
       "issues": [
         66,
-        136
+        136,
+        149
       ],
       "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
       "interactions": [
@@ -530,7 +533,10 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending.",
+      "additional_evidence": [
+        "conformance/probes/temporal-action-order/README.md"
+      ]
     },
     {
       "id": "F-023",
@@ -812,7 +818,8 @@
         124,
         129,
         131,
-        143
+        143,
+        149
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -840,7 +847,8 @@
         "docs/decisions/0030-pluscal-sequential-label-normalization.md",
         "crates/dive-pluscal/normalization-acceptance/comparison.json",
         "crates/dive-pluscal/normalization-acceptance/validation/report.json",
-        "crates/dive-pluscal/tests/normalization.rs"
+        "crates/dive-pluscal/tests/normalization.rs",
+        "conformance/probes/temporal-action-order/README.md"
       ]
     },
     {

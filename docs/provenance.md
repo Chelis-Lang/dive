@@ -361,3 +361,6 @@ Full owned controls and raw primary/secondary transcripts are in
 `crates/dive-pluscal/normalization-acceptance/`; contract and reproduction are in
 `docs/pluscal-normalization.md`, with ADR 0030. The Java AST adapter is
 development-only reference evidence; runtime translation remains native.
+## Temporal action short-circuiting
+
+`dive-liveness::plan::PredicateAtom::evaluate` matches `tlc2/tool/liveness/LNAction.java::eval` at revision `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). The independent periodic interpreter in `dive-trace/src/temporal.rs` implements the temporal subscript-first rule without depending on the checker, liveness or successor enumerator. Direct pinned `LNAction.eval` and `Tool.eval` controls, retained native failures and scope limits are documented in `conformance/probes/temporal-action-order/README.md`. Ordinary runtime action evaluation continues to match `Tool.eval`; this increment is not strict integrated liveness certification.

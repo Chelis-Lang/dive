@@ -1,0 +1,13 @@
+{
+  "compiler_exit": 1,
+  "executed_rows": 0,
+  "scope": "development adapter compilation failure; no oracle agreement credit",
+  "source_sha256": {
+    "ActionOrderProbe.java": "23528ceaa104ade1321243f19fc52bede7c8fc843be51441fabf2f10e100cd60",
+    "ActionOrder.tla": "f5d5478577773da1a76eb4baee7a859edff6923f5bc93e8be956657b8aa16c2a",
+    "ActionOrder.cfg": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f",
+    "capture.py": "7a23ff518db81fe791a24d4c5a3b985f3c8016501cba7f229af065d0db1f3447",
+    "compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler.stderr": "bdca1c774208e29f748e35c9099168506361c44b59bb3f2b90e62d70b0095090"
+  }
+}
