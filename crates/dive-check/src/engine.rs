@@ -617,7 +617,7 @@ pub(crate) fn check_implied_actions(m: &Model, step: &St) -> Option<Verdict> {
 
 /// The state of a search: the seen-state set, the trace log and the
 /// counters.
-pub(crate) struct Search<'a, S: Keyed> {
+pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) m: &'a Model,
     pub(crate) host: &'a RunHost,
     /// TLC's state fingerprint, which seeds each expanded state's random
@@ -634,9 +634,10 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) initial_generated: u64,
     pub(crate) capture: Option<Collector<S::Key>>,
     checkpoint: Option<&'a mut crate::checkpoint::Session>,
+    pub(crate) observer: Option<&'obs mut dyn crate::capture::SourceObserver>,
 }
 
-impl<S: Keyed> Search<'_, S> {
+impl<S: Keyed> Search<'_, '_, S> {
     /// One generated state, inline: TLC's `DoInitFunctor.addElement` (no
     /// parent) or `Worker.addElement`. Returns the verdict that stops the
     /// search, whether the successor ends the counterexample, and whether
@@ -766,6 +767,27 @@ impl<S: Keyed> Search<'_, S> {
                 return Some((v, false, false));
             }
         }
+        if initial
+            && self.observer.is_some()
+            && let Some(id) = new_id
+        {
+            if let Err(verdict) = next.push(t.clone(), id) {
+                return Some((verdict, false, false));
+            }
+            let mut stats = self.stats(self.set.len());
+            stats.initial_generated = self.generated;
+            if let Some(observer) = &mut self.observer
+                && let Err(message) = observer.initial(id, &t, succ.ordinal, stats)
+            {
+                return Some((
+                    Verdict::Unsupported {
+                        feature: format!("ordered source observer: {message}"),
+                    },
+                    false,
+                    false,
+                ));
+            }
+        }
         if fresh {
             if let Some(v) = check_invariants(m, &st1, initial) {
                 // TLC's replay checks a state outside the model again, and
@@ -800,7 +822,8 @@ impl<S: Keyed> Search<'_, S> {
                 return Some((v, true, false));
             }
         }
-        if let Some(id) = new_id
+        if (!initial || self.observer.is_none())
+            && let Some(id) = new_id
             && let Err(verdict) = next.push(t, id)
         {
             return Some((verdict, false, false));
@@ -1378,8 +1401,8 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
 /// Runs the search over `m` (assumptions already checked).
 pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, None),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, None, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, None, None),
     }
 }
 
@@ -1391,8 +1414,10 @@ pub(crate) fn search_checkpoint(
     session: &mut crate::checkpoint::Session,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, Some(session)),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, Some(session)),
+        StoreMode::Fingerprint => {
+            search_in::<FpSet>(m, opts, host, None, false, Some(session), None)
+        }
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, Some(session), None),
     }
 }
 
@@ -1404,8 +1429,10 @@ pub(crate) fn search_graph(
     limits: crate::capture::Limits,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), false, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false, None),
+        StoreMode::Fingerprint => {
+            search_in::<FpSet>(m, opts, host, Some(limits), false, None, None)
+        }
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false, None, None),
     }
 }
 
@@ -1417,8 +1444,26 @@ pub(crate) fn search_graph_parallel(
     limits: crate::capture::Limits,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true, None),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true, None, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true, None, None),
+    }
+}
+
+/// Ordered source-consumer capture, using the same safety engine and pool.
+pub(crate) fn search_graph_observed(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    limits: crate::capture::Limits,
+    observer: Option<&mut dyn crate::capture::SourceObserver>,
+) -> Outcome {
+    match opts.store {
+        StoreMode::Fingerprint => {
+            search_in::<FpSet>(m, opts, host, Some(limits), true, None, observer)
+        }
+        StoreMode::Exact => {
+            search_in::<ExactSet>(m, opts, host, Some(limits), true, None, observer)
+        }
     }
 }
 
@@ -1433,6 +1478,7 @@ fn search_in<S: Keyed>(
     capture: Option<crate::capture::Limits>,
     concrete_pool: bool,
     checkpoint: Option<&mut crate::checkpoint::Session>,
+    observer: Option<&mut dyn crate::capture::SourceObserver>,
 ) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
@@ -1500,6 +1546,7 @@ fn search_in<S: Keyed>(
         initial_generated: 0,
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
         checkpoint,
+        observer,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());

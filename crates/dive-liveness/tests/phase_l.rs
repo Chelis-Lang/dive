@@ -523,7 +523,13 @@ fn public_opaque_values_and_unchecked_predicates_are_refused_without_callbacks_o
     let error = Session::new(&m, 0, 1, Limits::default())
         .err()
         .expect("missing predicate");
-    assert!(matches!(error.error, Error::Planning(_)));
+    let Error::Input(message) = error.error else {
+        panic!("invalid predicate metadata must fail input admission before planning");
+    };
+    assert!(message.contains("DIVE-EVAL-C001"));
+    assert_eq!(error.progress.predicates, 0);
+    assert_eq!(error.progress.sources, 0);
+    assert!(error.partial.is_none());
     assert_eq!(error.progress.actual_workers, 0);
     assert_eq!(m.take_output(), Vec::<String>::new());
 }
@@ -633,7 +639,13 @@ fn caller_edited_fingerprint_permutation_returns_typed_input_refusal() {
         let Err(refusal) = Session::new(&m, 0, 1, Limits::default()) else {
             panic!("foreign model metadata must be refused before predicates");
         };
-        assert!(matches!(refusal.error, Error::Planning(_)));
+        let Error::Input(message) = refusal.error else {
+            panic!("foreign IR must fail input admission before planning");
+        };
+        assert!(message.contains("DIVE-EVAL-C004"));
+        assert_eq!(refusal.progress.actual_workers, 0);
+        assert_eq!(refusal.progress.sources, 0);
+        assert!(refusal.partial.is_none());
         assert_eq!(refusal.progress.predicates, 0);
         assert_eq!(m.take_output(), Vec::<String>::new());
     }
