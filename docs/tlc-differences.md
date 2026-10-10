@@ -981,3 +981,40 @@ timeouts are findings and the study exits nonzero. This is explicit final/short
 mixed-profile evidence; ordinary strict temporal checking remains refused.
 TLC-exact temporal classes, phase-L timing and lasso selection, wider scoped
 language support, symmetry/VIEW evidence and capture scaling remain open.
+
+
+**D-013 finite lazy-domain update:** temporal formulas can now quantify over
+bounded function sets, record sets, Cartesian products and subsets. For example:
+
+```tla
+VARIABLE x
+Init == x = FALSE
+Next == x' = ~x
+Spec == Init /\ [][Next]_x /\ WF_x(Next)
+Funcs == [{1, 2} -> BOOLEAN]
+Live == \A f \in Funcs : []<>(x = f[1])
+```
+
+The pinned oracle holds `Live` with 3 generated states, 2 distinct states and
+depth 2. Replacing `Next` with `UNCHANGED x` gives a liveness violation (exit 13),
+with 2 generated states, 1 distinct state and depth 1. The same paired controls
+exist for record sets, Cartesian products and subsets. All eight match dive's
+explicit final/short path in both profiles and stores, at requested widths
+1/4/8; actual graph capture is still one worker. Every violation validates
+independently, and alternating/stuttering word controls distinguish true from
+false properties.
+
+The binding limit bounds domain entries, intermediate materialization work
+(component entries and generated value slots), and Cartesian bindings separately.
+No resource default was increased. Preflight uses raw cardinality upper bounds
+without changing TLC's normalization state or running deferred predicates.
+Infinite/deferred domains and oversized/work-heavy constructors still fail by
+name; a small cardinality alone does not justify allocating a huge function.
+Both profiles use this support. Strict TLC phase-L scheduling and exact lasso
+selection remain pending; this is not strict temporal conformance.
+
+Evidence: `crates/dive-api/tests/fixtures/lazy-domains/` contains the eight
+minimal specs and clean pinned oracle captures; `tests/lazy_domains.rs` checks
+truth, counts and independent validation. `dive-eval` binder tests verify order
+against ordinary enumeration, empty-domain functions, comparison-error order,
+raw normalization state and giant-domain preallocation refusals.
