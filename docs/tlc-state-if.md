@@ -118,3 +118,18 @@ level/effects cannot authorize this case. A large arena or structural walk can
 therefore be refused even when the configured property does not use the IF.
 This conservative staged restriction remains until the separate numbering fix
 tracked in [#170](https://github.com/Chelis-Lang/dive/issues/170).
+
+## Complete current small-model census
+
+The fresh unchanged 140-model Examples small selection on source `03f11881b`
+contains six agreements, 134 named refusals, zero disagreements and zero
+timeouts. Five agreements use the inherited safety-only route. One new actual
+final temporal agreement is `LiveHourClock`: 12 distinct states, 24 generated,
+depth 1 and TLC code 2193. All 138 real subprocesses and both harness-only
+refusals remain recorded.
+
+This correctness census used the exact current debug CLI and an unchanged
+baseline release harness whose comparer/independent validator code is unchanged.
+It is not a release performance measurement or whole-family/ordinary periodic
+certification. The earlier all-refusal and five-agreement safety studies remain
+unchanged at their own sources. See the [complete current census](../conformance/studies/tlc-state-if-current/full-small-study/README.md).

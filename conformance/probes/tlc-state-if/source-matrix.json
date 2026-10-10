@@ -5,10 +5,10 @@
     "crates/dive-liveness/src/phase_l.rs": "5996b79a1c09ee6860a39f7e4a7a18930b1f5d0cfa761da037110d685933db0a",
     "crates/dive-api/tests/tlc_state_if.rs": "85c03e05dfaf55e63a04e7f7627d5dcccde11832ae59faeec8f134681a28e392",
     "crates/dive-cli/tests/cli.rs": "2bdea6bf0c5cb5480d9fa8c42421dfb9fd8e0292c6053a02de2e9c48d27ddb5a",
-    "docs/tlc-state-if.md": "0d4f30eb4a939c309a13807fc58d4a059249073ed1d75e6785ec08ec793b3b50",
+    "docs/tlc-state-if.md": "9e688120c4cffea4c7294fe0b59bffdabfe43e1a9281a7401ba34e3f6d670824",
     "docs/tlc-final-api.md": "36116d333d77b7ce72780c5bd50aa0404ffd140fb060e538bfdcf80d7e131963",
     "docs/decisions/0036-conditional-planning-error-order.md": "fe9f69e995f754c75c2bd2b108d81b6cc4b7118001754b8400d33b95f1bd5f8a",
-    "scripts/check-tlc-state-if.py": "c09b1236d989b5aabc15e87fe77c7b3171261fa427d8ab9c1cca3d3f6b1ee60b",
+    "scripts/check-tlc-state-if.py": "7e93fd2b62682b400e96df10b7d80b57d034ebccb3a812da6c2e678739418fd3",
     "conformance/parity-features.json": "59859c46694d86c40e89910df87d66cc2925e1e61e06a50c1b14caa7c6d07884"
   },
   "history_sha256": {
@@ -982,6 +982,16 @@
     "historical-user-example-before-lint-refactor/receipt.json": "dc81e5702deb936258a622f9973d3e04830107e6af9278b45fd3d3fba609aa18",
     "historical-user-example-before-lint-refactor/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "historical-user-example-before-lint-refactor/stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
-    "historical-user-example-before-lint-refactor/user-example.rs": "4dc09dd786d79f540c107b3d32b2d33d84c355a0bc7dd7d7ad17aa28e5aaf6da"
+    "historical-user-example-before-lint-refactor/user-example.rs": "4dc09dd786d79f540c107b3d32b2d33d84c355a0bc7dd7d7ad17aa28e5aaf6da",
+    "historical-gated-before-full-census/manifest.json": "13b06f89398a6c719c6c0a408b55b526e2e3513484ba36cd32331d25a1a4e108",
+    "historical-gated-before-full-census/source-matrix.json": "97ab44101158db8f52815a17e72aa31f19586793a6e75afdc094093ad77c7327",
+    "historical-gated-before-full-census/sources/crates/dive-cli/tests/cli.rs.gz": "a4974b59b3ca72b7013c910b1a820faf4932f4def68561972caeb6c828cd9070",
+    "historical-gated-before-full-census/sources/crates/dive-liveness/src/phase_l.rs.gz": "62d0ba8977b77443fb15e913080023553fcf69b24d57e6aebec5884bfa0841f9",
+    "historical-gated-before-full-census/sources/crates/dive-api/tests/tlc_state_if.rs.gz": "c08acff066243ba9e262804360f18e7bd91786cac3f0b52ce7ba80fae031f87c",
+    "historical-gated-before-full-census/sources/docs/tlc-final-api.md.gz": "b429eb2876137bdb45f053047da16ea89a18087ed5be0623a981a63ac7a5ef07",
+    "historical-gated-before-full-census/sources/docs/tlc-state-if.md.gz": "a12b0eaf55d718920b338fac6287a6e2dac82b3f224a180274031bb3ae6f4665",
+    "historical-gated-before-full-census/sources/docs/decisions/0036-conditional-planning-error-order.md.gz": "abcb41c5690b8170cfffcd8af243c2add5101303cb603581fc3717f562c45459",
+    "historical-gated-before-full-census/sources/scripts/check-tlc-state-if.py.gz": "2384a56593f1d5e6f2b3aec9320ced877bba21fd38039f6aeb5703d47038a76e",
+    "historical-gated-before-full-census/sources/conformance/parity-features.json.gz": "ddec3ab99d1c5e605d8170909bee212811c8ad0a0882419deec19d7a87b35b37"
   }
 }
