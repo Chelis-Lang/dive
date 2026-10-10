@@ -711,19 +711,27 @@
     {
       "id": "F-034",
       "name": "PlusCal translation and translation validation",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 8,
-      "pinned_source": "pcal/trans.java",
+      "pinned_source": "pcal/ParseAlgorithm.java",
       "rust_evidence": "crates/dive-pluscal/src/lib.rs",
-      "conformance_evidence": "docs/frontend-campaign.md",
-      "issues": [],
+      "conformance_evidence": "conformance/reports/pluscal-source-grammar.json",
+      "issues": [
+        126
+      ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
         "F-001",
         "F-002",
         "F-019",
         "F-024"
+      ],
+      "coverage_note": "Native bounded C/P source AST only: 200 field-level source AST matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Macro expansion, labels/name checks, translation/options/checksums and translated-model validation remain pending; family not certified.",
+      "additional_evidence": [
+        "docs/pluscal-parser.md",
+        "docs/decisions/0022-pluscal-source-parser.md",
+        "crates/dive-pluscal/tests/oracle.rs"
       ]
     },
     {
