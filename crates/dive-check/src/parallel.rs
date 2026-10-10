@@ -838,7 +838,10 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         let n_units = if narrow { len * n_actions } else { len };
         let mut next_frontier = frontier.empty_like();
         let new_first = search.log.len();
-        let concrete_pool = search.capture.as_ref().is_some_and(|c| c.concrete_pool());
+        let concrete_pool = search
+            .capture
+            .as_ref()
+            .is_some_and(crate::capture::Collector::concrete_pool);
         let capture_quotas = if concrete_pool {
             match search
                 .capture
