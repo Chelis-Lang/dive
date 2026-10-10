@@ -1341,6 +1341,15 @@ and `L:+` / `L:-` are now matched separately; see
 [the normalization contract](pluscal-normalization.md). See
 [the translation contract](pluscal-translation.md).
 
+The [single-process contract](pluscal-processes.md) now admits unfair literal-ID
+and finite-membership process bodies. Locals are scalar for a constant-ID process
+and indexed by `self` for a process set. Missing process labels always require
+`--label`, unlike the pinned sequential default. Multiple blocks, process/label
+fairness and unproved renaming remain explicit refusals. The minimal retained
+`process P = 1 variables x=self` example translates with exit 0 but leaves `self`
+unbound; SANY rejects that output. Native refuses this path in both profiles and
+gives it no artifact credit, rather than inventing a replacement binding.
+
 The pinned grammar scanner accepts `(1]`, `[1)`, `<<1}` and `[1, end]` because
 it counts delimiter nesting rather than parsing TLA expressions. Native source
 ASTs preserve those slices and make no claim of expression validity. Later

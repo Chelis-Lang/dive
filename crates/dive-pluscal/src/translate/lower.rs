@@ -45,6 +45,7 @@ pub(super) struct Model {
     pub stutter: bool,
     pub fair: bool,
     pub warnings: Vec<TranslationWarning>,
+    pub process: Option<crate::ast::Process>,
 }
 struct Group {
     label: Label,
@@ -96,6 +97,9 @@ pub(super) fn normalize(
     options: &TranslationOptions,
 ) -> Result<Model, TranslationError> {
     let algorithm = &parsed.algorithm;
+    if let Body::Processes(processes) = &algorithm.body {
+        return super::process::normalize(parsed, processes, options);
+    }
     let Body::Sequential(block) = &algorithm.body else {
         return Err(unsupported(algorithm.span, "multiprocess normalization"));
     };
@@ -128,6 +132,15 @@ pub(super) fn normalize(
                 Code::Syntax,
                 decl.span,
                 format!("global variable {} redefined", decl.name.text),
+            ));
+        }
+        // PcalSymTab seeds this global before extracting user symbols, even
+        // when checkBody later allows omission of generated pc storage.
+        if decl.name.text == "pc" {
+            return Err(failure(
+                Code::Syntax,
+                decl.span,
+                "global variable pc redefined by the reserved program counter symbol",
             ));
         }
         if decl.name.text == "defaultInitValue"
@@ -232,17 +245,10 @@ pub(super) fn normalize(
     });
     let inner_labels = labels.len() > 1;
     lower.use_pc = !(infinite && !goto && !any_modifier && !inner_labels);
-    if lower.use_pc && variables.contains("pc") {
-        return Err(failure(
-            Code::Syntax,
-            algorithm.span,
-            "global variable pc redefined by the generated program counter",
-        ));
-    }
     lower.compile_groups(&groups, "Done")?;
     Ok(Model { actions: lower.actions, variables: algorithm.variables.clone(), use_pc: lower.use_pc,
         stutter: !infinite || parsed.statements.iter().any(|statement| matches!(&statement.kind, StatementKind::Goto(target) if ["Done", "\"Done\""].contains(&target.text.as_str()))),
-        fair: algorithm.fairness == Fairness::Weak, warnings: lower.warnings })
+        fair: algorithm.fairness == Fairness::Weak, warnings: lower.warnings, process: None })
 }
 
 impl Lower<'_> {

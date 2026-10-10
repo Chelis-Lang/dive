@@ -40,8 +40,10 @@ pub(super) fn normalize(
             "label root must start with an ASCII letter and contain only ASCII letters, digits or underscore (maximum 256 bytes)",
         ));
     }
-    let Body::Sequential(block) = &parsed.algorithm.body else {
-        return Ok(Vec::new());
+    let block = match &parsed.algorithm.body {
+        Body::Sequential(block) => block,
+        Body::Processes(processes) if processes.len() == 1 => &processes[0].body,
+        Body::Processes(_) => return Ok(Vec::new()),
     };
     // These families have separate expansion/normalization and stay refused by
     // the existing admission pass rather than assigning invented labels.
@@ -54,7 +56,9 @@ pub(super) fn normalize(
         .iter()
         .filter_map(|s| s.label.as_ref().map(|l| l.name.text.clone()))
         .collect();
-    let has_typed = !typed.is_empty();
+    // Unlike the sequential source form, process bodies always require the
+    // explicit LabelFlag when the reference inserts any missing label.
+    let has_typed = !typed.is_empty() || matches!(parsed.algorithm.body, Body::Processes(_));
     let positions = positions(parsed);
     let mut labels = Labels {
         parsed,
