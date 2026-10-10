@@ -27,3 +27,6 @@ pub mod analyze;
 
 /// Bounded projections of TLC normalization and ordered liveness grouping.
 pub mod tlc_plan;
+
+/// Bounded pinned TLC particle-tableau and promise projections.
+pub mod tlc_tableau;

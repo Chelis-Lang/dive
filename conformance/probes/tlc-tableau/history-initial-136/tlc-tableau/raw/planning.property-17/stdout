@@ -1,0 +1,33 @@
+groups	2
+g0.binary	G(s1)
+g0.promises	
+g0.initial	1
+g0.nodes	1
+g0.n0.index	0
+g0.n0.particle	G(s1);s1;X(G(s1))
+g0.n0.state	s1
+g0.n0.next	0
+g0.n0.fulfills	
+g0.n0.accepting	false
+g1.binary	E(s2)
+g1.promises	E(s2)
+g1.initial	2
+g1.nodes	3
+g1.n0.index	0
+g1.n0.particle	E(s2);s2
+g1.n0.state	s2
+g1.n0.next	2
+g1.n0.fulfills	true
+g1.n0.accepting	false
+g1.n1.index	1
+g1.n1.particle	E(s2);X(E(s2))
+g1.n1.state	
+g1.n1.next	0,1
+g1.n1.fulfills	false
+g1.n1.accepting	false
+g1.n2.index	2
+g1.n2.particle	
+g1.n2.state	
+g1.n2.next	2
+g1.n2.fulfills	true
+g1.n2.accepting	true

@@ -1,0 +1,11 @@
+groups	1
+g0.binary	G(C(s1,C(s2,C(s3,s4))))
+g0.promises	
+g0.initial	1
+g0.nodes	1
+g0.n0.index	0
+g0.n0.particle	G(C(s1,C(s2,C(s3,s4))));C(s1,C(s2,C(s3,s4)));X(G(C(s1,C(s2,C(s3,s4)))));s1;C(s2,C(s3,s4));s2;C(s3,s4);s3;s4
+g0.n0.state	C(s1,C(s2,C(s3,s4)));s1;C(s2,C(s3,s4));s2;C(s3,s4);s3;s4
+g0.n0.next	0
+g0.n0.fulfills	
+g0.n0.accepting	false

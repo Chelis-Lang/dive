@@ -1,0 +1,44 @@
+action_names	Live
+role_names	Identity
+configured_names	Live
+groups	1
+g0.binary	E(C(s1,E(N(s2))))
+g0.promises	E(C(s1,E(N(s2))));E(N(s2))
+g0.initial	3
+g0.nodes	6
+g0.n0.index	0
+g0.n0.particle	E(C(s1,E(N(s2))));C(s1,E(N(s2)));s1;E(N(s2));N(s2)
+g0.n0.state	s1;N(s2)
+g0.n0.next	3
+g0.n0.fulfills	true,true
+g0.n0.accepting	false
+g0.n1.index	1
+g0.n1.particle	E(C(s1,E(N(s2))));C(s1,E(N(s2)));s1;E(N(s2));X(E(N(s2)))
+g0.n1.state	s1
+g0.n1.next	4,5
+g0.n1.fulfills	true,false
+g0.n1.accepting	false
+g0.n2.index	2
+g0.n2.particle	E(C(s1,E(N(s2))));X(E(C(s1,E(N(s2)))))
+g0.n2.state	
+g0.n2.next	0,1,2
+g0.n2.fulfills	false,true
+g0.n2.accepting	false
+g0.n3.index	3
+g0.n3.particle	
+g0.n3.state	
+g0.n3.next	3
+g0.n3.fulfills	true,true
+g0.n3.accepting	true
+g0.n4.index	4
+g0.n4.particle	E(N(s2));N(s2)
+g0.n4.state	N(s2)
+g0.n4.next	3
+g0.n4.fulfills	true,true
+g0.n4.accepting	false
+g0.n5.index	5
+g0.n5.particle	E(N(s2));X(E(N(s2)))
+g0.n5.state	
+g0.n5.next	4,5
+g0.n5.fulfills	true,false
+g0.n5.accepting	false

@@ -1,0 +1,8 @@
+action_names	Live
+role_names	Identity
+configured_names	Live
+groups	1
+g0.binary	null
+g0.promises	
+g0.initial	0
+g0.nodes	0
