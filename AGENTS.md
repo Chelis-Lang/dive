@@ -63,6 +63,13 @@ The charter's appendix records factual corrections made since it was written.
   and tested in both modes.
 - **Decisions** go in numbered ADRs in `docs/decisions/` (copy `0000-template.md`).
   Changing the crate dependency graph is a decision.
+- **Keep parity accounting current.** `docs/tlc-parity.md` and
+  `conformance/parity-features.json` record stable semantic feature families,
+  acceptance obligations and evidence. Update affected families and source
+  surfaces in the same PR as an implementation. Registry entries, parsed
+  flags, mixed-profile matches and explicit refusals are not certification.
+  Preserve all selected cases and do not invent an overall completion percent.
+  The approved delivery sequence is `docs/design/tlc-parity-plan.md`.
 
 ## Commit messages and authorship
 
