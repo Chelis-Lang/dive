@@ -128,3 +128,16 @@ TLC-differences log alongside the code that changes their claims.
 
 The oracle bundle remains pinned. Refresh requires a separately reviewed
 decision and fully explained old/new differences, never an automatic cadence.
+
+### Final-only corpus census and next supported boundaries
+
+The first frozen `dive-final-tlc` full small selection retains all 140 explicit
+refusals and 138 raw subprocess observations in
+`conformance/studies/tlc-final-cli-first/README.md`. It provides no general
+corpus or feature-family certification. The immediate follow-ups are real
+ordinary safety execution for empty temporal obligations (with original
+counters, bounds, worker and witness evidence), minimal probes for opaque
+operator/scope admission, conditional planning and concrete witness recovery.
+Do not raise resource defaults, weaken callback-free admission or invent
+product evidence to promote a refusal. Periodic schedule and strict integrated
+error/stopping coverage remain separate obligations.

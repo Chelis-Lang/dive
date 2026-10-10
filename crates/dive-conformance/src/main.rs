@@ -75,7 +75,8 @@ RUN:
     --sany-phase <p>       full (default): compare full SANY (dive: `dive analyze`);
                            parse: compare SANY's parse-phase verdict of each module's own
                            file, derived from the same goldens (dive: `dive parse`)
-    --dive-bin <path>      the dive binary for --impl dive (default: target/release/dive)
+    --dive-bin <path>      the dive binary for --impl dive|dive-final-tlc (default: target/release/dive)
+    dive-final-tlc         explicit final/TLC schema2 mode; requires tlc profile and no overrides
     --impl-profile P       dive profile: dive (default) | tlc | tlc+overrides=<f>,... (ADR 0010);
                            DIVE_COMPAT=tlc selects tlc when not given
     --impl-option N[=V]    run dive/adapter under an option (repeatable; ADR 0010). Options
@@ -502,9 +503,9 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         Some(id) => id.clone(),
         None => config.oracles.default_oracle()?.id.clone(),
     };
-    if o.dive_bin.is_some() && imp_spec != "dive" {
+    if o.dive_bin.is_some() && !matches!(imp_spec.as_str(), "dive" | "dive-final-tlc") {
         return Err(Error::Usage(
-            "--dive-bin applies to --impl dive only".to_owned(),
+            "--dive-bin applies to --impl dive or dive-final-tlc only".to_owned(),
         ));
     }
     if o.no_sany && o.sany_only {
@@ -554,7 +555,7 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         }
         let imp = TlcImplementation { env };
         pipeline::run(config, cache, &imp, Some(&imp.env), &opts)?
-    } else if imp_spec == "dive" {
+    } else if matches!(imp_spec.as_str(), "dive" | "dive-final-tlc") {
         let bin = o.dive_bin.clone().unwrap_or_else(|| {
             root.join("target")
                 .join("release")
@@ -566,6 +567,9 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
             None => Profile::from_env()?.unwrap_or_default(),
         };
         imp.options = parse_impl_options(&o.impl_options, &imp)?;
+        if imp_spec == "dive-final-tlc" {
+            configure_final_tlc(&mut imp)?;
+        }
         pipeline::run(config, cache, &imp, None, &opts)?
     } else if let Some(path) = imp_spec.strip_prefix("adapter:") {
         if o.impl_profile.is_some() {
@@ -580,6 +584,24 @@ fn cmd_run(config: &Config, cache: &Cache, root: &Path, o: &Opts) -> Result<bool
         return Err(Error::Usage(format!("unknown --impl `{imp_spec}`")));
     };
     Ok(print_and_gate(&report))
+}
+
+/// Resolve the separate final-only implementation and retain its fixed flags.
+fn configure_final_tlc(imp: &mut DiveImplementation) -> Result<()> {
+    if imp.profile != Profile::Tlc || !imp.options.is_empty() {
+        return Err(Error::Usage(
+            "dive-final-tlc requires --impl-profile tlc and no per-feature overrides".into(),
+        ));
+    }
+    imp.final_tlc = true;
+    imp.options.extend(
+        [("lncheck", "final"), ("lasso", "tlc")].map(|(name, value)| ImplOption {
+            name: name.into(),
+            value: Some(value.into()),
+            result_changing: false,
+        }),
+    );
+    Ok(())
 }
 
 /// Prints the run's summary and returns whether its findings gate (exit 1).

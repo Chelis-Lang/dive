@@ -1,6 +1,9 @@
 //! Model checking (`dive check`): load, bind and check a specification, and
 //! report the result as a versioned JSON document or TLC-style text.
 
+#[path = "check_tlc_temporal.rs"]
+mod tlc_report;
+
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -15,7 +18,7 @@ use crate::{AnalyzeReport, ConfigReport};
 /// Version of the JSON document produced by [`CheckReport::to_json`].
 pub const CHECK_SCHEMA_VERSION: u32 = 1;
 
-/// Version of the opt-in final/short temporal JSON document. Ordinary checks
+/// Version of the opt-in final-only temporal JSON document. Ordinary checks
 /// retain schema 1; version 2 adds periodic endings, claims and mode metadata.
 pub const TEMPORAL_CHECK_SCHEMA_VERSION: u32 = 2;
 
@@ -66,6 +69,8 @@ pub enum TemporalMode {
     /// Bounded final analysis with independently validated short lassos.
     /// TLC value profiles are labeled as mixed overrides.
     FinalShort,
+    /// Bounded final-only fingerprint checking with pinned TLC selection.
+    FinalTlc,
 }
 
 /// What to check and how.
@@ -111,9 +116,10 @@ pub struct CheckRequest {
     /// Test-only chaos scheduling (`--chaos SEED`, or `DIVE_CHAOS`); see
     /// `dive_check::CheckOptions::chaos`. Results must be identical.
     pub chaos: Option<u64>,
-    /// Explicit bounded final-only temporal analysis with independently
-    /// validated short lassos. This overrides TLC-exact selection and stopping;
-    /// TLC profiles are labeled `tlc+overrides`. False keeps ordinary checking.
+    /// Explicit bounded final-only temporal checking. `FinalShort` changes TLC's
+    /// witness selection and labels TLC profiles `tlc+overrides`. `FinalTlc`
+    /// requires the TLC fingerprint profile and selects pinned TLC witnesses.
+    /// `Ordinary` retains unimplemented temporal scheduling refusals.
     pub temporal: TemporalMode,
 }
 
@@ -132,6 +138,10 @@ enum Phase {
     Temporal(Box<crate::temporal::Report>),
     /// No temporal verdict: a refusal, limit or internal failure.
     TemporalError(Box<crate::temporal::Failure>),
+    /// Independently certified explicit final-only TLC selection.
+    TlcTemporal(Box<crate::tlc_temporal::Report>),
+    /// Typed final-only failure without temporal proof.
+    TlcTemporalError(Box<crate::tlc_temporal::Failure>),
 }
 
 /// The outcome of `dive check`.
@@ -146,7 +156,7 @@ pub struct CheckReport {
     seed_given: bool,
     fp_given: bool,
     workers_requested: usize,
-    temporal_final_short: bool,
+    temporal: TemporalMode,
     phase: Phase,
 }
 
@@ -301,7 +311,7 @@ fn check_file_in(
         seed_given: req.seed.is_some(),
         fp_given: req.fp.is_some(),
         workers_requested,
-        temporal_final_short: req.temporal == TemporalMode::FinalShort,
+        temporal: req.temporal,
         phase: Phase::Unlowered(String::new()),
     };
     let search = Options {
@@ -355,6 +365,25 @@ fn check_backend(
     options: &CheckOptions,
     temporal: TemporalMode,
 ) -> Phase {
+    if temporal == TemporalMode::FinalTlc {
+        return match crate::tlc_temporal::check_final(
+            ir,
+            config,
+            options,
+            dive_liveness::phase_graph::Limits::default(),
+        ) {
+            Ok(r) => Phase::TlcTemporal(Box::new(r)),
+            Err(e) => {
+                if let crate::tlc_temporal::Error::Analysis(a) = &e.error
+                    && let dive_liveness::tlc_final::Error::Execution(f) = &a.error
+                    && let dive_liveness::phase_graph::Error::Capture(stop) = &f.error
+                {
+                    return Phase::Checked(stop.clone());
+                }
+                Phase::TlcTemporalError(e)
+            }
+        };
+    }
     if temporal == TemporalMode::FinalShort {
         return match crate::temporal::check_final_with_evidence(
             ir,
@@ -394,6 +423,26 @@ impl CheckReport {
         }
     }
 
+    /// Private-certified final-only TLC result, when that explicit mode completed.
+    /// A safety stop is exposed through [`Self::result`] instead.
+    #[must_use]
+    pub fn tlc_temporal_result(&self) -> Option<&crate::tlc_temporal::Report> {
+        match &self.phase {
+            Phase::TlcTemporal(report) => Some(report),
+            _ => None,
+        }
+    }
+
+    /// Typed final-only TLC failure, with available actual prefix/worker evidence.
+    /// A failure never certifies temporal absence or a selected violation.
+    #[must_use]
+    pub fn tlc_temporal_failure(&self) -> Option<&crate::tlc_temporal::Failure> {
+        match &self.phase {
+            Phase::TlcTemporalError(failure) => Some(failure),
+            _ => None,
+        }
+    }
+
     /// The verdict's name in the JSON document.
     #[must_use]
     pub fn verdict(&self) -> &'static str {
@@ -407,6 +456,11 @@ impl CheckReport {
                 crate::temporal::Outcome::Safety(_) => "internal-error",
             },
             Phase::TemporalError(e) => temporal_failure_kind(e.error()),
+            Phase::TlcTemporal(r) => match r.outcome() {
+                crate::tlc_temporal::Outcome::Holds(_) => "success",
+                crate::tlc_temporal::Outcome::Violation(_) => "liveness-violation",
+            },
+            Phase::TlcTemporalError(e) => tlc_report::kind(e),
         }
     }
 
@@ -446,6 +500,21 @@ impl CheckReport {
                 "model-error" => exit::REJECTED,
                 _ => exit::UNSUPPORTED,
             },
+            Phase::TlcTemporal(r) => match r.outcome() {
+                crate::tlc_temporal::Outcome::Holds(_) => exit::SUCCESS,
+                crate::tlc_temporal::Outcome::Violation(_) => {
+                    if tlc {
+                        13
+                    } else {
+                        exit::VIOLATION
+                    }
+                }
+            },
+            Phase::TlcTemporalError(e) => match tlc_report::kind(e) {
+                "internal-error" => exit::INTERNAL,
+                "model-error" => exit::REJECTED,
+                _ => exit::UNSUPPORTED,
+            },
             Phase::Checked(r) => {
                 let v = &r.verdict;
                 match v {
@@ -477,7 +546,7 @@ impl CheckReport {
     fn profile_name(&self) -> &'static str {
         match self.profile {
             Profile::Tlc
-                if self.temporal_final_short
+                if self.temporal == TemporalMode::FinalShort
                     || self.checkpoint_request.as_ref().is_some_and(|r| {
                         r.counters == dive_check::checkpoint::Counters::Retain
                     }) =>
@@ -535,7 +604,7 @@ impl CheckReport {
             "predecessor_memory_bytes": o.predecessor_memory_bytes,
             "predecessor_path_steps_limit": o.predecessor_memory_bytes.map(|_| dive_store::predecessor::MAX_PATH_STEPS),
         });
-        if self.temporal_final_short {
+        if self.temporal == TemporalMode::FinalShort {
             options["lncheck"] = json!("final");
             options["lasso"] = json!("short");
             options["temporal_bounds"] = temporal_limits_json();
@@ -556,6 +625,13 @@ impl CheckReport {
                 "independent_certificate": false,
                 "parallel_recovery": false,
             });
+        }
+        if self.temporal == TemporalMode::FinalTlc {
+            options["lncheck"] = json!("final");
+            options["lasso"] = json!("tlc");
+            options["temporal_scope"] = json!("bounded-final-only");
+            options["ordinary_temporal_schedule_supported"] = json!(false);
+            options["temporal_bounds"] = tlc_report::limits_json();
         }
         options
     }
@@ -578,6 +654,16 @@ impl CheckReport {
                 }),
             };
         }
+        if let Phase::TlcTemporalError(e) = &self.phase {
+            return match &e.workers {
+                Some(w) => {
+                    json!({"requested":w.requested,"used":w.used,"sequential":w.sequential,"reason":w.reason,"chaos":self.opts.chaos})
+                }
+                None => {
+                    json!({"requested":self.workers_requested,"used":null,"sequential":null,"reason":"execution evidence unavailable","chaos":self.opts.chaos})
+                }
+            };
+        }
         let w = self
             .result()
             .map(|r| &r.workers)
@@ -585,6 +671,10 @@ impl CheckReport {
                 self.temporal_result()
                     .and_then(temporal_complete)
                     .map(|c| &c.workers)
+            })
+            .or_else(|| match &self.phase {
+                Phase::TlcTemporal(r) => Some(&tlc_report::complete(r).workers),
+                _ => None,
             })
             .cloned()
             .unwrap_or_else(|| dive_check::Workers {
@@ -612,12 +702,17 @@ impl CheckReport {
             Phase::TemporalError(failure) => failure
                 .workers(self.workers_requested)
                 .map_or_else(|| "unknown".into(), |w| w.used.to_string()),
+            Phase::TlcTemporal(r) => tlc_report::complete(r).workers.used.to_string(),
+            Phase::TlcTemporalError(e) => e
+                .workers
+                .as_ref()
+                .map_or_else(|| "unknown".into(), |w| w.used.to_string()),
             _ => "0".into(),
         }
     }
 
     /// The JSON document (schema [`CHECK_SCHEMA_VERSION`] for ordinary checks;
-    /// [`TEMPORAL_CHECK_SCHEMA_VERSION`] for explicit final/short requests):
+    /// [`TEMPORAL_CHECK_SCHEMA_VERSION`] for explicit final-only requests):
     ///
     /// ```text
     /// { "schema_version": 1, "command": "check", "file", "config",
@@ -652,12 +747,16 @@ impl CheckReport {
     /// `TLC_INVARIANT_EVALUATION_FAILED`, for example); `verified: false`
     /// means dive does not yet reproduce TLC's error class at that site and
     /// does not claim it. `reported_by_tlc` is false where TLC prints no statistics
-    /// (a stop while generating initial states).
+    /// (a stop while generating initial states). Explicit final-only schema 2
+    /// also declares the schedule/selection, fixed entry/work bounds and actual
+    /// failure stage. Periodic traces include all configured property names and
+    /// a stuttering ending or one-based lasso target; independent replay precedes
+    /// any private-certified temporal violation.
     #[must_use]
     #[allow(clippy::too_many_lines, reason = "one document")]
     pub fn to_json(&self) -> Value {
         let mut doc = json!({
-            "schema_version": if self.temporal_final_short { TEMPORAL_CHECK_SCHEMA_VERSION } else { CHECK_SCHEMA_VERSION },
+            "schema_version": if self.temporal == TemporalMode::Ordinary { CHECK_SCHEMA_VERSION } else { TEMPORAL_CHECK_SCHEMA_VERSION },
             "command": "check",
             "file": self.file,
             "config": self.config,
@@ -694,6 +793,8 @@ impl CheckReport {
                 doc["diagnostics"] = c.to_json()["diagnostics"].clone();
             }
             Phase::Unlowered(why) => doc["message"] = Value::from(why.as_str()),
+            Phase::TlcTemporal(r) => tlc_report::success(&mut doc, r),
+            Phase::TlcTemporalError(e) => tlc_report::failure(&mut doc, e),
             Phase::Temporal(r) => temporal_json(&mut doc, r, self.opts.tlc_fingerprints),
             Phase::TemporalError(e) => {
                 doc["message"] = json!(e.to_string());
@@ -747,7 +848,7 @@ impl CheckReport {
                     "failures": r.frontier.failures,
                     "search_event_before_storage_failure": r.frontier.deciding_event_before_failure,
                 });
-                if self.temporal_final_short {
+                if self.temporal != TemporalMode::Ordinary {
                     doc["execution"] = json!({"stage": "capture", "capture_completed": false});
                 }
                 if self.opts.predecessor_memory_bytes.is_some() {
@@ -908,6 +1009,14 @@ impl CheckReport {
             Phase::ConfigRejected(c) => out.push_str(&c.render_human()),
             Phase::Unlowered(why) => {
                 let _ = writeln!(out, "unsupported: {why}; no verdict produced");
+            }
+            Phase::TlcTemporal(r) => out.push_str(&tlc_report::human(r)),
+            Phase::TlcTemporalError(e) => {
+                let _ = writeln!(
+                    out,
+                    "{}: {e}; no temporal verdict produced",
+                    tlc_report::kind(e)
+                );
             }
             Phase::Temporal(r) => out.push_str(&temporal_human(r)),
             Phase::TemporalError(e) => {
@@ -1246,7 +1355,7 @@ mod evidence_controls {
             seed_given: true,
             fp_given: true,
             workers_requested: 4,
-            temporal_final_short: true,
+            temporal: TemporalMode::FinalShort,
             phase,
         }
     }

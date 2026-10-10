@@ -42,5 +42,12 @@ for family in ['tlc-planning','predecessor-spill']:
  h=ROOT/'conformance/probes'/family/'historical-before-checkpoint';m=load(h/'matrix.json')
  for name,digest in m['source_sha256'].items():assert sha(gzip.decompress((h/'sources'/(name+'.gz')).read_bytes()))==digest,name
 m=load(BASE/'current-integration-source.json')
+for history in m.get('historical_integration_sources', []):
+ metadata = BASE/history['matrix']
+ assert hashlib.sha256(metadata.read_bytes()).hexdigest() == history['matrix_sha256'], metadata
+ for source, digest in load(metadata)['source_sha256'].items():
+  archived = BASE/history['source_archive']/(source+'.gz')
+  assert hashlib.sha256(gzip.decompress(archived.read_bytes())).hexdigest() == digest, archived
+
 for name,digest in m['source_sha256'].items():assert sha((ROOT/name).read_bytes())==digest,name
 print('verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration')
