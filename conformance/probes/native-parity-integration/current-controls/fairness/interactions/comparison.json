@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "stage": "bounded-process-fairness-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "b3536f8e038df590787691fef32a5718aa158eed6e093b7aaa6eb1777973cf0d",
+  "comparator_sha256": "13d0b2c7ebeb0913c6b0aa88dad5151b504c6c404d957f7ef13ee752e05521d8",
+  "native_sha256": "377ac1d628decdc505dd91ca415567992966a995093b3da4f83b96528e381a93",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "procedure-fairness",
+    "fairness-domain-normalization",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 8,
+  "summary": {
+    "native-refusal": 6,
+    "token-artifact-match": 2
+  },
+  "rows": [
+    {
+      "id": "FairInteraction_C_comment",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_C_multiline",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_C_tab",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_C_wrapped",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "102b06f5355b2377bafa0a367e781c62b75a7ad133f7031550a7edde5c8bfbb6",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairInteraction_P_comment",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_P_multiline",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_P_tab",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: fairness domain multiline/comment/tab normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairInteraction_P_wrapped",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "102b06f5355b2377bafa0a367e781c62b75a7ad133f7031550a7edde5c8bfbb6",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}

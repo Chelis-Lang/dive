@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "control_count": 28,
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "manifest_sha256": "5afc9791e8dc3ab8c11b53163e049be20f4d13b7898f039e960409dca592df71",
+  "native_sha256": "377ac1d628decdc505dd91ca415567992966a995093b3da4f83b96528e381a93",
+  "family_certified": false,
+  "rows": [
+    {
+      "control": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "missing-exploration",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "control": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "control": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "control": "removed-process",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage cardinality differs"
+      }
+    },
+    {
+      "control": "reordered-processes",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "second-process-name",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "second-process-storage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "second-local",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "second-domain",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process ID/domain source association differs"
+      }
+    },
+    {
+      "control": "second-source",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process source association differs from original normalized AST"
+      }
+    },
+    {
+      "control": "enclosing-source",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process source association differs from original normalized AST"
+      }
+    },
+    {
+      "control": "invented-label",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "normalized inserted label/name/source position/default binding mismatch"
+      }
+    },
+    {
+      "control": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "changed-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "control": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "control": "wrong-configuration",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "required default model-value configuration differs"
+      }
+    },
+    {
+      "control": "wrong-process-name",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "wrong-storage-kind",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "missing-local",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "wrong-domain-span",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process original source extent invalid"
+      }
+    },
+    {
+      "control": "wrong-valid-domain-span",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process ID/domain source association differs"
+      }
+    }
+  ]
+}

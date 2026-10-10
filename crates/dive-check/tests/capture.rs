@@ -794,7 +794,7 @@ fn caller_replaced_ir_or_names_refuses_before_walk_setup_or_workers() {
         let r = capture::explore_concrete_parallel_with_evidence(&m, &opts, Limits::default())
             .expect("typed stop");
         assert!(
-            matches!(r,Exploration::Stopped(ref r) if matches!(&r.verdict,Verdict::Unsupported {feature} if feature.contains("foreign IR or name table")) && r.workers.used==0 && r.stats.is_none())
+            matches!(r,Exploration::Stopped(ref r) if matches!(&r.verdict,Verdict::Unsupported {feature} if feature.contains("DIVE-EVAL-C004") && feature.contains("another evaluator context")) && r.workers.used==0 && r.stats.is_none())
         );
         assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
     }

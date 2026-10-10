@@ -34,3 +34,14 @@ and general checkpoint/runtime/distributed recovery remain pending. Every parity
 family still requires its full-selection audit before certification. See
 [the parity ledger](tlc-parity.md), [checkpoint details](native-checkpoint.md),
 [PlusCal fairness](pluscal-fairness.md) and ADRs 0028, 0029, 0033, 0035, 0036 and 0037.
+
+Fresh combined release evidence is retained under `current-controls`: all 576
+checkpoint runs, all 404 fairness cases (250 artifacts, 148 rejections and six
+refusals), and all 264 multiple-process cases (206 artifacts, ten rejections
+and 48 refusals). All 456 artifacts match full operator structure and SANY;
+76 finite model controls cover both stores at 1/4/8 workers, including original
+and mutated witnesses. Twenty-eight full-document corruptions are rejected.
+The original single-process comparator failure is retained: its one-process
+assumption was replaced in a separate adapter by checking every process.
+CM1 and ValidationTestSuite remain 21 and 16 models at 1/4/8 workers. These
+results do not replace the standard whole-selection report.
