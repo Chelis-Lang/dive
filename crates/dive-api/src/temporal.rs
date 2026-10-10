@@ -141,6 +141,125 @@ impl std::fmt::Display for Error {
 }
 impl std::error::Error for Error {}
 
+/// Stage reached by a temporal run that produced no verdict.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Stage {
+    /// Initial model binding; no capture started.
+    Binding,
+    /// A known stage of final temporal analysis.
+    Analysis(dive_liveness::analyze::Stage),
+    /// Independent validation, including binding a fresh validation model.
+    Validation,
+    /// Conversion to the lossless trace document.
+    Document,
+    /// A thread failure prevented recovery of execution evidence.
+    Unknown,
+}
+impl Stage {
+    /// Stable execution-stage name for structured reports.
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Binding => "binding",
+            Self::Analysis(stage) => stage.name(),
+            Self::Validation => "validation",
+            Self::Document => "document",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
+/// A temporal failure with retained execution facts, never a verdict.
+/// Existing [`check_final`] callers keep their original [`Error`] interface;
+/// [`check_final_with_evidence`] exposes these additional facts.
+#[derive(Clone, Debug)]
+pub struct Failure {
+    error: Error,
+    stage: Stage,
+    exploration: Option<Box<dive_liveness::analyze::ExplorationEvidence>>,
+    elapsed: Duration,
+}
+impl Failure {
+    fn before(error: Error, stage: Stage) -> Self {
+        Self {
+            error,
+            stage,
+            exploration: None,
+            elapsed: Duration::ZERO,
+        }
+    }
+    fn after(error: Error, stage: Stage, capture: &capture::Complete) -> Self {
+        Self {
+            error,
+            stage,
+            exploration: Some(Box::new(capture.into())),
+            elapsed: Duration::ZERO,
+        }
+    }
+    /// Original diagnostic, preserving its code and classification.
+    #[must_use]
+    pub fn error(&self) -> &Error {
+        &self.error
+    }
+    /// Stage reached before the failure.
+    #[must_use]
+    pub const fn stage(&self) -> Stage {
+        self.stage
+    }
+    /// Complete capture facts, when capture finished before the failure.
+    #[must_use]
+    pub fn exploration(&self) -> Option<&dive_liveness::analyze::ExplorationEvidence> {
+        self.exploration.as_deref()
+    }
+    /// Total time including binding, exploration and any validation work.
+    #[must_use]
+    pub const fn elapsed(&self) -> Duration {
+        self.elapsed
+    }
+    /// Whether capture completed. Unknown thread failures yield `None`, not
+    /// a claim that no work ran.
+    #[must_use]
+    pub fn capture_completed(&self) -> Option<bool> {
+        if self.exploration.is_some() {
+            Some(true)
+        } else if matches!(
+            self.stage,
+            Stage::Binding | Stage::Analysis(dive_liveness::analyze::Stage::Planning)
+        ) {
+            Some(false)
+        } else {
+            None
+        }
+    }
+    /// Actual execution width where known. Pre-search refusals prove zero;
+    /// unobserved thread failures do not.
+    #[must_use]
+    pub fn workers(&self, requested: usize) -> Option<dive_check::Workers> {
+        if let Some(evidence) = &self.exploration {
+            Some(evidence.workers.clone())
+        } else if self.capture_completed() == Some(false) {
+            Some(dive_check::Workers {
+                requested,
+                used: 0,
+                sequential: false,
+                reason: Some("no search ran".into()),
+            })
+        } else {
+            None
+        }
+    }
+}
+impl std::fmt::Display for Failure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.error.fmt(f)
+    }
+}
+impl std::error::Error for Failure {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.error)
+    }
+}
+
 fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Model, Error> {
     let mode = if options.profile == dive_eval::Profile::Tlc {
         dive_stdlib::random::RandomMode::Tlc
@@ -168,14 +287,17 @@ fn run(
     config: &ModelConfig,
     options: &CheckOptions,
     limits: Limits,
-) -> Result<Outcome, Error> {
-    let model = bind(ir, config, options)?;
-    match dive_liveness::analyze::analyze_final(&model, options, limits) {
+) -> Result<Outcome, Failure> {
+    let model =
+        bind(ir, config, options).map_err(|error| Failure::before(error, Stage::Binding))?;
+    match dive_liveness::analyze::analyze_final_with_evidence(&model, options, limits) {
         Ok(Analysis::Holds(complete)) => Ok(Outcome::Holds(Box::new(complete))),
         Ok(Analysis::Candidate(candidate)) => {
             // Rebind separately: validation cannot inspect the checker's graph
             // or depend on its mutable evaluator/host state.
-            let validation_model = bind(ir, config, options)?;
+            let validation_model = bind(ir, config, options).map_err(|error| {
+                Failure::after(error, Stage::Validation, &candidate.exploration)
+            })?;
             let trace = Trace {
                 states: candidate.states.clone(),
                 // Labels are optional; the validator checks the relation itself.
@@ -189,21 +311,43 @@ fn run(
             };
             let report = dive_trace::validate(&validation_model, &trace, None);
             if report.validation != Validation::Valid {
-                return Err(Error::Validation {
-                    candidate: Box::new(candidate),
-                    report,
+                let exploration = Some(Box::new(
+                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
+                ));
+                return Err(Failure {
+                    error: Error::Validation {
+                        candidate: Box::new(candidate),
+                        report,
+                    },
+                    stage: Stage::Validation,
+                    exploration,
+                    elapsed: Duration::ZERO,
                 });
             }
-            let document = trace.to_doc(&validation_model).map_err(Error::Document)?;
+            let document = trace.to_doc(&validation_model).map_err(|error| {
+                Failure::after(
+                    Error::Document(error),
+                    Stage::Document,
+                    &candidate.exploration,
+                )
+            })?;
             // Validate the serialized form too; a conversion bug must not turn
             // a certified in-memory word into an incorrect user-facing trace.
             let report =
                 dive_trace::validate_doc(&validation_model, &document, &config.model_values, None)
                     .0;
             if report.validation != Validation::Valid {
-                return Err(Error::Validation {
-                    candidate: Box::new(candidate),
-                    report,
+                let exploration = Some(Box::new(
+                    dive_liveness::analyze::ExplorationEvidence::from(&candidate.exploration),
+                ));
+                return Err(Failure {
+                    error: Error::Validation {
+                        candidate: Box::new(candidate),
+                        report,
+                    },
+                    stage: Stage::Validation,
+                    exploration,
+                    elapsed: Duration::ZERO,
                 });
             }
             Ok(Outcome::Violation(Box::new(ValidatedCounterexample {
@@ -212,8 +356,16 @@ fn run(
                 validation: report,
             })))
         }
-        Err(AnalysisError::Exploration(result)) => Ok(Outcome::Safety(result)),
-        Err(error) => Err(Error::Analysis(error)),
+        Err(dive_liveness::analyze::Failure {
+            error: AnalysisError::Exploration(result),
+            ..
+        }) => Ok(Outcome::Safety(result)),
+        Err(failure) => Err(Failure {
+            error: Error::Analysis(failure.error),
+            stage: Stage::Analysis(failure.stage),
+            exploration: failure.exploration,
+            elapsed: Duration::ZERO,
+        }),
     }
 }
 
@@ -251,18 +403,61 @@ pub fn check_final(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Report, Error> {
+    check_final_with_evidence(ir, config, options, limits).map_err(|failure| failure.error)
+}
+
+/// Like [`check_final`], preserving execution-stage, worker, statistics and
+/// elapsed-time evidence on failures. Capture statistics never certify a
+/// temporal verdict when a later stage fails.
+///
+/// # Errors
+/// The same failures as [`check_final`], with available execution evidence.
+pub fn check_final_with_evidence(
+    ir: &Arc<Ir>,
+    config: &ModelConfig,
+    options: &CheckOptions,
+    limits: Limits,
+) -> Result<Report, Failure> {
     let started = Instant::now();
     let outcome = std::thread::scope(|s| {
         std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
             .spawn_scoped(s, || run(ir, config, options, limits))
-            .map_err(|e| Error::Thread(e.to_string()))?
+            .map_err(|e| Failure::before(Error::Thread(e.to_string()), Stage::Unknown))?
             .join()
-            .map_err(|_| Error::Thread("the evaluation thread panicked".into()))?
+            .map_err(|_| {
+                Failure::before(
+                    Error::Thread("the evaluation thread panicked".into()),
+                    Stage::Unknown,
+                )
+            })?
+    })
+    .map_err(|mut failure| {
+        failure.elapsed = started.elapsed();
+        failure
     })?;
     Ok(Report {
         outcome,
         options: options.clone(),
         elapsed: started.elapsed(),
     })
+}
+
+#[cfg(test)]
+mod evidence_controls {
+    use super::*;
+
+    #[test]
+    fn lost_thread_evidence_is_unknown_not_zero() {
+        for stage in [
+            Stage::Unknown,
+            Stage::Analysis(dive_liveness::analyze::Stage::Unknown),
+        ] {
+            let failure = Failure::before(Error::Thread("test thread failure".into()), stage);
+            assert_eq!(failure.stage().name(), "unknown");
+            assert_eq!(failure.capture_completed(), None);
+            assert!(failure.workers(8).is_none());
+            assert!(failure.exploration().is_none());
+        }
+    }
 }
