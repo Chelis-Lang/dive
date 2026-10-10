@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "stage": "single-process-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "b4a85d7f242a732342e6c96d62fabcacdb5a40653f36cb53935c0994341a0762",
+  "comparator_sha256": "d4f5eddf8f9cff6a3451135789af06fe87973c92527a542f10f0a94eeba43fbf",
+  "native_sha256": "83ddb5f5e35fc7e3c2738e294b4f2d3c8d04497e8d1e878105493e7b8d8a95b9",
+  "model_proved": false,
+  "pending": [
+    "multiple-process-blocks",
+    "process-fairness",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 16,
+  "summary": {
+    "rejection-match": 3,
+    "native-refusal": 11,
+    "token-artifact-match": 2
+  },
+  "rows": [
+    {
+      "id": "ProcInteraction_C_duplicate_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "ProcInteraction_C_empty_body",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcInteraction_C_fair_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_C_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_C_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_C_same_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_C_two",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_C_unicode",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f52a8471f8938369d3a7f4f0497c1300f3657bfd13db249fe72cfaf695a1278d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "ProcInteraction_P_duplicate_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "ProcInteraction_P_empty_body",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: empty/automatically labelled algorithm",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_fair_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label fairness normalization",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_same_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_two",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcInteraction_P_unicode",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f52a8471f8938369d3a7f4f0497c1300f3657bfd13db249fe72cfaf695a1278d",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}

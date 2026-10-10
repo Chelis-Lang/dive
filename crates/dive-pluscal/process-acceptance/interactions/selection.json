@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "ProcInteraction_P_two",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_same_id",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_plus",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_minus",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_unicode",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_empty_body",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_P_duplicate_label",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_two",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_same_id",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_plus",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_minus",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_fair_algorithm",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_unicode",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_empty_body",
+      "options": []
+    },
+    {
+      "id": "ProcInteraction_C_duplicate_label",
+      "options": []
+    }
+  ]
+}

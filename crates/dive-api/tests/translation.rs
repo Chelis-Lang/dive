@@ -6,6 +6,36 @@ fn module(body: &str) -> String {
     )
 }
 #[test]
+fn process_artifact_is_validated_nonproof_in_both_profiles() {
+    let source = module(
+        "variable g=0; process P \\in{1,2} variables x=0; begin L: x:=1; g:=x; E: skip; end process; end algorithm;",
+    );
+    for compat_tlc in [false, true] {
+        let report = translate_source(
+            "TranslationTest.tla",
+            &source,
+            &TranslationRequest {
+                compat_tlc,
+                ..TranslationRequest::default()
+            },
+        );
+        let doc = report.to_json();
+        assert!(report.accepted(), "{doc}");
+        assert_eq!(doc["model_proved"], false);
+        assert_eq!(doc["exhaustive"], false);
+        assert_eq!(doc["analysis"]["accepted"], true);
+        assert_eq!(
+            doc["artifact"]["processes"][0]["local_variables"],
+            serde_json::json!(["x"])
+        );
+        assert!(
+            doc["module_source"]
+                .as_str()
+                .is_some_and(|s| s.contains("g' = x'[self]"))
+        );
+    }
+}
+#[test]
 fn artifact_validation_and_source_map() {
     let source = module("variable x=0; begin L: x:=1; E: skip; end algorithm;");
     let report = translate_source(

@@ -80,3 +80,7 @@ precise mapping and full F-034 certification remain pending.
 
 See the [reproduction instructions](../crates/dive-pluscal/translation-acceptance/README.md)
 and [ADR 0026](decisions/0026-pluscal-sequential-translation.md).
+
+One unfair literal-ID or finite-membership process block is now a separate bounded
+native path; see [process storage/action admission](pluscal-processes.md). Multiple
+blocks, fairness and unproved process renaming remain named refusals.

@@ -617,3 +617,39 @@ fn translate_label_options_preserve_files_and_default_configuration()
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
+#[test]
+fn translate_process_storage_and_label_default_are_explicit()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslateProcess ----\nEXTENDS Naturals,TLC\n(* --algorithm A process P \\in{1,2} variables x; begin x:=1; E: skip; end process; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateProcess.tla", source);
+    let path = file.to_string_lossy();
+    assert_eq!(
+        dive(&["translate", &path, "--output", "json"])
+            .status
+            .code(),
+        Some(1)
+    );
+    let out = dive(&[
+        "translate",
+        &path,
+        "--compat=tlc",
+        "--label",
+        "--output",
+        "json",
+    ]);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(doc["artifact"]["processes"][0]["binding_kind"], "Member");
+    assert_eq!(
+        doc["artifact"]["configuration"],
+        "CONSTANT defaultInitValue = defaultInitValue\n"
+    );
+    assert_eq!(doc["model_proved"], false);
+    assert_eq!(std::fs::read_to_string(file)?, source);
+    Ok(())
+}

@@ -32,6 +32,45 @@ fn conjunction(clauses: &[String], force: bool) -> String {
         .join("\n")
 }
 impl Emitter<'_> {
+    fn local(&self, name: &str) -> bool {
+        self.model.process.as_ref().is_some_and(|p| {
+            p.id.kind == BindingKind::Member && p.variables.iter().any(|v| v.name.text == name)
+        })
+    }
+    fn process_id(&self) -> String {
+        self.model.process.as_ref().map_or_else(String::new, |p| {
+            if p.id.kind == BindingKind::Member {
+                "self".into()
+            } else {
+                tokens(self.parsed, p.id.expression)
+                    .iter()
+                    .map(|t| t.text.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            }
+        })
+    }
+    fn domain(&self) -> String {
+        self.model.process.as_ref().map_or_else(String::new, |p| {
+            tokens(self.parsed, p.id.expression)
+                .iter()
+                .map(|t| t.text.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        })
+    }
+    fn parameter(&self) -> &'static str {
+        if self
+            .model
+            .process
+            .as_ref()
+            .is_some_and(|p| p.id.kind == BindingKind::Member)
+        {
+            "(self)"
+        } else {
+            ""
+        }
+    }
     fn bounded(&self, text: String, span: Span) -> Result<String, TranslationError> {
         if text.len() > self.limit {
             return Err(failure(
@@ -110,7 +149,17 @@ impl Emitter<'_> {
                 && source
                     .get(index + 1)
                     .is_some_and(|next| matches!(next.text.as_str(), ":" | "|->" | "↦"));
-            if !field && !record_key && changed.contains(&token.text) {
+            if !field && !record_key && self.local(&token.text) {
+                words.push(format!(
+                    "{}{}[self]",
+                    token.text,
+                    if changed.contains(&token.text) {
+                        "'"
+                    } else {
+                        ""
+                    }
+                ));
+            } else if !field && !record_key && changed.contains(&token.text) {
                 words.push(format!("{}'", token.text));
             } else {
                 words.push(token.text.clone());
@@ -203,7 +252,27 @@ impl Emitter<'_> {
             }
             let end = ordered[index..].partition_point(|item| item.variable.text == name) + index;
             let group = &ordered[index..end];
-            let rhs = if group.len() == 1 && assignment.selectors.is_none() {
+            let rhs = if self.local(name) {
+                let fields = group
+                    .iter()
+                    .map(|item| {
+                        let selectors = item.selectors.map_or_else(
+                            || Ok(String::new()),
+                            |expr| self.expression(expr, &before),
+                        )?;
+                        let value = if item.selectors.is_none() {
+                            self.value_expression(item.value, &before)?
+                        } else {
+                            self.expression(item.value, &before)?
+                        };
+                        Ok(format!("![self]{selectors} = {value}"))
+                    })
+                    .collect::<Result<Vec<_>, TranslationError>>()?;
+                self.bounded(
+                    format!("[{name} EXCEPT {}]", fields.join(", ")),
+                    assignment.span,
+                )?
+            } else if group.len() == 1 && assignment.selectors.is_none() {
                 self.value_expression(assignment.value, &before)?
             } else {
                 let mut fields = Vec::new();
@@ -290,7 +359,15 @@ impl Emitter<'_> {
                             "multiple program-counter updates in one action",
                         ));
                     }
-                    clauses.push(format!("pc' = {}", serde_string(target)));
+                    clauses.push(if self.model.process.is_some() {
+                        format!(
+                            "pc' = [pc EXCEPT ![{}] = {}]",
+                            self.process_id(),
+                            serde_string(target)
+                        )
+                    } else {
+                        format!("pc' = {}", serde_string(target))
+                    });
                     changed.insert("pc".into());
                 }
                 Kind::Await(expr) => clauses.push(self.expression(*expr, changed)?),
@@ -454,6 +531,18 @@ pub(super) fn generate(
         ),
         span,
     )?;
+    if let Some(process) = &model.process {
+        let domain = emitter.domain();
+        let value = if process.id.kind == BindingKind::Equal {
+            format!("{{{domain}}}")
+        } else {
+            format!("({domain})")
+        };
+        append(
+            format!("ProcSet == {value}\n\n"),
+            process.id.expression.span,
+        )?;
+    }
     let default_init = model.variables.iter().any(|var| var.initial.is_none());
     let mut init = Vec::new();
     for variable in &model.variables {
@@ -463,17 +552,33 @@ pub(super) fn generate(
             } else {
                 "\\in"
             };
-            init.push(format!(
-                "{} {op} {}",
-                variable.name.text,
-                emitter.value_expression(binding.expression, &Changed::new())?
-            ));
+            let value = emitter.value_expression(binding.expression, &Changed::new())?;
+            let value = if emitter.local(&variable.name.text) {
+                if binding.kind == BindingKind::Equal {
+                    format!("[self \\in {} |-> {value}]", emitter.domain())
+                } else {
+                    format!("[{} -> {value}]", emitter.domain())
+                }
+            } else {
+                value
+            };
+            init.push(format!("{} {op} {value}", variable.name.text));
         } else {
-            init.push(format!("{} = defaultInitValue", variable.name.text));
+            let value = if emitter.local(&variable.name.text) {
+                format!("[self \\in {} |-> defaultInitValue]", emitter.domain())
+            } else {
+                "defaultInitValue".into()
+            };
+            init.push(format!("{} = {value}", variable.name.text));
         }
     }
     if model.use_pc {
-        init.push(format!("pc = {}", serde_string(&model.actions[0].name)));
+        let value = serde_string(&model.actions[0].name);
+        init.push(if model.process.is_some() {
+            format!("pc = [self \\in ProcSet |-> {value}]")
+        } else {
+            format!("pc = {value}")
+        });
     }
     append(
         format!(
@@ -486,7 +591,15 @@ pub(super) fn generate(
         let mut changed = Changed::new();
         let mut body = Vec::new();
         if model.use_pc {
-            body.push(format!("pc = {}", serde_string(&action.name)));
+            body.push(if model.process.is_some() {
+                format!(
+                    "pc[{}] = {}",
+                    emitter.process_id(),
+                    serde_string(&action.name)
+                )
+            } else {
+                format!("pc = {}", serde_string(&action.name))
+            });
         }
         body.extend(emitter.sequence(&action.body, &mut changed)?);
         let missing: Vec<_> = names
@@ -498,9 +611,11 @@ pub(super) fn generate(
             body.push(identity);
         }
         let name = if model.use_pc {
-            action.name.as_str()
+            format!("{}{}", action.name, emitter.parameter())
+        } else if let Some(process) = &model.process {
+            format!("{}{}", process.name.text, emitter.parameter())
         } else {
-            "Next"
+            "Next".into()
         };
         append(
             format!(
@@ -511,13 +626,56 @@ pub(super) fn generate(
             action.span,
         )?;
     }
+    if let Some(process) = &model.process
+        && model.use_pc
+    {
+        append(
+            format!(
+                "{}{} == {}\n\n",
+                process.name.text,
+                emitter.parameter(),
+                model
+                    .actions
+                    .iter()
+                    .map(|a| format!("{}{}", a.name, emitter.parameter()))
+                    .collect::<Vec<_>>()
+                    .join(" \\/ ")
+            ),
+            process.span,
+        )?;
+    }
     if model.stutter {
         append(
-            "Terminating == pc = \"Done\" /\\ UNCHANGED vars\n\n".into(),
+            if model.process.is_some() {
+                "Terminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\n".into()
+            } else {
+                "Terminating == pc = \"Done\" /\\ UNCHANGED vars\n\n".into()
+            },
             span,
         )?;
     }
-    if model.use_pc {
+    if let Some(process) = &model.process {
+        let action = if process.id.kind == BindingKind::Equal {
+            process.name.text.clone()
+        } else {
+            format!(
+                "(\\E self \\in {}: {}(self))",
+                emitter.domain(),
+                process.name.text
+            )
+        };
+        append(
+            format!(
+                "Next == {action}{}\n\n",
+                if model.stutter {
+                    " \\/ Terminating"
+                } else {
+                    ""
+                }
+            ),
+            process.span,
+        )?;
+    } else if model.use_pc {
         let mut actions: Vec<_> = model
             .actions
             .iter()
@@ -535,7 +693,14 @@ pub(super) fn generate(
     };
     append(format!("Spec == {spec}\n\n"), span)?;
     if model.stutter {
-        append("Termination == <>(pc = \"Done\")\n".into(), span)?;
+        append(
+            if model.process.is_some() {
+                "Termination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n".into()
+            } else {
+                "Termination == <>(pc = \"Done\")\n".into()
+            },
+            span,
+        )?;
     }
     // Counted source expressions can be malformed even when the PlusCal
     // source scanner accepts them. Never return a syntactically invalid body.
@@ -564,5 +729,20 @@ pub(super) fn generate(
         } else {
             String::new()
         },
+        processes: model
+            .process
+            .iter()
+            .map(|process| super::ProcessTranslation {
+                name: process.name.text.clone(),
+                binding_kind: process.id.kind,
+                id_source: process.id.expression.span,
+                local_variables: process
+                    .variables
+                    .iter()
+                    .map(|var| var.name.text.clone())
+                    .collect(),
+                source: process.span,
+            })
+            .collect(),
     })
 }

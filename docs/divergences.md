@@ -230,3 +230,9 @@ defaults, default model-value initialization and sequential label modifiers;
 [its full selection](pluscal-normalization.md) retains branch/name refusals. No
 alternate label/fairness default is introduced. Process/procedure/macro and
 historical/checksum/map contracts remain pending.
+
+The [single-process increment](pluscal-processes.md) matches unfair constant-ID
+and finite-membership process storage/action semantics and the distinct process
+`-label` default. Multiple blocks/fairness/unproved names remain named refusals.
+Constant-ID `self` references that leave the primary output SANY-invalid are
+retained without artifact credit; no alternate mathematical default is adopted.

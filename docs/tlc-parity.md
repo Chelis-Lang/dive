@@ -265,3 +265,8 @@ The [sequential normalization increment](pluscal-normalization.md) adds an owned
 110-row label/initializer/modifier selection and 16 generated finite-model
 controls. F-034/F-035 remain partial and audit-required; the 37-family census
 and certification denominator are unchanged.
+
+PlusCal process evidence now includes [a bounded single-process increment](pluscal-processes.md):
+242 retained rows and 26 finite model controls with independent witnesses. This
+does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and
+full option/map contracts remain pending.
