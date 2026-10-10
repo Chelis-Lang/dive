@@ -58,6 +58,37 @@ All notable changes to this project are documented here. The project will follow
   refused. Scoped capture admission rejects opaque effects and malformed IDs
   before workers execute; fixed structural bounds are unchanged.
 
+- Expose bounded pinned final checking through `dive check --compat=tlc
+  --lncheck final --lasso tlc` and `TemporalMode::FinalTlc`, with private validated
+  outcomes, schema-2 actual counts/stages/workers, full property identities and
+  stuttering/lasso endings. Add a distinct `dive-final-tlc` harness contract with
+  fresh independent replay and final-schedule golden admission. Resolve config
+  replacement aliases before callback-free startup admission. Ordinary periodic
+  checking, exact temporal proof and unsupported classes remain refused.
+
+- Add explicit bounded `dive_api::tlc_temporal` final-only TLC fingerprint checking
+  with a user guide in `docs/tlc-final-api.md` and callback-free pre-bind admission:
+  preserve pinned SCC anchors/pop order, greedy witness choice and full configured
+  property attribution, with fresh independent in-memory and JSON replay before
+  a private violation certificate. All30 selected controls/120 width outcomes and
+  original failures/source histories are retained. Exact-store proof, accepting-
+  sink/initial replay, periodic schedules and ordinary strict CLI integration
+  remain unsupported; fixed limits/defaults stay unchanged.
+
+- Add bounded ordered temporal execution callbacks and actual multiple-OOS/
+  tableau graph insertion, including immediate done-state re-enumeration.
+  Retain deciding source-prefix errors separately from speculative pool work,
+  typed failures and written graph evidence. Exact TLC SCC/lasso selection,
+  accepting-sink witnesses and periodic schedules remain named pending work;
+  ordinary strict liveness and resource defaults do not change.
+
+- Bounded concrete temporal graph stage: retain original accepted successor values
+  through the actual deterministic worker pool, commit one null-tableau OOS in
+  TLC slot order and expose persisted bin/PEM graph inputs. All graph results
+  remain explicit non-verdict evidence; wider tableau/schedule/lasso work remains
+  refused. Scoped capture admission rejects opaque effects and malformed IDs
+  before workers execute; fixed structural bounds are unchanged.
+
 - Add bounded diagnostic concrete phase-L receipts: TLC successor slots, first
   representatives, logical capacity history and ordered null-tableau bins with
   partial error/work evidence. Initial particle consistency is separate. Wider

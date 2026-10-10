@@ -842,3 +842,117 @@ fn translate_process_fairness_is_explicit_and_never_a_proof()
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
+
+#[test]
+fn explicit_final_tlc_mode_certifies_witnesses_and_reports_actual_execution() {
+    let path = temp_file(
+        "CliFinalTlc.tla",
+        "---- MODULE CliFinalTlc ----\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n",
+    );
+    std::fs::write(
+        path.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nPROPERTY Live\n",
+    )
+    .unwrap_or_else(|e| unreachable!("cfg: {e}"));
+    for width in ["1", "3", "4", "8"] {
+        let out = dive(&[
+            "check",
+            &path.to_string_lossy(),
+            "--compat=tlc",
+            "--seed=0",
+            "--fp=0",
+            "--workers",
+            width,
+            "--lncheck=final",
+            "--lasso=tlc",
+            "--output=json",
+        ]);
+        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+        assert_eq!(
+            out.status.code(),
+            Some(13),
+            "{v} stderr={}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        assert_eq!(v["schema_version"], 2);
+        assert_eq!(v["verdict"], "liveness-violation");
+        assert_eq!(v["tlc"]["code"], 2116);
+        assert_eq!(v["tlc"]["verified"], true);
+        assert_eq!(v["property"], "Live");
+        assert_eq!(v["counterexample"]["validation"], "valid");
+        assert_eq!(v["options"]["profile"], "tlc");
+        assert_eq!(v["options"]["lncheck"], "final");
+        assert_eq!(v["options"]["lasso"], "tlc");
+        assert_eq!(v["options"]["ordinary_temporal_schedule_supported"], false);
+        assert_eq!(
+            v["options"]["temporal_bounds"]["aggregate_byte_budget"],
+            false
+        );
+        assert_eq!(
+            v["options"]["workers"]["used"].as_u64(),
+            width.parse::<u64>().ok()
+        );
+        assert_eq!(v["execution"]["capture_completed"], true);
+    }
+    for extra in [vec![], vec!["--store=exact"], vec!["--sequential"]] {
+        let mut args = vec![
+            "check",
+            path.to_str().unwrap_or_default(),
+            "--seed=0",
+            "--fp=0",
+            "--lncheck=final",
+            "--lasso=tlc",
+            "--output=json",
+        ];
+        if !extra.is_empty() {
+            args.push("--compat=tlc");
+        }
+        args.extend(extra);
+        let out = dive(&args);
+        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+        assert_eq!(out.status.code(), Some(3), "{v}");
+        assert_eq!(v["verdict"], "unsupported");
+        assert_eq!(v["options"]["workers"]["used"], 0);
+        assert!(v["statistics"].is_null());
+        assert!(v["tlc"].is_null());
+        assert!(v["counterexample"].is_null());
+    }
+    let ordinary = dive(&[
+        "check",
+        &path.to_string_lossy(),
+        "--compat=tlc",
+        "--output=json",
+    ]);
+    assert_eq!(ordinary.status.code(), Some(3));
+    let v: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
+    assert_eq!(v["schema_version"], 1);
+    assert_eq!(v["verdict"], "unsupported");
+}
+
+#[test]
+fn final_tlc_effects_are_refused_without_startup_output_or_proof() {
+    let path = temp_file(
+        "CliFinalEffect.tla",
+        "---- MODULE CliFinalEffect ----\nEXTENDS TLC\nASSUME PrintT(TRUE)\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n",
+    );
+    std::fs::write(
+        path.with_extension("cfg"),
+        "INIT Init\nNEXT Next\nPROPERTY Live\n",
+    )
+    .unwrap_or_else(|e| unreachable!("cfg: {e}"));
+    let out = dive(&[
+        "check",
+        &path.to_string_lossy(),
+        "--compat=tlc",
+        "--lncheck=final",
+        "--lasso=tlc",
+        "--output=json",
+    ]);
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+    assert_eq!(out.status.code(), Some(3), "{v}");
+    assert_eq!(v["output"], serde_json::json!([]));
+    assert_eq!(v["options"]["workers"]["used"], 0);
+    assert!(v["statistics"].is_null());
+    assert!(v["counterexample"].is_null());
+    assert!(v["tlc"].is_null());
+}

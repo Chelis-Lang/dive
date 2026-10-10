@@ -1,17 +1,24 @@
 {
   "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "historical_integration_sources": [
+    {
+      "matrix": "before-final-mode-source/matrix.json",
+      "matrix_sha256": "df483feff6ba044615c90151c01428f18b3062642c80fbcadb53c63f00568a63",
+      "source_archive": "before-final-mode-source/sources"
+    }
+  ],
   "scope": "current combined source; frozen original delivery retained separately",
   "source_sha256": {
-    "crates/dive-api/src/check.rs": "b1dd8564ad5ea95f2284618040d81cbbb29f83ffc25116ab70fe5712dea7124a",
+    "crates/dive-api/src/check.rs": "d99a141d993d2c196ccb83c23d7b058f0874dba0ef3702af25dc68db34c8d975",
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
     "crates/dive-check/src/checkpoint.rs": "ee4e4416d8c4a945d4e9e72e3c12d0272ceb3a2a9c84c1dc3ec88f428709e3a3",
     "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
     "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
-    "crates/dive-cli/src/main.rs": "0d04f84cb4e7658676ee4ffebcebcdc175240a9c43684c32c8f891dabd422d33",
-    "crates/dive-cli/tests/cli.rs": "46f1b028780bd7589f79600564dec41e08697bcbac929d249d6c4aae92f87103",
+    "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+    "crates/dive-cli/tests/cli.rs": "a56d98b475a089116a9352a969ece2573df1eff784089fdefeb4da6ce5124fb0",
     "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
     "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
-    "scripts/check-native-checkpoint.py": "1dc7e25decea6795de0534ce01eb9c6b15f6ba14d9b6d34a002a5551df72a4e6"
+    "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
   }
 }

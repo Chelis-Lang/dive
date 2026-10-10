@@ -1,0 +1,19 @@
+{
+  "original_matrix_sha256": "2e923fcacef10b3fc1571da13526e296229528075dd9745fef5263aaa709d6e7",
+  "head_source_sha256": {
+    "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
+    "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
+    "crates/dive-check/src/parallel.rs": "75efa7fd0967fcc9f9177be4e7849a0ec3f1dac49f06ad258ebce8bf5e725f54",
+    "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
+    "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
+    "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
+    "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
+    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
+    "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
+    "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
+    "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
+    "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758"
+  },
+  "scope": "The preserved original matrix may reference an earlier producer; these independently hashed files describe the current pre-integration HEAD. Existing original producer histories remain authoritative."
+}

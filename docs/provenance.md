@@ -402,3 +402,24 @@ symmetry witnesses across memory/disk, stores, profiles and worker widths.
 | `dive-pluscal` multiple-process normalization/emission (`translate/process.rs`, `lower.rs`, `emit.rs`) | tlaplus `pcal/ParseAlgorithm.java` process-wide omission checks; `PcalTLAGen.java` `GenProcSet`, `GenInit`, `GenProcess`, `GenNext`, `GenSpec` and `PcalSymTab` source contexts; commit `94d0c50` | MIT | Source-owned body normalization, shared storage and CASE initialization, constant-before-quantified scheduling and separate fairness formulas matched through retained clean primary output; bounded domain-disjointness admission is native design, broader renaming remains refused |
 
 | Ordered temporal execution (`dive-check` source observer; `dive-liveness::phase_execution`) | `ModelChecker.DoInitFunctor`; `Worker.doNextCheckLiveness`; `LiveCheck.addNextState`, nested `TableauLiveChecker` initial/ordinary/recursive `addNextState`; `TableauDiskGraph`/`TableauNodePtrTable` record/done/write distinction; `TBGraphNode.isConsistent`; pin `94d0c50` | MIT semantics / own bounded observer admission | Actual multiple OOS bins, consistency, product registrations/transitions and immediate done-state action-vector re-enumeration match defined completed fields. One deterministic pool feeds one logical commit history; speculative and recursive work remain separate. Accepting-sink reconstruction, exact SCC/lasso/stopping replay and scheduling are not certified. ADR 0034 and `conformance/probes/tlc-phase-execution/` retain every case and historical observation. |
+
+| Pinned final-only SCC and witness (`tlc_scc`, `tlc_witness`, `tlc_final`) | `tlc2/tool/liveness/LiveWorker.java` checkSccs/checkComponent/isStuttering/dfsPostFix/bfsPostFix/printTrace; DiskGraph/TableauDiskGraph getPath, TableauNodePtrTable component vector insertion/seen/parent semantics; Liveness.findViolatedProperties configured attribution; pin `94d0c50` | MIT semantics; own bounded stage admission and independent certificate boundary | Actual private-method fields and original finalCheck streams retained for all30 controls;19 completed field/word cases match at1/3/4/8. Independent Floyd/path checks do not use production traversal. Fresh standalone trace replay certifies candidates separately;11 failures gain no error agreement. ADR0040. Periodic scheduling, initial replay and ordinary strict CLI integration remain unproved. |
+
+Final-only facade pre-bind admission follows `SpecProcessor.processConfigSpec` /
+`constantDefns` startup reachability semantics and the native Def.std authority,
+with dive's conservative callback-free source proof. User code and standard
+module top-level zero-arity bodies are inspected; unused standard LET helpers are
+not independently startup roots. No effect is evaluated to infer purity. Shared
+fallible constructor/context authority must be retained at shipping integration.
+See `docs/tlc-final-api.md` and the focused admission controls.
+
+Explicit final/TLC CLI reporting follows `LiveWorker.printTrace`'s stuttering
+versus back-to-state marker and configured `findViolatedProperties` name set.
+The existing final SCC/witness algorithms and bounds remain unchanged. Separate
+`dive-final-tlc` harness mapping requires a clean final-schedule reference and
+fresh independent model/word replay; schema-1 ordinary mapping is unchanged.
+Pre-bind source admission also resolves configuration names through every
+`Module.context` `Symbol::Def` alias before substitution precomputation, matching
+`Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
+The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
+before binding, zero used workers and no graph evidence.

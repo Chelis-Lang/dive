@@ -1,1 +1,3 @@
 The first metadata merge concatenated changed feature records and duplicated four stable IDs. The ledger checker rejected it. The frozen Rust inputs passed all 847 tests and the other workspace gates. After completion, metadata was merged by stable family ID; assertions, selections, source behavior and archived observations were unchanged.
+
+The first current-main integration check rejected null evidence-index values introduced by a metadata merge where the other parent omitted old index entries. Both parents retain byte-identical raw files. The corrected index retains the union of their independently verified original digests; no producer, raw output, source or Rust assertion changed. The failed merged index and check remain above.

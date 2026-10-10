@@ -37,5 +37,12 @@ for c in r['controls']:
         bounded += 1
 assert len(references) == 312 and bounded == 624
 current = load(BASE/'current-integration-source.json')
+for history in current.get('historical_integration_sources', []):
+ metadata = BASE/history['matrix']
+ assert hashlib.sha256(metadata.read_bytes()).hexdigest() == history['matrix_sha256'], metadata
+ for source, digest in load(metadata)['source_sha256'].items():
+  archived = BASE/history['source_archive']/(source+'.gz')
+  assert hashlib.sha256(gzip.decompress(archived.read_bytes())).hexdigest() == digest, archived
+
 for path, digest in current['source_sha256'].items(): assert sha(ROOT/path) == digest, path
 print('verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes')

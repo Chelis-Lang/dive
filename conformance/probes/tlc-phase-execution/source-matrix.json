@@ -8,11 +8,12 @@
     "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
     "crates/dive-check/src/parallel.rs": "75efa7fd0967fcc9f9177be4e7849a0ec3f1dac49f06ad258ebce8bf5e725f54",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
-    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
-    "crates/dive-liveness/src/phase_execution.rs": "5cece895a6ace6f2597b427ef966264cb89aaf3acd188f98afa3f5504cb921ae",
+    "crates/dive-liveness/src/phase_execution.rs": "41c538f9a50c59bd83c0e02b18f579b43b131f87d90dbf4c8905cf0e7f905a51",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
-  "historical_execution_slice": "execution"
+  "historical_execution_slice": "execution",
+  "current_integration_scope": "Focused current-source admission/final API/CLI/worker contracts; all original producer outcomes and the72f8 full-refusal census retain their separate immutable source histories; no wider parity certification."
 }

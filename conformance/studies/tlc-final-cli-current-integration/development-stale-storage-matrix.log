@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-tlc-final-shipping-work/scripts/check-predecessor-spill.py", line 40, in <module>
+    for path, digest in current['source_sha256'].items(): assert sha(ROOT/path) == digest, path
+AssertionError: crates/dive-api/src/check.rs

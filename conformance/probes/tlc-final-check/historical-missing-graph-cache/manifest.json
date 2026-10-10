@@ -1,0 +1,22 @@
+{
+  "selection": [
+    "PhaseTableau",
+    "ExecMultiple",
+    "ExecRevisit"
+  ],
+  "outcome": "All three wrapper attempts failed because observer did not satisfy actual AbstractDiskGraph cache prerequisite; no SCC result or native agreement credit.",
+  "sha256": {
+    "SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
+    "SccInspector.java": "e5f8011f0ad68e877d6e70d37c0312f9591d903893ed76f84e307d961307ce23",
+    "development-compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
+    "development-compiler.stderr": "66bcca1c459c184393ca1ea31a078957c7f00ee39c306aba62c0f924af7bc171",
+    "FinalProbe.java": "0c18cbc7f5a33989c337706f8262f487ab90a06eb8a583434568f1df1dbbf7c7",
+    "rows/PhaseTableau/stdout": "22a36ae1aee2e010c70f0a2b28e14687379bde35e26b712156d15190362d6059",
+    "rows/PhaseTableau/stderr": "79d5db34749879d13b258a19318c003bfd94bff7eff7094e4e601a230ad3a196",
+    "rows/ExecRevisit/stdout": "da5dbe7de9fcd00fa84639ce4b73712571a2e78a0476669b5173fdf3f37f65e8",
+    "rows/ExecRevisit/stderr": "3c55416d605bd0f93190abf3b9d8957e9387f625c20ad91147557c6bb67f9c4f",
+    "rows/ExecMultiple/stdout": "b1829ffc27723f9cbe53203a3047fa2512c5347a873ac9dd6d3694af4fb7b0d4",
+    "rows/ExecMultiple/stderr": "e6df0ba78a02892d50b7b98c536207ec54a9d7734919aab9e37a618d0ccead8a"
+  }
+}

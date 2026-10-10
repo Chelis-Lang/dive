@@ -31,3 +31,11 @@ minimal examples, measurements, approved defaults, matching settings and
 implementation status. Planned rows there are not implemented CLI switches.
 The gating reference is the [single pinned oracle bundle](../decisions/0002-oracle-pinning.md),
 not every historical TLC release.
+
+Explicit `--lncheck final --lasso tlc` selects the bounded final-only schema-2
+TLC mode; ordinary `--compat=tlc` temporal scheduling remains refused. The
+separate `dive-final-tlc` harness requires a clean final-schedule golden and
+fresh independent witness replay. It preserves configured property identities
+and checks that scalar/array names, state rows and ending markers agree with
+the actual replay document. See `docs/tlc-final-api.md`; the first unchanged
+full small selection has 140 named refusals and no general corpus credit.
