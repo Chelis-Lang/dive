@@ -1,0 +1,35 @@
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:17: error: reference to List is ambiguous
+ static void graph(LiveCheck live,OrderOfSolution[] groups,List<TLCState> queue,String prefix)throws Exception {
+                                                           ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:16: error: reference to List is ambiguous
+ static String transitions(GraphNode n,int slen,int alen){List<String> out=new ArrayList<>();for(int i=0;i<n.succSize();i++){StringBuilder b=new StringBuilder();for(int j=0;j<alen;j++)b.append(n.getCheckAction(slen,alen,i,j)?'1':'0');out.add(unsigned(n.getStateFP(i))+":"+n.getTidx(i)+":"+b);}return String.join(";",out);}
+                                                          ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:20: error: reference to List is ambiguous
+   List<String> roots=new ArrayList<>();LongVec rr=disk.getInitNodes();for(int i=0;i<rr.size();i+=2)roots.add(unsigned(rr.elementAt(i))+":"+rr.elementAt(i+1));field(prefix+".g"+g+".roots",String.join(";",roots));
+   ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:23: error: reference to List is ambiguous
+    List<String> registered=new ArrayList<>();
+    ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:39: error: reference to List is ambiguous
+  List<String> names=new ArrayList<>();for(Action a:tool.getImpliedTemporals())names.add(a.getName().toString());field("action_names",String.join(";",names));field("role_names",String.join(";",tool.getImpliedTemporalNames()));
+  ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:40: error: reference to List is ambiguous
+  List<String> configured=new ArrayList<>();Vect<String> config=tool.getModelConfig().getProperties();for(int i=0;i<config.size();i++)configured.add(config.elementAt(i));field("configured_names",String.join(";",configured));
+  ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:46: error: reference to List is ambiguous
+  LinkedHashMap<Long,TLCState> visited=new LinkedHashMap<>();List<TLCState> queue=new ArrayList<>();
+                                                             ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+/Users/jeff/code/dive-phase-l-execution-work/conformance/probes/tlc-phase-execution/ExecutionProbe.java:53: error: reference to List is ambiguous
+    TLCState source=queue.get(index);long fp=source.fingerPrint(tool);SetOfStates next=new SetOfStates(16*multiplier);int ordinal=0;List<String> incoming=new ArrayList<>();
+                                                                                                                                    ^
+  both class tlc2.util.List in tlc2.util and interface java.util.List in java.util match
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+8 errors

@@ -660,7 +660,7 @@ fn internal(message: String, stats: Stats) -> (Option<Stop>, Stats) {
 /// to `workers` threads. Returns the stop, the statistics and the number of
 /// threads used.
 pub(crate) fn levels<S: Keyed>(
-    search: &mut Search<'_, S>,
+    search: &mut Search<'_, '_, S>,
     next: Vec<(StateVals, StateId)>,
     opts: &CheckOptions,
     workers: usize,
@@ -682,7 +682,7 @@ pub(crate) fn levels<S: Keyed>(
 
 #[allow(clippy::too_many_lines, reason = "the three phases of a level")]
 fn run_levels<'a: 'env, 'env, S: Keyed>(
-    search: &mut Search<'a, S>,
+    search: &mut Search<'a, '_, S>,
     set: &'env RwLock<S>,
     next: Vec<(StateVals, StateId)>,
     opts: &CheckOptions,
@@ -696,7 +696,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     let mut first_id: StateId = next.first().map_or(0, |(_, id)| *id);
     let mut frontier: Arc<Vec<StateVals>> = Arc::new(next.into_iter().map(|(s, _)| s).collect());
     let mut level = 1u64;
-    let stats_now = |search: &Search<'_, S>, left: u64| Stats {
+    let stats_now = |search: &Search<'_, '_, S>, left: u64| Stats {
         generated: search.generated,
         distinct: set.read().unwrap_or_else(PoisonError::into_inner).len(),
         left_on_queue: left,
@@ -883,6 +883,75 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 if let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() {
                     lines.extend(out.lines);
                     first = earlier(first, out.event);
+                }
+            }
+        }
+        // Commit each complete source to the observer before a later source's
+        // safety event. Resolution may already have evaluated later candidates;
+        // logical counts are closed forms over the committed source prefix.
+        if search.observer.is_some() {
+            accepted.sort_by_key(|(pos, _)| *pos);
+            let pool_generated: u64 = gens.iter().sum();
+            let source_limit = first
+                .as_ref()
+                .map_or(len, |e| usize::try_from(e.key.0.0).unwrap_or(len).min(len));
+            let mut from = 0;
+            let mut to = 0;
+            let mut upto = 0;
+            let mut generated = search.generated;
+            for source in 0..source_limit {
+                while to < accepted.len() && accepted[to].0.0 <= source as u64 {
+                    to += 1;
+                }
+                while upto < winners.len() && winners[upto].pos.0 <= source as u64 {
+                    upto += 1;
+                }
+                generated += gens[source];
+                let successors: Vec<_> = accepted[from..to]
+                    .iter()
+                    .map(|(pos, payload)| crate::capture::ConcreteSuccessor {
+                        state: payload.vals.clone(),
+                        ordinal: u64::from(pos.2),
+                        label: m.actions[payload.action as usize].label().to_owned(),
+                    })
+                    .collect();
+                from = to;
+                let stats = Stats {
+                    generated,
+                    distinct: distinct_before + upto as u64,
+                    left_on_queue: ((len - source - 1) + upto) as u64,
+                    depth: if upto > 0 {
+                        search.depth.max(level + 1)
+                    } else {
+                        search.depth
+                    },
+                    initial_generated: search.initial_generated,
+                };
+                let observation = crate::capture::CommittedSource {
+                    id: first_id + source as u64,
+                    level,
+                    state: &frontier[source],
+                    successors: &successors,
+                    stats,
+                    pool_generated,
+                };
+                if let Some(observer) = &mut search.observer
+                    && let Err(message) = observer.source(observation)
+                {
+                    first = earlier(
+                        first,
+                        Some(Event {
+                            key: ((source as u64, u32::MAX, u32::MAX), PH_DEADLOCK + 1),
+                            unit: source,
+                            c: gens[source],
+                            verdict: Verdict::Unsupported {
+                                feature: format!("ordered source observer: {message}"),
+                            },
+                            then: None,
+                            resume: false,
+                        }),
+                    );
+                    break;
                 }
             }
         }

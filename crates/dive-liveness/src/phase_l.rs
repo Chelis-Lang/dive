@@ -503,6 +503,67 @@ impl<'a> Session<'a> {
     pub(super) fn has_tableau(&self) -> bool {
         self.tableaux.iter().any(Option::is_some)
     }
+    pub(super) fn tableaux(&self) -> &[Option<Tableau>] {
+        &self.tableaux
+    }
+    pub(super) fn consistent(
+        &mut self,
+        group: usize,
+        particle: usize,
+        state: &State,
+    ) -> Result<bool, Box<Failure>> {
+        let result = (|| {
+            let roots = self
+                .tableaux
+                .get(group)
+                .and_then(Option::as_ref)
+                .and_then(|t| t.particles.get(particle))
+                .map(|p| p.state_predicates.clone())
+                .ok_or_else(|| Error::Input("product consistency particle index".into()))?;
+            cell_room(1, self.limits, &mut self.progress)?;
+            let st = St::state(state.clone());
+            for root in roots {
+                if !self.tableau_term(group, root, &st, 0)? {
+                    return Ok(false);
+                }
+            }
+            self.progress.completed_cells += 1;
+            Ok(true)
+        })();
+        result.map_err(|error| failure(error, &self.progress, None))
+    }
+    pub(super) fn direct_bins(
+        &mut self,
+        group: usize,
+        state: &State,
+        target: Option<&State>,
+    ) -> Result<Vec<bool>, Box<Failure>> {
+        let result = (|| {
+            let order = self
+                .plan
+                .projection
+                .orders
+                .get(group)
+                .ok_or_else(|| Error::Input("recursive OOS group index".into()))?;
+            let roots = if target.is_some() {
+                order.check_action.clone()
+            } else {
+                order.check_state.clone()
+            };
+            cell_room(roots.len(), self.limits, &mut self.progress)?;
+            let st = target.map_or_else(
+                || St::state(state.clone()),
+                |t| St::action(state.clone(), t.clone()),
+            );
+            let mut bins = Vec::with_capacity(roots.len());
+            for root in roots {
+                bins.push(self.term(root, &st, 0)?);
+                self.progress.completed_cells += 1;
+            }
+            Ok(bins)
+        })();
+        result.map_err(|error| failure(error, &self.progress, None))
+    }
     pub(super) fn concrete_fingerprint(&mut self, state: &State) -> Result<u64, Box<Failure>> {
         self.progress.actual_workers = 1;
         self.fingerprint(state)
@@ -742,6 +803,154 @@ impl<'a> Session<'a> {
         })();
         checked.map_err(|e| failure(e, &self.progress, None))
     }
+    /// Collect once before interleaved group evaluation/insertion. No bins run here.
+    pub(super) fn collect(
+        &mut self,
+        source: &State,
+        incoming: &[Incoming],
+    ) -> Result<Receipt, Box<Failure>> {
+        self.progress.actual_workers = 1;
+        let mut receipt = Receipt {
+            multiplier: self.multiplier,
+            capacity: 0,
+            successors: Vec::new(),
+            checks: Vec::new(),
+            graph_insertion: false,
+        };
+        let result = (|| {
+            if incoming
+                .len()
+                .checked_add(1)
+                .is_none_or(|n| n > self.limits.incoming)
+            {
+                return Err(Error::Limit("source admissions including stutter"));
+            }
+            if incoming
+                .windows(2)
+                .any(|pair| pair[0].ordinal >= pair[1].ordinal)
+            {
+                return Err(Error::Input("non-increasing successor ordinals".into()));
+            }
+            let initial = self
+                .multiplier
+                .checked_mul(16)
+                .ok_or(Error::Limit("logical successor capacity"))?;
+            // Reserve the maximum representative prefix before retaining any
+            // concrete references, including the prefix returned on failure.
+            cell_room(incoming.len() + 1, self.limits, &mut self.progress)?;
+            let mut set = Slots::new(initial, self.limits)?;
+            let collected = (|| {
+                for next in incoming {
+                    self.progress.admissions += 1;
+                    let fp = self.fingerprint(&next.state)?;
+                    set.put(
+                        Entry {
+                            fp,
+                            state: next.state.clone(),
+                            ordinal: Some(next.ordinal),
+                            label: next.label.clone(),
+                        },
+                        self.limits,
+                        &mut self.progress,
+                    )?;
+                }
+                self.progress.admissions += 1;
+                let fp = self.fingerprint(source)?;
+                set.put(
+                    Entry {
+                        fp,
+                        state: source.clone(),
+                        ordinal: None,
+                        label: None,
+                    },
+                    self.limits,
+                    &mut self.progress,
+                )?;
+                Ok(())
+            })();
+            receipt.capacity = set.slots.len();
+            receipt.successors = set.representatives();
+            collected?;
+            Ok(())
+        })();
+        match result {
+            Ok(()) => Ok(receipt),
+            Err(e) => Err(failure(e, &self.progress, Some(receipt))),
+        }
+    }
+    /// Charge and evaluate exactly one OOS before its graph commit.
+    pub(super) fn group(
+        &mut self,
+        source: &State,
+        receipt: &mut Receipt,
+        group: usize,
+    ) -> Result<(), Box<Failure>> {
+        let result = (|| {
+            let order = self
+                .plan
+                .projection
+                .orders
+                .get(group)
+                .ok_or_else(|| Error::Input("OOS group index".into()))?;
+            let actions = order.check_action.clone();
+            let states = order.check_state.clone();
+            let cells = actions
+                .len()
+                .checked_mul(receipt.successors.len())
+                .and_then(|n| n.checked_add(states.len()))
+                .ok_or(Error::Limit("action/state bin cells"))?;
+            cell_room(cells, self.limits, &mut self.progress)?;
+            receipt.checks.reserve(cells);
+            for (sidx, successor) in receipt.successors.iter().enumerate() {
+                let st = St::action(source.clone(), successor.state.clone());
+                for (bin, root) in actions.iter().enumerate() {
+                    let holds = self.term(*root, &st, 0)?;
+                    receipt.checks.push(Check {
+                        group,
+                        kind: AtomKind::Action,
+                        bin,
+                        successor: Some(sidx),
+                        holds,
+                    });
+                    self.progress.completed_cells += 1;
+                }
+            }
+            let st = St::state(source.clone());
+            for (bin, root) in states.iter().enumerate() {
+                let holds = self.term(*root, &st, 0)?;
+                receipt.checks.push(Check {
+                    group,
+                    kind: AtomKind::State,
+                    bin,
+                    successor: None,
+                    holds,
+                });
+                self.progress.completed_cells += 1;
+            }
+            Ok(())
+        })();
+        result.map_err(|e| failure(e, &self.progress, Some(receipt.clone())))
+    }
+    /// Advance the one logical capacity history only after every group succeeds.
+    pub(super) fn finish_source(&mut self, receipt: &Receipt) -> Result<(), Box<Failure>> {
+        let result = (|| {
+            if receipt.capacity
+                > self
+                    .multiplier
+                    .checked_mul(16)
+                    .ok_or(Error::Limit("logical successor capacity"))?
+            {
+                self.multiplier = self
+                    .multiplier
+                    .checked_add(1)
+                    .ok_or(Error::Limit("logical worker multiplier"))?;
+            }
+            self.progress.sources += 1;
+            Ok(())
+        })();
+        result.map_err(|e| failure(e, &self.progress, Some(receipt.clone())))
+    }
+
     /// Consumes accepted concrete successors once, adds implicit stutter, then
     /// evaluates each OOS's action bins over slot order before its state bins.
     /// Logical capacity history advances only after successful bin evaluation.
