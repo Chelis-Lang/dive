@@ -90,7 +90,7 @@ and a corresponding certification schema before the label can change.
 | F-022 | SCC acceptance, TLC lasso selection and attribution | partial | 4 | [lassos.rs](../crates/dive-liveness/tests/lassos.rs) |
 | F-023 | Periodic/final/off/sequential liveness schedules | missing | 4 | [m6-plan.md](design/m6-plan.md) |
 | F-024 | Simulation, generation, scheduling and random replay | missing | 5 | [mod.rs](../crates/dive-stdlib/src/random/mod.rs) |
-| F-025 | DFID checking | missing | 5 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
+| F-025 | DFID checking | partial | 5 | [DFID controls](../conformance/reports/dfid-primary-controls.json); pure safety only, uncertified |
 | F-026 | Granted environment, file and process effects | missing | 6 | [tlc-differences.md](tlc-differences.md) |
 | F-027 | Runtime introspection and configuration services | partial | 6 | [tlc_module.rs](../crates/dive-check/tests/tlc_module.rs) |
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
@@ -156,7 +156,7 @@ harness when it launches Java are not thereby implemented by the Rust CLI.
 | `-modelcheck`, `-workers`, `-deadlock`, `-config` | F-003/F-012/F-013; core implemented, remaining option/error interactions require audit |
 | `-seed`, `-aril`, `-fp` | F-014/F-024; Java random kernel and fingerprint pin exist, all modes/aril CLI coverage still required |
 | `-lncheck` | F-019–F-023; only explicit final/short mixed path currently checks temporal models |
-| `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; simulation and DFID backends missing |
+| `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; simulation pending integration; bounded pure-safety DFID partial, full mode matrix pending |
 | `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; native persistence/recovery missing |
 | `-maxSetSize`, `-fpmem`, `-fpbits`, `-gzip` | F-005/F-014/F-031; TLC limit and storage policy behavior must be mapped and tested |
 | `-continue`, `-postCondition` | F-012/F-027; continuation, terminal effects and their error order need implementation/audit |
@@ -263,3 +263,13 @@ has three clean pinned seed controls, and independent TLC-order validation
 refuses namespace history it cannot establish from a witness. Canonical
 validation remains decisive. These repairs do not certify their containing
 families or change the 37-family denominator.
+## Native DFID evidence
+
+`dive dfid` and `dfid_file` implement the bounded pure safety visitation path
+(ADR 0021). The [control report](../conformance/reports/dfid-primary-controls.json)
+accounts every clean selected observation; worker-selection ambiguity is not
+converted into strict agreement. Separately identified injected-worker-seed
+references check status/iteration/counting and concrete path selection. The
+complete acceptance matrix, output/error/display controls, effects, checkpointing
+and other mode interactions remain pending. F-025/F-028/F-035 are partial and
+audit-required; no denominator or certification count is changed.

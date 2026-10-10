@@ -489,18 +489,23 @@
     {
       "id": "F-025",
       "name": "DFID checking",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 5,
       "pinned_source": "tlc2/tool/DFIDModelChecker.java",
-      "rust_evidence": "crates/dive-check/src/lib.rs",
-      "conformance_evidence": "docs/design/tlc-parity-plan.md",
-      "issues": [],
+      "rust_evidence": "crates/dive-check/src/dfid.rs",
+      "conformance_evidence": "conformance/reports/dfid-primary-controls.json",
+      "issues": [
+        118
+      ],
       "acceptance": "Depth iterations, visited-state status, stop/deadlock/continuation and counts match finite and infinite bounded controls; reports distinguish DFID from BFS.",
       "interactions": [
         "F-007",
         "F-012",
         "F-027"
+      ],
+      "evidence_updates": [
+        "Native pure safety DFID visitation/status, eager vectors, counts and bounded completion; clean primary and separately identified injected-seed controls. Full acceptance and interactions remain audit-required."
       ]
     },
     {
@@ -560,6 +565,9 @@
         "F-011",
         "F-023",
         "F-029"
+      ],
+      "evidence_updates": [
+        "Explicit native dive dfid command with versioned complete/incomplete/refusal evidence. Raw TLC display, collision probability text, binding failure classes and wider flag interactions remain pending."
       ]
     },
     {
@@ -697,7 +705,10 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required."
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
+      "evidence_updates": [
+        "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
+      ]
     },
     {
       "id": "F-036",
