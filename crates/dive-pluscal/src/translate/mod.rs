@@ -1,7 +1,8 @@
-//! Native sequential translation. Source normalization is bounded and explicit.
+//! Native sequential/single-process translation; normalization is bounded and explicit.
 mod emit;
 mod labels;
 mod lower;
+mod process;
 
 use crate::{Code, Diagnostic, Options, ast::Span};
 use serde::{Deserialize, Serialize};
@@ -12,7 +13,8 @@ pub struct TranslationOptions {
     /// Source parser limits.
     pub parser: Options,
     /// Insert missing labels even when the source already has labels (`-label`).
-    /// By default, insertion is enabled only for sources with no explicit labels.
+    /// Sequential sources without labels enable insertion by default; process
+    /// bodies always require this option when a label is missing.
     pub insert_missing_labels: bool,
     /// Prefix of generated labels (`-labelRoot`); this does not enable insertion.
     pub label_root: String,
@@ -90,6 +92,21 @@ pub struct InsertedLabel {
     pub position: crate::ast::Position,
 }
 
+/// Admitted process storage context, never an evaluated process-domain claim.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ProcessTranslation {
+    /// Original process operator spelling.
+    pub name: String,
+    /// Constant ID versus membership domain.
+    pub binding_kind: crate::ast::BindingKind,
+    /// Original ID/domain expression bytes.
+    pub id_source: Span,
+    /// Local storage variables, scalar for constant IDs and indexed for sets.
+    pub local_variables: Vec<String>,
+    /// Original complete process bytes.
+    pub source: Span,
+}
+
 /// A native generated TLA body, without file checksums or translator map format.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Translation {
@@ -106,8 +123,10 @@ pub struct Translation {
     /// Inserted labels in the reference normalization traversal order.
     pub inserted_labels: Vec<InsertedLabel>,
     /// Required TLC configuration text for default model-value initialization.
-    /// Empty when every global variable has an explicit initializer.
+    /// Empty when every global/process-local variable has an explicit initializer.
     pub configuration: String,
+    /// Admitted process declarations; empty for sequential translation.
+    pub processes: Vec<ProcessTranslation>,
 }
 
 fn error(
@@ -126,8 +145,8 @@ fn error(
     }
 }
 
-/// Translates a standalone bounded sequential current C/P algorithm.
-/// Unsupported processes, procedures/macros, historical/options modes and name
+/// Translates a bounded sequential or single-process current C/P algorithm.
+/// Multiple processes, fairness, procedures/macros, historical modes and name
 /// disambiguation fail before an artifact is returned. Expression validation and
 /// complete module binding are separate stages.
 ///

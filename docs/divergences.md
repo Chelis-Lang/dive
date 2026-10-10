@@ -323,3 +323,8 @@ consistency (ADR 0029). All receipts say graph_insertion=false. Tableau graph
 revisitation, wider diagnostic execution and unproved state-kind IF planning
 remain explicit refusals; strict integrated liveness remains unsupported. The
 original native error-order gaps (#147/#149) are retained and receive no match credit.
+The [single-process increment](pluscal-processes.md) matches unfair constant-ID
+and finite-membership process storage/action semantics and the distinct process
+`-label` default. Multiple blocks/fairness/unproved names remain named refusals.
+Constant-ID `self` references that leave the primary output SANY-invalid are
+retained without artifact credit; no alternate mathematical default is adopted.
