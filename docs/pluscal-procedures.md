@@ -82,8 +82,9 @@ matching the reference. It does not acquire an implicit return. Such an artifact
 can deadlock when checked; translation success never claims a successful model.
 
 Change `call Put(2)` to `call Missing(2)` for a source/generation rejection with
-exit 1 and no artifact. A recursive call, renaming
-collision, procedure/process ownership or procedure/macro interaction returns
+exit 1 and no artifact. In this historical increment, a recursive call returned
+`unsupported`; the current recursive guide above supersedes that boundary. Renaming
+collision, procedure/process ownership or unproved procedure/macro interaction returns
 named `unsupported` with exit 3. Undefined TLA names in a generated module are
 rejected at enclosing artifact analysis. An unused invalid procedure still
 prevents module admission; its invalid reference output is never credited.

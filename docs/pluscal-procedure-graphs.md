@@ -75,8 +75,9 @@ action and generated-output budgets in `TranslationRequest.limits`.
 Normalization owns one private source arena and charges normalized-node and
 action budgets globally across main and every procedure. Resource exhaustion
 returns a source-spanned `DIVE-P0040` error, without an artifact. Unknown call
-targets or wrong argument counts are rejections; unproved namespaces and call
-graph cycles are named `unsupported` results (exit 3).
+targets or wrong argument counts are rejections. Unproved namespaces return
+`unsupported` (exit 3); the historical cycle refusal is superseded by the
+current recursive guide linked above.
 
 ## Frames, names and control flow
 
@@ -101,8 +102,9 @@ values; later local initializers observe already initialized parameters/locals.
 Names must be disjoint across globals, every parameter/local, procedure names
 and labels; generated names such as `pc` and `stack` are reserved. This slice
 does not implement the reference renaming machinery. All procedure labels are
-explicit. Direct, mutual and tail recursion are refused, including cycles in
-unused procedures or branches guarded by `FALSE`. Process-owned stacks,
+explicit. This historical slice refused direct, mutual and tail recursion,
+including unused cycles; the current recursive guide supersedes that restriction.
+Process-owned stacks,
 automatic procedure labels, procedure-label fairness modifiers and unproved
 procedure/macro combinations remain unsupported. Existing admitted branch,
 loop, `with`, parallel assignment and algorithm-level fairness forms remain
