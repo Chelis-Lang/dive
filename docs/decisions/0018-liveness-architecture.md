@@ -487,3 +487,29 @@ three clean five-process `Fw*` TLC probes. Fresh independent validation rejects
 unfair witness mutants. The LM1 final/short study has 42 truth/count matches
 and three named VIEW refusals with no findings; actual graph capture remains
 one worker and strict TLC temporal conformance remains pending.
+
+
+## Increment: bounded ordered parallel capture (2026-10-10, P4-capture)
+
+The final/short graph collector now observes all accepted successor occurrences
+from the shared parallel safety engine, including seen keys and duplicate keys.
+It commits fixed waves of eight complete source units in reference order,
+preserving original global ordinals, action labels, discovery IDs and implicit
+stutters. It never reconstructs the graph by a second enumeration. The usual
+safety counterexample error replay is unchanged.
+
+Scheduling cannot choose a resource stop. A per-source `successors_per_unit`
+scratch admission cap (65,536 by default) limits side-channel and candidate
+buffers independently of logical states/edges/generated limits, whose defaults
+stay unchanged. The same cap applies to inline capture. No more than eight
+source units are expanded concurrently, regardless of requested pool width.
+Unsupported high-fanout admission and partial bounds yield resource refusals;
+no partial graph is exposed as complete. This is an entry-count limit, not a
+byte or arbitrary evaluator-operation budget. Documentation states its TLC
+counterpart (unbounded admission) and explicit library override.
+
+Complete graphs, all safety stops and tiny-bound prefixes are compared against
+inline capture at 1/4/8 and chaos in both profiles/stores; pinned final probes
+retain counts and independently validated short-word claims. This accepts
+neither phase-L timing nor exact TLC selection. VIEW, symmetry, randomness and
+stateful graph effects remain refused. See `docs/temporal-api.md` for the bound.

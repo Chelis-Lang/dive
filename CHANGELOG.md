@@ -18,6 +18,13 @@ All notable changes to this project are documented here. The project will follow
 - Offline parity-ledger checks reject absent or escaping evidence, changed
   stable IDs, unsupported certification claims and Markdown census drift.
 
+- Pure final/short temporal graph capture uses ordered parallel source waves,
+  retaining all duplicate/seen edges, original labels/ordinals, roots and
+  implicit stutters. Inline/1/4/8/chaos controls cover both profiles and stores.
+  Existing logical graph limits are unchanged; a separately named per-source
+  scratch admission bound returns an explicit resource refusal. VIEW, symmetry,
+  randomness, stateful graph effects and strict TLC temporal timing still refuse.
+
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown
   thread execution is reported as unknown rather than zero. Existing library

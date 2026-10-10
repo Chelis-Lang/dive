@@ -498,9 +498,10 @@ predicates and WF/SF via scoped enabledness and non-stuttering actions. Ten
 pinned violations match TLC counts in both stores and yield independently valid
 candidates; three success controls also match, including enabled successors
 outside a constrained graph. Every false configured property is attributed
-and independently checked; omitted or extra claims are rejected. Capture runs
-inline and reports that width. TLC-exact planning/selection, phase-L error
-accounting, parallel/periodic capture and CLI options remain pending. Ordinary
+and independently checked; omitted or extra claims are rejected. Capture now
+uses ordered parallel source waves with reported pool width and a separate
+scratch admission bound. TLC-exact planning/selection, phase-L error
+accounting and periodic capture remain pending. Ordinary
 `dive check` still refuses temporal model checking.
 
 The Rust API [`dive_api::temporal::check_final`](temporal-api.md) returns a
@@ -709,7 +710,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
-  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with inline capture, while TLC-exact selection remains pending;
+  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture, while TLC-exact selection remains pending;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
@@ -1043,9 +1044,9 @@ canonical order remains parallel. This is a temporary admission restriction,
 not a different answer: an ordered parallel runtime interner is still needed
 for those TLC-mode models to scale. The conservative analysis includes tuple
 uses of operators that can also construct strings, record-name constructors,
-and wrappers or native overrides. Strict graph capture currently refuses these
-models until it can admit the same inline fallback explicitly.
-
+and wrappers or native overrides. Explicit final/short graph capture admits pure runtime-name models through the
+same reported inline fallback. Genuine live-counter, random and I/O effects
+remain refused. Strict temporal timing and lasso selection remain unsupported.
 
 ### Current limitation: independent runtime-name trace validation (#124)
 
@@ -1080,3 +1081,19 @@ predicate. These APIs preflight the supplied context before computing a result.
 Stable checker configuration strings remain supported: a separate forged-prefix
 control verifies that the seed is interned before the fingerprint, independently
 of the order in which a trace mentions them.
+
+### Current limitation: bounded parallel temporal capture
+
+**D-013 parallel-capture update:** explicit final/short checking now honors the
+requested pool width for supported pure models. It retains all accepted edges,
+including duplicates and seen states, in the same order as the inline engine;
+validated short-word reports are identical at 1/4/8 workers and chaos schedules.
+Fixed waves expand no more than eight source states concurrently. A separately
+named library scratch bound admits at most 65,536 successors of one source by
+default; raising it is explicit. Hitting it returns a resource refusal with
+ordered partial evidence, never a completed graph. This is a conservative
+capture limit relative to TLC, not an enhancement to TLA+ semantics. Existing
+logical graph limits are unchanged. See [the bound and controls](temporal-api.md#bounded-parallel-graph-retention).
+VIEW, symmetry, randomness and stateful effects remain graph refusals. This
+does not prove exact TLC lasso selection, periodic scheduling or phase-L error
+precedence. Ordinary strict temporal checking still refuses.

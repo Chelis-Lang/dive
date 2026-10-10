@@ -114,7 +114,9 @@ and a corresponding certification schema before the label can change.
   truth/count matches, 22 refusals and five timeouts using explicit
   `--lncheck final --lasso short`, labeled `tlc+overrides`. These matches
   do not certify phase-L stopping, exact temporal classes, property selection,
-  exact lassos or parallel graph capture.
+  exact lassos or parallel graph capture for that historical run. The current
+  [bounded parallel capture increment](temporal-api.md#bounded-parallel-graph-retention)
+  adds inline/1/4/8/chaos controls and truthful pool widths; F-020 remains partial.
 - **Frontend:** [the deep campaign](frontend-campaign.md) agrees on 1,108
   selected inputs in both direct grammar and full SANY checking, retaining
   the difference between those measurements. It is a bounded campaign.
