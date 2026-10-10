@@ -622,4 +622,26 @@ fn frontier_spill_flags_and_directory_dependency() {
     ] {
         assert_eq!(dive(&args).status.code(), Some(2));
     }
+    for args in [
+        vec![
+            "simulate",
+            &path,
+            "--traces",
+            "1",
+            "--frontier-memory-bytes",
+            "0",
+        ],
+        vec![
+            "dfid",
+            &path,
+            "--max-level",
+            "2",
+            "--frontier-memory-bytes",
+            "0",
+        ],
+    ] {
+        let refused = dive(&args);
+        assert_eq!(refused.status.code(), Some(3));
+        assert!(refused.stdout.is_empty());
+    }
 }
