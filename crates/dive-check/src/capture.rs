@@ -569,6 +569,10 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
     None
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep admission, startup, observer dispatch and failed execution evidence in order"
+)]
 fn explore_inner(
     model: &Model,
     opts: &CheckOptions,

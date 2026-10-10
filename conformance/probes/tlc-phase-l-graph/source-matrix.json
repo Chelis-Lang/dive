@@ -2,9 +2,9 @@
   "schema_version": 1,
   "base_commit": "1cf68fda3f614534bbd39202149bfbdf255d443c",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "48e3a414bd614a5f2a9f5f9ed40b8f6ef89e6f3b8ad169c652b2868fc5140e6f",
+    "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/parallel.rs": "2dd4af31f6b193331d12deac705b35d0649ad0900d059caed8f9c891325c4d29",
+    "crates/dive-check/src/parallel.rs": "75efa7fd0967fcc9f9177be4e7849a0ec3f1dac49f06ad258ebce8bf5e725f54",
     "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",

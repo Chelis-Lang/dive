@@ -1101,14 +1101,15 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 let mut to = 0;
                 let mut upto = 0;
                 let mut generated = search.generated;
-                for source in wave_start..source_limit {
+                for (source, emitted) in gens.iter().enumerate().take(source_limit).skip(wave_start)
+                {
                     while to < observed.len() && observed[to].0.0 <= source as u64 {
                         to += 1;
                     }
                     while upto < winners.len() && winners[upto].pos.0 <= source as u64 {
                         upto += 1;
                     }
-                    generated += gens[source];
+                    generated += emitted;
                     let successors: Vec<_> = observed[from..to]
                         .iter()
                         .map(|a| crate::capture::ConcreteSuccessor {
@@ -1118,7 +1119,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         })
                         .collect();
                     from = to;
-                    let stats = Stats {
+                    let counters = Stats {
                         generated,
                         distinct: distinct_before + upto as u64,
                         left_on_queue: ((len - source - 1) + next_frontier.len() + upto) as u64,
@@ -1139,7 +1140,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                                     path: None,
                                     then: None,
                                 }),
-                                stats,
+                                counters,
                             );
                         }
                     };
@@ -1148,7 +1149,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         level,
                         state: &state,
                         successors: &successors,
-                        stats,
+                        stats: counters,
                         pool_generated,
                     };
                     if let Some(observer) = &mut search.observer
@@ -1159,7 +1160,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                             Some(Event {
                                 key: ((source as u64, u32::MAX, u32::MAX), PH_DEADLOCK + 1),
                                 unit: source,
-                                c: gens[source],
+                                c: *emitted,
                                 verdict: Verdict::Unsupported {
                                     feature: format!("ordered source observer: {message}"),
                                 },
