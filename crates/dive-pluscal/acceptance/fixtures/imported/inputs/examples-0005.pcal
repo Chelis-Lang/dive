@@ -1,0 +1,14 @@
+--algorithm Highest {
+  variables
+    f \in Seq(Nat);
+    h = -1;
+    i = 1;
+  define {
+    max(a, b) == IF a >= b THEN a ELSE b
+  } {
+lb: while (i <= Len(f)) {
+      h := max(h, f[i]);
+      i := i + 1;
+    }
+  }
+}

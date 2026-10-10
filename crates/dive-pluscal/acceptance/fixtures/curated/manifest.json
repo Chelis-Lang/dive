@@ -1,0 +1,1233 @@
+{
+  "schema_version": 1,
+  "reason": "Curated P/C grammar-family and refusal controls before native translation; separate primary normalized and secondary source grammar stages",
+  "generated_at": "2026-10-10T12:34:11Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "adapter_sha256": "6c9999336dcd79f65f7344635dc9acaa195406bb8419a97a7796d3bbc05271ed",
+  "capture_script_sha256": "9228654f22350c2c151497c218029e95a6c19b1964f305d12dca23fa36942c85",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_stage": "getAlgorithm: grammar plus normalization, not translation",
+  "secondary_stage": "public grammar-method adapter; excludes global normalization; GetMacro and call tails still normalize",
+  "rows": [
+    {
+      "id": "C-assert_print",
+      "input": "C-assert_print.pcal",
+      "input_sha256": "7ab78592f1dfba06ae56862556a13213cc4d00367d068965932e025fc3cd1582",
+      "primary": {
+        "stdout": "C-assert_print.primary.stdout.gz",
+        "stderr": "C-assert_print.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dfe3f96f0bed705b1e993ed711a5e3ee572facdbfdfb76f4c68b9bbffcef02d5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-assert_print.source-grammar-secondary.stdout.gz",
+        "stderr": "C-assert_print.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "df484d1280f09d86edf6c0c0be9dd54ccf6ac89474783851f1624ee6060e9b36",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-assign",
+      "input": "C-assign.pcal",
+      "input_sha256": "f3a11e75107f764732a6aac06109227ac00ecb50a45eced94941a8544ff26bee",
+      "primary": {
+        "stdout": "C-assign.primary.stdout.gz",
+        "stderr": "C-assign.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6f395683fbea34236c1313d48a21a26d73427c88ac85382b5fd447e376355112",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-assign.source-grammar-secondary.stdout.gz",
+        "stderr": "C-assign.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0494827c61f13aec84ed46beac0a7bf110cb93299f1864600e2a2d7a69cf456b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-await",
+      "input": "C-await.pcal",
+      "input_sha256": "a70f82d046ef2501d75971626cea5bfd783ff06076a727c0e2717a20a9448c99",
+      "primary": {
+        "stdout": "C-await.primary.stdout.gz",
+        "stderr": "C-await.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "40b1122948d59e86861648122a1a408c74e39101c2c28ef1e4daf8cfd6565ea2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-await.source-grammar-secondary.stdout.gz",
+        "stderr": "C-await.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ce4e95339097417719a480946d4f8ce6d0749eb22734d5910a5298e441e66b4b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-block",
+      "input": "C-block.pcal",
+      "input_sha256": "c193f1506d04b6b5ec8b23895d675bdae76d3c5fd85d858e6d24b271abe75bfe",
+      "primary": {
+        "stdout": "C-block.primary.stdout.gz",
+        "stderr": "C-block.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f5ffa7e2fd3dbd5dea263c299000b28714abec9c02d0be2cba352db4beb6aa13",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-block.source-grammar-secondary.stdout.gz",
+        "stderr": "C-block.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f74f62d285286b1821096b8540615c79e0be87ead42664ba8fa179ddf8866fac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-definitions",
+      "input": "C-definitions.pcal",
+      "input_sha256": "0d9dd9426592163f145a2f6897c3d8b779c2f9197eff894ff81eb5f13aca332a",
+      "primary": {
+        "stdout": "C-definitions.primary.stdout.gz",
+        "stderr": "C-definitions.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a52312c94ddf5db382901449731d8e8ebeb8a91674a450b7cbdee49de9d95985",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-definitions.source-grammar-secondary.stdout.gz",
+        "stderr": "C-definitions.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ce9b0d3cc4b1a48d2c521a7f2ad5acf851c40a8e2599ac2dc80e949bc4cafaf3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-either",
+      "input": "C-either.pcal",
+      "input_sha256": "be57efec59f7bdcc699b20d8057194d910b7a1bbab5c2e651671e00dd3f389e1",
+      "primary": {
+        "stdout": "C-either.primary.stdout.gz",
+        "stderr": "C-either.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c7e5503df2fcff0b1f9407e3e4a9ed6cbbcf3ae77aefe503969d20567ee5a816",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-either.source-grammar-secondary.stdout.gz",
+        "stderr": "C-either.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9547910c70cbc41d3ef5629bbc154b2209ce95f09fbdc936294e718943b3f476",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-elsif",
+      "input": "C-elsif.pcal",
+      "input_sha256": "9dbb00461a4849dc3141298f2f4b5527d256e043ea35f2463cb224bc5fc4bb48",
+      "primary": {
+        "stdout": "C-elsif.primary.stdout.gz",
+        "stderr": "C-elsif.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0c43435f3712fc5dff84a8debd5b3c7eb6fd178fe9f767dda1353b3b9422d2b7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-elsif.source-grammar-secondary.stdout.gz",
+        "stderr": "C-elsif.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c9a323eae6f7d683c4aa1dd850043ef121036c9933d56e35501bc301988c8662",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-emptyeither",
+      "input": "C-emptyeither.pcal",
+      "input_sha256": "765ef9ebfa7bafedb60b775f830498b46fffe6d55864b921a6cf9925c7cbc27d",
+      "primary": {
+        "stdout": "C-emptyeither.primary.stdout.gz",
+        "stderr": "C-emptyeither.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: `either' statement has no `or'",
+        "stdout_sha256": "a9df7b6d71584cc9904bccbaeff72e39f535c64318ae34dfbf01437421de5b72",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-emptyeither.source-grammar-secondary.stdout.gz",
+        "stderr": "C-emptyeither.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: `either' statement has no `or'",
+        "stdout_sha256": "a9df7b6d71584cc9904bccbaeff72e39f535c64318ae34dfbf01437421de5b72",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-goto",
+      "input": "C-goto.pcal",
+      "input_sha256": "55ca6a7e7cea4d423ed79af423130325bfae6b6a647b2a9d1761f7c1aababeec",
+      "primary": {
+        "stdout": "C-goto.primary.stdout.gz",
+        "stderr": "C-goto.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "203a3d4e16837f93b1b3d7d67a011489101890cb00ac0c22bb90cdaff2f5f9a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-goto.source-grammar-secondary.stdout.gz",
+        "stderr": "C-goto.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "19e655e838c359c07b299695cc3870236d15cfad33805bfdfc92a1846abd942a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-if",
+      "input": "C-if.pcal",
+      "input_sha256": "ae173fe2fafce827002861dbed70bf96678a139b94fb5263b661494814d932fa",
+      "primary": {
+        "stdout": "C-if.primary.stdout.gz",
+        "stderr": "C-if.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "753def6c369b000bdf7cdab39c2f23620755d30a855671a8e4bc06e857793dac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-if.source-grammar-secondary.stdout.gz",
+        "stderr": "C-if.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "71611d7a06cde336198540f4270973d0daa4016d9b13f4932926e2a8cf8b2946",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-labels",
+      "input": "C-labels.pcal",
+      "input_sha256": "2b725262fb958dbf076b12749f8a60ec59d46771fc4c3507e0f83f60f640bf8a",
+      "primary": {
+        "stdout": "C-labels.primary.stdout.gz",
+        "stderr": "C-labels.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "845d13bcd75e70b9c76675492dd0387eedb544ba29d4caef05fd007cfdb3c1a9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-labels.source-grammar-secondary.stdout.gz",
+        "stderr": "C-labels.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "112bf6a83a54c4ad50368b5311d6c66442a0deb7269ac439956cc41a182b27f5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-labels_macro",
+      "input": "C-labels_macro.pcal",
+      "input_sha256": "b796fd616365b4280692eb16105309ae848a3d56e02fe2a2fa9558f23b9ae48e",
+      "primary": {
+        "stdout": "C-labels_macro.primary.stdout.gz",
+        "stderr": "C-labels_macro.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing label at the following location:\n     line 2, column 2",
+        "stdout_sha256": "581435b92d2e9bf0df4226086c45200b9204251ee78ede0e1f71c5fa15992b67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-labels_macro.source-grammar-secondary.stdout.gz",
+        "stderr": "C-labels_macro.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f40808873b2c4a544b414a724cc9edd2f3cb4e990222fd7c9f0418d78bdade4f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-macro",
+      "input": "C-macro.pcal",
+      "input_sha256": "66990fb89a9273c44716c65494bbd3452280b62fabf9b0cb9e868faa1feecedf",
+      "primary": {
+        "stdout": "C-macro.primary.stdout.gz",
+        "stderr": "C-macro.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7a5e0dd806684b0d3bc2d3aac1458a0ce7017d899b6abbb3470c60be457858c7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-macro.source-grammar-secondary.stdout.gz",
+        "stderr": "C-macro.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "83679ec214d4edbbe00299e02d6243adff6c1af4a1f00f270c97515b0632984b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-missingsemi",
+      "input": "C-missingsemi.pcal",
+      "input_sha256": "c3ada53b5ab2edc1846fa39feebfd96242ba740e58fc0105c944148beea97d72",
+      "primary": {
+        "stdout": "C-missingsemi.primary.stdout.gz",
+        "stderr": "C-missingsemi.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing `;' before line 2, column 7",
+        "stdout_sha256": "c11b034d93892aa0b6f136297f42e50aec8ba3e98e513d510ba6c3267ad05f9f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-missingsemi.source-grammar-secondary.stdout.gz",
+        "stderr": "C-missingsemi.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing `;' before line 2, column 7",
+        "stdout_sha256": "c11b034d93892aa0b6f136297f42e50aec8ba3e98e513d510ba6c3267ad05f9f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-parallel",
+      "input": "C-parallel.pcal",
+      "input_sha256": "02be19a800c0115e43939dc0d319540eaaf4350be3ebb6c7770c57de1eabcaac",
+      "primary": {
+        "stdout": "C-parallel.primary.stdout.gz",
+        "stderr": "C-parallel.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b8498cde767bc2f839cb9eb33dd960f4f87613d372f39935fa3988ac04cd9f20",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-parallel.source-grammar-secondary.stdout.gz",
+        "stderr": "C-parallel.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8753e9e6cf8e1777ad1582e7b85d58d68818e5de2afff1c8120ab4f273de6dcc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-procedure",
+      "input": "C-procedure.pcal",
+      "input_sha256": "49b7ef4002854a3891939de99b7da678bf7ffd829d12e15566d67c83d3f44fa3",
+      "primary": {
+        "stdout": "C-procedure.primary.stdout.gz",
+        "stderr": "C-procedure.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a28c44a68a16ae9cd42e2c8a9e9cad389b5dae3c8e658dcac5d966319142678d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-procedure.source-grammar-secondary.stdout.gz",
+        "stderr": "C-procedure.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "158899216b0a059bd7051e51c2c4f5defe3328ac34c48ff6e63c40c911c869f0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-process",
+      "input": "C-process.pcal",
+      "input_sha256": "21c366ca701324ccd74fdd4bca1bc2079589cc0dff29dc968bab77ee18b9ed1c",
+      "primary": {
+        "stdout": "C-process.primary.stdout.gz",
+        "stderr": "C-process.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d1c12d35d3ea0f50c33b5d0753e70cf7b5f9098a483c1f9964b56f63f9a19c8a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-process.source-grammar-secondary.stdout.gz",
+        "stderr": "C-process.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bd846d8050637211c4d195599782fa0650f1978dc33c2936f5bfe5c7ac236d8e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-quantifier",
+      "input": "C-quantifier.pcal",
+      "input_sha256": "efa496cbfc88ef637aa7b6c6e95336b687190f0210ffd8e1311ebf1470eaf74d",
+      "primary": {
+        "stdout": "C-quantifier.primary.stdout.gz",
+        "stderr": "C-quantifier.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5b84a49e516ef0e9d418783a8018f3975fdda8c461d376e907bd0f5e2d582232",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-quantifier.source-grammar-secondary.stdout.gz",
+        "stderr": "C-quantifier.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "001fbb8d9abdbbc593dfae79cfdfc9918a059fffb5c9618634d33cd147a034a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-recordfields",
+      "input": "C-recordfields.pcal",
+      "input_sha256": "9a6bd661a67704e201e5e0ca2a82f353a76dd5df41ee974d8f8465104b02bdee",
+      "primary": {
+        "stdout": "C-recordfields.primary.stdout.gz",
+        "stderr": "C-recordfields.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d3527f550b0e50a0b4b8062acd97b3cd448b4e29205026bc62a6f09f65978879",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-recordfields.source-grammar-secondary.stdout.gz",
+        "stderr": "C-recordfields.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4fd128c4be65b23ec367efb572de517541149a096b5e629c33bc4afcbbb177d0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-reservedlabel",
+      "input": "C-reservedlabel.pcal",
+      "input_sha256": "7239b7bb29209cbee797a3408d6916e08b9178ffb82096ecec19bf40f2e30461",
+      "primary": {
+        "stdout": "C-reservedlabel.primary.stdout.gz",
+        "stderr": "C-reservedlabel.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Cannot use `Done' as a label.\n    line 2, column 2",
+        "stdout_sha256": "ffb0e45728169241620807d003ad0b08bb51ff299afbc17bb98a184430997009",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-reservedlabel.source-grammar-secondary.stdout.gz",
+        "stderr": "C-reservedlabel.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Cannot use `Done' as a label.\n    line 2, column 2",
+        "stdout_sha256": "ffb0e45728169241620807d003ad0b08bb51ff299afbc17bb98a184430997009",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-selectors",
+      "input": "C-selectors.pcal",
+      "input_sha256": "e10c504173a7c06dc930b1e4aa8a488b078de80b81a3d74d8f6fdd9d5e59fb14",
+      "primary": {
+        "stdout": "C-selectors.primary.stdout.gz",
+        "stderr": "C-selectors.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9b8aa5b7af9f8da875d015805ff1b404e5f6c735b7926e996629bc4f5275511f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-selectors.source-grammar-secondary.stdout.gz",
+        "stderr": "C-selectors.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9980dc347bc1d87f750339e610c778e795a30e9d6f6ef6ed3a6912dbc82b1653",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-skip",
+      "input": "C-skip.pcal",
+      "input_sha256": "f38fa4533d90eb2503d3730f2976ffc96ce81c59702dc85d5adcadbf581699c5",
+      "primary": {
+        "stdout": "C-skip.primary.stdout.gz",
+        "stderr": "C-skip.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "87babcd22a515dd0530fe420756ef9ff3cad9afe56cffe1478438bfbd5edd4d3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-skip.source-grammar-secondary.stdout.gz",
+        "stderr": "C-skip.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0b2ef9160ce3dd6e8302ad26ce635b3ddd7c035aa016ba896f4b8e6c9cd690bc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-unicode",
+      "input": "C-unicode.pcal",
+      "input_sha256": "f810f5bfc4e91e17b0d58a0565ce59acf16cac722d5d4549c723f7c31fc6bc12",
+      "primary": {
+        "stdout": "C-unicode.primary.stdout.gz",
+        "stderr": "C-unicode.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4c4f8099c9be1694d18597d3623007cd855cfc3f1c3d60035f0420c7a7542f32",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-unicode.source-grammar-secondary.stdout.gz",
+        "stderr": "C-unicode.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8a1bbc3654cb8454789895a2af563ea13f98b3a2074fe356e35a2dba83ca7494",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-unterminatedexpr",
+      "input": "C-unterminatedexpr.pcal",
+      "input_sha256": "f4e8e5b23dcfe0e9b39b57024eaeffef24324b8030d20e5a2650783225e24a76",
+      "primary": {
+        "stdout": "C-unterminatedexpr.primary.stdout.gz",
+        "stderr": "C-unterminatedexpr.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expression with an unmatched (, [, {, or << followed by `;' found at\n    line 3, column 14",
+        "stdout_sha256": "3de46d6d3d7814777540c9a66e22479c4357ab2ce792df08ee091132040bbe94",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-unterminatedexpr.source-grammar-secondary.stdout.gz",
+        "stderr": "C-unterminatedexpr.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expression with an unmatched (, [, {, or << followed by `;' found at\n    line 3, column 14",
+        "stdout_sha256": "3de46d6d3d7814777540c9a66e22479c4357ab2ce792df08ee091132040bbe94",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-while",
+      "input": "C-while.pcal",
+      "input_sha256": "13d2306ebd65b6174d6d3042ba9313a2916e14e0e2f36229969c61367bfbae89",
+      "primary": {
+        "stdout": "C-while.primary.stdout.gz",
+        "stderr": "C-while.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e8cc259cf9bd80a0dac833ee9f060b1d67dba3ee835fe16d62d504ac1c380880",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-while.source-grammar-secondary.stdout.gz",
+        "stderr": "C-while.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cbb5622bed28e02e969663fbb1b9528be29875711bfd0f9ed8c05c9976dfeb18",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "C-with",
+      "input": "C-with.pcal",
+      "input_sha256": "e58f6fd07661a7614db254e53b13a55288a78067e129c3ac5f0e7431792c68a7",
+      "primary": {
+        "stdout": "C-with.primary.stdout.gz",
+        "stderr": "C-with.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "100a1babf58efaca1d574ac68d7d850d2c52aa88f03da1197712f2c0a3af112e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "C-with.source-grammar-secondary.stdout.gz",
+        "stderr": "C-with.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9d190cde7f1d03ace747ed8a6272d4750028395cb61e5c3e407c8eb7fc335b5a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-assert_print",
+      "input": "P-assert_print.pcal",
+      "input_sha256": "80826fcadf8ab6a59edd79eef159796fd3660f7ee61b3094a4cf2d620afc6ca2",
+      "primary": {
+        "stdout": "P-assert_print.primary.stdout.gz",
+        "stderr": "P-assert_print.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "46914b17f4ad9e4ab504cece1049b35ccc39ea48976791db7ea26c829deb01d8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-assert_print.source-grammar-secondary.stdout.gz",
+        "stderr": "P-assert_print.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "79cf1d25659461d907800e2cd603145da92bfd146fe3092f50d56251f9c83a1f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-assign",
+      "input": "P-assign.pcal",
+      "input_sha256": "27b1dca3af2bb41adb970b9487bd16350093bafedcd7e641847cdbf12a76a975",
+      "primary": {
+        "stdout": "P-assign.primary.stdout.gz",
+        "stderr": "P-assign.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6734cf09c8d41a2ed1d88a8529d8e9b3508cfbd59b07a570e33a1bf7cd5ec601",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-assign.source-grammar-secondary.stdout.gz",
+        "stderr": "P-assign.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "005c922c5e5237cbdc748a712297663f9200cadcd73e1d6e2ec01c8d4020dca3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-await",
+      "input": "P-await.pcal",
+      "input_sha256": "21ac9f112172f2409133b51ff2475fe85148e53cae32e0e6e3aaef7bab1d2db6",
+      "primary": {
+        "stdout": "P-await.primary.stdout.gz",
+        "stderr": "P-await.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "aaefdf8b832e386230d91f1d7bd15ce53f7b7abc35daa1a9a5ca9a142fa63c2f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-await.source-grammar-secondary.stdout.gz",
+        "stderr": "P-await.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "897bcc92df42b4439e10c0cd8123a9325dfa1bd9ed37f0aa22af1f69f094ef1e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-call-goto",
+      "input": "P-call-goto.pcal",
+      "input_sha256": "b70bf664b9e68d8869e3a188068f876f746dedba036b57e27c905e9fc5c8d1f0",
+      "primary": {
+        "stdout": "P-call-goto.primary.stdout.gz",
+        "stderr": "P-call-goto.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c22f223f8d02d154404d605d1341deb45032bcf5877fe633a89db25aa2a73d62",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-call-goto.source-grammar-secondary.stdout.gz",
+        "stderr": "P-call-goto.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c085e5742c03a4d942c66f1b21e43313f3ece306606d756471590af590b58483",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-call-return",
+      "input": "P-call-return.pcal",
+      "input_sha256": "81cd9b7de3037e68377b27078c643a307776b9b1f583e3bcff2bd0fc2b01b8b2",
+      "primary": {
+        "stdout": "P-call-return.primary.stdout.gz",
+        "stderr": "P-call-return.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "23ce2bf3d636b0c709124ce888fa82309cec4b887444f2bb430601f68f1cd8f9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-call-return.source-grammar-secondary.stdout.gz",
+        "stderr": "P-call-return.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "be94406cc0c967b8dd1fa74b5abedd08134e0d76cd6d8141f23ee57fa682e1bd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-comments",
+      "input": "P-comments.pcal",
+      "input_sha256": "0b316d4bdaa4f5e3eb86c2ab81a6040ce97bbdb7b1c4841db0e8ca77368dc6db",
+      "primary": {
+        "stdout": "P-comments.primary.stdout.gz",
+        "stderr": "P-comments.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "44010c22d4de4fcaf82fdb0765e93bdcb74ab967c9b5d587de58c0dab26a5159",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-comments.source-grammar-secondary.stdout.gz",
+        "stderr": "P-comments.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8de9d26c0d515560379d4139b0213fed5ca09d9824790ef235164344310a882b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-definitions",
+      "input": "P-definitions.pcal",
+      "input_sha256": "a7716a8983f0061e394dd665b64e79942a9be999163509f283c2fb11de459521",
+      "primary": {
+        "stdout": "P-definitions.primary.stdout.gz",
+        "stderr": "P-definitions.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "143ce9d77092d80344c0c51fb9abe0fd8e0fdb23c7688e3f5a9568613fe05e69",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-definitions.source-grammar-secondary.stdout.gz",
+        "stderr": "P-definitions.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b34b4aed2f0a2a8f6c6b43895b09f407bd731af98ea21dfa914f1120e3d31eae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-either",
+      "input": "P-either.pcal",
+      "input_sha256": "f6a1befb0eab51b339b436f13fdd493e8f55edb0011ec5f6c2261f5f5b753afe",
+      "primary": {
+        "stdout": "P-either.primary.stdout.gz",
+        "stderr": "P-either.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "89e2ed8ce9186b327b85120b8423e805039e825a0cb06c9be5d6e43cdcb41780",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-either.source-grammar-secondary.stdout.gz",
+        "stderr": "P-either.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b650f841be56a146e1640dc62e055364ee16c9c873690d732c6c851245ad4952",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-elsif",
+      "input": "P-elsif.pcal",
+      "input_sha256": "2403283fae13a9be80e672e3f6a8afd480403fd98246f2f03a88cd4d553c335d",
+      "primary": {
+        "stdout": "P-elsif.primary.stdout.gz",
+        "stderr": "P-elsif.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c745d62045cb647baa2c9750242841cad416c41f5933f96d1a5e80d86a84bb71",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-elsif.source-grammar-secondary.stdout.gz",
+        "stderr": "P-elsif.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6f41a3e721640f1874c24130782e6ba54bd61873353a1299d5b0dfb089bf0e7a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-emptyeither",
+      "input": "P-emptyeither.pcal",
+      "input_sha256": "43b8216588c3ed96c290b7e3e485ec7151b53a57ff15f864b662c518ffe7b4ce",
+      "primary": {
+        "stdout": "P-emptyeither.primary.stdout.gz",
+        "stderr": "P-emptyeither.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: `either' statement has no `or'",
+        "stdout_sha256": "28581534cce3433da9091fdb885c5faf6b21625c60f0769e02aedbc37d036c41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-emptyeither.source-grammar-secondary.stdout.gz",
+        "stderr": "P-emptyeither.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: `either' statement has no `or'",
+        "stdout_sha256": "28581534cce3433da9091fdb885c5faf6b21625c60f0769e02aedbc37d036c41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-fcn",
+      "input": "P-fcn.pcal",
+      "input_sha256": "476614f3f0bedd885657c48c485ba00ce83d19522e0be7a5ea081f73b777c2f2",
+      "primary": {
+        "stdout": "P-fcn.primary.stdout.gz",
+        "stderr": "P-fcn.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c49cddb049c9ec843e28395cf1907dff601ca3bea419314263fdc2ce72c5655b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-fcn.source-grammar-secondary.stdout.gz",
+        "stderr": "P-fcn.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3aee5d1018d17fff6d5e47606ff49962ccbe8e93ba95308a70bf7986459b979a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-goto",
+      "input": "P-goto.pcal",
+      "input_sha256": "996ad58c29e27c286b730bf4f27a308eedd9efe5650eaef51096398e4896798c",
+      "primary": {
+        "stdout": "P-goto.primary.stdout.gz",
+        "stderr": "P-goto.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b2b0b74b608c57a18083f7e959e13f42bed0dc49291b163cec5a546a359f9ddb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-goto.source-grammar-secondary.stdout.gz",
+        "stderr": "P-goto.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f5654bbb3e69054955c39fbf912c7f1c722b771cfe1b0d2f87c8489719962322",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-if",
+      "input": "P-if.pcal",
+      "input_sha256": "e85701455014d5c70ce71b1fc97e99c8afcbd825b5e63f38e5c813fbb1a48776",
+      "primary": {
+        "stdout": "P-if.primary.stdout.gz",
+        "stderr": "P-if.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9a69e78390deeb90c93a081cb74943f2a22395d9ab22040732f4bb2d8ec5f99c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-if.source-grammar-secondary.stdout.gz",
+        "stderr": "P-if.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b4a6e7ddf413636f706a8cd4a653830c30ec3b972b65db51ffa23eefa90f8216",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-labels",
+      "input": "P-labels.pcal",
+      "input_sha256": "927125936fa139cc0d2b1b6bb0a51bd926d23a6c87ed2caf3532b40984acb6ce",
+      "primary": {
+        "stdout": "P-labels.primary.stdout.gz",
+        "stderr": "P-labels.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f6dcfdb1a8c16ce3292bf1114efeadb568663a081fb025c22456c9b0ea2cee38",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-labels.source-grammar-secondary.stdout.gz",
+        "stderr": "P-labels.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "692ff51b3710f162849f65dac459be14af9695b38b3ed868fc8f458958f0de11",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-labels_macro",
+      "input": "P-labels_macro.pcal",
+      "input_sha256": "7e5f73f3ad16899b3372269fddee102f9df4ff16d5693e8954c988de5ddf4c9f",
+      "primary": {
+        "stdout": "P-labels_macro.primary.stdout.gz",
+        "stderr": "P-labels_macro.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing label at the following location:\n     line 2, column 2",
+        "stdout_sha256": "b61c67913b5fe0bc8e7cf7ef322f821933c8c8fcd518b0a548c481fb48057608",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-labels_macro.source-grammar-secondary.stdout.gz",
+        "stderr": "P-labels_macro.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a12526853599b0b923323f00e2e61dd8273555e9821e644a5df07e2c552d6bd3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-macro-label-invalid",
+      "input": "P-macro-label-invalid.pcal",
+      "input_sha256": "678c5d8c14d57a08a57b31894f3c6f1581a9cd8df4aaf3c0400f2f6d78d1ff79",
+      "primary": {
+        "stdout": "P-macro-label-invalid.primary.stdout.gz",
+        "stderr": "P-macro-label-invalid.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: A label may not appear in a macro.\n    line 1, column 31",
+        "stdout_sha256": "9ac50a3bd7f390a08565d9d4010ea81eb67bac29ce3d4f06f5250e277c83e094",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-macro-label-invalid.source-grammar-secondary.stdout.gz",
+        "stderr": "P-macro-label-invalid.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: A label may not appear in a macro.\n    line 1, column 31",
+        "stdout_sha256": "9ac50a3bd7f390a08565d9d4010ea81eb67bac29ce3d4f06f5250e277c83e094",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-macro",
+      "input": "P-macro.pcal",
+      "input_sha256": "3504218b20413bbadf822566cc10e07f2e176968a1c2bddd9e53e1861182a8f9",
+      "primary": {
+        "stdout": "P-macro.primary.stdout.gz",
+        "stderr": "P-macro.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d687bfceb01d757f541c3c6c10c9caa0ef170ddc418314d3faa11e296d983aa6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-macro.source-grammar-secondary.stdout.gz",
+        "stderr": "P-macro.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6dd74b9b9dd0b69a196a8b978d848301312a046fcf88d44d4a26aa2a027cce4b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-missingsemi",
+      "input": "P-missingsemi.pcal",
+      "input_sha256": "a684682b43ab34f8683de300806bed186b5918e27d323886e476740ef82ae27d",
+      "primary": {
+        "stdout": "P-missingsemi.primary.stdout.gz",
+        "stderr": "P-missingsemi.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing `;' before line 2, column 7",
+        "stdout_sha256": "a15f64e7c21db937c1048e613f6838b63b7f0130fc633b0b81d69b42a6f89566",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-missingsemi.source-grammar-secondary.stdout.gz",
+        "stderr": "P-missingsemi.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing `;' before line 2, column 7",
+        "stdout_sha256": "a15f64e7c21db937c1048e613f6838b63b7f0130fc633b0b81d69b42a6f89566",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-parallel",
+      "input": "P-parallel.pcal",
+      "input_sha256": "e36a2356162ccde1ba12b3470056ef0ff880cc062dbd3865926b04555eb088df",
+      "primary": {
+        "stdout": "P-parallel.primary.stdout.gz",
+        "stderr": "P-parallel.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4d997adab421d96a624d387d6f5d49dca8fe6e044f4970698a0be03a68ed9c77",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-parallel.source-grammar-secondary.stdout.gz",
+        "stderr": "P-parallel.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "594089230f5583e1b8d1002756c323153f5a54eea8407c1facdf67ee1a8da8b3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-procedure",
+      "input": "P-procedure.pcal",
+      "input_sha256": "6309a00163e7a2dae7df09ef22c15324ef24f74b7702e90555121b060a237cfa",
+      "primary": {
+        "stdout": "P-procedure.primary.stdout.gz",
+        "stderr": "P-procedure.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "96c1ecbcc645aedf71bf6cb3af77745ad47d6ac1fbc961a5b0aa0a68bff2c6d3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-procedure.source-grammar-secondary.stdout.gz",
+        "stderr": "P-procedure.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "39ca3602244ae9cb0ea4ffb1a543d8a9b7da523845df0533ce1bee6178c32cd8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-process",
+      "input": "P-process.pcal",
+      "input_sha256": "c8d1e6139464f82b192f235e2617858ad37b5b044cc1094f1f3fb357c5e7a0b8",
+      "primary": {
+        "stdout": "P-process.primary.stdout.gz",
+        "stderr": "P-process.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a9a221bdc6c0a9dea04e7236e55b87af2e1932f8652b2293323216c5d8a01487",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-process.source-grammar-secondary.stdout.gz",
+        "stderr": "P-process.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ae5e7ae5bc36c79895fbc2b8761f768aaa9b993d231e6cfc5033e7f4fe0ca99c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-quantifier",
+      "input": "P-quantifier.pcal",
+      "input_sha256": "bd8ede127a410203238df0d7092f007b7b11a0d7e4e8f9979fe3d23225512f87",
+      "primary": {
+        "stdout": "P-quantifier.primary.stdout.gz",
+        "stderr": "P-quantifier.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6cd759f1bf51602bb4470a982f253bd5c13835490fd1ec058f3e96e387f578fc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-quantifier.source-grammar-secondary.stdout.gz",
+        "stderr": "P-quantifier.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d88ae00ae0121d6b2b1b16346e812a2d5f7e01bc2647a8856263a1a75324d575",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-recordfields",
+      "input": "P-recordfields.pcal",
+      "input_sha256": "e2c4d462b7974d9404446992d6bc10a63a144bced2c047d91b56ee611b8f1dd5",
+      "primary": {
+        "stdout": "P-recordfields.primary.stdout.gz",
+        "stderr": "P-recordfields.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c9fd5067b809e1b1f178fa38598384e46dfe272e9b6bdacd8d1bf2e7a6abdd41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-recordfields.source-grammar-secondary.stdout.gz",
+        "stderr": "P-recordfields.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "733e8c916c6ca9e0975c5ec6c466c6b75df6e64473d1a767fd0f3d4ad088af7b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-reservedlabel",
+      "input": "P-reservedlabel.pcal",
+      "input_sha256": "2f6724cf6f68e1e138c751b1a694399f966a58990e1b93a47ac68a5eed8559f4",
+      "primary": {
+        "stdout": "P-reservedlabel.primary.stdout.gz",
+        "stderr": "P-reservedlabel.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Cannot use `Done' as a label.\n    line 2, column 2",
+        "stdout_sha256": "5a1b9a6fc652b550a8cf3c9c629eb0aba76285589609ddc127ee6411e37768ec",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-reservedlabel.source-grammar-secondary.stdout.gz",
+        "stderr": "P-reservedlabel.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Cannot use `Done' as a label.\n    line 2, column 2",
+        "stdout_sha256": "5a1b9a6fc652b550a8cf3c9c629eb0aba76285589609ddc127ee6411e37768ec",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-selectors",
+      "input": "P-selectors.pcal",
+      "input_sha256": "82f59588778e6558563d980e65763c4aa89a8bea86ff0e3bcccedd4dfb01545f",
+      "primary": {
+        "stdout": "P-selectors.primary.stdout.gz",
+        "stderr": "P-selectors.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "16ad6412114e4d6bfd26e8811e3f480d5af2ba50ded792e55c6d9c6b1677578d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-selectors.source-grammar-secondary.stdout.gz",
+        "stderr": "P-selectors.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3ec6a2d2d626ecf049043fb997d1f3848cc84a1142e64fdc8b321390c6199ef4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-skip",
+      "input": "P-skip.pcal",
+      "input_sha256": "aca904c86a96b667a2955e0adac5bf5535c8985732bd898f6c73b6b6d7123154",
+      "primary": {
+        "stdout": "P-skip.primary.stdout.gz",
+        "stderr": "P-skip.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0982472b917a1247ed14cddfe16d524da81fb5eb06a8387646e32b03cc297461",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-skip.source-grammar-secondary.stdout.gz",
+        "stderr": "P-skip.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "38073f4372e69e426b964c5c582609f3b38d3c8315c4d55d3f9992f71e49f144",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-unicode",
+      "input": "P-unicode.pcal",
+      "input_sha256": "212e2e7116dd78d4fc448662c85554c0aa2f7214b4c866afa2998030d1e1f7ad",
+      "primary": {
+        "stdout": "P-unicode.primary.stdout.gz",
+        "stderr": "P-unicode.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4bdb3160a430d4aeac82c468459c81dd51e6aff0be35e8282707b7b00a1f9f69",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-unicode.source-grammar-secondary.stdout.gz",
+        "stderr": "P-unicode.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "547fed43216b57446f20c525cd961b2c79eb3007d4f5b4b16a6eb5619eb547e0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-unicode_expr",
+      "input": "P-unicode_expr.pcal",
+      "input_sha256": "4e3050f605cf268626aacb47505d9a9d788a35d1a20fa899bd63b949cdfbcdf4",
+      "primary": {
+        "stdout": "P-unicode_expr.primary.stdout.gz",
+        "stderr": "P-unicode_expr.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1ff3ad7752311f136c7e353b19e4707bcca5bc77927a86139aaf62696ce3d323",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-unicode_expr.source-grammar-secondary.stdout.gz",
+        "stderr": "P-unicode_expr.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "11aa9a6822f0652c2b0aaf2a8912c202c4c2c3f071919ed11545c383afed1a73",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-unterminatedexpr",
+      "input": "P-unterminatedexpr.pcal",
+      "input_sha256": "34d2cbb3c85bceb478efc1a98d7f6e01afde243229de756816d36194cb60e556",
+      "primary": {
+        "stdout": "P-unterminatedexpr.primary.stdout.gz",
+        "stderr": "P-unterminatedexpr.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expression with an unmatched (, [, {, or << followed by `;' found at\n    line 3, column 14",
+        "stdout_sha256": "794bcd72a2862106a53bd4d25a2904ac32ec4c60739e28a75bdfcc3385fce692",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-unterminatedexpr.source-grammar-secondary.stdout.gz",
+        "stderr": "P-unterminatedexpr.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expression with an unmatched (, [, {, or << followed by `;' found at\n    line 3, column 14",
+        "stdout_sha256": "794bcd72a2862106a53bd4d25a2904ac32ec4c60739e28a75bdfcc3385fce692",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-while",
+      "input": "P-while.pcal",
+      "input_sha256": "faadde3f62ee6f705213c91c1ea13225fa9d87b6d2f640fc06238a229ba21612",
+      "primary": {
+        "stdout": "P-while.primary.stdout.gz",
+        "stderr": "P-while.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8c0ff071fe887ebff035abce07129d12edd1e5cbcf4b790ebcbfad7c5858cb59",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-while.source-grammar-secondary.stdout.gz",
+        "stderr": "P-while.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b62f1d5c19659ed28d8e2900cfee5f2cc56a81ca367dd93e5f1525dee1468d39",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "P-with",
+      "input": "P-with.pcal",
+      "input_sha256": "c973a0b19e706405023c924bf4bf3030f1b54279151e52dd2810c4f7adaba047",
+      "primary": {
+        "stdout": "P-with.primary.stdout.gz",
+        "stderr": "P-with.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cba950ac0a0b530720ba2997a1c96981086d004964fe1686cd0d4562ef009c9f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "P-with.source-grammar-secondary.stdout.gz",
+        "stderr": "P-with.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b37bce29c851d50edb30ba450d83e1c7b10edaf9efa33eb772d05a34d8cc3bd5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

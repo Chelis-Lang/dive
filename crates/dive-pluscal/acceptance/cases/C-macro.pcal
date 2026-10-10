@@ -1,0 +1,1 @@
+--algorithm A { macro M(v) { x := v; } { M(1); } }

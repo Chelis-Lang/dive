@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "reason": "Review controls retain original counted delimiter nesting and keyword-like fields, without implying valid TLA expression syntax",
+  "generated_at": "2026-10-10T12:42:37Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "adapter_sha256": "6c9999336dcd79f65f7344635dc9acaa195406bb8419a97a7796d3bbc05271ed",
+  "capture_script_sha256": "9228654f22350c2c151497c218029e95a6c19b1964f305d12dca23fa36942c85",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_stage": "getAlgorithm: grammar plus normalization, not translation",
+  "secondary_stage": "public grammar-method adapter; excludes global normalization; GetMacro and call tails still normalize",
+  "rows": [
+    {
+      "id": "crossed-bracket",
+      "input": "crossed-bracket.pcal",
+      "input_sha256": "ada677e6b77d51dcc5f91ac2490a0465705d2e7698b42ed48c96d6d630d1c885",
+      "primary": {
+        "stdout": "crossed-bracket.primary.stdout.gz",
+        "stderr": "crossed-bracket.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f8f3daf5c00a15d34fe89781399c272384ae55ba7650d204c36fccc8d32ec697",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "crossed-bracket.source-grammar-secondary.stdout.gz",
+        "stderr": "crossed-bracket.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7a4cc3eb8e3ed47fe2c7988b42681237951a030aab85c42a567ed17c81308b41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "crossed-paren",
+      "input": "crossed-paren.pcal",
+      "input_sha256": "51bfdb13a19b09427d0f14741dc903dedbd8d402ec13a993b86db79d3382f053",
+      "primary": {
+        "stdout": "crossed-paren.primary.stdout.gz",
+        "stderr": "crossed-paren.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a41b9c61fe939107be0ed066d6997ba0afd0b6cb7f689c2e79db418fa0f17fae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "crossed-paren.source-grammar-secondary.stdout.gz",
+        "stderr": "crossed-paren.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4901be21c9b747358f46f2881bad76d8fae6bc4dc3ef4618a7620872cfa1f625",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "crossed-tuple",
+      "input": "crossed-tuple.pcal",
+      "input_sha256": "eb7cd88b5b2f3b99b4954a8162c388297024a4191f1f98b6fa87b77fdca6ef3a",
+      "primary": {
+        "stdout": "crossed-tuple.primary.stdout.gz",
+        "stderr": "crossed-tuple.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9d4afab8d4b00066499768dd35306cbd0a0e45341c9371876016f6270fdadd03",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "crossed-tuple.source-grammar-secondary.stdout.gz",
+        "stderr": "crossed-tuple.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a785e99a1510b95f3af1a9e83eeb2f54e7afed7e2c0bfee0b09afd4541489933",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "field-keyword",
+      "input": "field-keyword.pcal",
+      "input_sha256": "91d99668b1d378c7d9e0009087e7187fe4c587098e31ad6f5946ea8b46713972",
+      "primary": {
+        "stdout": "field-keyword.primary.stdout.gz",
+        "stderr": "field-keyword.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e392c56385c27225e5c2b5a7bf68aa7f4754690089de852e246c7cd199132092",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "field-keyword.source-grammar-secondary.stdout.gz",
+        "stderr": "field-keyword.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1cf38799184650f98c54e3a1378d891b8deebc24a95c1b19222a8b147c888231",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "suffix-bracket",
+      "input": "suffix-bracket.pcal",
+      "input_sha256": "e09ea33381ac88b7388d9448a15d9f4c2115fc0d8ed437be21667a62b36e3556",
+      "primary": {
+        "stdout": "suffix-bracket.primary.stdout.gz",
+        "stderr": "suffix-bracket.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b343278f9a344cd3ea3f4650a9a52b398e270f515e22a1427dd1b64585ce29a1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "suffix-bracket.source-grammar-secondary.stdout.gz",
+        "stderr": "suffix-bracket.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8603766fb5c1fad729a34d7b0e59e202da713191250c8f8add6aefd8a2290127",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "suffix-tuple",
+      "input": "suffix-tuple.pcal",
+      "input_sha256": "0f773466edda74fcfa876fc20145b6ae705f88b1007186d7a8f421e2c778ed5e",
+      "primary": {
+        "stdout": "suffix-tuple.primary.stdout.gz",
+        "stderr": "suffix-tuple.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "509a3abd9227f14fb0f63f613bf51e932a564030126b6672b69ae2ab2be0ce15",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "suffix-tuple.source-grammar-secondary.stdout.gz",
+        "stderr": "suffix-tuple.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "74a17c9fd807a3b32264be00f7b0c2cbf31d632d6f03d69682d5a758fc625b7c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

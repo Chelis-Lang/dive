@@ -276,3 +276,9 @@ Retained temporal endpoint ID admission is dive's own boundary check. The native
 unchecked-context repro records expression/root/capture panics and a constructor
 redirect panic; endpoint controls now refuse the former without output. The
 constructor gap is tracked separately as #129 and is not silently certified.
+
+## Native PlusCal source parsing
+
+| dive component | Source | Licence | Nature |
+|---|---|---|---|
+| `dive-pluscal` source parser (`parser.rs`, `lexer.rs`, `ast.rs`) | tlaplus `pcal/ParseAlgorithm.java` (`GetVarDecls`, `GetPVarDecl`, `GetProcedure`, `GetProcess`, `GetStmtSeq`, `GetCStmtSeq`, `GetIf`, `GetWhile`, `GetEither`, `InnerGetWith`, `GetAssign`, calls/labels/separators); `Tokenize.java` (`IsDelimiter`, `parenDepth`, quantifier/record-field rules), `PcalBuiltInSymbols.java`, `PcalCharReader.java`, `AST.java`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Grammar semantics adapted to a source-preserving arena AST. Macro expansion/labels/control-flow normalization and translation remain pending; expression scanner counts nesting and does not validate TLA syntax. Pinned primary/secondary evidence and limitations in ADR 0022 and docs/pluscal-parser.md |

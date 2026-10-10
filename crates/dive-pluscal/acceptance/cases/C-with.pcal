@@ -1,0 +1,3 @@
+--algorithm A { variable x = 0, y; {
+ with (a = 1, b \in {1, 2}) x := a + b;
+} }

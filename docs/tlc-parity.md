@@ -11,7 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: 7 have an implemented core, 23 are partial, and 7 are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 24 are partial, and 6 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -103,7 +103,7 @@ and a corresponding certification schema before the label can change.
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | missing | 7 | [m5-plan.md](design/m5-plan.md) |
 | F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-034 | PlusCal translation and translation validation | missing | 8 | [frontend-campaign.md](frontend-campaign.md) |
+| F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-parser.md](pluscal-parser.md): source AST only; translation pending |
 | F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
 | F-036 | Complete corpus, harness and release certification | partial | 1 | [conformance-corpora.md](conformance-corpora.md) |
 | F-037 | Global TLC profile and approved better defaults | partial | 9 | [tlc-differences.md](tlc-differences.md) |
@@ -180,7 +180,8 @@ PlusCal surfaces are `-help`, `-writeAST`, `-spec`, `-myspec`, `-spec2`,
 `-myspec2`, `-debug`, `-unixEOL`, `-termination`, `-noold`, `-nocfg`,
 `-noDoneDisjunct`, `-wf`, `-sf`, `-wfNext`, `-nof`, `-label`,
 `-reportLabels`, `-labelRoot`, `-version` and `-lineWidth`.
-All belong to F-034, whose backend remains a placeholder. Commented-out
+All belong to F-034, which now has a bounded native C/P source AST; macro/label
+normalization, translator options and translated output remain pending. Commented-out
 `-readOnly` and `-writable` branches are not counted as accepted options.
 
 ## Configuration parsing versus execution
