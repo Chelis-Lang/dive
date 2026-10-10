@@ -1037,3 +1037,29 @@ for those TLC-mode models to scale. The conservative analysis includes tuple
 uses of operators that can also construct strings, record-name constructors,
 and wrappers or native overrides. Strict graph capture currently refuses these
 models until it can admit the same inline fallback explicitly.
+
+
+### Current limitation: independent runtime-name trace validation (#124)
+
+TLC's encounter order can depend on strings created while exploring states
+outside a counterexample. Reading the counterexample itself creates string
+tokens, so that order cannot be inferred from a witness prefix.
+
+In `crates/dive-trace/tests/fixtures/runtime-names/ReplayNames.tla`, the clean
+pinned oracle with seed 0, fingerprint 0 and one worker completes safely with
+3 generated states, 2 distinct states and depth 2. The forged word
+`(x=6, s="unset") -> (x=6, s="7")` claims an invariant violation. The previous
+validator accepted it because loading `"7"` before constructing `"6"` changed
+what `CHOOSE` selected. The raw false positive is retained with the safe oracle
+capture, source hashes and reproduction flags.
+
+TLC-order trace validation now reports **unsupported: runtime string encounter
+order** for reachable runtime-name constructors, before predicate evaluation
+or lossy trace interpretation. A seed and fingerprint do not supply missing
+namespace history. This applies to direct decoded traces, JSON traces and the
+Rust API. Canonical default validation accepts the actual `"6"` behavior and
+rejects the forged `"7"` step. Ordinary literal strings remain supported.
+
+This is dive's own limitation, not a new language default. Establishing namespace
+provenance independently is required before lifting the refusal. The admission
+analysis conservatively includes operators with both tuple and string forms.

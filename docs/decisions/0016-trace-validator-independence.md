@@ -225,3 +225,24 @@ WF/SF retain the recurring-action certificate, then check cycle enabledness
 independently: WF needs a disabled position, SF needs every cycle position
 disabled. Prefix occurrences do not suffice. The validator remains built without
 `enumerate`, enforced by CI. Full arbitrary-action existence remains pending.
+
+
+## Amendment: runtime namespace provenance (2026-10-10, #124)
+
+Independent validation must not infer encounter-ordered runtime string tokens
+from the trace it is meant to prove. Witness decoding itself interns strings;
+a forged successor can therefore change CHOOSE ordering. Seed/fingerprint
+metadata and eager checker configuration do not establish names created by
+off-trace exploration.
+
+Until independent namespace provenance is implemented, reachable runtime-name
+constructors under TLC value or exploration order yield named `unsupported`
+in both the decoded-trace API and the lossy TLC reader. The latter preflights
+before interpretation heuristics evaluate predicates. Default canonical order
+remains decisive. Literal-name models remain supported. This conservative
+admission restriction also covers tuple uses of overloaded string constructors;
+no successor enumeration or checker/store dependency is introduced.
+
+The safe clean-oracle control and the previous forged positive are retained in
+`crates/dive-trace/tests/fixtures/runtime-names/`. Tests check both formats,
+direct decoded validation, metadata presence/absence and canonical controls.

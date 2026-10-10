@@ -213,3 +213,11 @@ function short circuit matches `SetOfFcnsValue`. Eight clean pinned `Ld*` captur
 both-profile enumeration/error-order controls and independent periodic-word checks
 provide evidence. The validator shares expression binding but retains its separate
 word/ENABLED algorithms and no successor enumeration feature.
+
+
+Runtime namespace startup matches pinned `AbstractChecker.createConfig`
+(`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint
+and installation strings are interned before assumptions. The independent
+validator's runtime-name refusal is dive's own admission rule (#124), supported
+by the clean pinned capture and prior false-positive trace in
+`crates/dive-trace/tests/fixtures/runtime-names/`.

@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The project will follow
 - Preserve TLC runtime string encounter order by using reported inline checking
   for reachable string/name constructors. Eagerly intern checker configuration
   values before assumptions, including the seed and fingerprint (issue #122).
+- Independent trace validation explicitly refuses TLC runtime-name history
+  that a witness prefix cannot establish, preventing a forged trace from
+  choosing its own string order (issue #124). Canonical validation remains
+  decisive; supplied seed/fingerprint metadata does not bypass this refusal.
 
 
 - Final/short temporal failures retain their execution stage, actual capture

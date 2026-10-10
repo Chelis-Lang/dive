@@ -288,11 +288,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
                         Arg::Expr { expr, .. } => Some(ir.expr(*expr)),
                         Arg::Op { .. } => None,
                     });
-                    if ordered_names
-                        && (creates_names(op)
-                            || (op == StdOp::TlcTLCGet
-                                && matches!(key, Some(Expr::Str(k)) if k.as_ref() == "config")))
-                    {
+                    if ordered_names && creates_names(op) {
                         names.insert(format!(
                             "{} (runtime names require TLC encounter order)",
                             op.qualified_name()
