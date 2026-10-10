@@ -13,7 +13,7 @@ def main(args):
     for category in ['reports','checked_sources','gate_logs','archived_evidence']:
         for file,digest in receipt[category].items():assert sha(ROOT/file)==digest,(category,file)
     selected=artifacts=invalid=complete=pending=deadlocks=models=valid=mutants=0
-    for directory in [BASE,BASE/'extra',BASE/'names']:
+    for directory in [BASE,BASE/'extra',BASE/'names',BASE/'fair']:
         manifest=read(directory/'primary/manifest.json');report=read(directory/'comparison.json');selection=read(directory/'selection.json')
         assert report['native_sha256']==sha(args.example) and report['comparator_sha256']==sha(directory/'compare.py') and report['manifest_sha256']==sha(directory/'primary/manifest.json') and report['model_proved'] is False
         assert report['selected']==len(manifest['rows'])==selection['selected']
@@ -46,14 +46,14 @@ def main(args):
                 assert control['strict_tlc_credit'] is False and control['profile']=='dive-default'
                 if control['control']=='original':assert control['result']=='valid' and control['exit_code']==0;valid+=1
                 else:assert control['result']=='invalid' and control['exit_code']==1;mutants+=1
-    assert (selected,artifacts,invalid,complete,pending,deadlocks,models,valid,mutants)==(130,80,14,66,62,2,130,64,256)
+    assert (selected,artifacts,invalid,complete,pending,deadlocks,models,valid,mutants)==(132,82,14,68,64,2,134,66,264)
     for name,count in [('admission',28),('api-admission',28),('guide-cli',4),('guide-api',2)]:
         report=read(BASE/name/'report.json');assert report['controls']==count
         if 'guide_sha256' in report:assert report['guide_sha256']==sha(ROOT/'docs/pluscal-process-procedures.md')
     assert read(BASE/'mutation-controls.json')['control_count']==39
     budget=read(BASE/'budgets/report.json');assert len(budget['primary_rows'])==2 and len(budget['native_controls'])==32
     assert all(c['result']['model_proved'] is False and c['result']['exhaustive'] is False and c['result']['result'] in ['unsupported','resource-limit'] for c in budget['native_controls'])
-    print('Verified complete 130-source / 80-artifact / 130-model delivery and all bound bytes')
+    print('Verified complete 132-source / 82-artifact / 134-model delivery and all bound bytes')
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['native','example','harness']:p.add_argument('--'+key,type=Path,required=True)

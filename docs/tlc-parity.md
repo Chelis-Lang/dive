@@ -320,5 +320,8 @@ The [single finite process procedure increment](pluscal-process-procedures.md)
 retains 112 capture-first C/P controls and owned parameter/local/stack/pc
 transfers. Native artifacts and generated-model/witness stages remain separate;
 all invalid primary output is uncredited. Multiple process/procedure ownership,
-renaming/fairness and strict #124 namespace replay remain pending. F-034/F-035
+renaming/process-declared fairness and strict #124 namespace replay remain pending.
+The separate two-row algorithm-level fair study proves global WF_vars(Next)
+artifact generation with CST/SANY and four finite Init/Next controls; it does
+not certify liveness execution. F-034/F-035
 stay partial/audit-required; no family denominator or certification change.

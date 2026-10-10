@@ -23,7 +23,10 @@ slots, stack and pc. Call arguments remain simultaneous, local initialization
 ordered, ordinary frames owner-specific, and self-tail calls frame preserving.
 Procedure wrappers quantify over ProcSet separately from process wrappers.
 Multiple process blocks with procedures, scope disambiguation, procedure reads
-of process-local variables and combined fairness paths remain named refusals.
+of process-local variables and process-declared/option fairness paths remain named refusals.
+Algorithm-level fair syntax generates global WF_vars(Next) through the existing
+model.fair path; separate two-row SANY/CST controls prove formula generation,
+not liveness execution or procedure fairness.
 No dependency graph changes or new crates/dependencies.
 
 ## Evidence and consequences

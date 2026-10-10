@@ -1,7 +1,8 @@
 # Procedures called by a finite PlusCal process
 
 `dive translate FILE.tla --output json` now admits procedure calls from one
-unfair finite process block in C or P syntax. Procedure parameters, locals,
+finite process block with an unfair process declaration in C or P syntax.
+Procedure parameters, locals,
 stack and program counter belong to a process ID. Ordinary and recursive calls,
 return, and adjacent self-tail call/return use that owner's slots. This bounded
 path requires disjoint names; it does not rename scopes or prove termination.
@@ -102,7 +103,7 @@ implicit index. Internal generated transfers still index the owned stack.
 
 This increment supports one finite process block and disjoint procedure names,
 parameter/local/global names and labels. Multiple process blocks with procedures,
-procedure references to process-local storage, process/procedure fairness,
+procedure references to process-local storage, process-declared or option-selected fairness,
 automatic procedure labels, label modifiers, scoped renaming and unproved
 macro/binder interactions remain named refusals. Wrong call arity, unknown
 callee and missing-label transfers are source rejections. Falling off a
@@ -145,3 +146,12 @@ SANY-invalid reference outputs remain uncredited. The 130 finite model rows have
 66 complete matches and 64 strict pending witnesses; separately qualified
 canonical replay validates 64 witnesses and rejects 256 mutants. This is bounded
 coverage, not full translator or strict witness certification.
+
+A separate final two-row C/P study also admits algorithm-level `--fair algorithm`.
+It generates the pinned global `WF_vars(Next)` formula, independently of the
+process declaration. Both generated operators match SANY and CST structure;
+four finite Init/Next controls match (two complete, two strict pending witnesses).
+Two canonical witnesses and eight invalid mutants are separate qualified
+evidence. This establishes formula generation, not liveness execution or
+process/procedure fairness. The aggregate delivery contains 132 source rows,
+82 artifacts and 134 model rows; the original 130-row study remains intact.

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "selected": 2,
+  "rows": [
+    {
+      "id": "ProcessProcedureFair_C_global",
+      "options": []
+    },
+    {
+      "id": "ProcessProcedureFair_P_global",
+      "options": []
+    }
+  ]
+}

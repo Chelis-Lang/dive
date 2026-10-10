@@ -69,3 +69,31 @@ procedure blocks, scoped rewriting/fairness, historical options or exact
 formatting/file-rewrite/checksum/map behavior. F-034/F-035 remain partial and
 audit-required. Requested widths may execute inline for TLC runtime names,
 as recorded in each document; there is no performance/scaling claim.
+
+## Separate final algorithm-level fairness study
+
+`fair` retains two additional C/P `--fair algorithm` sources and their clean
+primary normalization/translation/SANY bytes. Both match token artifacts and
+operator CST/SANY. Four finite Init/Next rows yield two complete matches and
+two unchanged strict #124 witness-pending controls; 24 width/store comparisons
+match. Qualified canonical replay gives two valid witnesses/eight invalid
+mutants. No liveness execution credit follows from generating WF_vars(Next).
+Process-declared/option fairness remains refused with procedures.
+
+The aggregate delivery is 132 source rows/82 artifacts/134 model rows: 68
+complete, 64 strict invariant-pending and two strict deadlock-pending rows;
+804 width/store controls, 66 canonical witnesses/264 mutants. All fourteen
+invalid primary outputs remain uncredited. `original-130-delivery.json` retains
+the original receipt at source commit `92292deeecc344252440ce870d87fb797e8fa308`;
+its source hashes describe that immutable commit, not the later documentation
+addendum. All original selections and generated controls remain unchanged.
+
+```sh
+python3 -I fair/compare.py --manifest fair/primary/manifest.json --inputs fair/cases --native "$EXAMPLE" --output fair/comparison.json
+python3 -I fair/validate.py --java "$JAVA" --jar "$JAR" --native "$DIVE" --example "$EXAMPLE" --report fair/comparison.json --inputs fair/cases --fixtures fair/primary --output fair/validation
+python3 -I fair/qualified-replay.py --native "$DIVE" --output fair/qualified-replay
+```
+
+The strict fair validation script intentionally exits one for the unchanged
+namespace guard. Translation and finite Init/Next evidence never certify a
+liveness verdict.

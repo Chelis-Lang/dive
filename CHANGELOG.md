@@ -7,7 +7,9 @@ All notable changes to this project are documented here. The project will follow
 
 - Native PlusCal procedure calls from one finite process block: owned indexed
   parameter/local slots, stack/pc transitions, recursive and self-tail calls,
-  both source syntaxes and explicit global limits. Process/scoped renaming and
+  both source syntaxes and explicit global limits. Algorithm-level fair syntax
+  retains global WF_vars(Next) artifact generation; process-declared fairness
+  and liveness execution are separate pending contracts. Process/scoped renaming and
   strict runtime-namespace witnesses remain pending; invalid reference artifacts
   are rejected. See `docs/pluscal-process-procedures.md`.
 
