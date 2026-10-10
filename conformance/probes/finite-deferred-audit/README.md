@@ -116,3 +116,37 @@ whole-selection report is required before crediting those corpus rows.
 
 The two additional captures were generated with the command above, selecting
 `FdCaptureHolds FdCaptureFails`. No golden file was edited.
+
+
+## Opaque Rust operator captures
+
+A public Rust caller can supply an operator through `scope_apply` that does not
+appear among the IR's analysed call sites. The retained source
+`rust-operator-capture-before.rs` injects `TlcPrintT` into `Q(P(_))`. Before the
+fix, `Q` has only `MAY_FAIL` effects, yet bounded binding returns two scopes and
+prints two values. The exact pre-fix output is retained in
+`rust-operator-capture-before.stdout`; this is a native purity-control repro,
+not an oracle capture, a golden or a checking result.
+
+The repro linked source `25290f9b070fdc9bce0d55f8139ab7203c82b0a0`; its standalone
+executable SHA-256 was `ad584c9ad52ecff5a650b0d1c44dfbac1656f357e6fa01bc745dd5b0f3765aba`.
+The fixed `dive-eval` regression
+`deferred_filter_rejects_operator_arguments_injected_by_rust_callers` verifies
+explicit refusal and no output in both profiles. Captured operator slots remain
+opaque, including pure operators supplied by Rust, until scoped effect proof
+exists. Closed effects are also required for all captured thunks/functions.
+The environment's existing shared-side-effect test retains its original
+behaviour; only the new captured-filter guard applies these stronger conditions.
+This is an F-006 limitation retained while widening F-007, not higher-order
+implementation credit.
+
+
+The companion `rust-invalid-expression-before.*` control supplies an unchecked
+`ExprId(u32::MAX)` as an unused captured expression through `scope_apply`. It
+previously produced two bindings because missing capture metadata was treated
+as pure. Filter admission now treats missing metadata as unknown and refuses
+without evaluating the invalid expression or panicking, in both profiles. The
+old shared-side-effect helper's missing-node behaviour remains unchanged. This
+is conservative filter proof, not a general validation of Rust caller-created
+IR identifiers. The fixed regression is
+`deferred_filter_rejects_missing_captured_expression_without_panicking`.

@@ -226,3 +226,16 @@ No new checker enumerator or validator dependency was introduced. Six clean
 `FdFilter*`, `FdMap*` and `FdCapture*` captures, both-profile input/cache/effect/
 error-order/priming controls and fresh independent periodic-word checks provide
 focused final/short evidence. Recursive `FdRecursivePerm*` remains unsupported.
+
+
+The captured-filter environment guard is original effect-proof admission logic.
+It conservatively rejects operator slots whose runtime Rust bindings are not
+proved by IR call-site analysis, and checks closed effects of all retained
+thunks/functions. The existing shared-side-effect traversal behaviour is
+preserved. `rust-operator-capture-before.*` and its fixed no-output regression
+retain the motivating native purity gap; neither is TLC conformance evidence.
+
+The filter-only proof treats missing captured-expression metadata as unknown
+while preserving the original shared-side-effect helper's missing-node behaviour.
+The companion unchecked-`ExprId` repro and both-profile no-panic refusal control
+provide evidence; this does not validate every Rust caller-created IR identifier.

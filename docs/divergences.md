@@ -224,3 +224,11 @@ effectful domains and recursive scoped functions still refuse. This is staged
 F-007 evidence, not strict temporal certification; F-006 recursive scope support
 remains open. The original full ten-row study retains its nine refusals/bounds
 and one timeout until a new immutable whole-selection report is completed.
+
+
+D-013 filter admission additionally refuses opaque captured Rust operator
+arguments and unproved captured thunk/function effects before invocation. This
+preserves the F-006 gap; IR call-site effects alone do not prove operator values
+supplied dynamically through the Rust scope API pure. The native no-output
+regression and retained pre-fix repro are implementation controls, not TLC
+conformance evidence.

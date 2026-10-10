@@ -106,7 +106,7 @@ impl Budget {
             .node(filter.pred)
             .effects
             .intersects(forbidden)
-            || crate::env::shares_side_effects(&filter.core.ir, &filter.env)
+            || crate::env::filter_has_unproved_captures(&filter.core.ir, &filter.env, forbidden)
             || filter
                 .core
                 .redirects

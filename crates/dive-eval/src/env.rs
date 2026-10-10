@@ -420,6 +420,26 @@ impl Thunk {
 /// thunk or a lazy function whose expression has side effects
 /// (`Effects::IMPURE`). See `Evaluator::scope_shares_side_effects`.
 pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
+    captures_with_effects(ir, env, dive_ir::Effects::IMPURE, false)
+}
+
+/// Captured operators are opaque here: callers can supply them through the
+/// Rust scope API without a corresponding statically analysed IR call site.
+/// All thunks/functions must also have closed effects before filter execution.
+pub(crate) fn filter_has_unproved_captures(
+    ir: &dive_ir::Ir,
+    env: &Env,
+    forbidden: dive_ir::Effects,
+) -> bool {
+    captures_with_effects(ir, env, forbidden, true)
+}
+
+fn captures_with_effects(
+    ir: &dive_ir::Ir,
+    env: &Env,
+    forbidden: dive_ir::Effects,
+    reject_operators: bool,
+) -> bool {
     let mut seen = std::collections::HashSet::new();
     let mut frames: Vec<&Arc<Frame>> = vec![&env.frame];
     let mut svs: Vec<&Sv> = Vec::new();
@@ -427,7 +447,7 @@ pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
     let impure = |e: ExprId| {
         ir.nodes()
             .get(e.index())
-            .is_some_and(|n| n.effects.intersects(dive_ir::Effects::IMPURE))
+            .map_or(reject_operators, |n| n.effects.intersects(forbidden))
     };
     loop {
         if let Some(f) = frames.pop() {
@@ -450,7 +470,7 @@ pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
             match sv {
                 Sv::Thunk(t) => {
                     if seen.insert(Arc::as_ptr(t) as usize) {
-                        if t.cachable && impure(t.expr) {
+                        if (reject_operators || t.cachable) && impure(t.expr) {
                             return true;
                         }
                         frames.push(&t.env.frame);
@@ -466,6 +486,7 @@ pub(crate) fn shares_side_effects(ir: &dive_ir::Ir, env: &Env) -> bool {
                         dyns.push(&f.env.dynamic);
                     }
                 }
+                Sv::Op(_) if reject_operators => return true,
                 Sv::Op(OpVal::Def {
                     parent, dynamic, ..
                 }) => {

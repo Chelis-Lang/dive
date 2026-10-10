@@ -324,3 +324,66 @@ Q == \A v \in {f \in [{1} -> BOOLEAN] : P(f)} : v
         }
     }
 }
+
+#[test]
+fn deferred_filter_rejects_operator_arguments_injected_by_rust_callers() {
+    let source = r"---- MODULE Bounded ----
+EXTENDS Naturals, TLC
+Q(P(_)) == \A v \in {f \in [{1} -> BOOLEAN] : P(f)} : v
+====
+";
+    for opts in [Options::tlc(), Options::dive()] {
+        let ev = source_evaluator(source, opts);
+        let def = ev.ir().root_def("Q").expect("Q");
+        let scope = ev
+            .scope_apply(
+                &ev.scope(def),
+                def,
+                &[dive_ir::Arg::Op {
+                    op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
+                    level: dive_ir::Level::Constant,
+                }],
+            )
+            .expect("injected operator argument");
+        let failure = ev
+            .scope_bindings_bounded(&scope, ev.ir().def(def).body, &St::constant(), 4096)
+            .expect_err("unknown operator effects refused");
+        assert_eq!(failure.class(), ErrorClass::Unsupported);
+        assert!(
+            ev.take_output().is_empty(),
+            "injected PrintT must not execute"
+        );
+    }
+}
+
+#[test]
+fn deferred_filter_rejects_missing_captured_expression_without_panicking() {
+    let source = r"---- MODULE Bounded ----
+EXTENDS Naturals
+Q(p) == \A v \in {f \in [{1} -> BOOLEAN] : TRUE} : v
+====
+";
+    for opts in [Options::tlc(), Options::dive()] {
+        let ev = source_evaluator(source, opts);
+        let def = ev.ir().root_def("Q").expect("Q");
+        let scope = ev
+            .scope_apply(
+                &ev.scope(def),
+                def,
+                &[dive_ir::Arg::Expr {
+                    expr: dive_ir::ExprId(u32::MAX),
+                    pass: dive_ir::Pass::Lazy,
+                }],
+            )
+            .expect("constructible unproved thunk");
+        assert!(
+            !ev.scope_shares_side_effects(&scope),
+            "legacy missing-node behaviour is unchanged"
+        );
+        let failure = ev
+            .scope_bindings_bounded(&scope, ev.ir().def(def).body, &St::constant(), 4096)
+            .expect_err("missing captured expression is unknown, not pure");
+        assert_eq!(failure.class(), ErrorClass::Unsupported);
+        assert_eq!(ev.take_output(), Vec::<String>::new());
+    }
+}
