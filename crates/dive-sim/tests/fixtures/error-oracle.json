@@ -1,0 +1,163 @@
+[
+  {
+    "model": "SimActionProperty",
+    "native_scope": "supported",
+    "exit": 13,
+    "codes": [
+      2112,
+      2121
+    ],
+    "states": [
+      0,
+      2
+    ],
+    "generated": 3
+  },
+  {
+    "model": "SimAssumeFalse",
+    "native_scope": "supported",
+    "exit": 10,
+    "codes": [
+      2104
+    ],
+    "states": [],
+    "generated": null
+  },
+  {
+    "model": "SimConstrainedAction",
+    "native_scope": "unsupported",
+    "exit": 13,
+    "codes": [
+      2112,
+      2121
+    ],
+    "states": [
+      0,
+      1
+    ],
+    "generated": 2
+  },
+  {
+    "model": "SimConstrainedInvariant",
+    "native_scope": "supported",
+    "exit": 12,
+    "codes": [
+      2110,
+      2121
+    ],
+    "states": [
+      0,
+      2
+    ],
+    "generated": 3
+  },
+  {
+    "model": "SimDeadlock",
+    "native_scope": "supported",
+    "exit": 11,
+    "codes": [
+      2114,
+      2121
+    ],
+    "states": [
+      0
+    ],
+    "generated": 1
+  },
+  {
+    "model": "SimEmpty",
+    "native_scope": "supported",
+    "exit": 255,
+    "codes": [
+      2118
+    ],
+    "states": [],
+    "generated": null
+  },
+  {
+    "model": "SimExcludedInitial",
+    "native_scope": "supported",
+    "exit": 255,
+    "codes": [
+      2256
+    ],
+    "states": [],
+    "generated": null
+  },
+  {
+    "model": "SimIncomplete",
+    "native_scope": "supported",
+    "exit": 75,
+    "codes": [
+      2109,
+      2121
+    ],
+    "states": [
+      0,
+      1
+    ],
+    "generated": 1
+  },
+  {
+    "model": "SimInitialIncomplete",
+    "native_scope": "supported",
+    "exit": 255,
+    "codes": [
+      2106
+    ],
+    "states": [
+      1
+    ],
+    "generated": null
+  },
+  {
+    "model": "SimInitialInvariant",
+    "native_scope": "supported",
+    "exit": 12,
+    "codes": [
+      2107
+    ],
+    "states": [
+      1
+    ],
+    "generated": null
+  },
+  {
+    "model": "SimInitialPrecedence",
+    "native_scope": "supported",
+    "exit": 255,
+    "codes": [
+      1000
+    ],
+    "states": [],
+    "generated": 0
+  },
+  {
+    "model": "SimInvariant",
+    "native_scope": "supported",
+    "exit": 12,
+    "codes": [
+      2110,
+      2121
+    ],
+    "states": [
+      0,
+      2
+    ],
+    "generated": 3
+  },
+  {
+    "model": "SimInvariantError",
+    "native_scope": "supported",
+    "exit": 76,
+    "codes": [
+      2111,
+      2121
+    ],
+    "states": [
+      0,
+      1
+    ],
+    "generated": 2
+  }
+]

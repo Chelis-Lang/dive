@@ -35,7 +35,7 @@ fn version_succeeds() {
 
 #[test]
 fn unimplemented_commands_refuse_explicitly() {
-    for cmd in ["simulate", "translate", "lsp"] {
+    for cmd in ["translate", "lsp"] {
         let out = dive(&[cmd]);
         assert_eq!(out.status.code(), Some(3), "{cmd}");
         assert!(
@@ -539,4 +539,50 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
             .as_array()
             .is_some_and(|d| !d.is_empty())
     );
+}
+
+#[test]
+#[allow(
+    clippy::unwrap_used,
+    reason = "fixture and JSON failures must fail this command-contract test"
+)]
+fn simulate_is_a_seeded_finite_sample_and_refuses_unbuilt_modes() {
+    let spec = temp_file(
+        "SimCli.tla",
+        "---- MODULE SimCli ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = 0\nNext == x' = x + 1\n====\n",
+    );
+    std::fs::write(spec.with_extension("cfg"), "INIT Init\nNEXT Next\n").unwrap();
+    let text = spec.to_str().unwrap();
+    let out = dive(&[
+        "simulate", text, "--seed", "7", "--traces", "2", "--depth", "3", "--output", "json",
+    ]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let json: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(json["command"], "simulate");
+    assert_eq!(json["result"], "sampled");
+    assert_eq!(json["model_proved"], false);
+    assert_eq!(json["traces"].as_array().unwrap().len(), 2);
+    assert_eq!(dive(&["simulate", text]).status.code(), Some(2));
+    assert_eq!(
+        dive(&["simulate", text, "--traces", "0"]).status.code(),
+        Some(2)
+    );
+    for option in [
+        "--continue",
+        "--generate",
+        "--probabilistic",
+        "--rl",
+        "--distributed",
+    ] {
+        assert_eq!(
+            dive(&["simulate", text, "--traces", "2", option])
+                .status
+                .code(),
+            Some(3)
+        );
+    }
 }

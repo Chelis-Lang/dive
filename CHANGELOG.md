@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- TLC-order simulation refuses runtime-name history that cannot yet be
+  independently validated; canonical default sampling remains supported.
+
 - Preserve TLC runtime string encounter order by using reported inline checking
   for reachable string/name constructors. Eagerly intern checker configuration
   values before assumptions, including the seed and fingerprint (issue #122).
@@ -59,6 +62,10 @@ All notable changes to this project are documented here. The project will follow
   aliases (IR schema 5). Unverified startup exceptions, unsupported declaration
   shapes, deferred/lazy value permutation, randomness under symmetry and
   symmetry with liveness still refuse explicitly.
+- `dive simulate` and Rust `simulate_file` sample finite pure safety traces, with
+  TLC-exact seeded single-worker selection and default trace-identity replay.
+  Every violation is independently validated; sampling never claims a proof.
+  Unimplemented simulation modes and effects remain named refusals.
 
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
