@@ -54,3 +54,43 @@ retains the pre-repair manifests and exact source bytes. The repaired CLI contro
 requires exit 2, the input error, empty stdout and no archive for frontier, log
 and both budgets, while retaining temporal/orphan-option refusals. No production
 code or oracle expectation changed for that repair.
+
+## Completed frozen controls
+
+`delivery.json` pins the runtime producer (`d7a7349`) and release binary, the
+separate verification tree (`deeab34`), 257 archived implementation inputs,
+raw/source/trace/archive hashes and completed receipts. The complete selection
+passed: 576 groups, 4,032 CLI calls, 1,728 independent witness controls and 96
+storage/corruption/admission failure controls. The runnable guide's three CLI
+commands and Rust example also executed successfully; their source, outputs and
+archive hashes are retained in `guide/`.
+
+The fixed full local gate passed all 858 tests, Python/source checks, Clippy,
+doc tests, warnings-denied documentation, layering, standalone trace and
+dependency checks. CM1's 21 and validation-smoke's 16 models fully agreed at
+1/4/8 workers. `receipts/timings.json` retains per-test times and observed load:
+nextest took 1,579.653 seconds; the entire gate took about 1,720 seconds with two
+local test threads and two compile jobs. Every 180-second per-test bound is
+unchanged. New recovery wrappers took 32.324–83.463 seconds under concurrent
+local load. These are functional controls, not benchmarks or a prediction of
+Linux CI runtime; CI's workspace job remains 15 minutes and uses runner-default
+nextest width. Reusing immutable parse/analyze/IR preparation may reduce repeated
+setup, but startup binding/effects and evaluator-specific caches must stay
+per-run unless a separate proof permits reuse. No control was dropped.
+
+The later CLI test-only restart initially failed Clippy's `assert_is_empty`
+style check; `development/cli-contract-clippy/` retains that source, log and
+manifests. Exact empty-byte equality repaired diagnostics without changing the
+assertion or production behavior. Historical focused logs are retained and not
+credited as final-source executions. Original memory receipts, primary oracle
+results, failed gates and pre-repair source authorities remain separate.
+
+Capture the failure selection from the repository root into a fresh directory:
+
+```sh
+python3 -I conformance/probes/native-checkpoint-spill/capture_failures.py DIVE FRESH_OUTPUT
+```
+
+F-032 remains partial/audit-required. The native snapshot and its corruption
+checksum are trusted-local recovery inputs, never an independent reachability
+certificate; neither transient budget bounds total search or archive memory.

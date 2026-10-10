@@ -1,0 +1,294 @@
+{
+  "observed_at": "2026-10-10T22:00:13.197968+00:00",
+  "hardware": [
+    "Mac15,13",
+    "8",
+    "25769803776"
+  ],
+  "uptime": "23:00  up 58 days,  3:40, 5 users, load averages: 36.98 36.13 34.90",
+  "processes": "73351 72502       11:44 /Users/jeff/.cargo/bin/cargo-nextest nextest run --workspace --locked\n76986 73931       10:23 /Users/jeff/.cargo/bin/cargo-nextest nextest run --workspace --locked\n85205 53968       00:28 bash /tmp/dive-checkpoint-spill-workspace-gate.sh",
+  "gate_source_commit": "deeab34e837fc711ae0240eca612c55516e2c753",
+  "cargo_build_jobs": 2,
+  "rust_test_threads": 2,
+  "nextest_test_threads": 2,
+  "ci_timeout_seconds_per_test": 180,
+  "timing_is_performance_benchmark": false,
+  "gate_process_start_system_clock": "Sat Oct 10 22:59:45 2026",
+  "gate_log_modified_system_clock": "2026-10-10T23:28:25.010946",
+  "gate_total_wall_seconds_measured_from_process_start": 1720.0109460353851,
+  "nextest_summary": [
+    "     Summary [1579.653s] 858 tests run: 858 passed (17 slow), 0 skipped"
+  ],
+  "individual_test_durations": [
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_action_constraint_no_deadlock",
+      "seconds": 57.328
+    },
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_constrained_violation",
+      "seconds": 59.576
+    },
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_deadlock_mid_level",
+      "seconds": 64.314
+    },
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_duplicate_successors",
+      "seconds": 65.868
+    },
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_eval_error_mid_level",
+      "seconds": 36.695
+    },
+    {
+      "test": "dive-api::native_checkpoint recovered_defaults_are_reported_and_source_byte_drift_refuses",
+      "seconds": 2.373
+    },
+    {
+      "test": "dive-api::native_checkpoint unsupported_mode_combinations_refuse_before_file_access",
+      "seconds": 0.014
+    },
+    {
+      "test": "dive-api::native_checkpoint frontier_recovery_mid_level_violation",
+      "seconds": 34.468
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys symmetry_recovery_dive_preserves_concrete_owner_and_rejects_equal_key_witnesses",
+      "seconds": 53.081
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys symmetry_recovery_tlc_preserves_concrete_owner_and_rejects_equal_key_witnesses",
+      "seconds": 54.086
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys symmetry_view_recovery_dive_matches_full_and_checks_concrete_witnesses",
+      "seconds": 55.468
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys symmetry_view_recovery_tlc_matches_full_and_checks_concrete_witnesses",
+      "seconds": 57.402
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys view_recovery_dive_matches_full_and_checks_concrete_witnesses",
+      "seconds": 39.726
+    },
+    {
+      "test": "dive-api::native_checkpoint_keys view_recovery_tlc_matches_full_and_checks_concrete_witnesses",
+      "seconds": 39.997
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_dive_both_spill_recovery",
+      "seconds": 53.653
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_dive_frontier_spill_recovery",
+      "seconds": 57.106
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_dive_predecessor_spill_recovery",
+      "seconds": 63.878
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_tlc_both_spill_recovery",
+      "seconds": 66.061
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_tlc_frontier_spill_recovery",
+      "seconds": 66.74
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymconcrete_tlc_predecessor_spill_recovery",
+      "seconds": 70.226
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_dive_both_spill_recovery",
+      "seconds": 73.131
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_dive_frontier_spill_recovery",
+      "seconds": 68.048
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_dive_predecessor_spill_recovery",
+      "seconds": 46.425
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_tlc_both_spill_recovery",
+      "seconds": 52.576
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_tlc_frontier_spill_recovery",
+      "seconds": 83.463
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpsymview_tlc_predecessor_spill_recovery",
+      "seconds": 81.84
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_dive_both_spill_recovery",
+      "seconds": 50.555
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_dive_frontier_spill_recovery",
+      "seconds": 46.477
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_dive_predecessor_spill_recovery",
+      "seconds": 42.671
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_tlc_both_spill_recovery",
+      "seconds": 43.033
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_tlc_frontier_spill_recovery",
+      "seconds": 33.063
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill cpview_tlc_predecessor_spill_recovery",
+      "seconds": 32.324
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill storage_failures_do_not_create_a_pause_or_certify_recovery",
+      "seconds": 12.512
+    },
+    {
+      "test": "dive-api::native_checkpoint_spill recovery_can_change_transient_budgets_and_worker_width",
+      "seconds": 24.088
+    },
+    {
+      "test": "dive-api::predecessor_spill concrete_spilled_symmetry_witnesses_remain_independently_valid",
+      "seconds": 3.226
+    },
+    {
+      "test": "dive-api::predecessor_spill early_admission_and_failed_creation_never_certify_success",
+      "seconds": 0.054
+    },
+    {
+      "test": "dive-api::predecessor_spill combined_frontier_and_predecessor_spill_preserves_order_and_witnesses",
+      "seconds": 8.234
+    },
+    {
+      "test": "dive-check::capture actual_captured_scopes_are_proved_before_any_pool_evaluation",
+      "seconds": 0.319
+    },
+    {
+      "test": "dive-check::capture caller_replaced_ir_or_names_refuses_before_walk_setup_or_workers",
+      "seconds": 0.039
+    },
+    {
+      "test": "dive-check::capture capture_still_refuses_projection_randomness_and_stateful_effects",
+      "seconds": 0.253
+    },
+    {
+      "test": "dive-check::capture concrete_parallel_capture_retains_equal_nonrepresentative_values_and_real_width",
+      "seconds": 0.248
+    },
+    {
+      "test": "dive-check::capture concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds",
+      "seconds": 2.77
+    },
+    {
+      "test": "dive-check::capture constraints_filter_generated_edges_without_filtering_implicit_stutters",
+      "seconds": 0.028
+    },
+    {
+      "test": "dive-check::capture duplicates_seen_edges_roots_and_stutters_retain_reference_order",
+      "seconds": 0.095
+    },
+    {
+      "test": "dive-check::capture every_other_unsupported_reason_and_profile_mismatch_is_retained",
+      "seconds": 0.035
+    },
+    {
+      "test": "dive-check::capture failing_assumptions_keep_prints_and_completed_safety_stops_keep_all_evidence",
+      "seconds": 0.076
+    },
+    {
+      "test": "dive-api::predecessor_spill zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos",
+      "seconds": 71.323
+    },
+    {
+      "test": "dive-check::capture no_safety_stop_or_resource_bound_exposes_a_complete_graph",
+      "seconds": 0.069
+    },
+    {
+      "test": "dive-check::capture ordered_parallel_capture_matches_inline_across_profiles_stores_and_chaos",
+      "seconds": 5.232
+    },
+    {
+      "test": "dive-check::capture pre_pool_initial_stop_reports_the_one_thread_that_ran",
+      "seconds": 0.073
+    },
+    {
+      "test": "dive-check::capture runtime_string_choice_respects_reference_intern_order",
+      "seconds": 8.187
+    },
+    {
+      "test": "dive-check::capture runtime_string_ordinary_safety_probe",
+      "seconds": 0.285
+    },
+    {
+      "test": "dive-check::capture speculative_capture_refuses_runtime_name_creation_before_workers",
+      "seconds": 0.322
+    },
+    {
+      "test": "dive-check::capture tiny_bounds_choose_the_inline_prefix_at_every_width",
+      "seconds": 15.314
+    },
+    {
+      "test": "dive-check::capture mid_wave_safety_stops_preserve_ordered_prints_counts_and_predecessors",
+      "seconds": 130.486
+    },
+    {
+      "test": "dive-check::native_checkpoint actual_resume_matches_uninterrupted_and_tlc_reset_is_explicit",
+      "seconds": 66.494
+    },
+    {
+      "test": "dive-check::native_checkpoint coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_receipt",
+      "seconds": 5.773
+    },
+    {
+      "test": "dive-check::native_checkpoint concrete_compound_model_values_and_name_prefixes_restore_losslessly",
+      "seconds": 4.672
+    },
+    {
+      "test": "dive-check::native_checkpoint native_counter_prefix_exact_dive",
+      "seconds": 16.888
+    },
+    {
+      "test": "dive-check::native_checkpoint native_counter_prefix_exact_tlc",
+      "seconds": 22.629
+    },
+    {
+      "test": "dive-check::native_checkpoint native_counter_prefix_fingerprint_dive",
+      "seconds": 29.371
+    },
+    {
+      "test": "dive-check::native_checkpoint native_refuses_effects_and_identity_mismatch_without_a_verdict",
+      "seconds": 3.541
+    },
+    {
+      "test": "dive-check::native_checkpoint native_counter_prefix_fingerprint_tlc",
+      "seconds": 29.314
+    },
+    {
+      "test": "dive-check::native_checkpoint retained_near_maximum_generated_counts_refuse_before_continuation",
+      "seconds": 5.252
+    },
+    {
+      "test": "dive-check::native_checkpoint recovery_can_change_pool_width_and_resume_an_actual_later_level",
+      "seconds": 38.531
+    },
+    {
+      "test": "dive-cli::cli native_checkpoint_spill_budgets_pass_option_admission_before_input_error",
+      "seconds": 0.142
+    },
+    {
+      "test": "dive-cli::cli native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes",
+      "seconds": 0.175
+    }
+  ],
+  "timing_qualification": "Two local nextest threads on 8 CPUs under recorded concurrent workspace/release load; functional controls, not a performance benchmark or Linux CI prediction. CI uses runner default width and retains its 15-minute workspace job and 180-second per-test limit.",
+  "follow_up_optimization": "Independent SpecModel loads once per wrapper/profile already. All actual check_file/checkpoint calls reparse/analyze/bind immutable inputs. A validated prepared-model cache could reduce repeated setup while retaining each recovery/storage/width/counter/witness assertion. No cases or timeout bounds reduced."
+}

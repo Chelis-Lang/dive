@@ -1,0 +1,28 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.28s
+     Running tests/native_checkpoint_spill.rs (/Users/jeff/code/dive-checkpoint-spill-target/debug/deps/native_checkpoint_spill-bd682cc56e136596)
+
+running 20 tests
+test cpsymconcrete_dive_frontier_spill_recovery ... ok
+test cpsymconcrete_dive_both_spill_recovery ... ok
+test cpsymconcrete_dive_predecessor_spill_recovery ... ok
+test cpsymconcrete_tlc_both_spill_recovery ... ok
+test cpsymconcrete_tlc_frontier_spill_recovery ... ok
+test cpsymconcrete_tlc_predecessor_spill_recovery ... ok
+test cpsymview_dive_both_spill_recovery ... ok
+test cpsymview_dive_frontier_spill_recovery ... ok
+test cpsymview_dive_predecessor_spill_recovery ... ok
+test cpsymview_tlc_both_spill_recovery ... ok
+test cpsymview_tlc_frontier_spill_recovery ... ok
+test cpsymview_tlc_predecessor_spill_recovery ... ok
+test cpview_dive_both_spill_recovery ... ok
+test cpview_dive_frontier_spill_recovery ... ok
+test cpview_dive_predecessor_spill_recovery ... ok
+test cpview_tlc_both_spill_recovery ... ok
+test cpview_tlc_frontier_spill_recovery ... ok
+test cpview_tlc_predecessor_spill_recovery ... ok
+test storage_failures_do_not_create_a_pause_or_certify_recovery ... ok
+test recovery_can_change_transient_budgets_and_worker_width ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 152.85s
+

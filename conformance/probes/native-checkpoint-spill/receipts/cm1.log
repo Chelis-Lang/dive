@@ -1,0 +1,87 @@
+warning: 25 path(s) in corpus `examples` are not covered by any manifest (no goldens): specifications/CASPaxos/ (no manifest.json), specifications/Caesar/ (no manifest.json), specifications/DataPort/ (no manifest.json), specifications/HLC/ (no manifest.json), specifications/L1/ (no manifest.json), ...
+running dive against examples golden(s) of tlc-2026.10.06.014338 on 21 model(s) and 0 module(s), workers [1, 4, 8], SANY phase Full
+[1/21] agree         specifications/CigaretteSmokers/CigaretteSmokers.cfg
+[2/21] agree         specifications/DieHard/DieHard.cfg
+[3/21] agree         specifications/DieHard/MCDieHarder.cfg
+[4/21] agree         specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg
+[5/21] agree         specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg
+[6/21] agree         specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg
+[7/21] agree         specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg
+[8/21] agree         specifications/Paxos/MCVoting.cfg
+[9/21] agree         specifications/SpecifyingSystems/HourClock/HourClock.cfg
+[10/21] agree         specifications/SpecifyingSystems/HourClock/HourClock2.cfg
+[11/21] agree         specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg
+[12/21] agree         specifications/TwoPhase/MCTwoPhase.cfg
+[13/21] agree         specifications/Stones/Stones.cfg
+[14/21] agree         specifications/echo/MCEcho.cfg
+[15/21] agree         specifications/locks_auxiliary_vars/Peterson.cfg
+[16/21] agree         specifications/spanning/MC_spanning.cfg
+[17/21] agree         specifications/transaction_commit/TCommit.cfg
+[18/21] agree         specifications/transaction_commit/TwoPhase.cfg
+[19/21] agree         specifications/MultiCarElevator/ElevatorSafetySmall.cfg
+[20/21] agree         specifications/acp/ACP_NB_WRONG_TLC.cfg
+[21/21] agree         specifications/PaxosHowToWinATuringAward/MCVoting.cfg
+report: /var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tmp.8Wg4WPOQoG/20261010T211636255-dive-all.json
+{
+  "by_corpus": {
+    "examples": {
+      "models": {
+        "agree": 21,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      },
+      "modules": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      }
+    }
+  },
+  "informational_drift_findings": 0,
+  "models": {
+    "agree": 21,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "modules": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "oracle_drift_findings": 0,
+  "run_id": "20261010T211636255-dive-all",
+  "worker_counts_variant": 0,
+  "worker_depth_variant": 0,
+  "worker_property_variant": 0,
+  "worker_verdict_variant": 0
+}
+gate: 21 of 21 models run in 70s
+gate: passed
