@@ -185,3 +185,57 @@ A division-by-zero control verifies that no TLC code is claimed for that refusal
 The raw SyDivZero and SyMixedElements captures prove outer GENERAL, exit 255,
 including the former's nested 2179 message. API controls require explicit
 refusals for both; startup wrapping must not be inferred from evaluator codes.
+
+## S1/S2 pure safety increment, 2026-10-10
+
+`Model::prepare_symmetry` now implements source-backed argument warnings, the
+TLC too-small-before-domain-check ordering, model-value domain/range validation,
+bounded closure, and unused direct `Permutations` argument warnings. It attaches
+no group when TLC disables reduction. Checked mode validates model-value maps even
+when reduction would be disabled; non-bijections refuse before search. Argument
+syntax not mapped to SANY's operator arguments and unverified startup exceptions
+remain named refusals. The source token image strips only lexer trivia, preserving
+strings and original spelling; reverse configuration substitutions retain the
+specification's warning alias. `FileInfo` now retains module text, and IR schema
+5 invalidates old serialized caches; the crate dependency graph is unchanged.
+
+Pure safety checking prepares this stage before assumptions, then removes only
+the satisfied symmetry refusal. The shared key hook canonicalizes in TLC variable
+and value order in compat mode, or IR variable and canonical value order by
+default. `VIEW` sees the canonical state. The queue, constraints, invariants,
+predecessor ordinals and printed traces retain the original concrete states.
+TLC normalization side effects are preserved after canonical fingerprinting and
+before viewing, including normalization of the concrete state. Default complete
+symmetry searches report the D-010 order policy even when no violation stops them.
+
+The current value permutation covers scalars, model values, enumerable sets,
+tuples, record literals and normalized functions, including nested model values
+in domains. Deferred/lazy value permutation, random seeding under symmetry,
+symmetry-liveness reduction and the symmetry audit remain explicit gaps. Limits
+refuse without using a partial group or partially canonicalized key. Each state
+has bounded permutation/normalization work and a depth ceiling of 256.
+
+Eight clean TLC safety probes match verdicts, counts, depth and trace length in
+both stores at 1/4/8 workers with chaos. Actual SymOrder/SymViolation checker
+traces validate independently in both profiles and stores at every width;
+corruption controls reject. Three new normal pinned captures verify conditional
+argument plurality, reverse configuration aliases, and a singleton non-model
+permutation argument whose too-small warning suppresses domain validation in
+TLC mode. SyNonBiject matches TLC's unsound success under compat and refuses by
+name before search under the default profile. These are staged S1/S2 results;
+remaining startup contexts are not declared complete.
+
+`SyInfinite` is a negative control for the unsupported boundary: a state
+containing `Nat` makes pinned TLC report 2102, exit 75, before storing its
+initial key. Infinite `UserValue` sets inherit the rejecting `Value.permute`.
+Both dive stores and profiles refuse these unverified permutation contexts;
+they are not silently treated as identity permutations. The raw transcript
+and a checker regression cover this refusal at 1/4/8 workers.
+
+The staged corpus study is `conformance/reports/studies/symmetry-safety.md`.
+All eleven manifest-backed safety symmetry targets agree at four workers;
+the filters additionally select a distinct Voting model (12/12 total).
+The original single-worker FastPaxos timeout is retained in the initial raw
+report. Shared machine load and differing captured binaries make these
+functional conformance results, not performance benchmarks. These results do
+not close the deferred/liveness/random/startup contracts above.

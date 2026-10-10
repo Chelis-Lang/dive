@@ -526,7 +526,7 @@ and the oracle parser correction remain tracked in issue #77.
 
 ## D-015: Symmetry functions must actually be permutations
 
-**Status:** checked and TLC-compatible closure kernels and pure declaration preparation implemented; full model binding and reduction remain planned. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
+**Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and symmetry with liveness remain named refusals. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
 
 **Foundation update, 2026-10-09.** The bounded symmetry-closure kernel now
 has a checked setting that rejects non-bijective maps, including collisions
@@ -538,10 +538,18 @@ match normal pinned TLC transcripts. Unverified evaluation/normalization
 startup errors refuse by name. For example, `Sym == 1 \div 0` is outer
 GENERAL (1000), exit 255, with a nested 2179 message; `Sym == {1, TRUE}` wraps
 its normalization error in GENERAL. The raw SyDivZero and SyMixedElements
-captures preserve those contexts. This is a library foundation: full binding,
-startup warnings and state reduction remain open, so model checking with
-`SYMMETRY` still refuses by name. Evidence and reproduction:
+captures preserve those contexts. These exceptions still refuse by name. The
+subsequent pure safety increment below activates supported startup preparation
+and key reduction. Evidence and reproduction:
 `crates/dive-model/tests/fixtures/symmetry-group/README.md`.
+
+**Safety update, 2026-10-10.** `dive check` now applies pure symmetry
+reduction in both stores and at parallel worker widths. Its counterexamples
+show concrete explored states and validate independently. The SyNonBiject
+control below now runs: the default refuses the non-bijection before search;
+`--compat=tlc` reproduces TLC's success and exact 3 / 1 / depth 1 counts.
+Source-backed warning controls also match TLC's too-small/unused-set warnings.
+This does not enable symmetry with liveness or the opt-in symmetry audit.
 
 **Minimal measured missed violation.**
 
@@ -560,8 +568,8 @@ pinned TLC reports success: 3 generated, 1 distinct, depth 1. Without symmetry,
 it finds `x = b` violating `Inv`: 3 generated, 2 distinct, depth 2, exit 12.
 The collapsing map is not a bijection; it merges the violating state into the
 initial state's key. The normal-CLI SyNonBiject/SyNonBijectNone transcripts
-are in the symmetry-group fixture directory. Current dive model checking
-refuses symmetry, and its checked library kernel rejects this map.
+are in the symmetry-group fixture directory. Current dive default model checking
+rejects this map before search; compat mode reproduces the reduced result.
 
 ## D-016: The declared symmetry can be audited
 

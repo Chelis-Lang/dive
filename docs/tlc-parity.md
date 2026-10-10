@@ -1,6 +1,7 @@
 # TLC parity ledger
 
-Baseline: main `217cebfa8bd35735bf14d38f28a4ae17628739aa`, 2026-10-10.
+Inventory baseline: main `217cebfa8bd35735bf14d38f28a4ae17628739aa`, 2026-10-10.
+Implementation rows also reflect subsequent recorded increments.
 
 The [delivery plan](design/tlc-parity-plan.md) covers the entire pinned TLC
 capability set through a native Rust checker, including simulation, DFID,
@@ -10,8 +11,8 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: seven have an implemented core, twenty are partial,
-and ten are missing. Those implementation labels do not certify full parity.
+stable feature families**: seven have an implemented core, twenty-one are partial,
+and nine are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -81,8 +82,8 @@ and a corresponding certification schema before the label can change.
 | F-014 | Fingerprint/exact stores and collision accounting | implemented | 7 | [tlc_state_fingerprints.rs](../crates/dive-store/tests/tlc_state_fingerprints.rs) |
 | F-015 | State/action constraints and action-property split | implemented | 4 | [probes.rs](../crates/dive-check/tests/probes.rs) |
 | F-016 | VIEW identity and temporal lifting | partial | 4 | [m6-plan.md](design/m6-plan.md) |
-| F-017 | Symmetry declaration binding, warnings and closure | partial | 2 | [symmetry_declaration.rs](../crates/dive-model/tests/symmetry_declaration.rs) |
-| F-018 | Symmetry reduction, concrete traces and audit | missing | 2 | [m6-plan.md](design/m6-plan.md) |
+| F-017 | Symmetry declaration binding, warnings and closure | partial | 2 | [symmetry.rs](../crates/dive-check/tests/symmetry.rs): supported pure warnings; startup gaps remain |
+| F-018 | Symmetry reduction, concrete traces and audit | partial | 2 | [12-model safety study](../conformance/reports/studies/symmetry-safety.md), [trace controls](../crates/dive-api/tests/symmetry_trace.rs); liveness and audit remain refused |
 | F-019 | Temporal language, simplification and exact tableaux | partial | 3 | [planning.rs](../crates/dive-liveness/tests/planning.rs) |
 | F-020 | Temporal graph capture and phase-L timing | partial | 4 | [temporal-study.md](temporal-study.md) |
 | F-021 | WF/SF fairness and independent periodic validation | partial | 4 | [temporal.rs](../crates/dive-api/tests/temporal.rs) |
@@ -121,9 +122,17 @@ and a corresponding certification schema before the label can change.
   for all 36 selected cases and provides 16 generated models at 1/4/8
   workers. The entire source suite and TLC JUnit model corpus remain open
   work under #2.
-- **Symmetry:** the declaration/closure tests provide early binding and
-  1,329 direct Java closure controls. Ordinary SYMMETRY checking is still
-  explicitly refused; canonical reduction and trace reconstruction are missing.
+- **Symmetry:** declaration/closure tests retain 1,329 direct Java controls.
+  [The staged safety study](../conformance/reports/studies/symmetry-safety.md)
+  fully agrees on all eleven intended symmetry models plus the additionally
+  selected Voting model at four workers. The original single-worker FastPaxos
+  timeout remains unchanged. Both profiles/stores have pure warning, key and
+  concrete trace controls at 1/4/8 workers; the 21-model required CM1 gate now
+  includes symmetry-bearing Paxos Voting. The preserved default-profile study
+  agrees on two selected models. Unverified startup exceptions, unsupported
+  declaration shapes, deferred/lazy/infinite permutations, randomness under
+  symmetry and symmetry with liveness remain named refusals. The optional
+  symmetry audit is unimplemented. #104 and both families remain partial.
 
 Failures remain in their original raw reports. Their unreliable zero-worker
 fallback must not be used to infer that no search occurred. The #109 correction

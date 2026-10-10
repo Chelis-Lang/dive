@@ -17,6 +17,8 @@
 //! - `CONSTRAINT` and `ACTION_CONSTRAINT` (a constrained successor is still
 //!   checked against the invariants, and prevents deadlock);
 //! - deadlock: a state with no successor generated at all;
+//! - pure safety symmetry, canonicalizing keys while retaining concrete
+//!   explored states and independently checkable traces;
 //! - `VIEW`, through the canonicalization hook (states are identified by the
 //!   view's value; counterexamples show the concrete states explored);
 //! - `ASSUME`s before the search, `POSTCONDITION`s after a complete one.
@@ -37,7 +39,7 @@
 //!
 //! Anything not reproduced exactly is `unsupported`, naming the feature:
 //! whatever `dive-model` lists in `Model::unsupported` (temporal properties,
-//! `SYMMETRY`, operators dive does not implement such as `IOUtils`),
+//! unprepared symmetry, operators dive does not implement such as `IOUtils`),
 //! and whatever the evaluator refuses during the search. Errors whose TLC
 //! error class is not reproduced yet are reported as errors with an
 //! unverified class ([`TlcClass::verified`]).
@@ -204,7 +206,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
-    let m = match dive_model::bind(ir.clone(), cfg, &bind_opts) {
+    let mut m = match dive_model::bind(ir.clone(), cfg, &bind_opts) {
         Ok(m) => m,
         Err(f) => {
             let mut r = bare(model_error(&f.error), opts, ir);
@@ -215,6 +217,34 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     };
     let mut r = bare(Verdict::Success, opts, ir);
     messages(&m.output, &mut r);
+    if m.symmetry.is_some() && m.implied_temporals.is_empty() {
+        if engine::uses_random(ir) {
+            r.verdict = Verdict::Unsupported { feature: "randomness under SYMMETRY needs canonical fingerprint seeding and independent replay".into() };
+            return r;
+        }
+        let mode = if opts.profile == Profile::Tlc {
+            dive_model::symmetry::Mode::Tlc
+        } else {
+            dive_model::symmetry::Mode::Checked
+        };
+        match m.prepare_symmetry(cfg, mode, dive_model::symmetry::Limits::default()) {
+            Ok(Some(prepared)) => {
+                messages(&prepared.warnings, &mut r);
+                m.symmetry_reduction = prepared.reduction;
+                let symmetry = format!("SYMMETRY {}", m.symmetry.as_deref().unwrap_or_default());
+                m.unsupported
+                    .retain(|unsupported| unsupported.feature != symmetry);
+                if opts.profile == Profile::Dive {
+                    notes.push("The default profile canonicalizes symmetry keys in canonical value order (D-010). A non-invariant VIEW or asymmetric specification may differ under --compat=tlc; order relevance is not yet detected.".into());
+                }
+            }
+            Ok(None) => {}
+            Err(error) => {
+                r.verdict = model_error(&error);
+                return r;
+            }
+        }
+    }
     if let Some(u) = m.unsupported.first() {
         r.verdict = Verdict::Unsupported {
             feature: u.feature.clone(),

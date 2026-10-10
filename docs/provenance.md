@@ -214,6 +214,12 @@ both-profile enumeration/error-order controls and independent periodic-word chec
 provide evidence. The validator shares expression binding but retains its separate
 word/ENABLED algorithms and no successor enumeration feature.
 
+## Symmetry safety
+
+| Increment | Reference | License | Matched behavior |
+|---|---|---|---|
+| Symmetry preparation (`dive-model/src/symmetry/prepare.rs`) | `tlc2/tool/impl/Tool.java` `getSymmetryPerms`, `addToSubTwoSizedSymmetrySetList`, `getSetEnumValueFromArgumentNode`; `ModelConfig.getOverridenSpecNameForConfigName`; `tla2sany/parser/SyntaxTreeNode.getHumanReadableImage`; pinned `94d0c50` | MIT | Pure startup ordering, supported argument shapes, source-backed warning text and cfg aliases. Unverified errors remain refusals. |
+| Symmetry canonical keys and normalization | `tlc2/tool/TLCStateMut.fingerPrint`; `SetEnumValue`, `FcnRcdValue`, `TupleValue`, `RecordValue` `permute` / `deepNormalize`; pinned `94d0c50` | MIT | Minimum image in run order, VIEW after symmetry, concrete state normalization side effects; independent concrete predecessors retained. Deferred/lazy permutations remain refused. |
 
 Runtime namespace startup matches pinned `AbstractChecker.createConfig`
 (`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint
