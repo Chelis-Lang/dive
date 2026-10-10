@@ -35,7 +35,7 @@ finite literal sets or integer intervals. Escaped string IDs, overlapping or
 unproved domains, namespace rewrites and cross-process local references remain
 named refusals. A jump outside the current process's labels is rejected. Record
 fields that collide with another block's local spelling are conservatively
-refused until scoped expression binding is proved. Procedures/macros, definition
+refused until scoped expression binding is proved. Procedures/calls/returns, definition
 blocks, branch-internal labels and historical generation options remain pending.
 
 Both compatibility profiles share this source-admission contract. Existing
@@ -83,3 +83,8 @@ Full token/CST/SANY validation is separate from curated finite-model and witness
 checks. These selections do not certify all artifact or compilation families;
 formatting, checksum/map/file-rewriting parity and full translator support remain
 pending. See [ADR 0037](decisions/0037-pluscal-multiple-finite-processes.md).
+
+Bounded [macro substitution](pluscal-macros.md) is now admitted before process
+actions and fairness are generated. Procedure interactions, unproved binders
+and name rewrites remain explicit refusals. The retained matrix above records
+the original process-only delivery.

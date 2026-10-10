@@ -253,3 +253,10 @@ The [multiple finite-process increment](pluscal-multiple-processes.md) proves
 per-block storage, label and fairness ownership for disjoint literal domains.
 Overlapping IDs, namespace rewrites and cross-process local references remain
 explicit refusals in both profiles. Full translation families remain partial.
+
+The bounded [native macro translator](pluscal-macros.md) retains all invalid
+primary outputs as diagnostic evidence. Under D-008, public CLI/API module
+admission rejects them in both profiles and never grants artifact/proof credit.
+Lexical macro substitution itself remains reference-compatible; general binders,
+procedure interactions and name rewrites remain explicit refusals. No new
+capture-avoidance or Unicode-string default is adopted.

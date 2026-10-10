@@ -25,7 +25,7 @@ program-counter omission for the eligible infinite loop and sequential
 read-after-write priming follow the pinned translator. Assertion locations point
 to the keyword, including when a label precedes it.
 
-Named refusals cover processes, procedures/calls/returns, macros, `define`,
+Named refusals cover procedures/calls/returns, `define`,
 unproved branch-internal label placement,
 name disambiguation/generated-name collisions and shadowing binders. TLA lexical
 binding constructs (including Unicode quantifiers/function binders) and multiline
@@ -83,4 +83,7 @@ and [ADR 0026](decisions/0026-pluscal-sequential-translation.md).
 
 One unfair literal-ID or finite-membership process block is now a separate bounded
 native path; see [process storage/action admission](pluscal-processes.md). Multiple
-blocks, fairness and unproved process renaming remain named refusals.
+blocks and fairness now have their own [admission contract](pluscal-multiple-processes.md);
+unproved process renaming remains refused. [Bounded macros](pluscal-macros.md)
+expand before these actions; procedure interactions and unproved substitution
+remain named refusals.

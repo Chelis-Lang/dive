@@ -26,6 +26,13 @@ pub(crate) fn tokenize(
                 message: format!("invalid PlusCal token: {text:?}"),
             });
         }
+        if text.starts_with('"') && text.chars().any(|c| !(' '..='~').contains(&c)) {
+            return Err(Diagnostic {
+                code: Code::Lexical,
+                span,
+                message: "illegal character in PlusCal string (pinned Tokenize.STRING)".into(),
+            });
+        }
         if raw.kind.is_trivia() {
             continue;
         }

@@ -667,7 +667,8 @@
         143,
         150,
         155,
-        160
+        160,
+        162
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
@@ -676,7 +677,7 @@
         "F-019",
         "F-024"
       ],
-      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required.",
+      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification.",
       "additional_evidence": [
         "docs/pluscal-parser.md",
         "docs/decisions/0022-pluscal-source-parser.md",
@@ -723,7 +724,18 @@
         "crates/dive-pluscal/multiple-acceptance/validation/report.json",
         "crates/dive-pluscal/multiple-acceptance/extra/validation/report.json",
         "crates/dive-pluscal/multiple-acceptance/bounds/validation/report.json",
-        "crates/dive-pluscal/multiple-acceptance/mutation-controls.json"
+        "crates/dive-pluscal/multiple-acceptance/mutation-controls.json",
+        "docs/pluscal-macros.md",
+        "docs/decisions/0039-pluscal-macro-substitution.md",
+        "crates/dive-pluscal/macro-acceptance/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/extra/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/process/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/scope/comparison.json",
+        "crates/dive-pluscal/tests/macros.rs",
+        "crates/dive-pluscal/macro-acceptance/lexical/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/lexical/validation/report.json",
+        "crates/dive-pluscal/macro-acceptance/origins/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/origins/validation/report.json"
       ]
     },
     {
@@ -741,7 +753,8 @@
         143,
         150,
         155,
-        160
+        160,
+        162
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -791,9 +804,20 @@
         "crates/dive-pluscal/multiple-acceptance/validation/report.json",
         "crates/dive-pluscal/multiple-acceptance/extra/validation/report.json",
         "crates/dive-pluscal/multiple-acceptance/bounds/validation/report.json",
-        "crates/dive-pluscal/multiple-acceptance/mutation-controls.json"
+        "crates/dive-pluscal/multiple-acceptance/mutation-controls.json",
+        "docs/pluscal-macros.md",
+        "docs/decisions/0039-pluscal-macro-substitution.md",
+        "crates/dive-pluscal/macro-acceptance/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/extra/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/process/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/scope/comparison.json",
+        "crates/dive-pluscal/tests/macros.rs",
+        "crates/dive-pluscal/macro-acceptance/lexical/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/lexical/validation/report.json",
+        "crates/dive-pluscal/macro-acceptance/origins/comparison.json",
+        "crates/dive-pluscal/macro-acceptance/origins/validation/report.json"
       ],
-      "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence."
+      "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence. Native bounded C/P macro expansion adds source-order simultaneous lexical/selector substitution with original call/definition origins and explicit expansion budgets; primary invalid artifacts remain uncredited and public CLI/API admission rejects them. Complete capture-first macro selections, enclosing-module CST/SANY and curated independent model/witness controls are recorded in docs/pluscal-macros.md. Unproved binders/procedures/name rewrites/full options/maps remain pending; no family certification. The bounded macro study accounts for 222 rows: 134 admitted token/CST/SANY artifacts, 48 rejections, 30 refusals, eight invalid-reference dispositions and two primary crashes. All 27 SANY-invalid primary outputs remain uncredited; 54 CLI and 54 direct API admission controls reject them in both profiles. Curated controls cover 132 finite models at 1/4/8 workers in fp/exact stores, 25 independently valid witnesses and 100 rejected mutants; all 44 comparator corruptions are rejected. No full family certification."
     },
     {
       "id": "F-036",

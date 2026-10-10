@@ -1160,3 +1160,12 @@ The [multiple finite-process increment](pluscal-multiple-processes.md) now binds
 each admitted block to its own storage, labels and fairness context. Overlapping
 IDs, name rewrites and cross-process local references remain explicit refusals;
 translation artifacts still make no model-proof claim.
+
+The [bounded native macro increment](pluscal-macros.md) reproduces lexical
+substitution rather than inventing capture avoidance. The pinned translator can
+return zero while producing TLA+ that SANY rejects (including `Set(b, 3)` whose
+actual `b` is undeclared). Native raw generation retains those comparisons only
+as diagnostic evidence; public translation rejects the invalid enclosing module
+in both profiles and makes no proof claim (D-008). General binder/procedure/name
+rewrites remain named refusals. Source PlusCal strings deliberately preserve the
+pinned printable-ASCII boundary; no wider Unicode-string default is adopted.

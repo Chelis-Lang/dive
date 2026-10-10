@@ -95,7 +95,7 @@ fn selected_region_ranges_point_into_original_source() {
 
 #[test]
 fn byte_ranges_and_display_columns_are_distinct() {
-    let source = "α\r\n\t(* --algorithm A begin L: print \"🦀\"; end algorithm *)";
+    let source = "α\r\n\t(* --algorithm A begin L: print \"ascii\"; end algorithm *)";
     let start = source.find("--algorithm").expect("marker");
     let end = source.find(" *)").expect("comment end");
     let parsed = dive_pluscal::parse_at(source, start..end, &Options::default()).expect("region");
@@ -108,7 +108,7 @@ fn byte_ranges_and_display_columns_are_distinct() {
         .iter()
         .find(|t| t.text.starts_with('"'))
         .expect("string");
-    assert_eq!(parsed.text(token.span), Some("\"🦀\""));
+    assert_eq!(parsed.text(token.span), Some("\"ascii\""));
 }
 
 #[test]
@@ -278,5 +278,32 @@ fn all_arena_nodes_are_reachable_and_token_ranges_preserve_utf8() {
                 .get(diagnostic.span.start..diagnostic.span.end)
                 .is_some()
         );
+    }
+}
+
+#[test]
+fn pinned_pluscal_string_scanner_rejects_raw_unicode_and_controls() {
+    for content in ["λ", "é", "🦀", "\u{1}", "\u{1f}", "\u{7f}"] {
+        let source = format!("--algorithm A begin L: print \"{content}\"; end algorithm");
+        assert!(matches!(parse(&source,&Options::default()),Err(e) if e.code==Code::Lexical));
+    }
+    assert!(
+        parse(
+            "--algorithm A (* 🦀 *) begin L: print \"ascii\"; end algorithm",
+            &Options::default()
+        )
+        .is_ok()
+    );
+}
+
+#[test]
+fn printable_pluscal_string_endpoints_and_known_escapes_are_accepted() {
+    for content in [" ", "~", r"\t", r"\n", r"\f", r"\r", r"\\", r#"\""#] {
+        let source = format!("--algorithm A begin L: print \"{content}\"; end algorithm");
+        assert!(parse(&source, &Options::default()).is_ok(), "{source}");
+    }
+    for content in [r"\u03bb", r"\x7f"] {
+        let source = format!("--algorithm A begin L: print \"{content}\"; end algorithm");
+        assert!(matches!(parse(&source,&Options::default()),Err(e) if e.code==Code::Lexical));
     }
 }
