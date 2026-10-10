@@ -58,6 +58,12 @@ Each JSON row owns source/Rust references, acceptance criteria, interactions,
 existing issues and its phase in the delivery plan. `implemented` describes
 the core path; it does not remove the listed certification obligations.
 
+`python3 -I scripts/check-parity-ledger.py` checks these references, stable IDs,
+interactions and the Markdown census offline in the Workspace gate. Its mutation
+controls reject misleading accounting. Passing this structural check does not
+certify semantics; family certification needs its separately reviewed case matrix
+and a corresponding certification schema before the label can change.
+
 | ID | Family | Implementation | Phase | Current evidence |
 |---|---|---|---:|---|
 | F-001 | TLA+ grammar and lossless parsing | implemented | 1 | [frontend-campaign.md](frontend-campaign.md) |
