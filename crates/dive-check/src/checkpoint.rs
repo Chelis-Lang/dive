@@ -1272,7 +1272,7 @@ mod tests {
         fs::remove_dir_all(&queues).expect("remove disk queue before close");
         drop(queue);
         let frontier = crate::frontier::evidence(&accounting);
-        assert!(!frontier.failures.is_empty());
+        assert_ne!(frontier.failures, [] as [String; 0]);
         receipt.finish_storage(&frontier, &clean);
         assert!(!receipt.transient_storage_cleanup_completed);
         assert_eq!(
