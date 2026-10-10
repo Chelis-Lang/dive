@@ -1,0 +1,3281 @@
+{
+  "schema_version": 1,
+  "reason": "Initial isolated PlusCal source AST controls; primary normalized entry point and secondary grammar methods retained separately",
+  "generated_at": "2026-10-10T12:31:55Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "adapter_sha256": "6c9999336dcd79f65f7344635dc9acaa195406bb8419a97a7796d3bbc05271ed",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_stage": "getAlgorithm: grammar plus normalization, not translation",
+  "secondary_stage": "public grammar-method adapter; excludes global normalization; GetMacro and call tails still normalize",
+  "rows": [
+    {
+      "id": "examples-0000",
+      "input": "examples-0000.pcal",
+      "input_sha256": "4d33aa53feb49753dc685f434b1ce0d80565868cae3b49570dd6c96cb0dec4f7",
+      "primary": {
+        "stdout": "examples-0000.primary.stdout.gz",
+        "stderr": "examples-0000.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cffc22f476dca20374eb1075bd790687e960ac591bcee895f902014a1a8a72f2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0000.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0000.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4afc022f3fab95b1a26b8e0aeee451cb73e8a55e9f3a775fa1d34b9a2ffabc7f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0001",
+      "input": "examples-0001.pcal",
+      "input_sha256": "cafc3a811f92865d1d748b7c6a5351910d98d07306828a21c1f5403d5ad78fe7",
+      "primary": {
+        "stdout": "examples-0001.primary.stdout.gz",
+        "stderr": "examples-0001.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cf0c87c30420612446fcc360284bfeda9193bbbc55740178c57a24fdf87bfc03",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0001.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0001.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f8a54e7a83e64a6271c9791abe47eae6e8cc26391674dd6d193b0a5804c2db85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0002",
+      "input": "examples-0002.pcal",
+      "input_sha256": "1b5bf2bb4c05635f836db863009e48c312429e1c728a351255fcbafcb72c611a",
+      "primary": {
+        "stdout": "examples-0002.primary.stdout.gz",
+        "stderr": "examples-0002.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "31ab63ac39b8648cea83d045f46664a25ff3c619349235ef028eda1bbb267543",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0002.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0002.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "16115cf8e273a8b7ff76e10c79f1a938e97ca730a5290405640a169f633c32a0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0003",
+      "input": "examples-0003.pcal",
+      "input_sha256": "8912f5d7e98aa60da6f08088b00035b335fb40049d9482a2821a20fd6c674118",
+      "primary": {
+        "stdout": "examples-0003.primary.stdout.gz",
+        "stderr": "examples-0003.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "587a8418a30dd5e59f748f1bdc417653f515f2cfae66b4a2c4e1c655d304e512",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0003.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0003.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9490df5e0667e338bd3806dfbecd304fd048e4ee859f87784feaf432e4350139",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0004",
+      "input": "examples-0004.pcal",
+      "input_sha256": "72d18369c9f790b1f2c0d1a655e39497352db1dd4a61692fc4ff00a4c76e8fe5",
+      "primary": {
+        "stdout": "examples-0004.primary.stdout.gz",
+        "stderr": "examples-0004.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8d384ea1cad704d9794241bade71b6a485e01cfc54ff81d1d230e59ce4140891",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0004.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0004.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "748e818cdbbf5e7ccf413969beb896899c767b7b58ebe67c35aff465f7b5e0ae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0005",
+      "input": "examples-0005.pcal",
+      "input_sha256": "4acb455d674a4b747bcd23f22b61c495546d90683e84891ae1a331717cf11202",
+      "primary": {
+        "stdout": "examples-0005.primary.stdout.gz",
+        "stderr": "examples-0005.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ce0ed8881a38d5682047a606681d29f80c376acede04c379ee725915b01467d9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0005.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0005.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e636d10bbded18fdd14794d84807a05a5e91744eb602c41e98eb6d79bec304be",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0006",
+      "input": "examples-0006.pcal",
+      "input_sha256": "d8a3aefd734e44233ba9aa5bbd6ba9c0cec84037eb3952475c7e15035690dd4b",
+      "primary": {
+        "stdout": "examples-0006.primary.stdout.gz",
+        "stderr": "examples-0006.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bdfeb24dc83f07e1caea5d2ef84444cf104e987ee864d598a6826a7cbb8887a2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0006.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0006.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3fddbf9bbf9d5f602fa3bb6cec734af341d54daa71ad29b675c95778ddbbac9d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0007",
+      "input": "examples-0007.pcal",
+      "input_sha256": "f8a90c0a2f062151058f53479211cd31f8c298eb2f84af6faf734a0245989908",
+      "primary": {
+        "stdout": "examples-0007.primary.stdout.gz",
+        "stderr": "examples-0007.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7fa1b4887a2c7166f7a67f91884ab782151343b1ad436873cf2719902901cd17",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0007.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0007.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8677d0b10dda622fdf037dd055078cda99369c0da66f2078f74d55548b88c335",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0008",
+      "input": "examples-0008.pcal",
+      "input_sha256": "2f646c9c8625c229cfa7ee549632c7af8fcc7bb59472a371d7ee810f651d40c9",
+      "primary": {
+        "stdout": "examples-0008.primary.stdout.gz",
+        "stderr": "examples-0008.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9a45b2cadc8fbafc33e990d4c61d9a652d63b5176c76334c3f97a95be77e2dd9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0008.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0008.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f927de87e336ae3726f7290b12c140848f0db89c3e8c3400a789b366f24ecebf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0009",
+      "input": "examples-0009.pcal",
+      "input_sha256": "8aba709898fda1d6bdd18b549b63828c4e721dda27c8463bc9260e63303ce3e9",
+      "primary": {
+        "stdout": "examples-0009.primary.stdout.gz",
+        "stderr": "examples-0009.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "184507c15560d3a04eb46a718c15de821befa3be60364305021baaf8f914b6cb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0009.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0009.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9fb1cbfe6a08c1ab82c1c057ba11a0cc5bb2f2ff0ddbbb7a0b43dfe7af52130e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0010",
+      "input": "examples-0010.pcal",
+      "input_sha256": "2bb598bd6d82ea3843309155ef92306151832af353ad14579e8ec812e121ac12",
+      "primary": {
+        "stdout": "examples-0010.primary.stdout.gz",
+        "stderr": "examples-0010.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7002dca04093357fcd5e4d072e362029d04e62946dbd60d64adbf142c0b2b9fe",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0010.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0010.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "eb9d5032da9ceb720d2e1c02b31d6f8f2efa10c234737c252618ee2d1974434d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0011",
+      "input": "examples-0011.pcal",
+      "input_sha256": "1ba101ab6f973c24b2106a26c88384d4f9320dd98e76ad1b0d85f81f32ec9b28",
+      "primary": {
+        "stdout": "examples-0011.primary.stdout.gz",
+        "stderr": "examples-0011.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "845524ebcf9965b757eee017552e07d37dc95f7cad2c0428802bcc36d60044a7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0011.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0011.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0b672dfed8b8139df168d5985d239330fb2e16036fb15cacc9f9c43a93d36d95",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0012",
+      "input": "examples-0012.pcal",
+      "input_sha256": "ef7107d5a84c90ea5905a03160d5a2b2bd87554c4e1ba2437eeeb51ff792d173",
+      "primary": {
+        "stdout": "examples-0012.primary.stdout.gz",
+        "stderr": "examples-0012.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e7f8428750e7e5d7a4b2b89fc32ead40f316b84f0f6ba7b0ac8092365dbfce4d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0012.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0012.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "03c8387817610f8d844ffe5b0fad226077aecaf971c2cb8533d8ab809efe5e96",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0013",
+      "input": "examples-0013.pcal",
+      "input_sha256": "4f9d075802733fb85bd07fd071ae636117ed2a63b4fa4f14b6ae9d0c8376bb51",
+      "primary": {
+        "stdout": "examples-0013.primary.stdout.gz",
+        "stderr": "examples-0013.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "09bc776eb37bd3e06c334a3f7954e5013d93b0b91fe84af112990d0d5a941376",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0013.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0013.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ea47037cdf79d5c259395dfbcf7704f77e3057e98ce2f075bc5015c3c4da28f6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0014",
+      "input": "examples-0014.pcal",
+      "input_sha256": "4f9d075802733fb85bd07fd071ae636117ed2a63b4fa4f14b6ae9d0c8376bb51",
+      "primary": {
+        "stdout": "examples-0014.primary.stdout.gz",
+        "stderr": "examples-0014.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "60a17d1b31f098a42d17d6717452abc788655ca7184b86661c0ef84ef1164496",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0014.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0014.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "54873ecfc2e7cb3e3e6b2bd2f7363a7ec9a7fdf05d430704455975c4b1bb5459",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0015",
+      "input": "examples-0015.pcal",
+      "input_sha256": "fb42e47e79c1b9d09c0f31cfaebf4719d79f59dc12c4e8625b13b8b1af8e48ae",
+      "primary": {
+        "stdout": "examples-0015.primary.stdout.gz",
+        "stderr": "examples-0015.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "eea3a0aed4b4b042f034756818e9f5c10c9421066e60cadfde28de66a1f360e5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0015.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0015.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dbd645a9d224ca64a26ed5a11a7fec6be0fdb9567e7c59a146f756745f5f7b91",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0016",
+      "input": "examples-0016.pcal",
+      "input_sha256": "88e195fa81fe23bea66c129f9774df9167145b2588064bc158be443c96b1f12c",
+      "primary": {
+        "stdout": "examples-0016.primary.stdout.gz",
+        "stderr": "examples-0016.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "167410002e0c7994c3b9b7e761c07514667811e78dfe2d4eebf08dbc801279a1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0016.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0016.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9513217df93029b1920c62687b5a26eb093678409113bb6807e396a818b31bbf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0017",
+      "input": "examples-0017.pcal",
+      "input_sha256": "9a81e4e2b46b8c3a59f4d9a9b10bffa08d8b2edebe7c00bd0085e943579b79fe",
+      "primary": {
+        "stdout": "examples-0017.primary.stdout.gz",
+        "stderr": "examples-0017.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4cfdb5b53b2cc5af3b267d9a8e7e2ef2f6f9507d3ef0d1770afa8ac172a5fc16",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0017.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0017.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "be41863e69a77a31e09342828c743f76e89f69f600ac205f8823759b89a522a6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0018",
+      "input": "examples-0018.pcal",
+      "input_sha256": "f5e2967f9edaed889ba3f51f85b08cc7aa554dda2db205b8a56d63c63221a727",
+      "primary": {
+        "stdout": "examples-0018.primary.stdout.gz",
+        "stderr": "examples-0018.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3190c68a5c140572d48d32107f0b8b5d3e281f6a5c56bcc8029fc98f2a434f8c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0018.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0018.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2e05bcd49a3748dad83d0f4570795e0a8e291863d9b58d948aafb6ecbb8e1915",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0019",
+      "input": "examples-0019.pcal",
+      "input_sha256": "79cd13a1c3e234bb6d339b6fa1df95c64ffae02d65e5c14e14ef6b4947ecb4e5",
+      "primary": {
+        "stdout": "examples-0019.primary.stdout.gz",
+        "stderr": "examples-0019.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d58e29c617cd297d0e918eeab8a082a155edc0a223314f66aa35a2d6ae4f6573",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0019.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0019.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "33a27cf36e30c572fd4b429c578d84b4fca9dd16d353e14dc048abc00d33122d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0020",
+      "input": "examples-0020.pcal",
+      "input_sha256": "f92755c67431e8aa03c5e3f5f71c0f8527a8282315a0ac959720343673dfd5ee",
+      "primary": {
+        "stdout": "examples-0020.primary.stdout.gz",
+        "stderr": "examples-0020.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "73db3d5c00d125ff26c719d5389fe18f4184882dea60fa2b077a77227525f348",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0020.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0020.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "fb3c4922c2989a16f668aa89c6d06eb62534d0f779a581acd58f3d70eb04400b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0021",
+      "input": "examples-0021.pcal",
+      "input_sha256": "cb46fd0e269bf548e04b7beb4a14ca6532fcb6fd551d18594bd30df21cf6713a",
+      "primary": {
+        "stdout": "examples-0021.primary.stdout.gz",
+        "stderr": "examples-0021.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1dc0602eb87806eee32ab9b42ae678fcac16fdcf32d1f5d1c7ade4323dfa29d8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0021.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0021.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "281a4c3a53aabd1362597e47096041a3250cc5364d47c9040681f68054db2cc5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0022",
+      "input": "examples-0022.pcal",
+      "input_sha256": "6204bc2d805744227c86d9da7e44553413bb9cfd95ae3cdce142019c6d72f859",
+      "primary": {
+        "stdout": "examples-0022.primary.stdout.gz",
+        "stderr": "examples-0022.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ca55c3ef4cfe7406735b153544de2d2574d461f5cbf958a705d414415325fee6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0022.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0022.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6cd346d59d20690eb131eb441dfe4c5542a80f4a4e140f2fef69d63f7d154e02",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0023",
+      "input": "examples-0023.pcal",
+      "input_sha256": "715b5e5f916ffc352b28b9bcd11e6eba9350fd86efcb79b14a4ef515f3ea0a34",
+      "primary": {
+        "stdout": "examples-0023.primary.stdout.gz",
+        "stderr": "examples-0023.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f9840f934c635ff55906b2b321dfdfb00b8d869f22f48205f0b7753c2e564af2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0023.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0023.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e3b0b05931778f0c3f1f4e67177d800d2a5e0fc5de20d5b01d5df04282661836",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0024",
+      "input": "examples-0024.pcal",
+      "input_sha256": "f8c1f0e6a278541010d675cd658b1a7ca04d73aafae51ef9f43b6e26cc1e99f1",
+      "primary": {
+        "stdout": "examples-0024.primary.stdout.gz",
+        "stderr": "examples-0024.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f66d2965c4af92c4a340a7d0c58c296842c1d73aa6a3dc6455cf9028f641b410",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0024.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0024.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "560e6ab214eae663935a7511c0ceb15891956b60b547caff0912a34dd33a31b1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0025",
+      "input": "examples-0025.pcal",
+      "input_sha256": "45f4a1077fddcb3bddbbb25014cc9242300b8b851f6674967f5bdd14d5f72939",
+      "primary": {
+        "stdout": "examples-0025.primary.stdout.gz",
+        "stderr": "examples-0025.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7bcb4206cdc4f2e8483235d6900a2577d21a4f518e551d3a0dc82572dda0a1fa",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0025.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0025.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9f283f6ce5cb7f74c5da0261529504b98e1ed9a798bc89b4594fd9c2c3da55b8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0026",
+      "input": "examples-0026.pcal",
+      "input_sha256": "d56a320b92e40e181befb7c8083a330c46da0460048bb6977ff82962c41effa7",
+      "primary": {
+        "stdout": "examples-0026.primary.stdout.gz",
+        "stderr": "examples-0026.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3e31d72087d5c80a0d88dc7556cd0d6b770263862f6c9c1a79a2bcc9ef84290d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0026.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0026.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b1930afc52bc2244d360653fdc488b18dc7d2069b44cac13dadaeb5258f7e070",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0027",
+      "input": "examples-0027.pcal",
+      "input_sha256": "d56a320b92e40e181befb7c8083a330c46da0460048bb6977ff82962c41effa7",
+      "primary": {
+        "stdout": "examples-0027.primary.stdout.gz",
+        "stderr": "examples-0027.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dc7e6ef7eacf431e1c1204b373e52a422ffededa03fdd6824329082615ac428e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0027.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0027.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bcd2ce92ed330b10d60aae07482f237a77cf636258ea766cad6de4457dd2eb73",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0028",
+      "input": "examples-0028.pcal",
+      "input_sha256": "d56a320b92e40e181befb7c8083a330c46da0460048bb6977ff82962c41effa7",
+      "primary": {
+        "stdout": "examples-0028.primary.stdout.gz",
+        "stderr": "examples-0028.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5ed96ea2ffaef5396cc666c9588c1aff33dec0407bcdd487ed3ddf4a13535cd6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0028.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0028.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ba49f9b5c8b2119dac117638869009d321d02ad6b4ead81b8ce56b9b2eae8766",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0029",
+      "input": "examples-0029.pcal",
+      "input_sha256": "7e97ff420eb01cbd3fef170b865133fca37dc32782f0a8d6b6688a668c4e1292",
+      "primary": {
+        "stdout": "examples-0029.primary.stdout.gz",
+        "stderr": "examples-0029.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dd7fc05d5d25a84bbb6625bfa6835faa24eafc5a7bb1a426bc3979d5113180b2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0029.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0029.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "35689b7f1a35e57f52d44f17595dec51723f07b7390f282205c15efe13b7ffd9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0030",
+      "input": "examples-0030.pcal",
+      "input_sha256": "a97ab3cd4b3972db29ab3656ef3045e9d9067fa2f8f1c23cbc5d793fcf73627a",
+      "primary": {
+        "stdout": "examples-0030.primary.stdout.gz",
+        "stderr": "examples-0030.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8a56b3377f58f975294bb1d1b8e8af0be5b23ef74d0be82e76bd9290ca60ec0d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0030.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0030.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "012e9468d6602ed1125de36d8882aaded826ef4af0e7fab6df7f854cde15f564",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0031",
+      "input": "examples-0031.pcal",
+      "input_sha256": "92684d88a316604da88a0a003da751dc1af3f55ff5c69d16d23e9f77aba976f9",
+      "primary": {
+        "stdout": "examples-0031.primary.stdout.gz",
+        "stderr": "examples-0031.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2a93e15ef5eb59f710001d67dd0577cf017495790e1fc803cfe25c63ae3675ae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0031.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0031.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3377a993fdb61ee34cca9b56be6a31f452c556fb85b8af0bf1c6fcbc9539b12b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0032",
+      "input": "examples-0032.pcal",
+      "input_sha256": "f302b43df8b1df35e32ada9ac556126cf274c29ed2894e9bdd13fd4264219cf9",
+      "primary": {
+        "stdout": "examples-0032.primary.stdout.gz",
+        "stderr": "examples-0032.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cc8a70785d40f5fa0fcb41262c80ef644b9b7ca94624845c41051ef6f66122b3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0032.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0032.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a5259becc5bb26f389e75d208259856d1c2a0db1b8e92e73974c22cc632b504a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0033",
+      "input": "examples-0033.pcal",
+      "input_sha256": "65b4193ee668991327cb06e71f25bf3b474240cf5183eade0547cb72ea6d55ab",
+      "primary": {
+        "stdout": "examples-0033.primary.stdout.gz",
+        "stderr": "examples-0033.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d9a2acf5160146c9c3c963be5d925f2fd939959ea10dc023acb41c8a8fb4ab2f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0033.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0033.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6c3036accc21b6673a54cf3c78323f1e2a3f2d14ee5759c174551a9fe8ccd4f3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "examples-0034",
+      "input": "examples-0034.pcal",
+      "input_sha256": "32b474672be6c97f5c9a7aae54a5f149807b7102ab858a88cdaaec24387b1b8f",
+      "primary": {
+        "stdout": "examples-0034.primary.stdout.gz",
+        "stderr": "examples-0034.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "782efa189316a2ffb0c3a23cc64f6ca0127339abb263a58eba678c748ff9c51d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "examples-0034.source-grammar-secondary.stdout.gz",
+        "stderr": "examples-0034.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e9e0f1e500013935997db160301c9af0c409f286ecf4ef12105f1701e49ede29",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0035",
+      "input": "tlaplus-tests-0035.pcal",
+      "input_sha256": "50c431e7b2f30a2e35e381a1be063d1738875a0d46a88816f9ef2b77ae2a3820",
+      "primary": {
+        "stdout": "tlaplus-tests-0035.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0035.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d7801ce9245bbc58356cb1fe76351de32eef7c970bdd6b0e7a56049772f01da8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0035.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0035.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "66a38adcfbfe588fd3875554e2cd592dbb33595b79f30451ae11f01770398c6b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0036",
+      "input": "tlaplus-tests-0036.pcal",
+      "input_sha256": "96a1c68366bfb616e691afd3fff19a0bb74a006b906511bfcc63c220fde320fa",
+      "primary": {
+        "stdout": "tlaplus-tests-0036.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0036.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "97cc17247171041997d4b922c6e4c87fd913f14a05d90561a208ee9ca81fab14",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0036.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0036.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ed0ce7e166525a2f5cae14bb0b557c2e1fc7968b16f9923a42755c6b8beb7e17",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0037",
+      "input": "tlaplus-tests-0037.pcal",
+      "input_sha256": "c1c968e98268b2307bd1e1c74a195eb63d4f0ef8619183cd4b64370ce2e82918",
+      "primary": {
+        "stdout": "tlaplus-tests-0037.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0037.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d46ca8cc845af7b537996c2fbcfee21d5a9a3b5477343694eef55b4a0e12f1f5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0037.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0037.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bcbdfbe8671b145e22619facfbd3bf88c28bd81adb238b5b7329f8fa0ca05982",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0038",
+      "input": "tlaplus-tests-0038.pcal",
+      "input_sha256": "4e5acac51be29a353d4f450f0b5d94d2aec1696c7eff7353d5e88c613836917b",
+      "primary": {
+        "stdout": "tlaplus-tests-0038.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0038.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1f30c954c3fc5495ccf1d232ff40525012ba73742f2b297f539b28071a118396",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0038.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0038.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "09ba3de584f8fa98b94be4ef5d3fb039c6bc8d0b9d2775445555c8298ffb101b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0039",
+      "input": "tlaplus-tests-0039.pcal",
+      "input_sha256": "53108c25d731c289bb81512e39a2b2ac2392f33127146d3aaa19e5b2d9c110a9",
+      "primary": {
+        "stdout": "tlaplus-tests-0039.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0039.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a203f9aa787441d2a4b83532bf4f8d1f58becb2d9c1ff09c18fdfd83bd8a711e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0039.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0039.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "42c34ce771ac7a1aec2ebb1cf2caace8135f2041d8ce1c5e5ec073513def8a1a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0040",
+      "input": "tlaplus-tests-0040.pcal",
+      "input_sha256": "04a7841f8e9e1e61e223a3874afd43ad45f75f3b4c0ee87793f203d8d45d0330",
+      "primary": {
+        "stdout": "tlaplus-tests-0040.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0040.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ab6852b7e656c7f81f87ae33a9e3e31a099877ace760cef4dfada67b23353f30",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0040.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0040.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "433dc475c1572b3d948822ee76f0e4a780ed006f88d3cfe191021b3816dcb723",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0041",
+      "input": "tlaplus-tests-0041.pcal",
+      "input_sha256": "4c4433d14e693f4736830c4e2bfbf2800b0ae19885a013901bffc6ac0b4eb81d",
+      "primary": {
+        "stdout": "tlaplus-tests-0041.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0041.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6f2a48b9c3e28f8d2724b9b7de14f0fc74290bcfc68dd9677503e89f4a68d367",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0041.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0041.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4653ff64e0ec996b3cfd896caa2a6a982b8387923c7892f5a90abeb48f06a269",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0046",
+      "input": "tlaplus-tests-0046.pcal",
+      "input_sha256": "49647dd19f5640f2164385daf8ed688de71157fe82471e8bd81a809d5447fb00",
+      "primary": {
+        "stdout": "tlaplus-tests-0046.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0046.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "76133f66da9835a0eb210966b4b87fb2084285fbf9b2db702ef0324da3fd871f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0046.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0046.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "86b0d46ae4392a582c7236b876d9bed26c150f6571dae010909e3db2105428cd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0047",
+      "input": "tlaplus-tests-0047.pcal",
+      "input_sha256": "93e4615074275697cf20fe897dff2beac1fb16b1ce90a457aac5233e32c6ce5d",
+      "primary": {
+        "stdout": "tlaplus-tests-0047.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0047.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "af0b32de60af47a646582db866364cd7c812cef835cd76cbd2df1083bad54ee5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0047.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0047.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "01f1085bd1c215b40217cc2fc375a7069b825a38440a8d26017935fb299a7841",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0048",
+      "input": "tlaplus-tests-0048.pcal",
+      "input_sha256": "1691b98d60641fb9fabf108ef6020a162954ef5cdde9c1399b387daccd765372",
+      "primary": {
+        "stdout": "tlaplus-tests-0048.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0048.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e2982b0ada568abde7329db38efe09a45188aff6f7044c5f4b7b48f909ff0ef5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0048.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0048.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2b218d03aeb5095464df50b9092942b3d2e73a8914edb3d9f46beb1b46450019",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0049",
+      "input": "tlaplus-tests-0049.pcal",
+      "input_sha256": "2f18104b8931ac97df3c0109f421a73f1b778a4cf97acf2c0ca984615cf5ce42",
+      "primary": {
+        "stdout": "tlaplus-tests-0049.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0049.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f8b87e4f68a9567996e6ffee867023994658ba156b3a5a3170379c17f69538d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0049.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0049.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "69697ff6b623ef9414b1bfcfeeaaf7782aebb3ef74bc4a9f4847e30bd445f230",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0050",
+      "input": "tlaplus-tests-0050.pcal",
+      "input_sha256": "2f18104b8931ac97df3c0109f421a73f1b778a4cf97acf2c0ca984615cf5ce42",
+      "primary": {
+        "stdout": "tlaplus-tests-0050.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0050.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "45a26c5c526b1379bd13b1b1413ce6272b676ecb7c70a2288f87c9e8f84a01d8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0050.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0050.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f8eed6ca0420dbb694c5385df89f3cb2a7444711b7e5a1b387287f6f319fba3a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0051",
+      "input": "tlaplus-tests-0051.pcal",
+      "input_sha256": "2f18104b8931ac97df3c0109f421a73f1b778a4cf97acf2c0ca984615cf5ce42",
+      "primary": {
+        "stdout": "tlaplus-tests-0051.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0051.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "47d4eed7983cab65ac7cf1121664d809f40c1bfbc03b9c19e21d376eacfae344",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0051.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0051.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8378b02a6d9bcf29131f93d3fa18b7c7ebcfcdcd1ce7693e2b6e7884de260534",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0052",
+      "input": "tlaplus-tests-0052.pcal",
+      "input_sha256": "520d338605bffa893eb9482a915331ec75bde28d33967a396b276caf7378938e",
+      "primary": {
+        "stdout": "tlaplus-tests-0052.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0052.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8140bf61b600e1adcdc1203e34b417df1f5937126ef159e28e3e1c2bb7fa793e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0052.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0052.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "602ca7dce9c4a846a34c6f0bac77360d3a9584b943c4204945bd157294035677",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0053",
+      "input": "tlaplus-tests-0053.pcal",
+      "input_sha256": "ffdb8a704efeddb5870b49b62e59f4cc7d0dc0bae0cc17dbca956aaa57e8f981",
+      "primary": {
+        "stdout": "tlaplus-tests-0053.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0053.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing labels at the following locations:\n     line 7, column 1\n     line 16, column 1",
+        "stdout_sha256": "d21b4bfda989631e1f51608a21afcc888d33b89e2763bd25e05cf7f735bb47e0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0053.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0053.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6d8e46983559014d98203950caff5987d3022dc3d8ba2ea3fae005d8bd378dd3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0054",
+      "input": "tlaplus-tests-0054.pcal",
+      "input_sha256": "944d0bda608e4c92f3208b472838cc93b6040fbb4fb4950faabe74fb250e44ac",
+      "primary": {
+        "stdout": "tlaplus-tests-0054.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0054.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "82046386f8232fed021820b4515617e1cb177dc01cb63c5ae14c7777d21b01ee",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0054.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0054.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "472c36262c3ad643aa2bf16e6d4f37fd5e67da41e4a518a27f1bbb26c008ca2e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0055",
+      "input": "tlaplus-tests-0055.pcal",
+      "input_sha256": "722bd255a4cb5ccf81a9e1e8c2704b0c68d456a98bbfb3caac1ce2b8db41c8c9",
+      "primary": {
+        "stdout": "tlaplus-tests-0055.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0055.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8e35101be5b94316007a5f9d897b0ec1b7688eae743f59f9cfdf292ab82f95b5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0055.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0055.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e00f9d5faa92ee85b2a6ef5ce659730ec3f48da3e848b3e11864265e29b87eca",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0056",
+      "input": "tlaplus-tests-0056.pcal",
+      "input_sha256": "11aead37d62e711ba2d8a4284c3eaeec27707fc11cda91cadc8f05538c3163b2",
+      "primary": {
+        "stdout": "tlaplus-tests-0056.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0056.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "aaf355527a3e445a4dba36c20077edc249de3fedf8599eb63047e73fbb812011",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0056.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0056.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "25aed018ace7db9a3b8baa0e09f77fbb061c404be3fb25a96168a72ad09c8b62",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0057",
+      "input": "tlaplus-tests-0057.pcal",
+      "input_sha256": "78ddbf35651a1c36b8fc2b3b14995c5fde6b4ba490ff0dd4226b4b56a6a30434",
+      "primary": {
+        "stdout": "tlaplus-tests-0057.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0057.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "590dacce0883bd6faf808df00353f84ecb9f3750d3ed5d7dbc8fc4ca30f3c998",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0057.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0057.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "835b83d6bcf3e1366b1855a579736b27591d3c7632e922225843c538336f6b64",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0058",
+      "input": "tlaplus-tests-0058.pcal",
+      "input_sha256": "f9e329d8d9c1fbc713dcf1e36b0ca1d68328d44ee6d4160091ed65b2a4ea08b1",
+      "primary": {
+        "stdout": "tlaplus-tests-0058.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0058.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "03d543ebf200ea2e96003a26050689dae5bff33a47aece150040660ce973873d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0058.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0058.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a8204bb0aa5b05caffd5b51e8137741af335621a04275ec66a7d6eb122a8ab77",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0059",
+      "input": "tlaplus-tests-0059.pcal",
+      "input_sha256": "7e97ff420eb01cbd3fef170b865133fca37dc32782f0a8d6b6688a668c4e1292",
+      "primary": {
+        "stdout": "tlaplus-tests-0059.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0059.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a81297627098abd1c7841b91bacd3a4ce4a4bbb4ba53b92e4ed4c87c0dc0d644",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0059.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0059.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e4e6ca07e3c87d0712b84b7fcc56bae7e8b958ebf55921ce8ff2879351e710eb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0060",
+      "input": "tlaplus-tests-0060.pcal",
+      "input_sha256": "868930ad3e3285f9f4f011cf33302f4a5c6cda22ff7115761b8f75b304efe607",
+      "primary": {
+        "stdout": "tlaplus-tests-0060.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0060.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d30e3e24ea5f7ba35b506b356d013e7884470495978039179a6dd85181d000f6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0060.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0060.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b46d9aa1908076d623b6f5f243776a887d102c9245f81e4920a5c1d966ba4702",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0061",
+      "input": "tlaplus-tests-0061.pcal",
+      "input_sha256": "298ccf0e897e37d075c34ddcb753f02fb544d2ecbd9190150d33f6e7f64a27ad",
+      "primary": {
+        "stdout": "tlaplus-tests-0061.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0061.primary.stderr.gz",
+        "status": "timeout",
+        "timeout_seconds": 3.0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0061.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0061.source-grammar-secondary.stderr.gz",
+        "status": "timeout",
+        "timeout_seconds": 3.0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0062",
+      "input": "tlaplus-tests-0062.pcal",
+      "input_sha256": "ec97f998d6b0615912c34269f64f6d5066ca04e4d3925b0fbb8cd798d12e0d22",
+      "primary": {
+        "stdout": "tlaplus-tests-0062.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0062.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing body of while statement at\n    line 4, column 14",
+        "stdout_sha256": "bebb108d0a5657420d5199016f11f649999beb27c0d3dadf6aad5ae7e663be98",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0062.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0062.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing body of while statement at\n    line 4, column 14",
+        "stdout_sha256": "bebb108d0a5657420d5199016f11f649999beb27c0d3dadf6aad5ae7e663be98",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0063",
+      "input": "tlaplus-tests-0063.pcal",
+      "input_sha256": "c0956e2f6828799ec33b2817ce49fd796dd4726f5980713ebfff0bff4e17ff83",
+      "primary": {
+        "stdout": "tlaplus-tests-0063.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0063.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing body of with statement",
+        "stdout_sha256": "41f667fa03731b70731281e71cb8cffedc9bb62aba10a1ee26e01318cae4a985",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0063.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0063.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Missing body of with statement",
+        "stdout_sha256": "41f667fa03731b70731281e71cb8cffedc9bb62aba10a1ee26e01318cae4a985",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0064",
+      "input": "tlaplus-tests-0064.pcal",
+      "input_sha256": "efc28992d03f39dad4291dfeb68e389ea4e24e5c61c60e9bf096fa3fb95d645e",
+      "primary": {
+        "stdout": "tlaplus-tests-0064.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0064.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2dce9935eabdfeb04b931ef1ec2befa12da17539fbe5009bed98471b511f12e0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0064.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0064.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6b83244da90df47611b8fb118aca3612459af3a5cac5b8df9d1f284e5ccee6a5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0065",
+      "input": "tlaplus-tests-0065.pcal",
+      "input_sha256": "b8ea33839d1436e8f18e37d5ce76cefab9a31b262fc2fc0fcd2302465397d5d1",
+      "primary": {
+        "stdout": "tlaplus-tests-0065.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0065.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "deb17236db3e858cfd3302b6f971f673110065f3bda103883017688ddc2f1b9e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0065.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0065.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a994496cd3d48f85bc943fe81827719ca60a76c5e62bdadb1eb97775055877da",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0066",
+      "input": "tlaplus-tests-0066.pcal",
+      "input_sha256": "3e8f3bb5e48994f402ffac46c0aca740d40ed682884f01eba1b8736a1220a9b3",
+      "primary": {
+        "stdout": "tlaplus-tests-0066.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0066.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "98a68affaa9dd55b2f3620f0bae2a321cd691517560d63eea9e8c69010ee364f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0066.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0066.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2b57e24a01f6a6ea2f1fc1960329a7948bf5008541b4adb53724550144bd2413",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0067",
+      "input": "tlaplus-tests-0067.pcal",
+      "input_sha256": "22a03bc1e7b6493b419d2b329bdf8ac1f246ccb5eb348a18792402c5129ddbb5",
+      "primary": {
+        "stdout": "tlaplus-tests-0067.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0067.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f3f48c8743fed64266beaa438c9d1a7e42efd358789f6cc3ee6d5617e1da1fe0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0067.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0067.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ea16180c0d02529dcbee528ecb19731defaa76f3227415c9d84bd542867593f5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0068",
+      "input": "tlaplus-tests-0068.pcal",
+      "input_sha256": "552a578c815f5fff4ac418a61adfd97f93bcd04401e1f7601eadb2f08079487b",
+      "primary": {
+        "stdout": "tlaplus-tests-0068.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0068.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3de1133f25dd42049d68e405d575de05d4702ebc169d817aa91c175201b001c0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0068.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0068.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "99ff0ad41e5663d00f862575aa6551adbd8aa39881f62fdfb6acb199ca78deea",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0069",
+      "input": "tlaplus-tests-0069.pcal",
+      "input_sha256": "f302b43df8b1df35e32ada9ac556126cf274c29ed2894e9bdd13fd4264219cf9",
+      "primary": {
+        "stdout": "tlaplus-tests-0069.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0069.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dbcea68e2837624ad20b66a52a27faebc638245e2cb6f2c8589e394b8cfa050c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0069.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0069.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b6fe00918dfa64fb4b48748119f4158d7849ad983c1353e27e57a37fcffc1ff4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0070",
+      "input": "tlaplus-tests-0070.pcal",
+      "input_sha256": "65b4193ee668991327cb06e71f25bf3b474240cf5183eade0547cb72ea6d55ab",
+      "primary": {
+        "stdout": "tlaplus-tests-0070.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0070.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e39bfe9172dd9c89d6872c74957bccddde7d28312108035aebca3a880bb9c046",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0070.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0070.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "67afb4082fca4385ee5c49afb1b0ba9a3a35533a30860c81f1797ac27fc776b4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0071",
+      "input": "tlaplus-tests-0071.pcal",
+      "input_sha256": "d870dc3381fa0e85c36076cfeef1554031a0a352e8224de2841e11988c62c8fd",
+      "primary": {
+        "stdout": "tlaplus-tests-0071.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0071.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "321c46581577e1bf30a655757cd25d26cf505a65af74e7d6d346e5960f22c08f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0071.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0071.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "16540952baa85cc55ef67a7a756c16827c4aac277eefe7b49a46c4f95d59e818",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0072",
+      "input": "tlaplus-tests-0072.pcal",
+      "input_sha256": "a8266008b0ae383929ab523e47e682e89244e358ca11c511e46becafb5f3156e",
+      "primary": {
+        "stdout": "tlaplus-tests-0072.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0072.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2c513859018fed44f0d5e055bf767857cec9e7f75eab576a27903aa5203a8ef2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0072.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0072.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e18fd64b1d0f1e5aa46c3096e5b99547f40e3aa42be3591976f90bc5846ddc59",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0073",
+      "input": "tlaplus-tests-0073.pcal",
+      "input_sha256": "90ac23228820c47e078ffc24899e8fb6e8be137a904f60dad631a99f0816f053",
+      "primary": {
+        "stdout": "tlaplus-tests-0073.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0073.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4f75f0274edf2dfab64baaff5ad06662e930c2ca0126ae7274a47eeff6c0d583",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0073.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0073.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b650bb143696a9a169d3c12c72c7df5c1233943ebb993ab58d4738625a36ee45",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0074",
+      "input": "tlaplus-tests-0074.pcal",
+      "input_sha256": "8df79867133897166411f293dfd82919b237c26913dc342f051850e68363b772",
+      "primary": {
+        "stdout": "tlaplus-tests-0074.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0074.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7f67898ba7a39d4969da8c3d1a5c2bf7933dc24c311336fe651177d8f14af27f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0074.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0074.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b277a17ab8a1b6f3115b6f9e4e3c2d231261e748b65a5fef1934a1521c23fe1e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0075",
+      "input": "tlaplus-tests-0075.pcal",
+      "input_sha256": "37fbe489e7a88a83cd770beca2cbdd940d6164a59dc4f444f8d1180f3eee381a",
+      "primary": {
+        "stdout": "tlaplus-tests-0075.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0075.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "82533fd4e3e9ef5b21f08518603a84e81b2460cc91a024364d7be04f88cc58f8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0075.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0075.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6a5bb09af3ee4f1fb52cecbf669700a981a78ed0fdb0facbab2534fffc3be324",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0076",
+      "input": "tlaplus-tests-0076.pcal",
+      "input_sha256": "320820b6353967144d6b9d75697e5759b38d550d6b034ab54a4a2aa9d8a76868",
+      "primary": {
+        "stdout": "tlaplus-tests-0076.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0076.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1723b9589f498bca685efdd8cbe5be3538908da1812a328a0f426a6fa37a4af7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0076.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0076.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "38c22ea29bcab8c95ed46c9e5aa4c87f249728bf44c35d78d529befe6aa10f56",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0077",
+      "input": "tlaplus-tests-0077.pcal",
+      "input_sha256": "c8790e6e73ce224305e56dd1be0e85ac4418dc7a141e2a5ac637bf5789a291eb",
+      "primary": {
+        "stdout": "tlaplus-tests-0077.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0077.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b3a124cc81ec3bb90eb929c66915e4a491355cff7f8778394b9425adda0c29f0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0077.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0077.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9449e03130a52fc20105f31c58a1730a89468d6e027b65685d0edc746487e846",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0078",
+      "input": "tlaplus-tests-0078.pcal",
+      "input_sha256": "c1d362eacb54a71aa3c40d2e97a54de9810b6e03055aa1cfc38eb3beb3bb9bdf",
+      "primary": {
+        "stdout": "tlaplus-tests-0078.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0078.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "242b58b775df9c3a776430f955b545d9c8b4f3aa1fdee5fd2ac5b05f29031da5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0078.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0078.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d31fb1dcec1a95176ceeab0993a656d238b7d3a359ac15d67367c6653c73cdf7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0079",
+      "input": "tlaplus-tests-0079.pcal",
+      "input_sha256": "6974d589ebdf385ad78b00990f8e6c307778fe775ee3e062d00d6a6c6962492f",
+      "primary": {
+        "stdout": "tlaplus-tests-0079.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0079.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "96c34171b8bc1e24fbfc32559134102c2591239d992f60af129f0d51a24499fc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0079.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0079.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6eba6b3c67445d8fb630176859859909350d2c217d147b63270dc60c0619dc9a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0080",
+      "input": "tlaplus-tests-0080.pcal",
+      "input_sha256": "02c557f2061eeb0d96f7b1ee547d754ff6363a221f81b2faa47da5620a449ec8",
+      "primary": {
+        "stdout": "tlaplus-tests-0080.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0080.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "909aefa354bc952d512de67c0a89dccd658143fa1357634d295c6692efde996e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0080.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0080.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7bbb0de9d9fd39f5156c2c765f9c35bde8e0286b2d9964e48116866c6f82aa4b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0081",
+      "input": "tlaplus-tests-0081.pcal",
+      "input_sha256": "ed3a175985e76a9273f5b3c8a57d5c666dda4c1e5986e36e64a2327d6c205f69",
+      "primary": {
+        "stdout": "tlaplus-tests-0081.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0081.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "27bd6cad09842395e02d9bc069f31f589c05ce604e259b475542103f9a397713",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0081.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0081.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "83e01bb53bee2fad1541032c3884a333322c8f66740a7b6467de32cbad24c2cc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0082",
+      "input": "tlaplus-tests-0082.pcal",
+      "input_sha256": "65e2803cf0d5f2457b3bab8f93c70b436d312f25888dd76c99fd82be55a172a6",
+      "primary": {
+        "stdout": "tlaplus-tests-0082.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0082.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "894b598d360b97385f66b35ed87fd9113df3d0dd362afa85fc259160a77a1541",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0082.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0082.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "55c5066a6b59909f1bfc687824b8187fd3d2897cb45d12e9c7a64362edfcfeff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0083",
+      "input": "tlaplus-tests-0083.pcal",
+      "input_sha256": "406c3ea4a3b5ee9f09659adc15544682733ed50997ce2d80cc7ed1ebbc4a8618",
+      "primary": {
+        "stdout": "tlaplus-tests-0083.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0083.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4c55f8ec8071c49fb74a3bc0c4a03b9d5ecb8e23d08a9bc6de49b95fc2c2e9a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0083.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0083.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ad0901fe80acf74000d1d4ee6d1185d7047db71d67ec6ef0abea1bec44c8df8d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0084",
+      "input": "tlaplus-tests-0084.pcal",
+      "input_sha256": "affe19ffea6a5c910e261c76e94ca37c92d898e48ab5f24f9dd13132cd003678",
+      "primary": {
+        "stdout": "tlaplus-tests-0084.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0084.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f37693d5016d170961aa3f8b0c1cc48a5d3992e931d5e4ff1314d62486339dc7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0084.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0084.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8282bb5847c2986e5781af8ece6a8265e4f89b56f054c3d4f3f8d0779f3fbbba",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0085",
+      "input": "tlaplus-tests-0085.pcal",
+      "input_sha256": "f583cfb4a2c06983ff7098aaecb1068f903cd556ccb43fd911914c1a61c95cf2",
+      "primary": {
+        "stdout": "tlaplus-tests-0085.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0085.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1383f6de4a383bb37815c8391b2cee12ad39851b7f67a44d3279cb23699f45fd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0085.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0085.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a071e1556490f5e1cd189311bffdb7e2586cd8d2677c52252a7260011aefc078",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0086",
+      "input": "tlaplus-tests-0086.pcal",
+      "input_sha256": "a0ee4f17f564061ba72e41761667df1ed85a6b06e7b87f08eb490b800b703414",
+      "primary": {
+        "stdout": "tlaplus-tests-0086.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0086.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2d83fd06648c3ad13669b3aa0397b7d51b43278c70c772d7e9de2070407936e2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0086.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0086.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2457fb9e8fac3efbbab6c338ebf9eaea34264ea6dd59de7645e669bd69075bbf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0087",
+      "input": "tlaplus-tests-0087.pcal",
+      "input_sha256": "b2d54468ebcc5c96925ec28985a1edfddad04d631b91f298706b8209b482ff44",
+      "primary": {
+        "stdout": "tlaplus-tests-0087.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0087.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c00eb24a10e5500e713c7971ab640a483add5e51f6748b945536ba39001e5bbd",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0087.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0087.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ccffb268579c4e3df55f81f6cdc424139d7d0ff1dc7edaba47d19c1b3b4503ac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0088",
+      "input": "tlaplus-tests-0088.pcal",
+      "input_sha256": "42a1c9be7403223bdcfd22d6f354ebeaf2d1ace90c8b568ce9563665742ff76c",
+      "primary": {
+        "stdout": "tlaplus-tests-0088.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0088.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f73dead81a889c98b23dc3ed3150400580e42d16b5df06e02e0ca56c87fb777a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0088.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0088.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5d96b98fef1bbaf41cb8c4a54e35e4cfd640fe70ffe5b0a59727790ac26ff773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0089",
+      "input": "tlaplus-tests-0089.pcal",
+      "input_sha256": "133b59c14cae0708c13611cba427285dcfea712569d002e60043af31a7537882",
+      "primary": {
+        "stdout": "tlaplus-tests-0089.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0089.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dfe4640d17c2d672c1298b32e9c2da95e79a7e56b18bb6ae1a86f0d52f9b754e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0089.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0089.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f9a1e763ff2416b9da0072009bb8e127f469509b4102f5f99936bda345b48516",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0090",
+      "input": "tlaplus-tests-0090.pcal",
+      "input_sha256": "b6346be35f664bffd8e090b098dddc4623cec6752f72b5a3ecccfdc3bf5a22b2",
+      "primary": {
+        "stdout": "tlaplus-tests-0090.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0090.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e724f485770018dedea8a338e2481ce50cb7389aba8444d6ae735559ce686cb4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0090.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0090.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "472a52a19512f243e432d2ba4bd0faf25b53438a63ca0357fb89b52ff6646620",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0091",
+      "input": "tlaplus-tests-0091.pcal",
+      "input_sha256": "46f6f88c36f444e55ddc3557bd941bed23e4c7f6522ecd039f67e119896e6f4c",
+      "primary": {
+        "stdout": "tlaplus-tests-0091.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0091.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c35965c4c04b9f44aaef43346f063b6e3c7e527f20141a0fa9cd14e6a147cda3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0091.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0091.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "251b7a089bb1718345ef0c34e73a7de6fc8a0e7f808a75ac223fd47060d92a1d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0092",
+      "input": "tlaplus-tests-0092.pcal",
+      "input_sha256": "8c8d189dacddcb770353bafcc5090b9a1a6186c865efe6dfb59d960116dd0da2",
+      "primary": {
+        "stdout": "tlaplus-tests-0092.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0092.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "caf5e184e9905229ae420fb1b79149f63d76791db0f4ff7911a164778947e670",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0092.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0092.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "78cfc47b01cc4044dae75de15cabd13aca0cd848ed38589c93f369a9355ae86d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0093",
+      "input": "tlaplus-tests-0093.pcal",
+      "input_sha256": "49bd422d1f983758c4fa6191cdb8c52aaa596041e11ea8efe0a3dccd9a40d225",
+      "primary": {
+        "stdout": "tlaplus-tests-0093.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0093.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4160a161ca6ce44f6eae7b8195a11b9a5344f1f32dbd7252c64be80d52a20aed",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0093.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0093.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d34c755d5b5b3afa222815eea11a1b30e61e35d431c35b1eac2b6a4e5ac32a44",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0094",
+      "input": "tlaplus-tests-0094.pcal",
+      "input_sha256": "01900eb01822e581044767047922e94f786bf07c8afb59f17d429d773fdc4bea",
+      "primary": {
+        "stdout": "tlaplus-tests-0094.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0094.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0d60ca493dae2b49c856d5e67197b4aa3cc3bfdea60753c5cc6a123eafae9866",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0094.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0094.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b03d10265f063edce32e9413e29fe06b7cef964e0996c9a7123a44c9e6932441",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0095",
+      "input": "tlaplus-tests-0095.pcal",
+      "input_sha256": "b6c8c1b017765611858ea361c85bff59b2b57f49a4c7d613aaace68f530f591e",
+      "primary": {
+        "stdout": "tlaplus-tests-0095.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0095.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "df1e836107c6d4c7b118f7077c5807cc17c13a5f2d22a870d55924f422cd6403",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0095.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0095.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2dbca1fa864eeb53e2691ec8890efe5d8a897df51a76bb654ffc79f37c7af042",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0096",
+      "input": "tlaplus-tests-0096.pcal",
+      "input_sha256": "cda4892585d5895466da047c22bf70f8480f336300ea23c09ea75e548b64139e",
+      "primary": {
+        "stdout": "tlaplus-tests-0096.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0096.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expected \"{\" but found \"fair\"\n    line 3, column 5",
+        "stdout_sha256": "87da59ee9551a04e1e9ceecf2fa1085ee55b8005fda37fe9b4f7f88f5e96ad1a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0096.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0096.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expected \"process\" but found \"{\"\n    line 3, column 10",
+        "stdout_sha256": "ff68b9baf743961c02470d51fe8001e985161317597fa7f82a44fa14fd2b1ee4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0097",
+      "input": "tlaplus-tests-0097.pcal",
+      "input_sha256": "711240e56bc369df9c7ad733f034ac42b6231072f6576dacd6c39e08e2718ad2",
+      "primary": {
+        "stdout": "tlaplus-tests-0097.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0097.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expected \"{\" but found \"fair\"\n    line 3, column 5",
+        "stdout_sha256": "910f4feba7d711d7f1fc8632df6820f1eb2eefd6e8660b7be5f92a37fb129209",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0097.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0097.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "rejected",
+        "diagnostic": "pcal.exception.ParseAlgorithmException: Expected \"process\" but found \"{\"\n    line 3, column 10",
+        "stdout_sha256": "55a67a9da6dd451336ac347f6f0ee9b41fb5a7e49588f5b8a3187b17131196f9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0098",
+      "input": "tlaplus-tests-0098.pcal",
+      "input_sha256": "16cbe9612357c3168d4b26da60bfdfa17102ff985e09a23d2cc59f0b5943c611",
+      "primary": {
+        "stdout": "tlaplus-tests-0098.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0098.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8fefd3889b2e3bf74ed67760a66b0c3dc9bd85a2d1a9f2514c849a8cbdde8e88",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0098.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0098.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "75c6fb45ab7568b29576025db3979567e1669efed61936d029c61a17f77f6a67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0099",
+      "input": "tlaplus-tests-0099.pcal",
+      "input_sha256": "06258bf542164168878736c76571e46f588d5c71dd9d971bd3b48fad57eafab2",
+      "primary": {
+        "stdout": "tlaplus-tests-0099.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0099.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cea721d82a69e42b92bf1c07e7d9da126b14c779af98b1b895d0d01935e29383",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0099.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0099.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "fa117a9f03ab48f135219efc1461fde4fba347526a58f4e0a3b5695bcd6a0c75",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0100",
+      "input": "tlaplus-tests-0100.pcal",
+      "input_sha256": "7f880420daa89041d97c6d5dbc1015ad1198b4079910f3d52e01bb5830a5b444",
+      "primary": {
+        "stdout": "tlaplus-tests-0100.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0100.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5d37115840d1e1ffe80d442b5e4642fb1a7e43477e943af9d318cc1b3648a60c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0100.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0100.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7401b8b1f21e560c92311d0f5267c04a68f689b46a44f4b988b2aecee081a2f7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0101",
+      "input": "tlaplus-tests-0101.pcal",
+      "input_sha256": "ad1a2a9d684227606a1361430267afd7d33bc20c142846fbcf4ffdbf99322cf2",
+      "primary": {
+        "stdout": "tlaplus-tests-0101.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0101.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a28985e6dffd584c97262700b372030b0b2bc7df66d975c915d5c53f2cea0dc4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0101.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0101.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a7d3122f41014c7b79e19ff21cdb6eaceafb75420189b0ebcae6221a8f0a3b5c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0102",
+      "input": "tlaplus-tests-0102.pcal",
+      "input_sha256": "7fe1922352b9a9d2e4c6db765a5612eb58cedcfc4601427b6a6227a3cf36d626",
+      "primary": {
+        "stdout": "tlaplus-tests-0102.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0102.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b4e37114f03990827f3835fe2eb4a48b20e71a3d32e73807f1e415dfda131d8d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0102.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0102.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cc3ae31a7bcab8cca4c90d0ffa3a1558c8a7049f2f82bf8dcf4d9b237fd2e7c8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0103",
+      "input": "tlaplus-tests-0103.pcal",
+      "input_sha256": "14208ad8564b580d85a010e05593a698396422a8e34dabafd378ec39574f8ae8",
+      "primary": {
+        "stdout": "tlaplus-tests-0103.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0103.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c06709a7c8755db6ddf5a2ce781c7f90beae4c32d6939f135dec70cfd78ba6ee",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0103.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0103.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8a7e045be687ff6f9518f67789e57516cb56771538878a29b253f5e361c596fb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0104",
+      "input": "tlaplus-tests-0104.pcal",
+      "input_sha256": "076910e0de7ee850e87e92efcf8f2724c52afb90bc63ef6a7f5aad5ac697465a",
+      "primary": {
+        "stdout": "tlaplus-tests-0104.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0104.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9a57baea76cd1ca371c6a0e19be9e6ac6abd3631da96ffcbb339ee5ea6b9d5cc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0104.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0104.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "98bfe5f88f390a1e9a05f5d08068a52bd61d7c3d515361c3e8f24b91a9a143bf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0105",
+      "input": "tlaplus-tests-0105.pcal",
+      "input_sha256": "410fc6ea066f9834a9083d4e41a9abb62a7609b5d56a4111935eb90f1a272e06",
+      "primary": {
+        "stdout": "tlaplus-tests-0105.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0105.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e96a2ed0ce48f580ad6b6db85f68a2fa4c09764cb5b297da878adb0937578e5a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0105.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0105.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "59ca9c13bc6651f263a62d2a16632e1dfcf0af1a06284ebea64b7c26e4b50ae6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0106",
+      "input": "tlaplus-tests-0106.pcal",
+      "input_sha256": "35e0dcf7c986ff142bf174733419470a347bc274c8cbb87dd625ee5165070565",
+      "primary": {
+        "stdout": "tlaplus-tests-0106.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0106.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a6c0ae8905f2b722f0705170ba926bec802899c0123871d896a6258afc8aa544",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0106.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0106.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bf4bc8db8a39d6b1ffb41f4f57d79645f199c59a476580c19480d22384a655ca",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0107",
+      "input": "tlaplus-tests-0107.pcal",
+      "input_sha256": "a9d9f9d97a44b9ebb8507ba98ed083fccd29b73d0efa2ce80fff156f5d78218f",
+      "primary": {
+        "stdout": "tlaplus-tests-0107.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0107.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "843bbfaf46dadf29ea4e1108892a02c2ad670762c5e992875c26a76e86cf3e33",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0107.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0107.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ac76ef7e275717db363cdbf81f98948c538d4b5467039332dc4cba2b715c7ac3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0108",
+      "input": "tlaplus-tests-0108.pcal",
+      "input_sha256": "2ed49deb10bc7b1095a690f1cee43f51d22f83508ec992d72c17a3f9e00bbdff",
+      "primary": {
+        "stdout": "tlaplus-tests-0108.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0108.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e204c45ab11172029ab51e69d8660fee2a3fb90305514c253afe91533c37690c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0108.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0108.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "952148172618504b102521e2810a7cb2bdcad19b3f5c8f131bf35e89f0d69961",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0109",
+      "input": "tlaplus-tests-0109.pcal",
+      "input_sha256": "3968a12cb92e27ed68d2495d6f3c61b842c8581ce183366772d893101eca1c62",
+      "primary": {
+        "stdout": "tlaplus-tests-0109.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0109.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "295b20a08e0d675bd94381567372326aa8fa4c2b62b555b56962521d2a3bd675",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0109.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0109.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "744e4f0036ee17e35bb37f493fe7d566613d9f03711309ff45f573e7ad638b08",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0110",
+      "input": "tlaplus-tests-0110.pcal",
+      "input_sha256": "37d8d29181b93ce2681e5a42cfb9e8d9dede099df8c45b94b89e2476bf71d31c",
+      "primary": {
+        "stdout": "tlaplus-tests-0110.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0110.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "edfe28d555c39b1fd2480f2f40663c64ec91cc6833524e55146609ab667840bf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0110.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0110.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "a6d376a829356ddcf2ff802393c6ee152f45ce3beb0eda09e791e0b4f5b40257",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0111",
+      "input": "tlaplus-tests-0111.pcal",
+      "input_sha256": "d0961f15ace26e18cd9f521b63efee22058401e52266a24a48575f5d9fa44e90",
+      "primary": {
+        "stdout": "tlaplus-tests-0111.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0111.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f411d73e5d4c7d748138935ad6f87e63a3cc59c0ee97eee4fb78d4863d8e0a1e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0111.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0111.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7a49a70fb3c6c29a343dff037ecc99efe994fe633747713cc0a85191d97c892d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0112",
+      "input": "tlaplus-tests-0112.pcal",
+      "input_sha256": "ac9896a9bf2719402740f74084fca2add2d306adcbf9b3e81a424ea40e107a5d",
+      "primary": {
+        "stdout": "tlaplus-tests-0112.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0112.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6a645762f52240acb0a022d020b0d85432e70cea4b5a3a2175e0913596a33695",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0112.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0112.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "16aecf89bf001fb7fd4301c024fe6e9db6905ec393fc6d1899aa9fe7c04fd8a3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0113",
+      "input": "tlaplus-tests-0113.pcal",
+      "input_sha256": "cd0c8b7403b35301b4be905034d3a59ae91f2f8af4178a5c0f856f11eb434474",
+      "primary": {
+        "stdout": "tlaplus-tests-0113.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0113.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f87baae8ae1efeb30b2297664b269aca03b072b609a37fda9d8914b5fc28a5af",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0113.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0113.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1ccc40516475d514ab09d522eca5f709a50477d8e4b3baedd2aacb7fad74bf70",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0114",
+      "input": "tlaplus-tests-0114.pcal",
+      "input_sha256": "8e6af6301e2a9ecede1611d39487c7f40f32ca3332410e87876da269f2d1f818",
+      "primary": {
+        "stdout": "tlaplus-tests-0114.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0114.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "340a568bebc6de288ac60dea3c5b3afe27a6cf62a3dd927ddbfe14052b45ce20",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0114.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0114.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "81cd9aaf0c333ec08e47103b4e08d92f60b8e75b99c9608c5fceefd038119bdb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0115",
+      "input": "tlaplus-tests-0115.pcal",
+      "input_sha256": "8daf8d2767d4c858d94fab58b64e054d256ba87379b58d3215f2ebfdbcafa531",
+      "primary": {
+        "stdout": "tlaplus-tests-0115.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0115.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "257ef1172a75f4017d19c418b276b29b6297da12549c0aebce6488eb4f794879",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0115.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0115.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7b01e69c3670fef8df557d56f241e2939c2df097357dead710b68362949cd66b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0116",
+      "input": "tlaplus-tests-0116.pcal",
+      "input_sha256": "bd22d49c93a0beb611a7038c7a6f281dca8962e1c90a84998f2cb6a4f7bf7f07",
+      "primary": {
+        "stdout": "tlaplus-tests-0116.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0116.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ff5f5a636bf2a21c9acdc1da10e87d4aa0aaea9b0a2d12f395f1fab588bf0adc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0116.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0116.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cb7b48bd76d826d5f2a9c0b8f32a877a1f2645d0fa6afc0d0131b0ef90674211",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0117",
+      "input": "tlaplus-tests-0117.pcal",
+      "input_sha256": "0513f0f3c9d48c066375c8fe2d9ad7ac3e3ecf3a329360ded3302640c74e26d3",
+      "primary": {
+        "stdout": "tlaplus-tests-0117.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0117.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5476bec5b59c20e4c461de78aac33b7a33175702a05346ba0572d782ab9c2574",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0117.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0117.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ef38af02c44b5f80af3f58543bc0873745c7d5c02c27a670b366520f306ee32c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0118",
+      "input": "tlaplus-tests-0118.pcal",
+      "input_sha256": "bf2779a5f09a1a227f69742aa8da3f4934f31279678f18398c6f74f31006dc0d",
+      "primary": {
+        "stdout": "tlaplus-tests-0118.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0118.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "209090b8b1dbdd16e2590e6dfa194f89572ec541129b2d9a1e3e8a7963fdfd5c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0118.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0118.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c52b9ba59d020a83f726446d1cd8ea634504974f06d99767245e544d2d219a9c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0119",
+      "input": "tlaplus-tests-0119.pcal",
+      "input_sha256": "e8cbcdaff417c05c4dff2d1358b0a71cb176a564cbc6b124409f70b3841708cc",
+      "primary": {
+        "stdout": "tlaplus-tests-0119.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0119.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "c5b9987bcd92f607a7067d544d7193d9883baae622438a3adb4bd8a1a783f3e4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0119.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0119.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "153442c8f74f92914f54c58c5620e304efce3b83390f639d1e3f2c581ee23f8b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0120",
+      "input": "tlaplus-tests-0120.pcal",
+      "input_sha256": "49c464f9c32496b6ab3a2a3378c55c9e4de58f80530be62045347b2dd8b3b626",
+      "primary": {
+        "stdout": "tlaplus-tests-0120.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0120.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b7fe1fe9b0c33cf9c2dc445ea1b61d7c34f51d7c1e0c95348e5352ab52ff0682",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0120.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0120.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "86984310afb657fdd985870d6ba753315382a1dcb94750a79a9f4ca847936f9d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0121",
+      "input": "tlaplus-tests-0121.pcal",
+      "input_sha256": "4b426a543b4e4aed50ab20ee5b8915ca2517f1a076cd1b118732a487a3b47a37",
+      "primary": {
+        "stdout": "tlaplus-tests-0121.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0121.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "97c52714d64c3adba6e03289412a112b33b876888594c5a8d6847dd8fd87c760",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0121.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0121.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ea373d4b30bdaa2f46d8b3bd83353ff6836308eb5b92711e8732f6ab9de8e634",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0122",
+      "input": "tlaplus-tests-0122.pcal",
+      "input_sha256": "20ae7556c7e3dbd2df942c2360ff9abb1dc7b05f22234ebcb7aa7dcfe7c7259f",
+      "primary": {
+        "stdout": "tlaplus-tests-0122.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0122.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "10a5005291fde9016646f37e60089ceda6022b9ba9047ff19336e7657f01402d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0122.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0122.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "39ce299e8883c39331ccea99d7eb045b518152720dabf594958f5a405ba7f731",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0123",
+      "input": "tlaplus-tests-0123.pcal",
+      "input_sha256": "918e53a22813ce8b464553af0753f8fc8699d74b152be4be7544d4fce10072f0",
+      "primary": {
+        "stdout": "tlaplus-tests-0123.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0123.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "35d1cbab0e1e47b0d57a08b978cae156936959c2eb78b1ab52f5371ddc0e76d3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0123.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0123.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "49c35b00e1f382040acf3f59deb33ae6506834600e4ab4480e0dad5c24c9ad32",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0124",
+      "input": "tlaplus-tests-0124.pcal",
+      "input_sha256": "2a2d3cd28b57b9006b8fd9083eedfa8f27f80c88b103e7b94dc146e465deb08f",
+      "primary": {
+        "stdout": "tlaplus-tests-0124.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0124.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "cf26bddd16529466d7dac30d231ef1e83c0595b2bf8a322e007039e2de0203af",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0124.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0124.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b2bb6f3bc9cbcb3b3d7be0dc2f79d9dfb1f92bc0072c763759c76fefdd5a88ba",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0125",
+      "input": "tlaplus-tests-0125.pcal",
+      "input_sha256": "cd8f3ad4028517c46ff6656dcc76749c19d00704321e28b3116c090e42c0e239",
+      "primary": {
+        "stdout": "tlaplus-tests-0125.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0125.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f080443f0ba0244117981288d678328f302946850189fd8b44b2fccbef6e413a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0125.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0125.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f6dafed11ccc05266edc14280d644f71ca47265d31a9164f86b0c92fe8a6d931",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0126",
+      "input": "tlaplus-tests-0126.pcal",
+      "input_sha256": "1e522cf502cd18dc16cbb3cf2a7353300ac92f5619586ed4a0551513a85ed6e7",
+      "primary": {
+        "stdout": "tlaplus-tests-0126.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0126.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4f30ede6727891fd35b0f5d2879c6ea77d350219f06446f01b78c06f6f22e19f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0126.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0126.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3d68f9ca8689eae023fbc69b6898b8d58a32e8838db6c1791316f25e8d35085c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0127",
+      "input": "tlaplus-tests-0127.pcal",
+      "input_sha256": "8726bd50f7949a67d21d8977576f0f89f5c5fb2f053dad8adad38797e7f9966c",
+      "primary": {
+        "stdout": "tlaplus-tests-0127.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0127.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "37e1b4a361d2e3a65daa5a9c762f7d6898aefd78b364b1bc34bb34787e6b6e39",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0127.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0127.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "30c5274cd4ed807983b4df63f9e6d17c81c985aa5d76508f4b4a1ff46b3c6eb1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0128",
+      "input": "tlaplus-tests-0128.pcal",
+      "input_sha256": "97a6ccb4afbede225be3a2cdea98fb036f9d4b48b53fcc7c6e3a9cf8c43dacf9",
+      "primary": {
+        "stdout": "tlaplus-tests-0128.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0128.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "527a2f5d853896d0de953e792af9c41053a8aa99799993d47b8fa71775899bcf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0128.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0128.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "84fca4aa25820ad2e93570061988441a02402094b0e4122da5814e90d71ba281",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0129",
+      "input": "tlaplus-tests-0129.pcal",
+      "input_sha256": "fc9b187ed41aa0da938e7f9dd2f2e28009e4559b4a1131e28217f82b11a6137a",
+      "primary": {
+        "stdout": "tlaplus-tests-0129.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0129.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "97e79e97e78e3aad52f7020838bdefe062a6b54fc1133b286dd0011368e759d5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0129.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0129.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "bdfe42cc9b379ecc8cd17d1d2623b9ad5f877d5a68c537c3575b767ee7015d9c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0130",
+      "input": "tlaplus-tests-0130.pcal",
+      "input_sha256": "de899a37aff2781220bf148df986aad66b3e78705c994582ba1f7eedb3ef993a",
+      "primary": {
+        "stdout": "tlaplus-tests-0130.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0130.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "33819de0f9fabd0a6f014e20921f1fd5f0378f4b77dfd80eebf958a6c2a8776d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0130.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0130.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "98b011c5004ec0ac7d7773a4aee7146d9d08ff45e74d6a40df834078009dd773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0131",
+      "input": "tlaplus-tests-0131.pcal",
+      "input_sha256": "f579deb3624fb87318007e782834e906ffade9a9595f9e33ed6c99218d03c4c9",
+      "primary": {
+        "stdout": "tlaplus-tests-0131.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0131.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "067432caa2dc35fa8e7aa2fd2d2e4c53a4d1790a491beaa8f90979ca97ef2e73",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0131.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0131.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f2e787aa4ba1910d0a4a4aca76f5dd03c5986c4b32b7cf7271747474bc134f0c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0132",
+      "input": "tlaplus-tests-0132.pcal",
+      "input_sha256": "f429eae94171be24d283a84bc57c4f49d73df59a55dc624ad87ea0feff6ca132",
+      "primary": {
+        "stdout": "tlaplus-tests-0132.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0132.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "dacd3cb754062dbfffc0a1c944a3daea44c5db270377810d711bedd146c87076",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0132.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0132.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1d26a844cd6b3711f770abd67a58b1af78d2005ade8d9cdb6938bbef961351af",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0133",
+      "input": "tlaplus-tests-0133.pcal",
+      "input_sha256": "38a029cc265fe079c41ad709061134d59d3731d3670202109ee1eb4e6138254a",
+      "primary": {
+        "stdout": "tlaplus-tests-0133.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0133.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9c112d0b82e30786250d16a093d39eb486c1e0073167cf4139f983367c81cf67",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0133.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0133.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3f1b4e2cd1fcd409a15d3403702675deebbbf6d0f051c7b28885752f208abc3f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0134",
+      "input": "tlaplus-tests-0134.pcal",
+      "input_sha256": "7654be8498b4f13ce06918b62f9e80ff73c40b19ea865fe1a87ed47a2f67a6d3",
+      "primary": {
+        "stdout": "tlaplus-tests-0134.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0134.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "57f5bab5ca1455b724bd48ce98196764c5c40f80448211fadcefc99f58c94a37",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0134.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0134.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "127406c26a13cafed3c28c6450b0d983fd6ff8805b130095225097d6563d5e37",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0135",
+      "input": "tlaplus-tests-0135.pcal",
+      "input_sha256": "663aae935b0ce132b770ce82d0053b9ffd899476c1a60acc034f0665e53d5ce8",
+      "primary": {
+        "stdout": "tlaplus-tests-0135.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0135.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d5b315b375d4a93f8636407d73e7f5a1b24729a095dc7f4c0e461faf8daa06fe",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0135.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0135.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "b5714b8480e5dd949c008639817ae0ff449ffbfdb1b732f028598ce30173596b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0136",
+      "input": "tlaplus-tests-0136.pcal",
+      "input_sha256": "ce5202c645e3b389cf78750ba5de01eb6dc4a82c59b1d21337e577595a7c8f70",
+      "primary": {
+        "stdout": "tlaplus-tests-0136.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0136.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "13b877c4180aceceac4eb7cf491ac14a3aa3b81cdc0d93eb6fc71cf4cb7a1cf4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0136.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0136.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "95e06ee04e1bdd35c3e820cdad3fad3da99f24d9acbcfd9b29ea93d106581da4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0137",
+      "input": "tlaplus-tests-0137.pcal",
+      "input_sha256": "52b9d0e2840d8312168bc06698a247038aaa87f57b6aa64a2e81a88e32a86bd5",
+      "primary": {
+        "stdout": "tlaplus-tests-0137.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0137.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4050c1e506c099f4475547f97a18321c3d0cbba5ebeb67eaf7b71749ea9c5ae1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0137.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0137.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "18b8d04417f3ca2d055d75c1cf9672e77698d05cfd01dcb83ac32d541e3941bf",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0138",
+      "input": "tlaplus-tests-0138.pcal",
+      "input_sha256": "b8951429ba98b4aabb49281577c818a4198253f1d2743a5aff61ee6b10568cc8",
+      "primary": {
+        "stdout": "tlaplus-tests-0138.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0138.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2580f4cabeea71a9a7e22aec1e0a68b5b41eb0baecacac80edcfd110dd4f2431",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0138.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0138.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8e61e3c702fa17ad8bfcf74211f9feb279ac84adb8d030e3fe3b665042b87bc8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0139",
+      "input": "tlaplus-tests-0139.pcal",
+      "input_sha256": "fb0e91a4e2a92f75e5b7e5e712ac187862425460e161ff95e489e18566c2a40f",
+      "primary": {
+        "stdout": "tlaplus-tests-0139.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0139.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "81b70d8dbfd6028cffb91aaa3e4f8b4803ec2788bf708f39f5186e29f263c30b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0139.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0139.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7776f8dd2f4a17814eaa29a763eb984e93f41bc29b71f6915d80cd7f608c7809",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0140",
+      "input": "tlaplus-tests-0140.pcal",
+      "input_sha256": "fb0f83adff6a553bc77ea8b51f3fb38fd0c057b9d0d63faed822d8c28c686d24",
+      "primary": {
+        "stdout": "tlaplus-tests-0140.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0140.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "62a147e7e3509467797da28dd4c155d9361eafa96d00d57833b6ac0228fcea73",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0140.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0140.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "aae277520b44491719995d11ddc8b9be0ee3d2f9c96ab5853d7eb1a45e4b2f0d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0141",
+      "input": "tlaplus-tests-0141.pcal",
+      "input_sha256": "48137df03ce9d2de9b68dece3be93f757d127d601e99d9b5408c9b4e0234604b",
+      "primary": {
+        "stdout": "tlaplus-tests-0141.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0141.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "fb47d5af4db21eabd74dd2790af792f05c55b80c7d1f82319ccc1e307536b97a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0141.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0141.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "862b52cdae77725b84dd5f20b7f1fe8c722937cee23146238552edd3aebf46ed",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0142",
+      "input": "tlaplus-tests-0142.pcal",
+      "input_sha256": "fa4700e28ffe111a6b583421285870e86f10e70e3a4ae60c5b44353873a9a45c",
+      "primary": {
+        "stdout": "tlaplus-tests-0142.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0142.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "178914ead7f0c802e14ef86b413779938d5b073e504afa7a5a6b192595dcfac3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0142.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0142.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "34156424465d3c77f3b88c11621094021a5854ee385f91263726ca61dbf41aef",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0143",
+      "input": "tlaplus-tests-0143.pcal",
+      "input_sha256": "7f6f8d3a256870156eaae5eb5cfbcf088d7d299f21ff35b2373c2fe50ef7a071",
+      "primary": {
+        "stdout": "tlaplus-tests-0143.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0143.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d55902ead3e7cde75e9295af71b0306a72214c219768c36626a55a1cae310082",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0143.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0143.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5fda2d8eb5f55bece0ad2aad38ced86793039cf315f4ea501e60e7a6d8191b12",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0144",
+      "input": "tlaplus-tests-0144.pcal",
+      "input_sha256": "fe4b5f42749b8584cc7a08377a546f05e24700cdac2326a906801dc639b5c758",
+      "primary": {
+        "stdout": "tlaplus-tests-0144.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0144.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "2b6c4e36710cab0b8b7dd32ee6fbf5ace1a847df40d18d626971d58a0f23aa8f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0144.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0144.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "037e2647154b4bc5ab2e984fb72639cf9567a147bb097454b8457665da87b8b5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0145",
+      "input": "tlaplus-tests-0145.pcal",
+      "input_sha256": "ccafd6774d5ba65753e92e31799672f765f9085f7bd024e43f57e393042151aa",
+      "primary": {
+        "stdout": "tlaplus-tests-0145.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0145.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "1dc075966bcb8e5beaa3ea869e6f60eae10833fdb19fe800960b75b865e81d40",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0145.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0145.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "710a4c737ea7c15890a66598486ed744d31ef3adab86b528fb2dc030cbf5c49c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0146",
+      "input": "tlaplus-tests-0146.pcal",
+      "input_sha256": "c4edb849be61daec82ad4a8fbe4dcd33217dcae6206c4bd57c68977d7defad54",
+      "primary": {
+        "stdout": "tlaplus-tests-0146.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0146.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "567ee4cf03771475f05ca7fcebe209768d491e5bcfa0d4afc9d2bc0e8ae8d90e",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0146.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0146.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "148fad6b8ab301fee671abaa94c6cd429c8ebb0eb8d079b4348a3ec4bbd1907a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0147",
+      "input": "tlaplus-tests-0147.pcal",
+      "input_sha256": "5c9e9c903b2e7539da160910249deebc8b872b219706e8a68812bf6a490c0510",
+      "primary": {
+        "stdout": "tlaplus-tests-0147.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0147.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "01582943f9d915e14baee7dcd0dbd798b98317bab62e34ee156472e2a3b35581",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0147.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0147.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "d8d6001bdfcb0dd8fd5e5fbf96877bb616adaa823cba59ef1763db7d46b9eb69",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0148",
+      "input": "tlaplus-tests-0148.pcal",
+      "input_sha256": "eefa473b8e0b0547b115199236dd650724e77253cff16d1e5a2591e69504cbdb",
+      "primary": {
+        "stdout": "tlaplus-tests-0148.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0148.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4186d48c39bc5328f24f3cc73e43f9e643a83631719c08141d190972cdc87d1d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0148.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0148.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "43a985d087fd44d6649128e5522771bc84b7ec53324ea86c9bfc45a80e60675c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0149",
+      "input": "tlaplus-tests-0149.pcal",
+      "input_sha256": "725ca7c144941080059eb32ded326dc0c26dbbf5fa22506a4706283c6795f096",
+      "primary": {
+        "stdout": "tlaplus-tests-0149.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0149.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "99af2b93bd0658e227ff51f97fed4ced358f9782ad4fee036a10862da6b1ef07",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0149.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0149.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ff75914f8c2c88fbf77d8e5c15833622db22b6b3249ae18fd7e6c02ebc4adab7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0150",
+      "input": "tlaplus-tests-0150.pcal",
+      "input_sha256": "2635f4ebea7b04d9c42e82f23c46775886b452fd6d0a8338256ed6ebefa4a3b0",
+      "primary": {
+        "stdout": "tlaplus-tests-0150.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0150.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "91c9c5351f52fc5de9b64e927964c1786312a5b1a6254af29c568b4b5cb71184",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0150.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0150.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8ca4cc40f0ce08f614f11e0c4419b68ffb3c09470ca23efd894c4b70aaa8b6dc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0151",
+      "input": "tlaplus-tests-0151.pcal",
+      "input_sha256": "23fa3f6c2ec2fe84933a3e912589adc8fb7a1d843b471aaaf8bed7b81c96d9f7",
+      "primary": {
+        "stdout": "tlaplus-tests-0151.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0151.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0a4df813a731a4036fe8a4e490328526606c05a9f2a62aa8e726e11f7ca53e53",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0151.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0151.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8237c423d040e75fd19987e42d288ce17d80e6891a1779c5aea49a20612b61d8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0152",
+      "input": "tlaplus-tests-0152.pcal",
+      "input_sha256": "a95b26c9a15fbf81ed39cb46acfae64bfe4c95bbe84f70d7a15e2cb77e726386",
+      "primary": {
+        "stdout": "tlaplus-tests-0152.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0152.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "6e220981851d08ed914e5825e362ace525fe52d93adc3ccc7fbcf5a48e8ec7f9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0152.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0152.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "f7e98ce62f7ec47e504b02c9e16b93f5ac2677fa1193afa226b88bbb214e1276",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0153",
+      "input": "tlaplus-tests-0153.pcal",
+      "input_sha256": "3d9e317a36ffcd7b521c427cd9391110853581039070e283824eacdfe44b2abc",
+      "primary": {
+        "stdout": "tlaplus-tests-0153.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0153.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "35a5f181dde23cbfc765370d49f4a7ea1a0eedd82a4b568b255fe7f2c1c92ecc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0153.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0153.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "e5cf81482887058c14d076deba8a5f265af702464b0f92b15a57a58ef2925c86",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0154",
+      "input": "tlaplus-tests-0154.pcal",
+      "input_sha256": "f2e50fcd019b0c670759275bc3ee44a72ab33285e7790065fbcea5c1b809138b",
+      "primary": {
+        "stdout": "tlaplus-tests-0154.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0154.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "5400a7fb48a7f5c6339bd07a5d90528beadedf97fd50bbf62cdc7e7bd6acfa2f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0154.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0154.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "4244e358e03703d653f46830892267bbb0704ceeb5e0f1f48e2ac25cf6250c7c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0155",
+      "input": "tlaplus-tests-0155.pcal",
+      "input_sha256": "9be4716239e17361b5f523d59480ef9eb36bfd2ec774ec3e77bbf0a8dc633a44",
+      "primary": {
+        "stdout": "tlaplus-tests-0155.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0155.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "3c2f9904dab3b4f018548be622dfaf6f8e12c48c227134b454e2465f5ab92eb6",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0155.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0155.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "fbba439bdb07389506d6c3f59869966d0d776efa9200a63034dc400b1cfcbed9",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0156",
+      "input": "tlaplus-tests-0156.pcal",
+      "input_sha256": "6580fc36ba7ed82b5fd124d3466768e3268406081e2a60fbaa0237f76223b46d",
+      "primary": {
+        "stdout": "tlaplus-tests-0156.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0156.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "7bdabb2bb2118be520d0576eb36c1b552aec9e44965cf27872f98df5bc1f9eae",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0156.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0156.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "644f9e8e594025af9c2cfa22bd6c4a837fc02aeb4ec32f22c9ac69290d94e359",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0157",
+      "input": "tlaplus-tests-0157.pcal",
+      "input_sha256": "6580fc36ba7ed82b5fd124d3466768e3268406081e2a60fbaa0237f76223b46d",
+      "primary": {
+        "stdout": "tlaplus-tests-0157.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0157.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "ab46712c3c507653e3d0ea2af288794b7008a5fbab47f9374e4aec2fb3d31e78",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0157.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0157.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "0307d23a819bd3d228f30c180d8455fc04dfbc2404f3bdd5a740496bf140ec5f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "tlaplus-tests-0158",
+      "input": "tlaplus-tests-0158.pcal",
+      "input_sha256": "da3d62f47f77bc26d0a634a572d32407ccb6b81e47e084a918c285e16f8afcd8",
+      "primary": {
+        "stdout": "tlaplus-tests-0158.primary.stdout.gz",
+        "stderr": "tlaplus-tests-0158.primary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "8b503ededb85e5df1dcc1b5aac58fb75b5ee393ea115b8d9fcae72d8351e4c1b",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source-grammar-secondary": {
+        "stdout": "tlaplus-tests-0158.source-grammar-secondary.stdout.gz",
+        "stderr": "tlaplus-tests-0158.source-grammar-secondary.stderr.gz",
+        "exit_code": 0,
+        "status": "accepted",
+        "stdout_sha256": "9c700e9215b72c1c41a16e7d26083cb6c559b890b0efa7ef5b827fb565eadcfc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "capture_script_sha256": "9228654f22350c2c151497c218029e95a6c19b1964f305d12dca23fa36942c85",
+  "storage_note": "Raw original stdout/stderr compressed losslessly with gzip; digests identify decompressed bytes. No oracle result was edited."
+}

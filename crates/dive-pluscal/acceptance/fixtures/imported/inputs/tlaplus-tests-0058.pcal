@@ -1,0 +1,55 @@
+--algorithm ProtoBakery {
+
+  variables num  = ArrayOf(Procs,0) ,
+            temp = ArrayOf(SubProcs,0) ,
+          mustRd = ArrayOf(SubProcs, TRUE) ;
+ 
+  define {
+    Before(p,q) == /\ pc[<<p>>] \in {"pcs", "cs"}
+                   /\ \/ pc[<<q>>] \in {"ncs", "L1"}
+                      \/ pc[<<q,p>>] = "M1s"
+                      \/ /\ pc[<<q,p>>] = "L2" /\ pc[<<q>>] = "M1"
+                         /\ temp[<<q,p>>] = num[p]
+                      \/ /\ pc[<<q>>] \in {"pcs", "cs"}
+                         /\ <<num[p],p>> \ll <<num[q],q>>
+  }          
+
+  fair process (subProc \in SubProcs) {
+      M1s:  while (TRUE) {
+              await pc[<<self[1]>>] = "M1" ;
+              if (mustRd[self]) {
+                temp[self] := num[self[2]] }
+              else { with (v \in Nat) { temp[self] := v } } ;
+
+      L2:    await /\ pc[<<self[1]>>] = "pcs" 
+                   /\ Before(self[1],self[2]) \/ mustRd[<<self[1],self[2]>>] ;  
+      L3:    await Before(self[1], self[2])  ;    
+     scs:    await pc[<<self[1]>>] = "ncs"     }   }
+
+  fair process (pid \in ProcIds) {                    
+   ncs:- while (TRUE) {
+              skip ;
+              await \A q \in subProcsOf(self) : pc[q] = "M1s" ;
+         L1:  mustRd := Replace(mustRd, {Mirror(p) : p \in subProcsOf(self)}, FALSE) ;
+         
+          M1: await \A q \in subProcsOf(self) : pc[q] = "L2" ;
+              with (n \in {m \in Nat \ {0} : 
+                      \A q \in subProcsOf(self) : 
+                        \/ temp[q] = 0
+                        \/ <<temp[q], q[1]>> \ll <<m, self[1]>>}) {
+                 num[self[1]] := n } ;
+              temp := Replace(temp, subProcsOf(self), 0) ;
+              mustRd :=  Replace(mustRd, {Mirror(p) : p \in subProcsOf(self)}, TRUE) ;
+              
+         pcs: await \A q \in subProcsOf(self) : pc[q] = "scs" ;
+         
+          cs: skip ;
+              num[self[1]] := 0 ;
+              mustRd :=  Replace(mustRd, {Mirror(p) : p \in subProcsOf(self)}, FALSE)
+              }   }
+  
+  fair process (wr \in Wr0Procs) {
+    wr0: while (TRUE) {
+           if (pc[<<self[1]>>] \in {"ncs", "L1"}) {
+            mustRd[<<self[2], self[1]>>] := TRUE
+             } }  } }

@@ -1,0 +1,92 @@
+--fair algorithm Merge {
+
+  variables history = {},
+            a = 0,
+            aLength = 0,
+            A = <<>>,
+            b = 0,
+            bLength = 0,
+            B = <<>>,
+            O = <<>>; 
+            
+    define {
+       Inv == /\ Image(O) \subseteq history
+              /\ IsOrdered(O)
+       NoDuplicates == Image(A) \cap Image(B) = {}
+    }
+    
+    macro Consume(var, seq) {
+         var := Head(seq);
+         seq := Tail(seq);
+    }
+  {
+
+  (* Initialize A and B with all possible combination of sorted sequences. *)
+  init:           
+    with (r \in SUBSET Nat \ {{}}) {
+       with (s \in ((SUBSET (Nat)) \ {{}})) {
+           with (t \in OrderedSequences(s) \cup {<<>>}) {
+               B := t;
+               bLength := Len(B);
+               with (u \in OrderedSequences(r) \cup {<<>>}) {
+                    A := u;
+                    aLength := Len(A);
+               }
+           };
+       };  
+    };
+  
+  (* Keep history. *)
+  hstry:
+     history := SeqToSet(A) \cup SeqToSet(B);
+     if (Cardinality(history) = 0) {
+        goto "Done";
+     };
+       
+  (* Merge sorted A and B to obtain sorted O. *)
+  mrg1: 
+     if (aLength > 0) {
+         Consume(a, A);
+     };
+     if (bLength > 0) {
+         Consume(b, B);
+     };
+     
+  mrg2:
+        if (a = b) {
+           O := Append(O, a);
+           aLength := aLength - 1;
+           if (aLength > 0) {
+             Consume(a, A);
+           };
+           bLength := bLength - 1;
+           if (bLength > 0) {
+             Consume(b, B);
+           };
+        };
+  mrg2a:
+        if (aLength > 0 /\ (a < b \/ bLength = 0)) {
+           O := Append(O, a);
+           aLength := aLength - 1;
+           if (aLength > 0) {
+             Consume(a, A);
+           };
+        };
+  mrg2b:     
+        if (bLength > 0 /\ (b < a \/ aLength = 0)) {
+           O := Append(O, b);
+           bLength := bLength - 1;
+           if (bLength > 0) {
+             Consume(b, B);
+           };
+        };
+   mrg3:     
+        if (bLength > 0 \/ aLength > 0) {
+           goto mrg2;
+        };
+   mrg4:
+       assert bLength = 0 /\ aLength = 0;
+       assert Len(O) = Cardinality(history);
+       assert Image(O) = history;
+   }
+}

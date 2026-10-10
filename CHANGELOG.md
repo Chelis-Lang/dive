@@ -17,6 +17,11 @@ All notable changes to this project are documented here. The project will follow
 
 - Offline parity-ledger checks reject absent or escaping evidence, changed
   stable IDs, unsupported certification claims and Markdown census drift.
+- Native bounded PlusCal source parsing for current C/P syntax, with typed
+  declarations, processes, macros, procedures and control flow; original byte
+  spans, Unicode/tab display positions and stable resource diagnostics. Pinned
+  grammar evidence accounts for 222 inputs/markers and retains normalization
+  differences/timeouts. Translation/options remain unsupported; no runtime Java.
 
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown

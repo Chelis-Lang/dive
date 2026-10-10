@@ -1,0 +1,33 @@
+--algorithm JBuffer01Pcal {
+   variables buffer = <<>>, waitset = {};
+
+   process (p \in P) {
+      lbp: while (Len(buffer) >= K) {
+               (* wait *)
+               waitset := waitset \cup {self};
+          };
+          buffer := Append(buffer, "d");
+          (* notify *)
+          if (waitset # {}) {
+            with (x \in waitset) {
+              waitset := waitset \ {x};
+            }
+          };
+          goto lbp;
+   }
+
+   process (c \in C) {
+      lbc:  while (Len(buffer) = 0) {
+               (* wait *)
+               waitset := waitset \cup {self};
+          };
+          buffer := RemoveLast(buffer);
+          (* notify *)
+          if (waitset # {}) {
+            with (x \in waitset) {
+              waitset := waitset \ {x};
+            }
+          };
+          goto lbc;
+   }
+}

@@ -1072,3 +1072,22 @@ predicate. These APIs preflight the supplied context before computing a result.
 Stable checker configuration strings remain supported: a separate forged-prefix
 control verifies that the seed is interned before the fingerprint, independently
 of the order in which a trace mentions them.
+
+## Current PlusCal limitation, 2026-10-10
+
+Native `dive-pluscal` now parses current C/P source into typed, source-mapped
+ASTs. This is the first translation stage, not a translated specification:
+macro expansion, synthetic labels, name/control-flow checks, TLA expression
+validation, translator options/checksums and automatic module-region discovery
+remain pending. `dive translate` still refuses translation explicitly.
+
+The pinned grammar scanner accepts `(1]`, `[1)`, `<<1}` and `[1, end]` because
+it counts delimiter nesting rather than parsing TLA expressions. Native source
+ASTs preserve those slices and make no claim of expression validity. Later
+translation must validate them. Source bytes, grouping, macro calls, fairness
+and every ordered statement are retained for that later stage.
+
+[The source grammar study](pluscal-parser.md) accounts for 222 inputs/markers:
+200 complete field-level AST matches, 13 grammar rejection matches, four
+macro-expansion stage differences, one reference timeout and four non-standalone
+documentation markers. All remain visible; F-034 is partial and uncertified.

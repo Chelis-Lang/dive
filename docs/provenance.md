@@ -221,3 +221,8 @@ and installation strings are interned before assumptions. The independent
 validator's runtime-name refusal is dive's own admission rule (#124), supported
 by the clean pinned capture and prior false-positive trace in
 `crates/dive-trace/tests/fixtures/runtime-names/`.
+## Native PlusCal source parsing
+
+| dive component | Source | Licence | Nature |
+|---|---|---|---|
+| `dive-pluscal` source parser (`parser.rs`, `lexer.rs`, `ast.rs`) | tlaplus `pcal/ParseAlgorithm.java` (`GetVarDecls`, `GetPVarDecl`, `GetProcedure`, `GetProcess`, `GetStmtSeq`, `GetCStmtSeq`, `GetIf`, `GetWhile`, `GetEither`, `InnerGetWith`, `GetAssign`, calls/labels/separators); `Tokenize.java` (`IsDelimiter`, `parenDepth`, quantifier/record-field rules), `PcalBuiltInSymbols.java`, `PcalCharReader.java`, `AST.java`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Grammar semantics adapted to a source-preserving arena AST. Macro expansion/labels/control-flow normalization and translation remain pending; expression scanner counts nesting and does not validate TLA syntax. Pinned primary/secondary evidence and limitations in ADR 0022 and docs/pluscal-parser.md |

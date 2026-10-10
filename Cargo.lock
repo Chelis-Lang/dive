@@ -267,6 +267,11 @@ dependencies = [
 [[package]]
 name = "dive-pluscal"
 version = "0.0.0"
+dependencies = [
+ "dive-syntax",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "dive-sema"

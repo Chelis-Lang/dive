@@ -1,0 +1,3 @@
+--algorithm A { variable x = 0, y; {
+ await x > 0; when TRUE;
+} }
