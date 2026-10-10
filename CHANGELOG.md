@@ -5,6 +5,16 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native PlusCal translation now admits one unfair constant-ID or finite-set
+  process in current C/P syntax, matching scalar/indexed local storage, indexed
+  program counters, process action scheduling and terminating stutter. Missing
+  process labels require explicit `--label`, matching the pinned process default.
+  JSON returns process source/storage metadata and local default-init `.cfg`
+  bindings. Multiple blocks, fairness and unproved renaming remain named refusals;
+  artifacts are validated modules, never model proofs (#150). Global `pc` is now
+  rejected even when generated pc storage is omitted, matching its unconditional
+  reserved symbol and correcting an inherited false translator acceptance.
+
 - Temporal non-stuttering predicates compare their subscript before evaluating
   the action body, matching TLC liveness short-circuiting. Independent temporal
   trace evaluation uses the same order separately for angles, boxes and fairness

@@ -800,7 +800,8 @@
       "issues": [
         126,
         131,
-        143
+        143,
+        150
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
@@ -809,7 +810,7 @@
         "F-019",
         "F-024"
       ],
-      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately.",
+      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
       "additional_evidence": [
         "docs/pluscal-parser.md",
         "docs/decisions/0022-pluscal-source-parser.md",
@@ -825,7 +826,15 @@
         "crates/dive-pluscal/normalization-acceptance/comparison.json",
         "crates/dive-pluscal/normalization-acceptance/validation/report.json",
         "crates/dive-pluscal/tests/normalization.rs",
-        "crates/dive-pluscal/normalization-acceptance/interactions/comparison.json"
+        "crates/dive-pluscal/normalization-acceptance/interactions/comparison.json",
+        "docs/pluscal-processes.md",
+        "docs/decisions/0032-pluscal-single-process-translation.md",
+        "crates/dive-pluscal/tests/processes.rs",
+        "crates/dive-pluscal/process-acceptance/comparison.json",
+        "crates/dive-pluscal/process-acceptance/validation/report.json",
+        "crates/dive-pluscal/process-acceptance/interactions/comparison.json",
+        "crates/dive-pluscal/process-acceptance/subscripts/comparison.json",
+        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json"
       ]
     },
     {
@@ -843,7 +852,8 @@
         129,
         131,
         143,
-        149
+        149,
+        150
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -854,7 +864,7 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required.",
         "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required."
@@ -872,7 +882,15 @@
         "crates/dive-pluscal/normalization-acceptance/comparison.json",
         "crates/dive-pluscal/normalization-acceptance/validation/report.json",
         "crates/dive-pluscal/tests/normalization.rs",
-        "conformance/probes/temporal-action-order/README.md"
+        "conformance/probes/temporal-action-order/README.md",
+        "docs/pluscal-processes.md",
+        "docs/decisions/0032-pluscal-single-process-translation.md",
+        "crates/dive-pluscal/tests/processes.rs",
+        "crates/dive-pluscal/process-acceptance/comparison.json",
+        "crates/dive-pluscal/process-acceptance/validation/report.json",
+        "crates/dive-pluscal/process-acceptance/interactions/comparison.json",
+        "crates/dive-pluscal/process-acceptance/subscripts/comparison.json",
+        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json"
       ]
     },
     {

@@ -1,0 +1,640 @@
+{
+  "schema_version": 1,
+  "reason": "Capture full retained unsupported process/fairness/name/UTF controls before native implementation (#150)",
+  "generated_at": "2026-10-10T15:20:01Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "76129cfcffd032744a7d160c3733e548ab3e0a37ff0fbc1c9ce1ecb2e26de6bc",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "ProcInteraction_C_duplicate_label",
+      "input": "ProcInteraction_C_duplicate_label.tla",
+      "input_sha256": "b1c9fd7da86d6c2306bc99da71bd488f269347c7a3ebc220a51c59f9c30700c0",
+      "options": [],
+      "primary": {
+        "exit_code": 255,
+        "stdout": "ProcInteraction_C_duplicate_label.translation.stdout.gz",
+        "stdout_sha256": "3fd7b848cfabc37515cf0fcaba4d77e624bd359a79abaff2e1d6658295ebf818",
+        "stderr": "ProcInteraction_C_duplicate_label.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_duplicate_label.normalized.stdout.gz",
+        "stdout_sha256": "f51fb8da5a99d1f472671ba42e6c953336bd5b22e5a74a1d69c3993ea165d10a",
+        "stderr": "ProcInteraction_C_duplicate_label.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_duplicate_label.normalized.json",
+          "sha256": "c0004b0c9dbae09f0d587de02f47fbdcfc8f3b932828256331aeb976063351ac"
+        }
+      }
+    },
+    {
+      "id": "ProcInteraction_C_empty_body",
+      "input": "ProcInteraction_C_empty_body.tla",
+      "input_sha256": "55b19b1691d9e0dbf71805827868aadff9dfb4acce93d3b1eb4eb890e8124daf",
+      "options": [],
+      "primary": {
+        "exit_code": 255,
+        "stdout": "ProcInteraction_C_empty_body.translation.stdout.gz",
+        "stdout_sha256": "f5bfb4322a64eea1aea3f3ecf3a4256c8b7b8ad4386a9b0e787103e8005c7ecf",
+        "stderr": "ProcInteraction_C_empty_body.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_empty_body.normalized.stdout.gz",
+        "stdout_sha256": "3dd5c6f8ad44ec18d4d739faafef7bd7c7897d7901d668ae47ee4e5b62846141",
+        "stderr": "ProcInteraction_C_empty_body.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected",
+        "document": {
+          "path": "ProcInteraction_C_empty_body.normalized.json",
+          "sha256": "dde553207bb5205112b83ab47e026da0a8395f1472c1866ac5d94575487e8bbe"
+        }
+      }
+    },
+    {
+      "id": "ProcInteraction_C_fair_algorithm",
+      "input": "ProcInteraction_C_fair_algorithm.tla",
+      "input_sha256": "4307381da8bffa568f9e0ca3d2cacc94f086659114a02aa5628f851344c72561",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_fair_algorithm.translation.stdout.gz",
+        "stdout_sha256": "c209a484d0ed27cdab3697584bc36d2de9dbcf788e35a4f75e413b78b50bf2be",
+        "stderr": "ProcInteraction_C_fair_algorithm.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_fair_algorithm.normalized.stdout.gz",
+        "stdout_sha256": "4b357b4fa2541290aab76916bd3e0ebbf0d8bf02302492bc2b3a32d62a7b6b37",
+        "stderr": "ProcInteraction_C_fair_algorithm.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_fair_algorithm.normalized.json",
+          "sha256": "40f3fb2255c249657a03aab965caa708f2b698ea2ace26061ffc2614f1ba8e7a"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_fair_algorithm.translated.tla",
+        "sha256": "0c6bd1fac0e025cd425722bede98def2abd97758dcbaf1fa99b09bb2e162543b"
+      },
+      "config": {
+        "path": "ProcInteraction_C_fair_algorithm.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_fair_algorithm.sany.stdout.gz",
+        "stdout_sha256": "81b0907b23c5f9de23e1958e29e6ad7ce5d5712a46eccfc57085bb3c2e8fccd3",
+        "stderr": "ProcInteraction_C_fair_algorithm.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_C_minus",
+      "input": "ProcInteraction_C_minus.tla",
+      "input_sha256": "46c7bcd290ccfc4f48b0af1a3ebdff7280b68b5d9c112f8bd341267d17e3ce83",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_minus.translation.stdout.gz",
+        "stdout_sha256": "c654b797454224b4a1b97ab3dc30289e0d24332a3b7522fc93c1bea1f351662e",
+        "stderr": "ProcInteraction_C_minus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_minus.normalized.stdout.gz",
+        "stdout_sha256": "d0f8a83045d0652e177f616696cd33f73e40cf842fd5dcb63dfe05597f3ba3eb",
+        "stderr": "ProcInteraction_C_minus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_minus.normalized.json",
+          "sha256": "e381023c90e7ca0ccd50aa25b5635c7c50fcfcecdbdfcb23feb970993ec68db1"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_minus.translated.tla",
+        "sha256": "d7feb14ca655d31d6592ee5412690aeb0a103c8eb2f968b534da3fb37eac9715"
+      },
+      "config": {
+        "path": "ProcInteraction_C_minus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_minus.sany.stdout.gz",
+        "stdout_sha256": "a23a0a88dcf0720329618141e0b2a10ac3fc2eb06f3ffa3dd812c944dd639012",
+        "stderr": "ProcInteraction_C_minus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_C_plus",
+      "input": "ProcInteraction_C_plus.tla",
+      "input_sha256": "6c60f7f4224762386f892d5200d1003c8672ea97f4e01fdeb5c3c0977b23ae16",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_plus.translation.stdout.gz",
+        "stdout_sha256": "74a74cc25788e2f5b473e6f0907ca799967cdd0b31c44606e32b3a89daf98609",
+        "stderr": "ProcInteraction_C_plus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_plus.normalized.stdout.gz",
+        "stdout_sha256": "14d539da7177e2cdcc636b56d14fe65a1cd3ed3244fa24b183e353ca9f39845e",
+        "stderr": "ProcInteraction_C_plus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_plus.normalized.json",
+          "sha256": "41cd2c82175ba421aeed8cac39233c914a632e337cb115e3ae5f29bfa05eb071"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_plus.translated.tla",
+        "sha256": "90c0ca9322da2e6733c77f4141789a98b2829dcfe2332f76c0c196e6769ea852"
+      },
+      "config": {
+        "path": "ProcInteraction_C_plus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_plus.sany.stdout.gz",
+        "stdout_sha256": "0c26c1cb0033f5e082ffd5614296927e7cb367b70afee5d82c9f871b4ecc3cb8",
+        "stderr": "ProcInteraction_C_plus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_C_same_id",
+      "input": "ProcInteraction_C_same_id.tla",
+      "input_sha256": "12125279fbfb84e51504b9aa43132c0a8014a767556a3ddf672d8211affa32a9",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_same_id.translation.stdout.gz",
+        "stdout_sha256": "c70158a62eca0eb7cee1fd56209cecec72519dedb8cdaed093e92bb2e5205e5b",
+        "stderr": "ProcInteraction_C_same_id.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_same_id.normalized.stdout.gz",
+        "stdout_sha256": "2286b9701c12f3870d28496d8d8f97b482258905694359cdd62ca012fab344f6",
+        "stderr": "ProcInteraction_C_same_id.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_same_id.normalized.json",
+          "sha256": "1139d09dd4e8034694aa4ac4ca69ed2c2d337bba4d480b2850882d0adef4f117"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_same_id.translated.tla",
+        "sha256": "d8d10bb1f1bbe41ce0bde8636655bfbbb9cf0f769388e216f6f4884f0166225e"
+      },
+      "config": {
+        "path": "ProcInteraction_C_same_id.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_same_id.sany.stdout.gz",
+        "stdout_sha256": "6519dfc1b618701beeaeb82bef2cea31b98923b86cebf608d11a15d4885f9b09",
+        "stderr": "ProcInteraction_C_same_id.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_C_two",
+      "input": "ProcInteraction_C_two.tla",
+      "input_sha256": "163e80b18474e9c202f9a1e5461e5985a91c86522fb73f013cdee45ce59007ac",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_two.translation.stdout.gz",
+        "stdout_sha256": "6a9cfa8f8cdcf668da0ccf0462707e8dd19a7e6546b5e863739995f880f881c5",
+        "stderr": "ProcInteraction_C_two.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_two.normalized.stdout.gz",
+        "stdout_sha256": "fc25009041f59a8f349bc57e8c26eefab507a17782cdfd8d53cc98615f4efe5b",
+        "stderr": "ProcInteraction_C_two.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_two.normalized.json",
+          "sha256": "de33c3b5b157661b8ac7d49fb0f2626eefd22e1696003c7bb987162119b18f6e"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_two.translated.tla",
+        "sha256": "12f9ef0368d2ad51afb967820443f702bf18b7c611acfa69acf4c2874e365fcf"
+      },
+      "config": {
+        "path": "ProcInteraction_C_two.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_two.sany.stdout.gz",
+        "stdout_sha256": "cc91c472d7bb05dc5c69b56959e8163bbd4ad24eff40ed94ce278a1f9c810c87",
+        "stderr": "ProcInteraction_C_two.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_C_unicode",
+      "input": "ProcInteraction_C_unicode.tla",
+      "input_sha256": "8bcfdcd3a7b6baf345788664e17f73936bdbb69f73a1462236394e100d8f455e",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_unicode.translation.stdout.gz",
+        "stdout_sha256": "6556895b6aa78101a0ac2b8c30486c08ad1daebf11042a93ca72e7d288e1ba27",
+        "stderr": "ProcInteraction_C_unicode.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_unicode.normalized.stdout.gz",
+        "stdout_sha256": "d4be73023441d6cc8ba4f04a1d12e8c2156fc81a65144a7640af32b77b06d6cc",
+        "stderr": "ProcInteraction_C_unicode.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_C_unicode.normalized.json",
+          "sha256": "bf6b9989f7eef268e1087556db66632f51a703a539ab1bd0e4203e357565ca53"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_C_unicode.translated.tla",
+        "sha256": "6970fd698e7733d6f907f134b172fb25aa618211a38d2381af16d66a0064600a"
+      },
+      "config": {
+        "path": "ProcInteraction_C_unicode.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_C_unicode.sany.stdout.gz",
+        "stdout_sha256": "016505421ebf5a756a735451875b479316dbb967c51ac6011123a6d40b0b9ba1",
+        "stderr": "ProcInteraction_C_unicode.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_duplicate_label",
+      "input": "ProcInteraction_P_duplicate_label.tla",
+      "input_sha256": "58ddbb25de629c20ea3cd80012d67b330226492f8c68c4e3c4a92edae67cf517",
+      "options": [],
+      "primary": {
+        "exit_code": 255,
+        "stdout": "ProcInteraction_P_duplicate_label.translation.stdout.gz",
+        "stdout_sha256": "3fd7b848cfabc37515cf0fcaba4d77e624bd359a79abaff2e1d6658295ebf818",
+        "stderr": "ProcInteraction_P_duplicate_label.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_duplicate_label.normalized.stdout.gz",
+        "stdout_sha256": "5adf270fd168703c0ae105ef5b7a46229824ed2f3baf5036422f8ebd9d330b00",
+        "stderr": "ProcInteraction_P_duplicate_label.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_duplicate_label.normalized.json",
+          "sha256": "59098926b4a76037fc4af05605494dda39728fae8ece0e15cfef458cb90ffe4b"
+        }
+      }
+    },
+    {
+      "id": "ProcInteraction_P_empty_body",
+      "input": "ProcInteraction_P_empty_body.tla",
+      "input_sha256": "09cc984c87bb3394551a3b0afd51ec740dbddd1db92884c33442236e7dbe9dde",
+      "options": [],
+      "primary": {
+        "exit_code": 255,
+        "stdout": "ProcInteraction_P_empty_body.translation.stdout.gz",
+        "stdout_sha256": "5d7ec8d988accce19c4af283886a741b74b48143d2a2783e67e3c265b2f5592a",
+        "stderr": "ProcInteraction_P_empty_body.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_empty_body.normalized.stdout.gz",
+        "stdout_sha256": "611137e6156cdb71c960b176206ad156957b1acf265711340fe0e5e6e76b8b49",
+        "stderr": "ProcInteraction_P_empty_body.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_empty_body.normalized.json",
+          "sha256": "ef4f3348a2aa4467c5c5374e99c8b54c80639801707794dae6bc5c91de4682e3"
+        }
+      }
+    },
+    {
+      "id": "ProcInteraction_P_fair_algorithm",
+      "input": "ProcInteraction_P_fair_algorithm.tla",
+      "input_sha256": "04cd50e7ac912da92eb2d6f090a785ba828282031cbab095235ab42430f4488f",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_fair_algorithm.translation.stdout.gz",
+        "stdout_sha256": "e5ad710e5ff43ef623cb500806514d9e68abcd8418e1227a7a61bffb4ffcb63a",
+        "stderr": "ProcInteraction_P_fair_algorithm.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_fair_algorithm.normalized.stdout.gz",
+        "stdout_sha256": "ed4653f9d3bb365ac99b72ff4bf63b07ddc5577163b1b91653a48129ffe78e07",
+        "stderr": "ProcInteraction_P_fair_algorithm.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_fair_algorithm.normalized.json",
+          "sha256": "5e7a3279805cda37c63de4391c4e23deca11148301c4c54c0961f759bc3c2294"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_fair_algorithm.translated.tla",
+        "sha256": "866bfa6ca6ecfefb1f073b97faaf5919becc827cd14c8edda8b944ee1fbabaf6"
+      },
+      "config": {
+        "path": "ProcInteraction_P_fair_algorithm.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_fair_algorithm.sany.stdout.gz",
+        "stdout_sha256": "c96e8fc85e01c99baa019aa16bec0c6866703bf2292ffed34e3c3a873d01ac92",
+        "stderr": "ProcInteraction_P_fair_algorithm.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_minus",
+      "input": "ProcInteraction_P_minus.tla",
+      "input_sha256": "2d8cd7fd2767b91b76fb526da6b0b811fa545c67f509950501c1bbdd5dd8581c",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_minus.translation.stdout.gz",
+        "stdout_sha256": "031fd50759bcb17c4dd1c6467317737436a41a9cfc9e06edaa1b033c3c01b5a3",
+        "stderr": "ProcInteraction_P_minus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_minus.normalized.stdout.gz",
+        "stdout_sha256": "39bf478dfca1d5d2228e1e8572a286dcf49ae7706773887573f9bcf192f9eadf",
+        "stderr": "ProcInteraction_P_minus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_minus.normalized.json",
+          "sha256": "c8d5f067a170ed5afe18bbcbd6260f8cc63ee0818c70d15832012cd51c3f6fa0"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_minus.translated.tla",
+        "sha256": "1e398443ae2d2c93ea8c8fc7e7e3e4a5b31391ac051ce705842fe7ff5d10882c"
+      },
+      "config": {
+        "path": "ProcInteraction_P_minus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_minus.sany.stdout.gz",
+        "stdout_sha256": "c49517d7d55f28a03f0615bb23c1b65167841f2d0758f939f3e89a70d10d50d2",
+        "stderr": "ProcInteraction_P_minus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_plus",
+      "input": "ProcInteraction_P_plus.tla",
+      "input_sha256": "0a8f1c3a21a0888e0cfcc2be47375fcd211bc28e39305a7d3a709e39239f8a76",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_plus.translation.stdout.gz",
+        "stdout_sha256": "2666bd6a1b7637b17bc67a4537c8e774824ba15f66554a7682fed3a7b50da901",
+        "stderr": "ProcInteraction_P_plus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_plus.normalized.stdout.gz",
+        "stdout_sha256": "2575bffe9292167ca2a13dada116ba154668fcb1b25a31aa8c5dab49ed6db7dc",
+        "stderr": "ProcInteraction_P_plus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_plus.normalized.json",
+          "sha256": "951eb763e68d9fed8ff3dcf398380260c60cf29b665b193a992e418e8b24cc1e"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_plus.translated.tla",
+        "sha256": "314449b1dfd685324f87a3cc1c65c09e955b3de3fcac5fa9c0e7dbf1de5197d4"
+      },
+      "config": {
+        "path": "ProcInteraction_P_plus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_plus.sany.stdout.gz",
+        "stdout_sha256": "90b410ffc009907b807f90f64ddb3540f0bfa4ed0001fd184e7677b98a9d88ba",
+        "stderr": "ProcInteraction_P_plus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_same_id",
+      "input": "ProcInteraction_P_same_id.tla",
+      "input_sha256": "a6ec7587af87692a6cf24821aa297a63aa8577cc0de320e336f2f2ae402d7a7e",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_same_id.translation.stdout.gz",
+        "stdout_sha256": "b206cbf403c63c9821af1e89bae5a21b10b912ef752f77c913d233943da61a51",
+        "stderr": "ProcInteraction_P_same_id.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_same_id.normalized.stdout.gz",
+        "stdout_sha256": "7a99503fa4c89f0be59272d20974e18e2820395ce9da3a809bae691bf05e47b2",
+        "stderr": "ProcInteraction_P_same_id.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_same_id.normalized.json",
+          "sha256": "daa1f8beb47604b9d197159bd3a89b04f9fddc44a23471b327660c38845e764e"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_same_id.translated.tla",
+        "sha256": "c4418bbd015492f4fa8d55f63d27ab9b2adbc4982fccaeeb76b9662fd5b4efe1"
+      },
+      "config": {
+        "path": "ProcInteraction_P_same_id.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_same_id.sany.stdout.gz",
+        "stdout_sha256": "0c48f731fbcc28d1db3d4583d04345580f506d791b120c9577d6cce0d334d5b7",
+        "stderr": "ProcInteraction_P_same_id.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_two",
+      "input": "ProcInteraction_P_two.tla",
+      "input_sha256": "489e288023b244d91468a1870728a41acc06ec4e629a71d1d208b8584af06537",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_two.translation.stdout.gz",
+        "stdout_sha256": "a480edd0088afd56456fab19f2e42f08bfd8aadd8321584aa335a6da89a94535",
+        "stderr": "ProcInteraction_P_two.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_two.normalized.stdout.gz",
+        "stdout_sha256": "257782fce8f63afd5f2fd4d9463738061b61ecf2bd37a59058dac267f760b462",
+        "stderr": "ProcInteraction_P_two.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_two.normalized.json",
+          "sha256": "62fd3aa5679d2abbedbfc8c67ea3d5001b0163d2b41eb8fded8f25f43ea5830f"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_two.translated.tla",
+        "sha256": "3095938364a0e619315f122bddc76dad567e69bd5a8281eab492ce28dd73624c"
+      },
+      "config": {
+        "path": "ProcInteraction_P_two.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_two.sany.stdout.gz",
+        "stdout_sha256": "afe0ce8aa1eafd1d866ca1671cfeaa0fe1742316a43042cf862eb88066e56852",
+        "stderr": "ProcInteraction_P_two.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "ProcInteraction_P_unicode",
+      "input": "ProcInteraction_P_unicode.tla",
+      "input_sha256": "0c27d891ce70c036431e4eff66e4faf9344979679b3d4c846741f60d78f0e47a",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_unicode.translation.stdout.gz",
+        "stdout_sha256": "ade733941a52cda97abee8e422e3239370bb748f513de20b3511fd4489323a92",
+        "stderr": "ProcInteraction_P_unicode.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_unicode.normalized.stdout.gz",
+        "stdout_sha256": "44f274019d3e61439d65340991e69b4feded63071878f9a4a5daf9b23fae6df4",
+        "stderr": "ProcInteraction_P_unicode.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "ProcInteraction_P_unicode.normalized.json",
+          "sha256": "2ed6b01cae9d7baa7a77f8c33ae5d7fbcb7056d9e03e49649e3f1bcad5da5bc7"
+        }
+      },
+      "translated": {
+        "path": "ProcInteraction_P_unicode.translated.tla",
+        "sha256": "75632548d8608b5e98d57f990dc482af5946c6142a082650ef3689e4d2aad730"
+      },
+      "config": {
+        "path": "ProcInteraction_P_unicode.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcInteraction_P_unicode.sany.stdout.gz",
+        "stdout_sha256": "2526de4014c644405fc0cdf974b761349fb510adf7a6e5f11845f608e745029e",
+        "stderr": "ProcInteraction_P_unicode.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}

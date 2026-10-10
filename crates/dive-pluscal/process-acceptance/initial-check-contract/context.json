@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "evidence_credit": false,
+  "reason": "Development validator wrongly expected check JSON to carry a validation flag; check JSON provides a trace, independent validate-trace provides the proof disposition. No native verdict/count/witness failure found. Script source was edited during that first run, so its end-read script_sha256 is not an immutable execution attestation. Subsequent fresh execution preserves the explicit independent replay and compares every worker/store trace to that replayed witness."
+}
