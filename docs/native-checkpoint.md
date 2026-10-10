@@ -145,3 +145,10 @@ supported. [Issue #164](https://github.com/Chelis-Lang/dive/issues/164) fixed an
 admission escape in dive; the [preserved before-and-after controls](../conformance/probes/native-checkpoint-keys/README.md)
 include the original effect and incomplete archive. Structurally valid public IR
 and an archive checksum do not authorize effects or independently prove safety.
+
+The configured-key path has a separate
+[current ordered-execution integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-keys-ordered-integration/verification.json):
+847 Rust tests, 144 recovery groups and 1,008 fresh CLI/witness runs, plus
+CM1/ValidationTestSuite at 1/4/8 requested workers. This source still executes
+recovery inline. The earlier 831-test and original 738-test studies retain their
+original source and observations; none are retagged as current execution.
