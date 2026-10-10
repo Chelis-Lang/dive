@@ -394,7 +394,8 @@
         108,
         109,
         130,
-        136
+        136,
+        140
       ],
       "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
       "interactions": [
@@ -403,7 +404,12 @@
         "F-016",
         "F-023",
         "F-031"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
+      ],
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-021",
@@ -418,7 +424,8 @@
         63,
         127,
         130,
-        136
+        136,
+        140
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [
@@ -426,7 +433,12 @@
         "F-007",
         "F-018",
         "F-019"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
+      ],
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-022",
@@ -439,7 +451,8 @@
       "conformance_evidence": "crates/dive-liveness/tests/lassos.rs; conformance/probes/tlc-tableau/README.md; crates/dive-liveness/tests/tlc_tableau.rs (bounded particle/promise identity only; strict execution pending)",
       "issues": [
         66,
-        136
+        136,
+        140
       ],
       "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
       "interactions": [
@@ -447,7 +460,12 @@
         "F-020",
         "F-021",
         "F-029"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
+      ],
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-023",
@@ -459,14 +477,20 @@
       "rust_evidence": "crates/dive-api/src/check.rs",
       "conformance_evidence": "docs/design/m6-plan.md",
       "issues": [
-        66
+        66,
+        140
       ],
       "acceptance": "Every accepted lncheck variant has matching enable/stop behavior; test TLC wall-clock decisions separately from deterministic level-boundary defaults, recording volatile fields.",
       "interactions": [
         "F-020",
         "F-022",
         "F-027"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
+      ],
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-024",

@@ -1,0 +1,8 @@
+/Users/jeff/code/dive-phase-l-work/conformance/probes/tlc-phase-l/ModelProbe.java:31: error: cannot find symbol
+  tla2sany.semantic.OpDeclNode[] vars=tool.getVariables();
+                                          ^
+  symbol:   method getVariables()
+  location: variable tool of type ITool
+Note: /Users/jeff/code/dive-phase-l-work/conformance/probes/tlc-phase-l/ModelProbe.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 error

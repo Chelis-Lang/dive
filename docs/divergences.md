@@ -260,3 +260,10 @@ unchecked group/tag/bin metadata, opaque/effectful scopes and resource limits
 remain named refusals. Strict integrated TLC liveness, phase-L timing, SCC and
 witness selection remain unsupported by this stage. Original configured/Action
 claims and derived role names stay separate; no new default is adopted.
+
+D-013 diagnostic phase-L receipts now retain concrete TLC successor slots and
+logical capacity history, with ordered null-tableau bins and separate initial
+consistency (ADR 0029). All receipts say graph_insertion=false. Tableau graph
+revisitation, wider diagnostic execution and unproved state-kind IF planning
+remain explicit refusals; strict integrated liveness remains unsupported. The
+original native error-order gaps (#147/#149) are retained and receive no match credit.

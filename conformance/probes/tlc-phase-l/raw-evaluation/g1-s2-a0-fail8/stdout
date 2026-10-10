@@ -1,0 +1,6 @@
+initial.log	
+completion	bin-and-disk-insertion
+log	g0.s0:source:-;g0.s1:source:-
+slots	0:first;1:second;2:source-copy
+capacity	16
+count	3

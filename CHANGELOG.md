@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add bounded diagnostic concrete phase-L receipts: TLC successor slots, first
+  representatives, logical capacity history and ordered null-tableau bins with
+  partial error/work evidence. Initial particle consistency is separate. Wider
+  diagnostic requests, tableau graph insertion, state-IF planning and opaque
+  values remain named refusals; no checking defaults or strict temporal claims change.
+
 - Add bounded diagnostic TLC binary particle tableaux: exact first-encounter
   node/edge order, state predicates, initial particles and promise identities.
   Complete pinned projections and independent periodic/closing-witness controls

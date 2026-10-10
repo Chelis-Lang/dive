@@ -30,3 +30,6 @@ pub mod tlc_plan;
 
 /// Bounded pinned TLC particle-tableau and promise projections.
 pub mod tlc_tableau;
+
+/// Bounded concrete successor receipts and ordered diagnostic phase-L checks.
+pub mod phase_l;

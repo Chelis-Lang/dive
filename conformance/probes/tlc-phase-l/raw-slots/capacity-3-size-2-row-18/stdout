@@ -1,0 +1,11 @@
+initial.capacity	3
+p0.duplicate	false
+p0.count	1
+p0.capacity	3
+p0.slots	0:first0
+p1.duplicate	false
+p1.count	2
+p1.capacity	7
+p1.slots	0:first0;1:first1
+iteration	first0;first1
+reset.iteration	first0;first1

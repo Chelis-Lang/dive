@@ -1135,3 +1135,25 @@ the prior panics; it is not an oracle result. Constructing an evaluator with an
 invalid redirect target can still panic before these endpoints run (#129).
 General caller-created IR/context validation remains a separate partial API
 obligation; this increment does not redesign the evaluator constructor.
+
+### D-013 implementation progress: concrete liveness successors
+
+ADR 0029 adds real concrete successor collection with internally derived TLC
+fingerprints, first representatives, grow-before-duplicate slot order and one
+logical multiplier history. Null-tableau OOS action bins precede state bins;
+initial tableau consistency is separately projected. Actual diagnostic execution
+is inline (one worker); wider requests are refused honestly. Every receipt says
+`graph_insertion=false`, and no receipt is proof evidence.
+
+The complete `conformance/probes/tlc-phase-l/` selections retain 55 structural
+controls, 35 actual synthetic LiveCheck controls, 51 bound model rows and 20 clean
+TLC runs. Completed field/error projections, invalid syntax, effects/introspection/
+state-IF refusals and tableau graph-pending rows are accounted separately. The
+prior planning IF mismatch (#147) and body-first nonstuttering mismatch (#149)
+remain available; conservative diagnostic refusal is not a match. Independent
+trace controls reject forged Next/closing edges and claims. Previous corpus
+reports are immutable and receive no new verdict credit.
+
+F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
+open: graph/product insertion, actual parallel commits, additional consistency/
+error ordering, SCC/lasso selection and scheduling must still be implemented.
