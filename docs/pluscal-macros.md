@@ -151,7 +151,7 @@ options, exact pretty width and mapping-format parity are pending. A translated
 artifact is never a model proof; F-034/F-035 remain partial and audit-required.
 See [ADR 0039](decisions/0039-pluscal-macro-substitution.md).
 
-Fresh combined-source verification repeats the complete 222-row selection,
+Earlier combined-source verification, before ordered temporal execution, repeats the complete 222-row selection,
 134 full-CST/SANY artifacts, 132 finite models (792 width/store runs), 25 valid
 witnesses and 100 rejected mutants. All 54 CLI invalid-artifact controls and
 44 document corruptions still reject. The current implementation passed the
@@ -160,3 +160,13 @@ witnesses and 100 rejected mutants. All 54 CLI invalid-artifact controls and
 [The current receipt](../conformance/probes/native-parity-integration/current-controls/macros-integration/verification.json)
 records the binary/source identities separately from the immutable original
 macro delivery; none of these controls certifies the full translator family.
+
+A separate macro-plus-ordered-execution source passed all 846 workspace tests,
+20 Python tests and 11 source checkers. Its fresh release repeats the complete
+222-row census, 134 enclosing CST/SANY artifacts, 132 finite models and
+792 width/store controls, with 25 independently valid witnesses and 100 rejected
+mutants. CM1's 21 models and all 16 ValidationTestSuite models fully agree at
+1/4/8 workers; four macro guide CLI examples pass.
+[This source-qualified receipt](../conformance/probes/native-parity-integration/current-controls/macros-ordered-execution-integration/verification.json)
+preserves the prior source's results and precedes the procedure-graph increment;
+none of these bounded studies certifies the entire translator.

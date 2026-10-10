@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "stage": "macro-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "a2fcbcdf409271e115e335bb33add08621ebca135cde7f5a26c5693b28f57ccb",
+  "comparator_sha256": "5acd942d6cd0d3a12b7dd523be7d91aead5ff6936aaed607a45c93d1780362f7",
+  "native_sha256": "84258dd446fb7006e5a7df3c78c7ce31672002c435842d351f4636c1988fa42e",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 32,
+  "summary": {
+    "token-artifact-match": 24,
+    "native-refusal": 8
+  },
+  "rows": [
+    {
+      "id": "MacroProcess_C_auto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "25023d20eeb40a2598ae11fe9da69d0ab9ed18a0578184014c2f9659dc105ff7",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_fair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d1e17be85cfe6abe581a79e06fc36f461fbae17da551630b03f2ae5810be87da",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_foreign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: cross-process local-variable scope",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_C_free_self",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_C_id",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_C_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_mixed",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_C_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_set",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "484ddcac8a645e5b4b5ccaa3388e696dafce9f2389219ffc958f40702973bd57",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "484ddcac8a645e5b4b5ccaa3388e696dafce9f2389219ffc958f40702973bd57",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a50938c44de359ffa0526743aee42c403fa5cf91fa9d00f7374138397a1ea3ca",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d1e17be85cfe6abe581a79e06fc36f461fbae17da551630b03f2ae5810be87da",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_wfnext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b783a56f342309e183c5e6d11d5fc54bcffeb59f59dfd162fffae4cab7f2edb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_C_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "0f9fd6cb304cff9318b05d3d1002e96c370670051ba9bdfcdbcf9dbc4cd3d196",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_auto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "25023d20eeb40a2598ae11fe9da69d0ab9ed18a0578184014c2f9659dc105ff7",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_fair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d1e17be85cfe6abe581a79e06fc36f461fbae17da551630b03f2ae5810be87da",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_foreign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: cross-process local-variable scope",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_P_free_self",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_P_id",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_P_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_mixed",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroProcess_P_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_set",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3739d5f3b9d29f39c92bb41f9613c28c308cea677e7e04559eeca9653d3982f",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "484ddcac8a645e5b4b5ccaa3388e696dafce9f2389219ffc958f40702973bd57",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "484ddcac8a645e5b4b5ccaa3388e696dafce9f2389219ffc958f40702973bd57",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a50938c44de359ffa0526743aee42c403fa5cf91fa9d00f7374138397a1ea3ca",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d1e17be85cfe6abe581a79e06fc36f461fbae17da551630b03f2ae5810be87da",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_wfnext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b783a56f342309e183c5e6d11d5fc54bcffeb59f59dfd162fffae4cab7f2edb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroProcess_P_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "0f9fd6cb304cff9318b05d3d1002e96c370670051ba9bdfcdbcf9dbc4cd3d196",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}
