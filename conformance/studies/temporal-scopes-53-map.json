@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "kind": "historical-temporal-blocker-map",
+  "source_report": "conformance/reports/studies/small-temporal-53-final-short-tlc.json",
+  "source_report_sha256": "db1cc630e4e10af004da1073aeed51a3d92f830942652210e48ab9a4066538f9",
+  "source_binary_sha256": "62bc8577aef390ded5134c0a487a6c40fd48d2e6b554ec9ec334feb351914e86",
+  "claim": "Read-only classification of all53 historical outcomes; no rerun, no new matches, no performance or strict conformance claim. The old binary predates later scope/domain increments.",
+  "rows": [
+    {
+      "model": "specifications/CoffeeCan/CoffeeCan1000Beans.cfg",
+      "workers": 1,
+      "original_outcome": "timeout",
+      "original_detail": "study timeout; no verdict",
+      "next_diagnosis": "runtime unknown; performance/resource study required",
+      "families": [
+        "F-019",
+        "F-031"
+      ]
+    },
+    {
+      "model": "specifications/CoffeeCan/CoffeeCan100Beans.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/DiningPhilosophers/DiningPhilosophers.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg",
+      "workers": 1,
+      "original_outcome": "timeout",
+      "original_detail": "study timeout; no verdict",
+      "next_diagnosis": "runtime unknown; performance/resource study required",
+      "families": [
+        "F-019",
+        "F-031"
+      ]
+    },
+    {
+      "model": "specifications/Disruptor/MCDisruptor_SPMC.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "resource-limit: temporal product resource limit: acceptance cells",
+      "next_diagnosis": "bounded temporal acceptance product",
+      "families": [
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: graph capture with VIEW or SYMMETRY",
+      "next_diagnosis": "symmetry/view graph capture",
+      "families": [
+        "F-016",
+        "F-018",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/FlashProtocol/MCFlashWithMutexLive.cfg",
+      "workers": 1,
+      "original_outcome": "timeout",
+      "original_detail": "study timeout; no verdict",
+      "next_diagnosis": "runtime unknown; performance/resource study required",
+      "families": [
+        "F-019",
+        "F-031"
+      ]
+    },
+    {
+      "model": "specifications/LoopInvariance/MCBinarySearch.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/LoopInvariance/MCQuicksort.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0033: liveness atom for Termination at line 293, col 20 to line 293, col 23 of module Quicksort: unsupported: bounded bindings require an explicit set or interval",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/MisraReachability/MCParReach.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 148, col 12 to line 148, col 47 of module ParReach: opaque substituted predicate atom (at line 120, col 63 to line 120, col 66 of module ParReach)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/MultiCarElevator/ElevatorLivenessMedium.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 221, col 8 to line 221, col 49 of module Elevator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 44, col 1 to line 47, col 37 of module Elevator)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Prisoners/Prisoners.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Prisoners_Single_Switch/Prisoner.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Prisoners_Single_Switch/PrisonerSolo.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ReadersWriters/MC.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 91, col 8 to line 91, col 52 of module ReadersWriters: higher-order predicate argument (at line 25, col 40 to line 25, col 63 of module ReadersWriters)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 1150, col 8 to line 1150, col 40 of module SPA_Attack_New: higher-order predicate argument (at line 855, col 19 to line 855, col 58 of module SPA_Attack_New)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 1138, col 8 to line 1138, col 40 of module SPA_Attack: higher-order predicate argument (at line 848, col 19 to line 848, col 58 of module SPA_Attack)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SingleLaneBridge/MC.cfg",
+      "workers": 1,
+      "original_outcome": "timeout",
+      "original_detail": "study timeout; no verdict",
+      "next_diagnosis": "runtime unknown; performance/resource study required",
+      "families": [
+        "F-019",
+        "F-031"
+      ]
+    },
+    {
+      "model": "specifications/SpanningTree/SpanTree.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpanningTree/SpanTreeRandom.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 66, col 34 to line 66, col 46 of module SpanTreeRandom: effects or dynamic bindings in temporal planning (at line 66, col 34 to line 66, col 46 of module SpanTreeRandom)",
+      "next_diagnosis": "random/effectful temporal semantics",
+      "families": [
+        "F-024",
+        "F-026",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpanningTree/SpanTreeTest4Nodes.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: graph capture with random operators",
+      "next_diagnosis": "random/effectful temporal semantics",
+      "families": [
+        "F-024",
+        "F-026",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 18, col 14 to line 18, col 53 of module LiveInternalMemory: dynamically bound predicate operator (at line 34, col 14 to line 34, col 46 of module InternalMemory)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 17, col 16 to line 18, col 63 of module LiveWriteThroughCache: dynamically bound predicate operator (at line 57, col 16 to line 57, col 48 of module WriteThroughCacheInstanced)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match; independently validated against a fresh independent model. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/YoYo/MCYoYoNoPruning.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/YoYo/MCYoYoPruning.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 214, col 42 to line 214, col 45 of module YoYoPruning: unsupported: bounded bindings require an explicit set or interval",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/YoYo/YoYoAllGraphs.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0033: liveness atom for Liveness at line 198, col 42 to line 198, col 45 of module YoYoAllGraphs: unsupported: bounded bindings require an explicit set or interval",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/acp/ACP_NB_TLC.cfg",
+      "workers": 1,
+      "original_outcome": "timeout",
+      "original_detail": "study timeout; no verdict",
+      "next_diagnosis": "runtime unknown; performance/resource study required",
+      "families": [
+        "F-019",
+        "F-031"
+      ]
+    },
+    {
+      "model": "specifications/allocator/AllocatorImplementation.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 141, col 6 to line 141, col 75 of module AllocatorImplementation: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 141, col 33 to line 141, col 74 of module AllocatorImplementation)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/allocator/AllocatorRefinement.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 120, col 6 to line 120, col 75 of module SchedulingAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 120, col 33 to line 120, col 74 of module SchedulingAllocator)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/allocator/SchedulingAllocator.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 120, col 6 to line 120, col 75 of module SchedulingAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 120, col 33 to line 120, col 74 of module SchedulingAllocator)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/allocator/SimpleAllocator.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 74, col 6 to line 74, col 72 of module SimpleAllocator: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 74, col 32 to line 74, col 71 of module SimpleAllocator)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/bcastByz/bcastByz.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0033: liveness atom for CorrLtl at line 167, col 25 to line 171, col 74 of module bcastByz: unsupported: bounded bindings require an explicit set or interval",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/bcastByz/bcastByzNoBcast.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/byzpaxos/Consensus.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/chang_roberts/MCChangRoberts.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ewd426/TokenRing.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ewd840/EWD840.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0033: liveness atom for TDSpec at line 53, col 42 to line 53, col 58 of module SyncTerminationDetection: unsupported: a variable of an instantiated module, hidden by ENABLED, with no root variable of its name (line 44, col 6 to line 44, col 25 of module SyncTerminationDetection)",
+      "next_diagnosis": "substituted ENABLED variable context",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ewd840/SyncTerminationDetection.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ewd998/AsyncTerminationDetection.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/ewd998/EWD998ChanID.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 203, col 17 to line 203, col 49 of module EWD998ChanID: predicate quantifier bindings: unsupported: bounded bindings require an explicit set or interval (at line 37, col 3 to line 37, col 55 of module EWD998ChanID)",
+      "next_diagnosis": "finite/deferred or recursive domains (diagnose current source separately)",
+      "families": [
+        "F-006",
+        "F-007",
+        "F-019"
+      ]
+    },
+    {
+      "model": "specifications/glowingRaccoon/product.cfg",
+      "workers": 1,
+      "original_outcome": "unsupported",
+      "original_detail": "unsupported: DIVE-L0020: unsupported liveness planning in line 169, col 12 to line 169, col 26 of module product: recursive/overridden/higher-order temporal call (at line 105, col 43 to line 105, col 60 of module product)",
+      "next_diagnosis": "retained scope/higher-order/recursive operator",
+      "families": [
+        "F-006",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/glowingRaccoon/stages.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/nbacg_guer01/nbacg_guer01.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    },
+    {
+      "model": "specifications/tcp/MCtcp.cfg",
+      "workers": 1,
+      "original_outcome": "matches-truth-and-counts",
+      "original_detail": "truth/counts match. Final verdict truth and counts only; no TLC temporal error-class, phase-L timing, property-set selection or exact-lasso conformance claim.",
+      "next_diagnosis": "prior final/short match; strict temporal certification pending",
+      "families": [
+        "F-019",
+        "F-020",
+        "F-021"
+      ]
+    }
+  ]
+}

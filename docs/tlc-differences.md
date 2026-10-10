@@ -1106,6 +1106,45 @@ A Rust caller can construct an unchecked expression ID; the captured-filter
 proof rejects it without a panic, rather than treating the absence of metadata
 as proof of purity. General caller-created IR validation is a separate API gap.
 
+**D-013 retained temporal argument update:** pure expression arguments such as
+`Identity([]<>x)` now keep their caller context, including a captured `LET`
+value or a nested substituted module body. The pinned direct/local/body pairs
+hold or violate with 3 generated states, 2 distinct states and depth 2. On the
+explicit final/short path both profiles reproduce truth/counts; every returned
+violation is checked independently, including Init, Next, fairness and its
+closing edge. This is not exact TLC lasso/tableau or phase-L conformance.
+
+An exported INSTANCE parameter is still a limit. The minimal paired examples
+in `conformance/probes/temporal-forwarding/specs/TfInstanceHolds/` and
+`TfInstanceFails/` pass SANY but TLC reports 2213/exit 255 at the inner formal:
+
+```tla
+\* Inside the instantiated Leaf:
+Identity(p) == p
+Claim(p) == Identity(p)
+\* At the root, after two INSTANCE substitutions:
+P == I!Claim([]<>x)
+```
+
+dive's temporal planning and independent periodic validation refuse temporal
+arguments inside retained INSTANCE contexts. The accepted body-forwarding
+example uses a zero-arity `Claim == []<>v` in Leaf and `Identity(I!Claim)` at the
+root. No broader acceptance option or new default is adopted from this finding.
+Opaque captured operators, recursive local-function domain proofs and more
+complex ENABLED scope covers remain unsupported. The existing recursive paired
+probes are retained; their self-binding and branch-sensitive finite preflight
+must be proved before admission.
+
+
+Unchecked Rust expression references and retained lazy expression IDs now
+produce typed refusals at the planner/periodic endpoints, including missing
+scoped definitions. Missing references have no invented source span. The raw
+native `native-unchecked-context-before.*` repro in the probe directory records
+the prior panics; it is not an oracle result. Constructing an evaluator with an
+invalid redirect target can still panic before these endpoints run (#129).
+General caller-created IR/context validation remains a separate partial API
+obligation; this increment does not redesign the evaluator constructor.
+
 ### Current limitation: runtime names in TLC order (#122)
 
 A model such as `s' = (CHOOSE t \in {ToString(x), ToString(x+1)} : TRUE)`

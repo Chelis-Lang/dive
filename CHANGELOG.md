@@ -33,6 +33,12 @@ All notable changes to this project are documented here. The project will follow
   worker selection seeds. Depth-bound stops never claim model safety, and every
   claimed violation is independently certified. Remaining mode/output contracts
   refuse by name; TLC's stale cross-root witness is retained as reference evidence.
+- Retain pure temporal expression arguments through local and nested substituted
+  caller scopes on the final/short path, including supported ENABLED formulas.
+  Fresh independent periodic/whole-trace controls cover closing edges and forged
+  witnesses. Exported INSTANCE temporal formals and recursive/higher-order
+  domains remain named refusals; no limits or defaults change.
+
 - Final/short temporal bindings admit closed pure captured filters over bounded
   finite structural inputs, and maps over those filters. Input work is bounded
   before predicate evaluation, cached filters retain their original upper bound,
