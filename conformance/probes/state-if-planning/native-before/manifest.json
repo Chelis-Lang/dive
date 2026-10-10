@@ -1,0 +1,14 @@
+{
+  "scope": "native source conversion falsely completed before repair; baseline regression fails on actual pinned planning2179",
+  "sha256": {
+    "source-context-assertion.log.gz": "9d12abf193c9c7cf85e307ebca40f1997dd27c5d34c64831aebdd5de3653178d",
+    "junction-conversion-failure.log.gz": "92b1c8c3f5886dfcebaaba6feab37e93ed3b6ebe83e023726012c9722b9e1ad4",
+    "baseline-test.rs.gz": "c81d329f99f3654eb76ea6f63a5db848944c07092f83de41e2fe8f1643e0034b",
+    "initial-clippy.log.gz": "bce0b8fbbcab03b65ce0d424fc6644add06f2c567cc81a30ce24bec6077e7710",
+    "baseline-failure.log.gz": "4bb5e9a8c8a8799a17122c4f1b9f289e0d80bff408ebca643d7754b8eb6f4565",
+    "initial-new-test-compile.log.gz": "626951a727461a691feba4ba52c0b244ddb0f40f1ad9078058b344ec1f54c684",
+    "equivalence-boundary-failure.log.gz": "39dffd4a7ec7c47158ced2ce740788ea278e4e15164aeb187927151b583c2a1b",
+    "crates/dive-liveness/src/plan.rs.gz": "5718a53f0547816ec1cb9a810756d794602a925a1b9e755421c2ff62e4c0a07c",
+    "crates/dive-api/src/check.rs.gz": "de29fc566c66432bd2179d951eb873cf8060ee844baead8ec3ed36f459f3d6a9"
+  }
+}

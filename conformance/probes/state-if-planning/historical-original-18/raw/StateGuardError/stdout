@@ -1,0 +1,4 @@
+phase	planning
+completion	evaluation-error
+error_code	2179
+message	The second argument of \div is 0.

@@ -1,0 +1,4 @@
+phase	binding
+completion	tlc-error
+error_code	3002
+message	Parsing or semantic analysis failed.

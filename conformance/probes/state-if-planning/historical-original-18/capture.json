@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reason": "Issue 147: complete original conditional selection including pre-planning SANY action rejections; preserve initial capture",
+  "scope": "actual planning only; no state-space or verdict credit",
+  "rows": [
+    {
+      "id": "StateThenError",
+      "expression": "IF x = 1 THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateElseError",
+      "expression": "IF x = 1 THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateThenFalse",
+      "expression": "IF x = 1 THEN FALSE ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "StateValid",
+      "expression": "IF x = 1 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantSkipThen",
+      "expression": "IF FALSE THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantSkipElse",
+      "expression": "IF TRUE THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ConstantChosenThen",
+      "expression": "IF TRUE THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "ConstantChosenElse",
+      "expression": "IF FALSE THEN x = 2 ELSE 1 \\div 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "StateBothErrors",
+      "expression": "IF x = 1 THEN 1 \\div 0 = 0 ELSE 1 % 0 = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "ConstantBadGuard",
+      "expression": "IF 1 THEN x = 1 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 1"
+      }
+    },
+    {
+      "id": "StateNonBoolThen",
+      "expression": "IF x = 1 THEN 42 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 42"
+      }
+    },
+    {
+      "id": "StateNonBoolElse",
+      "expression": "IF x = 1 THEN x = 2 ELSE 42",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "tlc-error",
+        "error_code": "2215",
+        "message": "TLC expected a boolean value, but did not find one. 42"
+      }
+    },
+    {
+      "id": "NestedState",
+      "expression": "IF x = 1 THEN (IF x = 0 THEN 1 \\div 0 = 0 ELSE x = 2) ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "LetState",
+      "expression": "LET B == 1 \\div 0 = 0 IN IF x = 1 THEN B ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    },
+    {
+      "id": "CallState",
+      "expression": "F(x = 1)",
+      "exit": 0,
+      "fields": {
+        "completion": "planned",
+        "groups": "1",
+        "g0.state": "0",
+        "g0.action": "1",
+        "g0.tableau": "false"
+      }
+    },
+    {
+      "id": "ActionThenError",
+      "expression": "IF x' = 1 THEN 1 \\div 0 = 0 ELSE x = 2",
+      "exit": 0,
+      "fields": {
+        "phase": "binding",
+        "completion": "tlc-error",
+        "error_code": "3002",
+        "message": "Parsing or semantic analysis failed."
+      }
+    },
+    {
+      "id": "ActionValid",
+      "expression": "IF x' = 1 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "binding",
+        "completion": "tlc-error",
+        "error_code": "3002",
+        "message": "Parsing or semantic analysis failed."
+      }
+    },
+    {
+      "id": "StateGuardError",
+      "expression": "IF x = 1 /\\ 1 \\div 0 = 0 THEN x = 2 ELSE x = 0",
+      "exit": 0,
+      "fields": {
+        "phase": "planning",
+        "completion": "evaluation-error",
+        "error_code": "2179",
+        "message": "The second argument of \\div is 0."
+      }
+    }
+  ],
+  "source_sha256": {
+    "PlanningProbe.java": "c409d2627a3919d4bd7b22c4c56846115deb93ba4e7aa09686664f3dd91184b3",
+    "capture.py": "0c4ae7ca593224342d90495d7a584568fca65e4425cf0e5d99e49c1f11c4bc59",
+    "models/ActionThenError/ActionThenError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ActionThenError/ActionThenError.tla": "340cb1821385dffc6ed006ae5117700d500fa7e5faee635b444cff9ac13f2170",
+    "models/ActionValid/ActionValid.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ActionValid/ActionValid.tla": "959e8f164cbfb3f673f615bd09cf0b4885a9494c2de04dfe78bbf46cec03be64",
+    "models/CallState/CallState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/CallState/CallState.tla": "2462e4435bedd510d94f5dcf519e8a5c05f02a9392f9a30ff0ca13664e78400b",
+    "models/ConstantBadGuard/ConstantBadGuard.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantBadGuard/ConstantBadGuard.tla": "8f667695f40554997434a5807cca6e96c89473a8a049be4021527dfcdb64b4de",
+    "models/ConstantChosenElse/ConstantChosenElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantChosenElse/ConstantChosenElse.tla": "72ef697b90c76f288c88231708126a59cab5c3fec94da53d117bf3dc8d277673",
+    "models/ConstantChosenThen/ConstantChosenThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantChosenThen/ConstantChosenThen.tla": "6e9df47b9e7ed03a8c60bb278b2af51f5e01d6b9e4d2417d404569dd3ff93b93",
+    "models/ConstantSkipElse/ConstantSkipElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantSkipElse/ConstantSkipElse.tla": "1edcbff4c806d39e159127b7d86cd7195ac8f5464bb1819c8438b0a028e06250",
+    "models/ConstantSkipThen/ConstantSkipThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/ConstantSkipThen/ConstantSkipThen.tla": "4daffdadff8b9c8711d46aa18f8791402ba2d582d6ce53fff4f819cb0fc69691",
+    "models/LetState/LetState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/LetState/LetState.tla": "e2acf4dc22ea638a6802e7c07813b4637e46dd72be5b453dd1519a1568711547",
+    "models/NestedState/NestedState.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/NestedState/NestedState.tla": "3a32edd17971ff1fba46205205486650bbd72d127335164613cae23e44c0c72b",
+    "models/StateBothErrors/StateBothErrors.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateBothErrors/StateBothErrors.tla": "109c049e346763457a8cd9822baf26fae200a29d99d1a4100611e7242660cc10",
+    "models/StateElseError/StateElseError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateElseError/StateElseError.tla": "5a2c3bfe58267a035db39a5492129d22323585a505470b96a6995477fb05bb5a",
+    "models/StateGuardError/StateGuardError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateGuardError/StateGuardError.tla": "b1a4f1153d7e8626df6c5d5a67fbbdaef238f6344518b6eb6fd4685294d9fcb8",
+    "models/StateNonBoolElse/StateNonBoolElse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateNonBoolElse/StateNonBoolElse.tla": "be697c14e6fb88f398e835547dc65f6b6bc8030b7840a468cdcc55ca8e4191ff",
+    "models/StateNonBoolThen/StateNonBoolThen.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateNonBoolThen/StateNonBoolThen.tla": "c014ff457d909b2fbc7351904aeca0697760e168b20e9ce408e1ff5405094ff4",
+    "models/StateThenError/StateThenError.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateThenError/StateThenError.tla": "acdf0518e2c6eeea67eb65788444a252d45dd5394e4acfca3a2d2f169d9fecc9",
+    "models/StateThenFalse/StateThenFalse.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateThenFalse/StateThenFalse.tla": "d1cb844a34f87450f105de7b78679bf6b5de50ab60d530429d4e766e64d8d2ec",
+    "models/StateValid/StateValid.cfg": "b2f93b9b46cec6d7b6374931a4cf9ef963ff1a9bcf97d76608ddee476f64a030",
+    "models/StateValid/StateValid.tla": "ce2265c913d057d2b8ddd1633529a44ec64380ff8d310012fe9a4d7dff45a8d2"
+  },
+  "raw_sha256": {
+    "compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw/ActionThenError/stdout": "331545e74891dabc1065f27c4eb94528cffce474090a0ff9ec52da363b338edb",
+    "raw/ActionValid/stdout": "331545e74891dabc1065f27c4eb94528cffce474090a0ff9ec52da363b338edb",
+    "raw/CallState/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/ConstantBadGuard/stdout": "beb5ee68d33fd1ac23e4ecfd8acc66f668c4528df3d17ddd3b040374715c1da7",
+    "raw/ConstantChosenElse/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/ConstantChosenThen/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/ConstantSkipElse/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/ConstantSkipThen/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/LetState/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/NestedState/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateBothErrors/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateElseError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateGuardError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateNonBoolElse/stdout": "e473f89d32bf7c7b871fdcc751198f53789cf1cb70c57badaf32927692d4021e",
+    "raw/StateNonBoolThen/stdout": "e473f89d32bf7c7b871fdcc751198f53789cf1cb70c57badaf32927692d4021e",
+    "raw/StateThenError/stdout": "c9a5c1799cc0f5b4095f69a877fbe715b6a77eda6fe4def2db5c6b106e96be83",
+    "raw/StateThenFalse/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/StateValid/stdout": "1f7ddcfeb69d124cab528d6bf675465779885f89bcf18ef8f73a602f60faa945",
+    "raw/ActionThenError/stderr": "41e847bd0cc679d155a1b1bf99f17b712fa8fa66e5a7ce46afed609e458ea99d",
+    "raw/ActionValid/stderr": "7d9eb72f1dc3ea335c48010bc5c3ff4afe25c1dfc51a61f3551514d52bd2c9c8",
+    "raw/CallState/stderr": "2e0517da950be2f57dbc224cf54d0e191586962123f2956bf7ffb249ca25aa31",
+    "raw/ConstantBadGuard/stderr": "09c934922d20aad57bf9c0e5f37f7637c3db2d61e9f3fc118ab1d241509033af",
+    "raw/ConstantChosenElse/stderr": "ebfd0b7d3b48c04247f1ca00e8bf326a378f9fbbef27a2b3851272888131d154",
+    "raw/ConstantChosenThen/stderr": "6f345b91940d13dc96472b667c67e26d599cb3bce4cbbdfe478dd1036f59ecf8",
+    "raw/ConstantSkipElse/stderr": "a95af963cef06ed9aaec864041f3e674d39f12ce193e9602d785bf8cce2bdca7",
+    "raw/ConstantSkipThen/stderr": "e2ec3055c05f0e836429acfd7cc41b3581d630f6a7dd73e644b99861deeed7f8",
+    "raw/LetState/stderr": "8fc2eb3e9b35acca184427e5f6dee3256b3921126a776a30f1525a2a885cc137",
+    "raw/NestedState/stderr": "f1a29c060a2255c3b59824d0596f1bbdb4858068113e7dd0c0b772af133f092d",
+    "raw/StateBothErrors/stderr": "c7d35cb5478fcb40942eac8c9c7d35208ba329dd29a0e468f6d8d6ba743e7633",
+    "raw/StateElseError/stderr": "539e96130adf75c420ae287fe4fbee8b5a3fdca8504e367226b32f5b168ed7a1",
+    "raw/StateGuardError/stderr": "07d6fab6ae64ce6e7bf346dba2568605f376cf86102efea4454fdf2df8dc1d05",
+    "raw/StateNonBoolElse/stderr": "60359a6fff547640b47b3e3134d648cee086f73ffd59e1f12c7a7327aa82e5bc",
+    "raw/StateNonBoolThen/stderr": "48b03c5c450068ce588ff1ae9869ed0c841a889407e6cdfa128b134a229770a8",
+    "raw/StateThenError/stderr": "0fe6960ef491e1b6c9f8b002b46d2cda6a67616567b028d3a0a2a9c88d68e6c7",
+    "raw/StateThenFalse/stderr": "e553415837054191b56812997a019ab0a50aca0fdb6d668132de476bcd36d34d",
+    "raw/StateValid/stderr": "0cd0e4a969f6dc17fa932e8851d85261f50dc120583df9b0af0f6d900ba9b151"
+  }
+}

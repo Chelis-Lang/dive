@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- TLC-shaped temporal planning preserves eager state-conditional conversion
+  failures, typed TLC errors and source-order fallback before graph work.
+
 - Native PlusCal translation now admits one unfair constant-ID or finite-set
   process in current C/P syntax, matching scalar/indexed local storage, indexed
   program counters, process action scheduling and terminating stutter. Missing

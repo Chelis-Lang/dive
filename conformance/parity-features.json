@@ -405,7 +405,8 @@
         107,
         127,
         130,
-        136
+        136,
+        147
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -418,7 +419,8 @@
         "conformance/probes/temporal-forwarding/README.md",
         "crates/dive-api/tests/temporal_forwarding.rs",
         "conformance/probes/tlc-planning/README.md",
-        "crates/dive-liveness/tests/tlc_planning.rs"
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/state-if-planning/README.md"
       ],
       "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -428,7 +430,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Conditional conversion now preserves deciding2179/2215 and call fallback on24 pinned controls. Successful phase-L IF admission and full source conversion remain partial; no strict verdict credit."
     },
     {
       "id": "F-020",

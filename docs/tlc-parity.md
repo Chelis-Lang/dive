@@ -425,6 +425,16 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+
+### Conditional planning error precedence (#147)
+
+The TLC-shaped planner now preserves eager IF/boolean conversion errors and
+nonrecursive-call fallback, with typed TLC errors and original source context.
+All24 selected cases include two pre-planning SANY rejections. The original18
+and every development failure remain visible. Actual state-space counts and
+strict integrated temporal results receive no new credit; F-019 stays partial
+and audit-required. See ADR0036 and the owned state-if-planning probes.
+
 PlusCal process evidence now includes [a bounded single-process increment](pluscal-processes.md):
 242 retained rows and 26 finite model controls with independent witnesses. This
 does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and

@@ -1443,3 +1443,13 @@ captured providers are refused before execution; per-source speculative quotas
 can reject a skewed level conservatively. Independent validation still decides
 a concrete periodic word and its claims, rather than trusting graph metadata.
 No graph result or diagnostic receipt claims a model proof.
+
+D-013 planning/error-order update (#147): `[]<>(IF x = 1 THEN 1 \div 0 = 0
+ELSE x = 2)` raises TLC code2179 before any exploration, even if a reachable
+state would not select the erroneous branch. The TLC-shaped native planner now
+preserves that error and the reference's distinct user-call/boolean fallbacks.
+No alternate default is adopted: independent formula evaluation keeps its
+existing semantics, and strict integrated liveness remains unsupported. Complete
+24 current controls, original18 and the native false completion are retained in
+`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
+conservative. This is a native limitation repair, not family certification.
