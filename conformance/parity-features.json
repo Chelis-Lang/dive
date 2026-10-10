@@ -695,7 +695,11 @@
         "F-019",
         "F-028",
         "F-034"
-      ]
+      ],
+      "additional_evidence": [
+        "crates/dive-conformance/src/dive.rs"
+      ],
+      "notes": "Relative implementation executable paths resolve before child model directories change; launch-path regression is covered. Corpus and release certification remain partial."
     },
     {
       "id": "F-037",
