@@ -1423,3 +1423,27 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+**D-008 PlusCal fairness formatter observation:** the pinned translator prints
+an **87-column** fairness line with its default **78-column** setting for:
+
+```tla
+--algorithm A {
+  variables g=0;
+  fair process (P \in{1,2}) variables x=0;
+  { L: + x:=1; E: - g:=x; }
+}
+```
+
+`ProcessFairness.singleLineWidth` omits the sole quantifier-prefix line and
+conjunction separator. The retained `FairPositive_C_set_weak_both` primary output
+shows the 87-column line. Current native translation preserves its measured
+junction grouping in both profiles; full width/layout improvement is pending.
+No alternate formatting default is silently adopted. Long-label controls also
+compare full operator CST, since moving TLA junction indentation can change
+expression structure. See [the fairness evidence](pluscal-fairness.md).

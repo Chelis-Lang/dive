@@ -110,8 +110,8 @@ fn retained_selection(
 }
 #[test]
 fn retained_process_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
-    retained_selection("", 208, 92)?;
-    retained_selection("interactions", 16, 2)?;
+    retained_selection("", 208, 96)?;
+    retained_selection("interactions", 16, 8)?;
     retained_selection("subscripts", 12, 8)?;
     retained_selection("names", 6, 0)
 }
@@ -149,11 +149,9 @@ fn process_labels_require_explicit_insertion_and_remain_source_mapped()
     Ok(())
 }
 #[test]
-fn process_name_shadowing_and_fairness_refuse_without_artifacts() {
+fn process_name_shadowing_and_unproved_bindings_refuse_without_artifacts() {
     for source in [
         "--algorithm A variable x=0; process P =1 variables x=1; begin L: x:=2; end process; end algorithm",
-        "--algorithm A fair process P \\in{1,2} begin L: skip; end process; end algorithm",
-        "--algorithm A process P \\in{1,2} begin L:+ skip; end process; end algorithm",
         "--algorithm A process P \\inS begin L: skip; end process; end algorithm",
         "--algorithm A process P =1 variables x=self; begin L: skip; end process; end algorithm",
     ] {
@@ -162,4 +160,20 @@ fn process_name_shadowing_and_fairness_refuse_without_artifacts() {
             "{source}"
         );
     }
+}
+
+#[test]
+fn former_fairness_refusals_are_complete_generated_artifacts()
+-> Result<(), Box<dyn std::error::Error>> {
+    for source in [
+        "--algorithm A fair process P \\in{1,2} begin L: skip; end process; end algorithm",
+        "--algorithm A process P \\in{1,2} begin L:+ skip; end process; end algorithm",
+    ] {
+        let artifact = translate(source, &TranslationOptions::default())?;
+        assert!(artifact.program_counter);
+        assert_eq!(artifact.actions, ["L"]);
+        assert_eq!(artifact.processes.len(), 1);
+        assert!(artifact.tla.contains("P(self)"));
+    }
+    Ok(())
 }

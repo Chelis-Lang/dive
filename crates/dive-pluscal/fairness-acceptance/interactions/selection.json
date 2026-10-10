@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "FairInteraction_P_wrapped",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_P_multiline",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_P_comment",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_P_tab",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_C_wrapped",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_C_multiline",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_C_comment",
+      "options": []
+    },
+    {
+      "id": "FairInteraction_C_tab",
+      "options": []
+    }
+  ]
+}

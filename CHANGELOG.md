@@ -5,12 +5,19 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded single-process PlusCal translation supports weak/strong declarations,
+  post-colon `+`/`-` label modifiers and pinned `-nof`/`-wf`/`-sf`/`-wfNext`
+  option precedence. Full operator CST checks preserve fairness quantifier and
+  junction grouping. API/CLI artifacts remain validated modules, never model
+  proofs; multiple blocks, procedure fairness and unproved domain normalization
+  remain named refusals (#155).
+
 - Native PlusCal translation now admits one unfair constant-ID or finite-set
   process in current C/P syntax, matching scalar/indexed local storage, indexed
   program counters, process action scheduling and terminating stutter. Missing
   process labels require explicit `--label`, matching the pinned process default.
   JSON returns process source/storage metadata and local default-init `.cfg`
-  bindings. Multiple blocks, fairness and unproved renaming remain named refusals;
+  bindings. Multiple blocks and unproved renaming remain named refusals;
   artifacts are validated modules, never model proofs (#150). Global `pc` is now
   rejected even when generated pc storage is omitted, matching its unconditional
   reserved symbol and correcting an inherited false translator acceptance.

@@ -1,5 +1,5 @@
 //! Bounded one-process admission before existing label/control normalization.
-use super::{TranslationError, TranslationOptions, TranslationStage, error, lower};
+use super::{FairnessOption, TranslationError, TranslationOptions, TranslationStage, error, lower};
 use crate::{
     Code, Parsed,
     ast::{BindingKind, Body, Fairness, Process, Span},
@@ -57,18 +57,6 @@ pub(super) fn normalize(
         ));
     }
     let process = &processes[0];
-    if process.fairness != Fairness::Unfair
-        || parsed.algorithm.fairness != Fairness::Unfair
-        || parsed
-            .statements
-            .iter()
-            .any(|s| s.label.as_ref().is_some_and(|l| l.modifier.is_some()))
-    {
-        return Err(unsupported(
-            process.span,
-            "process/label fairness normalization",
-        ));
-    }
     if !finite_id(parsed, process) {
         return Err(unsupported(
             process.id.expression.span,
@@ -168,11 +156,38 @@ pub(super) fn normalize(
     // Existing continuation/changed-variable rules then apply to this one body.
     let mut sequential = parsed.clone();
     sequential.algorithm.body = Body::Sequential(process.body.clone());
+    // The reference's --fair/options warning is emitted only by its sequential
+    // grammar branch. Global process fairness is assigned separately below.
+    sequential.algorithm.fairness = Fairness::Unfair;
     sequential
         .algorithm
         .variables
         .extend(process.variables.clone());
     let mut model = lower::normalize(&sequential, options)?;
-    model.process = Some(process.clone());
+    let mut process = process.clone();
+    process.fairness = if options.fairness == FairnessOption::None {
+        Fairness::Unfair
+    } else if process.fairness != Fairness::Unfair {
+        process.fairness
+    } else {
+        match options.fairness {
+            FairnessOption::Weak => Fairness::Weak,
+            FairnessOption::Strong => Fairness::Strong,
+            _ => Fairness::Unfair,
+        }
+    };
+    if process.fairness != Fairness::Unfair {
+        let source = parsed.text(process.id.expression.span).unwrap_or_default();
+        if source.contains(['\n', '\r', '\t']) || source.contains("(*") || source.contains("\\*") {
+            return Err(unsupported(
+                process.id.expression.span,
+                "fairness domain multiline/comment/tab normalization",
+            ));
+        }
+    }
+    model.fair = options.fairness != FairnessOption::None
+        && (options.fairness == FairnessOption::Next
+            || parsed.algorithm.fairness == Fairness::Weak);
+    model.process = Some(process);
     Ok(model)
 }

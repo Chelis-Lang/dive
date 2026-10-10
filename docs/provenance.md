@@ -380,3 +380,9 @@ symmetry witnesses across memory/disk, stores, profiles and worker widths.
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
 | Single-process PlusCal storage/actions (`dive-pluscal/translate/process.rs`, `emit.rs`, `labels.rs`) | `pcal/ParseAlgorithm.getAlgorithm` process LabelFlag check, `checkBody`; `pcal/PcalSymTab` unconditional reserved pc symbol; `pcal/PcalTLAGen.GenProcess`, `GenVarsAndDefs`, `GenProcSet`, `GenInit`, `GenLabeledStmt`, `GenNext`, `GenSpec`, `GenTermination`, `AddSubscriptsToExpr`, `GenAssign` at `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded single unfair constant-ID/finite-membership process, indexed pc, scalar/indexed locals and assignment/expression substitutions. Primary translation/SANY and normalized secondary AST stages kept separate; no Java runtime delegation. |
+
+## Single-process fairness generation
+
+| Rust implementation | Pinned source matched | License | Evidence and boundary |
+| --- | --- | --- | --- |
+| `dive-pluscal` fairness options, process normalization and `Emitter::process_fairness` | `pcal.ParseAlgorithm.getAlgorithm` explicit/default fairness precedence; `pcal.PcalTLAGen.GenSpec`, `ProcessFairness.singleLineWidth`/`format`, `FormulaPair.multiLine`; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Complete source/option and wrapped-junction controls in `crates/dive-pluscal/fairness-acceptance/`; token, full-module CST and separate SANY checks. Preserve the sole-prefix/separator width omission because junction grouping is observable. Domain multiline/comment/tab normalization and procedure/multiple-block generation remain named refusals. |

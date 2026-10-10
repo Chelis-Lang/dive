@@ -758,3 +758,37 @@ fn translate_process_storage_and_label_default_are_explicit()
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
+
+#[test]
+fn translate_process_fairness_is_explicit_and_never_a_proof()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslateFairness ----\nEXTENDS Naturals,TLC\n(* --algorithm A variable g=0; process P \\in{1,2} variable x=0; begin L: + x:=1; E: - g:=x; end process; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateFairness.tla", source);
+    let path = file.to_string_lossy();
+    for (flag, option, present) in [
+        ("-wf", "Weak", "WF_vars((pc[self] #"),
+        ("-sf", "Strong", "SF_vars((pc[self] #"),
+        ("-nof", "None", "Spec == Init"),
+        ("-wfNext", "Next", "WF_vars(Next)"),
+    ] {
+        let out = dive(&["translate", &path, "--compat=tlc", flag, "--output", "json"]);
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+        assert_eq!(doc["limits"]["fairness"], option);
+        assert_eq!(doc["accepted"], true);
+        assert_eq!(doc["exhaustive"], false);
+        assert_eq!(doc["model_proved"], false);
+        assert!(
+            doc["artifact"]["tla"]
+                .as_str()
+                .is_some_and(|text| text.contains(present))
+        );
+    }
+    assert_eq!(std::fs::read_to_string(file)?, source);
+    Ok(())
+}

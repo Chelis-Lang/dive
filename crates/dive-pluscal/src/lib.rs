@@ -24,8 +24,9 @@ mod translation;
 pub use parser::{Options, parse, parse_at};
 use serde::{Deserialize, Serialize};
 pub use translation::{
-    InsertedLabel, ProcessTranslation, Translation, TranslationError, TranslationMap,
-    TranslationOptions, TranslationStage, TranslationWarning, translate, translate_at,
+    FairnessOption, InsertedLabel, ProcessTranslation, Translation, TranslationError,
+    TranslationMap, TranslationOptions, TranslationStage, TranslationWarning, translate,
+    translate_at,
 };
 
 /// Stable native PlusCal diagnostic categories.

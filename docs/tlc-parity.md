@@ -429,3 +429,9 @@ PlusCal process evidence now includes [a bounded single-process increment](plusc
 242 retained rows and 26 finite model controls with independent witnesses. This
 does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and
 full option/map contracts remain pending.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.

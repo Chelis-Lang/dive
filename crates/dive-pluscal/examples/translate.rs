@@ -46,6 +46,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         match flag.as_str() {
             "-label" | "-reportLabels" => options.insert_missing_labels = true,
             "-labelRoot" => options.label_root = flags.next().ok_or("missing label root")?,
+            "-nof" => options.fairness = dive_pluscal::FairnessOption::None,
+            "-wf" => options.fairness = dive_pluscal::FairnessOption::Weak,
+            "-sf" => options.fairness = dive_pluscal::FairnessOption::Strong,
+            "-wfNext" => options.fairness = dive_pluscal::FairnessOption::Next,
             _ => return Err("unknown development option".into()),
         }
     }

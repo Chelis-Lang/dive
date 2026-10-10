@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "control": "invented-sequential-warning",
+  "outcome": {
+    "outcome": "disagree",
+    "reason": "process incorrectly inherits sequential option warning"
+  },
+  "native_sha256": "88f5252c990ca8f37d00ff46cf889aa1d070d6ffabd6857ca15dad8a9eca4119",
+  "manifest_sha256": "24f187654a3a54e487b50f78db079552967e547dfa4771ee6581c8a11a310484",
+  "comparator_sha256": "d5e59d2dcc0ffdc89aaadcdc17e7ae7af4d97648e3817d7b6c2d6388cf0d57fa",
+  "family_certified": false
+}
