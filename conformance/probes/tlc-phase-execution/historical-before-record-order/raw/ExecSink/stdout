@@ -1,0 +1,18 @@
+groups	0
+action_names	
+role_names	
+configured_names	Live
+initial.log	
+source.0.fp	15040402659625261443
+source.0.incoming	0:15040402659625261443;1:17760107650593637555
+source.0.capacity	16
+source.0.log	
+source.0.next_multiplier	1
+source.1.fp	17760107650593637555
+source.1.incoming	0:15040402659625261443;1:17760107650593637555
+source.1.capacity	16
+source.1.log	
+source.1.next_multiplier	1
+generated	5
+distinct	2
+completion	graph-inserted-no-scc-proof

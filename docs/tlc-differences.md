@@ -1514,3 +1514,18 @@ as diagnostic evidence; public translation rejects the invalid enclosing module
 in both profiles and makes no proof claim (D-008). General binder/procedure/name
 rewrites remain named refusals. Source PlusCal strings deliberately preserve the
 pinned printable-ASCII boundary; no wider Unicode-string default is adopted.
+### D-013 progress: ordered temporal execution
+
+The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
+source order, with initial consistency before initial invariants and immediate
+done-state re-enumeration. Fifteen completed pinned graph-field cases match at
+1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
+in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
+batch emissions and recursive enumeration work remain separate. Independent
+validation rejects altered words, closing edges and incomplete property claims.
+
+This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
+initial error replay and periodic checking are not certified. Ordinary strict
+liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
+remain partial/audit-required, F-023 missing and #140 open. Previous complete
+studies keep their original outcomes and receive no new corpus verdict credit.
