@@ -200,3 +200,11 @@ early errors match pinned TLC messages; substitutions, assignments, identities,
 effectful/state-dependent refusals and absent declarations have regression
 controls. Full warnings, model-value checks, canonical keys and trace handling
 remain open; normal `SYMMETRY` checking is still refused.
+
+
+The expanded [53-model final/short study](temporal-study.md) records 26 matching
+final truth/count results, 22 named refusals and five 600-second timeouts. No
+selected model is dropped; there are no disagreements or pending validations.
+The completed checks use one actual worker. This separate evidence does not
+increase strict temporal conformance. Ten finite-domain binding refusals and
+five graph-capture timeouts give concrete language/scaling targets.
