@@ -568,3 +568,52 @@ fn translate_returns_an_admitted_module_without_rewriting_input()
     assert_eq!(std::fs::read_to_string(&file)?, source);
     Ok(())
 }
+
+#[test]
+fn translate_label_options_preserve_files_and_default_configuration()
+-> Result<(), Box<dyn std::error::Error>> {
+    let source = "---- MODULE TranslateLabels ----\nEXTENDS Naturals,TLC\n(* --algorithm A variable x; begin x:=1; E: skip; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateLabels.tla", source);
+    let path = file.to_string_lossy();
+    let out = dive(&[
+        "translate",
+        &path,
+        "--label-root",
+        "Step",
+        "--output",
+        "json",
+    ]);
+    assert_eq!(out.status.code(), Some(1));
+    for flags in [
+        ["--label", "--label-root", "Step"],
+        ["-reportLabels", "-labelRoot", "Step"],
+    ] {
+        let out = dive(&[
+            "translate",
+            &path,
+            flags[0],
+            flags[1],
+            flags[2],
+            "--output",
+            "json",
+        ]);
+        assert_eq!(
+            out.status.code(),
+            Some(0),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let doc: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+        assert_eq!(
+            doc["artifact"]["actions"],
+            serde_json::json!(["Step1", "E"])
+        );
+        assert_eq!(
+            doc["artifact"]["configuration"],
+            "CONSTANT defaultInitValue = defaultInitValue\n"
+        );
+        assert_eq!(doc["model_proved"], false);
+    }
+    assert_eq!(std::fs::read_to_string(file)?, source);
+    Ok(())
+}

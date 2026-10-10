@@ -40,6 +40,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         writeln!(std::io::stdout(), "{document}")?;
         return Ok(());
     }
+    let mut options = dive_pluscal::TranslationOptions::default();
+    let mut flags = std::env::args().skip(1);
+    while let Some(flag) = flags.next() {
+        match flag.as_str() {
+            "-label" | "-reportLabels" => options.insert_missing_labels = true,
+            "-labelRoot" => options.label_root = flags.next().ok_or("missing label root")?,
+            _ => return Err("unknown development option".into()),
+        }
+    }
     let marker = source
         .find("--algorithm")
         .or_else(|| source.find("--fair algorithm"));
@@ -47,10 +56,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         dive_pluscal::translate_at(
             &source,
             start..source.rfind("*)").unwrap_or(source.len()),
-            &dive_pluscal::TranslationOptions::default(),
+            &options,
         )
     } else {
-        dive_pluscal::translate(&source, &dive_pluscal::TranslationOptions::default())
+        dive_pluscal::translate(&source, &options)
     };
     let document = match result {
         Ok(artifact) => {

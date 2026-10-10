@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Sequential PlusCal automatic labels match the pinned default and `-label` /
+  `-labelRoot` options. JSON reports inserted label positions and required
+  `defaultInitValue` configuration for omitted global initializers. Sequential
+  `L:+` / `L:-` modifiers retain the program counter without inventing process
+  fairness. All admitted artifacts pass enclosing-module checks; branch-internal
+  labelled expansion and other unproved families remain named refusals (#143).
+
+
 - Native bounded sequential PlusCal normalization/generation for explicitly
   labelled current C/P algorithms, with atomic sequential/parallel assignment
   semantics and stage-separated errors. `dive translate`, `translate_file` and

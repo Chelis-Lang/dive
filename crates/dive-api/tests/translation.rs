@@ -77,3 +77,39 @@ fn long_module_terminator_and_multiline_expression_limits() {
             .is_some_and(|text| text.contains("multiline"))
     );
 }
+
+#[test]
+fn default_model_value_binding_and_label_options_are_data() {
+    let source = module("variable x; begin x:=1; x:=2; end algorithm;");
+    for compat in [false, true] {
+        let request = TranslationRequest {
+            compat_tlc: compat,
+            ..TranslationRequest::default()
+        };
+        let doc = translate_source("TranslationTest.tla", &source, &request).to_json();
+        assert_eq!(doc["accepted"], true, "{doc}");
+        assert_eq!(
+            doc["artifact"]["configuration"],
+            "CONSTANT defaultInitValue = defaultInitValue\n"
+        );
+        assert_eq!(
+            doc["artifact"]["actions"],
+            serde_json::json!(["Lbl_1", "Lbl_2"])
+        );
+        assert_eq!(doc["model_proved"], false);
+    }
+    let source = module("variable x=0; begin x:=1; E: skip; end algorithm;");
+    let mut request = TranslationRequest::default();
+    request.limits.label_root = "Step".into();
+    assert_eq!(
+        translate_source("TranslationTest.tla", &source, &request).exit_code(),
+        1
+    );
+    request.limits.insert_missing_labels = true;
+    let doc = translate_source("TranslationTest.tla", &source, &request).to_json();
+    assert_eq!(doc["accepted"], true, "{doc}");
+    assert_eq!(
+        doc["artifact"]["actions"],
+        serde_json::json!(["Step1", "E"])
+    );
+}

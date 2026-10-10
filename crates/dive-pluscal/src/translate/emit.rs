@@ -443,6 +443,9 @@ pub(super) fn generate(
     } else {
         "VARIABLES"
     };
+    if model.variables.iter().any(|var| var.initial.is_none()) {
+        append("CONSTANT defaultInitValue\n\n".into(), span)?;
+    }
     append(
         format!(
             "{keyword} {}\n\nvars == << {} >>\n\n",
@@ -451,6 +454,7 @@ pub(super) fn generate(
         ),
         span,
     )?;
+    let default_init = model.variables.iter().any(|var| var.initial.is_none());
     let mut init = Vec::new();
     for variable in &model.variables {
         if let Some(binding) = &variable.initial {
@@ -464,6 +468,8 @@ pub(super) fn generate(
                 variable.name.text,
                 emitter.value_expression(binding.expression, &Changed::new())?
             ));
+        } else {
+            init.push(format!("{} = defaultInitValue", variable.name.text));
         }
     }
     if model.use_pc {
@@ -552,5 +558,11 @@ pub(super) fn generate(
             .collect(),
         program_counter: model.use_pc,
         warnings: model.warnings.clone(),
+        inserted_labels: Vec::new(),
+        configuration: if default_init {
+            "CONSTANT defaultInitValue = defaultInitValue\n".into()
+        } else {
+            String::new()
+        },
     })
 }

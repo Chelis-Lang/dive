@@ -224,3 +224,9 @@ unproved generated-name/binder collisions in both profiles and admits an
 artifact only after complete-module syntax/name/level analysis. No alternate
 naming default is adopted. Minimal example, raw evidence and pending options
 are recorded in `docs/tlc-differences.md` and `docs/pluscal-translation.md`.
+
+The sequential normalization follow-up matches pinned automatic-label option
+defaults, default model-value initialization and sequential label modifiers;
+[its full selection](pluscal-normalization.md) retains branch/name refusals. No
+alternate label/fairness default is introduced. Process/procedure/macro and
+historical/checksum/map contracts remain pending.
