@@ -1,0 +1,894 @@
+warning: 25 path(s) in corpus `examples` are not covered by any manifest (no goldens): specifications/CASPaxos/ (no manifest.json), specifications/Caesar/ (no manifest.json), specifications/DataPort/ (no manifest.json), specifications/HLC/ (no manifest.json), specifications/L1/ (no manifest.json), ...
+running dive-final-tlc against examples golden(s) of tlc-2026.10.06.014338 on 140 model(s) and 0 module(s), workers [1], SANY phase Full
+[1/140] disagree      specifications/Bakery-Boulangerie/MCBakery.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[2/140] disagree      specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[3/140] disagree      specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[4/140] disagree      specifications/Chameneos/Chameneos.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[5/140] disagree      specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[6/140] disagree      specifications/CigaretteSmokers/CigaretteSmokers.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[7/140] disagree      specifications/CoffeeCan/CoffeeCan1000Beans.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[8/140] disagree      specifications/CoffeeCan/CoffeeCan100Beans.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[9/140] disagree      specifications/DieHard/DieHard.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[10/140] disagree      specifications/DieHard/MCDieHarder.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[11/140] disagree      specifications/DieHard/MCDieHardest.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[12/140] disagree      specifications/DiningPhilosophers/DiningPhilosophers.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[13/140] disagree      specifications/Disruptor/MCDisruptor_MPMC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[14/140] disagree      specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[15/140] disagree      specifications/Disruptor/MCDisruptor_SPMC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[16/140] unsupported   specifications/FiniteMonotonic/MCCRDT.cfg (action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`))
+[17/140] disagree      specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[18/140] unsupported   specifications/FiniteMonotonic/MCReplicatedLog.cfg (action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`))
+[19/140] disagree      specifications/FlashProtocol/MCFlashWithMutex.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[20/140] disagree      specifications/FlashProtocol/MCFlashWithMutexLive.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[21/140] disagree      specifications/GameOfLife/GameOfLife.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[22/140] disagree      specifications/GermanProtocol/MCGermanCMPWithMutex.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[23/140] disagree      specifications/GermanProtocol/MCGermanControl.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[24/140] disagree      specifications/GermanProtocol/MCGermanData.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[25/140] disagree      specifications/LearnProofs/MCFindHighest.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[26/140] disagree      specifications/LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[27/140] disagree      specifications/LoopInvariance/MCBinarySearch.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[28/140] disagree      specifications/LoopInvariance/MCQuicksort.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[29/140] disagree      specifications/Majority/MCMajority.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[30/140] disagree      specifications/MisraReachability/MCParReach.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[31/140] disagree      specifications/MisraReachability/MCReachabilityTestAllGraphs.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[32/140] disagree      specifications/MisraReachability/MCReachabilityTestRandomGraphs.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[33/140] disagree      specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[34/140] disagree      specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[35/140] disagree      specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[36/140] disagree      specifications/MultiCarElevator/ElevatorLivenessMedium.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[37/140] disagree      specifications/MultiCarElevator/ElevatorSafetySmall.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[38/140] disagree      specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[39/140] disagree      specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[40/140] disagree      specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[41/140] disagree      specifications/NanoBlockchain/MCNanoMedium.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[42/140] disagree      specifications/NanoBlockchain/MCNanoSmall.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[43/140] disagree      specifications/Paxos/MCConsensus.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[44/140] disagree      specifications/Paxos/MCPaxos.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[45/140] disagree      specifications/Paxos/MCVoting.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[46/140] disagree      specifications/PaxosHowToWinATuringAward/MCConsensus.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[47/140] disagree      specifications/PaxosHowToWinATuringAward/MCPaxosTiny.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[48/140] disagree      specifications/PaxosHowToWinATuringAward/MCVoting.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[49/140] disagree      specifications/Prisoners/Prisoners.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[50/140] disagree      specifications/Prisoners_Single_Switch/Prisoner.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[51/140] disagree      specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[52/140] disagree      specifications/Prisoners_Single_Switch/PrisonerSolo.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[53/140] disagree      specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[54/140] disagree      specifications/ReadersWriters/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[55/140] disagree      specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[56/140] disagree      specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[57/140] disagree      specifications/SimplifiedFastPaxos/FastPaxos.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[58/140] disagree      specifications/SimplifiedFastPaxos/Paxos.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[59/140] disagree      specifications/SingleLaneBridge/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[60/140] disagree      specifications/SlidingPuzzles/SlidingPuzzles.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[61/140] disagree      specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[62/140] disagree      specifications/SlushProtocol/SlushSmall.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[63/140] disagree      specifications/SpanningTree/SpanTree.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[64/140] disagree      specifications/SpanningTree/SpanTreeRandom.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[65/140] disagree      specifications/SpanningTree/SpanTreeTest4Nodes.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[66/140] disagree      specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[67/140] disagree      specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[68/140] disagree      specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[69/140] disagree      specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[70/140] disagree      specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[71/140] disagree      specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[72/140] disagree      specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[73/140] disagree      specifications/SpecifyingSystems/HourClock/HourClock.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[74/140] disagree      specifications/SpecifyingSystems/HourClock/HourClock2.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[75/140] disagree      specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[76/140] disagree      specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[77/140] disagree      specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[78/140] disagree      specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[79/140] disagree      specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[80/140] disagree      specifications/SpecifyingSystems/TLC/ABCorrectness.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[81/140] disagree      specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[82/140] disagree      specifications/Stones/Stones.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[83/140] disagree      specifications/TLC/TestGraphs.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[84/140] disagree      specifications/TeachingConcurrency/Simple.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[85/140] disagree      specifications/TeachingConcurrency/SimpleRegular.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[86/140] disagree      specifications/TransitiveClosure/TransitiveClosure.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[87/140] disagree      specifications/TwoPhase/MCTwoPhase.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[88/140] disagree      specifications/YoYo/MCYoYoNoPruning.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[89/140] disagree      specifications/YoYo/MCYoYoPruning.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[90/140] disagree      specifications/YoYo/YoYoAllGraphs.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[91/140] disagree      specifications/acp/ACP_NB_TLC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[92/140] disagree      specifications/acp/ACP_NB_WRONG_TLC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[93/140] disagree      specifications/acp/ACP_SB_TLC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[94/140] disagree      specifications/allocator/AllocatorImplementation.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[95/140] disagree      specifications/allocator/AllocatorRefinement.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[96/140] disagree      specifications/allocator/SchedulingAllocator.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[97/140] disagree      specifications/allocator/SimpleAllocator.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[98/140] disagree      specifications/barriers/Barrier.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[99/140] disagree      specifications/barriers/Barriers.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[100/140] disagree      specifications/bcastByz/bcastByz.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[101/140] disagree      specifications/bcastByz/bcastByzNoBcast.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[102/140] disagree      specifications/braf/BufferedRandomAccessFile.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[103/140] disagree      specifications/btree/MCbtree.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[104/140] disagree      specifications/btree/kvstore.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[105/140] disagree      specifications/byihive/VoucherCancel.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[106/140] disagree      specifications/byihive/VoucherIssue.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[107/140] disagree      specifications/byihive/VoucherLifeCycle.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[108/140] disagree      specifications/byihive/VoucherRedeem.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[109/140] disagree      specifications/byihive/VoucherTransfer.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[110/140] disagree      specifications/byzpaxos/Consensus.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[111/140] disagree      specifications/byzpaxos/VoteProof.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[112/140] disagree      specifications/chang_roberts/MCChangRoberts.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[113/140] disagree      specifications/dag-consensus/BlockDagTest.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[114/140] disagree      specifications/dag-consensus/TLCSailfish1.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[115/140] disagree      specifications/echo/MCEcho.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[116/140] disagree      specifications/ewd426/TokenRing.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[117/140] disagree      specifications/ewd840/EWD840.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[118/140] disagree      specifications/ewd840/EWD840_json.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[119/140] disagree      specifications/ewd840/SyncTerminationDetection.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[120/140] disagree      specifications/ewd998/AsyncTerminationDetection.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[121/140] disagree      specifications/ewd998/EWD998ChanID.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[122/140] disagree      specifications/ewd998/EWD998ChanTrace.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[123/140] disagree      specifications/ewd998/EWD998PCal.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[124/140] disagree      specifications/glowingRaccoon/clean.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[125/140] disagree      specifications/glowingRaccoon/product.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[126/140] disagree      specifications/glowingRaccoon/stages.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[127/140] disagree      specifications/lamport_mutex/MCLamportMutex.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[128/140] disagree      specifications/locks_auxiliary_vars/Lock.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[129/140] disagree      specifications/locks_auxiliary_vars/LockHS.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[130/140] disagree      specifications/locks_auxiliary_vars/Peterson.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[131/140] disagree      specifications/nbacc_ray97/nbacc_ray97.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[132/140] disagree      specifications/nbacg_guer01/nbacg_guer01.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[133/140] disagree      specifications/spanning/MC_spanning.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[134/140] disagree      specifications/sums_even/MC_sums_even.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[135/140] disagree      specifications/tcp/MCtcp.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[136/140] disagree      specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[137/140] disagree      specifications/tower_of_hanoi/Hanoi_anim.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[138/140] disagree      specifications/transaction_commit/2PCwithBTM.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[139/140] disagree      specifications/transaction_commit/TCommit.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+[140/140] disagree      specifications/transaction_commit/TwoPhase.cfg (dive check exited Some(1) without a JSON report (EOF while parsing a value at line 1 column 0); stderr: Traceback (most recent call last):
+  File "/Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/capture-cli.py", line 12, in <module>
+    raw.mkdir(exist_ok=False)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFo)
+report: /Users/jeff/code/dive-final-safety-work/conformance/studies/tlc-final-safety-current/full-small-study/reports/20261010T210526292-dive-final-tlc-small.json
+{
+  "by_corpus": {
+    "examples": {
+      "models": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 138,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 2
+      },
+      "modules": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      }
+    }
+  },
+  "informational_drift_findings": 0,
+  "models": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 138,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 2
+  },
+  "modules": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "oracle_drift_findings": 0,
+  "run_id": "20261010T210526292-dive-final-tlc-small",
+  "worker_counts_variant": 0,
+  "worker_depth_variant": 0,
+  "worker_property_variant": 0,
+  "worker_verdict_variant": 0
+}

@@ -282,3 +282,12 @@ The original 140-refusal small-model census is preserved unchanged. New native
 safety controls and any subsequent full census identify their own source/binary
 and retain every refusal, error and limit. They do not rewrite that historical
 result or supply general liveness parity.
+
+A subsequent unchanged 140-model census on the frozen safety-route source has
+**5 full agreements and 135 named refusals**, with 138 actual subprocesses,
+no disagreement or timeout, and actual harness exit 0. DieHard's seven-state
+finite witness was independently validated. This observation is retained in
+[the complete source-bound study](../conformance/studies/tlc-final-safety-current/full-small-study/README.md);
+it does not certify temporal products, periodic scheduling or whole semantic
+families. The failed launcher setup is separately preserved and executed zero
+native checker subprocesses.
