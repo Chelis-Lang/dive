@@ -70,6 +70,10 @@ def main():
     matrix = load(PROBE / 'source-matrix.json')
     assert matrix['base_commit'] == '180e9d9'
     for path, digest in matrix['source_sha256'].items():
+        assert sha(PROBE / 'historical-before-context-source' / path) == digest, path
+    combined = load(PROBE / '../tlc-planning/combined-context-tableau-source-matrix.json')
+    assert combined['historical_tableau_matrix_sha256'] == sha(PROBE / 'source-matrix.json')
+    for path, digest in combined['source_sha256'].items():
         assert sha(ROOT / path) == digest, path
     print('verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes')
 

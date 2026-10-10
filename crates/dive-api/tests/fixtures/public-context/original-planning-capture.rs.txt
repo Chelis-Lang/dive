@@ -1,0 +1,97 @@
+// Original caller reproduction at source 8f451ff.
+fn model_projection_refuses_effects_opaque_captures_and_unchecked_ids_before_output() {
+    let source = r#"---- MODULE PlanningHost ----
+EXTENDS TLC
+VARIABLE x
+Init == x=FALSE
+Next == x'=~x
+P == []<>x
+Identity(p) == p
+Capture(Op(_)) == Identity([]<>Op(x))
+PrintProperty == []<>(PrintT(x))
+LiveProperty == []<>(TLCGet("level") = 0)
+====
+"#;
+    let analysis =
+        dive_sema::analyze_source("PlanningHost.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config");
+    for options in [
+        dive_model::BindOptions::tlc(),
+        dive_model::BindOptions::dive(),
+    ] {
+        for case in [
+            "PrintProperty",
+            "LiveProperty",
+            "opaque",
+            "badroot",
+            "badcapture",
+            "baddef",
+        ] {
+            let mut model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
+            let p = ir.root_def("P").expect("P");
+            let mut pred = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p));
+            match case {
+                "PrintProperty" | "LiveProperty" => {
+                    let d = ir.root_def(case).expect("property");
+                    pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                }
+                "opaque" => {
+                    let d = ir.root_def("Capture").expect("capture");
+                    let scope = model
+                        .evaluator
+                        .scope_apply(
+                            &pred.scope,
+                            d,
+                            &[dive_ir::Arg::Op {
+                                op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
+                                level: dive_ir::Level::Constant,
+                            }],
+                        )
+                        .expect("opaque capture");
+                    pred = dive_model::Pred::new(ir.def(d).body, scope);
+                }
+                "badroot" => pred.expr = dive_ir::ExprId(u32::MAX),
+                "badcapture" => {
+                    let d = ir.root_def("Identity").expect("Identity");
+                    let scope = model
+                        .evaluator
+                        .scope_apply(
+                            &pred.scope,
+                            d,
+                            &[dive_ir::Arg::Expr {
+                                expr: dive_ir::ExprId(u32::MAX),
+                                pass: dive_ir::Pass::Lazy,
+                            }],
+                        )
+                        .expect("unchecked capture");
+                    pred = dive_model::Pred::new(ir.def(d).body, scope);
+                }
+                "baddef" => {
+                    let mut json = serde_json::to_value(ir.as_ref()).expect("IR serialization");
+                    json["exprs"][pred.expr.index()]["expr"] = serde_json::json!({"Def":u32::MAX});
+                    model.ir =
+                        std::sync::Arc::new(serde_json::from_value(json).expect("unchecked IR"));
+                }
+                _ => panic!("unknown negative"),
+            }
+            model.implied_temporals.push(dive_model::Named {
+                name: case.into(),
+                pred,
+            });
+            let failure = dive_liveness::tlc_plan::lower_model(&model, Limits::default())
+                .expect_err("unproved captured context");
+            assert!(
+                matches!(
+                    failure,
+                    dive_liveness::tlc_plan::ModelPlanningError::Bound(_)
+                ),
+                "{case}: {failure:?}"
+            );
+            assert!(model.take_output().is_empty(), "{case} ran a callback");
+        }
+    }
+}

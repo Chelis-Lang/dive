@@ -700,6 +700,10 @@ fn complete_raw_source_selection_hashes_are_verified() {
 }
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "one complete effect/context matrix covers constructor and planning admission"
+)]
 fn tableau_pipeline_refuses_effects_opaque_captures_and_unchecked_ids_before_output() {
     let source = r#"---- MODULE PlanningHost ----
 EXTENDS TLC
@@ -734,11 +738,17 @@ LiveProperty == []<>(TLCGet("level") = 0)
         ] {
             let mut model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
             let p = ir.root_def("P").expect("P");
-            let mut pred = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p));
+            let mut pred = dive_model::Pred::new(
+                ir.def(p).body,
+                model.evaluator.scope(p).expect("valid P scope"),
+            );
             match case {
                 "PrintProperty" | "LiveProperty" => {
                     let d = ir.root_def(case).expect("property");
-                    pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    pred = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid property scope"),
+                    );
                 }
                 "opaque" => {
                     let d = ir.root_def("Capture").expect("capture");
@@ -758,7 +768,7 @@ LiveProperty == []<>(TLCGet("level") = 0)
                 "badroot" => pred.expr = dive_ir::ExprId(u32::MAX),
                 "badcapture" => {
                     let d = ir.root_def("Identity").expect("Identity");
-                    let scope = model
+                    let failure = model
                         .evaluator
                         .scope_apply(
                             &pred.scope,
@@ -768,8 +778,11 @@ LiveProperty == []<>(TLCGet("level") = 0)
                                 pass: dive_ir::Pass::Lazy,
                             }],
                         )
-                        .expect("unchecked capture");
-                    pred = dive_model::Pred::new(ir.def(d).body, scope);
+                        .expect_err("missing lazy expression must fail before capture");
+                    assert_eq!(failure.class(), dive_eval::ErrorClass::Unsupported);
+                    assert!(failure.to_string().contains("DIVE-EVAL-C001"));
+                    assert!(model.take_output().is_empty(), "{case} ran a callback");
+                    continue;
                 }
                 "baddef" => {
                     let mut json = serde_json::to_value(ir.as_ref()).expect("IR serialization");

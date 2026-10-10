@@ -774,10 +774,9 @@ fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
         .any(|p| !pure::predicate(model, p) || model.evaluator.scope_shares_side_effects(&p.scope))
         || model.assumptions.iter().any(|d| {
             model.ir.defs().get(d.index()).is_none_or(|def| {
-                !pure::predicate(
-                    model,
-                    &dive_model::Pred::new(def.body, model.evaluator.scope(*d)),
-                )
+                !model.evaluator.scope(*d).is_ok_and(|scope| {
+                    pure::predicate(model, &dive_model::Pred::new(def.body, scope))
+                })
             })
         })
         || model

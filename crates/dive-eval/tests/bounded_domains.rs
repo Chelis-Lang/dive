@@ -21,7 +21,10 @@ fn evaluator(domain: &str, opts: Options) -> (Evaluator, dive_ir::DefId) {
         root_text: source,
     };
     let model = harness::bind(&loaded, None, opts).expect("bind");
-    (Evaluator::new(model, opts), def)
+    (
+        Evaluator::new(model, opts).expect("valid evaluator context"),
+        def,
+    )
 }
 
 #[test]
@@ -47,7 +50,7 @@ fn finite_lazy_bindings_match_unbounded_enumeration_in_both_profiles() {
             let Expr::Quant { body, .. } = ev.ir().expr(expr) else {
                 panic!("quantifier");
             };
-            let scope = ev.scope(def);
+            let scope = ev.scope(def).expect("valid scope");
             let st = St::constant();
             let collect = |scopes: Vec<dive_eval::Scope>| -> Vec<Value> {
                 scopes
@@ -78,8 +81,12 @@ fn finite_lazy_domains_bound_components_and_result_slots_before_allocating() {
         "{[1..32 -> BOOLEAN]}",
     ] {
         let (ev, def) = evaluator(domain, Options::tlc());
-        let result =
-            ev.scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 4096);
+        let result = ev.scope_bindings_bounded(
+            &ev.scope(def).expect("valid scope"),
+            ev.ir().def(def).body,
+            &St::constant(),
+            4096,
+        );
         assert!(
             matches!(result, Err(ref e) if e.class() == ErrorClass::ResourceLimit),
             "{domain}: {result:?}"
@@ -87,8 +94,12 @@ fn finite_lazy_domains_bound_components_and_result_slots_before_allocating() {
     }
     // Cardinality sixteen is small; sixteen 4-slot functions and their components are not.
     let (ev, def) = evaluator("[1..4 -> BOOLEAN]", Options::tlc());
-    let result =
-        ev.scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 16);
+    let result = ev.scope_bindings_bounded(
+        &ev.scope(def).expect("valid scope"),
+        ev.ir().def(def).body,
+        &St::constant(),
+        16,
+    );
     assert!(
         matches!(result, Err(ref e) if e.class() == ErrorClass::ResourceLimit),
         "{result:?}"
@@ -106,8 +117,12 @@ fn deferred_and_infinite_domains_are_explicit_refusals() {
         "{v \\in Nat : v < 2}",
     ] {
         let (ev, def) = evaluator(domain, Options::tlc());
-        let result =
-            ev.scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 4096);
+        let result = ev.scope_bindings_bounded(
+            &ev.scope(def).expect("valid scope"),
+            ev.ir().def(def).body,
+            &St::constant(),
+            4096,
+        );
         assert!(
             matches!(result, Err(ref e) if e.class() == ErrorClass::Unsupported),
             "{domain}: {result:?}"
@@ -118,8 +133,12 @@ fn deferred_and_infinite_domains_are_explicit_refusals() {
 #[test]
 fn eager_nonfinite_map_keeps_the_existing_tlc_error() {
     let (ev, def) = evaluator("{v : v \\in Nat}", Options::tlc());
-    let result =
-        ev.scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 4096);
+    let result = ev.scope_bindings_bounded(
+        &ev.scope(def).expect("valid scope"),
+        ev.ir().def(def).body,
+        &St::constant(),
+        4096,
+    );
     assert!(
         matches!(result, Err(ref e) if e.class() == ErrorClass::Eval && e.message().contains("non-enumerable quantifier bound")),
         "{result:?}"
@@ -139,10 +158,15 @@ fn preflight_preserves_lazy_domain_comparison_errors() {
         let (ev, def) = evaluator(domain, Options::tlc());
         let expr = ev.ir().def(def).body;
         let ordinary = ev
-            .scope_bindings(&ev.scope(def), expr, &St::constant())
+            .scope_bindings(&ev.scope(def).expect("valid scope"), expr, &St::constant())
             .expect_err("ordinary comparison error");
         let bounded = ev
-            .scope_bindings_bounded(&ev.scope(def), expr, &St::constant(), 4096)
+            .scope_bindings_bounded(
+                &ev.scope(def).expect("valid scope"),
+                expr,
+                &St::constant(),
+                4096,
+            )
             .expect_err("bounded comparison error");
         assert_eq!(bounded.class(), ordinary.class(), "{domain}");
         assert_eq!(bounded.message(), ordinary.message(), "{domain}");
@@ -159,17 +183,27 @@ fn deferred_filter_preflight_bounds_input_before_predicate_and_cache() {
             let (ev, def) = evaluator(domain, opts);
             let expr = ev.ir().def(def).body;
             let failure = ev
-                .scope_bindings_bounded(&ev.scope(def), expr, &St::constant(), 1)
+                .scope_bindings_bounded(
+                    &ev.scope(def).expect("valid scope"),
+                    expr,
+                    &St::constant(),
+                    1,
+                )
                 .expect_err("input bounded before predicate");
             assert_eq!(failure.class(), ErrorClass::ResourceLimit, "{failure:?}");
         }
         let (ev, def) = evaluator(r"{f \in [{1} -> BOOLEAN] : (1 \div 0) = 0}", opts);
         let expr = ev.ir().def(def).body;
         let bounded = ev
-            .scope_bindings_bounded(&ev.scope(def), expr, &St::constant(), 4096)
+            .scope_bindings_bounded(
+                &ev.scope(def).expect("valid scope"),
+                expr,
+                &St::constant(),
+                4096,
+            )
             .expect_err("predicate evaluation error");
         let ordinary = ev
-            .scope_bindings(&ev.scope(def), expr, &St::constant())
+            .scope_bindings(&ev.scope(def).expect("valid scope"), expr, &St::constant())
             .expect_err("ordinary predicate error");
         assert_eq!(bounded.class(), ordinary.class());
         assert_eq!(bounded.message(), ordinary.message());
@@ -187,7 +221,12 @@ Q == \A v \in {f \in [{1} -> BOOLEAN] : PrintT(f)} : v
         let ev = source_evaluator(source, opts);
         let def = ev.ir().root_def("Q").expect("Q");
         let failure = ev
-            .scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 4096)
+            .scope_bindings_bounded(
+                &ev.scope(def).expect("valid scope"),
+                ev.ir().def(def).body,
+                &St::constant(),
+                4096,
+            )
             .expect_err("refused effectful predicate");
         assert_eq!(failure.class(), ErrorClass::Unsupported);
         assert!(
@@ -205,6 +244,7 @@ fn source_evaluator(source: &str, opts: Options) -> Evaluator {
         root_text: source.to_owned(),
     };
     Evaluator::new(harness::bind(&loaded, None, opts).expect("bind"), opts)
+        .expect("valid evaluator context")
 }
 
 #[test]
@@ -253,13 +293,18 @@ Qp == (\A f \in Domain : f[1])'
             (qp, St::action(before.clone(), after.clone()), true),
             (qp, St::action(after, before.clone()), false),
         ] {
-            ev.check_finite_bindings(&ev.scope(def), ev.ir().def(def).body, &st, 4096)
-                .expect("guard");
+            ev.check_finite_bindings(
+                &ev.scope(def).expect("valid scope"),
+                ev.ir().def(def).body,
+                &st,
+                4096,
+            )
+            .expect("guard");
             assert_eq!(ev.eval_def(def, &st).expect("truth"), Value::from(expected));
         }
         // Materialization of the captured domain does not let subsequent small budgets bypass its input bound.
         let expr = ev.ir().def(qc).body;
-        let scope = ev.scope(qc);
+        let scope = ev.scope(qc).expect("valid scope");
         ev.scope_bindings_bounded(&scope, expr, &St::state(before.clone()), 4096)
             .expect("cache population");
         let failure = ev
@@ -281,7 +326,12 @@ Q == \A v \in {f \in [{1} -> BOOLEAN] : P(f)} : v
         let ev = source_evaluator(source, opts);
         let def = ev.ir().root_def("Q").expect("Q");
         let failure = ev
-            .scope_bindings_bounded(&ev.scope(def), ev.ir().def(def).body, &St::constant(), 4096)
+            .scope_bindings_bounded(
+                &ev.scope(def).expect("valid scope"),
+                ev.ir().def(def).body,
+                &St::constant(),
+                4096,
+            )
             .expect_err("refused unresolved effects");
         assert_eq!(failure.class(), ErrorClass::Unsupported);
         assert!(failure.message().contains("unresolved"), "{failure:?}");
@@ -308,10 +358,14 @@ Q == \A v \in {f \in [{1} -> BOOLEAN] : P(f)} : v
                 ir.root_def("P").expect("P"),
                 ir.root_def(target).expect("target"),
             );
-            let ev = Evaluator::new(model, opts);
+            let ev = Evaluator::new(model, opts).expect("valid evaluator context");
             let def = ir.root_def("Q").expect("Q");
-            let result =
-                ev.scope_bindings_bounded(&ev.scope(def), ir.def(def).body, &St::constant(), 4096);
+            let result = ev.scope_bindings_bounded(
+                &ev.scope(def).expect("valid scope"),
+                ir.def(def).body,
+                &St::constant(),
+                4096,
+            );
             if permitted {
                 assert_eq!(result.expect("pure override").len(), 1);
             } else {
@@ -337,7 +391,7 @@ Q(P(_)) == \A v \in {f \in [{1} -> BOOLEAN] : P(f)} : v
         let def = ev.ir().root_def("Q").expect("Q");
         let scope = ev
             .scope_apply(
-                &ev.scope(def),
+                &ev.scope(def).expect("valid scope"),
                 def,
                 &[dive_ir::Arg::Op {
                     op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
@@ -366,23 +420,17 @@ Q(p) == \A v \in {f \in [{1} -> BOOLEAN] : TRUE} : v
     for opts in [Options::tlc(), Options::dive()] {
         let ev = source_evaluator(source, opts);
         let def = ev.ir().root_def("Q").expect("Q");
-        let scope = ev
+        let failure = ev
             .scope_apply(
-                &ev.scope(def),
+                &ev.scope(def).expect("valid scope"),
                 def,
                 &[dive_ir::Arg::Expr {
                     expr: dive_ir::ExprId(u32::MAX),
                     pass: dive_ir::Pass::Lazy,
                 }],
             )
-            .expect("constructible unproved thunk");
-        assert!(
-            !ev.scope_shares_side_effects(&scope),
-            "legacy missing-node behaviour is unchanged"
-        );
-        let failure = ev
-            .scope_bindings_bounded(&scope, ev.ir().def(def).body, &St::constant(), 4096)
-            .expect_err("missing captured expression is unknown, not pure");
+            .expect_err("missing captured expression refused at construction");
+        assert!(failure.message().contains("DIVE-EVAL-C001"));
         assert_eq!(failure.class(), ErrorClass::Unsupported);
         assert_eq!(ev.take_output(), Vec::<String>::new());
     }

@@ -12,6 +12,10 @@ use dive_value::Value;
 use std::{path::Path, sync::Arc};
 
 #[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "the complete conformance and independent witness matrix is kept together"
+)]
 fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../conformance/probes/finite-deferred-audit");
@@ -99,7 +103,10 @@ fn deferred_domains_match_final_truth_counts_and_independent_word_controls() {
                 let model = dive_model::bind(ir.clone(), &cfg, &bind_options)
                     .expect("fresh independent model");
                 let d = ir.root_def("Live").expect("property");
-                let p = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                let p = Pred::new(
+                    ir.def(d).body,
+                    model.evaluator.scope(d).expect("valid scope"),
+                );
                 let word: Vec<dive_trace::State> = [false, true]
                     .into_iter()
                     .map(|v| Arc::from([Some(Value::from(v))]))

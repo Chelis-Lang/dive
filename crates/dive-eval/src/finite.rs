@@ -25,6 +25,8 @@ impl Evaluator {
         st: &St,
         limit: usize,
     ) -> crate::Result<()> {
+        self.validate_scope(scope)?;
+        self.admit_scoped_expr(scope, expr)?;
         Guard {
             evaluator: self,
             limit,
@@ -61,6 +63,7 @@ impl Guard<'_> {
             return Err(EvalError::resource_limit("finite binding traversal"));
         }
         let ev = self.evaluator;
+        ev.admit_expr(expr)?;
         let node = ev.ir().node(expr);
         if node
             .effects

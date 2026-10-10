@@ -304,8 +304,10 @@ fn quantified_word_truth_matches_cycle_algebra_and_empty_domain_identities() {
                     ("T", true),
                 ] {
                     let d = model.ir.root_def(name).expect("predicate");
-                    let pred =
-                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        model.ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     assert_eq!(
                         dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                             .expect(name),
@@ -424,8 +426,10 @@ fn conditional_word_truth_uses_current_state_or_temporal_guard() {
                         })
                         .collect();
                     let d = model.ir.root_def(name).expect("definition");
-                    let pred =
-                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        model.ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     assert_eq!(
                         dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                             .expect(name),
@@ -569,8 +573,10 @@ fn constant_temporal_calls_keep_scopes_and_match_direct_word_semantics() {
                 let one = values[back..].iter().any(|b| *b);
                 for (name, expected) in [("P", mixed), ("Q", !mixed), ("R", one)] {
                     let d = model.ir.root_def(name).expect("definition");
-                    let pred =
-                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        model.ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![expected; n], "{name} {values:?} back {back}");
@@ -607,7 +613,10 @@ fn effectful_arguments_refuse_while_pure_state_arguments_keep_their_truth() {
         let model =
             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("model");
         let d = model.ir.root_def(name).expect("definition");
-        let pred = dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+        let pred = dive_model::Pred::new(
+            model.ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err(),
             "{name}"
@@ -689,7 +698,10 @@ fn temporal_call_purity_walk_consumes_the_planning_budget() {
     let (ir, cfg) = input(src, "INIT Init\nNEXT Next\nPROPERTY P\n");
     let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
     let d = model.ir.root_def("P").expect("predicate");
-    let pred = dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+    let pred = dive_model::Pred::new(
+        model.ir.def(d).body,
+        model.evaluator.scope(d).expect("valid scope"),
+    );
     let mut limits = Limits::default().formula;
     limits.expansion_steps = 3;
     let err = dive_liveness::plan::lower(&model, &pred, limits)
@@ -735,8 +747,10 @@ fn state_arguments_are_position_dependent_and_priming_uses_the_closing_edge() {
                         })
                         .collect();
                     let d = model.ir.root_def(name).expect("definition");
-                    let pred =
-                        dive_model::Pred::new(model.ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        model.ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                         .expect(name);
                     assert_eq!(direct, expected, "{name} {values:?} back {back}");
@@ -980,7 +994,10 @@ fn finite_predicate_quantifiers_keep_every_context_and_empty_identity() {
                     ("Pair", false),
                 ] {
                     let d = ir.root_def(name).expect(name);
-                    let p = dive_model::Pred::new(ir.def(d).body, m.evaluator.scope(d));
+                    let p = dive_model::Pred::new(
+                        ir.def(d).body,
+                        m.evaluator.scope(d).expect("valid scope"),
+                    );
                     let plan = dive_liveness::plan::lower(
                         &m,
                         &p,
@@ -1090,7 +1107,10 @@ fn let_word_contexts_match_cycle_algebra_without_freezing_state() {
                     ("C", any && !all),
                 ] {
                     let d = ir.root_def(name).expect(name);
-                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let p = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
@@ -1131,7 +1151,10 @@ fn used_let_effects_and_checker_reads_refuse_without_evaluation() {
     let _ = model.take_output();
     for name in ["E", "R"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err());
         assert!(
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
@@ -1265,7 +1288,10 @@ A == I!A
                     ("A", any && !all),
                 ] {
                     let d = ir.root_def(name).expect(name);
-                    let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
@@ -1318,7 +1344,10 @@ RP == R!Claim
     let _ = model.take_output();
     for name in ["EP", "RP"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err());
         assert!(
             dive_trace::temporal::evaluate_lasso(&model, &p, &[Arc::from([Some(true.into())])], 0)
@@ -1357,17 +1386,26 @@ P == I!ValueClaim
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     let states = [Arc::from([Some(true.into())])];
     let op = ir.root_def("OP").expect("OP");
-    let op = dive_model::Pred::new(ir.def(op).body, model.evaluator.scope(op));
+    let op = dive_model::Pred::new(
+        ir.def(op).body,
+        model.evaluator.scope(op).expect("valid scope"),
+    );
     assert!(dive_liveness::plan::lower(&model, &op, Limits::default().formula).is_err());
     assert!(dive_trace::temporal::evaluate_lasso(&model, &op, &states, 0).is_err());
     let en = ir.root_def("EN").expect("EN");
-    let en = dive_model::Pred::new(ir.def(en).body, model.evaluator.scope(en));
+    let en = dive_model::Pred::new(
+        ir.def(en).body,
+        model.evaluator.scope(en).expect("valid scope"),
+    );
     assert!(
         dive_trace::temporal::evaluate_lasso(&model, &en, &states, 0).is_err(),
         "substituted disabledness needs a separate finite cover proof"
     );
     let p = ir.root_def("P").expect("P");
-    let p = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p));
+    let p = dive_model::Pred::new(
+        ir.def(p).body,
+        model.evaluator.scope(p).expect("valid scope"),
+    );
     let mut limit = Limits::default().formula;
     limit.expansion_steps = 3;
     assert_eq!(
@@ -1468,7 +1506,10 @@ Next == x'=~x
                 let all = values[back..].iter().all(|v| *v);
                 for (name, truth) in [("P", any), ("Q", all), ("R", any), ("A", any && !all)] {
                     let d = ir.root_def(name).expect(name);
-                    let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let pred = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
@@ -1511,7 +1552,10 @@ fn effectful_infinite_and_oversized_constructor_scopes_are_refused() {
         let model =
             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
         let d = ir.root_def("P").expect("P");
-        let pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let pred = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err(),
             "{property}"
@@ -1601,7 +1645,10 @@ Prime == []<><<((\E b \in IF x THEN {TRUE} ELSE {} : b)')>>_x
                     ("Prime", any && !all),
                 ] {
                     let d = ir.root_def(name).expect(name);
-                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let p = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![expected; n], "{name} {values:?} {back}");
@@ -1648,7 +1695,10 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     for name in ["Opaque", "DynamicTemporal"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
             "{name}"
@@ -1662,7 +1712,10 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
     }
     for name in ["Large", "Unbounded"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
             .expect("pure dynamic domain planned without reading it");
         let state: dive_trace::State = Arc::from([Some(true.into())]);
@@ -1709,7 +1762,7 @@ DynamicTemporal == \A b \in IF x THEN BOOLEAN ELSE {} : []<>(x=b)
     let dive_ir::Expr::SetMap { expr: local, .. } = ir.expr(*map) else {
         panic!("map");
     };
-    let original = model.evaluator.scope(d);
+    let original = model.evaluator.scope(d).expect("valid scope");
     let analysis = model
         .evaluator
         .scope_binder_analysis(&original, *map)
@@ -1806,7 +1859,7 @@ Still == UNCHANGED x
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     let d = ir.root_def("Shifted").expect("Shifted");
     let expr = ir.def(d).body;
-    let scope = model.evaluator.scope(d);
+    let scope = model.evaluator.scope(d).expect("valid scope");
     let before: dive_trace::State = Arc::from([Some(false.into())]);
     let after: dive_trace::State = Arc::from([Some(true.into())]);
     let edge = dive_eval::St::action(before.clone(), after.clone());
@@ -1845,7 +1898,7 @@ Still == UNCHANGED x
     model
         .evaluator
         .check_finite_bindings(
-            &model.evaluator.scope(still),
+            &model.evaluator.scope(still).expect("valid scope"),
             ir.def(still).body,
             &missing,
             4096,
@@ -1901,7 +1954,10 @@ F == []<>((CHOOSE i \in {1,2} : i>1)=2)
                     ("F", true),
                 ] {
                     let d = ir.root_def(name).expect(name);
-                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let p = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
@@ -1950,7 +2006,10 @@ Empty == []<>((CHOOSE b \in IF x THEN {} ELSE {TRUE} : TRUE)=TRUE)
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     for name in ["Effect", "Checker", "Infinite"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
             "{name}"
@@ -1964,7 +2023,10 @@ Empty == []<>((CHOOSE b \in IF x THEN {} ELSE {TRUE} : TRUE)=TRUE)
     }
     for name in ["Huge", "None", "Empty"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
             .expect("dynamic pure choice");
         let st = dive_eval::St::state(Arc::from([Some(true.into())]));
@@ -2053,7 +2115,10 @@ PF == F(IF x THEN {TRUE} ELSE {})
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     for name in ["PE", "PA", "PM", "PF"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         let plan = dive_liveness::plan::lower(&model, &p, Limits::default().formula)
             .expect("domain must remain state level");
         assert!(!plan.atoms.is_empty(), "{name}: no eager constant folding");
@@ -2117,7 +2182,10 @@ S == []<><<Prefix(IF x=0 THEN <<>> ELSE <<1>>,IF x'=0 THEN <<>> ELSE <<1>>)>>_x
                 let truth = values[back..].iter().any(|v| *v) && values[back..].iter().any(|v| !*v);
                 for name in ["P", "Q", "R", "S"] {
                     let d = ir.root_def(name).expect(name);
-                    let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                    let p = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid scope"),
+                    );
                     let direct = dive_trace::temporal::evaluate_lasso(&model, &p, &states, back)
                         .expect(name);
                     assert_eq!(direct, vec![truth; n], "{name} {values:?} {back}");
@@ -2167,7 +2235,10 @@ S == Temporal(x'=1)
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
     for name in ["P", "Q", "S"] {
         let d = ir.root_def(name).expect(name);
-        let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
+        let p = dive_model::Pred::new(
+            ir.def(d).body,
+            model.evaluator.scope(d).expect("valid scope"),
+        );
         assert!(
             dive_liveness::plan::lower(&model, &p, Limits::default().formula).is_err(),
             "{name}"

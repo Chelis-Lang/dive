@@ -62,7 +62,7 @@
 //! let ir = dive_ir::lower(&analyze_source("M.tla", src, &SemaOptions::default())).expect("lowers");
 //! let ir = Arc::new(ir);
 //! let (init, next) = (ir.root_def("Init").expect("Init"), ir.root_def("Next").expect("Next"));
-//! let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc());
+//! let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc()).expect("valid context");
 //! let inits = vec![ev.init_predicate(init, 0).expect("no arguments")];
 //! let tree = split(&ir, ir.def(next).body, ActionName::Def(next), next, &Default::default());
 //! let actions = ev.actions(&tree, next, inits.len()).expect("splits");
@@ -126,6 +126,9 @@ pub enum Flow {
 pub struct Action {
     pub(crate) expr: ExprId,
     pub(crate) env: Env,
+    owner: Arc<dive_ir::Ir>,
+    names: Arc<dive_value::Interner>,
+    context: std::sync::Weak<crate::core::Core>,
     name: ActionName,
     params: Vec<(String, Value)>,
     label: String,
@@ -145,6 +148,9 @@ impl Action {
     pub fn scope(&self) -> Scope {
         Scope {
             env: self.env.clone(),
+            owner: self.owner.clone(),
+            names: self.names.clone(),
+            context: self.context.clone(),
             wrapper: None,
         }
     }
@@ -251,32 +257,56 @@ impl Evaluator {
     /// # Errors
     /// A bug if `def` has parameters.
     pub fn init_predicate(&self, def: DefId, id: usize) -> Result<Action> {
-        let d = self.core.ir.def(def);
+        let d = self.admit_def(def)?;
         if !d.params.is_empty() {
             return Err(EvalError::bug(format!("{} takes arguments", d.name)));
         }
-        Ok(self.predicate(def, d.body, ActionName::Def(def), id))
+        self.predicate(def, d.body, ActionName::Def(def), id)
     }
 
     /// An initial predicate or action that is the expression `expr` of the
     /// top-level definition `frame`, evaluated in a fresh frame of it (for
     /// example the `Init` conjunct of a `SPECIFICATION`, named `Unnamed`).
-    #[must_use]
-    pub fn predicate(&self, frame: DefId, expr: ExprId, name: ActionName, id: usize) -> Action {
-        self.predicate_in(&self.scope(frame), expr, name, id)
+    ///
+    /// # Errors
+    /// An unknown ID, a foreign context or an incompatible lexical frame.
+    pub fn predicate(
+        &self,
+        frame: DefId,
+        expr: ExprId,
+        name: ActionName,
+        id: usize,
+    ) -> Result<Action> {
+        self.predicate_in(&self.scope(frame)?, expr, name, id)
     }
 
     /// An initial predicate or action `expr` evaluated in `scope`.
-    #[must_use]
-    pub fn predicate_in(&self, scope: &Scope, expr: ExprId, name: ActionName, id: usize) -> Action {
-        Action {
+    ///
+    /// # Errors
+    /// An unknown ID, a foreign context or an incompatible lexical frame.
+    pub fn predicate_in(
+        &self,
+        scope: &Scope,
+        expr: ExprId,
+        name: ActionName,
+        id: usize,
+    ) -> Result<Action> {
+        self.validate_scope(scope)?;
+        self.admit_scoped_expr(scope, expr)?;
+        if let ActionName::Def(d) = name {
+            self.admit_def(d)?;
+        }
+        Ok(Action {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             expr,
             env: scope.env.clone(),
             name,
             params: Vec::new(),
             label: label(&self.core.ir, name, &[], scope.wrapper.unwrap_or(expr)),
             id,
-        }
+        })
     }
 
     /// Splits a next-state relation into TLC's action list (`Tool.getActions`,
@@ -290,7 +320,7 @@ impl Evaluator {
     /// A refusal or bug while expanding, or TLC's failure to split (an
     /// operator TLC cannot cast at the top of the relation), which is refused.
     pub fn actions(&self, split: &Split, frame: DefId, first_id: usize) -> Result<Vec<Action>> {
-        self.actions_in(&self.scope(frame), split, first_id)
+        self.actions_in(&self.scope(frame)?, split, first_id)
     }
 
     /// [`Evaluator::actions`] for a relation found in `scope` (inside a
@@ -301,6 +331,8 @@ impl Evaluator {
     /// # Errors
     /// As [`Evaluator::actions`].
     pub fn actions_in(&self, scope: &Scope, split: &Split, first_id: usize) -> Result<Vec<Action>> {
+        self.validate_scope(scope)?;
+        self.admit_split(split)?;
         let env = scope.env.clone();
         let mut x = Expander {
             core: &self.core,
@@ -321,6 +353,50 @@ impl Evaluator {
         }
     }
 
+    fn admit_split(&self, split: &Split) -> Result<()> {
+        let mut work = vec![&split.root];
+        for (&def, tree) in &split.defs {
+            self.admit_def(def)?;
+            work.push(tree);
+        }
+        let mut remaining = 65_536_usize;
+        while let Some(tree) = work.pop() {
+            remaining = remaining
+                .checked_sub(1)
+                .ok_or_else(|| EvalError::resource_limit("action split admission"))?;
+            let (expr, name) = match tree {
+                ActionTree::Disj { expr, children } => {
+                    work.extend(children);
+                    (*expr, None)
+                }
+                ActionTree::Exists { expr, name, body } => {
+                    work.push(body);
+                    (*expr, Some(*name))
+                }
+                ActionTree::Scope { expr, body } => {
+                    work.push(body);
+                    (*expr, None)
+                }
+                ActionTree::Inline { expr, def, .. } => {
+                    self.admit_def(*def)?;
+                    (*expr, None)
+                }
+                ActionTree::Leaf { expr, name } | ActionTree::Configured { expr, name } => {
+                    (*expr, Some(*name))
+                }
+                ActionTree::Throws { expr } => (*expr, None),
+            };
+            self.admit_expr(expr)?;
+            if let Some(ActionName::Def(def)) = name {
+                self.admit_def(def)?;
+            }
+            if work.len() > remaining {
+                return Err(EvalError::resource_limit("action split admission"));
+            }
+        }
+        Ok(())
+    }
+
     /// Evaluates an action's predicate as an expression (TLC's
     /// `Tool.eval(pred, con, s0, s1, EvalControl.Clear)`), for a checker's
     /// invariants, constraints and implied actions found by a binding stage.
@@ -328,6 +404,7 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_action(&self, action: &Action, st: &St) -> Result<Value> {
+        self.validate_scope(&action.scope())?;
         let ev = self.core.eval(&mut action.env.clone(), st, action.expr)?;
         self.core.force_fcn(ev)
     }
@@ -336,7 +413,7 @@ impl Evaluator {
     /// action.
     #[must_use]
     pub fn action_shares_side_effects(&self, action: &Action) -> bool {
-        crate::env::shares_side_effects(&self.core.ir, &action.env)
+        self.scope_shares_side_effects(&action.scope())
     }
 
     /// Generates the initial states (`Tool.getInitStates`): every initial
@@ -352,6 +429,14 @@ impl Evaluator {
         inits: &[Action],
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
+        for action in inits {
+            self.validate_scope(&action.scope())
+                .map_err(|error| NextError {
+                    error,
+                    emitted: 0,
+                    action: None,
+                })?;
+        }
         let Some(first) = inits.first() else {
             return Ok(Outcome {
                 emitted: 0,
@@ -392,6 +477,12 @@ impl Evaluator {
         ordinal: u64,
         sink: &mut dyn FnMut(&Successor<'_>) -> Flow,
     ) -> std::result::Result<Outcome, NextError> {
+        self.validate_scope(&action.scope())
+            .map_err(|error| NextError {
+                error,
+                emitted: 0,
+                action: Some(action.id),
+            })?;
         let mut g = Gen {
             core: &self.core,
             init: false,
@@ -1680,6 +1771,9 @@ impl Expander<'_> {
             .collect();
         let id = self.first_id + self.out.len();
         self.out.push(Action {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(self.core),
             expr,
             env: env.clone(),
             name,
@@ -1898,8 +1992,8 @@ impl Evaluator {
     /// let analysis = dive_sema::analyze_source("M.tla", src, &dive_sema::Options::default());
     /// let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
     /// let d = ir.root_def("Next").expect("Next");
-    /// let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc());
-    /// assert!(ev.enabled_scoped(&ev.scope(d), ir.def(d).body, None,
+    /// let ev = Evaluator::new(Model::new(ir.clone()), Options::tlc()).expect("valid context");
+    /// assert!(ev.enabled_scoped(&ev.scope(d).expect("valid scope"), ir.def(d).body, None,
     ///     Arc::from([Some(Value::Bool(false))])).expect("enabled"));
     /// ```
     ///
@@ -1912,6 +2006,11 @@ impl Evaluator {
         sub: Option<ExprId>,
         state: StateVals,
     ) -> Result<bool> {
+        self.validate_scope(scope)?;
+        self.admit_scoped_expr(scope, action)?;
+        if let Some(sub) = sub {
+            self.admit_scoped_expr(scope, sub)?;
+        }
         if state.len() != self.core.ir.vars().len() || state.iter().any(Option::is_none) {
             return Err(EvalError::general(
                 "ENABLED requires a complete current state",

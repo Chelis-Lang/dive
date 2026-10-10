@@ -93,7 +93,12 @@ impl Model {
                 self.ir.location(&node.origin)
             )));
         }
-        let predicate = Pred::new(def.body, self.evaluator.scope(definition));
+        let predicate = Pred::new(
+            def.body,
+            self.evaluator
+                .scope(definition)
+                .map_err(|e| BindError::unsupported(e.to_string()))?,
+        );
         let value =
             self.eval(&predicate, &St::constant())
                 .map_err(|error| match error.class() {

@@ -27,6 +27,9 @@ use crate::error::{EvalError, Result};
 #[derive(Clone, Debug)]
 pub struct Scope {
     pub(crate) env: Env,
+    pub(crate) owner: Arc<dive_ir::Ir>,
+    pub(crate) names: Arc<dive_value::Interner>,
+    pub(crate) context: std::sync::Weak<crate::core::Core>,
     /// The innermost substitution entered, whose location labels the
     /// actions found under it.
     pub(crate) wrapper: Option<ExprId>,
@@ -74,8 +77,10 @@ impl Evaluator {
     /// An arity mismatch or a missing enclosing frame (bugs), or an operator
     /// argument TLC cannot look up.
     pub fn scope_apply(&self, scope: &Scope, def: DefId, args: &[Arg]) -> Result<Scope> {
+        self.validate_scope(scope)?;
+        self.admit_args(scope, def, args)?;
         let core = &self.core;
-        let d = core.ir.def(def);
+        let d = self.admit_def(def)?;
         if args.len() != d.params.len() {
             return Err(EvalError::bug(format!(
                 "{} applied to {} arguments, expects {}",
@@ -84,16 +89,7 @@ impl Evaluator {
                 d.params.len()
             )));
         }
-        let parent = match d.scope {
-            DefScope::Local { .. } | DefScope::Inline { .. } => Some(
-                scope
-                    .env
-                    .frame_at_depth(d.depth.saturating_sub(1))
-                    .cloned()
-                    .ok_or_else(|| EvalError::bug(format!("no enclosing frame for {}", d.name)))?,
-            ),
-            _ => None,
-        };
+        let parent = self.admit_parent(scope, def)?;
         let mut callee = Env::new(
             def,
             d.depth,
@@ -109,6 +105,9 @@ impl Evaluator {
             callee.bind(i, sv);
         }
         Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env: callee,
             wrapper: scope.wrapper,
         })
@@ -128,6 +127,9 @@ impl Evaluator {
         r: LocalRef,
         args: &[Arg],
     ) -> Option<Result<(DefId, Scope)>> {
+        if let Err(e) = self.validate_scope(scope) {
+            return Some(Err(e));
+        }
         let core = &self.core;
         let frame = scope.env.frame_up(r.up)?;
         let Some(Sv::Op(crate::env::OpVal::Def {
@@ -139,6 +141,9 @@ impl Evaluator {
             return None;
         };
         let def = *def;
+        if let Err(e) = self.admit_args(scope, def, args) {
+            return Some(Err(e));
+        }
         let d = core.ir.def(def);
         if args.len() != d.params.len() || core.ir.def(def).std.is_some() {
             return None;
@@ -167,6 +172,9 @@ impl Evaluator {
         Some(Ok((
             def,
             Scope {
+                owner: self.core.ir.clone(),
+                names: self.core.names.clone(),
+                context: Arc::downgrade(&self.core),
                 env: callee,
                 wrapper: scope.wrapper,
             },
@@ -178,26 +186,30 @@ impl Evaluator {
     /// parameter it meets is not in the context. A `LET` operator or `LAMBDA`
     /// keeps `scope`'s frame as its parent; a zero-arity `LET` definition is
     /// evaluated in `scope` itself.
-    #[must_use]
-    pub fn scope_unbound(&self, scope: &Scope, def: DefId) -> Scope {
-        let d = self.core.ir.def(def);
-        match d.scope {
+    ///
+    /// # Errors
+    /// A foreign scope, missing definition or missing enclosing frame.
+    pub fn scope_unbound(&self, scope: &Scope, def: DefId) -> Result<Scope> {
+        self.validate_scope(scope)?;
+        let d = self.admit_def(def)?;
+        let parent = self.admit_parent(scope, def)?;
+        Ok(match d.scope {
             DefScope::LetValue { .. } => scope.clone(),
-            DefScope::TopLevel => self.scope(def),
-            DefScope::Local { .. } | DefScope::Inline { .. } => {
-                let parent = scope.env.frame_at_depth(d.depth.saturating_sub(1)).cloned();
-                Scope {
-                    env: Env::new(
-                        def,
-                        d.depth,
-                        d.frame.len(),
-                        parent,
-                        scope.env.dynamic.clone(),
-                    ),
-                    wrapper: scope.wrapper,
-                }
-            }
-        }
+            DefScope::TopLevel => return self.scope(def),
+            DefScope::Local { .. } | DefScope::Inline { .. } => Scope {
+                owner: self.core.ir.clone(),
+                names: self.core.names.clone(),
+                context: Arc::downgrade(&self.core),
+                env: Env::new(
+                    def,
+                    d.depth,
+                    d.frame.len(),
+                    parent,
+                    scope.env.dynamic.clone(),
+                ),
+                wrapper: scope.wrapper,
+            },
+        })
     }
 
     /// Enters an application of `def` whose parameters are bound to values, as
@@ -212,21 +224,31 @@ impl Evaluator {
         def: DefId,
         values: Vec<Value>,
     ) -> Result<Scope> {
-        let d = self.core.ir.def(def);
+        self.validate_scope(scope)?;
+        let d = self.admit_def(def)?;
+        if d.params.iter().any(|p| p.arity != 0) {
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::Arity,
+                "operator parameter requires an operator binding",
+            )
+            .into());
+        }
         if values.len() != d.params.len() {
-            return Err(EvalError::bug(format!(
-                "{} inlined with {} values, expects {}",
-                d.name,
-                values.len(),
-                d.params.len()
-            )));
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::Arity,
+                "value argument count",
+            )
+            .into());
         }
         let mut s = match d.scope {
             DefScope::LetValue { .. } => return Ok(scope.clone()),
-            _ => self.scope_unbound(scope, def),
+            _ => self.scope_unbound(scope, def)?,
         };
         if matches!(d.scope, DefScope::TopLevel) {
             s.env.dynamic = scope.env.dynamic.clone();
+        }
+        for v in &values {
+            crate::context::validate_value(v, &self.core.ir, &self.core.names)?;
         }
         for (i, v) in values.into_iter().enumerate() {
             s.env.bind(i, Sv::Val(v));
@@ -241,7 +263,9 @@ impl Evaluator {
     /// # Errors
     /// As [`Evaluator::scope_apply`].
     pub fn scope_enter(&self, scope: &Scope, def: DefId) -> Result<Scope> {
-        if matches!(self.core.ir.def(def).scope, DefScope::LetValue { .. }) {
+        self.validate_scope(scope)?;
+        if matches!(self.admit_def(def)?.scope, DefScope::LetValue { .. }) {
+            self.admit_parent(scope, def)?;
             return Ok(scope.clone());
         }
         self.scope_apply(scope, def, &[])
@@ -249,13 +273,25 @@ impl Evaluator {
 
     /// A fresh frame of the top-level definition `def`: the context in which
     /// `SpecProcessor` finds a configured formula's parts.
-    #[must_use]
-    pub fn scope(&self, def: DefId) -> Scope {
-        let d = self.core.ir.def(def);
-        Scope {
+    ///
+    /// # Errors
+    /// A missing definition or a definition requiring an enclosing lexical frame.
+    pub fn scope(&self, def: DefId) -> Result<Scope> {
+        let d = self.admit_def(def)?;
+        if d.scope != DefScope::TopLevel {
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::Structure,
+                "definition requires an enclosing lexical frame",
+            )
+            .into());
+        }
+        Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env: Env::new(def, d.depth, d.frame.len(), None, Dyn::default()),
             wrapper: None,
-        }
+        })
     }
 
     /// `scope` under the substitutions of `subst`, an [`Expr::Subst`] node of
@@ -269,6 +305,8 @@ impl Evaluator {
     /// A bug if `subst` is not a substitution; an evaluation error of a
     /// binding TLC evaluates eagerly (none: every expression binding is lazy).
     pub fn scope_subst(&self, scope: &Scope, subst: ExprId) -> Result<Scope> {
+        self.admit_scoped_expr(scope, subst)?;
+        self.validate_scope(scope)?;
         let Expr::Subst { bindings, .. } = &self.core.ir.node(subst).expr else {
             return Err(EvalError::bug(
                 "scope_subst on a node that is not a substitution",
@@ -278,6 +316,9 @@ impl Evaluator {
             .core
             .bind_subst(&scope.env, &St::default(), bindings, false)?;
         Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env,
             wrapper: Some(subst),
         })
@@ -292,6 +333,8 @@ impl Evaluator {
     /// # Errors
     /// A bug if `apply` is not such an application.
     pub fn scope_call(&self, scope: &Scope, apply: ExprId) -> Result<(Scope, DefId)> {
+        self.admit_scoped_expr(scope, apply)?;
+        self.validate_scope(scope)?;
         let (d, args): (&DefId, &[Arg]) = match &self.core.ir.node(apply).expr {
             Expr::Apply {
                 callee: OpRef::Def(d),
@@ -301,12 +344,14 @@ impl Evaluator {
             _ => return Err(EvalError::bug("scope_call on a node that is not a call")),
         };
         let d = self.core.redirect(*d);
-        let def = self.core.ir.def(d);
+        self.admit_args(scope, d, args)?;
+        let def = self.admit_def(d)?;
+        let parent = self.admit_parent(scope, d)?;
         let mut env = Env::new(
             d,
             def.depth,
             def.frame.len(),
-            None,
+            parent,
             scope.env.dynamic.clone(),
         );
         for (i, a) in args.iter().enumerate() {
@@ -327,6 +372,9 @@ impl Evaluator {
         }
         Ok((
             Scope {
+                owner: self.core.ir.clone(),
+                names: self.core.names.clone(),
+                context: Arc::downgrade(&self.core),
                 env,
                 wrapper: scope.wrapper,
             },
@@ -344,6 +392,8 @@ impl Evaluator {
     /// # Errors
     /// If `let_expr` is not a `LET`.
     pub fn scope_let(&self, scope: &Scope, let_expr: ExprId) -> Result<Scope> {
+        self.admit_scoped_expr(scope, let_expr)?;
+        self.validate_scope(scope)?;
         let core = &self.core;
         let Expr::Let { defs, .. } = core.ir.expr(let_expr) else {
             return Err(EvalError::bug("scope_let on a node that is not a LET"));
@@ -359,6 +409,9 @@ impl Evaluator {
             }
         }
         Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env,
             wrapper: scope.wrapper,
         })
@@ -367,27 +420,59 @@ impl Evaluator {
     /// The scope without its instance substitutions: what TLC's context holds
     /// while `processConfigProps` walks under a substitution (TLC keeps the
     /// substitutions apart, to wrap them around what it finds).
-    #[must_use]
-    pub fn scope_without_substs(&self, scope: &Scope) -> Scope {
+    ///
+    /// # Errors
+    /// A foreign scope or inadmissible captured value.
+    pub fn scope_without_substs(&self, scope: &Scope) -> Result<Scope> {
+        self.validate_scope(scope)?;
         let mut env = scope.env.clone();
         env.dynamic.subst = None;
-        Scope {
+        Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env,
             wrapper: scope.wrapper,
-        }
+        })
     }
 
     /// Binds a slot of the scope's own frame to a value: a variable of a split
     /// `\E`, or a parameter of an operator inlined with its value
     /// (`Tool.getActionsAppl`).
-    #[must_use]
-    pub fn scope_bind(&self, scope: &Scope, slot: Slot, v: Value) -> Scope {
+    ///
+    /// # Errors
+    /// A foreign scope, unknown slot or inadmissible value.
+    pub fn scope_bind(&self, scope: &Scope, slot: Slot, v: Value) -> Result<Scope> {
+        self.validate_scope(scope)?;
+        if slot.index() >= scope.env.frame.slots.len() {
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::UnknownId,
+                "scope binding slot",
+            )
+            .into());
+        }
+        if self
+            .admit_def(scope.def())?
+            .params
+            .get(slot.index())
+            .is_some_and(|p| p.arity != 0)
+        {
+            return Err(crate::ContextError::new(
+                crate::ContextErrorKind::Arity,
+                "operator parameter requires an operator binding",
+            )
+            .into());
+        }
+        crate::context::validate_value(&v, &self.core.ir, &self.core.names)?;
         let mut env = scope.env.clone();
         env.bind(slot.index(), Sv::Val(v));
-        Scope {
+        Ok(Scope {
+            owner: self.core.ir.clone(),
+            names: self.core.names.clone(),
+            context: Arc::downgrade(&self.core),
             env,
             wrapper: scope.wrapper,
-        }
+        })
     }
 
     /// The values bound to the parameters of `def` in the innermost frame of
@@ -396,7 +481,13 @@ impl Evaluator {
     /// what TLC prints in an action's label (`Action.getLocation`).
     #[must_use]
     pub fn scope_params(&self, scope: &Scope, def: DefId) -> Vec<Option<Value>> {
-        let n = self.core.ir.def(def).params.len();
+        if self.validate_scope(scope).is_err() {
+            return Vec::new();
+        }
+        let Some(d) = self.core.ir.defs().get(def.index()) else {
+            return Vec::new();
+        };
+        let n = d.params.len();
         let mut f = Some(&scope.env.frame);
         while let Some(frame) = f {
             if frame.def == def {
@@ -415,6 +506,9 @@ impl Evaluator {
     /// What the innermost substitution of `decl` in `scope` holds, if any.
     #[must_use]
     pub fn scope_subst_slot(&self, scope: &Scope, decl: dive_ir::DeclId) -> SlotView {
+        if self.validate_scope(scope).is_err() {
+            return SlotView::Other;
+        }
         match scope.env.dynamic.lookup(decl) {
             None | Some(Sv::Unset) => SlotView::Unset,
             Some(Sv::Val(v)) => SlotView::Value(v.clone()),
@@ -422,6 +516,9 @@ impl Evaluator {
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
+                    owner: self.core.ir.clone(),
+                    names: self.core.names.clone(),
+                    context: Arc::downgrade(&self.core),
                     env: t.env.clone(),
                     wrapper: scope.wrapper,
                 },
@@ -433,6 +530,9 @@ impl Evaluator {
     /// What a local reference in `scope` holds.
     #[must_use]
     pub fn scope_slot(&self, scope: &Scope, r: LocalRef) -> SlotView {
+        if self.validate_scope(scope).is_err() {
+            return SlotView::Other;
+        }
         let Some(frame) = scope.env.frame_up(r.up) else {
             return SlotView::Unset;
         };
@@ -443,6 +543,9 @@ impl Evaluator {
             Some(Sv::Thunk(t)) => SlotView::Lazy(
                 t.expr,
                 Scope {
+                    owner: self.core.ir.clone(),
+                    names: self.core.names.clone(),
+                    context: Arc::downgrade(&self.core),
                     env: t.env.clone(),
                     wrapper: scope.wrapper,
                 },
@@ -459,6 +562,8 @@ impl Evaluator {
     /// # Errors
     /// Any error evaluating or enumerating a domain.
     pub fn scope_bindings(&self, scope: &Scope, quant: ExprId, st: &St) -> Result<Vec<Scope>> {
+        self.admit_scoped_expr(scope, quant)?;
+        self.validate_scope(scope)?;
         let core = &self.core;
         let Expr::Quant { bounds, .. } = core.ir.expr(quant) else {
             return Err(EvalError::bug(
@@ -469,6 +574,9 @@ impl Evaluator {
         let mut out = Vec::new();
         core.for_each_context(&mut env, st, bounds, quant, &mut |_, env| {
             out.push(Scope {
+                owner: self.core.ir.clone(),
+                names: self.core.names.clone(),
+                context: Arc::downgrade(&self.core),
                 env: env.clone(),
                 wrapper: scope.wrapper,
             });
@@ -497,6 +605,8 @@ impl Evaluator {
         st: &St,
         limit: usize,
     ) -> Result<Vec<Scope>> {
+        self.admit_scoped_expr(scope, quant)?;
+        self.validate_scope(scope)?;
         let core = &self.core;
         let bounds: &[dive_ir::Bound] = match core.ir.expr(quant) {
             Expr::Quant { bounds, .. }
@@ -561,6 +671,8 @@ impl Evaluator {
     /// # Errors
     /// A non-binder expression or an unbounded domain.
     pub fn scope_binder_analysis(&self, scope: &Scope, expr: ExprId) -> Result<Scope> {
+        self.admit_scoped_expr(scope, expr)?;
+        self.validate_scope(scope)?;
         let bounds: &[dive_ir::Bound] = match self.core.ir.expr(expr) {
             Expr::Quant { bounds, .. }
             | Expr::SetMap { bounds, .. }
@@ -585,6 +697,8 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_scoped(&self, scope: &Scope, expr: ExprId, st: &St) -> Result<Value> {
+        self.admit_scoped_expr(scope, expr)?;
+        self.validate_scope(scope)?;
         let mut env = scope.env.clone();
         let ev = self.core.eval(&mut env, st, expr)?;
         self.core.force_fcn(ev)
@@ -597,6 +711,7 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error; an operator argument is not a value.
     pub fn eval_arg(&self, scope: &Scope, arg: &Arg, st: &St) -> Result<Value> {
+        self.validate_scope(scope)?;
         match arg {
             Arg::Expr { expr, .. } => self.eval_scoped(scope, *expr, st),
             Arg::Op { .. } => Err(EvalError::unsupported(
@@ -623,7 +738,7 @@ impl Evaluator {
     /// The evaluation error, which the binding stage swallows as TLC does.
     pub fn precompute(&self, def: DefId) -> Result<Option<Value>> {
         let core = &self.core;
-        let d = core.ir.def(def);
+        let d = self.admit_def(def)?;
         let mut env = Env::new(def, d.depth, d.frame.len(), None, Dyn::default());
         let ev = core.eval(&mut env, &St::constant(), d.body)?;
         let Ev::V(v) = ev else {

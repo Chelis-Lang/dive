@@ -181,6 +181,8 @@ impl Model {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval(&self, pred: &Pred, st: &St) -> dive_eval::Result<Value> {
+        self.evaluator
+            .validate_model_context(&self.ir, &self.names)?;
         self.evaluator.eval_scoped(&pred.scope, pred.expr, st)
     }
 
@@ -188,6 +190,13 @@ impl Model {
     /// skipped, stopping at the first that is not `TRUE`.
     #[must_use]
     pub fn check_assumptions(&self) -> AssumptionOutcome {
+        if let Err(error) = self.evaluator.validate_model_context(&self.ir, &self.names) {
+            return AssumptionOutcome::Error {
+                def: DefId(u32::MAX),
+                message: error.to_string(),
+                error: error.into(),
+            };
+        }
         let axioms: Vec<DefId> = {
             let root = self.ir.module(self.ir.root());
             root.assumptions

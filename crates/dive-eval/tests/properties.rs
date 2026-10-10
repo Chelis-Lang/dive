@@ -68,7 +68,7 @@ fn eval_all(src: &str, n: usize, opts: Options) -> Vec<String> {
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lowers"));
     let mut model = Model::new(ir.clone());
     model.names = Arc::new(harness::seed_interner(src));
-    let ev = Evaluator::new(model, opts);
+    let ev = Evaluator::new(model, opts).expect("valid evaluator context");
     (0..n)
         .map(|i| {
             let d = ir.root_def(&format!("E{i}")).expect("defined");

@@ -23,7 +23,7 @@
 //! let src = "---- MODULE M ----\nEXTENDS Naturals\nTwice(n) == n + n\nX == Twice(21)\n====\n";
 //! let ir = dive_ir::lower(&analyze_source("M.tla", src, &SemaOptions::default())).expect("lowers");
 //! let x = ir.root_def("X").expect("defined");
-//! let ev = Evaluator::new(Model::new(Arc::new(ir)), Options::tlc());
+//! let ev = Evaluator::new(Model::new(Arc::new(ir)), Options::tlc()).expect("valid context");
 //! assert_eq!(ev.eval_def(x, &St::constant()).expect("evaluates"), 42.into());
 //! ```
 //!
@@ -42,7 +42,9 @@
 mod bounded_domain;
 pub mod capture;
 mod community;
+mod context;
 mod core;
+pub use context::{ContextError, ContextErrorKind};
 mod env;
 mod error;
 mod eval;
@@ -171,12 +173,18 @@ pub struct Evaluator {
 
 impl Evaluator {
     /// An evaluator that collects `Print` output (see [`Evaluator::take_output`]).
-    #[must_use]
-    pub fn new(model: Model, opts: Options) -> Self {
+    /// Admission checks IR references, override signatures/cycles and captured
+    /// values before interning literals or invoking caller code. Bare numeric IDs
+    /// are relative to `model.ir`; coincidentally equal foreign indices are not
+    /// provenance certificates.
+    ///
+    /// # Errors
+    /// A typed malformed context or bounded admission refusal.
+    pub fn new(model: Model, opts: Options) -> ::std::result::Result<Self, ContextError> {
         let sink = Arc::new(CollectSink::default());
-        let mut ev = Self::with_sink(model, opts, sink.clone());
+        let mut ev = Self::with_sink(model, opts, sink.clone())?;
         ev.collected = Some(sink);
-        ev
+        Ok(ev)
     }
 
     /// Takes the `Print` output collected so far (empty with a custom sink).
@@ -207,16 +215,23 @@ impl Evaluator {
     /// evaluation, so a parallel checker must not reorder those evaluations.
     #[must_use]
     pub fn scope_shares_side_effects(&self, scope: &Scope) -> bool {
-        env::shares_side_effects(&self.core.ir, &scope.env)
+        self.validate_scope(scope).is_err() || env::shares_side_effects(&self.core.ir, &scope.env)
     }
 
-    /// An evaluator with its own `Print` sink.
-    #[must_use]
-    pub fn with_sink(model: Model, opts: Options, sink: Arc<dyn PrintSink>) -> Self {
-        Self {
+    /// An evaluator with its own `Print` sink, admitted before any sink call.
+    ///
+    /// # Errors
+    /// The same context admission failures as [`Self::new`].
+    pub fn with_sink(
+        mut model: Model,
+        opts: Options,
+        sink: Arc<dyn PrintSink>,
+    ) -> ::std::result::Result<Self, ContextError> {
+        context::validate(&mut model)?;
+        Ok(Self {
             core: Arc::new(Core::new(model, opts, sink)),
             collected: None,
-        }
+        })
     }
 
     /// Installs the run hosting the evaluator (see [`Host`]): the model
@@ -302,7 +317,7 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_def(&self, def: DefId, st: &St) -> Result<Value> {
-        let d = self.core.ir.def(def);
+        let d = self.admit_def(def)?;
         if !d.params.is_empty() {
             return Err(EvalError::bug(format!(
                 "{} takes {} arguments",
@@ -321,7 +336,9 @@ impl Evaluator {
     /// # Errors
     /// Any evaluation error, refusal or resource limit.
     pub fn eval_in(&self, def: DefId, expr: ExprId, st: &St) -> Result<Value> {
-        let d = self.core.ir.def(def);
+        let scope = self.scope(def)?;
+        self.admit_scoped_expr(&scope, expr)?;
+        let d = self.admit_def(def)?;
         let mut env = Env::new(def, d.depth, d.frame.len(), None, Dyn::default());
         let ev = self.core.eval(&mut env, st, expr)?;
         self.core.force_fcn(ev)
@@ -349,8 +366,16 @@ impl Evaluator {
     /// `Empty`, control `Const`).
     #[must_use]
     pub fn check_assumption(&self, a: DefId) -> AssumptionOutcome {
-        let ir = &self.core.ir;
-        let def = ir.def(a);
+        let def = match self.admit_def(a) {
+            Ok(def) => def,
+            Err(error) => {
+                return AssumptionOutcome::Error {
+                    def: a,
+                    message: error.to_string(),
+                    error,
+                };
+            }
+        };
         let loc = self.core.loc(def.body);
         let mut env = Env::new(a, def.depth, def.frame.len(), None, Dyn::default());
         match self.core.eval(&mut env, &St::constant(), def.body) {
