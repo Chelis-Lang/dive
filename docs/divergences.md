@@ -243,3 +243,11 @@ scope support remains partial. No result-changing default or resource limit chan
 D-013 temporal endpoint checks also refuse missing scoped expression/definition
 metadata without panics. The separate public evaluator-constructor context gap
 (#129, F-035) remains open; this does not claim arbitrary caller IR validation.
+
+D-013 planning progress now includes a bounded, separate TLC normalization and
+pre-tableau grouping projection (ADR 0025, `tlc-planning` controls). It preserves
+predicate occurrence tags, exact DNF encounter order, recurrence collection,
+EA/AE classification and first-encounter OOS/PEM bins. Original property names
+remain available independently of combined DNF. This is diagnostic planning
+support only: no new default, tableau identity or strict integrated-liveness
+claim. Existing opaque/scope/effect and construction-limit refusals remain.

@@ -363,12 +363,13 @@
       "phase": 3,
       "pinned_source": "tlc2/tool/liveness/Liveness.java",
       "rust_evidence": "crates/dive-liveness/src/plan.rs",
-      "conformance_evidence": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
+      "conformance_evidence": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain); conformance/probes/tlc-planning/README.md; crates/dive-liveness/tests/tlc_planning.rs (bounded normalization/grouping only; strict execution/tableau identities pending)",
       "issues": [
         63,
         66,
         107,
-        127
+        127,
+        130
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -386,11 +387,12 @@
       "phase": 4,
       "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
       "rust_evidence": "crates/dive-eval/src/capture.rs",
-      "conformance_evidence": "docs/temporal-study.md",
+      "conformance_evidence": "docs/temporal-study.md; conformance/probes/tlc-planning/README.md; crates/dive-liveness/tests/tlc_planning.rs (bounded normalization/grouping only; strict execution/tableau identities pending)",
       "issues": [
         66,
         108,
-        109
+        109,
+        130
       ],
       "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
       "interactions": [
@@ -409,10 +411,11 @@
       "phase": 4,
       "pinned_source": "tlc2/tool/liveness/Liveness.java",
       "rust_evidence": "crates/dive-trace/src/lib.rs",
-      "conformance_evidence": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain); conformance/probes/tlc-planning/README.md; crates/dive-liveness/tests/tlc_planning.rs (bounded normalization/grouping only; strict execution/tableau identities pending)",
       "issues": [
         63,
-        127
+        127,
+        130
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [

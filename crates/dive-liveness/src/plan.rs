@@ -207,6 +207,7 @@ impl std::fmt::Display for PlanningError {
 impl std::error::Error for PlanningError {}
 
 struct Lower<'a> {
+    tlc_shape: bool,
     model: &'a Model,
     limits: Limits,
     nodes: Vec<Node>,
@@ -1042,6 +1043,13 @@ impl Lower<'_> {
                     AtomTest::Nonstuttering { sub: *sub },
                 )?;
                 let disabled = self.push(Node::Not(en))?;
+                if self.tlc_shape && matches!(node.expr, Expr::Wf { .. }) {
+                    // Pinned astToLive WF shape: []<>(~ENABLED <A>_v \/ <A>_v).
+                    // The language kernel's equivalent disjunction remains unchanged.
+                    let disjunction = self.push(Node::Or(vec![disabled, action]))?;
+                    let eventual = self.push(Node::Eventually(disjunction))?;
+                    return self.push(Node::Always(eventual));
+                }
                 let recurring = self.push(Node::Eventually(action))?;
                 let recurring = self.push(Node::Always(recurring))?;
                 let not_enabled = if matches!(node.expr, Expr::Wf { .. }) {
@@ -1072,7 +1080,21 @@ impl Lower<'_> {
 /// Effects, nested opaque ENABLED, dynamic/opaque scopes, unsupported temporal
 /// constructors, constant evaluation failures and explicit construction bounds.
 pub fn lower(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
+    lower_with_shape(model, pred, limits, false)
+}
+
+pub(crate) fn lower_tlc(model: &Model, pred: &Pred, limits: Limits) -> Result<Plan, PlanningError> {
+    lower_with_shape(model, pred, limits, true)
+}
+
+fn lower_with_shape(
+    model: &Model,
+    pred: &Pred,
+    limits: Limits,
+    tlc_shape: bool,
+) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
+        tlc_shape,
         model,
         limits,
         nodes: Vec::new(),
@@ -1103,6 +1125,7 @@ pub fn lower_violation(
     limits: Limits,
 ) -> Result<Plan, PlanningError> {
     let mut cx = Lower {
+        tlc_shape: false,
         model,
         limits,
         nodes: Vec::new(),

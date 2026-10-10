@@ -1,0 +1,9 @@
+tagged	N(N(N(G(s1))))
+pushed	E(N(s1))
+simplified	E(N(s1))
+dnf	E(N(s1))
+groups	1
+g0.temporal	E(N(s1))
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	

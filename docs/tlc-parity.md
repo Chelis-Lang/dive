@@ -299,3 +299,31 @@ the prior panics; it is not an oracle result. Constructing an evaluator with an
 invalid redirect target can still panic before these endpoints run (#129).
 General caller-created IR/context validation remains a separate partial API
 obligation; this increment does not redesign the evaluator constructor.
+
+### Bounded TLC normalization and pre-tableau grouping (P3-planning, #130)
+
+ADR 0025 adds a diagnostic projection retaining predicate occurrence tags,
+negation/simplification/DNF stages, TLC's recurrence-disjunction collection,
+EA/AE classification, and ordered OOS/PEM bins. The model entry point retains
+configured property identities and existing scope/purity checks; its private
+WF shape matches pinned `astToLive`. Existing kernel/checker behavior is
+unchanged.
+
+All 84 supplied-formula controls and twelve real FastTool models remain in the
+selection. Completed field projections, classifier/semantic refusals and DNF
+cardinality failures are accounted separately. Actual processLiveness arrays
+check the development adapter; independent scoped periodic words test every
+transformation and reconstructed grouping. Existing historical corpus reports
+are immutable and receive no new matches from these controls.
+
+F-019/F-020/F-021 remain partial/audit-required. Binary/tableau/promise identity,
+phase-L retention, periodic timing, SCC acceptance and TLC witness selection
+are not implemented by this stage. Strict integrated liveness stays refused;
+planning success must never be interpreted as proof or certification.
+
+`TpLocal` distinguishes pinned Action/configured name `Live` from the derived
+`getImpliedTemporalNames()` value `Identity`. Dive's role table matches that
+latter field, while the configured-property table retains `Live`. All eleven
+completed controls match those separate fields. Retaining action attribution
+through future tableau/witness execution remains a separate representation
+obligation (#134); grouping equality does not certify property attribution.

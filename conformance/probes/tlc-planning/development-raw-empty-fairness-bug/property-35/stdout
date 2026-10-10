@@ -1,0 +1,9 @@
+tagged	N(D())
+pushed	C()
+simplified	T
+dnf	T
+groups	1
+g0.temporal	T
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	
