@@ -5,6 +5,8 @@ encoded active safety frontier to 1 MiB before spilling it to owned transient
 files. `--frontier-memory-bytes 0` forces disk immediately. Add
 `--frontier-directory DIR` to choose an existing parent directory. Omit these
 options to use the original in-memory reference queue.
+Simulation and DFID explicitly refuse these safety-BFS storage flags before
+executing a model; they do not silently ignore the request.
 
 This works with `--compat=tlc`, the default profile, `--store fp` and
 `--store exact`. It preserves ordered search, partial-stop counts and concrete

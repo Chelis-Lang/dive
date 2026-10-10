@@ -729,7 +729,13 @@ fn simulate_command(
                     request.module_paths.push(path.into());
                 }
             }
-            "--continue" | "--generate" | "--probabilistic" | "--rl" | "--distributed" => {
+            "--continue"
+            | "--generate"
+            | "--probabilistic"
+            | "--rl"
+            | "--distributed"
+            | "--frontier-memory-bytes"
+            | "--frontier-directory" => {
                 let _ = writeln!(err, "unsupported: simulation {arg}; no result produced");
                 return ExitCode::from(EXIT_UNSUPPORTED);
             }
