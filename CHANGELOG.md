@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The project will follow
 
 - Rust safety-check requests reject a frontier directory without an encoded
   frontier budget before loading a model, matching CLI option admission.
+- Add bounded diagnostic TLC binary particle tableaux: exact first-encounter
+  node/edge order, state predicates, initial particles and promise identities.
+  Complete pinned projections and independent periodic/closing-witness controls
+  preserve explicit resource, structural and scope refusals. Strict integrated
+  liveness, checker behavior and defaults remain unchanged.
 
 - TLC-order simulation refuses runtime-name history that cannot yet be
   independently validated; canonical default sampling remains supported.

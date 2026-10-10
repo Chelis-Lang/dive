@@ -61,6 +61,10 @@ def main():
                                        'models.json', 'model-raw', 12,
                                        'historical-pre-whitespace-models')
     assert [r['name'] for r in historical_models if r['exit'] != 0] == ['TpActionBad']
+    before = load('historical-before-tableau-source-matrix.json')
+    assert before['base_commit'] == '0b02e46'
+    for path, digest in before['source_sha256'].items():
+        assert sha(PROBE / 'historical-before-tableau-source' / path) == digest
     matrix = load('source-matrix.json')
     assert matrix['base_commit'] == '0b02e46'
     for path, digest in matrix['source_sha256'].items():

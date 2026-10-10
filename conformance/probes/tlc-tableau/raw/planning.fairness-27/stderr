@@ -1,0 +1,12 @@
+Exception in thread "main" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at tlc2.tool.liveness.TableauProbe.supplied(TableauProbe.java:89)
+	at tlc2.tool.liveness.TableauProbe.run(TableauProbe.java:110)
+	at tlc2.tool.liveness.TableauProbe.main(TableauProbe.java:113)
+Caused by: util.Assert$TLCRuntimeException: Temporal formulas containing actions must be of forms <>[]A or []<>A.
+	at util.Assert.fail(Assert.java:114)
+	at tlc2.tool.liveness.Liveness.classifyExpr(Liveness.java:1006)
+	... 7 more

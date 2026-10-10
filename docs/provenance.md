@@ -315,3 +315,16 @@ probes across storage, profiles, stores and scheduling;
 `crates/dive-api/tests/frontier_spill.rs` independently checks concrete symmetry
 witnesses. Checksums, byte accounting and non-evaluating deferred-value admission
 are dive's own implementation.
+
+## Bounded TLC tableau projection
+
+| Implementation | Pinned reference | License | Evidence and scope |
+|---|---|---|---|
+| Bounded TLC tableau projection (`dive-liveness/src/tlc_tableau.rs`) | `tlc2/tool/liveness/TBGraph.java` constructor/findOrCreateNode; `TBGraphNode.java` state predicates/isAccepting; `TBPar.java` positiveClosure/particleClosure/local consistency/impliedSuccessors/isFulfilling; `TBParVec.java` union; `LNConj`/`LNDisj` makeBinary, `LNAll`/`LNEven`/`LNNext`/`LNNeg` tagged equals/extractPromises; pinned commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Particle and promise ordering/numbering semantics matched through actual pinned methods. Arena/work/pending/depth preflight is original bounded admission logic. Complete raw controls and historical selection in `conformance/probes/tlc-tableau`; no graph-capture/SCC/witness/strict execution claim. ADR 0027 |
+
+The independent particle/periodic checker in the tests uses direct state truth,
+finite reachability and mutually reachable cyclic components rather than the
+production tableau expansion or SCC backend. Original scoped word/witness
+validation continues through standalone `dive-trace`; no dependency on
+`dive-liveness` was added. Configured/Action and derived role names remain
+separate projected fields, not interchangeable attribution evidence.

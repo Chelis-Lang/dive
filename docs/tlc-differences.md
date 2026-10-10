@@ -562,9 +562,18 @@ shape refusals and TLC's integer-overflow bound on DNF expansion.
 
 This supports the future TLC-compatible path; it does not change which
 counterexample ordinary `dive check` returns. Strict integrated liveness,
-tableau/promise identities, timing and selection remain refused. The existing
+strict execution, timing and selection remain refused. The existing
 final/short path and its reported restrictions are unchanged. Evidence:
 `conformance/probes/tlc-planning/README.md` and ADR 0025.
+
+D-013 diagnostic planning now also projects bounded TLC particle/tableau
+numbering and promise identities (ADR 0027). Actual pinned graph fields and
+independent periodic/closing-witness controls cover this artifact; it never
+reports a temporal verdict. Empty/nonpositive direct structures, actions,
+unchecked group/tag/bin metadata, opaque/effectful scopes and resource limits
+remain named refusals. Strict integrated TLC liveness, phase-L timing, SCC and
+witness selection remain unsupported by this stage. Original configured/Action
+claims and derived role names stay separate; no new default is adopted.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 

@@ -1,0 +1,11 @@
+groups	1
+g0.binary	G(N(s1))
+g0.promises	
+g0.initial	1
+g0.nodes	1
+g0.n0.index	0
+g0.n0.particle	G(N(s1));N(s1);X(G(N(s1)))
+g0.n0.state	N(s1)
+g0.n0.next	0
+g0.n0.fulfills	
+g0.n0.accepting	false
