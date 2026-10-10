@@ -41,3 +41,9 @@ independently validated short lasso with
 `dive check Model.tla --lncheck final --lasso short --output json`.
 See [temporal checking](docs/temporal-api.md#command-line-access) for scope,
 lossless traces and compatibility limits.
+
+The pure safety DFID slice is available with
+`dive dfid Model.tla --max-level 8 --seed 7 --output json` and
+`dive_api::dfid_file`. Reaching the depth bound reports incomplete exploration;
+only a separate completion certificate permits `model_proved: true`. See
+[DFID controls and limits](crates/dive-check/tests/fixtures/dfid/README.md).

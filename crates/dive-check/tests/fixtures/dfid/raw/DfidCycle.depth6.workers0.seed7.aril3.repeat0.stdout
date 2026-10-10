@@ -1,0 +1,7 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2026.10.06.014338 (rev: 94d0c50)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 1102:1 @!@!@
+Error: at least one worker required.
+Usage: java tlc2.TLC [-help] [-option] inputfile
+@!@!@ENDMSG 1102 @!@!@
