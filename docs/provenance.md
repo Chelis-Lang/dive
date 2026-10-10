@@ -220,6 +220,11 @@ word/ENABLED algorithms and no successor enumeration feature.
 |---|---|---|---|
 | Symmetry preparation (`dive-model/src/symmetry/prepare.rs`) | `tlc2/tool/impl/Tool.java` `getSymmetryPerms`, `addToSubTwoSizedSymmetrySetList`, `getSetEnumValueFromArgumentNode`; `ModelConfig.getOverridenSpecNameForConfigName`; `tla2sany/parser/SyntaxTreeNode.getHumanReadableImage`; pinned `94d0c50` | MIT | Pure startup ordering, supported argument shapes, source-backed warning text and cfg aliases. Unverified errors remain refusals. |
 | Symmetry canonical keys and normalization | `tlc2/tool/TLCStateMut.fingerPrint`; `SetEnumValue`, `FcnRcdValue`, `TupleValue`, `RecordValue` `permute` / `deepNormalize`; pinned `94d0c50` | MIT | Minimum image in run order, VIEW after symmetry, concrete state normalization side effects; independent concrete predecessors retained. Deferred/lazy permutations remain refused. |
+## Finite safety simulation
+
+| Increment | Reference | License | Matched behavior |
+|---|---|---|---|
+| `dive-sim` finite safety selection and callback ordering | tlaplus `tlc2/tool/Simulator.java` `simulate`, constructor worker seeding; `tlc2/tool/SimulationWorker.java` `simulateRandomTrace`, `randomState`, `getNextActionIndex`, `getNextActionAltIndex`, `addElement`, `getTrace`; `tlc2/util/RandomGenerator.java` `nextPrime`; commit `94d0c50` | MIT | Semantics matched for ordinary single-worker pure finite safety simulation; default per-trace seeding is dive's approved D-003 design; independent trace validation uses existing separate predicates |
 
 Runtime namespace startup matches pinned `AbstractChecker.createConfig`
 (`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint

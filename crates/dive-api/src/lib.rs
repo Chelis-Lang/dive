@@ -7,7 +7,8 @@
 //! with its own report ([`AnalyzeReport::to_json`]); safety model checking
 //! ([`check_file`], [`CheckReport`]); and trace validation against a
 //! specification ([`trace`], ADR 0016); and bounded final temporal checking
-//! for Rust callers ([`temporal`]). Everything else in the
+//! for Rust callers ([`temporal`]); and finite seeded safety simulation
+//! ([`simulate_file`]). Everything else in the
 //! charter is still to come. Permitted internal dependencies are listed in
 //! `xtask/src/layering.rs`.
 //!
@@ -33,6 +34,8 @@ mod analyze;
 mod check;
 mod dfid;
 pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file};
+mod simulate;
+pub use simulate::{SIMULATE_SCHEMA_VERSION, SimulateReport, SimulateRequest, simulate_file};
 
 pub use check::{
     CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, Store, TEMPORAL_CHECK_SCHEMA_VERSION,

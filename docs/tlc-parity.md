@@ -11,7 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: 7 have an implemented core, 22 are partial, and 8 are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 23 are partial, and 7 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -51,6 +51,11 @@ replace arbitrary JVM plugin loading; Java worker/checkpoint interoperability
 is explicitly outside this milestone. Reals/proof constructs that TLC cannot
 execute require matching rejection, not fabricated execution.
 
+Simulation evidence now covers ordinary pure finite safety sampling: ten seeded/
+aril selection controls and twelve error probes. This does not certify the
+whole F-024 family: temporal simulation, runtime effects, generation, other
+schedulers and parallel/distributed simulation remain named refusals.
+
 ## Semantic feature families
 
 Each JSON row owns source/Rust references, acceptance criteria, interactions,
@@ -88,7 +93,7 @@ and a corresponding certification schema before the label can change.
 | F-021 | WF/SF fairness and independent periodic validation | partial | 4 | [temporal.rs](../crates/dive-api/tests/temporal.rs) |
 | F-022 | SCC acceptance, TLC lasso selection and attribution | partial | 4 | [lassos.rs](../crates/dive-liveness/tests/lassos.rs) |
 | F-023 | Periodic/final/off/sequential liveness schedules | missing | 4 | [m6-plan.md](design/m6-plan.md) |
-| F-024 | Simulation, generation, scheduling and random replay | missing | 5 | [mod.rs](../crates/dive-stdlib/src/random/mod.rs) |
+| F-024 | Simulation, generation, scheduling and random replay | partial | 5 | [seeded controls and independent validation](../crates/dive-api/tests/simulate.rs), [bounded scope](../crates/dive-sim/README.md); #111 |
 | F-025 | DFID checking | partial | 5 | [DFID controls](../conformance/reports/dfid-primary-controls.json); pure safety only, uncertified |
 | F-026 | Granted environment, file and process effects | missing | 6 | [tlc-differences.md](tlc-differences.md) |
 | F-027 | Runtime introspection and configuration services | partial | 6 | [tlc_module.rs](../crates/dive-check/tests/tlc_module.rs) |
@@ -99,7 +104,7 @@ and a corresponding certification schema before the label can change.
 | F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | missing | 8 | [frontend-campaign.md](frontend-campaign.md) |
-| F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs) |
+| F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
 | F-036 | Complete corpus, harness and release certification | partial | 1 | [conformance-corpora.md](conformance-corpora.md) |
 | F-037 | Global TLC profile and approved better defaults | partial | 9 | [tlc-differences.md](tlc-differences.md) |
 
@@ -155,7 +160,7 @@ harness when it launches Java are not thereby implemented by the Rust CLI.
 | `-modelcheck`, `-workers`, `-deadlock`, `-config` | F-003/F-012/F-013; core implemented, remaining option/error interactions require audit |
 | `-seed`, `-aril`, `-fp` | F-014/F-024; Java random kernel and fingerprint pin exist, all modes/aril CLI coverage still required |
 | `-lncheck` | F-019–F-023; only explicit final/short mixed path currently checks temporal models |
-| `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; simulation pending integration; bounded pure-safety DFID partial, full mode matrix pending |
+| `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; pure finite single-worker simulation and bounded pure-safety DFID are partial; generation and the full scheduler/mode matrix remain pending |
 | `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; native persistence/recovery missing |
 | `-maxSetSize`, `-fpmem`, `-fpbits`, `-gzip` | F-005/F-014/F-031; TLC limit and storage policy behavior must be mapped and tested |
 | `-continue`, `-postCondition` | F-012/F-027; continuation, terminal effects and their error order need implementation/audit |
