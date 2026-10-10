@@ -695,6 +695,11 @@ fn classify(e: &EvalError, measured: Option<(u32, String)>) -> Outcome {
 }
 
 fn preflight(model: &Model, opts: &Options) -> Option<Outcome> {
+    if opts.check.predecessor_memory_bytes.is_some() || opts.check.predecessor_directory.is_some() {
+        return Some(Outcome::Unsupported(
+            "predecessor spill with DFID is not implemented".into(),
+        ));
+    }
     let refusal = |s: &str| Some(Outcome::Unsupported(s.to_owned()));
     if opts.check.workers == 0 {
         return Some(Outcome::Error {

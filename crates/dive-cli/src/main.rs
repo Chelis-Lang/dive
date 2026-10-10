@@ -35,6 +35,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
+               [--predecessor-memory-bytes N] [--predecessor-directory DIR]
                [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
@@ -401,6 +402,22 @@ fn check_command(
                 Some(dir) => req.frontier_directory = Some(dir.into()),
                 None => return usage_error(err, "--frontier-directory expects a directory"),
             },
+            "--predecessor-memory-bytes" => {
+                let v = value();
+                match number::<usize>(flag, v.as_ref(), err) {
+                    Some(n) => req.predecessor_memory_bytes = Some(n),
+                    None => {
+                        return usage_error(
+                            err,
+                            "--predecessor-memory-bytes expects a nonnegative byte count",
+                        );
+                    }
+                }
+            }
+            "--predecessor-directory" => match value() {
+                Some(dir) => req.predecessor_directory = Some(dir.into()),
+                None => return usage_error(err, "--predecessor-directory expects a directory"),
+            },
             // Hidden, test-only: randomized scheduling that must not change
             // any result (ADR 0015 §2, chaos mode).
             "--chaos" => match value().as_deref().map(str::parse::<u64>) {
@@ -440,6 +457,12 @@ fn check_command(
     } else {
         dive_api::TemporalMode::Ordinary
     };
+    if req.predecessor_directory.is_some() && req.predecessor_memory_bytes.is_none() {
+        return usage_error(
+            err,
+            "--predecessor-directory requires --predecessor-memory-bytes",
+        );
+    }
     req.file = file.into();
     let report = match dive_api::check_file(&req) {
         Ok(r) => r,
@@ -656,6 +679,14 @@ fn simulate_command(
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
+            s if matches!(
+                s.split('=').next(),
+                Some("--predecessor-memory-bytes" | "--predecessor-directory")
+            ) =>
+            {
+                let _ = writeln!(err, "predecessor spill with simulation is not implemented");
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
             "--compat=tlc" => request.compat_tlc = true,
             "--config" => {
                 let Some(value) = it.next() else {
@@ -806,6 +837,10 @@ fn dfid_command(
         };
         let mut value = || inline.clone().or_else(|| it.next().cloned());
         match flag {
+            "--predecessor-memory-bytes" | "--predecessor-directory" => {
+                let _ = writeln!(err, "predecessor spill with DFID is not implemented");
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
             "--output" => match value().as_deref() {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -928,5 +963,43 @@ fn main() -> ExitCode {
             let _ = write!(stderr, "error: unknown command `{other}`\n\n{}", usage());
             ExitCode::from(EXIT_USAGE)
         }
+    }
+}
+
+#[cfg(test)]
+mod predecessor_tests {
+    use super::*;
+    #[test]
+    fn orphan_directory_and_other_modes_refuse_before_input_access() {
+        let args = [
+            "missing.tla".into(),
+            "--predecessor-directory".into(),
+            "missing-parent".into(),
+        ];
+        let mut output = Vec::new();
+        let mut errors = Vec::new();
+        assert_eq!(
+            check_command(&args, &mut output, &mut errors),
+            ExitCode::from(EXIT_USAGE)
+        );
+        assert!(String::from_utf8_lossy(&errors).contains("requires --predecessor-memory-bytes"));
+        for flag in [
+            "--predecessor-memory-bytes=0",
+            "--predecessor-directory=missing",
+        ] {
+            errors.clear();
+            assert_eq!(
+                simulate_command(&[flag.into()], &mut output, &mut errors),
+                ExitCode::from(EXIT_UNSUPPORTED)
+            );
+            assert!(String::from_utf8_lossy(&errors).contains("predecessor spill with simulation"));
+            errors.clear();
+            assert_eq!(
+                dfid_command(&[flag.into()], &mut output, &mut errors),
+                ExitCode::from(EXIT_UNSUPPORTED)
+            );
+            assert!(String::from_utf8_lossy(&errors).contains("predecessor spill with DFID"));
+        }
+        assert_eq!(output, [] as [u8; 0]);
     }
 }

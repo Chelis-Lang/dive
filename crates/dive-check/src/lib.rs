@@ -87,8 +87,8 @@ use dive_model::{BindError, BindOptions, ErrorKind, Message};
 pub use options::CheckOptions;
 pub use render::{format_trace_state, render_human};
 pub use result::{
-    CheckResult, Collision, Counterexample, ErrorSite, Stats, TlcClass, TraceState, Verdict,
-    Workers, tlc_exit_status,
+    CheckResult, Collision, Counterexample, ErrorSite, PredecessorUsage, Stats, TlcClass,
+    TraceState, Verdict, Workers, tlc_exit_status,
 };
 
 /// Checks the model `cfg` of the lowered specification `ir`.
@@ -96,6 +96,15 @@ pub use result::{
 /// Runs on its own thread with the evaluator's recommended stack.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
+    if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
+        return bare(
+            Verdict::Unsupported {
+                feature: "predecessor directory requires predecessor memory budget".into(),
+            },
+            opts,
+            ir,
+        );
+    }
     let started = Instant::now();
     let run = || run_check(ir, cfg, opts);
     let outcome = std::thread::scope(|s| {
@@ -174,6 +183,7 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
                 .map(|_| dive_store::spill::MAX_RECORD_BYTES),
             ..crate::FrontierUsage::default()
         },
+        predecessor: crate::result::PredecessorUsage::default(),
         verdict,
         stats: None,
         tlc_prints_stats: false,
@@ -286,6 +296,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     }
     let outcome = engine::search(&m, opts, &host);
     r.frontier = outcome.frontier;
+    r.predecessor = outcome.predecessor;
     r.verdict = outcome.verdict;
     r.stats = outcome.stats;
     r.tlc_prints_stats = outcome.tlc_prints_stats;

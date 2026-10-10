@@ -6,13 +6,21 @@ use dive_value::ValueError;
 
 /// An error from state storage.
 ///
-/// Apart from [`StoreError::Value`], which carries the value layer's TLC-format error
+/// Apart from [`StoreError::Predecessor`] (native I/O/allocation/corruption) and
+/// [`StoreError::Value`], which carries the value layer's TLC-format error
 /// (a state that cannot be fingerprinted or encoded, as in TLC), every variant is an
 /// internal invariant violation: a bug in the caller or in `dive-store`, reported with
 /// enough context to reproduce it.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum StoreError {
+    /// Native predecessor storage failed; never a model verdict.
+    Predecessor {
+        /// The operation that failed.
+        operation: String,
+        /// Underlying I/O, corruption or allocation detail.
+        message: String,
+    },
     /// A value could not be fingerprinted, encoded or decoded.
     Value(ValueError),
     /// Two candidates in one resolve had the same key and the same position. Positions
@@ -54,6 +62,7 @@ impl StoreError {
     #[must_use]
     pub const fn code(&self) -> &'static str {
         match self {
+            Self::Predecessor { .. } => "DIVE-S0300",
             Self::Value(_) => "DIVE-S0001",
             Self::DuplicatePosition { .. } => "DIVE-S0100",
             Self::ShardMismatch { .. } => "DIVE-S0104",
@@ -68,6 +77,9 @@ impl StoreError {
 impl fmt::Display for StoreError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Predecessor { operation, message } => {
+                write!(f, "{}: predecessor {operation}: {message}", self.code())
+            }
             Self::Value(e) => write!(f, "{e}"),
             Self::DuplicatePosition { shard } => write!(
                 f,

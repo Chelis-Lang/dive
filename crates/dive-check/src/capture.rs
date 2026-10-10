@@ -318,6 +318,9 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
     if opts.frontier_memory_bytes.is_some() {
         return refuse("frontier spill with behavior graph capture is not yet certified".into());
     }
+    if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
+        return refuse("predecessor spill with behavior graph capture is not implemented".into());
+    }
     if model.evaluator.options() != &opts.eval {
         return refuse("graph capture evaluator profile mismatch".into());
     }

@@ -24,6 +24,12 @@ All notable changes to this project are documented here. The project will follow
   Complete pinned projections and independent periodic/closing-witness controls
   preserve explicit resource, structural and scope refusals. Strict integrated
   liveness, checker behavior and defaults remain unchanged.
+- Ordinary safety BFS can spill predecessor/ordinal records with a separate
+  `--predecessor-memory-bytes` budget and optional `--predecessor-directory`.
+  Zero spills immediately; both stores and profiles preserve concrete replay.
+  Corruption, I/O and cleanup failures prevent certification while retaining
+  partial counts and worker evidence. This is transient storage, not a total
+  RAM budget or checkpoint mode. Other checking modes refuse the setting.
 
 - Public evaluator construction now returns typed admission errors before
   literal interning or callbacks. Scope/action creation checks IDs, arity,

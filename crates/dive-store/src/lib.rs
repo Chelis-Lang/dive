@@ -73,6 +73,7 @@ mod error;
 mod exact;
 mod fpset;
 pub mod frontier;
+pub mod predecessor;
 mod set;
 pub mod spill;
 pub mod state;
