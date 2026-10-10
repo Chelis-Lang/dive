@@ -956,3 +956,60 @@ fn final_tlc_effects_are_refused_without_startup_output_or_proof() {
     assert!(v["counterexample"].is_null());
     assert!(v["tlc"].is_null());
 }
+
+#[test]
+fn final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claims() {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/tlc-final-safety/models");
+    for (name, code, kind) in [
+        ("SafetyHold", 0, "success"),
+        ("SafetyIf", 0, "success"),
+        ("SafetyInvariant", 12, "invariant-violation"),
+        ("SafetyInitial", 12, "invariant-violation"),
+        ("SafetyAction", 13, "action-property-violation"),
+        ("SafetyPropertyInitial", 13, "property-violation"),
+    ] {
+        let path = base.join(name).join(format!("{name}.tla"));
+        let out = dive(&[
+            "check",
+            &path.to_string_lossy(),
+            "--compat=tlc",
+            "--lncheck=final",
+            "--lasso=tlc",
+            "--seed=0",
+            "--fp=0",
+            "--workers=4",
+            "--output=json",
+        ]);
+        let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+        assert_eq!(out.status.code(), Some(code), "{name}: {v}");
+        assert_eq!(v["schema_version"], 2);
+        assert_eq!(v["verdict"], kind);
+        assert_eq!(v["execution"]["stage"], "safety");
+        assert_eq!(v["execution"]["route"], "bounded-safety-only");
+        assert_eq!(v["execution"]["capture_completed"], kind == "success");
+        assert_eq!(v["execution"]["temporal_certificate"], false);
+        assert_eq!(v["execution"]["product_constructed"], false);
+        assert_eq!(v["execution"]["temporal_obligations"], 0);
+        if kind == "success" {
+            assert_eq!(v["options"]["workers"]["used"], 4);
+        } else {
+            assert_eq!(v["counterexample"]["validation"], "valid");
+            assert_eq!(v["counterexample"]["ending"], "finite");
+        }
+        let ordinary = dive(&[
+            "check",
+            &path.to_string_lossy(),
+            "--compat=tlc",
+            "--seed=0",
+            "--fp=0",
+            "--workers=4",
+            "--output=json",
+        ]);
+        let o: serde_json::Value = serde_json::from_slice(&ordinary.stdout).unwrap_or_default();
+        assert_eq!(o["schema_version"], 1);
+        assert_eq!(o["verdict"], v["verdict"]);
+        assert_eq!(o["statistics"], v["statistics"]);
+        assert!(o["execution"].is_null());
+    }
+}

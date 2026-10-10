@@ -1,0 +1,420 @@
+{
+  "selection": [
+    "SafetyAction",
+    "SafetyConstrainedAction",
+    "SafetyConstrainedInitial",
+    "SafetyDeadlock",
+    "SafetyHold",
+    "SafetyIf",
+    "SafetyInitial",
+    "SafetyInvariant",
+    "SafetyPropertyInitial"
+  ],
+  "widths": [
+    1,
+    3,
+    4,
+    8
+  ],
+  "rows": [
+    {
+      "model": "SafetyAction",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "action-property-violation",
+      "elapsed_seconds": 0.06593212499999998
+    },
+    {
+      "model": "SafetyAction",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "action-property-violation",
+      "elapsed_seconds": 0.03998637500000002
+    },
+    {
+      "model": "SafetyAction",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "action-property-violation",
+      "elapsed_seconds": 0.026190166000000015
+    },
+    {
+      "model": "SafetyAction",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "action-property-violation",
+      "elapsed_seconds": 0.025695875000000035
+    },
+    {
+      "model": "SafetyConstrainedAction",
+      "workers": 1,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.011585958999999979
+    },
+    {
+      "model": "SafetyConstrainedAction",
+      "workers": 3,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.008160957999999996
+    },
+    {
+      "model": "SafetyConstrainedAction",
+      "workers": 4,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.008214582999999998
+    },
+    {
+      "model": "SafetyConstrainedAction",
+      "workers": 8,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.011304833000000014
+    },
+    {
+      "model": "SafetyConstrainedInitial",
+      "workers": 1,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.010340499999999975
+    },
+    {
+      "model": "SafetyConstrainedInitial",
+      "workers": 3,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.007479000000000013
+    },
+    {
+      "model": "SafetyConstrainedInitial",
+      "workers": 4,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.006397541000000007
+    },
+    {
+      "model": "SafetyConstrainedInitial",
+      "workers": 8,
+      "classification": "named-refusal",
+      "exit": 3,
+      "verdict": "unsupported",
+      "elapsed_seconds": 0.008121250000000024
+    },
+    {
+      "model": "SafetyDeadlock",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 11,
+      "verdict": "deadlock",
+      "elapsed_seconds": 0.007927291999999975
+    },
+    {
+      "model": "SafetyDeadlock",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 11,
+      "verdict": "deadlock",
+      "elapsed_seconds": 0.008239458000000033
+    },
+    {
+      "model": "SafetyDeadlock",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 11,
+      "verdict": "deadlock",
+      "elapsed_seconds": 0.010240375000000024
+    },
+    {
+      "model": "SafetyDeadlock",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 11,
+      "verdict": "deadlock",
+      "elapsed_seconds": 0.00764999999999999
+    },
+    {
+      "model": "SafetyHold",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.008058666999999964
+    },
+    {
+      "model": "SafetyHold",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.01955800000000002
+    },
+    {
+      "model": "SafetyHold",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.04119241600000001
+    },
+    {
+      "model": "SafetyHold",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.03913075000000005
+    },
+    {
+      "model": "SafetyIf",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.03278320899999998
+    },
+    {
+      "model": "SafetyIf",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.012109625000000013
+    },
+    {
+      "model": "SafetyIf",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.02909462500000004
+    },
+    {
+      "model": "SafetyIf",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 0,
+      "verdict": "success",
+      "elapsed_seconds": 0.011712208000000057
+    },
+    {
+      "model": "SafetyInitial",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.011244083000000016
+    },
+    {
+      "model": "SafetyInitial",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.009162040999999954
+    },
+    {
+      "model": "SafetyInitial",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.009546999999999972
+    },
+    {
+      "model": "SafetyInitial",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.011993125000000049
+    },
+    {
+      "model": "SafetyInvariant",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.008546875000000065
+    },
+    {
+      "model": "SafetyInvariant",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.008255916999999946
+    },
+    {
+      "model": "SafetyInvariant",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.006907167000000047
+    },
+    {
+      "model": "SafetyInvariant",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "elapsed_seconds": 0.03332987499999995
+    },
+    {
+      "model": "SafetyPropertyInitial",
+      "workers": 1,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "property-violation",
+      "elapsed_seconds": 0.01800095800000001
+    },
+    {
+      "model": "SafetyPropertyInitial",
+      "workers": 3,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "property-violation",
+      "elapsed_seconds": 0.017750790999999988
+    },
+    {
+      "model": "SafetyPropertyInitial",
+      "workers": 4,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "property-violation",
+      "elapsed_seconds": 0.018700041999999972
+    },
+    {
+      "model": "SafetyPropertyInitial",
+      "workers": 8,
+      "classification": "supported-declared-fields",
+      "exit": 13,
+      "verdict": "property-violation",
+      "elapsed_seconds": 0.01789287500000003
+    }
+  ],
+  "raw_sha256": {
+    "SafetyIf.workers-1.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyAction.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyDeadlock.workers-1.exit": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+    "SafetyAction.workers-8.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyPropertyInitial.workers-3.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyIf.workers-1.stdout": "686bf61c9484945b9fc2643294415d2938ed991b52a619fbbcbf8de3f5402ac1",
+    "SafetyHold.workers-3.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyHold.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedAction.workers-1.stdout": "7298f51eccea01724913502780a3c4e79bff9224358df1b1d2687983827e54d8",
+    "SafetyAction.workers-4.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyInitial.workers-3.stdout": "027fdab59f50c322401f7e4ec597bdb37cf6d0ecd54b87b4487707f154d031fe",
+    "SafetyPropertyInitial.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyPropertyInitial.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-1.stdout": "921b3111179c2a41ddfb972f13ccdc24ecadda2d7e2094a57fc7f42c010b82da",
+    "SafetyConstrainedInitial.workers-4.stdout": "9b08e0eb8397abf83fbc85dfc4acdf60d325a7fc4fbe037849b73b3d75b864c9",
+    "SafetyInvariant.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedAction.workers-3.stdout": "a1e9cab5b2c02ac1a915fae02bcd3b3cb068484f157ece8cba0ebdb3ce7a1a4a",
+    "SafetyConstrainedInitial.workers-8.stdout": "425c193795054beccc914f026ca3e06ae9fe1b0ec2a112af0505a2e47f589b67",
+    "SafetyConstrainedInitial.workers-4.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyDeadlock.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyAction.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyDeadlock.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyIf.workers-3.stdout": "be8b0524f0d847e7ee1fc04edc46150e370a4b11a49d852f6a9fe60889574ff8",
+    "SafetyInvariant.workers-3.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyConstrainedInitial.workers-8.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyConstrainedInitial.workers-3.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyAction.workers-1.stdout": "30587445493ea2267273594cba3d51dc047a22b52983512d93923ed20e1f046a",
+    "SafetyInvariant.workers-8.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyDeadlock.workers-4.stdout": "94d35e06ff58c23787b6dd9d48cf35d6c3fd55ebbf8a8842b1ebc0748e314fda",
+    "SafetyDeadlock.workers-8.stdout": "d413dfdebb0538f28993e2a87be24cd40d4765b37718fd1edeb9f0bef49503f9",
+    "SafetyIf.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-4.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyPropertyInitial.workers-8.stdout": "fb13b76bd583d12f5727daa99567a12e5c263519d332a05723b07d5c3d382054",
+    "SafetyPropertyInitial.workers-4.stdout": "51abc36f97e44f0c5fe7b8b604cedffd036699e8a2be82c55fb1365a23991ed1",
+    "SafetyInitial.workers-1.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyHold.workers-3.stdout": "e39ab821f0fb93baa9cafd6564ea8dfa92158b45f8ca3e6aa5950b4a8b486fd3",
+    "SafetyConstrainedInitial.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-1.stdout": "4f0ad3055c2b61baf5ea1d79fe2360e0dd92d0928636fc3b93d9be5815a4e982",
+    "SafetyConstrainedAction.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedInitial.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-1.stdout": "f78552c16d2f6f644fa992bbd231b9f91e7054f07ed1c27f83afd2107cad82c4",
+    "SafetyPropertyInitial.workers-4.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyInitial.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-8.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyInvariant.workers-3.stdout": "a9d39d51c5301face78b65187eadd0de080c4e91e30351c9e615d88a689b2e41",
+    "SafetyConstrainedAction.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedAction.workers-1.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyAction.workers-3.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyPropertyInitial.workers-8.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyAction.workers-3.stdout": "1b9cef324312a2bea32cbd3437ef4209051f3f14fa10a9805803bdc2734aef2f",
+    "SafetyIf.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-4.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyDeadlock.workers-3.stdout": "67aa08211d82582546e6655ca9115b1ad0aed6589ed4addda38f5118430b276d",
+    "SafetyIf.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyIf.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedInitial.workers-1.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyHold.workers-8.stdout": "c60161bd3feca96f2e5f96990e329eab710de67109594af0facc85782d5c5377",
+    "SafetyPropertyInitial.workers-3.stdout": "0366565cdd33a00836db97ec83718ddde51f9bf35513c6b102dbe60f8454a2f7",
+    "SafetyHold.workers-4.stdout": "0e7a1d471f4a4bc9567d4d835cff910fb2097c40a92c7b4f0de482a1b6275b40",
+    "SafetyInitial.workers-3.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyConstrainedAction.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedInitial.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedAction.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyIf.workers-4.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyPropertyInitial.workers-1.stdout": "2a80e9e5bac240eedb64dea9ecd9f2893b2ef7098292633da01c542aa76650a2",
+    "SafetyDeadlock.workers-4.exit": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+    "SafetyConstrainedInitial.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-8.stdout": "b447768278892dabcf415695bdc78060cdfceb300e33c52f12cd3974a6353af4",
+    "SafetyInitial.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-4.stdout": "48ba53b38128e8d1ba179a9aec89507080cc3ce0f5edb8facf1e545c869f8de7",
+    "SafetyIf.workers-8.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyAction.workers-8.stdout": "add1cec2ecba174f75a76c79ebd5142d3358dd8cd8852685a206684993b74f6c",
+    "SafetyDeadlock.workers-1.stdout": "76860c95c3d0a66283fc68c3937a6594acc4097b83a3f3be37e3a93d78a89746",
+    "SafetyDeadlock.workers-8.exit": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+    "SafetyAction.workers-4.stdout": "5c59c6024b8d229eb6fae267ac3e76533473bb0128050a17f7e7158b4bcb43fe",
+    "SafetyAction.workers-1.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyConstrainedAction.workers-3.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyDeadlock.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyAction.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedAction.workers-8.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyAction.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyPropertyInitial.workers-1.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "SafetyDeadlock.workers-3.exit": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+    "SafetyIf.workers-3.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyConstrainedAction.workers-4.exit": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "SafetyPropertyInitial.workers-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-8.stdout": "06324f4ad8e70c1fb07e5030f0753050313827e5e2f25c692b79d4138d8e5766",
+    "SafetyInvariant.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInvariant.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyConstrainedInitial.workers-1.stdout": "ce9922d94c049830b0af154193925b7b4ed879701d5baff0a432d6008b881b3a",
+    "SafetyInitial.workers-4.stdout": "8e523fe72632723c96197dbe0b42f572c42591fe97e37bb69b37daf067fed94e",
+    "SafetyHold.workers-1.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "SafetyPropertyInitial.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyHold.workers-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-8.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyConstrainedAction.workers-8.stdout": "5a10cdf705abef7139d53d3ff44ee9eb8325064da475d1a73d292da3431a0fea",
+    "SafetyConstrainedInitial.workers-3.stdout": "05d022727d7f2fc670bb0defad8d30dcf5ad741b1cdbc5d62eeedd0725e8611b",
+    "SafetyConstrainedAction.workers-4.stdout": "510dfe890d7a3c57313d02572b00e5db523b2165c9a6638010016534650c27b2",
+    "SafetyInvariant.workers-1.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyDeadlock.workers-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafetyInitial.workers-4.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+    "SafetyIf.workers-4.stdout": "6188fa50f4ae27cb544d2dee922f98a365aa94c404336b55c7487d1132def2b4",
+    "SafetyIf.workers-8.stdout": "563044879e743ff55d84cf6ae23ade8b6826494c8d64c6e952b455755ae8af49"
+  },
+  "scope": "Declared code/exit/count fields and private independent replay; initial inline states are not compared to numbered-only TLC trace length. Refusals earn no agreement credit."
+}

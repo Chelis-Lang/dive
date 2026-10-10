@@ -433,3 +433,13 @@ Pre-bind source admission also resolves configuration names through every
 `Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
 The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
 before binding, zero used workers and no graph evidence.
+
+The explicit final-mode safety-only route reuses the actual ordered ordinary
+safety engine (`ModelChecker.doInit`, `Worker.doNext`/`ModelChecker.modelCheck`)
+inside existing capture ceilings. Routing is derived from the freshly bound
+`SpecProcessor.getImpliedTemporals` counterpart, never a supplied JSON claim or
+zero-OOS projection. No new graph/SCC algorithm or result-changing default is
+introduced. The original safety `CheckResult` is retained privately; finite
+witnesses are replayed using `dive-trace` without successor enumeration. Nine
+clean pinned controls, original constant-Next configuration rejection and
+bounded native stops are retained under `conformance/probes/tlc-final-safety`.

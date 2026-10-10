@@ -468,9 +468,23 @@ replay; ordinary schema-1 results and earlier studies are unchanged. Configurati
 alias targets are admitted through actual module contexts before any startup
 binding effect. See [the user guide](tlc-final-api.md).
 
-D-007 native pure safety recovery now uses the deterministic worker pool at the
-requested width, with cross-width saved-level continuation and ordered counter-limit
-stop evidence (ADR 0038 addendum). Boundary-zero pauses remain actual 1 before the
-pool starts. TLC-reset/explicit-retain policies, archive trust/bounds and remaining
-runtime/graph/liveness/spill refusals are unchanged. See
-`conformance/probes/native-checkpoint-parallel/README.md`; no full F-032 claim.
+
+### D-013 progress: explicit final-mode safety-only routing
+
+A freshly bound model with no implied temporal obligations now routes through
+bounded ordinary safety checking in explicit final/TLC mode. This checks real
+invariants, initial/action properties, constraints and supported deadlocks;
+absence of a temporal obligation is not a fabricated NoOOS/product result.
+Finite witnesses require fresh independent in-memory and JSON replay. Reports
+name `bounded-safety-only`, preserve actual stopping counts and worker facts,
+and state `temporal_certificate: false` and `product_constructed: false`.
+
+The same entry/work ceilings stay active. They bound retained graph data, not
+aggregate memory: a graph-state limit of three on `x'=x+1` refuses while the
+engine truthfully records the deciding fourth inserted state. It never reports
+success or completed capture. Constraint/property combinations whose stopping
+order the independent validator has not proven remain explicitly refused before
+pool work. No ordinary schedule, liveness-family or broad corpus credit follows.
+Original all-refusal studies and the constant `Next == FALSE` binding rejection
+are preserved. See [the safety-only user contract](tlc-final-api.md#safety-only-route)
+and `conformance/probes/tlc-final-safety` for clean paired evidence.

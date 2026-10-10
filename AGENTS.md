@@ -157,6 +157,7 @@ Run the gate locally before pushing. This is exactly what CI's `Workspace gate` 
 cargo fmt --all --check
 python3 scripts/test-validation-import.py
 python3 -I scripts/test-frontend-campaign.py
+python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

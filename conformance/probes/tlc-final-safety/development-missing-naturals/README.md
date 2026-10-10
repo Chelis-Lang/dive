@@ -1,0 +1,1 @@
+The first added non-default-limit JSON control omitted `EXTENDS Naturals`, so semantic analysis correctly rejected its arithmetic before checking. The failed log and exact test-bearing source are retained. The corrected control imports Naturals; no checker semantics or expected outcomes changed.

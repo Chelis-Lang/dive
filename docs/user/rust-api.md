@@ -39,7 +39,8 @@ requests and internal failures.
 | `parse_source` / `parse_file` | Syntax/CST and source diagnostics |
 | `analyze_source` / `analyze_file` | Resolved semantic analysis |
 | `parse_config_source` / `parse_config_file` | Configuration reading |
-| `check_file` | Supported safety or explicitly selected final/short checking |
+| `check_file` | Ordinary safety, `TemporalMode::FinalShort`, or explicit `TemporalMode::FinalTlc`; inspect actual route/completion |
+| `tlc_temporal::check_final` | Bounded pinned final-only checking; empty implied temporal obligations route actual bounded safety, never a temporal product certificate |
 | `simulate_file` | Seeded finite traces, never exhaustive proof |
 | `dfid_file` | Iterations and explicit completion evidence |
 | `translate_source` / `translate_file` | Admitted in-memory PlusCal artifact |
@@ -58,4 +59,5 @@ constructing a graph or marking a validation boolean does not supply a certified
 model result. The independent trace crate builds without the successor enumerator.
 For exact type signatures and compiled examples run `cargo doc -p dive-api --no-deps`
 and consult [the API root](../../crates/dive-api/src/lib.rs),
-[trace guide](traces.md) and [temporal guide](temporal.md).
+[trace guide](traces.md), [temporal guide](temporal.md) and
+[the final TLC API/CLI contract](../tlc-final-api.md).
