@@ -714,5 +714,58 @@
         "F-034",
         "F-037"
       ],
-,
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
+      "evidence_updates": [
+        "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
+      ],
       "additional_evidence": ["crates/dive-api/tests/simulate.rs"]
+    },
+    {
+      "id": "F-036",
+      "name": "Complete corpus, harness and release certification",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 1,
+      "pinned_source": "tlc2/output/EC.java",
+      "rust_evidence": "crates/dive-conformance/src/lib.rs",
+      "conformance_evidence": "docs/conformance-corpora.md",
+      "issues": [
+        2,
+        16
+      ],
+      "acceptance": "Complete selected-case census and generated goldens for model/feature interactions; no unknown, timeout, malformed report, feature refusal or pending validation is disguised as agreement.",
+      "interactions": [
+        "F-011",
+        "F-019",
+        "F-028",
+        "F-034"
+      ],
+      "additional_evidence": [
+        "crates/dive-conformance/src/dive.rs",
+        "scripts/check-parity-ledger.py",
+        "scripts/test-parity-ledger.py"
+      ],
+      "notes": "Relative implementation executable paths resolve before child model directories change; launch-path regression is covered. Corpus and release certification remain partial. Offline structural controls enforce evidence and census integrity without certifying semantics."
+    },
+    {
+      "id": "F-037",
+      "name": "Global TLC profile and approved better defaults",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 9,
+      "pinned_source": "tlc2/TLC.java",
+      "rust_evidence": "crates/dive-eval/src/options.rs",
+      "conformance_evidence": "docs/tlc-differences.md",
+      "issues": [],
+      "acceptance": "Every implemented option declares/testing its TLC counterpart; mixed runs are labeled and expected divergences cannot excuse wrong verdicts. Category host grants remain the approved exception.",
+      "interactions": [
+        "F-005",
+        "F-013",
+        "F-018",
+        "F-022",
+        "F-026",
+        "F-035"
+      ]
+    }
+  ]
+}

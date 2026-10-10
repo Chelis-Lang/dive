@@ -753,7 +753,6 @@ fn simulate_command(
     ExitCode::from(report.exit_code())
 }
 
-
 /// Runs the native bounded iterative mode; unknown mode flags refuse by name.
 #[allow(
     clippy::too_many_lines,
