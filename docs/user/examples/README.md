@@ -23,3 +23,10 @@ and retain failed observations rather than changing their expected status silent
 The [additional observations](command-observations/checkpoint-pause.observation.json)
 retain actual checkpoint pause/recovery output and the initial named purity
 refusal from `Counter.tla`; the original source was not weakened to hide it.
+
+The checkpoint admission repair has
+[fresh guide observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/guide/receipt.json)
+and [compiled Rust observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/rust-guide/receipt.json).
+The original observations above remain immutable and identify their original
+runtime. The repaired source rechecks all eight commands plus the pure
+checkpoint pause/recovery and original named refusal.
