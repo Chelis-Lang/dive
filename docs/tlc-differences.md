@@ -334,6 +334,20 @@ with no new default approved. Raw successful and failed recovery controls,
 source hashes and the minimal grid precede implementation. Java/native byte
 interoperability, broader runtime state and parallel recovery remain deferred.
 
+**Configured-key recovery (ADR 0038).** Pure supported VIEW and safety symmetry
+now recover through the same reduced-key path as live search. The primary
+minimal CpView/CpSymView/CpSymConcrete controls report 7/4/4, 5/3/3 and 3/3/3
+(generated/distinct/depth) on pinned TLC; ordinary dive agrees. CpSymConcrete
+keeps owner p2 in the actual witness even though the canonical key represents
+p1. Recovery preserves that concrete state. Equivalent keys do not make a changed
+Init or Next witness valid, and archives remain trusted local state, not proof.
+Both profiles/stores retain the TLC counter-reset default; Retain is still
+explicit.
+Public Rust context aliases resolving constant replacements are admitted by their
+actual definition IDs before binding. An effectful local alias refuses before
+output or an archive; structurally valid arena metadata alone is not a purity
+certificate. This is a native admission repair ([issue #164](https://github.com/Chelis-Lang/dive/issues/164)), not a TLC defect. See [raw controls](../conformance/probes/native-checkpoint-keys/README.md).
+
 ## D-008: Results are data, and diagnostics are built for people and agents
 
 | | |

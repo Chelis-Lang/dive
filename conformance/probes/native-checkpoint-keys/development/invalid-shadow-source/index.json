@@ -1,0 +1,7 @@
+{
+  "description": "Initial local PrintT shadow extends TLC, which SANY semantics prohibit. Correct control uses a named TLC instance and an independent local same-name definition; refusal/positive assertions unchanged.",
+  "sha256": {
+    "checkpoint_keys.rs": "449297dc6cc02157f3a827baf4c813875370ae7592497694648f1afcacb73c8e",
+    "focused.log": "c6c9bc92c0dbb11657790ab9fd94e7602f1b02e9c71ce3a0fcc10bfb13a6e8d7"
+  }
+}

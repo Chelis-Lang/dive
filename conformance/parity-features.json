@@ -776,7 +776,8 @@
       "rust_evidence": "crates/dive-check/src/checkpoint.rs",
       "conformance_evidence": "docs/native-checkpoint.md",
       "issues": [
-        152
+        152,
+        164
       ],
       "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
       "interactions": [
@@ -784,6 +785,16 @@
         "F-024",
         "F-031",
         "F-033"
+      ],
+      "additional_evidence": [
+        "conformance/probes/native-checkpoint-keys/README.md",
+        "crates/dive-api/tests/native_checkpoint_keys.rs",
+        "crates/dive-check/tests/checkpoint_keys.rs",
+        "docs/decisions/0038-checkpoint-transformed-safety-keys.md"
+      ],
+      "evidence_updates": [
+        "Pure VIEW and safety symmetry snapshots recompute configured live-search keys while preserving concrete discoveries, parents and names; actual recovery equality and independent equivalent-key witness negatives cover both profiles/stores. Archive trust remains local; runtime/temporal/graph/spill/parallel recovery and full-family certification remain pending.",
+        "Before binding, configured context aliases resolve to actual definition IDs; effectful local replacements refuse without output/archive while pure aliases remain admitted. Preserved pre-repair and current raw matrices are distinct; issue #164 is a native admission defect, not reference behavior."
       ]
     },
     {

@@ -465,3 +465,10 @@ Bounded [multiple finite-process translation](pluscal-multiple-processes.md) ret
 and independently validated/corrupted witnesses cover the admitted storage/action
 subset. F-034 and F-035 remain partial and audit-required; this does not certify
 full process renaming, procedures/macros, historical options or file rewriting.
+
+
+F-032 additionally covers pure supported VIEW/safety-symmetry recovery (ADR 0038).
+The primary pinned minimal models and separate native recovery matrix preserve
+concrete witnesses while rebuilding configured reduced visited keys. Equivalent
+keys never substitute for independent Init/Next validation. This adds staged
+evidence only: F-032 remains partial/audit-required with broader recovery pending.

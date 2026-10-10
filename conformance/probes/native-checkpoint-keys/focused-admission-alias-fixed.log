@@ -1,0 +1,12 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.09s
+     Running tests/checkpoint_keys.rs (/Users/jeff/code/dive-checkpoint-keys-target/debug/deps/checkpoint_keys-81d58eb75f966647)
+
+running 4 tests
+test configuration_context_aliases_preserve_pure_and_effectful_admission ... ok
+test configured_view_key_failure_is_import_failure_not_a_model_verdict ... ok
+test standard_nonnative_zero_arity_startup_body_cannot_escape_effect_admission ... ok
+test native_override_authority_and_substitutions_preserve_pre_effect_refusals ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.27s
+

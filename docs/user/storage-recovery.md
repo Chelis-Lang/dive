@@ -35,10 +35,28 @@ explicit mixed setting.
 
 Current archives are trusted-local native files, not Java-interoperable archives
 or independently checked model certificates. Source/configuration/profile/model
-identity and structural bounds are checked. The current pure slice refuses
-VIEW, symmetry, liveness, effects, unsupported deferred values and transient
-storage budgets; later key-interaction work is pending until its guide and
-controls land. Filesystem/recovery failures never report success.
+identity and structural bounds are checked. Pure supported VIEW and safety symmetry
+are admitted: recovery recomputes the configured reduced keys while preserving
+original concrete discoveries and witnesses. Liveness, runtime effects/names or
+checker reads, unsupported deferred values, transient storage budgets and parallel
+recovery remain explicit refusals. Filesystem/recovery failures never report success.
 
 See [native checkpoint details](../native-checkpoint.md) for exact limits,
 no-overwrite commits, default recovery settings, API requests and evidence.
+
+
+For a runnable VIEW and symmetry example, see [configured-key recovery](../native-checkpoint.md).
+`CpSymView` pauses with 4 generated states, 2 distinct states and one queued state,
+then resumes to the same concrete invariant violation as uninterrupted checking.
+With `--checkpoint-counters retain`, its final count is 5 generated states; TLC's
+default reset reports 3 generated states and 2 initial states instead. Both reach
+3 distinct states at depth 3. A wider worker request is recorded, but this native
+recovery slice runs inline with one actual worker.
+
+Reduced-key equality is neither an Init/Next proof nor an archive authenticity
+check. Use trusted local archives and independently validate returned concrete
+witnesses. A valid permutation declaration does not prove that the specification
+is symmetric. Effectful configuration aliases are refused before binding output
+or archive creation, including public Rust IR; pure aliases remain supported.
+The [source and raw study](../../conformance/probes/native-checkpoint-keys/README.md)
+separates historical evidence from the current integrated implementation.

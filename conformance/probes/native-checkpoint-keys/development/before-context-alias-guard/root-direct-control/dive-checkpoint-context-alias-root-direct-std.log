@@ -1,0 +1,14 @@
+   Compiling checkpoint-context-alias-root-audit v0.0.0 (/private/tmp/dive-checkpoint-context-alias-root-audit)
+warning: unused variable: `parent`
+ --> src/main.rs:4:229
+  |
+4 | ...me=="Hidden").unwrap();let parent=ir.defs().iter().position(|d|d.name=="Init").unwrap();let mut encoded=serde_json::to_value(&ir)....
+  |                               ^^^^^^ help: if this is intentional, prefix it with an underscore: `_parent`
+  |
+  = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `checkpoint-context-alias-root-audit` (bin "checkpoint-context-alias-root-audit") generated 1 warning (run `cargo fix --bin "checkpoint-context-alias-root-audit" -p checkpoint-context-alias-root-audit` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.55s
+     Running `/Users/jeff/code/dive-checkpoint-alias-root-target/debug/checkpoint-context-alias-root-audit`
+authority Err(ContextError { kind: Structure, detail: "expression child is not older than its parent" })
+result Result { check: CheckResult { frontier: FrontierUsage { memory_bytes_per_queue: None, max_record_bytes: None, peak_retained_bytes: 0, retained_bytes: 0, spilled_bytes: 0, deciding_event_before_failure: None, failures: [] }, predecessor: PredecessorUsage { storage: Usage { retained_bytes: 0, peak_retained_bytes: 0, written_bytes: 0, records: 0, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: false }, verdict: Unsupported { feature: "DIVE-EVAL-C005: expression child is not older than its parent" }, stats: None, tlc_prints_stats: false, counterexample: None, collision: None, store: Fingerprint, fp_index: Some(0), tlc_fingerprints: true, var_names: ["x"], tlc_var_order: [0], output: [], warnings: [], notes: [], workers: Workers { requested: 1, used: 0, sequential: false, reason: None }, elapsed: 0ns }, receipt: None }

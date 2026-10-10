@@ -376,3 +376,12 @@ The [multiple finite-process increment](pluscal-multiple-processes.md) proves
 per-block storage, label and fairness ownership for disjoint literal domains.
 Overlapping IDs, namespace rewrites and cross-process local references remain
 explicit refusals in both profiles. Full translation families remain partial.
+
+Pure supported VIEW and safety symmetry now compose with D-007 native recovery
+(ADR 0038). Saved visited keys are recomputed through the configured search
+path, while actual concrete discoveries/predecessors remain unchanged. The
+separate concrete witness validator rejects altered equivalent-key Init/Next
+states. Runtime/graph/liveness/spill/parallel recovery remain refused; no default
+or independent archive-certificate claim changes. Captures and the initial
+unused-standard-body refusal are preserved in
+`conformance/probes/native-checkpoint-keys/README.md`.

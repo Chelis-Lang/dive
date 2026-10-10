@@ -11,6 +11,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use dive_config::ModelConfig;
+use dive_eval::St;
 use dive_eval::next::StateVals;
 use dive_ir::{Effects, Ir};
 use dive_model::Model;
@@ -24,7 +25,7 @@ use crate::engine::{Keyed, Search};
 use crate::{CheckOptions, CheckResult, Verdict};
 
 const MAGIC: &[u8; 8] = b"DIVECP01";
-const SEMANTICS: &str = "tlc-94d0c50/native-checkpoint-0033-v1";
+const SEMANTICS: &str = "tlc-94d0c50/native-checkpoint-0038-v1";
 const HEADER: usize = 48;
 /// Maximum complete native payload: 64 MiB. Codec/writer workspaces and ordinary
 /// search retention remain outside this archive bound.
@@ -121,7 +122,8 @@ type Fallible<T> = std::result::Result<T, String>;
 ///
 /// This first slice runs the level engine inline with one actual worker even if
 /// more were requested. Runtime effects, names, evaluator-driven deferred state values,
-/// VIEW/SYMMETRY, temporal properties and transient-spill options refuse by name.
+/// Temporal properties and transient-spill options refuse by name. Pure supported
+/// VIEW and safety symmetry use the configured live-search key path during restore.
 /// Identity and archive structure are validated before evaluation. Recovery
 /// restores names before binding and resumes the saved frontier without regenerating
 /// the search from Init. Ordinary concrete witness replay remains unchanged.
@@ -275,6 +277,123 @@ fn executable_hash() -> Fallible<String> {
     Ok(hex(&digest.finalize()))
 }
 
+/// Conservative pre-binding reachability. Every non-native user body and any
+/// non-native top-level zero-arity startup body, including standard modules, is a root,
+/// because even unused constant definitions may execute during startup. Native
+/// imports skip that startup body evaluation (`Tables::lookup_def` /
+/// `Binder::constant_defns_of`). Include selected roles and
+/// all matching config targets rather than guessing which namespace lookup wins.
+/// This overapproximation also covers redirects into standard definitions.
+/// Native overrides use the lowered `Def.std` authority; their documentation
+/// bodies never execute. User shadows without that marker keep their real body.
+fn admit_source(ir: &Ir, cfg: &ModelConfig) -> std::result::Result<(), Verdict> {
+    let mut targets: std::collections::BTreeSet<&str> = cfg
+        .constants
+        .iter()
+        .filter_map(|entry| {
+            if let dive_config::ConstantEntry::Substitution { target, .. } = entry {
+                Some(target.text.as_str())
+            } else {
+                None
+            }
+        })
+        .collect();
+    for name in [&cfg.init, &cfg.next, &cfg.view, &cfg.symmetry, &cfg.alias]
+        .into_iter()
+        .flatten()
+    {
+        targets.insert(name.text.as_str());
+    }
+    for names in [
+        &cfg.invariants,
+        &cfg.constraints,
+        &cfg.action_constraints,
+        &cfg.postconditions,
+    ] {
+        targets.extend(names.iter().map(|name| name.text.as_str()));
+    }
+    let mut roots: Vec<_> = ir
+        .defs()
+        .iter()
+        .enumerate()
+        .filter_map(|(index, def)| {
+            let startup = !ir.module(def.module).standard
+                || (def.params.is_empty() && matches!(def.scope, dive_ir::DefScope::TopLevel));
+            let user = startup && def.std.is_none();
+            (user || targets.contains(def.name.as_str()))
+                .then(|| dive_ir::DefId(u32::try_from(index).unwrap_or(u32::MAX)))
+        })
+        .collect();
+    // Configuration lookup resolves names in module contexts, including aliases
+    // whose spelling differs from Def.name. Admit every possible matching
+    // definition before Binder can precompute a constant replacement.
+    roots.extend(ir.modules().iter().flat_map(|module| {
+        module.context.iter().filter_map(|(name, symbol)| {
+            if targets.contains(name.as_str())
+                && let dive_ir::Symbol::Def(def) = symbol
+            {
+                Some(*def)
+            } else {
+                None
+            }
+        })
+    }));
+    let reached = ir.reachable_defs(&roots);
+    let mut seen = std::collections::BTreeSet::new();
+    for (index, def) in ir.defs().iter().enumerate() {
+        if !reached[index] {
+            continue;
+        }
+        if def.effects.intersects(
+            Effects::IMPURE
+                .union(Effects::LIVE_TLCGET)
+                .union(Effects::TEMPORAL),
+        ) {
+            return Err(unsupported(format!(
+                "runtime/temporal effects in {}",
+                def.name
+            )));
+        }
+        if let Some(op) = def.std {
+            admit_native(op)?;
+            continue;
+        }
+        let mut pending = vec![def.body];
+        while let Some(id) = pending.pop() {
+            if !seen.insert(id) {
+                continue;
+            }
+            let expression = ir.expr(id);
+            for reference in expression.op_refs() {
+                if let dive_ir::OpRef::Std(op) = reference {
+                    admit_native(*op)?;
+                }
+            }
+            pending.extend(expression.children());
+        }
+    }
+    Ok(())
+}
+
+fn admit_native(op: dive_ir::StdOp) -> std::result::Result<(), Verdict> {
+    if op.impure()
+        || op.creates_runtime_names()
+        || matches!(
+            op,
+            dive_ir::StdOp::TlcTLCGet
+                | dive_ir::StdOp::TlcTLCSet
+                | dive_ir::StdOp::TlcExtTLCGetOrDefault
+        )
+    {
+        Err(unsupported(format!(
+            "runtime effects, name constructors or checker/register reads in {} are not recoverable in this slice",
+            op.name()
+        )))
+    } else {
+        Ok(())
+    }
+}
+
 impl Session {
     #[allow(
         clippy::too_many_lines,
@@ -304,65 +423,17 @@ impl Session {
                 "with transient predecessor spill is not implemented",
             ));
         }
-        if cfg.view.is_some()
-            || cfg.symmetry.is_some()
-            || cfg.specification.is_some()
+        if cfg.specification.is_some()
             || !cfg.properties.is_empty()
             || cfg.periodic.is_some()
             || cfg.rl_reward.is_some()
             || !cfg.possible.is_empty()
         {
             return Err(unsupported(
-                "first slice accepts INIT/NEXT safety without VIEW/SYMMETRY/PROPERTY/SPECIFICATION/periodic hooks",
+                "native slice accepts INIT/NEXT safety without PROPERTY/SPECIFICATION/periodic hooks",
             ));
         }
-        // Before binding: even unused constant definitions can execute at startup.
-        for d in ir.defs().iter().filter(|d| {
-            !ir.modules()
-                .get(d.module.index())
-                .is_some_and(|m| m.standard)
-        }) {
-            if d.effects.intersects(
-                Effects::IMPURE
-                    .union(Effects::LIVE_TLCGET)
-                    .union(Effects::TEMPORAL),
-            ) {
-                return Err(unsupported(format!(
-                    "runtime/temporal effects in {}",
-                    d.name
-                )));
-            }
-            if let Some(op) = d.std
-                && op.creates_runtime_names()
-            {
-                return Err(unsupported(format!("runtime names in {}", d.name)));
-            }
-        }
-        // Conservative across all source nodes, including unused definitions and
-        // redirects. Std constructors can create names even in canonical profile.
-        for node in ir.nodes() {
-            for op in node.expr.op_refs() {
-                let op = match op {
-                    dive_ir::OpRef::Std(op) => Some(*op),
-                    dive_ir::OpRef::Def(id) => ir.defs().get(id.index()).and_then(|d| d.std),
-                    _ => None,
-                };
-                if op.is_some_and(|op| {
-                    op.impure()
-                        || op.creates_runtime_names()
-                        || matches!(
-                            op,
-                            dive_ir::StdOp::TlcTLCGet
-                                | dive_ir::StdOp::TlcTLCSet
-                                | dive_ir::StdOp::TlcExtTLCGetOrDefault
-                        )
-                }) {
-                    return Err(unsupported(
-                        "runtime effects, name constructors or checker/register reads are not recoverable in this slice",
-                    ));
-                }
-            }
-        }
+        admit_source(ir, cfg)?;
         let ir_bytes = serde_json::to_vec(ir).map_err(|e| failure(e.to_string()))?;
         let identity = Identity {
             schema: 1,
@@ -537,8 +608,15 @@ impl Session {
             if state.len() != search.m.ir.vars().len() {
                 return Err(failure("state variable arity mismatch"));
             }
-            let key = S::key(search.keyer, &state, false, search.ctx)
-                .map_err(|e| failure(e.to_string()))?;
+            // Retain the original concrete values. Canonicalization and VIEW
+            // belong to the same key path as live discovery, never the payload.
+            let state: StateVals = state.into_iter().map(Some).collect::<Vec<_>>().into();
+            let st = St::state(state.clone());
+            let key =
+                crate::engine::state_key_of::<S>(search.m, search.keyer, search.ctx, &state, &st)
+                    .map_err(|verdict| {
+                    failure(format!("configured state/key admission: {verdict:?}"))
+                })?;
             if S::checkpoint_key(&key) != discovery.key || !search.set.insert(key) {
                 return Err(failure(
                     "discovery state/key mismatch or duplicate visited key",
@@ -553,10 +631,7 @@ impl Session {
                 return Err(failure("discovery/log ID mismatch"));
             }
             if id >= first_frontier {
-                frontier.push((
-                    StateVals::from(state.into_iter().map(Some).collect::<Vec<_>>()),
-                    id,
-                ));
+                frontier.push((state, id));
             }
         }
         search.generated = match self.request.counters {

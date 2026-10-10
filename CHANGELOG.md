@@ -62,7 +62,9 @@ All notable changes to this project are documented here. The project will follow
   malformed or interrupted archives refuse. Both profiles preserve TLC's counter
   reset by default; `--checkpoint-counters retain` preserves original totals.
   The first slice runs inline with one actual worker and refuses temporal,
-  runtime-effect, VIEW/SYMMETRY and transient-spill interactions (ADR 0033).
+  runtime-effect and transient-spill interactions. Pure supported VIEW/safety
+  symmetry recovery recomputes configured keys while retaining original concrete
+  witness states; equal keys do not certify a trace (ADRs 0033/0038).
 
 - Ordinary safety BFS can spill predecessor/ordinal records with a separate
   `--predecessor-memory-bytes` budget and optional `--predecessor-directory`.
