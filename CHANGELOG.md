@@ -16,6 +16,13 @@ All notable changes to this project are documented here. The project will follow
 - Conformance harness resolves relative executable paths before model/parse
   subprocesses change directory, preserving repository-relative provenance.
 
+- Final/short temporal quantifiers and finite predicate constructors accept
+  bounded structural function, record, product and subset domains. Preflight
+  bounds intermediate materialization before enumeration and preserves TLC's
+  operand normalization order; deferred and infinite domains remain explicit
+  refusals. Eight pinned models match final truth/counts in both profiles and
+  stores, with independently validated violations.
+
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
   with pins and reproduction recorded separately from strict conformance.
