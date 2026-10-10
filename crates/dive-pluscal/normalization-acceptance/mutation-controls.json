@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "control_count": 12,
+  "comparator_sha256": "1083fa7e40ecb233c2a8dbb43bfa26cc7d339a7af7faa24291d600aeaaa50ce1",
+  "manifest_sha256": "ab4d872e5c4808293d4b94ee18af5b01f0e11bdc59e51ad68a5d49df0956d03f",
+  "native_sha256": "3437dc55242bd27ebe15fd6b6b24b770d8ae991a4fccf215c587e1ac5d762ff8",
+  "family_certified": false,
+  "rows": [
+    {
+      "control": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "changed-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "control": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "control": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "control": "missing-labels",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "normalized inserted label/name/source position/default binding mismatch"
+      }
+    },
+    {
+      "control": "wrong-label-name",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "inserted label metadata invalid"
+      }
+    },
+    {
+      "control": "wrong-label-position",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "normalized inserted label/name/source position/default binding mismatch"
+      }
+    },
+    {
+      "control": "wrong-configuration",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "required default model-value configuration differs"
+      }
+    }
+  ]
+}

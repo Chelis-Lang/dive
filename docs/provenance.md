@@ -334,7 +334,7 @@ separate projected fields, not interchangeable attribution evidence.
 
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
-| `dive-pluscal` sequential action normalization (`translate/lower.rs`) | `pcal/PcalTranslate.java`: `Explode`, `ExplodeStmtSeq`, `CopyAndExplodeLastStmt`, conditional/either/with expansion, while/next-label placement; `pcal/PcalTLAGen.java`: program-counter omission decision; `pcal/PcalSymTab.java`: variable/label admission context; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded explicit-label sequential semantics adapted to native action trees. Automatic labels, processes/procedures/macros and name disambiguation remain refused. |
+| `dive-pluscal` sequential action normalization (`translate/lower.rs`) | `pcal/PcalTranslate.java`: `Explode`, `ExplodeStmtSeq`, `CopyAndExplodeLastStmt`, conditional/either/with expansion, while/next-label placement; `pcal/PcalTLAGen.java`: program-counter omission decision; `pcal/PcalSymTab.java`: variable/label admission context; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded explicit-label sequential semantics adapted to native action trees. Processes/procedures/macros, branch-internal labelled expansion and name disambiguation remain refused. Automatic label insertion is extended separately below. |
 | `dive-pluscal` TLA body generation (`translate/emit.rs`) | `pcal/PcalTLAGen.java`: `GenInit`, `GenLabeledStmt`, `GenStmtSeq`, assignment/if/either/with generation, `SortSass`, `NeedsParentheses`; `pcal/TLAExpr.java`: lexical variable substitution and record/field distinction; `pcal/ParseAlgorithm.GetAssert`: assertion keyword position; same revision | MIT | Sequential priming, simultaneous pre-group reads, variable ordering, branch identities, assertions and spec/termination bodies match admitted pinned cases. Multiline expression layout and binder substitution remain refused. Native byte associations do not claim the upstream map/checksum format. |
 
 The complete clean translator/SANY matrix and generated-model validation controls
@@ -348,3 +348,16 @@ No algorithm is borrowed from competitor implementations.
 | Implementation | Reference | License | Evidence and scope |
 |---|---|---|---|
 | Public evaluator/context admission (`dive-eval/src/context.rs`, scope/action creation and independent endpoint checks) | Own defensive Rust API design; existing IR structural validator and TLC binding signatures matched above | Own design | Non-evaluating typed admission, source `8f451ff` panic reproduction in `crates/dive-api/tests/fixtures/public-context/`, valid recursion/operator and foreign-scope controls. The `.cfg` constant-substitution arity mapping preserves `SpecProcessor.processConstantDefns` / EC 2225 at pin `94d0c50`; no new checker algorithm port or full caller-IR certification. |
+
+
+## Sequential labels and default initialization
+
+| dive component | Source | Licence | Nature |
+|---|---|---|---|
+| `dive-pluscal` automatic labels (`translate/labels.rs`) | `pcal/ParseAlgorithm.java`: `AddLabelsToStmtSeq`, `InnerAddLabels`, `NeedsLabel`, `InnerGetWith` statement locations; `pcal/trans.java` label/labelRoot/reportLabels options; `PcalParams.java` default flags; revision `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded sequential assignment-set/next-label recurrence, typed-label skipping and original positions; branches needing labelled expansion remain refused. Native source AST is unchanged. |
+| Default initialization and sequential label modifiers (`translate/emit.rs`, `lower.rs`) | `ParseAlgorithm.GetVarDecl`, `GetLabel`, `PcalParams.DefaultVarInit`, `PcalTLAGen.GenVariables`, `GenInit`, `GenSpec`, `trans.java` defaultInitValue configuration generation; same revision | MIT | Generated constant/model-value binding and modifier-induced program-counter retention match clean controls. Native API returns required configuration as data; no file writes or speculative process fairness. |
+
+Full owned controls and raw primary/secondary transcripts are in
+`crates/dive-pluscal/normalization-acceptance/`; contract and reproduction are in
+`docs/pluscal-normalization.md`, with ADR 0030. The Java AST adapter is
+development-only reference evidence; runtime translation remains native.

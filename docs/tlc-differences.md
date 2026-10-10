@@ -1323,8 +1323,11 @@ Native `dive-pluscal` now parses current C/P source into typed, source-mapped
 ASTs. This is the first translation stage, not a translated specification:
 a separate bounded sequential path now normalizes explicit labels/control flow
 and emits validated enclosing modules. Macro expansion, processes/procedures,
-automatic labels, unproved name disambiguation, multiline/binding expression
-substitution and translator options/checksums remain named refusals. See
+branch-internal labelled expansion, unproved name disambiguation, multiline/binding
+expression substitution and historical translator options/checksums remain named
+refusals. Bounded sequential automatic labels, default model-value initialization
+and `L:+` / `L:-` are now matched separately; see
+[the normalization contract](pluscal-normalization.md). See
 [the translation contract](pluscal-translation.md).
 
 The pinned grammar scanner accepts `(1]`, `[1)`, `<<1}` and `[1, end]` because

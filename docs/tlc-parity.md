@@ -103,7 +103,7 @@ and a corresponding certification schema before the label can change.
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [scope and limits](frontier-storage.md); other stores/graphs remain resident |
 | F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-parser.md](pluscal-parser.md): source AST only; translation pending |
+| F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending |
 | F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
 | F-036 | Complete corpus, harness and release certification | partial | 1 | [conformance-corpora.md](conformance-corpora.md) |
 | F-037 | Global TLC profile and approved better defaults | partial | 9 | [tlc-differences.md](tlc-differences.md) |
@@ -398,3 +398,8 @@ model/evaluator pair before certificate work. Native regressions and the
 original constructor panic are retained in
 `crates/dive-api/tests/fixtures/public-context/`; this is additional F-035 evidence,
 not a status upgrade or a full semantic-annotation/provenance certification.
+
+The [sequential normalization increment](pluscal-normalization.md) adds an owned
+110-row label/initializer/modifier selection and 16 generated finite-model
+controls. F-034/F-035 remain partial and audit-required; the 37-family census
+and certification denominator are unchanged.

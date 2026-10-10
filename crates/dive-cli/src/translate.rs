@@ -18,6 +18,16 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
     while let Some(argument) = arguments.next() {
         match argument.as_str() {
             "--compat=tlc" => request.compat_tlc = true,
+            "--label" | "-label" | "--report-labels" | "-reportLabels" => {
+                request.limits.insert_missing_labels = true;
+            }
+            "--label-root" | "-labelRoot" => {
+                let Some(root) = arguments.next() else {
+                    let _ = writeln!(err, "error: {argument} expects a label prefix");
+                    return ExitCode::from(2);
+                };
+                request.limits.label_root.clone_from(root);
+            }
             "--output" => match arguments.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -38,8 +48,8 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 };
                 paths.push(value.into());
             }
-            "--fair" | "-wf" | "-sf" | "-termination" | "-label" | "-nocfg" | "-version"
-            | "-width" | "--write" => {
+            "--fair" | "-wf" | "-sf" | "-termination" | "-nocfg" | "-version" | "-width"
+            | "--write" => {
                 let _ = writeln!(
                     err,
                     "unsupported PlusCal translation option {argument}; no artifact produced"
