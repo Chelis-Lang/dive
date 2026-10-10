@@ -45,3 +45,10 @@ The original single-process comparator failure is retained: its one-process
 assumption was replaced in a separate adapter by checking every process.
 CM1 and ValidationTestSuite remain 21 and 16 models at 1/4/8 workers. These
 results do not replace the standard whole-selection report.
+
+The following ordered-execution increment adds multiple temporal groups and
+tableaux, source callbacks and done-state recursion. This supplies bounded
+execution/product evidence; ordinary strict temporal verdicts and periodic
+scheduling remain unsupported. The preceding release controls remain tied to
+the archived `combined-control-runtime` source and are historical execution
+evidence after runtime changes. They are never retagged to this increment.

@@ -41,8 +41,14 @@ delivery = json.loads((controls / "delivery.json").read_text())
 assert delivery["family_certified"] is False
 for name, digest in delivery["evidence_sha256"].items():
     assert sha((controls / name).read_bytes()) == digest, name
+runtime_history = next(row for row in slices if row["slice"] == "combined-control-runtime")
+assert runtime_history["source_commit"] == delivery["runtime_source_commit"]
+assert runtime_history["source_tree"] == delivery["runtime_source_tree"]
+assert runtime_history["source_sha256"] == delivery["runtime_source_sha256"]
+def frozen_runtime(name):
+    return gzip.decompress((BASE / "history/combined-control-runtime/sources" / (name + ".gz")).read_bytes())
 for name, digest in delivery["runtime_source_sha256"].items():
-    assert sha((ROOT / name).read_bytes()) == digest, name
+    assert sha(frozen_runtime(name)) == digest, name
 
 def raw_streams(value, directory):
     if isinstance(value, dict):
@@ -69,7 +75,7 @@ for family, subdirectories, expected in (
     assert meta["binary_sha256"] == delivery["binary_sha256"]
     assert meta["example_sha256"] == delivery["example_sha256"]
     for name, digest in meta["source_sha256"].items():
-        assert sha((ROOT / name).read_bytes()) == digest, name
+        assert sha(frozen_runtime(name)) == digest, name
     selected = artifacts = models = 0
     for sub in subdirectories:
         directory = controls / family / sub
@@ -117,4 +123,4 @@ assert checkpoint["native_binary_sha256"] == delivery["binary_sha256"]
 raw_streams(checkpoint["controls"], controls / "checkpoint")
 for name, digest in checkpoint["archive_sha256"].items():
     assert sha((controls / "checkpoint" / name).read_bytes()) == digest, name
-print("verified fresh combined 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants")
+print("verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants")

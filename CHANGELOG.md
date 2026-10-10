@@ -37,6 +37,14 @@ All notable changes to this project are documented here. The project will follow
 
 - Rust safety-check requests reject a frontier directory without an encoded
   frontier budget before loading a model, matching CLI option admission.
+
+- Add bounded ordered temporal execution callbacks and actual multiple-OOS/
+  tableau graph insertion, including immediate done-state re-enumeration.
+  Retain deciding source-prefix errors separately from speculative pool work,
+  typed failures and written graph evidence. Exact TLC SCC/lasso selection,
+  accepting-sink witnesses and periodic schedules remain named pending work;
+  ordinary strict liveness and resource defaults do not change.
+
 - Bounded concrete temporal graph stage: retain original accepted successor values
   through the actual deterministic worker pool, commit one null-tableau OOS in
   TLC slot order and expose persisted bin/PEM graph inputs. All graph results

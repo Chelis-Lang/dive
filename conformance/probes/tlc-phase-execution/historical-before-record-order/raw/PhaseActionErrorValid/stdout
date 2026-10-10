@@ -1,0 +1,15 @@
+groups	1
+action_names	Live
+role_names	Live
+configured_names	Live
+g0.state_bins	0
+g0.action_bins	1
+g0.tableau	false
+initial.log	
+initial.g0.roots	15040402659625261443:-1
+initial.g0.records.15040402659625261443	
+source.0.fp	15040402659625261443
+source.0.incoming	0:15040402659625261443;1:17760107650593637555;2:11330885170241725411
+source.0.capacity	16
+failure_code	2179
+log	g0.a0:true;g0.a0:error

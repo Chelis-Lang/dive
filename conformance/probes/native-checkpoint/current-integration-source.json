@@ -3,8 +3,8 @@
   "source_sha256": {
     "crates/dive-api/src/check.rs": "b1dd8564ad5ea95f2284618040d81cbbb29f83ffc25116ab70fe5712dea7124a",
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
-    "crates/dive-check/src/checkpoint.rs": "0c9ab9ae40e5992e20f477545a307089f8bd58ada207b53df73583c3b355d3a5",
-    "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
+    "crates/dive-check/src/checkpoint.rs": "23c99f09e8132b044308e176fe62a47d750f0e4d9ca70690f220cea884bb7adb",
+    "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
     "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
     "crates/dive-cli/src/main.rs": "0d04f84cb4e7658676ee4ffebcebcdc175240a9c43684c32c8f891dabd422d33",
     "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
