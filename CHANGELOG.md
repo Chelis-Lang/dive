@@ -34,6 +34,15 @@ All notable changes to this project are documented here. The project will follow
   Complete pinned projections and independent periodic/closing-witness controls
   preserve explicit resource, structural and scope refusals. Strict integrated
   liveness, checker behavior and defaults remain unchanged.
+- Pure finite safety checking can pause at a completed BFS level and recover
+  the actual saved concrete frontier with `--checkpoint` / `--recover`.
+  Native archives validate model/config/profile/executable identity, ordered
+  names, keys and predecessors before recovery. Pauses are explicitly incomplete;
+  malformed or interrupted archives refuse. Both profiles preserve TLC's counter
+  reset by default; `--checkpoint-counters retain` preserves original totals.
+  The first slice runs inline with one actual worker and refuses temporal,
+  runtime-effect, VIEW/SYMMETRY and transient-spill interactions (ADR 0033).
+
 - Ordinary safety BFS can spill predecessor/ordinal records with a separate
   `--predecessor-memory-bytes` budget and optional `--predecessor-directory`.
   Zero spills immediately; both stores and profiles preserve concrete replay.

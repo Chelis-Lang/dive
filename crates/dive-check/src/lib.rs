@@ -64,6 +64,7 @@
 #![forbid(unsafe_code)]
 
 pub mod capture;
+pub mod checkpoint;
 mod class;
 pub mod dfid;
 pub mod engine;
@@ -219,6 +220,16 @@ fn messages(out: &[Message], r: &mut CheckResult) {
 
 #[allow(clippy::too_many_lines, reason = "the phases of a run, in TLC's order")]
 fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
+    run_check_with_checkpoint(ir, cfg, opts, None)
+}
+
+#[allow(clippy::too_many_lines, reason = "the phases of a run, in TLC order")]
+pub(crate) fn run_check_with_checkpoint(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &CheckOptions,
+    mut checkpoint: Option<&mut checkpoint::Session>,
+) -> CheckResult {
     let mut notes = Vec::new();
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {
@@ -226,7 +237,12 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         no_deadlock: opts.no_deadlock,
         host: Some(Arc::new(host::EngineHost::new(host.clone()))),
     };
-    let mut m = match dive_model::bind(ir.clone(), cfg, &bind_opts) {
+    let bound = if let Some(names) = checkpoint.as_ref().and_then(|s| s.names()) {
+        dive_model::bind_with_names(ir.clone(), cfg, &bind_opts, names)
+    } else {
+        dive_model::bind(ir.clone(), cfg, &bind_opts)
+    };
+    let mut m = match bound {
         Ok(m) => m,
         Err(f) => {
             let mut r = bare(model_error(&f.error), opts, ir);
@@ -279,6 +295,12 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     m.evaluator.intern_bfs_config(&config);
     host.set_config(Some(config));
     engine::startup_counters(&host);
+    if let Some(session) = checkpoint.as_mut()
+        && let Err(verdict) = session.admit_model(&m)
+    {
+        r.verdict = verdict;
+        return r;
+    }
     let assumptions = m.check_assumptions();
     r.output.extend(m.take_output());
     match assumptions {
@@ -294,7 +316,11 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             return r;
         }
     }
-    let outcome = engine::search(&m, opts, &host);
+    let outcome = if let Some(session) = checkpoint.take() {
+        engine::search_checkpoint(&m, opts, &host, session)
+    } else {
+        engine::search(&m, opts, &host)
+    };
     r.frontier = outcome.frontier;
     r.predecessor = outcome.predecessor;
     r.verdict = outcome.verdict;

@@ -1,0 +1,15 @@
+native malformed variable escaped panic: true
+ordinary malformed variable escaped panic: true
+
+thread '<unnamed>' (104753178) panicked at crates/dive-ir/src/lib.rs:459:20:
+index out of bounds: the len is 1 but the index is 4294967295
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'main' (104752943) panicked at crates/dive-ir/src/lib.rs:459:20:
+index out of bounds: the len is 1 but the index is 4294967295
+
+thread '<unnamed>' (104753180) panicked at crates/dive-ir/src/lib.rs:459:20:
+index out of bounds: the len is 1 but the index is 4294967295
+
+thread 'main' (104752943) panicked at crates/dive-ir/src/lib.rs:459:20:
+index out of bounds: the len is 1 but the index is 4294967295

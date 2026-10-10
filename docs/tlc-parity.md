@@ -11,7 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: 7 have an implemented core, 25 are partial, and 5 are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 26 are partial, and 4 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -101,7 +101,7 @@ and a corresponding certification schema before the label can change.
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
-| F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
+| F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending |
 | F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
@@ -161,7 +161,7 @@ harness when it launches Java are not thereby implemented by the Rust CLI.
 | `-seed`, `-aril`, `-fp` | F-014/F-024; Java random kernel and fingerprint pin exist, all modes/aril CLI coverage still required |
 | `-lncheck` | F-019–F-023; only explicit final/short mixed path currently checks temporal models |
 | `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; pure finite single-worker simulation and bounded pure-safety DFID are partial; generation and the full scheduler/mode matrix remain pending |
-| `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; native persistence/recovery missing |
+| `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; bounded native completed-level safety recovery; broader persistence interactions pending |
 | `-maxSetSize`, `-fpmem`, `-fpbits`, `-gzip` | F-005/F-014/F-031; TLC limit and storage policy behavior must be mapped and tested |
 | `-continue`, `-postCondition` | F-012/F-027; continuation, terminal effects and their error order need implementation/audit |
 | `-dump`, `-dumpTrace`, `-loadTrace`, `-view` | F-016/F-029; structured validated traces exist, full TLC formats/loading/view interactions pending |
@@ -429,3 +429,8 @@ PlusCal process evidence now includes [a bounded single-process increment](plusc
 242 retained rows and 26 finite model controls with independent witnesses. This
 does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and
 full option/map contracts remain pending.
+Native F-032 evidence is a bounded pure safety snapshot/resume slice, with actual
+saved frontier recovery, concrete predecessor identity, ordered names and strict
+archive admission. It has no Java-byte interoperability or independent snapshot
+certificate. Graph/liveness/runtime/spill/parallel recovery remain pending; see
+[native-checkpoint.md](native-checkpoint.md). No family certification is added.

@@ -52,6 +52,12 @@
       "matrix_path": "conformance/probes/tlc-planning/historical-before-phase-l-integration/matrix.json",
       "matrix_sha256": "9ef26c649db95bada96869274de6b40e88baa12a4b49151b49b5f0d9e8ec71e1",
       "source_archive": "conformance/probes/tlc-planning/historical-before-phase-l-integration/sources"
+    },
+    {
+      "matrix_path": "conformance/probes/tlc-planning/historical-before-checkpoint/matrix.json",
+      "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
+      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources",
+      "scope": "current source before native checkpoint integration"
     }
   ]
 }

@@ -1,0 +1,209 @@
+//! Native actual recovery preserves safety output and independently checked witnesses.
+#![allow(clippy::expect_used, reason = "captured safety regression controls")]
+use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
+use dive_api::{CheckRequest, Store, TemporalMode, check_file, check_file_checkpoint, checkpoint};
+use std::path::Path;
+
+fn request(name: &str) -> CheckRequest {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+        "../dive-check/tests/fixtures/tlc-probes/specs/{name}/{name}.tla"
+    ));
+    CheckRequest {
+        file: file.clone(),
+        config: Some(file.with_extension("cfg")),
+        seed: Some(7),
+        fp: Some(0),
+        ..CheckRequest::default()
+    }
+}
+fn dir() -> std::path::PathBuf {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let p = std::env::temp_dir().join(format!(
+        "dive-native-api-{}-{}",
+        std::process::id(),
+        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+    ));
+    std::fs::create_dir(&p).expect("private directory");
+    p
+}
+fn observable(mut j: serde_json::Value) -> serde_json::Value {
+    let object = j.as_object_mut().expect("object");
+    object.remove("elapsed_ms");
+    object.remove("checkpoint");
+    let options = object
+        .get_mut("options")
+        .expect("options")
+        .as_object_mut()
+        .expect("object");
+    options.remove("checkpoint");
+    options.remove("workers");
+    options.remove("profile");
+    j
+}
+
+#[test]
+fn actual_frontier_recovery_matches_pinned_safety_cases_and_validates_witnesses() {
+    let dir = dir();
+    let mut serial = 0;
+    for name in [
+        "DuplicateSuccessors",
+        "MidLevelViolation",
+        "DeadlockMidLevel",
+        "EvalErrorMidLevel",
+        "ConstrainedViolation",
+        "ActionConstraintNoDeadlock",
+    ] {
+        for compat in [false, true] {
+            for store in [Store::Fingerprint, Store::Exact] {
+                for workers in [1, 4, 8] {
+                    for chaos in [None, Some(13)] {
+                        let mut req = request(name);
+                        req.compat_tlc = compat;
+                        req.store = store;
+                        req.workers = Some(workers);
+                        req.chaos = chaos;
+                        let reference = check_file(&req).expect("reference").to_json();
+                        assert_ne!(reference["verdict"], "unsupported");
+                        assert_ne!(reference["verdict"], "internal-error");
+                        let checkpoint = checkpoint::Request {
+                            path: dir.join(format!("{serial}.cp")),
+                            action: checkpoint::Action::PauseAfterLevels(0),
+                            counters: checkpoint::Counters::Retain,
+                            config_source_sha256: None,
+                        };
+                        serial += 1;
+                        let paused = check_file_checkpoint(&req, &checkpoint)
+                            .expect("pause")
+                            .to_json();
+                        assert_eq!(paused["verdict"], "resource-limit", "{name}: {paused}");
+                        assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
+                        assert_eq!(paused["options"]["workers"]["requested"], workers);
+                        assert_eq!(paused["options"]["workers"]["used"], 1);
+                        assert!(paused["counterexample"].is_null());
+                        let resumed = check_file_checkpoint(
+                            &req,
+                            &checkpoint::Request {
+                                action: checkpoint::Action::Recover,
+                                ..checkpoint
+                            },
+                        )
+                        .expect("resume")
+                        .to_json();
+                        assert_eq!(
+                            observable(resumed.clone()),
+                            observable(reference),
+                            "{name} profile{compat},store{store:?},width{workers},chaos{chaos:?}"
+                        );
+                        assert_eq!(resumed["options"]["workers"]["used"], 1);
+                        assert_eq!(resumed["checkpoint"]["status"], "recovered");
+                        assert_eq!(
+                            resumed["options"]["checkpoint"]["independent_certificate"],
+                            false
+                        );
+                        if compat {
+                            assert_eq!(resumed["options"]["profile"], "tlc+overrides");
+                        }
+                        if ["MidLevelViolation", "ConstrainedViolation"].contains(&name) {
+                            let model = SpecModel::load(
+                                &req.file,
+                                req.config.as_ref().expect("config"),
+                                &TraceOptions {
+                                    compat_tlc: compat,
+                                    run: Some((0, 7)),
+                                    ..TraceOptions::default()
+                                },
+                            )
+                            .expect("independent loaded model");
+                            let trace = TraceDoc::from_json(&resumed).expect("resumed witness");
+                            let controls = model.controls(&trace);
+                            assert_eq!(controls.positive.validation, Validation::Valid);
+                            assert!(controls.failures().is_empty(), "{:?}", controls.failures());
+                            assert_ne!(controls.mutants.len(), 0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
+fn recovered_defaults_are_reported_and_source_byte_drift_refuses() {
+    let dir = dir();
+    let mut req = request("DuplicateSuccessors");
+    req.compat_tlc = true;
+    let cp = checkpoint::Request {
+        path: dir.join("snapshot"),
+        action: checkpoint::Action::PauseAfterLevels(1),
+        counters: checkpoint::Counters::Tlc,
+        config_source_sha256: None,
+    };
+    assert_eq!(
+        check_file_checkpoint(&req, &cp).expect("pause").to_json()["checkpoint"]["status"],
+        "paused-incomplete"
+    );
+    req.seed = None;
+    req.fp = None;
+    let resume = checkpoint::Request {
+        action: checkpoint::Action::Recover,
+        ..cp
+    };
+    let json = check_file_checkpoint(&req, &resume)
+        .expect("resume")
+        .to_json();
+    assert_eq!(json["verdict"], "success");
+    assert_eq!(json["options"]["seed"], 7);
+    assert_eq!(json["options"]["seed_source"], "checkpoint");
+    assert_eq!(
+        json["options"]["fingerprint"]["polynomial_source"],
+        "checkpoint"
+    );
+    let cfg = dir.join("same.cfg");
+    let original = std::fs::read_to_string(req.config.as_ref().expect("config")).expect("cfg");
+    std::fs::write(&cfg, format!("{original}\n\\* Changed bytes only\n")).expect("alternate cfg");
+    req.config = Some(cfg);
+    let drift = check_file_checkpoint(&req, &resume)
+        .expect("identity rejection")
+        .to_json();
+    assert_eq!(drift["verdict"], "resource-limit");
+    assert_eq!(drift["options"]["workers"]["used"], 0);
+    assert!(drift["statistics"].is_null());
+    assert!(drift["checkpoint"].is_null());
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
+fn unsupported_mode_combinations_refuse_before_file_access() {
+    let cp = checkpoint::Request {
+        path: "nonexistent.cp".into(),
+        action: checkpoint::Action::PauseAfterLevels(0),
+        counters: checkpoint::Counters::Tlc,
+        config_source_sha256: None,
+    };
+    let mut req = CheckRequest {
+        file: "no-model.tla".into(),
+        temporal: TemporalMode::FinalShort,
+        ..CheckRequest::default()
+    };
+    assert!(matches!(
+        check_file_checkpoint(&req, &cp),
+        Err(dive_api::ApiError::Unsupported { .. })
+    ));
+    req.temporal = TemporalMode::Ordinary;
+    for budget in [None, Some(0)] {
+        req.frontier_directory = Some("orphan-frontier".into());
+        req.frontier_memory_bytes = budget;
+        assert!(matches!(
+            check_file_checkpoint(&req, &cp),
+            Err(dive_api::ApiError::Unsupported { .. })
+        ));
+    }
+    req.frontier_directory = None;
+    req.frontier_memory_bytes = None;
+    req.predecessor_directory = Some("orphan-directory".into());
+    assert!(matches!(
+        check_file_checkpoint(&req, &cp),
+        Err(dive_api::ApiError::Unsupported { .. })
+    ));
+}

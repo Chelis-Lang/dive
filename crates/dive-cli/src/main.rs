@@ -36,6 +36,8 @@ fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
                [--predecessor-memory-bytes N] [--predecessor-directory DIR]
+               [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
+               [--checkpoint-counters tlc|retain]
                [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
@@ -304,6 +306,11 @@ fn check_command(
             .and_then(|v| v.parse().ok()),
         ..dive_api::CheckRequest::default()
     };
+    let mut checkpoint_path: Option<std::path::PathBuf> = None;
+    let mut recover_path: Option<std::path::PathBuf> = None;
+    let mut checkpoint_after: Option<u64> = None;
+    let mut checkpoint_counters = dive_api::checkpoint::Counters::Tlc;
+    let mut counters_given = false;
     let mut final_check = false;
     let mut short_lasso = false;
     let mut file: Option<&str> = None;
@@ -402,6 +409,31 @@ fn check_command(
                 Some(dir) => req.frontier_directory = Some(dir.into()),
                 None => return usage_error(err, "--frontier-directory expects a directory"),
             },
+            "--checkpoint" => match value() {
+                Some(path) if checkpoint_path.is_none() => checkpoint_path = Some(path.into()),
+                _ => return usage_error(err, "--checkpoint expects one native file"),
+            },
+            "--recover" => match value() {
+                Some(path) if recover_path.is_none() => recover_path = Some(path.into()),
+                _ => return usage_error(err, "--recover expects one native file"),
+            },
+            "--checkpoint-after-levels" => match value().and_then(|s| s.parse().ok()) {
+                Some(n) if checkpoint_after.is_none() => checkpoint_after = Some(n),
+                _ => {
+                    return usage_error(
+                        err,
+                        "--checkpoint-after-levels expects a nonnegative count",
+                    );
+                }
+            },
+            "--checkpoint-counters" => {
+                counters_given = true;
+                checkpoint_counters = match value().as_deref() {
+                    Some("tlc") => dive_api::checkpoint::Counters::Tlc,
+                    Some("retain") => dive_api::checkpoint::Counters::Retain,
+                    _ => return usage_error(err, "--checkpoint-counters expects tlc or retain"),
+                };
+            }
             "--predecessor-memory-bytes" => {
                 let v = value();
                 match number::<usize>(flag, v.as_ref(), err) {
@@ -463,8 +495,34 @@ fn check_command(
             "--predecessor-directory requires --predecessor-memory-bytes",
         );
     }
+    let checkpoint = match (checkpoint_path, recover_path, checkpoint_after) {
+        (Some(path), None, Some(n)) => Some(dive_api::checkpoint::Request {
+            path,
+            action: dive_api::checkpoint::Action::PauseAfterLevels(n),
+            counters: checkpoint_counters,
+            config_source_sha256: None,
+        }),
+        (None, Some(path), None) => Some(dive_api::checkpoint::Request {
+            path,
+            action: dive_api::checkpoint::Action::Recover,
+            counters: checkpoint_counters,
+            config_source_sha256: None,
+        }),
+        (None, None, None) if !counters_given => None,
+        _ => {
+            return usage_error(
+                err,
+                "use --checkpoint FILE --checkpoint-after-levels N or --recover FILE, exclusively",
+            );
+        }
+    };
     req.file = file.into();
-    let report = match dive_api::check_file(&req) {
+    let checked = if let Some(request) = &checkpoint {
+        dive_api::check_file_checkpoint(&req, request)
+    } else {
+        dive_api::check_file(&req)
+    };
+    let report = match checked {
         Ok(r) => r,
         Err(e @ dive_api::ApiError::Unsupported { .. }) => {
             let _ = writeln!(err, "{e}; no verdict produced");

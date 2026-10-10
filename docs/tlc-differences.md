@@ -320,6 +320,20 @@ independent-witness controls in `crates/dive-api/tests/predecessor_spill.rs`.
 
 ---
 
+**Checkpoint evidence (2026-10-10, staged).** The finite grid in
+`conformance/probes/native-checkpoint/` finishes uninterrupted at 5,123,201
+states generated and 2,563,201 distinct. Pinned TLC recovery resets generated
+and initial counters to its saved distinct count; the captured resumed run reports
+3,703,060 generated. Its developer timed stop also reports success while 1,511
+states remain queued. Native checkpoint pauses explicitly report an
+incomplete search. The bounded pure safety slice resumes the actual saved
+frontier without Init regeneration; [native checkpoint documentation](native-checkpoint.md)
+lists its named exclusions and trusted-local, non-certificate contract. Recovery keeps the TLC counter-reset counterpart; retaining
+original totals is the named, opt-in `--checkpoint-counters retain` behavior,
+with no new default approved. Raw successful and failed recovery controls,
+source hashes and the minimal grid precede implementation. Java/native byte
+interoperability, broader runtime state and parallel recovery remain deferred.
+
 ## D-008: Results are data, and diagnostics are built for people and agents
 
 | | |

@@ -86,6 +86,7 @@ jobs:
           python3 -I scripts/check-temporal-action-order.py
           python3 -I scripts/check-phase-l.py
           python3 -I scripts/check-predecessor-spill.py
+          python3 -I scripts/check-native-checkpoint.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: tests

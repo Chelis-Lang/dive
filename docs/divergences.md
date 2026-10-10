@@ -328,3 +328,7 @@ and finite-membership process storage/action semantics and the distinct process
 `-label` default. Multiple blocks/fairness/unproved names remain named refusals.
 Constant-ID `self` references that leave the primary output SANY-invalid are
 retained without artifact credit; no alternate mathematical default is adopted.
+Checkpoint evidence for D-007 is preserved in
+`conformance/probes/native-checkpoint/README.md`. TLC recovery resets counters;
+original totals are an opt-in proposed native capability, not an approved default.
+An incomplete native pause must never report a complete model-checking verdict.
