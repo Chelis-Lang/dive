@@ -75,10 +75,12 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
         .expect("oracle");
         let (ir, cfg) = input(&source, &cfg);
         for store in [StoreMode::Fingerprint, StoreMode::Exact] {
-            for workers in [1, 8] {
+            let mut reference = None;
+            for (workers, chaos) in [(1, None), (4, None), (8, None), (4, Some(0)), (8, Some(33))] {
                 let opts = CheckOptions {
                     store,
                     workers,
+                    chaos,
                     ..CheckOptions::tlc(0, 19)
                 };
                 let report =
@@ -99,6 +101,12 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                         assert_ne!(name, "LvConstraint");
                         assert_eq!(v.validation().validation, Validation::Valid);
                         assert_eq!(v.document().properties, v.candidate().properties);
+                        let document = v.document().to_json().to_string();
+                        if let Some(previous) = &reference {
+                            assert_eq!(&document, previous, "{name} {workers} {chaos:?}");
+                        } else {
+                            reference = Some(document);
+                        }
                         let model =
                             dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc())
                                 .expect("fresh validation model");
@@ -120,7 +128,7 @@ fn pinned_final_runs_preserve_counts_and_return_only_validated_periodic_claims()
                     counts(&stdout),
                     "{name}"
                 );
-                assert_eq!((c.workers.requested, c.workers.used), (workers, 1));
+                assert_eq!((c.workers.requested, c.workers.used), (workers, workers));
                 assert_eq!(c.options.seed, 19);
                 assert_eq!(c.options.store, store);
             }
@@ -2274,7 +2282,7 @@ fn pinned_multi_process_fairness_fits_bounded_products_and_rejects_unfair_mutant
                         counts(&stdout),
                         "{name}"
                     );
-                    assert_eq!((c.workers.requested, c.workers.used), (workers, 1));
+                    assert_eq!((c.workers.requested, c.workers.used), (workers, workers));
                 }
             }
         }

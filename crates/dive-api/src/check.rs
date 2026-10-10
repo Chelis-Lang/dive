@@ -999,6 +999,8 @@ fn temporal_limits_json() -> Value {
     json!({
         "kind": "entry-counts", "states": limits.capture.states,
         "edges": limits.capture.edges, "generated": limits.capture.generated,
+        "successors_per_unit": limits.capture.successors_per_unit,
+        "max_expansion_units": dive_check::capture::MAX_EXPANSION_UNITS,
         "properties": limits.properties, "atom_cells": limits.atom_cells,
         "formula_nodes": limits.formula.formula_nodes,
         "tableau_nodes": limits.formula.tableau_nodes,
@@ -1057,8 +1059,13 @@ mod evidence_controls {
         assert_eq!(json["schema_version"], TEMPORAL_CHECK_SCHEMA_VERSION);
         assert_eq!(json["verdict"], "resource-limit");
         assert_eq!(json["options"]["profile"], "tlc+overrides");
-        assert_eq!(json["options"]["workers"]["used"], 1);
+        assert_eq!(json["options"]["workers"]["used"], 4);
         assert_eq!(json["options"]["workers"]["requested"], 4);
+        assert_eq!(
+            json["options"]["temporal_bounds"]["successors_per_unit"],
+            65_536
+        );
+        assert_eq!(json["options"]["temporal_bounds"]["max_expansion_units"], 8);
         assert_eq!(json["execution"]["stage"], "product");
         assert_eq!(json["execution"]["capture_completed"], true);
         assert_eq!(json["statistics"]["generated"], 3);
@@ -1070,7 +1077,7 @@ mod evidence_controls {
         assert!(json["tlc"].is_null());
         assert_eq!(report.exit_code(), exit::UNSUPPORTED);
         let human = report.render_human();
-        assert!(human.contains("4 worker(s) requested, 1 used"));
+        assert!(human.contains("4 worker(s) requested, 4 used"));
         assert!(
             human.contains(
                 "Capture completed: 3 generated, 2 distinct, depth 2; no temporal verdict."
@@ -1097,7 +1104,7 @@ mod evidence_controls {
         let json = report.to_json();
         assert_eq!(json["execution"]["stage"], "capture");
         assert_eq!(json["execution"]["capture_completed"], false);
-        assert_eq!(json["options"]["workers"]["used"], 1);
+        assert_eq!(json["options"]["workers"]["used"], 4);
         assert_eq!(json["verdict"], "resource-limit");
         assert!(!json["statistics"].is_null());
         // A resource stop retains its finite diagnostic prefix, not a
