@@ -115,6 +115,14 @@
         "F-007",
         "F-019",
         "F-021"
+      ],
+      "additional_evidence": [
+        "conformance/probes/finite-deferred-audit/README.md",
+        "crates/dive-api/tests/deferred_domains.rs",
+        "crates/dive-eval/tests/bounded_domains.rs"
+      ],
+      "evidence_updates": [
+        "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
       ]
     },
     {
@@ -140,9 +148,15 @@
       "additional_evidence": [
         "crates/dive-eval/src/bounded_domain.rs",
         "docs/lazy-domain-study.md",
-        "conformance/reports/studies/lazy-domains-10-final-short-tlc.json"
+        "conformance/reports/studies/lazy-domains-10-final-short-tlc.json",
+        "conformance/probes/finite-deferred-audit/README.md",
+        "crates/dive-api/tests/deferred_domains.rs",
+        "crates/dive-eval/tests/bounded_domains.rs"
       ],
-      "notes": "Budgeted finite lazy constructors pass paired oracle and independent-validator controls. The complete ten-model final/short follow-up has zero completed matches: seven unsupported, two resource bounds and one timeout; deferred domains and substituted scopes remain open."
+      "notes": "Budgeted finite lazy constructors pass paired oracle and independent-validator controls. The complete ten-model final/short follow-up has zero completed matches: seven unsupported, two resource bounds and one timeout; deferred domains and substituted scopes remain open.",
+      "evidence_updates": [
+        "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
+      ]
     },
     {
       "id": "F-008",
@@ -718,7 +732,9 @@
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
       ],
-      "additional_evidence": ["crates/dive-api/tests/simulate.rs"]
+      "additional_evidence": [
+        "crates/dive-api/tests/simulate.rs"
+      ]
     },
     {
       "id": "F-036",

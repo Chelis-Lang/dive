@@ -243,3 +243,29 @@ by the clean pinned capture and prior false-positive trace in
 `SeededDfid.java` is a secondary test adapter: only the worker's selection seed
 is injected after construction and before start. It is never presented as an
 unmodified oracle or used to certify the complete DFID feature family.
+
+The captured-filter extension admits only evaluator-owned `lazy::Filter`, whose
+unchanged expression evaluation matches `SetPredValue.elements` and
+`Tool.eval` at tlaplus `94d0c50` (MIT reference). Original input cardinality/value
+slot upper bounds and a conservative output-vector bound are charged before
+calling it; effectful or unresolved predicates are refused without execution.
+Configured helper redirects are checked conservatively for forbidden effects;
+open-effect targets remain refusals. It retains the original predicate IR span,
+environment, state and profile order.
+No new checker enumerator or validator dependency was introduced. Six clean
+`FdFilter*`, `FdMap*` and `FdCapture*` captures, both-profile input/cache/effect/
+error-order/priming controls and fresh independent periodic-word checks provide
+focused final/short evidence. Recursive `FdRecursivePerm*` remains unsupported.
+
+
+The captured-filter environment guard is original effect-proof admission logic.
+It conservatively rejects operator slots whose runtime Rust bindings are not
+proved by IR call-site analysis, and checks closed effects of all retained
+thunks/functions. The existing shared-side-effect traversal behaviour is
+preserved. `rust-operator-capture-before.*` and its fixed no-output regression
+retain the motivating native purity gap; neither is TLC conformance evidence.
+
+The filter-only proof treats missing captured-expression metadata as unknown
+while preserving the original shared-side-effect helper's missing-node behaviour.
+The companion unchecked-`ExprId` repro and both-profile no-panic refusal control
+provide evidence; this does not validate every Rust caller-created IR identifier.

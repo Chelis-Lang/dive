@@ -87,6 +87,44 @@ impl Budget {
         }
     }
 
+    fn filtered(&mut self, set: &Set, depth: u32) -> Result<usize> {
+        let filter = set
+            .as_deferred()
+            .and_then(|source| source.as_any())
+            .and_then(|source| source.downcast_ref::<crate::lazy::Filter>())
+            .ok_or_else(|| EvalError::unsupported("opaque deferred binder domain"))?;
+        let forbidden = dive_ir::Effects::IMPURE
+            | dive_ir::Effects::LIVE_TLCGET
+            | dive_ir::Effects::TEMPORAL
+            | dive_ir::Effects::USES_ENABLED
+            | dive_ir::Effects::OPEN;
+        // Model redirects may replace a syntactically pure helper with effects.
+        // Until a scoped proof covers redirects, reject such targets conservatively.
+        if filter
+            .core
+            .ir
+            .node(filter.pred)
+            .effects
+            .intersects(forbidden)
+            || crate::env::filter_has_unproved_captures(&filter.core.ir, &filter.env, forbidden)
+            || filter
+                .core
+                .redirects
+                .values()
+                .any(|target| filter.core.ir.def(*target).effects.intersects(forbidden))
+        {
+            return Err(EvalError::unsupported(
+                "effectful or unresolved deferred binder predicate",
+            ));
+        }
+        // Structural input and the conservative output-vector upper bound are
+        // charged before size/explore invokes the captured predicate. Do not
+        // evaluate, normalize or cache the filter during this preflight.
+        let count = self.component(&filter.in_val, depth)?;
+        self.charge(count)?;
+        Ok(count)
+    }
+
     pub(crate) fn set(&mut self, set: &Set, depth: u32) -> Result<usize> {
         if depth >= self.depth {
             return Err(EvalError::resource_limit("quantifier domain nesting"));
@@ -169,9 +207,10 @@ impl Budget {
                 })?)?;
                 count
             }
+            SetKind::Deferred => self.filtered(set, child_depth)?,
             _ => {
                 return Err(EvalError::unsupported(
-                    "bounded bindings require structurally finite domains; infinite and deferred sets are not supported",
+                    "bounded bindings require finite domains; infinite sets are not supported",
                 ));
             }
         };
