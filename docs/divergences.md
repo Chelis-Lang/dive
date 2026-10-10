@@ -322,3 +322,13 @@ consistency (ADR 0029). All receipts say graph_insertion=false. Tableau graph
 revisitation, wider diagnostic execution and unproved state-kind IF planning
 remain explicit refusals; strict integrated liveness remains unsupported. The
 original native error-order gaps (#147/#149) are retained and receive no match credit.
+
+D-013 planning/error-order update (#147): `[]<>(IF x = 1 THEN 1 \div 0 = 0
+ELSE x = 2)` raises TLC code2179 before any exploration, even if a reachable
+state would not select the erroneous branch. The TLC-shaped native planner now
+preserves that error and the reference's distinct user-call/boolean fallbacks.
+No alternate default is adopted: independent formula evaluation keeps its
+existing semantics, and strict integrated liveness remains unsupported. Complete
+24 current controls, original18 and the native false completion are retained in
+`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
+conservative. This is a native limitation repair, not family certification.

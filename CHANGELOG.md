@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- TLC-shaped temporal planning preserves eager state-conditional conversion
+  failures, typed TLC errors and source-order fallback before graph work.
+
 - Temporal non-stuttering predicates compare their subscript before evaluating
   the action body, matching TLC liveness short-circuiting. Independent temporal
   trace evaluation uses the same order separately for angles, boxes and fairness

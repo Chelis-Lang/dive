@@ -366,3 +366,12 @@ development-only reference evidence; runtime translation remains native.
 `dive-liveness::plan::PredicateAtom::evaluate` matches `tlc2/tool/liveness/LNAction.java::eval` at revision `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). The independent periodic interpreter in `dive-trace/src/temporal.rs` implements the temporal subscript-first rule without depending on the checker, liveness or successor enumerator. Direct pinned `LNAction.eval` and `Tool.eval` controls, retained native failures and scope limits are documented in `conformance/probes/temporal-action-order/README.md`. Ordinary runtime action evaluation continues to match `Tool.eval`; this increment is not strict integrated liveness certification.
 
 | `dive-liveness` phase-L diagnostic receipts (`phase_l.rs`) | tlaplus `tlc2/util/SetOfStates.java` put/grow/iteration; `tlc2/tool/Worker.java` createSetOfStates/doNextCheckLiveness; `tlc2/tool/TLCStateMut.java` equality; `tlc2/tool/liveness/LiveCheck.java` addInitState/addNextState, `OrderOfSolution` checkState/checkAction, `LNAction` eval and `TBGraphNode` isConsistent; commit `94d0c50` | MIT | Bounded material-state collection, concrete first representatives, slot/grow order, logical multiplier history, null-tableau bin order and initial consistency matched. No native graph insertion/SCC/scheduling/lasso claim; forced-key and real bound evidence remain separate. |
+
+## Conditional temporal planning conversion
+
+`dive-liveness::plan` matches pinned `tlc2/tool/liveness/Liveness.java`
+`astToLive`/`astToLiveAppl`: conditional guard probes, ordered branch/boolean
+conversion and nonrecursive-call exception fallback (MIT, revision `94d0c50`).
+The complete 24-row actual processLiveness capture, historical selections and
+native failures are in `conformance/probes/state-if-planning/`; ADR 0036 records
+remaining rendering, admission and strict execution limits.

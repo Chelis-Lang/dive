@@ -16,7 +16,7 @@ fn complete_pinned_conditional_selection_preserves_error_phase_and_fallback() {
     )
     .expect("capture JSON");
     let rows = capture["rows"].as_array().expect("complete rows");
-    assert_eq!(rows.len(), 18);
+    assert_eq!(rows.len(), 24);
     for row in rows {
         let name = row["id"].as_str().expect("case name");
         let directory = root.join("models").join(name);

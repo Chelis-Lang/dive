@@ -10,6 +10,12 @@ sha=lambda data:hashlib.sha256(data).hexdigest()
 assert sha(Path(a.jar).read_bytes())==pin
 if (root/'capture.json').exists():raise SystemExit('existing capture: retain it before regenerating')
 cases=[
+ ('StateGuardShortFalse','IF (FALSE /\\ x = 1) THEN 1 \\div 0 = 0 ELSE x = 2'),
+ ('StateGuardShortTrue','IF (TRUE \\/ x = 1) THEN x = 2 ELSE 1 \\div 0 = 0'),
+ ('StateGuardNegated','IF ~(x = 1 /\\ 1 \\div 0 = 0) THEN x = 2 ELSE x = 0'),
+ ('StateGuardImplies','IF (x = 1 => 1 \\div 0 = 0) THEN x = 2 ELSE x = 0'),
+ ('StateGuardEquiv','IF (x = 1 <=> 1 \\div 0 = 0) THEN x = 2 ELSE x = 0'),
+ ('TemporalGuard','IF [](x = 1) THEN <>(x = 2) ELSE <>(x = 0)'),
  ('StateThenError','IF x = 1 THEN 1 \\div 0 = 0 ELSE x = 2'),
  ('StateElseError','IF x = 1 THEN x = 2 ELSE 1 \\div 0 = 0'),
  ('StateThenFalse','IF x = 1 THEN FALSE ELSE x = 2'),

@@ -953,15 +953,17 @@ impl Lower<'_> {
         {
             // Liveness.astToLive attempts the guard at the empty state, then
             // converts guard/then/else in source order before level fallback.
-            self.pure_atom(*cond, scope)?;
-            match ev.eval_scoped(scope, *cond, &St::constant()) {
-                Ok(Value::Bool(chosen)) => {
-                    return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
+            if self.scoped_level(*cond, scope, depth)? <= Level::Action {
+                self.pure_atom(*cond, scope)?;
+                match ev.eval_scoped(scope, *cond, &St::constant()) {
+                    Ok(Value::Bool(chosen)) => {
+                        return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
+                    }
+                    Err(error) if error.class() != ErrorClass::Eval => {
+                        return Err(self.refused(*cond, format!("conditional guard: {error}")));
+                    }
+                    _ => {}
                 }
-                Err(error) if error.class() != ErrorClass::Eval => {
-                    return Err(self.refused(*cond, format!("conditional guard: {error}")));
-                }
-                _ => {}
             }
             if level <= Level::Action {
                 let saved = (self.nodes.len(), self.atoms.len());
@@ -978,7 +980,7 @@ impl Lower<'_> {
             let children = match &node.expr {
                 Expr::Junction { items, .. } => items.to_vec(),
                 Expr::Not(child) => vec![*child],
-                Expr::Implies(left, right) | Expr::Equiv(left, right) => vec![*left, *right],
+                Expr::Implies(left, right) => vec![*left, *right],
                 _ => Vec::new(),
             };
             if !children.is_empty() {
