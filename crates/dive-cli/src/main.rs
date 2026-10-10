@@ -32,7 +32,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
                [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
@@ -386,6 +386,19 @@ fn check_command(
             }
             "-deadlock" => req.no_deadlock = true,
             "--sequential" => req.sequential = true,
+            "--frontier-memory-bytes" => match value().as_deref().map(str::parse::<usize>) {
+                Some(Ok(n)) => req.frontier_memory_bytes = Some(n),
+                _ => {
+                    return usage_error(
+                        err,
+                        "--frontier-memory-bytes expects a byte count (zero forces disk)",
+                    );
+                }
+            },
+            "--frontier-directory" => match value() {
+                Some(dir) => req.frontier_directory = Some(dir.into()),
+                None => return usage_error(err, "--frontier-directory expects a directory"),
+            },
             // Hidden, test-only: randomized scheduling that must not change
             // any result (ADR 0015 §2, chaos mode).
             "--chaos" => match value().as_deref().map(str::parse::<u64>) {
@@ -416,6 +429,9 @@ fn check_command(
             err,
             "bounded temporal checking needs both --lncheck final and --lasso short",
         );
+    }
+    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
+        return usage_error(err, "--frontier-directory requires --frontier-memory-bytes");
     }
     req.temporal = if final_check && short_lasso {
         dive_api::TemporalMode::FinalShort

@@ -631,7 +631,7 @@ impl<S: Keyed> Search<'_, S> {
         parent: Option<(&StateVals, StateId)>,
         succ: &Successor<'_>,
         new_level: u64,
-        next: &mut Vec<(StateVals, StateId)>,
+        next: &mut crate::frontier::Queue,
     ) -> Option<(Verdict, bool, bool)> {
         let r = self.on_state_checks(parent, succ, new_level, next);
         // Back to the level of the state being expanded.
@@ -644,7 +644,7 @@ impl<S: Keyed> Search<'_, S> {
         parent: Option<(&StateVals, StateId)>,
         succ: &Successor<'_>,
         new_level: u64,
-        next: &mut Vec<(StateVals, StateId)>,
+        next: &mut crate::frontier::Queue,
     ) -> Option<(Verdict, bool, bool)> {
         self.generated += 1;
         if let Some(capture) = &self.capture
@@ -748,8 +748,10 @@ impl<S: Keyed> Search<'_, S> {
                 return Some((v, true, false));
             }
         }
-        if let Some(id) = new_id {
-            next.push((t, id));
+        if let Some(id) = new_id
+            && let Err(verdict) = next.push(t, id)
+        {
+            return Some((verdict, false, false));
         }
         None
     }
@@ -758,7 +760,7 @@ impl<S: Keyed> Search<'_, S> {
     /// the stop and statistics if the search ends there.
     pub(crate) fn initial_states(
         &mut self,
-        next: &mut Vec<(StateVals, StateId)>,
+        next: &mut crate::frontier::Queue,
     ) -> Option<(Stop, Stats)> {
         let ev: &Evaluator = &self.m.evaluator;
         let m = self.m;
@@ -839,9 +841,13 @@ impl<S: Keyed> Search<'_, S> {
     }
 
     /// Runs every level inline from the frontier `next`: `Worker.run`.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "ordered BFS stop/counting phases with fallible queue reads"
+    )]
     pub(crate) fn inline_levels(
         &mut self,
-        mut next: Vec<(StateVals, StateId)>,
+        mut next: crate::frontier::Queue,
         check_deadlock: bool,
     ) -> (Option<Stop>, Stats) {
         let ev: &Evaluator = &self.m.evaluator;
@@ -849,9 +855,25 @@ impl<S: Keyed> Search<'_, S> {
         let mut stop: Option<Stop> = None;
         let mut level = 1u64;
         while !next.is_empty() {
-            let current = std::mem::take(&mut next);
+            let empty = next.empty_like();
+            let current = std::mem::replace(&mut next, empty);
             let count = current.len();
-            for (i, (s0, id)) in current.iter().enumerate() {
+            for i in 0..count {
+                let (vals, id) = match current.read(i, &m.names) {
+                    Ok(state) => state,
+                    Err(verdict) => {
+                        return (
+                            Some(Stop {
+                                verdict,
+                                in_init: false,
+                                path: None,
+                                then: None,
+                            }),
+                            self.stats((count - i + next.len()) as u64),
+                        );
+                    }
+                };
+                let s0 = &vals;
                 if self.host.exit_requested() {
                     // `TLCSet("exit", TRUE)`: TLC's `stop()` ends the search
                     // as a success once the state that asked is done.
@@ -863,7 +885,7 @@ impl<S: Keyed> Search<'_, S> {
                     let stop = Stop {
                         verdict: v,
                         in_init: false,
-                        path: Some((*id, s0.clone())),
+                        path: Some((id, s0.clone())),
                         then: None,
                     };
                     let left = (count - i - 1) + next.len();
@@ -872,7 +894,7 @@ impl<S: Keyed> Search<'_, S> {
                 self.host.set_level(level_of(level));
                 let mut resume: Option<u64> = None;
                 let r = ev.successors(&m.actions, s0, &mut |succ: &Successor<'_>| match self
-                    .on_state(Some((s0, *id)), succ, level + 1, &mut next)
+                    .on_state(Some((s0, id)), succ, level + 1, &mut next)
                 {
                     None => Flow::Continue,
                     Some((verdict, with, resumes)) => {
@@ -882,7 +904,7 @@ impl<S: Keyed> Search<'_, S> {
                         stop = Some(Stop {
                             verdict,
                             in_init: false,
-                            path: Some((*id, s0.clone())),
+                            path: Some((id, s0.clone())),
                             then: if with {
                                 Some(trace_state(m, succ, false))
                             } else {
@@ -898,7 +920,7 @@ impl<S: Keyed> Search<'_, S> {
                     stop = Some(Stop {
                         verdict: error_verdict(&e.error, ErrorSite::Next),
                         in_init: false,
-                        path: Some((*id, s0.clone())),
+                        path: Some((id, s0.clone())),
                         then: None,
                     });
                 }
@@ -908,7 +930,7 @@ impl<S: Keyed> Search<'_, S> {
                     stop = Some(Stop {
                         verdict: Verdict::Deadlock,
                         in_init: false,
-                        path: Some((*id, s0.clone())),
+                        path: Some((id, s0.clone())),
                         then: None,
                     });
                 }
@@ -924,7 +946,7 @@ impl<S: Keyed> Search<'_, S> {
                     return (Some(s), stats);
                 }
                 if let Some(capture) = &mut self.capture
-                    && let Err(v) = capture.stutter(*id)
+                    && let Err(v) = capture.stutter(id)
                 {
                     return (
                         Some(Stop {
@@ -1163,6 +1185,7 @@ impl<S: Keyed> Search<'_, S> {
 /// What the engine hands back.
 pub(crate) struct Outcome {
     pub graph: Option<BehaviorGraph>,
+    pub frontier: crate::FrontierUsage,
     pub verdict: Verdict,
     pub stats: Option<Stats>,
     pub tlc_prints_stats: bool,
@@ -1306,6 +1329,7 @@ fn search_in<S: Keyed>(
         Err(message) => {
             return Outcome {
                 graph: None,
+                frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::InternalError { message },
                 stats: None,
                 tlc_prints_stats: false,
@@ -1320,6 +1344,7 @@ fn search_in<S: Keyed>(
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
             graph: None,
+            frontier: crate::FrontierUsage::default(),
             verdict: Verdict::InternalError {
                 message: format!(
                     "fingerprint polynomial index {} out of range",
@@ -1349,13 +1374,15 @@ fn search_in<S: Keyed>(
         initial_generated: 0,
         capture: capture.map(Collector::new),
     };
-    let mut next = Vec::new();
+    let accounting = crate::frontier::accounting(opts);
+    let mut next = crate::frontier::Queue::new(opts, accounting.clone());
     let (stop, stats) = match s.initial_states(&mut next) {
         Some((stop, stats)) => {
-            if s.capture.is_some() && !workers.sequential {
+            drop(next);
+            if !workers.sequential {
                 workers.used = 1;
                 workers.sequential = true;
-                workers.reason = Some("capture stopped during inline initial-state enumeration before the worker pool started".into());
+                workers.reason = Some("search stopped during inline initial-state enumeration before the worker pool started".into());
             }
             (Some(stop), stats)
         }
@@ -1365,6 +1392,23 @@ fn search_in<S: Keyed>(
             workers.used = used;
             (stop, stats)
         }
+    };
+    let mut frontier = crate::frontier::evidence(&accounting);
+    let stop = if frontier.failures.is_empty() {
+        stop
+    } else {
+        frontier.deciding_event_before_failure = Some(stop.as_ref().map_or_else(
+            || "completed safety search".into(),
+            |s| format!("{:?}", s.verdict),
+        ));
+        Some(Stop {
+            verdict: Verdict::ResourceLimit {
+                message: format!("frontier storage failed: {}", frontier.failures.join("; ")),
+            },
+            in_init: false,
+            path: None,
+            then: None,
+        })
     };
     let mut output = m.take_output();
     let Some(stop) = stop else {
@@ -1384,6 +1428,7 @@ fn search_in<S: Keyed>(
         output.extend(m.take_output());
         return Outcome {
             graph: s.capture.take().map(Collector::finish),
+            frontier,
             collision: if verdict == Verdict::Success {
                 collision
             } else {
@@ -1426,6 +1471,7 @@ fn search_in<S: Keyed>(
     }
     Outcome {
         graph: None,
+        frontier,
         // TLC prints statistics after an error in the initial states, not
         // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
         tlc_prints_stats: !stop.in_init || matches!(verdict, Verdict::EvaluationError { .. }),

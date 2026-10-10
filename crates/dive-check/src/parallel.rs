@@ -199,7 +199,7 @@ struct Expand<'env, S: Keyed> {
     set: &'env RwLock<S>,
     ctx: Ctx,
     level: u64,
-    frontier: Arc<Vec<StateVals>>,
+    frontier: Arc<crate::frontier::Queue>,
     narrow: bool,
     check_deadlock: bool,
     blocks: Vec<Range<usize>>,
@@ -301,7 +301,11 @@ impl<S: Keyed> Expand<'_, S> {
 
     /// Expands unit `unit`. Returns the successors generated and the event that
     /// stopped it.
-    #[allow(clippy::too_many_arguments, reason = "one unit's buffers")]
+    #[allow(
+        clippy::too_many_arguments,
+        clippy::too_many_lines,
+        reason = "one unit ordered expansion and fallible frontier reads"
+    )]
     fn expand(
         &self,
         set: &S,
@@ -313,7 +317,24 @@ impl<S: Keyed> Expand<'_, S> {
     ) -> (u64, Option<Event>) {
         let m = self.m;
         let (index, actions, ua) = self.unit(unit);
-        let s0 = &self.frontier[index];
+        let (state_values, _) = match self.frontier.read(index, &m.names) {
+            Ok(state) => state,
+            Err(verdict) => {
+                return (
+                    0,
+                    Some(Event {
+                        key: ((index as u64, ua, 0), PH_ENUM),
+                        unit,
+                        c: 0,
+                        verdict,
+                        then: None,
+                        resume: false,
+                        stutter: false,
+                    }),
+                );
+            }
+        };
+        let s0 = &state_values;
         let state = index as u64;
         let mut generated = 0u64;
         let mut event: Option<Event> = None;
@@ -639,7 +660,7 @@ fn internal(message: String, stats: Stats) -> (Option<Stop>, Stats) {
 /// threads used.
 pub(crate) fn levels<S: Keyed>(
     search: &mut Search<'_, S>,
-    next: Vec<(StateVals, StateId)>,
+    next: crate::frontier::Queue,
     opts: &CheckOptions,
     workers: usize,
 ) -> (Option<Stop>, Stats, usize) {
@@ -668,7 +689,7 @@ pub(crate) fn levels<S: Keyed>(
 )]
 fn capture_wave<S: Keyed>(
     search: &mut Search<'_, S>,
-    frontier: &[StateVals],
+    frontier: &crate::frontier::Queue,
     first_id: u64,
     winners: &[Winner],
     mut accepted: Vec<Accepted<S::Key>>,
@@ -690,7 +711,26 @@ fn capture_wave<S: Keyed>(
             }
             let at = winners.partition_point(|w| w.pos < record.pos);
             let fresh = winners.get(at).filter(|w| w.pos == record.pos);
-            let vals = fresh.map_or_else(|| frontier[unit].clone(), |w| w.vals.clone());
+            let vals = match fresh {
+                Some(w) => w.vals.clone(),
+                None => match frontier.read(unit, &search.m.names) {
+                    Ok((state, _)) => state,
+                    Err(verdict) => {
+                        return earlier(
+                            first,
+                            Some(Event {
+                                key,
+                                unit,
+                                c: u64::from(record.pos.2) + 1,
+                                verdict,
+                                then: None,
+                                resume: false,
+                                stutter: false,
+                            }),
+                        );
+                    }
+                },
+            };
             let id = fresh.map(|_| base + at as u64);
             let target = capture.state(record.key, vals, id);
             let result = target.and_then(|to| {
@@ -745,7 +785,7 @@ fn capture_wave<S: Keyed>(
 fn run_levels<'a: 'env, 'env, S: Keyed>(
     search: &mut Search<'a, S>,
     set: &'env RwLock<S>,
-    next: Vec<(StateVals, StateId)>,
+    next: crate::frontier::Queue,
     opts: &CheckOptions,
     pool: &Pool<'env>,
 ) -> (Option<Stop>, Stats) {
@@ -754,8 +794,26 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     let threads = pool.threads();
     let check_deadlock = m.settings.check_deadlock;
     let n_actions = m.actions.len();
-    let mut first_id: StateId = next.first().map_or(0, |(_, id)| *id);
-    let mut frontier: Arc<Vec<StateVals>> = Arc::new(next.into_iter().map(|(s, _)| s).collect());
+    let mut first_id: StateId = if next.is_empty() {
+        0
+    } else {
+        match next.read(0, &m.names) {
+            Ok((_, id)) => id,
+
+            Err(verdict) => {
+                return (
+                    Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    }),
+                    search.stats(next.len() as u64),
+                );
+            }
+        }
+    };
+    let mut frontier = Arc::new(next);
     let mut level = 1u64;
     let stats_now = |search: &Search<'_, S>, left: u64| Stats {
         generated: search.generated,
@@ -776,7 +834,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 None => len < 2 * threads,
             };
         let n_units = if narrow { len * n_actions } else { len };
-        let mut next_frontier = Vec::new();
+        let mut next_frontier = frontier.empty_like();
         let new_first = search.log.len();
         let wave_size = if search.capture.is_some() {
             crate::capture::MAX_EXPANSION_UNITS
@@ -1022,6 +1080,20 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                     initial_generated: search.initial_generated,
                 };
                 let mut verdict = e.verdict;
+                let vals = match frontier.read(i, &m.names) {
+                    Ok((vals, _)) => vals,
+                    Err(verdict) => {
+                        return (
+                            Some(Stop {
+                                verdict,
+                                in_init: false,
+                                path: None,
+                                then: None,
+                            }),
+                            stats,
+                        );
+                    }
+                };
                 if e.resume {
                     // TLC's replay goes on past the state: as of E*, the states
                     // this level found after it are not in the set yet.
@@ -1035,7 +1107,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                     let first_unit = if narrow { i * n_actions } else { i };
                     let ordinal = gens[first_unit..e.unit].iter().sum::<u64>() + e.c - 1;
                     let set = set.read().unwrap_or_else(PoisonError::into_inner);
-                    let r = search.replay_after(&set, &frontier[i], ordinal, level, &unseen);
+                    let r = search.replay_after(&set, &vals, ordinal, level, &unseen);
                     stats.distinct += r.distinct;
                     stats.left_on_queue += r.queued;
                     verdict = r.apply(verdict);
@@ -1046,7 +1118,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                     path: if e.stutter {
                         None
                     } else {
-                        Some((first_id + pos.0, frontier[i].clone()))
+                        Some((first_id + pos.0, vals.clone()))
                     },
                     then: e.then,
                 };
@@ -1095,7 +1167,20 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                     })
                     .collect()
             });
-            next_frontier.extend(winners.into_iter().map(|w| w.vals));
+            let wave_first = search.log.len() - winners.len() as u64;
+            for (j, w) in winners.into_iter().enumerate() {
+                if let Err(verdict) = next_frontier.push(w.vals, wave_first + j as u64) {
+                    return (
+                        Some(Stop {
+                            verdict,
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        stats_now(search, (frontier.len() + next_frontier.len()) as u64),
+                    );
+                }
+            }
         }
         frontier = Arc::new(next_frontier);
         first_id = new_first;

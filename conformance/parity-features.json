@@ -303,6 +303,11 @@
         "F-016",
         "F-018",
         "F-031"
+      ],
+      "additional_evidence": [
+        "crates/dive-check/tests/frontier_spill.rs",
+        "crates/dive-api/tests/frontier_spill.rs",
+        "docs/frontier-storage.md"
       ]
     },
     {
@@ -673,18 +678,19 @@
     {
       "id": "F-031",
       "name": "Bounded-memory stores, frontiers, graphs and SCC spill",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 7,
       "pinned_source": "tlc2/tool/queue/DiskStateQueue.java",
-      "rust_evidence": "crates/dive-store/src/lib.rs",
-      "conformance_evidence": "docs/design/m5-plan.md",
+      "rust_evidence": "crates/dive-store/src/spill.rs",
+      "conformance_evidence": "crates/dive-check/tests/frontier_spill.rs",
       "issues": [
         28,
         53,
-        108
+        108,
+        128
       ],
-      "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence.",
+      "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence. Delivered safety frontier only: both profiles/stores, ordered witnesses, tiny budgets and explicit filesystem failure; seen/candidates/traces/graphs/SCC spill and recovery remain pending.",
       "interactions": [
         "F-014",
         "F-020",

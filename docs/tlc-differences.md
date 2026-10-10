@@ -299,7 +299,7 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 | **Kind** | Same answer, with a stronger guarantee |
 | **Default** | Fingerprint mode, as in TLC, always reporting its collision bound |
 | **Better option** | `--store exact`: full states, with an unconditional claim that every state was checked |
-| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Disk spill is planned. |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget; their spill is still planned. See [frontier storage](frontier-storage.md) and ADR 0024. |
 
 **What TLC does.** TLC stores 64-bit fingerprints of states, not the states themselves. A collision between two distinct states would silently skip part of the state space. TLC prints a probabilistic estimate of this at the end of a run, but the "no error found" verdict itself is probabilistic.
 

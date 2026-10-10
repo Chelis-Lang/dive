@@ -302,3 +302,16 @@ original `configured_properties` predicates/names separately from role inputs;
 its role table matches the derived pinned field. Future action attribution
 through tableau/witness execution remains a separate representation obligation
 (#134). Grouped formula truth does not certify that attribution.
+
+
+## Ordered frontier spill
+
+`dive-store/src/spill.rs` is dive's native transient indexed frontier format
+(ADR 0024), using the existing lossless value/state codec. Pinned
+`tlc2/tool/queue/DiskStateQueue.java` at `94d0c50` (MIT) supplies the reference
+FIFO search contract; this is not a Java checkpoint serialization port.
+`crates/dive-check/tests/frontier_spill.rs` compares the same pinned safety
+probes across storage, profiles, stores and scheduling;
+`crates/dive-api/tests/frontier_spill.rs` independently checks concrete symmetry
+witnesses. Checksums, byte accounting and non-evaluating deferred-value admission
+are dive's own implementation.

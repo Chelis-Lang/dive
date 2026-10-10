@@ -25,6 +25,8 @@ fn concrete_symmetry_predecessors_validate_and_corruptions_are_rejected() {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
                     let report = check_file(&CheckRequest {
+                        frontier_memory_bytes: None,
+                        frontier_directory: None,
                         file: file.clone(),
                         config: Some(config.clone()),
                         library_paths: Vec::new(),

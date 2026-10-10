@@ -8,6 +8,11 @@ All notable changes to this project are documented here. The project will follow
 - TLC-order simulation refuses runtime-name history that cannot yet be
   independently validated; canonical default sampling remains supported.
 
+- Safety BFS can spill ordered concrete frontiers with `--frontier-memory-bytes`
+  and `--frontier-directory`, preserving counts, effects and counterexamples.
+  JSON reports frontier-only storage and explicit I/O/cleanup failures. Visited
+  states, candidates, traces and temporal graphs remain outside this budget.
+
 - Preserve TLC runtime string encounter order by using reported inline checking
   for reachable string/name constructors. Eagerly intern checker configuration
   values before assumptions, including the seed and fingerprint (issue #122).

@@ -6,6 +6,13 @@ use dive_store::StoreMode;
 /// How to run a check.
 #[derive(Clone, Debug)]
 pub struct CheckOptions {
+    /// Opt-in encoded resident budget per current/next frontier queue. TLC uses
+    /// its disk queue; `None` keeps the in-memory equivalence reference. This
+    /// bounds frontier bytes only, not seen sets, candidates, traces or graphs.
+    pub frontier_memory_bytes: Option<usize>,
+    /// Parent directory for private transient frontier files; system temp by
+    /// default. Files are explicitly cleaned and failures reported.
+    pub frontier_directory: Option<std::path::PathBuf>,
     /// The profile: dive's default or `--compat=tlc`.
     pub profile: Profile,
     /// Evaluation options (`Options::tlc()` under `--compat=tlc`).
@@ -54,6 +61,8 @@ impl CheckOptions {
     #[must_use]
     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
         Self {
+            frontier_memory_bytes: None,
+            frontier_directory: None,
             profile: Profile::Tlc,
             eval: Options::tlc(),
             store: StoreMode::Fingerprint,
@@ -71,6 +80,8 @@ impl CheckOptions {
     #[must_use]
     pub const fn dive(seed: i64) -> Self {
         Self {
+            frontier_memory_bytes: None,
+            frontier_directory: None,
             profile: Profile::Dive,
             eval: Options::dive(),
             store: StoreMode::Fingerprint,
