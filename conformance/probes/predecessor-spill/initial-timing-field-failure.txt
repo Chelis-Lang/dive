@@ -1,0 +1,40 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling dive-config v0.0.0 (<worktree>/crates/dive-config)
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling dive-ir v0.0.0 (<worktree>/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (<worktree>/crates/dive-eval)
+   Compiling dive-model v0.0.0 (<worktree>/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (<worktree>/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (<worktree>/crates/dive-check)
+   Compiling dive-sim v0.0.0 (<worktree>/crates/dive-sim)
+   Compiling dive-trace v0.0.0 (<worktree>/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (<worktree>/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (<worktree>/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 36.57s
+     Running tests/predecessor_spill.rs (<target>/debug/deps/predecessor_spill-f48e532f0f51dffb)
+
+running 3 tests
+test early_admission_and_failed_creation_never_certify_success ... ok
+test zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos ... FAILED
+test concrete_spilled_symmetry_witnesses_remain_independently_valid ... ok
+
+failures:
+
+---- zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos stdout ----
+
+thread 'zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos' (102586582) panicked at crates/dive-api/tests/predecessor_spill.rs:64:29:
+assertion `left == right` failed: DuplicateSuccessors, false, Fingerprint, 1, None, 0
+  left: Object {"collision": Object {"actual": Null, "assumption": String("fingerprints behave as random 64-bit values (TLC's assumption too)"), "optimistic": String("9.8E-19"), "scheme": String("dive"), "store": String("fingerprint")}, "command": String("check"), "config": String("<worktree>/crates/dive-api/../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.cfg"), "counterexample": Null, "diagnostics": Array [], "elapsed_ms": Number(4), "error_site": Null, "file": String("<worktree>/crates/dive-api/../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla"), "message": Null, "notes": Array [], "options": Object {"choose_order": String("canonical"), "comparisons": String("tla"), "deadlock_flag": Bool(false), "explore_order": String("value"), "fingerprint": Object {"polynomial_index": Number(0), "polynomial_source": String("flag"), "scheme": String("dive")}, "int": String("big"), "profile": String("dive"), "seed": Number(7), "seed_source": String("flag"), "store": String("fingerprint"), "warnings": Bool(true), "workers": Object {"chaos": Null, "reason": Null, "requested": Number(1), "sequential": Bool(false), "used": Number(1)}}, "output": Array [], "property": Null, "schema_version": Number(1), "statistics": Object {"depth": Number(2), "distinct": Number(2), "generated": Number(11), "initial_generated": Number(1), "left_on_queue": Number(0), "reported_by_tlc": Bool(true)}, "tlc": Object {"code": Number(2193), "exit_status": Number(0), "name": String("TLC_SUCCESS"), "reported": Number(2193), "verified": Bool(true)}, "verdict": String("success"), "warnings": Array []}
+ right: Object {"collision": Object {"actual": Null, "assumption": String("fingerprints behave as random 64-bit values (TLC's assumption too)"), "optimistic": String("9.8E-19"), "scheme": String("dive"), "store": String("fingerprint")}, "command": String("check"), "config": String("<worktree>/crates/dive-api/../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.cfg"), "counterexample": Null, "diagnostics": Array [], "elapsed_ms": Number(2), "error_site": Null, "file": String("<worktree>/crates/dive-api/../dive-check/tests/fixtures/tlc-probes/specs/DuplicateSuccessors/DuplicateSuccessors.tla"), "message": Null, "notes": Array [], "options": Object {"choose_order": String("canonical"), "comparisons": String("tla"), "deadlock_flag": Bool(false), "explore_order": String("value"), "fingerprint": Object {"polynomial_index": Number(0), "polynomial_source": String("flag"), "scheme": String("dive")}, "int": String("big"), "profile": String("dive"), "seed": Number(7), "seed_source": String("flag"), "store": String("fingerprint"), "warnings": Bool(true), "workers": Object {"chaos": Null, "reason": Null, "requested": Number(1), "sequential": Bool(false), "used": Number(1)}}, "output": Array [], "property": Null, "schema_version": Number(1), "statistics": Object {"depth": Number(2), "distinct": Number(2), "generated": Number(11), "initial_generated": Number(1), "left_on_queue": Number(0), "reported_by_tlc": Bool(true)}, "tlc": Object {"code": Number(2193), "exit_status": Number(0), "name": String("TLC_SUCCESS"), "reported": Number(2193), "verified": Bool(true)}, "verdict": String("success"), "warnings": Array []}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    zero_tiny_logs_equal_memory_at_all_worker_widths_and_chaos
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+
+error: test failed, to rerun pass `-p dive-api --test predecessor_spill`
