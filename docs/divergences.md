@@ -287,3 +287,15 @@ unchecked group/tag/bin metadata, opaque/effectful scopes and resource limits
 remain named refusals. Strict integrated TLC liveness, phase-L timing, SCC and
 witness selection remain unsupported by this stage. Original configured/Action
 claims and derived role names stay separate; no new default is adopted.
+
+
+
+### PlusCal translator artifact admission (candidate/current limitation)
+
+Clean pinned `pcal.trans` exits 0 for a sequential variable named `Next` or
+`vars`, but SANY rejects each generated module. All five SANY-invalid outputs
+in the complete translation matrix remain visible. Native generation refuses
+unproved generated-name/binder collisions in both profiles and admits an
+artifact only after complete-module syntax/name/level analysis. No alternate
+naming default is adopted. Minimal example, raw evidence and pending options
+are recorded in `docs/tlc-differences.md` and `docs/pluscal-translation.md`.

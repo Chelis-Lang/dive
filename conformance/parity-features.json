@@ -768,7 +768,8 @@
       "rust_evidence": "crates/dive-pluscal/src/lib.rs",
       "conformance_evidence": "conformance/reports/pluscal-source-grammar.json",
       "issues": [
-        126
+        126,
+        131
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
@@ -777,11 +778,17 @@
         "F-019",
         "F-024"
       ],
-      "coverage_note": "Native bounded C/P source AST only: 200 field-level source AST matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Macro expansion, labels/name checks, translation/options/checksums and translated-model validation remain pending; family not certified.",
+      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified.",
       "additional_evidence": [
         "docs/pluscal-parser.md",
         "docs/decisions/0022-pluscal-source-parser.md",
-        "crates/dive-pluscal/tests/oracle.rs"
+        "crates/dive-pluscal/tests/oracle.rs",
+        "docs/pluscal-translation.md",
+        "docs/decisions/0026-pluscal-sequential-translation.md",
+        "crates/dive-pluscal/translation-acceptance/report.json",
+        "crates/dive-pluscal/translation-acceptance/generated-controls/report.json",
+        "crates/dive-pluscal/tests/translation.rs",
+        "crates/dive-pluscal/translation-acceptance/label-admission/report.json"
       ]
     },
     {
@@ -796,7 +803,8 @@
       "issues": [
         111,
         124,
-        129
+        129,
+        131
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -807,12 +815,14 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
       ],
       "additional_evidence": [
-        "crates/dive-api/tests/simulate.rs"
+        "crates/dive-api/tests/simulate.rs",
+        "crates/dive-api/src/translate.rs",
+        "crates/dive-api/tests/translation.rs"
       ]
     },
     {

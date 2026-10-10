@@ -143,6 +143,7 @@ dependencies = [
  "dive-ir",
  "dive-liveness",
  "dive-model",
+ "dive-pluscal",
  "dive-sema",
  "dive-sim",
  "dive-stdlib",
