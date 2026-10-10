@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "base_commit": "ebc2789a06c093d945c088dee21977564b07e7ad",
+  "scope": "Bounded explicit final-only TLC/fingerprint SCC and selected witness analysis plus separate privately independently validated API; complete 30-reference/120-native census, no ordinary strict/error-failure agreement credit; legacy bound-context authority must migrate at shipping integration",
+  "source_sha256": {
+    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+    "crates/dive-liveness/src/tlc_scc.rs": "2a3386de8d846ce025b3f65d529be7b0c8501908a583cb8b67d8e8a87ba8f77e",
+    "crates/dive-liveness/src/tlc_witness.rs": "ece2eac8aa955ee0af5938bc3912c59851b166d9af2fdbf73fe995e3c30f84b5",
+    "crates/dive-liveness/src/tlc_final.rs": "1e938c3f303b89f3382536b22a548e43c3b252383438f57d8fd455113f538784",
+    "crates/dive-liveness/src/phase_execution.rs": "8d3ed3cb66d01fe22b4d91295fcf6ea83d2494c20d4c96fe1fdee654b8106e09",
+    "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
+    "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
+    "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
+    "crates/dive-api/src/lib.rs": "7bd7b560c9b25a168629f9b496c38b0d3a396f223622d6b546d54f8bab758a36",
+    "crates/dive-api/src/tlc_temporal.rs": "2f80455c63785aedd125a20d26158779f14db055bc94a689e93f8f560bcc81f3",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "96818211d249f7004a4ec8f048f397c786456fe8da3891d72b354416ffb2013e",
+    "crates/dive-api/tests/tlc_temporal.rs": "4e4124310358f554798efc1f9e1605f3cd4c71fe66cbc5aa2f44ca774545abb5",
+    "scripts/check-tlc-final.py": "a396acd0e47367d469bf62e511b05a908d255a2feba657365087dd7ab2a2b452",
+    "docs/tlc-final-api.md": "66624e8e31c52cc1e5e7ba0e6126634d456d9e32bc8d75f29a44a4acf4127e58",
+    "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd"
+  },
+  "artifact_sha256": {
+    "capture.json": "94865d795a2bf6e6af38f9f987fc97528c959d8d42ef4bbe7d073214885816e2",
+    "selection.json": "38084924bd532f82d83592f66f719775a6facdcda9782df217504ec8fe5d049f",
+    "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
+  }
+}

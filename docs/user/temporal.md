@@ -27,9 +27,18 @@ Schema 2 distinguishes opt-in temporal checking from ordinary safety schema 1.
 `properties` names complete claims, and periodic counterexamples carry validation
 and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
-and indexing conventions. Pending pinned final-only APIs must be documented and
-verified separately before this guide marks them available.
+and indexing conventions. The separately exposed bounded pinned final-only
+contract is documented in [the final TLC guide](../tlc-final-api.md).
 
 For Rust tool builders, the separate [ordered execution API](../temporal-execution-api.md)
 retains concrete graph and deciding-prefix evidence. Its completion is explicitly
 not a temporal verdict and it is not exposed as a CLI checking mode.
+
+The explicit command `dive check --compat=tlc --lncheck final --lasso tlc`
+uses bounded final-only pinned selection and schema 2, with a private witness
+certificate followed by fresh independent replay. It does not enable ordinary
+periodic TLC scheduling. Only the separately named `dive-final-tlc` harness
+mode evaluates that contract. Its first full small-model census refused every
+selected model; focused-control success must not be presented as broad parity.
+Read `docs/tlc-final-api.md` for complete flags, bounds, workers, refusal classes,
+property identities and stuttering/loop report obligations.

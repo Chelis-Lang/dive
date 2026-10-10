@@ -1,0 +1,12 @@
+{
+  "original_matrix_sha256": "8cf642c4d97b1488be5d0edffd3b03afc8adec6ed45a685dc21bfef1a4afaec0",
+  "head_source_sha256": {
+    "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
+    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/tests/tlc_tableau.rs": "26bfdee43c9abe5c769b1d5bbad76e71e9c8241b2dcea293532a58f0d038cdd2",
+    "scripts/check-tlc-tableau.py": "20f4901fc85e0b0a88bff61150b5813fde1453faa2e97db2d4953d6a38722897",
+    "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
+    "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439"
+  },
+  "scope": "The preserved original matrix may reference an earlier producer; these independently hashed files describe the current pre-integration HEAD. Existing original producer histories remain authoritative."
+}
