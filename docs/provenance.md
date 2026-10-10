@@ -366,3 +366,11 @@ development-only reference evidence; runtime translation remains native.
 `dive-liveness::plan::PredicateAtom::evaluate` matches `tlc2/tool/liveness/LNAction.java::eval` at revision `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). The independent periodic interpreter in `dive-trace/src/temporal.rs` implements the temporal subscript-first rule without depending on the checker, liveness or successor enumerator. Direct pinned `LNAction.eval` and `Tool.eval` controls, retained native failures and scope limits are documented in `conformance/probes/temporal-action-order/README.md`. Ordinary runtime action evaluation continues to match `Tool.eval`; this increment is not strict integrated liveness certification.
 
 | `dive-liveness` phase-L diagnostic receipts (`phase_l.rs`) | tlaplus `tlc2/util/SetOfStates.java` put/grow/iteration; `tlc2/tool/Worker.java` createSetOfStates/doNextCheckLiveness; `tlc2/tool/TLCStateMut.java` equality; `tlc2/tool/liveness/LiveCheck.java` addInitState/addNextState, `OrderOfSolution` checkState/checkAction, `LNAction` eval and `TBGraphNode` isConsistent; commit `94d0c50` | MIT | Bounded material-state collection, concrete first representatives, slot/grow order, logical multiplier history, null-tableau bin order and initial consistency matched. No native graph insertion/SCC/scheduling/lasso claim; forced-key and real bound evidence remain separate. |
+## Native predecessor spill (ADR 0031)
+
+`dive-store::predecessor` is a native fixed-record transient storage design.
+It preserves `TraceLog` discovery IDs, strictly earlier parents and successor
+ordinals (the TLC `TLCTrace`/`ModelChecker` replay semantics matched in ADR 0015),
+without importing Java disk/checkpoint formats or porting an I/O algorithm.
+`crates/dive-api/tests/predecessor_spill.rs` checks ordered replay and independent
+symmetry witnesses across memory/disk, stores, profiles and worker widths.

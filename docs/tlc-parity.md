@@ -101,6 +101,7 @@ and a corresponding certification schema before the label can change.
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [scope and limits](frontier-storage.md); other stores/graphs remain resident |
+| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [predecessor_spill.rs](../crates/dive-api/tests/predecessor_spill.rs), [scope](predecessor-storage.md) |
 | F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending |

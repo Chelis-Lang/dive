@@ -308,7 +308,8 @@
         "crates/dive-check/tests/frontier_spill.rs",
         "crates/dive-api/tests/frontier_spill.rs",
         "docs/frontier-storage.md"
-      ]
+      ],
+      "implementation_notes": "Additional forced predecessor-spill evidence preserves both fingerprint/exact stores and concrete witnesses. Core status unchanged; broader interaction certification remains audit-required."
     },
     {
       "id": "F-015",
@@ -733,7 +734,8 @@
         28,
         53,
         108,
-        128
+        128,
+        144
       ],
       "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence. Delivered safety frontier only: both profiles/stores, ordered witnesses, tiny budgets and explicit filesystem failure; seen/candidates/traces/graphs/SCC spill and recovery remain pending.",
       "interactions": [
@@ -741,7 +743,12 @@
         "F-020",
         "F-022",
         "F-032"
-      ]
+      ],
+      "additional_evidence": [
+        "crates/dive-store/src/predecessor.rs",
+        "crates/dive-api/tests/predecessor_spill.rs"
+      ],
+      "implementation_notes": "Separately budgeted fixed-record predecessor spill preserves concrete safety replay; seen sets, candidate vectors, reconstructed paths and graph/SCC retention remain resident. No checkpoint or total-memory claim."
     },
     {
       "id": "F-032",
