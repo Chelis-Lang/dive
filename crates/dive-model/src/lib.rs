@@ -182,6 +182,7 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         postconditions: b.process_postconditions(),
         symmetry: b.cfg.symmetry.as_ref().map(|n| n.text.clone()),
         symmetry_definition,
+        symmetry_reduction: None,
         settings: model::Settings {
             check_deadlock: b.cfg.checks_deadlock() && !b.opts.no_deadlock,
         },

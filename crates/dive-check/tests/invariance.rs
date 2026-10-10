@@ -434,3 +434,41 @@ fn runtime_choice_matches_clean_pinned_tlc_at_fixed_seeds() {
         }
     });
 }
+
+#[test]
+fn runtime_names_preserve_inline_symmetry_safety() {
+    on_big_stack(|| {
+        for name in ["DynamicStringSymmetry"] {
+            let tla = crate_dir().join(format!("tests/fixtures/runtime-names/{name}.tla"));
+            let cfg = std::fs::read_to_string(tla.with_extension("cfg")).expect("fixture");
+            for mut base in profiles() {
+                base.seed = 7;
+                let reference = invariant(name, &tla, &cfg, &base, 8).expect("ordered result");
+                assert!(matches!(
+                    reference.verdict,
+                    Verdict::InvariantViolated { .. }
+                ));
+                let stats = reference.stats.as_ref().expect("counts");
+                if base.profile == dive_eval::Profile::Tlc {
+                    assert_eq!((stats.generated, stats.distinct, stats.depth), (23, 23, 2));
+                    assert!(reference.workers.sequential);
+                    assert_eq!(reference.workers.used, 1);
+                    assert!(
+                        reference
+                            .workers
+                            .reason
+                            .as_ref()
+                            .expect("reason")
+                            .contains("runtime names")
+                    );
+                } else {
+                    assert!(
+                        !reference.workers.sequential,
+                        "canonical order remains parallel"
+                    );
+                    assert_eq!(reference.workers.used, 4);
+                }
+            }
+        }
+    });
+}

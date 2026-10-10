@@ -1,9 +1,14 @@
-//! Pure symmetry declaration preparation and bounded generator closure (S1).
+//! Pure symmetry declaration preparation, bounded closure and safety keys.
 //!
 //! This matches `MVPerms.permutationSubgroup` and `MVPerm.compose` at the
-//! pinned TLC revision. It does not enable reduction: full binding, warnings,
-//! canonical state keys and independent symmetric trace checks remain separate.
+//! pinned TLC revision. Preparation handles supported tool-level warnings;
+//! activation and concrete trace retention belong to the checker. Liveness and
+//! random symmetry interactions still require separate implementations.
 //! Indices refer to one caller-supplied table of model values, not intern tokens.
+
+mod prepare;
+
+pub use prepare::{Prepared, Reduction};
 
 use std::collections::HashSet;
 use std::fmt;

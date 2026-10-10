@@ -34,6 +34,17 @@ All notable changes to this project are documented here. The project will follow
   refusals. Eight pinned models match final truth/counts in both profiles and
   stores, with independently validated violations.
 
+- Pure safety `SYMMETRY` now prepares bounded groups and canonicalizes dedup keys
+  in both stores and the sequential/parallel engines. Concrete explored states
+  and predecessors are retained for independent counterexample validation;
+  `VIEW` applies after canonicalization. TLC mode preserves malformed-map
+  behavior; the default rejects non-bijective generators. The required CM1
+  gate adds the existing symmetry-bearing Paxos Voting model at 1/4/8 workers.
+- Symmetry startup warnings retain original source tokens and configuration
+  aliases (IR schema 5). Unverified startup exceptions, unsupported declaration
+  shapes, deferred/lazy value permutation, randomness under symmetry and
+  symmetry with liveness still refuse explicitly.
+
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
   with pins and reproduction recorded separately from strict conformance.

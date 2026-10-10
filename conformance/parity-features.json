@@ -325,8 +325,8 @@
       "certification": "audit-required",
       "phase": 2,
       "pinned_source": "tlc2/tool/impl/Tool.java",
-      "rust_evidence": "crates/dive-model/src/symmetry.rs",
-      "conformance_evidence": "crates/dive-model/tests/symmetry_declaration.rs",
+      "rust_evidence": "crates/dive-model/src/symmetry/prepare.rs",
+      "conformance_evidence": "crates/dive-check/tests/symmetry.rs",
       "issues": [
         104
       ],
@@ -335,17 +335,18 @@
         "F-004",
         "F-005",
         "F-018"
-      ]
+      ],
+      "implementation_notes": "Supported pure declaration preparation includes source-backed warnings and bounded closure. Unverified startup exceptions, unsupported declaration shapes, and deferred/lazy/infinite permutations still refuse by name; #104 remains open."
     },
     {
       "id": "F-018",
       "name": "Symmetry reduction, concrete traces and audit",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 2,
       "pinned_source": "tlc2/tool/TLCStateMut.java",
-      "rust_evidence": "crates/dive-check/src/lib.rs",
-      "conformance_evidence": "docs/design/m6-plan.md",
+      "rust_evidence": "crates/dive-check/src/engine.rs",
+      "conformance_evidence": "conformance/reports/studies/symmetry-safety.md",
       "issues": [
         104
       ],
@@ -356,7 +357,8 @@
         "F-016",
         "F-021",
         "F-022"
-      ]
+      ],
+      "implementation_notes": "Pure safety keys canonicalize before VIEW and retain concrete states and independently validated paths. Eleven intended corpus models plus the extra selected Voting model agree at four workers; the original single-worker FastPaxos timeout is preserved. Both profiles/stores/1-4-8 widths have probe controls. Randomness and symmetry with liveness still refuse; the opt-in audit is unimplemented. No full-family certification is claimed."
     },
     {
       "id": "F-019",

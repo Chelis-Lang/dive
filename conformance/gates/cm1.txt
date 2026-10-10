@@ -1,8 +1,8 @@
-# Milestone CM1 (docs/design/m5-plan.md): 20 small Examples models with
+# Milestone CM1 (docs/design/m5-plan.md): 21 small Examples models with
 # standard modules only and a safety-only configuration, checked by
-# `dive check --compat=tlc` at 1 worker against the committed TLC goldens.
+# `dive check --compat=tlc` at 1/4/8 workers against the committed TLC goldens.
 # The PR conformance gate: ci.yml job `Conformance gate` (required check) runs
-# `scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4`.
+# `scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8`.
 # Adding a model is fine; removing one needs a recorded reason here.
 #
 # Frozen by WP-D2 from the plan's candidate list. Replaced, because their
@@ -16,6 +16,9 @@
 #       (temporal properties: liveness)
 #   Paxos/MCVoting.cfg                           -> PaxosHowToWinATuringAward/MCVoting.cfg
 #       (SYMMETRY)
+# Restored Paxos/MCVoting.cfg additionally on 2026-10-10 for pure symmetry
+# safety reduction; its four-worker study run took 93 ms. Neither the prior
+# replacement nor any other existing model is removed.
 #
 # Violations
 specifications/DieHard/DieHard.cfg
@@ -39,3 +42,4 @@ specifications/echo/MCEcho.cfg
 specifications/Stones/Stones.cfg
 specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg
 specifications/MultiCarElevator/ElevatorSafetySmall.cfg
+specifications/Paxos/MCVoting.cfg

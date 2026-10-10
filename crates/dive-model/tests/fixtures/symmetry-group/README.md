@@ -116,3 +116,48 @@ an `EvalException`; SyMixedElements wraps the boolean/integer comparison in a
 runtime exception. Reproduce with the same dev-capture command and these two
 names. Both declaration API controls require named refusals with no claimed
 TLC error code until the startup wrapping is ported.
+
+
+## Pure safety preparation and warning controls
+
+`SyWarnConditional` has an IF body whose three argument images become
+`TRUE, and S, and S` in warning 2300. The raw comments/spacing in the argument
+are omitted by SANY's token image. `SyWarnOverride` proves that `SpecSet <-
+CfgSet` reverses the warning alias to `SpecSet`. `SyWarnNonModel` proves that
+`Permutations({1})` warns and disables reduction before validating domains.
+All three pinned clean runs succeed with 2 generated / 1 distinct / depth 1.
+
+Capture them through the same verified harness command:
+
+```sh
+cargo run --release -p dive-conformance -- dev capture --repo-root . \
+  --oracle tlc-2026.10.06.014338 --specs "$DIVE_SYM_FIXTURES/specs" \
+  --out "$DIVE_SYM_FIXTURES" --timeout 30 \
+  SyWarnConditional SyWarnOverride SyWarnNonModel
+cargo test -p dive-check --test symmetry --locked
+cargo test -p dive-api --test symmetry_trace --locked
+```
+
+`Model::prepare_symmetry` implements supported pure warning/binding shapes;
+normal safety checking now canonicalizes keys while retaining concrete states.
+The historical refusal statements above describe prior foundation increments.
+Empty/single-function kernel exceptions, complex declaration syntax, lazy or
+deferred value permutation, random replay under symmetry and liveness reduction
+remain named refusals. No broader startup-error equivalence is claimed.
+
+New raw capture digests (SHA-256; harness-generated, not edited):
+
+| Capture | SHA-256 |
+|---|---|
+| SyWarnConditional.stdout | 7dd1c9af112deccf265f62b51a99ba95f6f66f0ae1aee196183343bf788efc10 |
+| SyWarnOverride.stdout | 02428a9da56edd5a3e9bf2157943a06dc53d64eb3ac00091ebdafba1b8be9d75 |
+| SyWarnNonModel.stdout | 03fa16c7308912d29a51efbf24923cd6a2a06a387e5134089c93b6c42d9bbab7 |
+
+`SyInfinite` puts `Nat` in the initial state while using a two-value symmetry.
+The pinned TLC reports 2102, "the value of a variable contains Nat", with
+1 generated / 0 distinct / depth 1 and exit 75. Infinite `UserValue` sets do
+not implement `Value.permute`. Both dive stores and profiles refuse the
+unverified permutation/error context, rather than accepting an infinite set
+as an unchanged canonical key. Reproduce with the capture command above,
+substituting `SyInfinite` for the three warning names. Its raw stdout SHA-256
+is `55070347cb6238b070ec4960d4a33ac4b7309acc82ce68754bfe3f717dd7f0fb`.

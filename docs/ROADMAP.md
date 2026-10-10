@@ -84,7 +84,14 @@ The design is in ADRs 0013–0016. The sequenced plan, with work packages, confo
 ## M6: Liveness, fairness and symmetry
 
 - **Liveness:** `dive-liveness` checks temporal properties with weak and strong fairness, through TLC's tableau and possible-error models, on a behaviour graph built by the deterministic parallel search. Counterexamples are lassos or stuttering endings, deterministic at any worker count, and validated by `dive-trace` (fairness and property included).
-- **Symmetry:** `SYMMETRY` for safety, with TLC's group and canonical representatives under `--compat=tlc`. The intended default for symmetry with liveness is unreduced checking (D-005); TLC's behavior stays under `--symmetry-liveness=tlc`. These modes remain planned.
+- **Symmetry:** pure safety reduction now uses the bounded group and canonical keys in both stores, retaining concrete traces. `--compat=tlc` uses TLC's group, warning rules and representative order. Deferred/lazy permutations, unverified startup contracts and randomness remain partial. The intended default for symmetry with liveness is unreduced checking (D-005); TLC's behavior stays under `--symmetry-liveness=tlc`. Liveness symmetry modes and the symmetry audit remain planned and refuse explicitly.
+
+The separate [symmetry safety study](../conformance/reports/studies/symmetry-safety.md)
+records all eleven intended manifest targets plus the extra Voting selection
+agreeing at four workers, with the original one-worker timeout preserved.
+It does not increase the historical standard 83/71 report totals or certify
+complete symmetry parity. The required CM1 gate now exercises symmetry-bearing
+Paxos Voting at 1/4/8 workers without removing an existing case.
 
 The design is in ADRs 0017–0019 (proposed). The plan, with work packages, conformance milestones, gate additions and benchmark targets, is `docs/design/m6-plan.md`.
 
