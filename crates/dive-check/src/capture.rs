@@ -70,6 +70,53 @@ pub struct ConcreteSuccessor {
     pub label: String,
 }
 
+/// One logically committed source after all of its ordinary safety checks.
+/// Speculative pool work can include later sources; only `stats` describes the
+/// logical commit prefix. This is execution evidence, not a temporal proof.
+pub struct CommittedSource<'a> {
+    /// Engine discovery identity of the actual expanded source.
+    pub id: u64,
+    /// One-based BFS depth of the expanded source.
+    pub level: u64,
+    /// Original concrete source values.
+    pub state: &'a StateVals,
+    /// Original accepted successor values, including duplicates/seen states.
+    pub successors: &'a [ConcreteSuccessor],
+    /// Logical counters after this source, before any later source is committed.
+    pub stats: Stats,
+    /// Generated successors actually evaluated speculatively in this pool level.
+    /// This is not a TLC stopping counter and may exceed the logical prefix.
+    pub pool_generated: u64,
+}
+
+/// An explicitly supplied consumer at the ordered initialization/source seam.
+/// Callbacks are invoked serially after conservative model-scope admission.
+/// They do not authorize a temporal verdict: errors stop capture as a named
+/// unsupported result, and successful callbacks certify only execution order.
+/// Consumers must meter their own work and retain any deciding typed error.
+pub trait SourceObserver: Send {
+    /// A newly enqueued initial state, before its initial invariants/implied checks.
+    /// The counters describe the observed prefix; TLC's later error replay is
+    /// separate and is not inferred by this interface.
+    ///
+    /// # Errors
+    /// Return the deciding consumer diagnostic; no completed graph is exposed.
+    fn initial(
+        &mut self,
+        _id: u64,
+        _state: &StateVals,
+        _ordinal: u64,
+        _stats: Stats,
+    ) -> Result<(), String> {
+        Ok(())
+    }
+    /// A complete source before later sources' safety stopping events are chosen.
+    ///
+    /// # Errors
+    /// Return the deciding consumer diagnostic; no completed graph is exposed.
+    fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String>;
+}
+
 /// A fully explored behavior graph in the engine's discovery order.
 /// States use the bound model's IR variable order. Fingerprint-mode identity
 /// has the same collision qualifications as the safety engine.
@@ -87,8 +134,9 @@ pub struct BehaviorGraph {
     pub roots: Vec<usize>,
 }
 
-/// Evidence from a completed safety exploration. Temporal predicates were
-/// not evaluated; callers must complete planning and acceptance checking.
+/// Evidence from a completed safety exploration. Standard capture does not
+/// evaluate temporal predicates. An observed capture can evaluate caller-owned
+/// predicates, but this evidence never certifies temporal acceptance.
 #[derive(Clone, Debug)]
 pub struct Complete {
     /// Run settings, including the reported seed, profile and store mode.
@@ -369,7 +417,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false);
+    let run = || explore_inner(model, opts, limits, false, None);
     let mut result = run_on_thread(run)?;
     if let Exploration::Stopped(stop) = &mut result {
         stop.elapsed = started.elapsed();
@@ -437,7 +485,40 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
+    if let Exploration::Stopped(stop) = &mut result {
+        stop.elapsed = started.elapsed();
+    }
+    Ok(result)
+}
+
+/// Capture through the actual pool while consuming initialization and source
+/// commits in reference order. This grants no temporal verdict or replay proof.
+/// The observer's diagnostic stops the engine before later safety events, and
+/// the stopped result exposes no completed graph. Model admission precedes any
+/// callback; zero/overbound widths run no callback or worker.
+///
+/// # Errors
+/// An exploration thread or worker fails, losing actual execution evidence.
+pub fn explore_observed_with_evidence(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn SourceObserver,
+) -> Result<Exploration, String> {
+    if let Some(stopped) = context_stop(model, opts) {
+        return Ok(stopped);
+    }
+    if opts.workers == 0 || opts.workers > 64 {
+        return explore_concrete_parallel_with_evidence(model, opts, limits);
+    }
+    if opts.sequential || engine::plan_workers(model, opts).sequential {
+        return Ok(stopped(Verdict::Unsupported {
+            feature: "ordered source observation requires the concrete safety pool; inline source callbacks are not certified".into(),
+        }, model, opts));
+    }
+    let started = std::time::Instant::now();
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
     if let Exploration::Stopped(stop) = &mut result {
         stop.elapsed = started.elapsed();
     }
@@ -488,11 +569,16 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
     None
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "keep admission, startup, observer dispatch and failed execution evidence in order"
+)]
 fn explore_inner(
     model: &Model,
     opts: &CheckOptions,
     limits: Limits,
     parallel: bool,
+    observer: Option<&mut dyn SourceObserver>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -560,7 +646,9 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     }
-    let outcome = if parallel {
+    let outcome = if observer.is_some() {
+        engine::search_graph_observed(model, opts, &host, limits, observer)
+    } else if parallel {
         engine::search_graph_parallel(model, opts, &host, limits)
     } else {
         engine::search_graph(model, opts, &host, limits)

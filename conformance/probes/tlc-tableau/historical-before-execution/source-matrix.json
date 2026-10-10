@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "base_commit": "180e9d9",
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
+    "crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
+    "crates/dive-liveness/tests/tlc_tableau.rs": "a618677560a50d861215166333b14bde8781f0fb5ff40f9ec2ca114a698032eb",
+    "scripts/check-tlc-tableau.py": "d94dec6d679ff03546db0029930f428471afeb77407e8590e8cee732dfa5f78d",
+    "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
+    "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439"
+  },
+  "evidence_scope": "Bounded diagnostic particle/tableau numbering and promise projection; no strict integrated liveness or new corpus verdict credit"
+}

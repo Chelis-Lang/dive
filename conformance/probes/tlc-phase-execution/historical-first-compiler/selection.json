@@ -1,0 +1,106 @@
+[
+  {
+    "name": "PhaseState",
+    "model": "PhaseState"
+  },
+  {
+    "name": "PhaseActionValid",
+    "model": "PhaseActionValid"
+  },
+  {
+    "name": "PhaseBothValid",
+    "model": "PhaseBothValid"
+  },
+  {
+    "name": "PhaseConstraint",
+    "model": "PhaseConstraint"
+  },
+  {
+    "name": "PhaseActionConstraint",
+    "model": "PhaseActionConstraint"
+  },
+  {
+    "name": "PhaseIdentity",
+    "model": "PhaseIdentity"
+  },
+  {
+    "name": "PhaseLocalRole",
+    "model": "PhaseLocalRole"
+  },
+  {
+    "name": "PhaseTableau",
+    "model": "PhaseTableau"
+  },
+  {
+    "name": "PhaseStateError",
+    "model": "PhaseStateError"
+  },
+  {
+    "name": "PhaseActionErrorValid",
+    "model": "PhaseActionErrorValid"
+  },
+  {
+    "name": "GraphDuplicate",
+    "model": "GraphDuplicate"
+  },
+  {
+    "name": "GraphRoots",
+    "model": "GraphRoots"
+  },
+  {
+    "name": "GraphGrow",
+    "model": "GraphGrow"
+  },
+  {
+    "name": "GraphConcrete",
+    "model": "GraphConcrete"
+  },
+  {
+    "name": "GraphWide",
+    "model": "GraphWide"
+  },
+  {
+    "name": "ExecMultiple",
+    "model": "ExecMultiple"
+  },
+  {
+    "name": "ExecRevisit",
+    "model": "ExecRevisit"
+  },
+  {
+    "name": "ExecSink",
+    "model": "ExecSink"
+  },
+  {
+    "name": "EarlierSafetyBeforeTemporal",
+    "model": "EarlierSafetyBeforeTemporal"
+  },
+  {
+    "name": "TemporalBeforeLaterEnumerator",
+    "model": "TemporalBeforeLaterEnumerator"
+  },
+  {
+    "name": "TemporalBeforeLaterSafety",
+    "model": "TemporalBeforeLaterSafety"
+  },
+  {
+    "name": "TemporalInitBeforeInvariant",
+    "model": "TemporalInitBeforeInvariant"
+  },
+  {
+    "name": "TemporalInitBeforeLaterRoots",
+    "model": "TemporalInitBeforeLaterRoots"
+  },
+  {
+    "name": "TemporalInitBeforeStateInvariant",
+    "model": "TemporalInitBeforeStateInvariant"
+  },
+  {
+    "name": "TemporalTableauInitBeforeInvariant",
+    "model": "TemporalTableauInitBeforeInvariant"
+  },
+  {
+    "name": "TemporalTableauInitBeforeLaterRoots",
+    "model": "TemporalTableauInitBeforeLaterRoots"
+  }
+]

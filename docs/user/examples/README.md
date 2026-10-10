@@ -33,3 +33,9 @@ and [compiled Rust observations](../../../conformance/probes/native-parity-integ
 The original observations above remain immutable and identify their original
 runtime. The repaired source rechecks all eight commands plus the pure
 checkpoint pause/recovery and original named refusal.
+
+`ModuleExample.tla` and its sibling configuration exercise `Naturals`,
+`Sequences` and `FiniteSets`. [Current module observations](../../../conformance/probes/native-parity-integration/current-controls/macros-integration/module-guide/receipt.json)
+retain analysis and both-profile checks: three distinct states, four generated,
+depth three. The [macro integration receipt](../../../conformance/probes/native-parity-integration/current-controls/macros-integration/verification.json)
+also binds fresh C/P macro examples separately from their original observations.

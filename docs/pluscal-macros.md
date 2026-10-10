@@ -150,3 +150,13 @@ process domains remain explicit refusals. File rewrite/checksum, historical
 options, exact pretty width and mapping-format parity are pending. A translated
 artifact is never a model proof; F-034/F-035 remain partial and audit-required.
 See [ADR 0039](decisions/0039-pluscal-macro-substitution.md).
+
+Fresh combined-source verification repeats the complete 222-row selection,
+134 full-CST/SANY artifacts, 132 finite models (792 width/store runs), 25 valid
+witnesses and 100 rejected mutants. All 54 CLI invalid-artifact controls and
+44 document corruptions still reject. The current implementation passed the
+830-test workspace gate and all 21 CM1 plus 16 ValidationTestSuite models at
+1/4/8 workers; four macro CLI examples and three module-guide commands passed.
+[The current receipt](../conformance/probes/native-parity-integration/current-controls/macros-integration/verification.json)
+records the binary/source identities separately from the immutable original
+macro delivery; none of these controls certifies the full translator family.

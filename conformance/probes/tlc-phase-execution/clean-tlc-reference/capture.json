@@ -1,0 +1,190 @@
+{
+  "reason": "Characterize strict logical-source temporal error precedence before future engine observer implementation",
+  "oracle_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "rows": [
+    {
+      "model": "TemporalBeforeLaterSafety",
+      "exit": 255,
+      "stdout_sha256": "99f2e026a725fd38c999f087952863e29647dd0437117357fdf50cd13853c04c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "f781637cd6c5cab18fc03c6912f8fa781a0adce2efee77e0be57c6ef49a4e366",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalBeforeLaterSafety/meta",
+        "TemporalBeforeLaterSafety"
+      ]
+    },
+    {
+      "model": "EarlierSafetyBeforeTemporal",
+      "exit": 12,
+      "stdout_sha256": "c1e4da226824c5098fd5023461b5bfe33c5ea1959e39f8fb51aa5c9e10b2c1de",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "673ad228c51d52ac21455d9f619979e4a6d16e6144a0faa20c584048eb6725d4",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/EarlierSafetyBeforeTemporal/meta",
+        "EarlierSafetyBeforeTemporal"
+      ]
+    },
+    {
+      "model": "TemporalBeforeLaterEnumerator",
+      "exit": 255,
+      "stdout_sha256": "2ae8d47f089ac92619f4e47c13c726cbe341489dadc644569b21adc67ac5f680",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d08a9d08e9e45e56fa5becd1ecc7b94c8f0e7e5562d692a88138af49c37c1b28",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalBeforeLaterEnumerator/meta",
+        "TemporalBeforeLaterEnumerator"
+      ]
+    },
+    {
+      "model": "TemporalInitBeforeInvariant",
+      "exit": 151,
+      "stdout_sha256": "65158af6a692b789051fa366950f276dbf3d24dbe0932cca5c64935de18287db",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "eb4c7535328c6dd7e23db1e9f2f224dcb6932b437e119bebf4e04e41772b6a0e",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalInitBeforeInvariant/meta",
+        "TemporalInitBeforeInvariant"
+      ]
+    },
+    {
+      "model": "TemporalInitBeforeLaterRoots",
+      "exit": 75,
+      "stdout_sha256": "ed34e9c49cc0911d59f7980e8fce78299327ac259417911f162b90c6bf214d1a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e51e750a47e1b95fc734f271a2e53d7a42cd6be4527af86f315bc175330cdaf5",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalInitBeforeLaterRoots/meta",
+        "TemporalInitBeforeLaterRoots"
+      ]
+    },
+    {
+      "model": "TemporalInitBeforeStateInvariant",
+      "exit": 12,
+      "stdout_sha256": "504d5a7814c608959567c106a6b67817409025010968aac79b61a2154c4dd781",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "4c1f252dd0306f5a17f7b00822be42296b375952079f32e96e95b6d84ebf945a",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalInitBeforeStateInvariant/meta",
+        "TemporalInitBeforeStateInvariant"
+      ]
+    },
+    {
+      "model": "TemporalTableauInitBeforeInvariant",
+      "exit": 255,
+      "stdout_sha256": "f78a6b5f962ba0f94a9d11829ca5a467a529abcdbad0e5a8b982f7f264527c3e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "02434231526ac86da35f6fde09d1a8c6a89b605f148d25da0b770f33e5480fc5",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalTableauInitBeforeInvariant/meta",
+        "TemporalTableauInitBeforeInvariant"
+      ]
+    },
+    {
+      "model": "TemporalTableauInitBeforeLaterRoots",
+      "exit": 255,
+      "stdout_sha256": "97a97e3b25d0db901996d18b8ed349190baef75675ae6e2bae324cf4f3653588",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "24fcee3db57261fbedf526035ffc3b09090100fddf19d021a9ce629327a452d1",
+      "config_sha256": "dcb3b592235f295fc71c095a254316fb5d9cec933fb61295e1601bba79e6a295",
+      "flags": [
+        "-tool",
+        "-workers",
+        "1",
+        "-seed",
+        "0",
+        "-fp",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-phase-l-ordered-observer-probes/TemporalTableauInitBeforeLaterRoots/meta",
+        "TemporalTableauInitBeforeLaterRoots"
+      ]
+    }
+  ]
+}

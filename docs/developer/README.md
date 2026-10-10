@@ -20,3 +20,6 @@ implementation needs separately identified current-source evidence and truthful
 status. The [integration study](../native-parity-integration.md) records that boundary.
 Never rewrite generated goldens, omitted cases, failures or original source hashes
 to promote coverage. ADR acceptance does not imply implementation completion.
+
+[Ordered temporal execution](../temporal-execution-api.md) documents the staged
+source callback and graph contract, independently of the exposed final/short mode.

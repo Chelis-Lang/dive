@@ -882,6 +882,50 @@
         "crates/dive-pluscal/procedure-graph-acceptance/README.md": "6f07273d048fee115f27b8437a018336194285ea9ae84955e7d45a77c71c1733"
       },
       "scope": "immutable separately verified slice; no combined-source or full family certification"
+    },
+    {
+      "slice": "execution",
+      "source_commit": "ebc2789a06c093d945c088dee21977564b07e7ad",
+      "source_tree": "e4dbe6afb6d3a49e868e5173fb41afb82cc10cd5",
+      "matrices_sha256": {
+        "history/execution/matrices/conformance/probes/tlc-phase-execution/source-matrix.json": "6ae426f6aba936eaf10be88a6ec3e34b3781c9497d0f8e8a27aa00d27a3ec876"
+      },
+      "source_sha256": {
+        "crates/dive-check/src/capture.rs": "bace43577f22bdb2dae581deba4829d0e851f517a58632d832a95f0b4b70422f",
+        "crates/dive-check/src/capture/pure.rs": "3a54988eb993ebabb6babb4f6c989f56120d7030c62387b14a0b605b4885bfa7",
+        "crates/dive-check/src/engine.rs": "29cb6654745b72aacafca7d77c26441bbb33977a737b43d52bc0fd16f6d17208",
+        "crates/dive-check/src/parallel.rs": "f00cb3761f7d3fae13fbd1011acbfde7c8ce12977b91b0ab93057a1dd03cc51c",
+        "crates/dive-check/tests/observed.rs": "41ecb215a6dddadcd9e75aa38fd033e6518daca0ebf96c642e6b89193c21685d",
+        "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+        "crates/dive-liveness/src/phase_l.rs": "5368e836dee56cd7e0c6c5e21f8b0965cf18a7270e3c09d110d37fbfcb3a5562",
+        "crates/dive-liveness/src/phase_execution.rs": "62271b0f778ce79850ac7995c66b7db327816a2869006829ecab2dc36b2870b3",
+        "crates/dive-liveness/tests/phase_execution.rs": "7ff575cf8f23013374d33a2fb55dd2d9ac57a360898fde3aeddaf8ddce37188d",
+        "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-check/src/capture.rs": "85d66ecb1c4f32ab01718109bcea0c2c8197cc58c5f682c8a2bfce39b79a4007",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-check/src/capture/pure.rs": "3a54988eb993ebabb6babb4f6c989f56120d7030c62387b14a0b605b4885bfa7",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-check/src/engine.rs": "9274c45dc31fde1913e3c48e45944ae63d54467691cd7baa5df293848d74c16c",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-check/src/parallel.rs": "0339754153641abbc2d4382b0f39a693c1424f87e6646a13a258f68b50b1700e",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-check/tests/capture.rs": "e64eab0ab2b0609149e64212231df6a83c3f0df788d4154bf0f6c0672ffc569f",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-eval/src/lib.rs": "5e2037062f33c8236b4803c4f10bac5e0855993afb9e60d4b5e59d32be2fe5bc",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-eval/src/next.rs": "296f21409be6c4e0c17d66a2b8ade41d755dd527bd634e65888556e8ce281792",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-liveness/src/phase_l.rs": "c6c4321cad2fadc3f061f1496206ac16f237ec5dd8b3f642c4af27b28f065158",
+        "conformance/probes/tlc-phase-l-graph/historical-before-execution/crates/dive-liveness/tests/phase_graph.rs": "19c7555ddcccccce86907012b6f89a598aadbbf925ef467fe44cd16b0350b6b9",
+        "conformance/probes/tlc-phase-l/historical-before-execution/crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
+        "conformance/probes/tlc-phase-l/historical-before-execution/crates/dive-liveness/src/phase_l.rs": "c6c4321cad2fadc3f061f1496206ac16f237ec5dd8b3f642c4af27b28f065158",
+        "conformance/probes/tlc-phase-l/historical-before-execution/crates/dive-liveness/tests/phase_l.rs": "ba375c4ccf64e0e02ee8447eda51a36ba39c13da5afabc8413ee2fac0ea70630",
+        "conformance/probes/tlc-planning/historical-before-execution/crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+        "conformance/probes/tlc-planning/historical-before-execution/crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
+        "conformance/probes/tlc-planning/historical-before-execution/crates/dive-liveness/src/plan.rs": "4997128f5f2ff6a25372a70d8d1916a838cfbf32e33d0a77b1b9495ea247cb7e",
+        "conformance/probes/tlc-planning/historical-before-execution/crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+        "conformance/probes/tlc-planning/historical-before-execution/crates/dive-liveness/tests/tlc_planning.rs": "d57faae5aa07969ac0c62369d143390a976f3f8d7c4b14be77ecb8cf94fe2016",
+        "conformance/probes/tlc-tableau/historical-before-execution/crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
+        "conformance/probes/tlc-tableau/historical-before-execution/crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
+        "conformance/probes/tlc-tableau/historical-before-execution/crates/dive-liveness/tests/tlc_tableau.rs": "a618677560a50d861215166333b14bde8781f0fb5ff40f9ec2ca114a698032eb"
+      },
+      "scope": "immutable separately verified slice; no combined-source or full family certification"
     }
   ]
 }
