@@ -1506,56 +1506,59 @@ each admitted block to its own storage, labels and fairness context. Overlapping
 IDs, name rewrites and cross-process local references remain explicit refusals;
 translation artifacts still make no model-proof claim.
 
-The [bounded native macro increment](pluscal-macros.md) reproduces lexical
-substitution rather than inventing capture avoidance. The pinned translator can
-return zero while producing TLA+ that SANY rejects (including `Set(b, 3)` whose
-actual `b` is undeclared). Native raw generation retains those comparisons only
-as diagnostic evidence; public translation rejects the invalid enclosing module
-in both profiles and makes no proof claim (D-008). General binder/procedure/name
-rewrites remain named refusals. Source PlusCal strings deliberately preserve the
-pinned printable-ASCII boundary; no wider Unicode-string default is adopted.
+
+### D-013 progress: ordered temporal execution
+
+The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
+source order, with initial consistency before initial invariants and immediate
+done-state re-enumeration. Fifteen completed pinned graph-field cases match at
+1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
+in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
+batch emissions and recursive enumeration work remain separate. Independent
+validation rejects altered words, closing edges and incomplete property claims.
+
+This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
+initial error replay and periodic checking are not certified. Ordinary strict
+liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
+remain partial/audit-required, F-023 missing and #140 open. Previous complete
+studies keep their original outcomes and receive no new corpus verdict credit.
+
+### D-013 progress: pinned final-only SCC and witness selection
+
+The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
+graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
+bucket closure. It retains configured claims separately from derived role names.
+At 1/3/4/8 workers, 19 completed pinned controls match their SCC/witness fields;
+all 30 controls, including 11 uncredited failures, remain available in
+`conformance/probes/tlc-final-check/`. Fresh independent validation accepts the
+supported original words and rejects changed Init, Next/closing edges, loop
+targets and incomplete claims. A 4,096-graph independent census checks acceptance
+and selected path labels.
+
+This is an explicit final-only TLC/fingerprint library mode, not ordinary strict
+CLI parity or periodic-schedule support. Exact-store temporal proof is refused:
+a fingerprint graph must not silently merge concrete states while claiming exact
+identity. Accepting-sink reconstruction, initial error replay, symmetry/VIEW/ALIAS,
+periodic hooks, unsupported scopes/effects and fixed resource bounds remain named
+limitations. Holds results retain collision qualifications; backend candidates
+never carry their own validation certificate. F-019 through F-022 remain partial/
+audit-required, F-023 missing and #140 open. Old broad studies retain their original
+outcomes; no default or ordinary strict conformance credit changes.
+
+See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
+actual evidence and refusal boundaries. The API admits startup sources before
+binding creates a host; effectful ASSUMEs, unused top-level constants, config
+replacement candidates and hooks return named refusal with zero used workers.
+Standard-module classification does not bypass this admission. Explicit sequential
+requests/fallback execution remain refused until their observer path is certified.
 
 
-The bounded sequential PlusCal procedure path now generates saved parameter/local
-frames and call/return continuations. Its 84-row selection keeps four primary
-SANY-invalid modules uncredited. Thirty generated invariant witnesses reproduce
-TLC exploration but strict independent replay refuses runtime string encounter
-order (#124); default/canonical replay is separately qualified evidence, not
-TLC-profile certification. See [the procedure guide](pluscal-procedures.md).
-
-The bounded sequential PlusCal graph path now admits multiple disjoint procedures
-and nonrecursive nested calls. Procedure fallthrough still generates `pc="Error"`
-and may deadlock, matching the reference. Cycles (including unused ones), name
-rewriting, process-owned stacks and unproved procedure-label/macro interactions
-remain honest named refusals. Strict stack witness replay remains pending under
-#124; separately qualified canonical replay confers no TLC-profile certification.
-See [procedure graph use and limits](pluscal-procedure-graphs.md).
-
-### Recursive zero-parameter tail call: invalid output (D-008 candidate)
-
-The pinned translator reports success for this PlusCal source:
-
-```tla
---algorithm A {
-  variable x = 0;
-  procedure First() { F: call First(); return; };
-  { L: call First(); E: skip; }
-}
-```
-
-Its generated `F` action contains a blank conjunction between `pc="F"` and
-`pc'="F"`. `pcal.trans` exits 0 and writes the module; SANY rejects the next
-`/\` with a parse error. The retained raw source and both stages are
-`crates/dive-pluscal/recursive-procedure-acceptance/fixtures/Recursive_C_self_tail_no_params.*`.
-The reference's same-procedure call/return path adds an empty assignment when
-there are no parameters; this is not a valid translated model or a termination
-proof. The native recursive increment retains this as diagnostic evidence
-and public admission rejects invalid modules in both profiles. A repaired-output
-option is not adopted silently. Full translation parity remains pending.
-
-The disjoint sequential procedure path now admits ordinary self/mutual recursion
-and reference same-procedure tail-call normalization without unrolling calls.
-See [recursive procedure use and limits](pluscal-recursive-procedures.md).
-Strict stack-witness namespace proof remains pending; bounded unbounded-model
-stops never claim exhaustive search or termination. Process/scoped name handling
-and full translator parity remain pending.
+**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+--lasso tlc` now exposes the independently certified bounded final-only path.
+Actual counts/worker/stage metadata and original property identities are retained,
+including TLC's stuttering marker. This does not enable periodic checking or lift
+exact-store, accepting-sink, recovery, effect or resource refusals. The separate
+`dive-final-tlc` harness mode requires a final-schedule golden and fresh independent
+replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
+alias targets are admitted through actual module contexts before any startup
+binding effect. See [the user guide](tlc-final-api.md).

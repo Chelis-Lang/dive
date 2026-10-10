@@ -1,4 +1,12 @@
 {
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "historical_integration_sources": [
+    {
+      "matrix": "before-final-mode-source/matrix.json",
+      "matrix_sha256": "df483feff6ba044615c90151c01428f18b3062642c80fbcadb53c63f00568a63",
+      "source_archive": "before-final-mode-source/sources"
+    }
+  ],
   "scope": "current combined source; frozen original delivery retained separately",
   "source_sha256": {
     "crates/dive-api/src/check.rs": "d99a141d993d2c196ccb83c23d7b058f0874dba0ef3702af25dc68db34c8d975",
@@ -12,13 +20,5 @@
     "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd",
     "crates/dive-cli/tests/cli.rs": "a56d98b475a089116a9352a969ece2573df1eff784089fdefeb4da6ce5124fb0"
-  },
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
-  "historical_integration_sources": [
-    {
-      "matrix": "before-final-mode-source/matrix.json",
-      "matrix_sha256": "df483feff6ba044615c90151c01428f18b3062642c80fbcadb53c63f00568a63",
-      "source_archive": "before-final-mode-source/sources"
-    }
-  ]
+  }
 }

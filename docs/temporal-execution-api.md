@@ -60,11 +60,3 @@ Original tests expecting a later planning-stage refusal are retained beside the
 failed gate. Their current counterparts require the earlier exact input code,
 zero predicates/sources/workers, no partial graph and no output; opaque-provider
 callback traps remain unchanged.
-
-The combined implementation passed **837 Rust tests** with none skipped, twenty
-Python tests and eleven source/probe checks. Its fresh native safety CLI passed
-all 21 CM1 and 16 ValidationTestSuite smoke models at 1/4/8 workers.
-[The separate current-source receipt](../conformance/probes/native-parity-integration/current-controls/ordered-execution-integration/verification.json)
-binds the source, binaries and complete gate logs. The original 26-row temporal
-census stays tied to its archived producer; these fresh integration controls do
-not promote it to a current temporal-verdict claim.
