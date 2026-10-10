@@ -213,3 +213,14 @@ models match final truth/counts in both profiles/stores at requested workers
 normalization order and bounds component and generated value slots. Deferred,
 infinite, oversized and excessive-work domains remain named failures. This does
 not change the strict temporal compatibility refusal.
+
+
+D-013 bounded deferred-domain support admits closed pure captured filters over
+finite structural inputs and maps over those filters. Six clean `finite-deferred-audit`
+probes match final truth/counts in both profiles/stores with independent periodic
+validation. Preflight bounds input and conservative output work before predicates
+run; cached results do not bypass the original input bound. Infinite/opaque/
+effectful domains and recursive scoped functions still refuse. This is staged
+F-007 evidence, not strict temporal certification; F-006 recursive scope support
+remains open. The original full ten-row study retains its nine refusals/bounds
+and one timeout until a new immutable whole-selection report is completed.

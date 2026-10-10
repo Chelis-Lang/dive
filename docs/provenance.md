@@ -212,3 +212,17 @@ function short circuit matches `SetOfFcnsValue`. Eight clean pinned `Ld*` captur
 both-profile enumeration/error-order controls and independent periodic-word checks
 provide evidence. The validator shares expression binding but retains its separate
 word/ENABLED algorithms and no successor enumeration feature.
+
+
+The captured-filter extension admits only evaluator-owned `lazy::Filter`, whose
+unchanged expression evaluation matches `SetPredValue.elements` and
+`Tool.eval` at tlaplus `94d0c50` (MIT reference). Original input cardinality/value
+slot upper bounds and a conservative output-vector bound are charged before
+calling it; effectful or unresolved predicates are refused without execution.
+Configured helper redirects are checked conservatively for forbidden effects;
+open-effect targets remain refusals. It retains the original predicate IR span,
+environment, state and profile order.
+No new checker enumerator or validator dependency was introduced. Six clean
+`FdFilter*`, `FdMap*` and `FdCapture*` captures, both-profile input/cache/effect/
+error-order/priming controls and fresh independent periodic-word checks provide
+focused final/short evidence. Recursive `FdRecursivePerm*` remains unsupported.

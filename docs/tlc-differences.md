@@ -1008,7 +1008,7 @@ The binding limit bounds domain entries, intermediate materialization work
 (component entries and generated value slots), and Cartesian bindings separately.
 No resource default was increased. Preflight uses raw cardinality upper bounds
 without changing TLC's normalization state or running deferred predicates.
-Infinite/deferred domains and oversized/work-heavy constructors still fail by
+Infinite/opaque deferred domains and oversized/work-heavy constructors still fail by
 name; a small cardinality alone does not justify allocating a huge function.
 Both profiles use this support. Strict TLC phase-L scheduling and exact lasso
 selection remain pending; this is not strict temporal conformance.
@@ -1018,3 +1018,39 @@ minimal specs and clean pinned oracle captures; `tests/lazy_domains.rs` checks
 truth, counts and independent validation. `dive-eval` binder tests verify order
 against ordinary enumeration, empty-domain functions, comparison-error order,
 raw normalization state and giant-domain preallocation refusals.
+
+
+**D-013 captured-filter update:** final/short temporal formulas can quantify
+over closed pure filters of bounded function, record, product or subset sets,
+and map over those filtered bindings. For example:
+
+```tla
+Domain == {f \in [1..2 -> BOOLEAN] : f[1] = FALSE}
+Live == \A f \in Domain : []<>(x = f[1])
+```
+
+With the toggling `Spec` above, pinned TLC holds with 3 generated states, 2
+distinct states and depth 2. With `Init == x = TRUE` and `Next == UNCHANGED x`,
+it reports a liveness violation (exit 13), with 2 generated states, 1 distinct
+state and depth 1. Six clean paired filter, map and state-dependent-domain
+controls match final truth/counts in both profiles and stores at requested
+widths 1/4/8; final graph capture remains one worker. Fresh independent
+property evaluators accept an alternating word and reject a stuttering mutant.
+Those word controls test property truth; complete violating reports separately
+validate Init, Next and fairness against the spec.
+
+A filter captures the state in which its value was created. Re-evaluating the
+filter expression at a new state creates a new capture; primed predicates use
+the successor state. These semantics are preserved through finite preflight and
+periodic closing edges. The input's structural upper bound is charged before
+predicate evaluation, even for an already materialized filter or one that would
+select nothing. No resource defaults or effect permissions changed.
+
+This support is shared by both profiles on the explicit final/short path.
+Effectful/unresolved predicates, infinite/opaque inputs, non-filter deferred set
+operations and local recursive-function scope analysis still refuse by name.
+Strict TLC phase-L timing, exact lasso choice and full domain/scoping coverage
+remain pending. Evidence is in `conformance/probes/finite-deferred-audit/`,
+`crates/dive-api/tests/deferred_domains.rs` and the bounded evaluator controls.
+The prior ten-model report is unchanged: passing these minimal guards is not
+credit for its nine refusals/bounds and one timeout.
