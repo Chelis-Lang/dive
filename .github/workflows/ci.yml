@@ -75,6 +75,10 @@ jobs:
         run: python3 scripts/test-validation-import.py
       - name: Frontend campaign controls
         run: python3 -I scripts/test-frontend-campaign.py
+      - name: Parity ledger accounting and mutation controls
+        run: |
+          python3 -I scripts/check-parity-ledger.py
+          python3 -I scripts/test-parity-ledger.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: tests

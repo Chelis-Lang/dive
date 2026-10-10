@@ -15,6 +15,8 @@ All notable changes to this project are documented here. The project will follow
   Caller-supplied temporal/enabledness predicates receive the same scoped
   checks; structurally proven tuple-only sequence calls remain supported.
 
+- Offline parity-ledger checks reject absent or escaping evidence, changed
+  stable IDs, unsupported certification claims and Markdown census drift.
 
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown
