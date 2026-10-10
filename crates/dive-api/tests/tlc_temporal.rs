@@ -202,3 +202,85 @@ fn malformed_source_and_sequential_requests_have_no_execution_credit() {
     assert_eq!(failure.workers.expect("no worker").used, 0);
     assert!(failure.evidence.is_none());
 }
+
+#[test]
+fn configured_context_alias_roots_the_actual_target_before_binding() {
+    let source = "---- MODULE AliasAdmission ----\nEXTENDS TLC\nCONSTANT Gate\nVARIABLE x\nContainer(v) == LET Hidden == PrintT(TRUE) IN v\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n";
+    let (ir, cfg) = inputs(
+        source,
+        "CONSTANT Gate <- Alias\nINIT Init\nNEXT Next\nPROPERTY Live\n",
+    );
+    let hidden = ir
+        .defs()
+        .iter()
+        .position(|d| d.name == "Hidden")
+        .expect("local");
+    assert_ne!(ir.defs()[hidden].scope, dive_ir::DefScope::TopLevel);
+    let mut encoded = serde_json::to_value(ir.as_ref()).expect("IR");
+    encoded["modules"][ir.root().index()]["standard"] = serde_json::json!(true);
+    encoded["modules"][ir.root().index()]["context"]
+        .as_array_mut()
+        .expect("context")
+        .push(serde_json::json!(["Alias", {"Def": hidden}]));
+    let ir = Arc::new(serde_json::from_value(encoded).expect("context alias"));
+    let failure = tlc_temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
+        .expect_err("resolved local effect target must refuse before bind");
+    assert!(
+        matches!(
+            failure.error,
+            tlc_temporal::Error::Unsupported(
+                "pre-bind impure/live ASSUME/constant/user definition"
+                    | "pre-bind native callback/runtime-name effects"
+            )
+        ),
+        "{failure:?}"
+    );
+    assert_eq!(failure.workers.expect("admission").used, 0);
+    assert!(failure.evidence.is_none());
+}
+
+#[test]
+fn check_file_exposes_only_the_explicit_final_tlc_certificate() {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/tlc-final-check/models");
+    for name in ["FinalState", "FinalSafe", "ExecMultiple"] {
+        let request = dive_api::CheckRequest {
+            file: base.join(name).join(format!("{name}.tla")),
+            config: Some(base.join(name).join(format!("{name}.cfg"))),
+            compat_tlc: true,
+            workers: Some(4),
+            seed: Some(0),
+            fp: Some(0),
+            temporal: dive_api::TemporalMode::FinalTlc,
+            ..Default::default()
+        };
+        let report = dive_api::check_file(&request).expect("load");
+        let certificate = report
+            .tlc_temporal_result()
+            .expect("private certified result");
+        assert!(report.result().is_none());
+        assert!(report.temporal_result().is_none());
+        assert!(report.tlc_temporal_failure().is_none());
+        assert_eq!(certificate.selection(), "tlc");
+        let json = report.to_json();
+        assert_eq!(json["statistics"]["reported_by_tlc"], true);
+        assert_eq!(json["options"]["workers"]["used"], 4);
+        assert_eq!(json["schema_version"], 2);
+        if name == "ExecMultiple" {
+            assert_eq!(json["property"], "P and Q");
+            assert_eq!(json["properties"], serde_json::json!(["P", "Q"]));
+            assert_eq!(json["counterexample"]["ending"], "stuttering");
+            assert_eq!(
+                json["counterexample"]["trace"]["ending"]["kind"],
+                "stuttering"
+            );
+        }
+        if name == "FinalState" {
+            assert_eq!(json["counterexample"]["ending"], "lasso");
+            assert_eq!(json["counterexample"]["back_to"], 1);
+        }
+        if name == "FinalSafe" {
+            assert_eq!(report.exit_code(), 0);
+        }
+    }
+}

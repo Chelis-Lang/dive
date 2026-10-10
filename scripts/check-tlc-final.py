@@ -29,6 +29,14 @@ for i,row in enumerate(rows):
    expected='final-only-holds' if row['fields']['final_check_code']=='0' else 'unvalidated-candidate'
    assert n['native']['status']==expected
   else:assert n['native']['status'] in ['binding-failure','refusal-or-error']
+identity=BASE/'historical-before-report-identity'
+history=json.loads((identity/'manifest.json').read_text())
+for group in ['source_sha256','artifact_sha256']:
+ for path,digest in history[group].items():assert phase.sha(identity/path)==digest,path
+before=BASE/'historical-before-cli'
+old=json.loads((before/'source-matrix.json').read_text())
+for path,digest in old['source_sha256'].items():assert phase.sha(before/path)==digest,path
+for path,digest in old['artifact_sha256'].items():assert phase.sha(before/path)==digest,path
 matrix=json.loads((BASE/'source-matrix.json').read_text())
 for path,digest in matrix['source_sha256'].items():assert phase.sha(ROOT/path)==digest,path
 for path,digest in matrix['artifact_sha256'].items():assert phase.sha(BASE/path)==digest,path

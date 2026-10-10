@@ -145,6 +145,19 @@ pub(super) fn check(ir: &Ir, cfg: &ModelConfig, maximum: usize) -> Result<(), &'
             ));
         }
     }
+    // Binding resolves configuration names through module contexts. A named
+    // INSTANCE/alias can point at a definition whose internal name differs.
+    // Root every matching context candidate before any eager substitution work;
+    // textual Def.name matching alone is not resolved-target authority.
+    for module in ir.modules() {
+        for (name, symbol) in &module.context {
+            if targets.contains(name.as_str())
+                && let dive_ir::Symbol::Def(def) = symbol
+            {
+                roots.push(*def);
+            }
+        }
+    }
     let reached = ir.reachable_defs(&roots);
     let mut seen = BTreeSet::new();
     let mut work = 0usize;

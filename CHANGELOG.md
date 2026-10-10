@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Expose bounded pinned final checking through `dive check --compat=tlc
+  --lncheck final --lasso tlc` and `TemporalMode::FinalTlc`, with private validated
+  outcomes, schema-2 actual counts/stages/workers, full property identities and
+  stuttering/lasso endings. Add a distinct `dive-final-tlc` harness contract with
+  fresh independent replay and final-schedule golden admission. Resolve config
+  replacement aliases before callback-free startup admission. Ordinary periodic
+  checking, exact temporal proof and unsupported classes remain refused.
+
 - Add explicit bounded `dive_api::tlc_temporal` final-only TLC fingerprint checking
   with a user guide in `docs/tlc-final-api.md` and callback-free pre-bind admission:
   preserve pinned SCC anchors/pop order, greedy witness choice and full configured

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "base_commit": "ebc2789a06c093d945c088dee21977564b07e7ad",
-  "scope": "Bounded explicit final-only TLC/fingerprint SCC and selected witness analysis plus separate privately independently validated API; complete 30-reference/120-native census, no ordinary strict/error-failure agreement credit; legacy bound-context authority must migrate at shipping integration",
+  "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
+  "scope": "Current focused API/CLI final-only controls and admission; original30 reference/120 native producer outcomes retain frozen historical-before-cli source and are not new broad-corpus evidence. Ordinary periodic checking and unverified errors receive no coverage.",
   "source_sha256": {
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/tlc_scc.rs": "2a3386de8d846ce025b3f65d529be7b0c8501908a583cb8b67d8e8a87ba8f77e",
@@ -12,12 +12,19 @@
     "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
     "crates/dive-api/src/lib.rs": "7bd7b560c9b25a168629f9b496c38b0d3a396f223622d6b546d54f8bab758a36",
-    "crates/dive-api/src/tlc_temporal.rs": "2f80455c63785aedd125a20d26158779f14db055bc94a689e93f8f560bcc81f3",
-    "crates/dive-api/src/tlc_temporal_admission.rs": "96818211d249f7004a4ec8f048f397c786456fe8da3891d72b354416ffb2013e",
-    "crates/dive-api/tests/tlc_temporal.rs": "4e4124310358f554798efc1f9e1605f3cd4c71fe66cbc5aa2f44ca774545abb5",
-    "scripts/check-tlc-final.py": "a396acd0e47367d469bf62e511b05a908d255a2feba657365087dd7ab2a2b452",
-    "docs/tlc-final-api.md": "66624e8e31c52cc1e5e7ba0e6126634d456d9e32bc8d75f29a44a4acf4127e58",
-    "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd"
+    "crates/dive-api/src/tlc_temporal.rs": "e39b478f5ef976f16ebaff7ceb4c794844ec9828e49bcc0bc64ec74fd42654b5",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "d56668b96f3d90aa686785043dcd60c1c88af8bfa860ee3b8e384a05c2781d47",
+    "crates/dive-api/tests/tlc_temporal.rs": "7203354a6f43fc65a84441c7da6a45496be8e9543643a9a4c9b309f1fa55745b",
+    "scripts/check-tlc-final.py": "115ec42eac0ee7672f35ebe8e00e1cd1d734fe0281d0a1238037efe5dfde2108",
+    "docs/tlc-final-api.md": "0391b84f2af20056cf397f3bb62e425369e2e52f7c5a962f10e35b0643976d9f",
+    "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd",
+    "crates/dive-api/src/check.rs": "a3e9e15a427b02f8427fc0bb8956eb7fb404bce194434d777a9098222135d0e0",
+    "crates/dive-api/src/check_tlc_temporal.rs": "6bb5c7b6af422fb54fcce8ad17e865c903df72e89ffc5c421038e9511dd6f245",
+    "crates/dive-cli/src/main.rs": "815dee2048aced844e70419cb2f08a84c0a9ac9c370652844f45da4ccc09ac0f",
+    "crates/dive-cli/tests/cli.rs": "85a67a1dccb9adeefabe01b6b6fe2d701e7b83cd31588299c8a48f5bd310622e",
+    "crates/dive-conformance/src/dive.rs": "2b2263d687019c64a74fe832fe7a25c2765ae8b742b41dd01d849963a453eee8",
+    "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
+    "crates/dive-conformance/src/pipeline.rs": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4"
   },
   "artifact_sha256": {
     "capture.json": "94865d795a2bf6e6af38f9f987fc97528c959d8d42ef4bbe7d073214885816e2",

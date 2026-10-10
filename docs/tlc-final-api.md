@@ -7,9 +7,35 @@ counterexample, then independently rebinds and validates the recovered behavior
 both in memory and from its JSON representation. It never trusts a caller's
 `validated` flag or supplied graph as proof.
 
+The CLI also exposes this same private certificate boundary explicitly:
+
+```sh
+cat > Final.tla <<'TLA'
+---- MODULE Final ----
+VARIABLE x
+Init == x=0
+Next == UNCHANGED x
+Live == []<>(x=1)
+====
+TLA
+cat > Final.cfg <<'CFG'
+INIT Init
+NEXT Next
+PROPERTY Live
+CFG
+cargo run -p dive-cli --release -- check Final.tla --compat=tlc \
+  --lncheck final --lasso tlc --seed 0 --fp 0 --workers 4 --output json
+```
+
+This example violates `Live`, so the command exits 13. A supported
+safe model exits 0. Refusals and bounds exit 3, internal failures exit 4; unverified
+binding errors exit 1 and make no TLC error-class claim. Existing safety stops keep
+their actual safety class/exit and available prefix statistics.
+
 This is a separate API from `dive_api::temporal::check_final`, which implements
 the bounded short-witness mode. Ordinary strict `dive check` temporal parity and
-TLC's periodic checking schedule are still pending. Calling this API deliberately
+TLC's periodic checking schedule are still pending. Selecting this API or the
+explicit flag pair deliberately
 selects **final-only** scheduling and **TLC** witness selection; it does not make
 unimplemented schedules available through the global compatibility profile.
 
@@ -79,7 +105,7 @@ aggregate bytes or metadata.
 
 Admission rejects refused source effects before startup binding creates a host.
 It inspects genuine native operator authority, every user definition, possible
-configuration replacement targets and standard-module top-level zero-arity
+configuration replacement targets through their actual module-context aliases and standard-module top-level zero-arity
 startup bodies. It does not evaluate a predicate to guess whether it is pure.
 This conservative policy may refuse an unused user definition containing an
 opaque operator capture. Pure local helpers remain supported. Existing shared
@@ -105,9 +131,60 @@ The underlying observation copy preserves final roots and adjacency, not TLC's
 original disk offsets or write history. Original unmodified `finalCheck` output
 is retained separately. Old broad studies keep their recorded outcomes; these
 focused controls do not add ordinary strict corpus agreement or finish temporal
-parity. Final CLI integration, full small-tier measurements, scheduled checking,
+parity. Full small-tier measurements, scheduled checking,
 remaining refusal/error boundaries and wider resource coverage are next.
 
 The exact design and algorithm provenance are in [ADR 0040](decisions/0040-pinned-final-scc-and-witness.md)
 and [provenance](provenance.md). Feature families F-019–F-022 remain partial and
 F-023 remains missing in the [parity ledger](tlc-parity.md).
+
+## JSON and typed CLI API
+
+The explicit mode uses check schema 2; ordinary checking retains schema 1.
+`options` records `lncheck: "final"`, `lasso: "tlc"`, the TLC profile/seed/polynomial,
+`temporal_scope: "bounded-final-only"`, and
+`ordinary_temporal_schedule_supported: false`. `temporal_bounds` contains the
+actual unchanged capture, formula, slot/value/cell/work, product and pool ceilings;
+these are entry/work counts, not aggregate byte budgets.
+
+Completed results include actual engine counts, collision-qualified storage,
+requested/used workers and an `execution` completion receipt. A violation carries
+all original configured `properties`, their joined TLC message name, and a
+lossless independently replayed `counterexample.trace`. A self-loop is represented
+as a stuttering ending, as in TLC's printed trace; other cycles carry a one-based
+`back_to` marker. The document never substitutes backend role labels for original
+configured property identities. The final-mode harness requires scalar joined
+names, complete claim vectors, loop markers and serialized state rows to agree
+with the actual document before fresh replay. These consistency checks and a
+`validation` flag alone cannot certify a violation.
+
+On failure, `execution.stage` names the deciding stage, `diagnostics` preserves
+the stable deciding code/message, and statistics are present only when actual
+prefix/completed graph evidence exists. A completed capture followed by a failed
+SCC/replay stage is not a temporal result. Lost worker evidence is `null`; early
+admission reports zero used workers. Unknown temporal error classes remain
+unverified rather than receiving an inferred TLC classification.
+
+Rust file callers select `CheckRequest { temporal: TemporalMode::FinalTlc, .. }`
+with `compat_tlc: true`. `CheckReport::tlc_temporal_result()` exposes the immutable
+private-certified report, `tlc_temporal_failure()` the typed failure, and `result()`
+a safety stop. Neither a public JSON validation flag nor graph/count equality can
+create a certificate.
+
+## Conformance mode
+
+The harness implementation `dive-final-tlc` is distinct from ordinary `dive` and
+the observational final/short study:
+
+```sh
+cargo run -p dive-conformance --release -- run --impl dive-final-tlc \
+  --impl-profile tlc --dive-bin target/release/dive --corpus examples \
+  --tier small --workers 1 --no-sany --no-summary
+```
+
+It records the exact final/TLC flags, rejects per-feature mixed overrides, and
+requires the golden's clean command to contain `-lncheck final`. It reads only the
+explicit schema-2 final/TLC contract and performs another independent bind/replay;
+the implementation's own validation flag earns no credit. The complete selection
+retains every refusal, failure and timeout. Any agreements certify only the
+supported final-only mode; they do not certify TLC's ordinary periodic schedule.

@@ -286,3 +286,14 @@ module top-level zero-arity bodies are inspected; unused standard LET helpers ar
 not independently startup roots. No effect is evaluated to infer purity. Shared
 fallible constructor/context authority must be retained at shipping integration.
 See `docs/tlc-final-api.md` and the focused admission controls.
+
+Explicit final/TLC CLI reporting follows `LiveWorker.printTrace`'s stuttering
+versus back-to-state marker and configured `findViolatedProperties` name set.
+The existing final SCC/witness algorithms and bounds remain unchanged. Separate
+`dive-final-tlc` harness mapping requires a clean final-schedule reference and
+fresh independent model/word replay; schema-1 ordinary mapping is unchanged.
+Pre-bind source admission also resolves configuration names through every
+`Module.context` `Symbol::Def` alias before substitution precomputation, matching
+`Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
+The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
+before binding, zero used workers and no graph evidence.

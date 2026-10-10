@@ -849,6 +849,16 @@ fn run_model(
         ));
         return report;
     }
+    if imp.name() == "dive-final-tlc"
+        && !golden
+            .provenance
+            .command
+            .windows(2)
+            .any(|pair| pair[0] == "-lncheck" && pair[1] == "final")
+    {
+        report.detail = Some("explicit final-only implementation requires a final-schedule golden; ordinary periodic reference receives no agreement credit".into());
+        return report;
+    }
     if golden.model != GoldenModel::from(m) {
         report.detail = Some(
             "golden describes a different model entry (manifest changed); regenerate".to_owned(),

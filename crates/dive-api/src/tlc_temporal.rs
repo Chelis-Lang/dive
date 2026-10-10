@@ -203,6 +203,15 @@ fn after(error: Error, evidence: &Evidence) -> Box<Failure> {
         elapsed: Duration::ZERO,
     })
 }
+fn candidate_ending(candidate: &Candidate) -> Ending {
+    if candidate.back_to + 1 == candidate.states.len() {
+        Ending::Stuttering
+    } else {
+        Ending::Lasso {
+            back_to: candidate.back_to,
+        }
+    }
+}
 fn run(
     ir: &Arc<Ir>,
     config: &ModelConfig,
@@ -269,9 +278,7 @@ fn run(
             let trace = Trace {
                 states: candidate.states.clone(),
                 labels: vec![None; candidate.states.len()],
-                ending: Ending::Lasso {
-                    back_to: candidate.back_to,
-                },
+                ending: candidate_ending(&candidate),
                 length: Some(candidate.states.len()),
                 properties: candidate.properties.clone(),
             };

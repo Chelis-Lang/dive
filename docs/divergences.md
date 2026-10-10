@@ -321,3 +321,14 @@ binding creates a host; effectful ASSUMEs, unused top-level constants, config
 replacement candidates and hooks return named refusal with zero used workers.
 Standard-module classification does not bypass this admission. Explicit sequential
 requests/fallback execution remain refused until their observer path is certified.
+
+
+**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+--lasso tlc` now exposes the independently certified bounded final-only path.
+Actual counts/worker/stage metadata and original property identities are retained,
+including TLC's stuttering marker. This does not enable periodic checking or lift
+exact-store, accepting-sink, recovery, effect or resource refusals. The separate
+`dive-final-tlc` harness mode requires a final-schedule golden and fresh independent
+replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
+alias targets are admitted through actual module contexts before any startup
+binding effect. See [the user guide](tlc-final-api.md).
