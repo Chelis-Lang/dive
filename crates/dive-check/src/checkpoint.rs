@@ -348,7 +348,8 @@ impl Session {
                     _ => None,
                 };
                 if op.is_some_and(|op| {
-                    op.creates_runtime_names()
+                    op.impure()
+                        || op.creates_runtime_names()
                         || matches!(
                             op,
                             dive_ir::StdOp::TlcTLCGet
@@ -357,7 +358,7 @@ impl Session {
                         )
                 }) {
                     return Err(unsupported(
-                        "runtime name constructors or checker/register reads are not recoverable in this slice",
+                        "runtime effects, name constructors or checker/register reads are not recoverable in this slice",
                     ));
                 }
             }
