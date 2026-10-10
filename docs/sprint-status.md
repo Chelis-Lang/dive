@@ -7,6 +7,12 @@ M6 has independent temporal-word evaluation and graph-search foundations.
 Explicit final/short temporal checking is available; ordinary strict
 `dive check` still refuses temporal model checking and symmetry by name.
 
+The approved [full TLC parity plan](design/tlc-parity-plan.md) now covers the
+remaining checker features, all checking modes, native recovery/distribution
+and PlusCal. The [feature ledger](tlc-parity.md) inventories 37 semantic
+families and their source surfaces. Its implemented/partial labels and current
+model counts do not certify complete families or establish an overall percent.
+
 ## Latest strict model evidence
 
 Built from main `7ceb59f`, with binary SHA-256

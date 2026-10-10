@@ -10,6 +10,10 @@ All notable changes to this project are documented here. The project will follow
   thread execution is reported as unknown rather than zero. Existing library
   error interfaces remain available alongside evidence-preserving entry points.
 
+- Auditable TLC parity ledger and delivery plan covering native checking modes,
+  distribution/recovery and PlusCal, with pinned source-surface inventories
+  and separate accounting for strict and mixed-profile evidence.
+
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
   with pins and reproduction recorded separately from strict conformance.
