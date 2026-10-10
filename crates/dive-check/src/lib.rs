@@ -65,6 +65,7 @@
 
 pub mod capture;
 mod class;
+pub mod dfid;
 pub mod engine;
 mod host;
 mod options;

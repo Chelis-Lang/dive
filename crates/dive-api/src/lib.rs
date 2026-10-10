@@ -31,6 +31,8 @@ pub use config::{ConfigReport, parse_config_file, parse_config_source};
 
 mod analyze;
 mod check;
+mod dfid;
+pub use dfid::{DFID_SCHEMA_VERSION, DfidReport, DfidRequest, dfid_file};
 
 pub use check::{
     CHECK_SCHEMA_VERSION, CheckReport, CheckRequest, Store, TEMPORAL_CHECK_SCHEMA_VERSION,
