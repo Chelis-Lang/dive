@@ -411,7 +411,12 @@ fn bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles() {
             assert_eq!(a["options"]["lncheck"], "final");
             assert_eq!(a["options"]["lasso"], "short");
             assert_eq!(a["options"]["seed"], 17);
-            assert_eq!(b["options"]["workers"]["used"], 1);
+            assert_eq!(b["options"]["workers"]["used"], 8);
+            assert_eq!(b["options"]["temporal_bounds"]["max_expansion_units"], 8);
+            assert_eq!(
+                b["options"]["temporal_bounds"]["successors_per_unit"],
+                65_536
+            );
             assert!(a["tlc"].is_null(), "unverified TLC class cannot be claimed");
             let trace_path = temp_file(
                 &format!("temporal-{profile}-{store}.json"),

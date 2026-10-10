@@ -617,7 +617,7 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) generated: u64,
     pub(crate) depth: u64,
     pub(crate) initial_generated: u64,
-    capture: Option<Collector<S::Key>>,
+    pub(crate) capture: Option<Collector<S::Key>>,
 }
 
 impl<S: Keyed> Search<'_, S> {
@@ -648,7 +648,7 @@ impl<S: Keyed> Search<'_, S> {
     ) -> Option<(Verdict, bool, bool)> {
         self.generated += 1;
         if let Some(capture) = &self.capture
-            && let Err(v) = capture.allow_generated(self.generated)
+            && let Err(v) = capture.allow_emitted(self.generated, parent.map(|_| succ.ordinal))
         {
             return Some((v, false, false));
         }
@@ -1275,21 +1275,17 @@ pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome 
     }
 }
 
-/// Captures accepted edges through the same inline safety search.
+/// Captures every accepted edge through the ordered safety engines.
 pub(crate) fn search_graph(
     m: &Model,
     opts: &CheckOptions,
     host: &RunHost,
     limits: crate::capture::Limits,
 ) -> Outcome {
-    let mut inline = opts.clone();
-    inline.sequential = true;
-    let mut outcome = match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, &inline, host, Some(limits)),
-        StoreMode::Exact => search_in::<ExactSet>(m, &inline, host, Some(limits)),
-    };
-    outcome.workers.reason = Some("behavior graph capture currently uses the inline engine".into());
-    outcome
+    match opts.store {
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits)),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits)),
+    }
 }
 
 #[allow(
@@ -1355,7 +1351,14 @@ fn search_in<S: Keyed>(
     };
     let mut next = Vec::new();
     let (stop, stats) = match s.initial_states(&mut next) {
-        Some((stop, stats)) => (Some(stop), stats),
+        Some((stop, stats)) => {
+            if s.capture.is_some() && !workers.sequential {
+                workers.used = 1;
+                workers.sequential = true;
+                workers.reason = Some("capture stopped during inline initial-state enumeration before the worker pool started".into());
+            }
+            (Some(stop), stats)
+        }
         None if workers.sequential => s.inline_levels(next, m.settings.check_deadlock),
         None => {
             let (stop, stats, used) = crate::parallel::levels(&mut s, next, opts, workers.used);

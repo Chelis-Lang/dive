@@ -291,7 +291,14 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             alias.text
         ));
     }
-    if opts.profile == Profile::Dive && r.verdict.is_verdict() && r.verdict != Verdict::Success {
+    note_canonical_stop(opts, &r.verdict, &mut notes);
+    r.notes = notes;
+    r
+}
+
+/// Shared default-profile qualification for an observed safety stop.
+fn note_canonical_stop(opts: &CheckOptions, verdict: &Verdict, notes: &mut Vec<String>) {
+    if opts.profile == Profile::Dive && verdict.is_verdict() && *verdict != Verdict::Success {
         // D-010: canonical exploration can stop at a different event than
         // TLC's order. Detecting whether it did is not implemented yet, so
         // every stop says so.
@@ -299,6 +306,4 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
             "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.".to_owned(),
         );
     }
-    r.notes = notes;
-    r
 }
