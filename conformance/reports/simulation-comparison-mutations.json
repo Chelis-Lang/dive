@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "scope": "native comparator negative controls; not oracle results or family certification",
+  "binary_sha256": "00eac41dbce54d10853ca658b3e085c85ea48b8401540d34c20973b915157385",
+  "comparator_before_sha256": "6b2af44445882fb599a0c347e4757286b6323d5df25de2a089830b96dd292cba",
+  "comparator_after_sha256": "8e6fbdb95eed111d45778e6338d263f75a47bacee99048faa99f04aa5e9ed7b2",
+  "controls": [
+    {
+      "mutation": "exhaustive",
+      "selected": 23,
+      "before": {
+        "agree": 22,
+        "unsupported": 1
+      },
+      "after": {
+        "agree": 0,
+        "unsupported": 0,
+        "disagree": 23
+      }
+    },
+    {
+      "mutation": "proof",
+      "selected": 23,
+      "before": {
+        "agree": 22,
+        "unsupported": 1
+      },
+      "after": {
+        "agree": 10,
+        "unsupported": 0,
+        "disagree": 13
+      }
+    },
+    {
+      "mutation": "exit",
+      "selected": 23,
+      "before": {
+        "agree": 22,
+        "unsupported": 1
+      },
+      "after": {
+        "agree": 0,
+        "unsupported": 0,
+        "disagree": 23
+      }
+    }
+  ]
+}

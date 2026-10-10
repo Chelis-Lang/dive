@@ -18,6 +18,7 @@ dive-eval = { workspace = true }
 dive-stdlib = { workspace = true }
 dive-store = { workspace = true }
 dive-check = { workspace = true }
+dive-sim = { workspace = true }
 dive-liveness = { workspace = true }
 dive-model = { workspace = true }
 dive-trace = { workspace = true }

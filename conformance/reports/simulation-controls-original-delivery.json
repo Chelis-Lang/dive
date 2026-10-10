@@ -1,0 +1,565 @@
+{
+  "schema_version": 1,
+  "scope": "curated pure finite single-worker simulation; not family certification",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "binary_sha256": "820a3eac8995b0405a891d6595daee7301f7423bd0370a0faaa17cb41175d1b0",
+  "selected": 23,
+  "agree": 22,
+  "unsupported": 1,
+  "observations": [
+    {
+      "control": "selection",
+      "seed": 0,
+      "aril": 0,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 29,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          0,
+          1,
+          0,
+          1,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          3,
+          2,
+          3,
+          4
+        ],
+        [
+          1,
+          0,
+          1,
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 0,
+      "aril": 3,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 31,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          1,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        [
+          1,
+          0,
+          4,
+          5,
+          6,
+          0
+        ],
+        [
+          0,
+          1,
+          4,
+          5,
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 1,
+      "aril": 0,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 39,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          0,
+          1,
+          2,
+          0,
+          2,
+          4
+        ],
+        [
+          0,
+          2,
+          0,
+          4,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 1,
+      "aril": 3,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 31,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          0,
+          1,
+          2,
+          0,
+          2
+        ],
+        [
+          1,
+          4,
+          5,
+          6,
+          2,
+          3
+        ],
+        [
+          1,
+          4,
+          5,
+          2,
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 7,
+      "aril": 0,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 35,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          1,
+          0,
+          1,
+          2,
+          0,
+          2
+        ],
+        [
+          0,
+          2,
+          3,
+          4,
+          2,
+          0
+        ],
+        [
+          0,
+          2,
+          3,
+          2,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 7,
+      "aril": 3,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 23,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          1,
+          2,
+          3,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        [
+          1,
+          2,
+          3,
+          4,
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 2147483647,
+      "aril": 0,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 23,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          0
+        ],
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": 2147483647,
+      "aril": 3,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 33,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          0,
+          4,
+          5,
+          6,
+          2
+        ],
+        [
+          0,
+          4,
+          5,
+          0,
+          1,
+          2
+        ],
+        [
+          1,
+          0,
+          1,
+          4,
+          5,
+          2
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": -1,
+      "aril": 0,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 33,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          1,
+          0,
+          1,
+          2,
+          4,
+          0
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          2
+        ],
+        [
+          1,
+          2,
+          4,
+          5,
+          6,
+          0
+        ]
+      ]
+    },
+    {
+      "control": "selection",
+      "seed": -1,
+      "aril": 3,
+      "outcome": "agree",
+      "statistics": {
+        "generated": 27,
+        "initial_candidates": 2,
+        "scope": "complete-request",
+        "traces_started": 3
+      },
+      "states": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          2
+        ]
+      ]
+    },
+    {
+      "control": "SimActionProperty",
+      "outcome": "agree",
+      "result": "violation",
+      "exit": 13,
+      "tlc_code": 2112,
+      "statistics": {
+        "generated": 3,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": true
+    },
+    {
+      "control": "SimAssumeFalse",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 10,
+      "tlc_code": 2104,
+      "statistics": {
+        "generated": 0,
+        "initial_candidates": 0,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimConstrainedAction",
+      "outcome": "unsupported",
+      "result": "unsupported",
+      "oracle_code": 2112,
+      "message": "simulation implied action properties with state/action constraints require a separate validation contract",
+      "statistics": {
+        "generated": 0,
+        "initial_candidates": 0,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      }
+    },
+    {
+      "control": "SimConstrainedInvariant",
+      "outcome": "agree",
+      "result": "violation",
+      "exit": 12,
+      "tlc_code": 2110,
+      "statistics": {
+        "generated": 3,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": true
+    },
+    {
+      "control": "SimDeadlock",
+      "outcome": "agree",
+      "result": "violation",
+      "exit": 11,
+      "tlc_code": 2114,
+      "statistics": {
+        "generated": 1,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": true
+    },
+    {
+      "control": "SimEmpty",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 255,
+      "tlc_code": 2118,
+      "statistics": {
+        "generated": 0,
+        "initial_candidates": 0,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimExcludedInitial",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 255,
+      "tlc_code": 2256,
+      "statistics": {
+        "generated": 1,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimIncomplete",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 75,
+      "tlc_code": 2109,
+      "statistics": {
+        "generated": 1,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimInitialIncomplete",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 255,
+      "tlc_code": 2106,
+      "statistics": {
+        "generated": 2,
+        "initial_candidates": 2,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimInitialInvariant",
+      "outcome": "agree",
+      "result": "violation",
+      "exit": 12,
+      "tlc_code": 2107,
+      "statistics": {
+        "generated": 2,
+        "initial_candidates": 2,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": true
+    },
+    {
+      "control": "SimInitialPrecedence",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 255,
+      "tlc_code": 1000,
+      "statistics": {
+        "generated": 0,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 0
+      },
+      "violation_validated": false
+    },
+    {
+      "control": "SimInvariant",
+      "outcome": "agree",
+      "result": "violation",
+      "exit": 12,
+      "tlc_code": 2110,
+      "statistics": {
+        "generated": 3,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": true
+    },
+    {
+      "control": "SimInvariantError",
+      "outcome": "agree",
+      "result": "evaluation-error",
+      "exit": 76,
+      "tlc_code": 2111,
+      "statistics": {
+        "generated": 2,
+        "initial_candidates": 1,
+        "scope": "completed-prefix",
+        "traces_started": 1
+      },
+      "violation_validated": false
+    }
+  ]
+}

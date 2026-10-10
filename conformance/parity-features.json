@@ -471,19 +471,27 @@
     {
       "id": "F-024",
       "name": "Simulation, generation, scheduling and random replay",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 5,
       "pinned_source": "tlc2/tool/Simulator.java",
       "rust_evidence": "crates/dive-sim/src/lib.rs",
-      "conformance_evidence": "crates/dive-stdlib/src/random/mod.rs",
-      "issues": [],
+      "conformance_evidence": "crates/dive-api/tests/simulate.rs",
+      "issues": [
+        111
+      ],
       "acceptance": "Initial/action choice, trace count/depth, seeded/aril draws, all simulation schedulers, constraints/properties and termination match mode-specific controls; stable default replay survives worker changes.",
       "interactions": [
         "F-009",
         "F-021",
         "F-026",
         "F-027"
+      ],
+      "additional_evidence": [
+        "crates/dive-sim/tests/fixtures/capture-provenance.json",
+        "crates/dive-sim/tests/bounds.rs",
+        "conformance/reports/simulation-controls.json",
+        "docs/reviews/2026-10-10-finite-simulation.md"
       ]
     },
     {
@@ -694,6 +702,7 @@
       "rust_evidence": "crates/dive-api/src/lib.rs",
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
       "issues": [
+        111,
         124
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
@@ -708,7 +717,8 @@
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
-      ]
+      ],
+      "additional_evidence": ["crates/dive-api/tests/simulate.rs"]
     },
     {
       "id": "F-036",

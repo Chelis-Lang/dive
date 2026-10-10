@@ -9,6 +9,15 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+dive-eval = { workspace = true, features = ["enumerate"] }
+dive-ir.workspace = true
+dive-model.workspace = true
+dive-stdlib.workspace = true
+dive-value.workspace = true
+
+[dev-dependencies]
+dive-config.workspace = true
+dive-sema.workspace = true
 
 [lints]
 workspace = true

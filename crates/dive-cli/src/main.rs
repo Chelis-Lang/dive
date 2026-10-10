@@ -33,7 +33,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -614,6 +614,145 @@ fn validate_trace_command(
     }
 }
 
+fn simulation_usage_error(err: &mut impl std::io::Write, message: &str) -> ExitCode {
+    let _ = writeln!(err, "error: {message}");
+    ExitCode::from(EXIT_USAGE)
+}
+
+/// Finite seeded simulation, with explicit sampling metadata.
+#[allow(
+    clippy::too_many_lines,
+    reason = "one command parser keeps finite sampling options and explicit refusals together"
+)]
+fn simulate_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let mut request = dive_api::SimulateRequest {
+        compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|s| s == "tlc"),
+        ..Default::default()
+    };
+    let mut json = false;
+    let mut file = None;
+    let mut it = args.iter();
+    while let Some(arg) = it.next() {
+        match arg.as_str() {
+            "--compat=tlc" => request.compat_tlc = true,
+            "--config" => {
+                let Some(value) = it.next() else {
+                    return simulation_usage_error(err, "--config expects a path");
+                };
+                if request.config.replace(value.into()).is_some() {
+                    return simulation_usage_error(err, "--config given twice");
+                }
+            }
+            "--seed" => {
+                let Some(value) = it.next() else {
+                    return simulation_usage_error(err, "--seed expects an integer");
+                };
+                let Some(seed) = dive_api::parse_seed(value) else {
+                    return simulation_usage_error(err, "invalid --seed");
+                };
+                if request.seed.replace(seed).is_some() {
+                    return simulation_usage_error(err, "--seed given twice");
+                }
+            }
+            "--aril" | "--depth" | "--traces" | "--workers" => {
+                let Some(value) = it.next() else {
+                    return simulation_usage_error(
+                        err,
+                        "simulation numeric option expects an integer",
+                    );
+                };
+                let Ok(number) = value.parse::<u64>() else {
+                    return simulation_usage_error(
+                        err,
+                        "simulation option must be a nonnegative integer",
+                    );
+                };
+                match arg.as_str() {
+                    "--aril" => request.aril = number,
+                    "--traces" => request.traces = number,
+                    "--depth" => {
+                        let Ok(number) = usize::try_from(number) else {
+                            return simulation_usage_error(err, "depth exceeds addressable range");
+                        };
+                        request.depth = Some(number);
+                    }
+                    _ => {
+                        let Ok(number) = usize::try_from(number) else {
+                            return simulation_usage_error(
+                                err,
+                                "worker count exceeds addressable range",
+                            );
+                        };
+                        if number == 0 {
+                            return simulation_usage_error(
+                                err,
+                                "simulation workers must be positive",
+                            );
+                        }
+                        request.workers = Some(number);
+                    }
+                }
+            }
+            "-deadlock" => request.no_deadlock = true,
+            "--output" => match it.next().map(String::as_str) {
+                Some("json") => json = true,
+                Some("human") => json = false,
+                _ => return simulation_usage_error(err, "--output expects human or json"),
+            },
+            "--library-path" | "--module-path" => {
+                let Some(path) = it.next() else {
+                    return simulation_usage_error(err, "module option expects a path");
+                };
+                if arg == "--library-path" {
+                    request.library_paths.push(path.into());
+                } else {
+                    request.module_paths.push(path.into());
+                }
+            }
+            "--continue" | "--generate" | "--probabilistic" | "--rl" | "--distributed" => {
+                let _ = writeln!(err, "unsupported: simulation {arg}; no result produced");
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
+            value if value.starts_with('-') => {
+                return simulation_usage_error(err, &format!("unknown simulation option {value}"));
+            }
+            value => {
+                if file.replace(value).is_some() {
+                    return simulation_usage_error(err, "simulate takes one specification file");
+                }
+            }
+        }
+    }
+    let Some(file) = file else {
+        return simulation_usage_error(err, "simulate needs a specification file and --traces N");
+    };
+    if request.traces == 0 {
+        return simulation_usage_error(err, "simulate requires a positive finite --traces N");
+    }
+    request.file = file.into();
+    let report = match dive_api::simulate_file(&request) {
+        Ok(report) => report,
+        Err(dive_api::ApiError::Unsupported { feature }) => {
+            let _ = writeln!(err, "unsupported: {feature}; no result produced");
+            return ExitCode::from(EXIT_UNSUPPORTED);
+        }
+        Err(error) => {
+            let _ = writeln!(err, "error: {error}");
+            return ExitCode::from(EXIT_REJECTED);
+        }
+    };
+    if json {
+        let _ = writeln!(out, "{}", report.to_json());
+    } else {
+        let _ = write!(out, "{}", report.render_human());
+    }
+    ExitCode::from(report.exit_code())
+}
+
 /// Runs the native bounded iterative mode; unknown mode flags refuse by name.
 #[allow(
     clippy::too_many_lines,
@@ -751,6 +890,7 @@ fn main() -> ExitCode {
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
         Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
+        Some("simulate") => simulate_command(&args[1..], &mut stdout, &mut stderr),
         Some("validate-trace") => validate_trace_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {
             let _ = writeln!(

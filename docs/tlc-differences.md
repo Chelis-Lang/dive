@@ -126,9 +126,9 @@ Under `--compat=tlc` dive reproduces TLC's choices exactly for a given `-seed` a
 | | |
 |---|---|
 | **Kind** | Different answer only when you fix a seed |
-| **Default** | Seed reported; `--seed S` gives bit-identical simulation at any worker count |
+| **Default** | Seed reported; `--seed S` replays supported finite sampling; extra workers are refused |
 | **TLC behaviour** | Under `--compat=tlc` |
-| **Status** | the random streams are implemented in `dive-stdlib`: TLC's worker seeding, and dive's per-trace streams. Simulation itself is planned (`dive-sim`). |
+| **Status** | the random streams are implemented in `dive-stdlib`: TLC's worker seeding, and dive's per-trace streams. Finite pure single-worker safety simulation is implemented (`dive-sim`, ADR 0020); other modes, spec-level randomness/effects and additional workers are named refusals. |
 
 **What TLC does.** Even with `-seed 0` and one worker, the number of states TLC generates in simulation varies between runs. On Examples `EWD840_anim` it ranged from about 267k to 271k.
 
@@ -136,9 +136,37 @@ From TLC's source, its simulation uses two kinds of generator, and neither is ti
 - each worker chooses initial states, actions and successors with its own generator. That generator's seed is the next value of a generator seeded with `-seed` and advanced by `-aril`;
 - each worker evaluates `RandomElement` and the `Randomization` operators with a generator seeded with `-seed` itself, and never reseeded, so every worker draws the same sequence of values. What a trace draws depends on which worker generated it and on what that worker generated before.
 
-**What dive does.** The same seed gives the same simulation, at any worker count. Each trace has one random stream, keyed by the seed and the trace number. It drives both the choice of states and actions and the operators' draws, so a trace is the same whichever worker generates it. This makes simulation usable in tests and in CI.
+**What dive does.** The same seed gives the same supported finite simulation.
+Each trace has one stream keyed by seed and trace number, driving state and
+action selection. Adding more traces leaves the earlier ones unchanged, making
+this usable in tests and CI. The architecture supports trace identities that
+will remain stable across workers; additional workers and spec-level random
+operator draws are not implemented yet and refuse by name.
 
-**Evidence.** Harness notes in `crates/dive-conformance/README.md` and the registry in `docs/divergences.md`. TLC's worker seeds are reproduced bit for bit (`crates/dive-stdlib/tests/java_random.rs`); the independence of trace streams is tested in `tests/dive_mode.rs`. TLC's simulation draws are read from its source (`Simulator.java`, `SimulationWorker.java`, `RandomEnumerableValues.java`) and not yet measured.
+**Evidence.** The pinned oracle reproduces all 30 published traces (172 states
+after finite stutter removal) and 304 generated states across five seeds and
+two arils in `crates/dive-sim/tests/fixtures/choice-oracle.json`. Twelve additional
+clean probes compare error classes, exits and available counts. A thirteenth
+probe exposes the pre-constraint action-property validation boundary: TLC
+reports 2112, while the scoped simulation API explicitly refuses that
+combination by name. The API's
+independent validator accepts the real violations, rejects a deliberately
+corrupted sampled edge, and refuses a deadlock whose absence of successors it
+cannot decide. The default profile preserves earlier trace documents when the
+requested trace count grows.
+
+TLC's `SimulationWorker.getTrace` removes finite stuttering. In the seed-zero,
+aril-zero probe, its third published trace has five states although six were
+chosen. Dive retains the uncompressed concrete trace for validation and
+provides `tlc_states` separately for TLC's display convention. A finite sample
+always reports `exhaustive: false` and `model_proved: false`; a zero exit never
+claims the model was proved.
+
+The intended worker-independent default is not yet a parallel implementation:
+requests for additional workers refuse explicitly. Liveness/fairness simulation,
+random operators in the spec, runtime effects and the other limits listed in
+`crates/dive-sim/README.md` remain unsupported. Existing Java RNG and stream
+controls live in `crates/dive-stdlib/tests/java_random.rs` and `dive_mode.rs`.
 
 ---
 
@@ -1072,6 +1100,13 @@ rejects the forged `"7"` step. Ordinary literal strings remain supported.
 This is dive's own limitation, not a new language default. Establishing namespace
 provenance independently is required before lifting the refusal. The admission
 analysis conservatively includes operators with both tuple and string forms.
+
+
+Finite safety simulation also refuses TLC runtime-name models before sampling
+until its simulator startup and independent namespace provenance are proved.
+Default canonical sampling remains supported and independently validated. This
+is an explicit temporary limitation, not a claimed mode-specific match (#111,
+#122, #124).
 The same restriction applies to directly supplied lasso formulas and independent
 `ENABLED` predicates, even if they are not configured as checked properties.
 The configured model flag alone cannot describe an arbitrary Rust caller's
