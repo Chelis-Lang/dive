@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Final/short temporal failures retain their execution stage, actual capture
+  workers, completed statistics, output and collision qualifications. Unknown
+  thread execution is reported as unknown rather than zero. Existing library
+  error interfaces remain available alongside evidence-preserving entry points.
+
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
   with pins and reproduction recorded separately from strict conformance.

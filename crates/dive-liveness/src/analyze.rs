@@ -97,6 +97,8 @@ pub enum AnalysisError {
     Unsupported(&'static str),
     /// Internal disagreement between acceptance and direct attribution.
     Inconsistent(&'static str),
+    /// A capture thread failure lost execution evidence.
+    CaptureThread(String),
 }
 impl AnalysisError {
     /// Stable diagnostics for the library analysis stages. These are dive
@@ -112,6 +114,7 @@ impl AnalysisError {
             Self::Limit(_) => "DIVE-L0034",
             Self::Unsupported(_) => "DIVE-L0035",
             Self::Inconsistent(_) => "DIVE-L0036",
+            Self::CaptureThread(_) => "DIVE-L0037",
         }
     }
 }
@@ -136,10 +139,90 @@ impl std::fmt::Display for AnalysisError {
             Self::Limit(s) => write!(f, "liveness analysis resource limit: {s}"),
             Self::Unsupported(s) => write!(f, "unsupported liveness analysis: {s}"),
             Self::Inconsistent(s) => write!(f, "internal liveness analysis error: {s}"),
+            Self::CaptureThread(s) => write!(f, "liveness capture thread failure: {s}"),
         }
     }
 }
 impl std::error::Error for AnalysisError {}
+
+/// The analysis stage reached, including on a refusal or resource failure.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Stage {
+    /// Checking supported modes and compiling property plans.
+    Planning,
+    /// Capturing the behavior graph through the safety engine.
+    Capture,
+    /// Evaluating state and edge predicates on the completed graph.
+    Atoms,
+    /// Constructing or searching an accepting product.
+    Product,
+    /// Determining the complete false-property set on a candidate.
+    Attribution,
+    /// A capture thread failure prevented recovery of actual execution facts.
+    Unknown,
+}
+impl Stage {
+    /// Stable name for structured execution reports.
+    #[must_use]
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Planning => "planning",
+            Self::Capture => "capture",
+            Self::Atoms => "atoms",
+            Self::Product => "product",
+            Self::Attribution => "attribution",
+            Self::Unknown => "unknown",
+        }
+    }
+}
+
+/// Completed exploration facts, without retaining the potentially large graph.
+/// These facts are not evidence that temporal analysis succeeded.
+#[derive(Clone, Debug)]
+pub struct ExplorationEvidence {
+    /// The capture's complete state-space counters.
+    pub stats: dive_check::Stats,
+    /// Requested and actual capture workers.
+    pub workers: dive_check::Workers,
+    /// Collision qualification, absent for exact storage.
+    pub collision: Option<dive_check::Collision>,
+    /// Startup and exploration output in execution order.
+    pub output: Vec<String>,
+    /// Startup warnings with TLC message codes.
+    pub warnings: Vec<(u32, String)>,
+}
+impl From<&capture::Complete> for ExplorationEvidence {
+    fn from(capture: &capture::Complete) -> Self {
+        Self {
+            stats: capture.stats,
+            workers: capture.workers.clone(),
+            collision: capture.collision.clone(),
+            output: capture.output.clone(),
+            warnings: capture.warnings.clone(),
+        }
+    }
+}
+
+/// A failed temporal analysis retaining the work that actually completed.
+#[derive(Clone, Debug)]
+pub struct Failure {
+    /// The refusal, bound or error; never a model-checking verdict.
+    pub error: AnalysisError,
+    /// The stage where the failure occurred.
+    pub stage: Stage,
+    /// Completed capture evidence, when analysis reached a later stage.
+    pub exploration: Option<Box<ExplorationEvidence>>,
+}
+impl std::fmt::Display for Failure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.error.fmt(f)
+    }
+}
+impl std::error::Error for Failure {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.error)
+    }
+}
 
 fn atom(
     model: &Model,
@@ -276,6 +359,35 @@ pub fn analyze_final(
     opts: &CheckOptions,
     limits: Limits,
 ) -> Result<Analysis, AnalysisError> {
+    analyze_final_with_evidence(model, opts, limits).map_err(|failure| failure.error)
+}
+
+/// Like [`analyze_final`], retaining stage and completed capture evidence on
+/// failure. The graph itself is not copied into a failure report.
+///
+/// # Errors
+/// The same failures as [`analyze_final`], with execution evidence.
+pub fn analyze_final_with_evidence(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+) -> Result<Analysis, Failure> {
+    let mut stage = Stage::Planning;
+    let mut exploration = None;
+    analyze_observed(model, opts, limits, &mut stage, &mut exploration).map_err(|error| Failure {
+        error,
+        stage,
+        exploration,
+    })
+}
+
+fn analyze_observed(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    stage: &mut Stage,
+    exploration: &mut Option<Box<ExplorationEvidence>>,
+) -> Result<Analysis, AnalysisError> {
     if model.implied_temporals.is_empty() {
         return Err(AnalysisError::Unsupported("no temporal properties"));
     }
@@ -302,10 +414,47 @@ pub fn analyze_final(
             Ok((plan, tableau, conditions))
         })
         .collect::<Result<_, AnalysisError>>()?;
-    let captured = match capture::explore(model, opts, limits.capture) {
-        capture::Exploration::Complete(c) => *c,
-        capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
-    };
+    *stage = Stage::Capture;
+    let captured =
+        match capture::explore_with_evidence(model, opts, limits.capture).map_err(|message| {
+            *stage = Stage::Unknown;
+            AnalysisError::CaptureThread(message)
+        })? {
+            capture::Exploration::Complete(c) => *c,
+            capture::Exploration::Stopped(v) => return Err(AnalysisError::Exploration(v)),
+        };
+    let word = analyze_captured(model, &plans, &captured, limits, stage).inspect_err(|_| {
+        *exploration = Some(Box::new(ExplorationEvidence::from(&captured)));
+    })?;
+    Ok(match word {
+        Some(word) => Analysis::Candidate(Candidate {
+            target_property: word.target_property,
+            properties: word.properties,
+            states: word.states,
+            back_to: word.back_to,
+            edges: word.edges,
+            exploration: captured,
+        }),
+        None => Analysis::Holds(captured),
+    })
+}
+
+struct CandidateWord {
+    target_property: String,
+    properties: Vec<String>,
+    states: Vec<StateVals>,
+    back_to: usize,
+    edges: Vec<capture::Edge>,
+}
+
+fn analyze_captured(
+    model: &Model,
+    plans: &[(Plan, Tableau, Vec<Recurrence>)],
+    captured: &capture::Complete,
+    limits: Limits,
+    stage: &mut Stage,
+) -> Result<Option<CandidateWord>, AnalysisError> {
+    *stage = Stage::Product;
     let graph = Graph::new(
         captured
             .graph
@@ -316,8 +465,10 @@ pub fn analyze_final(
         captured.graph.roots.clone(),
     )
     .map_err(|e| AnalysisError::Product(product::ProductError::Shape(e.to_string())))?;
-    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(&plans) {
+    for (p, (plan, tableau, conditions)) in model.property_claims().iter().zip(plans) {
+        *stage = Stage::Atoms;
         let labels = labels(model, plan, &captured.graph, &p.name, limits.atom_cells)?;
+        *stage = Stage::Product;
         let product =
             Product::with_recurrences(&graph, tableau, &labels, conditions, limits.product)
                 .map_err(AnalysisError::Product)?;
@@ -330,27 +481,22 @@ pub fn analyze_final(
             let edges = steps
                 .map(|s| captured.graph.edges[s.from][s.edge].clone())
                 .collect();
-            let properties = attribute(
-                model,
-                &plans,
-                &states,
-                lasso.prefix.len(),
-                limits.atom_cells,
-            )?;
+            *stage = Stage::Attribution;
+            let properties =
+                attribute(model, plans, &states, lasso.prefix.len(), limits.atom_cells)?;
             if !properties.contains(&p.name) {
                 return Err(AnalysisError::Inconsistent(
                     "accepting candidate failed target-property attribution",
                 ));
             }
-            return Ok(Analysis::Candidate(Candidate {
+            return Ok(Some(CandidateWord {
                 target_property: p.name.clone(),
                 properties,
                 states,
                 back_to: lasso.prefix.len(),
                 edges,
-                exploration: captured,
             }));
         }
     }
-    Ok(Analysis::Holds(captured))
+    Ok(None)
 }

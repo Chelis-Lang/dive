@@ -244,26 +244,47 @@ fn limit(s: &str) -> Verdict {
 #[must_use]
 pub fn explore(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
     let started = std::time::Instant::now();
+    explore_with_evidence(model, opts, limits).unwrap_or_else(|message| {
+        let mut result = stopped(bug(&message), model, opts);
+        if let Exploration::Stopped(stop) = &mut result {
+            stop.elapsed = started.elapsed();
+        }
+        result
+    })
+}
+
+/// Like [`explore`], distinguishing a thread failure that lost execution
+/// evidence from an observed safety stop. Unknown work must not be reported
+/// as a proved zero-worker search.
+///
+/// # Errors
+/// The exploration thread failed to start or panicked; actual work is unknown.
+pub fn explore_with_evidence(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+) -> Result<Exploration, String> {
+    let started = std::time::Instant::now();
     let run = || explore_inner(model, opts, limits);
-    let mut result = std::thread::scope(|scope| {
+    let mut result = run_on_thread(run)?;
+    if let Exploration::Stopped(stop) = &mut result {
+        stop.elapsed = started.elapsed();
+    }
+    Ok(result)
+}
+
+fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
+    std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
             .spawn_scoped(scope, run)
         {
             Ok(thread) => thread
                 .join()
-                .unwrap_or_else(|_| stopped(bug("exploration thread panicked"), model, opts)),
-            Err(e) => stopped(
-                bug(&format!("cannot start exploration thread: {e}")),
-                model,
-                opts,
-            ),
+                .map_err(|_| "exploration thread panicked".to_owned()),
+            Err(e) => Err(format!("cannot start exploration thread: {e}")),
         }
-    });
-    if let Exploration::Stopped(stop) = &mut result {
-        stop.elapsed = started.elapsed();
-    }
-    result
+    })
 }
 
 fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
@@ -346,4 +367,14 @@ fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration 
     let mut result = crate::bare(verdict, opts, &model.ir);
     crate::messages(&model.output, &mut result);
     Exploration::Stopped(Box::new(result))
+}
+
+#[cfg(test)]
+#[allow(clippy::panic, reason = "controlled internal thread failure")]
+mod evidence_controls {
+    #[test]
+    fn panic_does_not_fabricate_a_zero_worker_stop() {
+        let result = super::run_on_thread(|| panic!("controlled capture panic"));
+        assert!(matches!(result, Err(message) if message == "exploration thread panicked"));
+    }
 }
