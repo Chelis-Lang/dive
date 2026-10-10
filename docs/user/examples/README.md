@@ -27,3 +27,9 @@ refusal from `Counter.tla`; the original source was not weakened to hide it.
 `MacroExample.tla` and `MacroExampleC.tla` are the checked C/P examples in
 [the bounded macro guide](../../pluscal-macros.md). The macro delivery retains
 their original runtime observations; current integration controls remain separate.
+The checkpoint admission repair has
+[fresh guide observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/guide/receipt.json)
+and [compiled Rust observations](../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/rust-guide/receipt.json).
+The original observations above remain immutable and identify their original
+runtime. The repaired source rechecks all eight commands plus the pure
+checkpoint pause/recovery and original named refusal.
