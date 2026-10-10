@@ -89,7 +89,7 @@ impl From<dive_sema::Level> for Level {
 
 /// The version of the IR's serialized form. Bump it whenever a serialized
 /// type changes; the on-disk cache (ADR 0013 §7) keys on it.
-pub const IR_SCHEMA: u32 = 4;
+pub const IR_SCHEMA: u32 = 5;
 
 /// One lowered specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -544,6 +544,24 @@ impl Ir {
             Symbol::Def(d) => Some(d),
             _ => None,
         }
+    }
+
+    /// Original token image of an expression, without whitespace or comments.
+    /// This is the source-backed counterpart of SANY's
+    /// `SyntaxTreeNode.getHumanReadableImage`, used for startup warnings.
+    /// Synthetic nodes without source evidence return `None`.
+    #[must_use]
+    pub fn human_readable_image(&self, expr: ExprId) -> Option<String> {
+        let origin = &self.node(expr).origin;
+        let source = &self.files.get(origin.file?.index())?.source;
+        let text = source.get(origin.range.0 as usize..origin.range.1 as usize)?;
+        Some(
+            dive_syntax::tokens::tokenize_spec(text)
+                .into_iter()
+                .filter(|token| !token.kind.is_trivia())
+                .map(|token| &text[token.range])
+                .collect(),
+        )
     }
 
     /// SANY's location string for an origin, `line L, col C to line L2, col

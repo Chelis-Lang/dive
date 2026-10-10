@@ -511,12 +511,56 @@ pub(crate) fn state_key_of<S: Keyed>(
     st1: &St,
 ) -> Result<S::Key, Verdict> {
     let vals = values(t).unwrap_or_default();
+    let canonical = match &m.symmetry_reduction {
+        Some(reduction) => {
+            let order = if ctx.order == dive_value::ValueOrder::Tlc {
+                m.ir.tlc_var_order()
+                    .iter()
+                    .map(|v| v.index())
+                    .collect::<Vec<_>>()
+            } else {
+                (0..vals.len()).collect()
+            };
+            Some(
+                reduction
+                    .canonical_values(&vals, &order, ctx)
+                    .map_err(|error| crate::model_error(&error))?,
+            )
+        }
+        None => None,
+    };
+    let vals = canonical.as_deref().unwrap_or(&vals);
+    let canonical_state;
+    let st1 = if canonical.is_some() {
+        canonical_state = St::state(vals.iter().cloned().map(Some).collect::<Vec<_>>().into());
+        &canonical_state
+    } else {
+        st1
+    };
     match &m.view {
-        None => S::key(keyer, &vals, false, ctx).map_err(|e| store_verdict(&e)),
-        Some(v) => match m.eval(&v.pred, st1) {
-            Ok(x) => S::key(keyer, &[x], true, ctx).map_err(|e| store_verdict(&e)),
-            Err(e) => Err(error_verdict(&e, ErrorSite::View)),
-        },
+        None => {
+            let key = S::key(keyer, vals, false, ctx).map_err(|e| store_verdict(&e))?;
+            let concrete = values(t).unwrap_or_default();
+            if canonical
+                .as_ref()
+                .is_some_and(|image| image.as_slice() != concrete.as_slice())
+            {
+                dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
+                    .map_err(|error| crate::model_error(&error))?;
+            }
+            Ok(key)
+        }
+        Some(v) => {
+            if m.symmetry.is_some() {
+                let concrete = values(t).unwrap_or_default();
+                dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
+                    .map_err(|error| crate::model_error(&error))?;
+            }
+            match m.eval(&v.pred, st1) {
+                Ok(x) => S::key(keyer, &[x], true, ctx).map_err(|e| store_verdict(&e)),
+                Err(e) => Err(error_verdict(&e, ErrorSite::View)),
+            }
+        }
     }
 }
 

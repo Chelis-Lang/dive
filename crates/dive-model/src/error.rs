@@ -49,6 +49,7 @@ pub enum Ec {
     TlcLiveFormulaStateLevel,
     TlcCouldNotDetermineSubscript,
     TlcSubscriptContainNoStateVar,
+    TlcSymmetrySetTooSmall,
 }
 
 impl Ec {
@@ -93,6 +94,7 @@ impl Ec {
             Self::TlcLiveFormulaStateLevel => 2255,
             Self::TlcCouldNotDetermineSubscript => 2139,
             Self::TlcSubscriptContainNoStateVar => 2140,
+            Self::TlcSymmetrySetTooSmall => 2300,
         }
     }
 
@@ -149,6 +151,7 @@ impl Ec {
             Self::TlcLiveFormulaStateLevel => "TLC_LIVE_FORMULA_STATE_LEVEL",
             Self::TlcCouldNotDetermineSubscript => "TLC_COULD_NOT_DETERMINE_SUBSCRIPT",
             Self::TlcSubscriptContainNoStateVar => "TLC_SUBSCRIPT_CONTAIN_NO_STATE_VAR",
+            Self::TlcSymmetrySetTooSmall => "TLC_SYMMETRY_SET_TOO_SMALL",
         }
     }
 
@@ -158,6 +161,9 @@ impl Ec {
     pub fn template(self, nparams: usize) -> &'static str {
         match self {
             Self::General => "%1%",
+            Self::TlcSymmetrySetTooSmall => {
+                "The set%1% %2% %3% been defined to be a symmetry set but contain%4% less than two elements."
+            }
             Self::TlcIntegerTooBig => "TLC can't handle a number this big.\n%1%",
             Self::TlcCantHandleRealNumbers => "TLC can't handle real numbers.\n%1%",
             Self::TlcConfigValueNotAssignedToConstantParam => {
