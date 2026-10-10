@@ -104,3 +104,22 @@ parent checkpoint and combined-source authorities are preserved under
 `integration-parent-source/` before current authorities are regenerated. Current
 release captures and gate records will be labelled separately; no historical
 raw bytes, source claims or goldens are replaced.
+
+
+The current integrated runtime `4d73720a` passed 831/831 workspace tests, all 20
+Python unit controls and 13 gate script invocations, Clippy, doctests, rustdoc,
+layering, standalone trace and dependency checks. `current-native/index.json`
+records the complete new 144-group/1,008-CLI recovery study, including 432 separate
+witness validation runs. All 2,448 raw hash fields, 144 archives, 24 source hashes
+and the release executable were verified. CM1's 21 and ValidationTestSuite's 16
+models fully agree at 1/4/8 workers. `current-delivery.json` records this distinct
+current authority; it does not replace the 738-test feature receipt above.
+
+Current integration retains the root direct public-IR effectful alias control.
+Its initial focused run refused correctly but failed the required diagnostic
+wording assertion (`runtime/temporal` versus `runtime effects`). The source, test
+and log remain under `development/current-integration-reason-before/`; the fixed
+explicit effect-class diagnostic passes the unchanged assertion. Six model/profile
+wrappers run the complete new API selection with shorter individual runtimes.
+The root baseline six-per-model wrappers remain unchanged. No test limit,
+selection, refusal assertion or original source evidence was weakened.
