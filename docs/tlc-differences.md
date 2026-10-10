@@ -969,3 +969,15 @@ DiningPhilosophers now matches TLC's final truth/counts; MCDistributedReplicated
 remains refused for VIEW capture. Actual capture is still one worker. Full TLC
 temporal planning, selection and timing remain pending; `--compat=tlc` alone
 retains the strict temporal refusal until those are proven.
+
+
+## Current temporal coverage limitation, 2026-10-10
+
+The [expanded final/short study](temporal-study.md) selects 53 pinned Examples
+models: 26 match final truth/counts, 22 refuse features or resource limits, and
+five time out without a verdict. Ten refusals involve finite lazy binding
+domains. There are no observed disagreements or pending validations, but the
+timeouts are findings and the study exits nonzero. This is explicit final/short
+mixed-profile evidence; ordinary strict temporal checking remains refused.
+TLC-exact temporal classes, phase-L timing and lasso selection, wider scoped
+language support, symmetry/VIEW evidence and capture scaling remain open.

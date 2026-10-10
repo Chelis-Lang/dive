@@ -287,3 +287,15 @@ including nested, captured and sequence-prefix calls. Four pinned `Aa*` models
 match final truth/counts in both profiles/stores, with independent periodic
 validation and exhaustive closing-edge controls. Temporal helper forwarding
 limits remain explicit.
+
+
+## Expanded small-tier study, 2026-10-10
+
+The explicit 53-model final/short census records 26 truth/count matches,
+22 named feature/resource refusals and five 600-second timeouts. There are no
+disagreements or pending trace validations. This is one-worker mixed-profile
+study evidence, not strict TLC temporal parity or a performance baseline.
+Ten refusals concern bounded finite lazy-domain bindings; five timeouts identify
+graph-capture scaling targets. See [the study and reproduction](../temporal-study.md)
+and its unedited generated artifact. L1/L4 scope and independent validation,
+L8 memory and L10 profiling remain required; no resource default is increased.

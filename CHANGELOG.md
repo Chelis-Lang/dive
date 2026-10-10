@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Expanded non-gating final/short temporal evidence accounts for all 53 selected
+  Examples models: 26 truth/count matches, 22 named refusals and five timeouts,
+  with pins and reproduction recorded separately from strict conformance.
+
 - A staged symmetry declaration API preserves pre-constant definition lookup,
   configuration substitutions and normalized function records. Early name/type
   errors match pinned TLC transcripts; effectful declarations refuse by name.
