@@ -390,6 +390,113 @@ impl Emitter<'_> {
         }
         Ok(clauses)
     }
+    #[allow(
+        clippy::too_many_lines,
+        reason = "one source-backed simultaneous CallReturn assignment phase followed by callee initialization"
+    )]
+    fn call_return(
+        &self,
+        from: usize,
+        to: usize,
+        arguments: &[Expr],
+        changed: &mut Changed,
+        span: Span,
+    ) -> Result<Vec<String>, TranslationError> {
+        let owner = self
+            .model
+            .procedures
+            .get(from)
+            .ok_or_else(|| failure(span, Code::Internal, "tail return owner missing"))?;
+        let target = self
+            .model
+            .procedures
+            .get(to)
+            .ok_or_else(|| failure(span, Code::Internal, "tail call target missing"))?;
+        if from == to {
+            return Err(failure(span, Code::Unsupported, "recursive tail call"));
+        }
+        if changed.contains("stack") || changed.contains("pc") {
+            return Err(failure(
+                span,
+                Code::Label,
+                "multiple procedure transfers in one action",
+            ));
+        }
+        let before = changed.clone();
+        let mut assignments = Vec::new();
+        for local in &owner.variables {
+            let name = &local.name.text;
+            if changed.contains(name) {
+                return Err(failure(
+                    span,
+                    Code::Label,
+                    "missing label before tail restoring local",
+                ));
+            }
+            assignments.push((name.clone(), format!("{name}' = Head(stack).{name}")));
+            changed.insert(name.clone());
+        }
+        let mut fields = vec![
+            format!("procedure |-> {}", serde_string(&target.name.text)),
+            "pc |-> Head(stack).pc".into(),
+        ];
+        for decl in target.variables.iter().chain(&target.parameters) {
+            let name = &decl.name.text;
+            fields.push(format!(
+                "{name} |-> {name}{}",
+                if before.contains(name) { "'" } else { "" }
+            ));
+        }
+        assignments.push((
+            "stack".into(),
+            format!("stack' = << [ {} ] >> \\o Tail(stack)", fields.join(", ")),
+        ));
+        for (parameter, argument) in target.parameters.iter().zip(arguments) {
+            let name = &parameter.name.text;
+            if changed.contains(name) {
+                return Err(failure(
+                    span,
+                    Code::Label,
+                    "missing label before repeated tail parameter assignment",
+                ));
+            }
+            assignments.push((
+                name.clone(),
+                format!("{name}' = {}", self.value_expression(*argument, &before)?),
+            ));
+            changed.insert(name.clone());
+        }
+        assignments.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
+        let assignments: Vec<_> = assignments.into_iter().map(|(_, value)| value).collect();
+        let mut clauses = vec![conjunction(&assignments, assignments.len() > 1)];
+        changed.insert("stack".into());
+        for local in &target.variables {
+            let name = &local.name.text;
+            if changed.contains(name) {
+                return Err(failure(
+                    span,
+                    Code::Label,
+                    "missing label before tail local initialization",
+                ));
+            }
+            let value = if let Some(binding) = &local.initial {
+                self.value_expression(binding.expression, changed)?
+            } else {
+                "defaultInitValue".into()
+            };
+            clauses.push(format!("{name}' = {value}"));
+            changed.insert(name.clone());
+        }
+        let entry = self
+            .model
+            .actions
+            .iter()
+            .find(|a| a.span.start >= target.body.span.start && a.span.end <= target.body.span.end)
+            .ok_or_else(|| failure(span, Code::Internal, "tail procedure entry missing"))?;
+        clauses.push(format!("pc' = {}", serde_string(&entry.name)));
+        changed.insert("pc".into());
+        Ok(clauses)
+    }
     fn branches(
         &self,
         branches: &[&[Node]],
@@ -530,6 +637,13 @@ impl Emitter<'_> {
                         })?;
                     clauses.push(format!("pc' = {}", serde_string(&entry.name)));
                     changed.insert("pc".into());
+                }
+                Kind::CallReturn {
+                    from,
+                    to,
+                    arguments,
+                } => {
+                    clauses.extend(self.call_return(*from, *to, arguments, changed, node.span)?);
                 }
                 Kind::Return(procedure) => {
                     let procedure = self.model.procedures.get(*procedure).ok_or_else(|| {

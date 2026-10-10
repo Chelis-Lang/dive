@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native PlusCal translation supports multiple disjoint sequential procedures and
+  nonrecursive nested calls, with procedure-owned frames and exact adjacent
+  call/return normalization. Cycles, unproved name rewriting and process stacks
+  remain named refusals. Generated modules are validated artifacts, never proofs;
+  strict namespace/deadlock replay gaps remain explicit.
+
 - Native bounded sequential PlusCal procedure calls/returns: saved stack frames,
   parameter/local initialization, procedure action wrappers and original spans;
   unproved scopes refuse explicitly, with qualified replay evidence kept separate.

@@ -299,3 +299,10 @@ uncredited. Forty-six complete generated models match TLC; thirty invariant
 witnesses have matched exploration but pending strict encounter-order validation.
 Separately qualified default replay validates them and rejects 120 mutants without
 conferring TLC certification. F-034/F-035 remain partial and audit-required.
+
+The [nonrecursive procedure graph increment](pluscal-procedure-graphs.md) retains
+120 capture-first C/P rows: 68 admitted artifacts, 19 source rejections, 29 named
+refusals and four diagnostic invalid-reference dispositions. All eight primary
+SANY-invalid outputs stay uncredited. Cycles, scopes/renaming, process stacks,
+options/maps and strict encounter-order/deadlock evidence remain pending.
+F-034/F-035 remain partial and audit-required; no denominator change.

@@ -1176,3 +1176,11 @@ SANY-invalid modules uncredited. Thirty generated invariant witnesses reproduce
 TLC exploration but strict independent replay refuses runtime string encounter
 order (#124); default/canonical replay is separately qualified evidence, not
 TLC-profile certification. See [the procedure guide](pluscal-procedures.md).
+
+The bounded sequential PlusCal graph path now admits multiple disjoint procedures
+and nonrecursive nested calls. Procedure fallthrough still generates `pc="Error"`
+and may deadlock, matching the reference. Cycles (including unused ones), name
+rewriting, process-owned stacks and unproved procedure-label/macro interactions
+remain honest named refusals. Strict stack witness replay remains pending under
+#124; separately qualified canonical replay confers no TLC-profile certification.
+See [procedure graph use and limits](pluscal-procedure-graphs.md).

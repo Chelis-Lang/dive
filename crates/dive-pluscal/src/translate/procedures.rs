@@ -1,4 +1,4 @@
-//! Bounded sequential `PcalTranslate.ExplodeCall` / `ExplodeReturn` admission.
+//! Bounded sequential `PcalTranslate` call/return graph admission.
 use super::{
     TranslationError, TranslationOptions, TranslationStage, error, lower, macros::Expanded,
 };
@@ -6,7 +6,7 @@ use crate::{
     Code,
     ast::{BindingKind, Body, Span, StatementKind},
 };
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 fn refusal(span: Span, message: &str) -> TranslationError {
     error(
@@ -19,7 +19,7 @@ fn refusal(span: Span, message: &str) -> TranslationError {
 
 #[allow(
     clippy::too_many_lines,
-    reason = "one bounded admission pass proves scoped names before any call lowering"
+    reason = "one bounded admission pass proves every namespace before call lowering"
 )]
 pub(super) fn normalize(
     parsed: &Expanded,
@@ -31,22 +31,14 @@ pub(super) fn normalize(
             "procedure/process storage ownership",
         ));
     };
-    if parsed.algorithm.procedures.len() != 1 {
-        return Err(refusal(
-            parsed.algorithm.span,
-            "multiple procedure namespace/call graph",
-        ));
-    }
-    let procedure = &parsed.algorithm.procedures[0];
     let mut names = BTreeSet::new();
-    for name in parsed
-        .algorithm
-        .variables
-        .iter()
-        .map(|d| &d.name)
-        .chain(procedure.parameters.iter().map(|d| &d.name))
-        .chain(procedure.variables.iter().map(|d| &d.name))
-    {
+    for name in parsed.algorithm.variables.iter().map(|d| &d.name).chain(
+        parsed
+            .algorithm
+            .procedures
+            .iter()
+            .flat_map(|p| p.parameters.iter().chain(&p.variables).map(|d| &d.name)),
+    ) {
         if !names.insert(name.text.as_str())
             || [
                 "stack",
@@ -61,7 +53,6 @@ pub(super) fn normalize(
                 "defaultInitValue",
             ]
             .contains(&name.text.as_str())
-            || name.text == procedure.name.text
         {
             return Err(refusal(
                 name.span,
@@ -69,115 +60,154 @@ pub(super) fn normalize(
             ));
         }
     }
-    if names.contains(procedure.name.text.as_str())
-        || [
-            "Done",
-            "Error",
-            "stack",
-            "pc",
-            "vars",
-            "Init",
-            "Next",
-            "Spec",
-            "Termination",
-            "Terminating",
-        ]
-        .contains(&procedure.name.text.as_str())
-    {
-        return Err(refusal(
-            procedure.name.span,
-            "procedure operator/name disambiguation",
-        ));
-    }
-    for decl in procedure.parameters.iter().chain(&procedure.variables) {
-        if decl
-            .initial
-            .as_ref()
-            .is_some_and(|b| b.kind != BindingKind::Equal)
+    let mut procedures = BTreeMap::new();
+    for (index, procedure) in parsed.algorithm.procedures.iter().enumerate() {
+        if procedures
+            .insert(procedure.name.text.as_str(), index)
+            .is_some()
+            || names.contains(procedure.name.text.as_str())
+            || [
+                "Done",
+                "Error",
+                "stack",
+                "pc",
+                "vars",
+                "Init",
+                "Next",
+                "Spec",
+                "Termination",
+                "Terminating",
+            ]
+            .contains(&procedure.name.text.as_str())
         {
-            return Err(refusal(decl.span, "procedure membership initialization"));
+            return Err(refusal(
+                procedure.name.span,
+                "procedure operator/name disambiguation",
+            ));
+        }
+        for decl in procedure.parameters.iter().chain(&procedure.variables) {
+            if decl
+                .initial
+                .as_ref()
+                .is_some_and(|b| b.kind != BindingKind::Equal)
+            {
+                return Err(refusal(decl.span, "procedure membership initialization"));
+            }
         }
     }
     let mut labels = BTreeSet::new();
+    let mut graph = vec![Vec::new(); parsed.algorithm.procedures.len()];
     for statement in &parsed.statements {
         if let Some(label) = &statement.label {
             if label.modifier.is_some() {
                 return Err(refusal(label.span, "procedure label fairness modifiers"));
             }
             if !labels.insert(label.name.text.as_str())
-                || label.name.text == procedure.name.text
+                || procedures.contains_key(label.name.text.as_str())
                 || names.contains(label.name.text.as_str())
             {
                 return Err(refusal(label.span, "procedure/global label disambiguation"));
             }
         }
-        if statement.span.start >= procedure.body.span.start
-            && statement.span.end <= procedure.body.span.end
-            && matches!(statement.kind, StatementKind::Call { .. })
+        if let StatementKind::Call { name, .. } = &statement.kind
+            && let Some(to) = procedures.get(name.text.as_str())
+            && let Some(from) = parsed.algorithm.procedures.iter().position(|p| {
+                statement.span.start >= p.body.span.start && statement.span.end <= p.body.span.end
+            })
         {
-            return Err(refusal(statement.span, "nested/recursive procedure calls"));
+            graph[from].push(*to);
         }
     }
+    reject_cycles(&graph, parsed.algorithm.span)?;
+    // One private arena holds all source statements and declarations. Each
+    // scope borrows it; no whole-arena clone is multiplied by procedure count.
     let mut scoped = parsed.clone();
-    scoped
-        .algorithm
-        .variables
-        .extend(procedure.parameters.clone());
-    scoped
-        .algorithm
-        .variables
-        .extend(procedure.variables.clone());
-    let mut main_model = lower::normalize_context(&scoped, options, true, None)?;
-    main_model.initial_pc = Some(main_model.actions[0].name.clone());
-    scoped.algorithm.body = Body::Sequential(procedure.body.clone());
-    let mut remaining = options.clone();
-    remaining.max_actions = options
-        .max_actions
-        .min(10_000)
-        .saturating_sub(main_model.actions.len());
-    let mut procedure_model = lower::normalize_context(&scoped, &remaining, true, Some(procedure))?;
-    charge_aggregate(
-        &procedure_model,
-        &main_model,
-        options,
-        parsed.algorithm.span,
-    )?;
-    procedure_model.actions.append(&mut main_model.actions);
-    procedure_model.stutter = main_model.stutter;
-    procedure_model.fair = main_model.fair;
-    procedure_model.warnings = main_model.warnings;
-    procedure_model.initial_pc = main_model.initial_pc;
-    procedure_model.procedures = vec![procedure.clone()];
-    // Original declaration order is global, stack, parameters, then locals.
-    // The emitter inserts stack without pretending it was a source declaration.
-    procedure_model
-        .variables
-        .clone_from(&scoped.algorithm.variables);
-    Ok(procedure_model)
+    for procedure in &parsed.algorithm.procedures {
+        scoped
+            .algorithm
+            .variables
+            .extend(procedure.parameters.clone());
+        scoped
+            .algorithm
+            .variables
+            .extend(procedure.variables.clone());
+    }
+    let mut model = lower::normalize_context(&scoped, options, true, None)?;
+    model.initial_pc = Some(
+        model
+            .actions
+            .first()
+            .ok_or_else(|| {
+                refusal(
+                    parsed.algorithm.span,
+                    "empty/automatically labelled algorithm",
+                )
+            })?
+            .name
+            .clone(),
+    );
+    let mut used_nodes = 0;
+    charge(&model, &mut used_nodes, options, parsed.algorithm.span)?;
+    let mut actions = Vec::new();
+    for procedure in &scoped.algorithm.procedures {
+        let mut remaining = options.clone();
+        remaining.max_actions = options
+            .max_actions
+            .min(10_000)
+            .saturating_sub(model.actions.len() + actions.len());
+        let mut part = lower::normalize_context(&scoped, &remaining, true, Some(procedure))?;
+        charge(&part, &mut used_nodes, options, procedure.span)?;
+        actions.append(&mut part.actions);
+    }
+    actions.append(&mut model.actions);
+    model.actions = actions;
+    model.procedures.clone_from(&parsed.algorithm.procedures);
+    Ok(model)
 }
 
-fn charge_aggregate(
-    first: &lower::Model,
-    second: &lower::Model,
+fn reject_cycles(graph: &[Vec<usize>], span: Span) -> Result<(), TranslationError> {
+    let mut color = vec![0u8; graph.len()];
+    for root in 0..graph.len() {
+        if color[root] != 0 {
+            continue;
+        }
+        color[root] = 1;
+        let mut pending = vec![(root, 0usize)];
+        while let Some((node, edge)) = pending.last_mut() {
+            if let Some(&target) = graph[*node].get(*edge) {
+                *edge += 1;
+                if color[target] == 1 {
+                    return Err(refusal(span, "recursive procedure call graph"));
+                }
+                if color[target] == 0 {
+                    color[target] = 1;
+                    pending.push((target, 0));
+                }
+            } else {
+                color[*node] = 2;
+                pending.pop();
+            }
+        }
+    }
+    Ok(())
+}
+
+fn charge(
+    model: &lower::Model,
+    used: &mut usize,
     options: &TranslationOptions,
     span: Span,
 ) -> Result<(), TranslationError> {
     let limit = options.parser.max_nodes.saturating_mul(4).min(200_000);
-    let mut used = 0usize;
-    let mut pending: Vec<_> = first
-        .actions
-        .iter()
-        .chain(&second.actions)
-        .flat_map(|a| &a.body)
-        .collect();
+    let mut pending: Vec<_> = model.actions.iter().flat_map(|a| &a.body).collect();
     while let Some(node) = pending.pop() {
-        used = used.saturating_add(1);
-        if used > limit {
+        *used = used.saturating_add(1);
+        if *used > limit {
             return Err(error(
                 TranslationStage::Normalization,
                 Code::Resource,
                 span,
-                "PlusCal normalized-node limit reached across main and procedure",
+                "PlusCal normalized-node limit reached across main and procedures",
             ));
         }
         match &node.kind {
