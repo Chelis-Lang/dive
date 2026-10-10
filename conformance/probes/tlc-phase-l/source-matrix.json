@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "e1763ea",
   "source_sha256": {
-    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_l.rs": "5368e836dee56cd7e0c6c5e21f8b0965cf18a7270e3c09d110d37fbfcb3a5562",
     "crates/dive-liveness/tests/phase_l.rs": "ba375c4ccf64e0e02ee8447eda51a36ba39c13da5afabc8413ee2fac0ea70630",
     "scripts/check-phase-l.py": "48e76f407107c30ad662ea8a5818829a9fc8fbffdde73e60aa76e093e5be91bb",
@@ -15,5 +15,5 @@
     "conformance/probes/tlc-phase-l/capture-tlc.py": "4d6b26709c42e66855adf43c2930e92e92e69b9db6a07074f5dfde33e25f3ca7"
   },
   "scope": "bounded inline diagnostics; graph_insertion false; no strict liveness or corpus verdict credit",
-  "retested_after": "ordered execution seam; earlier producer and matrix preserved under historical-before-execution"
+  "retested_after": "Bounded explicit final-only SCC/witness controls; exact preceding matrix/producers retained in historical-before-final-check. Original raw selections and failures unchanged; no ordinary strict verdict credit."
 }

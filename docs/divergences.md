@@ -133,7 +133,7 @@ None is implemented.
 
 | ID | Capability | Intended default | TLC counterpart | Status and evidence |
 |---|---|---|---|---|
-| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; phase-L/TLC-exact selection pending. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
+| D-013 | Liveness counterexample selection | `--lasso=short`: shortest prefix, deterministic short cycle | `--lasso=tlc`, included in `--compat=tlc` | partial implementation: bounded final Rust API with WF/SF, finite constant-domain quantifiers, pure constant/state-argument operators and independent scoped ENABLED covers, original property claims and independent validation; explicit final/short CLI access with mixed-profile reports; bounded final-only pinned TLC selection and independently certified Rust facade implemented; ordinary strict/scheduled integration pending. ADRs 0017–0018, `LvNoFair`, `LvTwoLoopsRev`, fingerprint series |
 | D-014 | Periodic liveness scheduling | `--lncheck=deterministic`: documented level-boundary checks | `--lncheck=default` with TLC's wall-clock trigger in compat mode; `final` for goldens | planned; `LvPeriodic` stopped at 418,795, 167,402 and 162,021 distinct states |
 | D-015 | Malformed symmetry declarations | Reject non-bijective functions | TLC acceptance under `--compat=tlc` | checked/TLC closure kernel and pure declaration preparation implemented; full binding and reduction still refused; 1,329 direct kernel probes and SyNonBiject missed-invariant control (ADR 0019) |
 | D-016 | Checking declared symmetry | Audit only with `--check-symmetry` | No audit, as in TLC | planned; `SymAsym`, `SymAsymLate` |
@@ -292,3 +292,32 @@ initial error replay and periodic checking are not certified. Ordinary strict
 liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
 remain partial/audit-required, F-023 missing and #140 open. Previous complete
 studies keep their original outcomes and receive no new corpus verdict credit.
+
+### D-013 progress: pinned final-only SCC and witness selection
+
+The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
+graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
+bucket closure. It retains configured claims separately from derived role names.
+At 1/3/4/8 workers, 19 completed pinned controls match their SCC/witness fields;
+all 30 controls, including 11 uncredited failures, remain available in
+`conformance/probes/tlc-final-check/`. Fresh independent validation accepts the
+supported original words and rejects changed Init, Next/closing edges, loop
+targets and incomplete claims. A 4,096-graph independent census checks acceptance
+and selected path labels.
+
+This is an explicit final-only TLC/fingerprint library mode, not ordinary strict
+CLI parity or periodic-schedule support. Exact-store temporal proof is refused:
+a fingerprint graph must not silently merge concrete states while claiming exact
+identity. Accepting-sink reconstruction, initial error replay, symmetry/VIEW/ALIAS,
+periodic hooks, unsupported scopes/effects and fixed resource bounds remain named
+limitations. Holds results retain collision qualifications; backend candidates
+never carry their own validation certificate. F-019 through F-022 remain partial/
+audit-required, F-023 missing and #140 open. Old broad studies retain their original
+outcomes; no default or ordinary strict conformance credit changes.
+
+See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
+actual evidence and refusal boundaries. The API admits startup sources before
+binding creates a host; effectful ASSUMEs, unused top-level constants, config
+replacement candidates and hooks return named refusal with zero used workers.
+Standard-module classification does not bypass this admission. Explicit sequential
+requests/fallback execution remain refused until their observer path is certified.

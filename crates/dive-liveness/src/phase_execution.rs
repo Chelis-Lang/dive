@@ -68,6 +68,17 @@ pub struct Complete {
     tableaux: Vec<Option<Tableau>>,
 }
 impl Complete {
+    /// Number of pinned PEMs in an actually compiled group.
+    /// No supplied graph or edited public fields become proof authority.
+    ///
+    /// # Errors
+    /// A group index does not name a compiled order of solution.
+    pub fn pem_count(&self, group: usize) -> Result<usize, Error> {
+        self.groups
+            .get(group)
+            .map(|g| g.pems.len())
+            .ok_or_else(|| Error::Input("OOS group index".into()))
+    }
     /// Project one actual committed OOS/PEM graph into bounded SCC inputs.
     /// This grants neither TLC witness-selection nor model-proof credit.
     ///

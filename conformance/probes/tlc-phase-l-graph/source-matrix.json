@@ -9,7 +9,7 @@
     "crates/dive-check/tests/capture.rs": "e64eab0ab2b0609149e64212231df6a83c3f0df788d4154bf0f6c0672ffc569f",
     "crates/dive-eval/src/next.rs": "296f21409be6c4e0c17d66a2b8ade41d755dd527bd634e65888556e8ce281792",
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
-    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_l.rs": "5368e836dee56cd7e0c6c5e21f8b0965cf18a7270e3c09d110d37fbfcb3a5562",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
     "crates/dive-liveness/tests/phase_graph.rs": "19c7555ddcccccce86907012b6f89a598aadbbf925ef467fe44cd16b0350b6b9",
@@ -17,5 +17,5 @@
     "crates/dive-eval/src/lib.rs": "5e2037062f33c8236b4803c4f10bac5e0855993afb9e60d4b5e59d32be2fe5bc"
   },
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit",
-  "retested_after": "ordered execution seam; earlier producer and matrix preserved under historical-before-execution"
+  "retested_after": "Bounded explicit final-only SCC/witness controls; exact preceding matrix/producers retained in historical-before-final-check. Original raw selections and failures unchanged; no ordinary strict verdict credit."
 }

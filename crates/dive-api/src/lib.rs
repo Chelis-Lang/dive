@@ -25,6 +25,8 @@
 mod config;
 
 pub mod temporal;
+/// Explicit pinned final-only SCC/lasso analysis with independent replay.
+pub mod tlc_temporal;
 pub mod trace;
 
 pub use config::{ConfigReport, parse_config_file, parse_config_source};

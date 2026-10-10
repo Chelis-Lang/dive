@@ -5,6 +5,15 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add explicit bounded `dive_api::tlc_temporal` final-only TLC fingerprint checking
+  with a user guide in `docs/tlc-final-api.md` and callback-free pre-bind admission:
+  preserve pinned SCC anchors/pop order, greedy witness choice and full configured
+  property attribution, with fresh independent in-memory and JSON replay before
+  a private violation certificate. All30 selected controls/120 width outcomes and
+  original failures/source histories are retained. Exact-store proof, accepting-
+  sink/initial replay, periodic schedules and ordinary strict CLI integration
+  remain unsupported; fixed limits/defaults stay unchanged.
+
 - Add bounded ordered temporal execution callbacks and actual multiple-OOS/
   tableau graph insertion, including immediate done-state re-enumeration.
   Retain deciding source-prefix errors separately from speculative pool work,
