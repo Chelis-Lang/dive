@@ -33,7 +33,7 @@
     "crates/dive-check/src/capture.rs": "44a61900f1a395d3353b7b2bc47b37880a7bc320dfc465c00f9fd6367171d6b0",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
     "crates/dive-check/src/parallel.rs": "a2b37348b78da8cdf9545ee51a20f8e0e585952bc77b1e082b15634f5eac19f9",
-    "crates/dive-check/src/engine.rs": "39be3ab0629dfadc60b91303c49878b7a41b655d30caf2583cbf9b2ccb20aa7c",
+    "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
     "crates/dive-liveness/tests/phase_graph.rs": "19c7555ddcccccce86907012b6f89a598aadbbf925ef467fe44cd16b0350b6b9",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
@@ -87,6 +87,25 @@
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
       "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources",
       "scope": "current source before native checkpoint integration"
+    },
+    {
+      "matrix_path": "conformance/probes/native-parity-integration/history/graph/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "matrix_sha256": "d2eec1d7ae3d5c2f2c0efb6b4ef9997afcf99ba078f9c07abc9ad0ee44f5e2a6",
+      "source_archive": "conformance/probes/native-parity-integration/history/graph/sources",
+      "scope": "immutable independently verified graph source before final native integration"
+    },
+    {
+      "matrix_path": "conformance/probes/native-parity-integration/history/conditional/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "matrix_sha256": "60cb94fddec0590c909dc502d8a81c85fa4edee3661db2887aa19eb1fa0cbdd3",
+      "source_archive": "conformance/probes/native-parity-integration/history/conditional/sources",
+      "scope": "immutable independently verified conditional source before final native integration"
+    },
+    {
+      "matrix_path": "conformance/probes/native-parity-integration/history/checkpoint/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "matrix_sha256": "7a8fc837073101d5d248ce2cac1a467ef52906e3dfc300ffed83f6e621a945fa",
+      "source_archive": "conformance/probes/native-parity-integration/history/checkpoint/sources",
+      "scope": "immutable independently verified checkpoint source before final native integration"
     }
-  ]
+  ],
+  "current_integration_scope": "combined conditional planning, concrete null-tableau graph, pure safety recovery and single-process fairness; no full family certification"
 }

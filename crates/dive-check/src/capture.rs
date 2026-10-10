@@ -481,7 +481,9 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
                 feature: error.to_string(),
             }
         };
-        return Some(Exploration::Stopped(Box::new(crate::bare(verdict, opts, &model.ir))));
+        return Some(Exploration::Stopped(Box::new(crate::bare(
+            verdict, opts, &model.ir,
+        ))));
     }
     None
 }

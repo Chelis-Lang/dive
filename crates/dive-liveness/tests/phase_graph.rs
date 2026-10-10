@@ -490,3 +490,53 @@ fn foreign_model_ir_and_names_refuse_before_graph_planning() {
         }
     }
 }
+
+#[test]
+fn deciding_conditional_planning_error_precedes_graph_capture() {
+    let source = include_str!(
+        "../../../conformance/probes/state-if-planning/models/StateThenError/StateThenError.tla"
+    );
+    for workers in [1, 4, 8] {
+        let opts = CheckOptions {
+            workers,
+            chaos: Some(13),
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            source,
+            "INIT Init\nNEXT Next\nPROPERTY Prop\nCHECK_DEADLOCK FALSE\n",
+            &opts,
+        );
+        let failure = phase_graph::compile(&m, &opts, Limits::default())
+            .err()
+            .expect("pinned deciding error");
+        let Error::Phase(phase) = &failure.error else {
+            panic!("planning must decide before capture");
+        };
+        let dive_liveness::phase_l::Error::Planning(
+            dive_liveness::tlc_plan::ModelPlanningError::Bound(
+                dive_liveness::plan::PlanningError::Evaluation { error, .. },
+            ),
+        ) = &phase.error
+        else {
+            panic!("original typed planning error");
+        };
+        assert_eq!(error.ec().code(), 2179);
+        assert!(failure.capture_stats.is_none());
+        assert_eq!(
+            failure
+                .capture_workers
+                .as_ref()
+                .expect("pre-capture evidence")
+                .used,
+            0
+        );
+        assert_eq!(
+            failure.phase_work,
+            dive_liveness::phase_l::Progress::default()
+        );
+        assert!(failure.nodes.is_empty());
+        assert!(failure.commits.is_empty());
+        assert!(m.take_output().is_empty());
+    }
+}

@@ -119,6 +119,15 @@ fn foreign_capture_metadata_and_actions_refuse_before_assumptions() {
                 panic!("malformed capture succeeded")
             };
             no_work(&r, code);
+            let Exploration::Stopped(r) = capture::explore_concrete_parallel_with_evidence(
+                &model,
+                &options,
+                Limits::default(),
+            )
+            .expect("admission returns evidence") else {
+                panic!("malformed concrete capture succeeded")
+            };
+            no_work(&r, code);
             assert_eq!(valid.evaluator.take_output(), Vec::<String>::new());
             assert_eq!(foreign.evaluator.take_output(), Vec::<String>::new());
         }
