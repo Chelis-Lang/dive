@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "native_binary_sha256": "f554476fb66f24a910480ebfa9586839c2905cc4c22d6cc58edb1e580f10cbe6",
+  "runtime_source_commit": "8da1f96eb42ef928e7b7358ffdad592748fc38d3",
+  "source_note": "implementation bytes bound by the original macro delivery; this documentation replay uses its frozen artifact, not the subsequent shipping integration",
+  "delivery": "crates/dive-pluscal/macro-acceptance/delivery.json",
+  "rows": [
+    {
+      "args": [
+        "translate",
+        "docs/user/examples/MacroExample.tla",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "source_sha256": "48209a31e5be620cfa0b30d348b876ac52592bc4d57732e60fbaf5833b1afc07",
+      "stdout": "MacroExample-dive.stdout.json",
+      "stdout_sha256": "fcfe6d4e0e7c24b7228a0e38bea1add9eaae5aa79fd37adbacdb982ee3f2f093",
+      "stderr": "MacroExample-dive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "args": [
+        "translate",
+        "docs/user/examples/MacroExample.tla",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "exit": 0,
+      "source_sha256": "48209a31e5be620cfa0b30d348b876ac52592bc4d57732e60fbaf5833b1afc07",
+      "stdout": "MacroExample-tlc.stdout.json",
+      "stdout_sha256": "39ae231b17a92d0ccd8d6ef3ee01655ffcd0b4df47b23d53fe0f55a6a738054d",
+      "stderr": "MacroExample-tlc.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "args": [
+        "translate",
+        "docs/user/examples/MacroExampleC.tla",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "source_sha256": "9972ee7227f738e8abc5a02860742e4c7c26eeacee543c323567a6d4881d162f",
+      "stdout": "MacroExampleC-dive.stdout.json",
+      "stdout_sha256": "f17411d58f562795540b900e68fa3280f0aaa59ac5932d2b486a909df74c81ae",
+      "stderr": "MacroExampleC-dive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "args": [
+        "translate",
+        "docs/user/examples/MacroExampleC.tla",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "exit": 0,
+      "source_sha256": "9972ee7227f738e8abc5a02860742e4c7c26eeacee543c323567a6d4881d162f",
+      "stdout": "MacroExampleC-tlc.stdout.json",
+      "stdout_sha256": "0911a169c978b5dd93a5bc500fccd96e9abb2ce4fc1f2b8f44db48b1b4d7d3a0",
+      "stderr": "MacroExampleC-tlc.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
