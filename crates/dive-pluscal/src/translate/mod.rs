@@ -3,6 +3,7 @@ mod emit;
 mod labels;
 mod lower;
 mod macros;
+mod procedures;
 mod process;
 
 use crate::{Code, Diagnostic, Options, ast::Span};
@@ -173,7 +174,7 @@ fn error(
 }
 
 /// Translates a bounded sequential or disjoint finite-process current C/P algorithm.
-/// Unproved process domains, procedures/macros, historical modes and name
+/// Unproved process domains, procedure/macro interactions, historical modes and name
 /// disambiguation fail before an artifact is returned. Expression validation and
 /// complete module binding are separate stages.
 ///

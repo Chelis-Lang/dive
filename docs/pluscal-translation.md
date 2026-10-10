@@ -25,7 +25,7 @@ program-counter omission for the eligible infinite loop and sequential
 read-after-write priming follow the pinned translator. Assertion locations point
 to the keyword, including when a label precedes it.
 
-Named refusals cover procedures/calls/returns, `define`,
+Named refusals cover unproved procedure scopes/calls and `define`,
 unproved branch-internal label placement,
 name disambiguation/generated-name collisions and shadowing binders. TLA lexical
 binding constructs (including Unicode quantifiers/function binders) and multiline
@@ -87,3 +87,9 @@ blocks and fairness now have their own [admission contract](pluscal-multiple-pro
 unproved process renaming remains refused. [Bounded macros](pluscal-macros.md)
 expand before these actions; procedure interactions and unproved substitution
 remain named refusals.
+
+[Sequential procedures](pluscal-procedures.md) now admit one explicitly labelled
+procedure with saved parameter/local frames. Multiple/recursive/process-owned
+procedure scopes and macro interactions remain named refusals. Strict independent
+validation of generated stack witnesses remains pending under the encounter-order
+guard; separate default-profile replay does not earn TLC validation credit.

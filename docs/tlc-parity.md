@@ -291,3 +291,11 @@ call locations. Source/parser/normalization/raw generation/module admission
 remain separate: invalid primary artifacts never count as admitted matches.
 Unproved binders/procedures/name rewrites/options/maps remain pending; F-034/F-035
 stay partial and audit-required and the certification denominator is unchanged.
+
+The [sequential procedure study](pluscal-procedures.md) retains 84 C/P rows:
+48 admitted artifacts, 14 matching rejections, 20 named refusals and two diagnostic
+invalid-reference dispositions. All four primary SANY-invalid outputs stay
+uncredited. Forty-six complete generated models match TLC; thirty invariant
+witnesses have matched exploration but pending strict encounter-order validation.
+Separately qualified default replay validates them and rejects 120 mutants without
+conferring TLC certification. F-034/F-035 remain partial and audit-required.
