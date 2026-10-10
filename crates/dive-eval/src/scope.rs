@@ -33,6 +33,14 @@ pub struct Scope {
 }
 
 impl Scope {
+    /// Whether this context retains an INSTANCE substitution. Temporal
+    /// argument admission uses this to preserve the pinned reference's
+    /// explicit refusal for exported parameterized INSTANCE formulas.
+    #[must_use]
+    pub fn has_substitutions(&self) -> bool {
+        self.env.dynamic.subst.is_some()
+    }
+
     /// The definition whose frame the scope's expressions are evaluated in.
     #[must_use]
     pub fn def(&self) -> DefId {

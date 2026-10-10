@@ -259,3 +259,14 @@ preserves the F-006 gap; IR call-site effects alone do not prove operator values
 supplied dynamically through the Rust scope API pure. The native no-output
 regression and retained pre-fix repro are implementation controls, not TLC
 conformance evidence.
+
+D-013 retained temporal expression arguments now support direct/local calls and
+forwarded nested substituted bodies in the explicit final/short path, including
+supported ENABLED expressions. Raw controls and the complete native matrix live
+in `conformance/probes/temporal-forwarding/`. Exported INSTANCE temporal-formal
+calls rejected by the pinned oracle remain named refusals; recursive/higher-order
+scope support remains partial. No result-changing default or resource limit changed.
+
+D-013 temporal endpoint checks also refuse missing scoped expression/definition
+metadata without panics. The separate public evaluator-constructor context gap
+(#129, F-035) remains open; this does not claim arbitrary caller IR validation.
