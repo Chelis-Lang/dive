@@ -1,13 +1,155 @@
-//! Bounded closure of model-value symmetry generators (ADR 0019, S1).
+//! Pure symmetry declaration preparation and bounded generator closure (S1).
 //!
 //! This matches `MVPerms.permutationSubgroup` and `MVPerm.compose` at the
-//! pinned TLC revision. It does not enable reduction: model binding, warnings,
+//! pinned TLC revision. It does not enable reduction: full binding, warnings,
 //! canonical state keys and independent symmetric trace checks remain separate.
 //! Indices refer to one caller-supplied table of model values, not intern tokens.
 
 use std::collections::HashSet;
 use std::fmt;
 use std::sync::Arc;
+
+use dive_eval::{ErrorClass, St};
+use dive_ir::{Effects, Level};
+use dive_value::{SetKind, Value};
+
+use crate::tables::Look;
+use crate::{BindError, Ec, Model, Pred};
+
+/// A pure symmetry declaration before warning, model-value and closure checks.
+///
+/// This is an intermediate startup stage, not permission to reduce states.
+/// `Tool.getSymmetryPerms` validates all function representations before its
+/// too-small heuristic; domain/range and closure checks follow that heuristic.
+#[derive(Clone, Debug)]
+pub struct Declaration {
+    /// The configuration's name.
+    pub name: String,
+    /// The original definition body, evaluated rather than its cached value.
+    pub predicate: Pred,
+    /// Function records in normalized run order, including identities.
+    pub functions: Arc<[Value]>,
+}
+
+impl Model {
+    /// Reads the configured pure symmetry definition from TLC's pre-constant
+    /// name-table snapshot and validates its set/function representations.
+    /// Call once during startup, before checking. This does not build the
+    /// group, issue too-small warnings or lift any checking refusal.
+    ///
+    /// # Example
+    /// ```
+    /// # use std::sync::Arc;
+    /// # use dive_model::{BindOptions, bind};
+    /// let source = "---- MODULE M ----\nEXTENDS TLC\nCONSTANT S\nVARIABLE x\n\
+    ///               Init == x = TRUE\nNext == UNCHANGED x\n\
+    ///               Sym == Permutations(S)\n====\n";
+    /// let analysis = dive_sema::analyze_source("M.tla", source, &dive_sema::Options::default());
+    /// let ir = Arc::new(dive_ir::lower(&analysis).unwrap());
+    /// let cfg = dive_config::parse("CONSTANT S={a,b}\nINIT Init\nNEXT Next\nSYMMETRY Sym\n")
+    ///     .into_config().unwrap();
+    /// let model = bind(ir, &cfg, &BindOptions::tlc()).unwrap();
+    /// let declaration = model.symmetry_declaration().unwrap().unwrap();
+    /// assert_eq!(declaration.functions.len(), 2);
+    /// assert!(!model.unsupported.is_empty()); // reduction remains unsupported
+    /// ```
+    ///
+    /// # Errors
+    /// TLC's proved name/type diagnostics; explicit refusals for unverified
+    /// evaluation/normalization startup errors, or effectful, nonconstant and
+    /// parameterized declarations. Domain/range
+    /// validation, warning construction and kernel exceptions are later stages.
+    pub fn symmetry_declaration(&self) -> Result<Option<Declaration>, BindError> {
+        let Some(name) = self.symmetry.as_ref() else {
+            return Ok(None);
+        };
+        let definition = match &self.symmetry_definition {
+            None => {
+                return Err(BindError::tlc(
+                    Ec::TlcConfigSpecifiedNotDefined,
+                    &["symmetry function", name],
+                ));
+            }
+            Some(Look::Def(definition)) => *definition,
+            Some(_) => {
+                return Err(symmetry_runtime_error(&format!(
+                    "The symmetry function {name} must specify a set of permutations."
+                )));
+            }
+        };
+        let def = self.ir.def(definition);
+        let node = self.ir.node(def.body);
+        if !def.params.is_empty()
+            || node.level != Level::Constant
+            || node.effects.intersects(Effects::IMPURE)
+        {
+            return Err(BindError::unsupported(format!(
+                "effectful, nonconstant or parameterized SYMMETRY {name} at {}",
+                self.ir.location(&node.origin)
+            )));
+        }
+        let predicate = Pred::new(def.body, self.evaluator.scope(definition));
+        let value =
+            self.eval(&predicate, &St::constant())
+                .map_err(|error| match error.class() {
+                    ErrorClass::Unsupported | ErrorClass::ResourceLimit => {
+                        BindError::unsupported(format!("SYMMETRY {name}: {}", error.message()))
+                    }
+                    ErrorClass::Bug => {
+                        BindError::bug(format!("SYMMETRY {name}: {}", error.message()))
+                    }
+                    ErrorClass::Eval => BindError::unsupported(format!(
+                        "SYMMETRY {name} declaration evaluation error ({}): {}",
+                        error.ec().code(),
+                        error.message()
+                    )),
+                })?;
+        let Value::Set(set) = value else {
+            return Err(symmetry_runtime_error(
+                "The symmetry operator must specify a set of functions.",
+            ));
+        };
+        if !matches!(set.kind(), SetKind::Enum | SetKind::Raw) {
+            return Err(symmetry_runtime_error(
+                "The symmetry operator must specify a set of functions.",
+            ));
+        }
+        let functions = set
+            .elements(self.evaluator.options().ctx)
+            .map_err(|error| match error.kind() {
+                dive_value::ErrorKind::Codec => BindError::bug(format!(
+                    "SYMMETRY {name} set normalization: {}",
+                    error.message()
+                )),
+                _ => BindError::unsupported(format!(
+                    "SYMMETRY {name} set normalization: {}",
+                    error.message()
+                )),
+            })?;
+        if functions.iter().any(|value| match value {
+            Value::Fcn(function) => function.is_tuple_literal() || function.is_record_literal(),
+            _ => true,
+        }) {
+            return Err(symmetry_runtime_error(
+                "The symmetry values must be function records.",
+            ));
+        }
+        Ok(Some(Declaration {
+            name: name.clone(),
+            predicate,
+            functions,
+        }))
+    }
+}
+
+fn symmetry_runtime_error(message: &str) -> BindError {
+    BindError::tlc(
+        Ec::General,
+        &[&format!(
+            "TLC threw an unexpected exception.\nThis was probably caused by an error in the spec or model.\nSee the User Output or TLC Console for clues to what happened.\nThe exception was a java.lang.RuntimeException\n: {message}"
+        )],
+    )
+}
 
 /// Validation of a declared symmetry function.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
