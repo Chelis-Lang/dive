@@ -7,6 +7,9 @@ files. `--frontier-memory-bytes 0` forces disk immediately. Add
 options to use the original in-memory reference queue.
 Simulation and DFID explicitly refuse these safety-BFS storage flags before
 executing a model; they do not silently ignore the request.
+Rust callers must also pair `CheckRequest::frontier_directory` with
+`frontier_memory_bytes`. A directory without a budget returns `DIVE-A0100`
+before opening the model or configuration.
 
 This works with `--compat=tlc`, the default profile, `--store fp` and
 `--store exact`. It preserves ordered search, partial-stop counts and concrete
