@@ -179,3 +179,5 @@ records 906 passing tests, 302 fair translation artifacts and distinct producer
 identities for execution and test-expectation reconciliation. It retains the
 initial failed gate. Strict runtime-namespace witnesses remain pending under
 #124; these results certify neither liveness execution nor full PlusCal parity.
+
+The subsequent [CI integration gate](../conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/ci-integration/verification.json) passed all 906 tests under the unchanged CI timeout policy. CI partitions cover the entire workspace selection without overlap. The earlier oracle/runtime receipt remains bound to its original producer; CI scheduling changes did not alter Rust or Cargo build inputs.
