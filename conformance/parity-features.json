@@ -714,9 +714,11 @@
         "F-034"
       ],
       "additional_evidence": [
-        "crates/dive-conformance/src/dive.rs"
+        "crates/dive-conformance/src/dive.rs",
+        "scripts/check-parity-ledger.py",
+        "scripts/test-parity-ledger.py"
       ],
-      "notes": "Relative implementation executable paths resolve before child model directories change; launch-path regression is covered. Corpus and release certification remain partial."
+      "notes": "Relative implementation executable paths resolve before child model directories change; launch-path regression is covered. Corpus and release certification remain partial. Offline structural controls enforce evidence and census integrity without certifying semantics."
     },
     {
       "id": "F-037",
