@@ -1,0 +1,173 @@
+--algorithm DBakery3a {
+    variables num  = [n \in Nodes |-> 0] ,
+              rnum = [n \in Nodes |-> [m \in Nodes |-> 0]],
+              acks = [n \in Nodes |-> {}],
+              net  = [i \in Nodes |-> [k \in Nodes  |-> << >>]] ,
+              numBar = Zeros(Procs) ,
+              tempBar = Zeros(SubProcs) ,
+              mustRdBar = ArrayOf(SubProcs, TRUE) ,
+              pcBar = [self \in ProcSetBar |->
+                          CASE self \in SubProcs -> "M1s"
+                            [] self \in ProcIds -> "ncs"
+                            [] self \in Wr0Procs -> "wr0"] ,
+\*              rnumH  = rnum ;
+                \* A history variable to capture the state of rnum[n] when an
+                \* enter(n) step is executed.
+              msgStop = [n \in Nodes |-> FALSE] ;
+                \* A suttering variable that prevents any messages from being
+                \* being received while msgStop[n] equals TRUE for some n .
+             
+   macro Broadcast(msg) {
+     net[self] := [i \in Nodes |-> 
+                         IF i = self THEN << >>
+                                     ELSE Append(net[self][i], msg)]
+   } 
+   
+ macro Rcv(from) {
+    net[from][Dest(self)] := Tail(net[from][Dest(self)])
+  }
+  
+  macro RcvAndReply(from, msg) {
+        net[from][Dest(self)] := Tail(net[from][Dest(self)])  
+     || net[Dest(self)][from] := Append(net[Dest(self)][from], msg)
+   }
+     
+   fair process(mu \in Nodes) 
+     variable j = 1 ; { \***************************************************************
+    \* pcBar[<<self, *>>] = "enter"
+    ncs:- while (TRUE) {
+            skip;  \* non-critical section
+            pcBar[<<self>>] := "L1" ;
+            (***************************************************************)
+            (* L1(self) is a stuttering step that implements L1(<<self>>). *)
+            (***************************************************************)
+      L1:   mustRdBar := Replace(mustRdBar, 
+                          {Mirror(p) : p \in subProcsOf(<<self>>)}, FALSE) ;  \******************
+            pcBar[<<self>>] := "M1" ;  \********************************************
+    (***********************************************************************)
+    (* M1s(self) performs stuttering steps immediately preceding an        *)
+    (* enter(self) step that simulates all the M1s(<<self,*>>) actions of  *)
+    (* ProtoBakery.                                                        *)
+    (***********************************************************************)
+    M1s:   while (j < N) {      
+               msgStop[self] := TRUE ;                         \***********
+               with (n = Sequentialize(Nodes \ {self})[j]) {   \***********
+                 tempBar[<<self, n>>] := rnum[self][n] ;         \***********
+                 pcBar[<<self, n>>] := "L2" ;                  \***********
+                 j := j+1                                       \***********
+               } ;                                              \***********
+             } ;                                                \***********
+             j := 1 ;                                           \***********
+
+            (***************************************************************)
+            (* enter(self) simulates the M1(<<self>>) action of            *)
+            (* ProtoBakery.                                                *)
+            (***************************************************************)
+   enter:   with (nonZeros = {i \in Nodes \ {self} : rnum[self][i] # 0},
+                  competitors = {<<rnum[self][i], i>> : i \in nonZeros},
+                  newnum \in {i \in Nat \ {0}  : \A c \in competitors:
+                                                         c \ll <<i, self>>}
+                   ) {
+              num[self] := newnum ;                                
+              acks[self] := {};
+              Broadcast(Write(num[self])) ; 
+              pcBar[<<self>>] := "pcs" ;   \*****************************************
+              numBar[self] := newnum ;    \*****************************************
+              tempBar := Replace(tempBar, subProcsOf(<<self>>), 0) ;  \*************
+              mustRdBar := Replace(mustRdBar, 
+                          {Mirror(p) : p \in subProcsOf(<<self>>)}, FALSE) ;  \****************** 
+\*              rnumH[self] := rnum[self] ; \*****************************************
+              msgStop[self] := FALSE  \**********
+            } ;
+    
+            (***************************************************************)
+            (* wait(s) simulates a stuttering action of ProtoBakery.       *)
+            (***************************************************************)
+    wait:   await  \A n \in Nodes \ {self} :
+                     /\ n \in acks[self] 
+                     /\ \/ rnum[self][n] = 0
+                        \/ <<num[self],self>> \ll <<rnum[self][n],n>>;
+            msgStop[self] := TRUE ; \**********
+    (***********************************************************************)
+    (* The ProtoBakery's L2(<<self, *>>) and L3(<<self,*>>) are            *)
+    (* implemented by the following L2(self) and L3(self) steps.  The last *)
+    (* L3(self) step implements the pcs(<<self>>) step.                    *)
+    (*                                                                     *)
+    (* Since neither of these statements wait and they do not affect any   *)
+    (* variables of the DistBakery algorithm except pc, they essentially   *)
+    (* do not modify the algorithm.  They are stuttering steps if we       *)
+    (* consider pc to be a hidden (existentially quantified) variable of   *)
+    (* the DistBakery spec.                                                *)
+    (***********************************************************************)
+       L2:  while (j < N) {   \*********************************************
+               with (m = Sequentialize(Nodes \ {self})[j]) {  \****************
+                 pcBar[<<self, m>>] :=  "L3"          \****************
+               } ;                                         \****************
+             j := j+1;                                      \****************
+             } ;                                           \****************
+             j := 1 ;                                      \****************                                         \***********
+    
+       L3:  while (j < N) {   \*********************************************
+               with (m = Sequentialize(Nodes \ {self})[j]) {  \****************
+                pcBar[<<self,m>>] :=  "scs"                  \****************
+                } ;                                          \****************
+             j := j+1;                                       \****************
+             } ;                                             \****************
+             j := 1 ;                                        \****************
+             pcBar[<<self>>] := "cs" ;
+             msgStop[self] := FALSE ;                        \**************** 
+
+            (***************************************************************)
+            (* cs(self) implements cs(<<self>>).                           *)
+            (***************************************************************)
+      cs:   skip;
+            numBar[self] := 0 ;
+            mustRdBar := Replace(mustRdBar, subProcsOf(<<self>>), FALSE) ;
+            pcBar[<<self>>] := "ncs";
+            
+            (***************************************************************)
+            (* exit(self) simulates a stuttering step of ProtoBakery.      *)
+            (***************************************************************)
+    exit:   acks[self] := { } ; \* to reduce the state space a bit
+            num[self] := 0 ; \* to reduce the state space a bit
+            Broadcast(Write(0)) ;
+\*            msgStop[self] := TRUE ;
+            (***************************************************************)
+            (* The following statement executes the scs(<<self,*>>) steps  *)
+            (* of ProtoBakery.                                             *)
+            (***************************************************************)
+     scs:   while (j < N) {   \*********************************************
+               with (m = Sequentialize(Nodes \ {self})[j]) {  \****************
+                pcBar[<<self,m>>] :=  "M1s"                  \****************
+                } ;                                          \****************
+             j := j+1;                                       \****************
+             } ;                                             \****************
+             j := 1 ;                                        \****************
+\*             msgStop[self] := FALSE;                         \****************
+          } \* end while
+   }
+
+
+  fair process(mg \in EdgeIds) {
+    a:- while (TRUE) {
+          await ~ \E n \in Nodes : msgStop[n] ;  \********************************
+          with (n =  Dest(self), m = Src(self)) {
+             await net[m][n] /= << >> ;
+             with (msg = Head(net[m][n])) {             
+                if (msg.type = "write") {
+                    rnum[n][m] := msg.num;
+                    if (msg.num = 0) { 
+                       Rcv(m);
+                       if (pcBar[<<m>>] \in {"ncs", "L1"}) {
+                          mustRdBar[<<n,m>>] := TRUE } }
+                    else { RcvAndReply(m, Ack) } ;
+                }                                                                   
+                else{ 
+                  Rcv(m) ;
+                  acks[n] := acks[n] \cup {m} 
+                }                
+             }  \* end with
+           }  \* end with
+        }  \* end while
+   }
+}

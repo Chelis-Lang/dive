@@ -1,0 +1,21 @@
+--algorithm Queens
+     variables
+       todo = { << >> };
+       sols = {};
+
+     begin
+nxtQ:  while todo # {}
+       do
+         with queens \in todo,
+              nxtQ = Len(queens) + 1,
+              cols = { c \in 1..N : ~ \E i \in 1 .. Len(queens) :
+                                      Attacks( Append(queens, c), i, nxtQ ) },
+              exts = { Append(queens,q) : q \in cols }
+         do
+           if (nxtQ = N)
+           then todo := todo \ {queens}; sols := sols \union exts;
+           else todo := (todo \ {queens}) \union exts;
+           end if;
+         end with;
+       end while;
+     end algorithm

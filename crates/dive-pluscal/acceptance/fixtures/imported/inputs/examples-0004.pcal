@@ -1,0 +1,7 @@
+--algorithm Increase {
+  variable x = 0; {
+    while (TRUE) {
+      x := x + 2
+    }
+  }
+}

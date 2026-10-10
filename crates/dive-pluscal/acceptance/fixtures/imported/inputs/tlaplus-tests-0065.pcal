@@ -1,0 +1,9 @@
+--algorithm Steps
+variables x = 1, y = FALSE;
+begin
+    while TRUE do
+        x := x + 1;
+        y := ~y;
+        assert x < 5;
+    end while;
+end algorithm;

@@ -1,0 +1,1 @@
+--algorithm A procedure P() begin R: return; end procedure; begin L: call P(); return; end algorithm

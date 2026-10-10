@@ -1,0 +1,40 @@
+--algorithm Remove {
+  variables 
+    in \in ExprOfMaxLen(9), 
+             \* The input.  
+     
+    out = << >>,           \* The output
+    unmatchedLeft = << >>, \* Sequence of indices in `out' of unmatched "("s in out
+    lastMatchedLeft = -1,  \* Index in `out' of "(" matched by last ")" in `out'.
+                           \* A value of -1 means there is none.
+    lastAddedRight = -1,   \* Index in `in' of last ")"  added to `out'.
+                           \* A value of -1 means there is none.
+    i = 1,                 \* Next element of `in' to examine.
+            
+ { while (i =< Len(in)) {
+      if (in[i].type = "left") {
+        unmatchedLeft := Append(unmatchedLeft, Len(out)+1)
+      }
+      else if (in[i].type = "right") {
+        if ( /\ i = lastAddedRight + 1
+             /\ lastMatchedLeft = unmatchedLeft[Len(unmatchedLeft)]+1 ) {
+          out := RemoveLast(RemoveElement(out, lastMatchedLeft));
+        };
+        lastMatchedLeft := Last(unmatchedLeft);
+        unmatchedLeft := RemoveLast(unmatchedLeft);
+        lastAddedRight := i
+      } ;
+      out := Append(out, in[i]);
+      i := i+1;
+    };
+    \* If out is not the correct result, print in, out and the
+    \* correct result and report an error.
+    if ( out # Result(in)) {
+       print <<"in:", Pr(in)>>;
+       print <<"out;", Pr(out)>>;
+       print <<"res:",Pr(Result(in))>>;
+       assert FALSE
+    } 
+ }
+
+}

@@ -1,0 +1,7 @@
+--algorithm Consensus {
+  variable chosen = {}; 
+  macro Choose() { when chosen = {};
+                   with (v \in Value) { chosen := {v} } }
+   { lbl: while (TRUE) { Choose() }
+   }  
+}
