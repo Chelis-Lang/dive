@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native pure safety checkpoints pause and resume through the deterministic worker
+  pool, including supported VIEW/safety symmetry, cross-width recovery and
+  ordered counter-limit stops. Boundary-zero pauses report one actual worker
+  before pool startup; runtime/temporal/graph/spill restrictions remain explicit.
+
+- TLC-shaped temporal planning preserves eager state-conditional conversion
+  failures, typed TLC errors and source-order fallback before graph work.
+
 
 - Native process-owned procedure fairness for bounded finite callers: reachable
   WF/SF clauses, process/procedure label modifiers and pinned option precedence,
@@ -128,7 +136,9 @@ All notable changes to this project are documented here. The project will follow
   malformed or interrupted archives refuse. Both profiles preserve TLC's counter
   reset by default; `--checkpoint-counters retain` preserves original totals.
   The first slice runs inline with one actual worker and refuses temporal,
-  runtime-effect, VIEW/SYMMETRY and transient-spill interactions (ADR 0033).
+  runtime-effect and transient-spill interactions. Pure supported VIEW/safety
+  symmetry recovery recomputes configured keys while retaining original concrete
+  witness states; equal keys do not certify a trace (ADRs 0033/0038).
 
 - Ordinary safety BFS can spill predecessor/ordinal records with a separate
   `--predecessor-memory-bytes` budget and optional `--predecessor-directory`.

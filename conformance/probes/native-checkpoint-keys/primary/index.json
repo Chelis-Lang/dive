@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "source_parent_commit": "d311b8cbb364b6e2954e8608a992119951990f6b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_binary_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "native_binary_sha256": "3875e6270b5f2438bcd094a6259afa29daf9973f8daa995ca0cb3676a3a90222",
+  "capture_script_sha256": "f4167ef199429ba7d2965b1a3ebfb9cf0465f1d4fc5294ee29403b54549ad44c",
+  "cases": [
+    {
+      "name": "CpView",
+      "source_sha256": {
+        "conformance/probes/native-checkpoint-keys/specs/CpView/CpView.tla": "082e99e16a4a910b072a0d0e91748d3ff313a389f31c5d5bddc9786d4bc669bd",
+        "conformance/probes/native-checkpoint-keys/specs/CpView/CpView.cfg": "da798b289681e64063e2aff26009eadf0c592be51b8cb87051814ba817a1b96b"
+      },
+      "runs": {
+        "tlc": {
+          "exit": 12,
+          "stdout": "CpView-tlc.stdout",
+          "stderr": "CpView-tlc.stderr",
+          "stdout_sha256": "abfb56bfb09d3a9ebe2bb72d1bc9939bf72d61ee2066596f8eb92afee1e80407",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ordinary": {
+          "exit": 12,
+          "verdict": "invariant-violation",
+          "stdout": "CpView-ordinary.stdout",
+          "stderr": "CpView-ordinary.stderr",
+          "stdout_sha256": "53876c8c20c00cd58170803804211457ce91db303c122b51c571ec1bf310def0",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "native-before": {
+          "exit": 3,
+          "verdict": "unsupported",
+          "stdout": "CpView-native-before.stdout",
+          "stderr": "CpView-native-before.stderr",
+          "stdout_sha256": "af1a27b263e90abaa09fa700e79045fb4dde668aa09e51af58b52e093ea01b47",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "tlc_counts": [
+        7,
+        4,
+        0,
+        4
+      ]
+    },
+    {
+      "name": "CpSymView",
+      "source_sha256": {
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla": "50a37daf58b1eb2991934a70ead637f28969bbd30eaf42eb54a6836bcfbe9054",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg": "3b2a5521bb9af1c7b8ce21e20e61ee84f16454437795dc2dabf50c73a7522006"
+      },
+      "runs": {
+        "tlc": {
+          "exit": 12,
+          "stdout": "CpSymView-tlc.stdout",
+          "stderr": "CpSymView-tlc.stderr",
+          "stdout_sha256": "82476d420c8d5c6f9c47fc053228eb2d465dce8167c40dd09dcb37eb5cc20696",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ordinary": {
+          "exit": 12,
+          "verdict": "invariant-violation",
+          "stdout": "CpSymView-ordinary.stdout",
+          "stderr": "CpSymView-ordinary.stderr",
+          "stdout_sha256": "c2380226a9dabb132522d676cbb9952bb1a964b612eb172bcac2bc2ee5a6f370",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "native-before": {
+          "exit": 3,
+          "verdict": "unsupported",
+          "stdout": "CpSymView-native-before.stdout",
+          "stderr": "CpSymView-native-before.stderr",
+          "stdout_sha256": "658c9b3084eb944aa30c5c40e535dcddbd90570df28e70293a88799987a02d6c",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "tlc_counts": [
+        5,
+        3,
+        0,
+        3
+      ]
+    },
+    {
+      "name": "CpSymConcrete",
+      "source_sha256": {
+        "conformance/probes/native-checkpoint-keys/specs/CpSymConcrete/CpSymConcrete.tla": "118014fe19211a8773f90e8dd2059da3559ff68836885957dfd474798e5d1722",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymConcrete/CpSymConcrete.cfg": "c3d5ebdb5c18e4fee09c092ebaeccd546f5d66b1a353f1a5725deb155794ee96"
+      },
+      "runs": {
+        "tlc": {
+          "exit": 12,
+          "stdout": "CpSymConcrete-tlc.stdout",
+          "stderr": "CpSymConcrete-tlc.stderr",
+          "stdout_sha256": "4a952c25ef6bd00d929f2f569e333cadac2df8b03c014c30d57de79833b67a42",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ordinary": {
+          "exit": 12,
+          "verdict": "invariant-violation",
+          "stdout": "CpSymConcrete-ordinary.stdout",
+          "stderr": "CpSymConcrete-ordinary.stderr",
+          "stdout_sha256": "5844cbe61afe7a7c07528fa4eb7ed416b31fcbbba38c41e40a00422b3976a4b5",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "native-before": {
+          "exit": 3,
+          "verdict": "unsupported",
+          "stdout": "CpSymConcrete-native-before.stdout",
+          "stderr": "CpSymConcrete-native-before.stderr",
+          "stdout_sha256": "c999cffba6d2f0faf9d6bdc8e4d97c5a0af66223435253c8b2b691611735d78b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "tlc_counts": [
+        3,
+        3,
+        0,
+        3
+      ]
+    }
+  ]
+}

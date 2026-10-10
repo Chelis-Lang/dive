@@ -1,0 +1,22 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.42s
+     Running tests/checkpoint_keys.rs (/Users/jeff/code/dive-checkpoint-keys-target/debug/deps/checkpoint_keys-81d58eb75f966647)
+
+running 1 test
+test configuration_context_alias_of_local_effect_refuses_before_binding ... FAILED
+
+failures:
+
+---- configuration_context_alias_of_local_effect_refuses_before_binding stdout ----
+
+thread 'configuration_context_alias_of_local_effect_refuses_before_binding' (107500951) panicked at crates/dive-check/tests/checkpoint_keys.rs:383:9:
+startup effect: CheckResult { predecessor: PredecessorUsage { storage: Usage { retained_bytes: 48, peak_retained_bytes: 48, written_bytes: 0, records: 1, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: true }, verdict: ResourceLimit { message: "DIVE-S0400: native checkpoint paused at a committed completed-level boundary; incomplete search, no model verdict" }, stats: Some(Stats { generated: 1, distinct: 1, left_on_queue: 1, depth: 1, initial_generated: 1 }), tlc_prints_stats: true, counterexample: None, collision: None, store: Fingerprint, fp_index: Some(0), tlc_fingerprints: true, var_names: ["x"], tlc_var_order: [0], output: ["TRUE"], warnings: [], notes: [], workers: Workers { requested: 1, used: 1, sequential: true, reason: Some("native checkpoint first slice runs inline; parallel recovery is not implemented") }, elapsed: 150.387042ms }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    configuration_context_alias_of_local_effect_refuses_before_binding
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.18s
+
+error: test failed, to rerun pass `-p dive-check --test checkpoint_keys`

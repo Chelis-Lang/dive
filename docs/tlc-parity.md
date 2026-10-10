@@ -442,7 +442,7 @@ full option/map contracts remain pending.
 Native F-032 evidence is a bounded pure safety snapshot/resume slice, with actual
 saved frontier recovery, concrete predecessor identity, ordered names and strict
 archive admission. It has no Java-byte interoperability or independent snapshot
-certificate. Graph/liveness/runtime/spill/parallel recovery remain pending; see
+certificate. Graph/liveness/runtime/spill recovery remain pending; see
 [native-checkpoint.md](native-checkpoint.md). No family certification is added.
 
 
@@ -467,6 +467,15 @@ subset. F-034 and F-035 remain partial and audit-required; this does not certify
 full process renaming, procedures/macros, historical options or file rewriting.
 
 
+
+F-032 additionally covers pure supported VIEW/safety-symmetry recovery (ADR 0038).
+The primary pinned minimal models and separate native recovery matrix preserve
+concrete witnesses while rebuilding configured reduced visited keys. Equivalent
+keys never substitute for independent Init/Next validation. This adds staged
+evidence only: F-032 remains partial/audit-required with broader recovery pending.
+
+### Native PlusCal translation increments
+
 The [bounded native macro increment](pluscal-macros.md) adds simultaneous lexical
 substitution, selector tails, earlier nested declarations and original definition/
 call locations. Source/parser/normalization/raw generation/module admission
@@ -483,7 +492,7 @@ witnesses have matched exploration but pending strict encounter-order validation
 Separately qualified default replay validates them and rejects 120 mutants without
 conferring TLC certification. F-034/F-035 remain partial and audit-required.
 
-The [nonrecursive procedure graph increment](pluscal-procedure-graphs.md) retains
+The historical [nonrecursive procedure graph increment](pluscal-procedure-graphs.md) retains
 120 capture-first C/P rows: 68 admitted artifacts, 19 source rejections, 29 named
 refusals and four diagnostic invalid-reference dispositions. All eight primary
 SANY-invalid outputs stay uncredited. Cycles, scopes/renaming, process stacks,
@@ -499,7 +508,10 @@ Unbounded-model primary timeouts and explicit native capture bounds never earn
 proof credit. F-034/F-035 remain partial/audit-required; see
 [recursive procedures](pluscal-recursive-procedures.md).
 
-### D-013 progress: ordered temporal execution
+### D-013 historical increment: ordered temporal execution
+
+The earlier staged source records this scope; the later explicit final CLI
+contract is described in [the current user guide](tlc-final-api.md).
 
 The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
 source order, with initial consistency before initial invariants and immediate
@@ -515,7 +527,10 @@ liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
 remain partial/audit-required, F-023 missing and #140 open. Previous complete
 studies keep their original outcomes and receive no new corpus verdict credit.
 
-### Bounded final-only progress: pinned final-only SCC and witness selection
+### Bounded final-only historical library increment: pinned SCC and witness selection
+
+This section preserves the first library producer and its selected controls.
+The later CLI exposure does not retroactively change that receipt.
 
 The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
 graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
@@ -572,3 +587,9 @@ SANY-invalid primary artifacts remain uncredited, fair Spec generation is
 nonproof, and strict #124 witness replay stays separate from qualified canonical
 replay. Scoped renaming, sequential procedure modifier interactions and full
 historical option/format/map contracts remain pending.
+
+F-032 pure finite safety recovery additionally resumes the saved level through
+the deterministic worker pool, with width/chaos and cross-width concrete-result
+controls and inline-equivalent native counter stopping prefixes. This remains
+staged evidence: runtime/temporal/graph/spill recovery, broader persistence
+interactions and full certification remain pending.
