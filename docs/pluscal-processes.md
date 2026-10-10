@@ -1,6 +1,6 @@
 # Single-process PlusCal translation
 
-`dive translate FILE.tla --output json` supports one bounded process
+The original bounded process slice, extended by [multiple finite blocks](pluscal-multiple-processes.md), supports a process
 declaration in current C and P syntax. A process with a constant ID has scalar
 locals; a process set has locals indexed by `self`:
 
@@ -42,7 +42,7 @@ syntax/name/level analysis and report `model_proved=false` / `exhaustive=false`.
 
 ## Current limits
 
-Multiple process blocks, procedure/macro fairness, procedures/macros, `define`,
+Unproved/overlapping process domains, procedure/macro fairness, procedures/macros, `define`,
 name renaming, branch-internal labelled expansion, multiline/binder substitution,
 nonliteral IDs and local membership initializers depending on another local or
 `self` remain named refusals. Global/local/generated-name shadowing is refused

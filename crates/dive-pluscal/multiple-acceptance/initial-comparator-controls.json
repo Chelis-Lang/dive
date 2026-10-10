@@ -1,0 +1,2073 @@
+{
+  "schema_version": 1,
+  "status": "pre-fix-negative-controls",
+  "row": "Multi_P_idset",
+  "comparator_sha256": "42ac755f7a93d43b46c683c2b823f3ba9bdcce8c465c8ba3b73d483a18d0f1e9",
+  "manifest_sha256": "5afc9791e8dc3ab8c11b53163e049be20f4d13b7898f039e960409dca592df71",
+  "native_sha256": "956f2446b3c90bc2786a775995605e3e1572f7b7d5256a67dffc16e470541af2",
+  "rows": [
+    {
+      "control": "missing-exploration",
+      "document": {
+        "accepted": true,
+        "artifact": {
+          "actions": [
+            "L",
+            "E",
+            "M",
+            "F"
+          ],
+          "configuration": "",
+          "inserted_labels": [],
+          "mappings": [
+            {
+              "generated": {
+                "end": 50,
+                "start": 0
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 83,
+                "start": 50
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 249,
+                "start": 83
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 351,
+                "start": 249
+              },
+              "original": {
+                "end": 125,
+                "start": 117
+              }
+            },
+            {
+              "generated": {
+                "end": 456,
+                "start": 351
+              },
+              "original": {
+                "end": 134,
+                "start": 126
+              }
+            },
+            {
+              "generated": {
+                "end": 469,
+                "start": 456
+              },
+              "original": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "generated": {
+                "end": 622,
+                "start": 469
+              },
+              "original": {
+                "end": 196,
+                "start": 188
+              }
+            },
+            {
+              "generated": {
+                "end": 763,
+                "start": 622
+              },
+              "original": {
+                "end": 205,
+                "start": 197
+              }
+            },
+            {
+              "generated": {
+                "end": 794,
+                "start": 763
+              },
+              "original": {
+                "end": 218,
+                "start": 149
+              }
+            },
+            {
+              "generated": {
+                "end": 885,
+                "start": 794
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 947,
+                "start": 885
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 978,
+                "start": 947
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 1036,
+                "start": 978
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            }
+          ],
+          "processes": [
+            {
+              "binding_kind": "Equal",
+              "id_source": {
+                "end": 96,
+                "start": 95
+              },
+              "local_variables": [
+                "x"
+              ],
+              "name": "P",
+              "source": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "binding_kind": "Member",
+              "id_source": {
+                "end": 167,
+                "start": 162
+              },
+              "local_variables": [
+                "y"
+              ],
+              "name": "Q",
+              "source": {
+                "end": 218,
+                "start": 149
+              }
+            }
+          ],
+          "program_counter": true,
+          "tla": "VARIABLES pc, g, x, y\n\nvars == << pc, g, x, y >>\n\nProcSet == {1} \\cup ({ 2 , 3 })\n\nInit == /\\ g = 0\n        /\\ x = 0\n        /\\ y = [self \\in { 2 , 3 } |-> 0]\n        /\\ pc = [self \\in ProcSet |-> CASE self = 1 -> \"L\" [] self \\in { 2 , 3 } -> \"M\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ x' = 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n     /\\ UNCHANGED << g, y >>\n\nE == /\\ pc[1] = \"E\"\n     /\\ g' = x\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ UNCHANGED << x, y >>\n\nP == L \\/ E\n\nM(self) == /\\ pc[self] = \"M\"\n           /\\ y' = [y EXCEPT ![self] = 2]\n           /\\ pc' = [pc EXCEPT ![self] = \"F\"]\n           /\\ UNCHANGED << g, x >>\n\nF(self) == /\\ pc[self] = \"F\"\n           /\\ g' = y[self]\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ UNCHANGED << x, y >>\n\nQ(self) == M(self) \\/ F(self)\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ (\\E self \\in { 2 , 3 }: Q(self)) \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+          "warnings": []
+        },
+        "exit_code": 0,
+        "model_proved": false,
+        "stage": "artifact",
+        "tokens": [
+          "VARIABLES",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          "vars",
+          "==",
+          "<<",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "ProcSet",
+          "==",
+          "{",
+          "1",
+          "}",
+          "\\cup",
+          "(",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ")",
+          "Init",
+          "==",
+          "/\\",
+          "g",
+          "=",
+          "0",
+          "/\\",
+          "x",
+          "=",
+          "0",
+          "/\\",
+          "y",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "|->",
+          "0",
+          "]",
+          "/\\",
+          "pc",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "ProcSet",
+          "|->",
+          "CASE",
+          "self",
+          "=",
+          "1",
+          "->",
+          "\"L\"",
+          "[]",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "->",
+          "\"M\"",
+          "]",
+          "L",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"L\"",
+          "/\\",
+          "x",
+          "'",
+          "=",
+          "1",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "y",
+          ">>",
+          "E",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "x",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "P",
+          "==",
+          "L",
+          "\\/",
+          "E",
+          "M",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"M\"",
+          "/\\",
+          "y",
+          "'",
+          "=",
+          "[",
+          "y",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "2",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "x",
+          ">>",
+          "F",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "y",
+          "[",
+          "self",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "Q",
+          "(",
+          "self",
+          ")",
+          "==",
+          "M",
+          "(",
+          "self",
+          ")",
+          "\\/",
+          "F",
+          "(",
+          "self",
+          ")",
+          "Terminating",
+          "==",
+          "/\\",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "/\\",
+          "UNCHANGED",
+          "vars",
+          "Next",
+          "==",
+          "P",
+          "\\/",
+          "(",
+          "\\E",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ":",
+          "Q",
+          "(",
+          "self",
+          ")",
+          ")",
+          "\\/",
+          "Terminating",
+          "Spec",
+          "==",
+          "Init",
+          "/\\",
+          "[]",
+          "[",
+          "Next",
+          "]_",
+          "vars",
+          "Termination",
+          "==",
+          "<>",
+          "(",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          ")"
+        ]
+      },
+      "observed": {
+        "outcome": "token-artifact-match",
+        "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+        "action_count": 4,
+        "program_counter": true
+      }
+    },
+    {
+      "control": "false-exhaustive",
+      "document": {
+        "accepted": true,
+        "artifact": {
+          "actions": [
+            "L",
+            "E",
+            "M",
+            "F"
+          ],
+          "configuration": "",
+          "inserted_labels": [],
+          "mappings": [
+            {
+              "generated": {
+                "end": 50,
+                "start": 0
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 83,
+                "start": 50
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 249,
+                "start": 83
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 351,
+                "start": 249
+              },
+              "original": {
+                "end": 125,
+                "start": 117
+              }
+            },
+            {
+              "generated": {
+                "end": 456,
+                "start": 351
+              },
+              "original": {
+                "end": 134,
+                "start": 126
+              }
+            },
+            {
+              "generated": {
+                "end": 469,
+                "start": 456
+              },
+              "original": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "generated": {
+                "end": 622,
+                "start": 469
+              },
+              "original": {
+                "end": 196,
+                "start": 188
+              }
+            },
+            {
+              "generated": {
+                "end": 763,
+                "start": 622
+              },
+              "original": {
+                "end": 205,
+                "start": 197
+              }
+            },
+            {
+              "generated": {
+                "end": 794,
+                "start": 763
+              },
+              "original": {
+                "end": 218,
+                "start": 149
+              }
+            },
+            {
+              "generated": {
+                "end": 885,
+                "start": 794
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 947,
+                "start": 885
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 978,
+                "start": 947
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 1036,
+                "start": 978
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            }
+          ],
+          "processes": [
+            {
+              "binding_kind": "Equal",
+              "id_source": {
+                "end": 96,
+                "start": 95
+              },
+              "local_variables": [
+                "x"
+              ],
+              "name": "P",
+              "source": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "binding_kind": "Member",
+              "id_source": {
+                "end": 167,
+                "start": 162
+              },
+              "local_variables": [
+                "y"
+              ],
+              "name": "Q",
+              "source": {
+                "end": 218,
+                "start": 149
+              }
+            }
+          ],
+          "program_counter": true,
+          "tla": "VARIABLES pc, g, x, y\n\nvars == << pc, g, x, y >>\n\nProcSet == {1} \\cup ({ 2 , 3 })\n\nInit == /\\ g = 0\n        /\\ x = 0\n        /\\ y = [self \\in { 2 , 3 } |-> 0]\n        /\\ pc = [self \\in ProcSet |-> CASE self = 1 -> \"L\" [] self \\in { 2 , 3 } -> \"M\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ x' = 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n     /\\ UNCHANGED << g, y >>\n\nE == /\\ pc[1] = \"E\"\n     /\\ g' = x\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ UNCHANGED << x, y >>\n\nP == L \\/ E\n\nM(self) == /\\ pc[self] = \"M\"\n           /\\ y' = [y EXCEPT ![self] = 2]\n           /\\ pc' = [pc EXCEPT ![self] = \"F\"]\n           /\\ UNCHANGED << g, x >>\n\nF(self) == /\\ pc[self] = \"F\"\n           /\\ g' = y[self]\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ UNCHANGED << x, y >>\n\nQ(self) == M(self) \\/ F(self)\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ (\\E self \\in { 2 , 3 }: Q(self)) \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+          "warnings": []
+        },
+        "exhaustive": true,
+        "exit_code": 0,
+        "model_proved": false,
+        "stage": "artifact",
+        "tokens": [
+          "VARIABLES",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          "vars",
+          "==",
+          "<<",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "ProcSet",
+          "==",
+          "{",
+          "1",
+          "}",
+          "\\cup",
+          "(",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ")",
+          "Init",
+          "==",
+          "/\\",
+          "g",
+          "=",
+          "0",
+          "/\\",
+          "x",
+          "=",
+          "0",
+          "/\\",
+          "y",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "|->",
+          "0",
+          "]",
+          "/\\",
+          "pc",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "ProcSet",
+          "|->",
+          "CASE",
+          "self",
+          "=",
+          "1",
+          "->",
+          "\"L\"",
+          "[]",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "->",
+          "\"M\"",
+          "]",
+          "L",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"L\"",
+          "/\\",
+          "x",
+          "'",
+          "=",
+          "1",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "y",
+          ">>",
+          "E",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "x",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "P",
+          "==",
+          "L",
+          "\\/",
+          "E",
+          "M",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"M\"",
+          "/\\",
+          "y",
+          "'",
+          "=",
+          "[",
+          "y",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "2",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "x",
+          ">>",
+          "F",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "y",
+          "[",
+          "self",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "Q",
+          "(",
+          "self",
+          ")",
+          "==",
+          "M",
+          "(",
+          "self",
+          ")",
+          "\\/",
+          "F",
+          "(",
+          "self",
+          ")",
+          "Terminating",
+          "==",
+          "/\\",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "/\\",
+          "UNCHANGED",
+          "vars",
+          "Next",
+          "==",
+          "P",
+          "\\/",
+          "(",
+          "\\E",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ":",
+          "Q",
+          "(",
+          "self",
+          ")",
+          ")",
+          "\\/",
+          "Terminating",
+          "Spec",
+          "==",
+          "Init",
+          "/\\",
+          "[]",
+          "[",
+          "Next",
+          "]_",
+          "vars",
+          "Termination",
+          "==",
+          "<>",
+          "(",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          ")"
+        ]
+      },
+      "observed": {
+        "outcome": "token-artifact-match",
+        "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+        "action_count": 4,
+        "program_counter": true
+      }
+    },
+    {
+      "control": "bad-disposition",
+      "document": {
+        "accepted": false,
+        "artifact": {
+          "actions": [
+            "L",
+            "E",
+            "M",
+            "F"
+          ],
+          "configuration": "",
+          "inserted_labels": [],
+          "mappings": [
+            {
+              "generated": {
+                "end": 50,
+                "start": 0
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 83,
+                "start": 50
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 249,
+                "start": 83
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 351,
+                "start": 249
+              },
+              "original": {
+                "end": 125,
+                "start": 117
+              }
+            },
+            {
+              "generated": {
+                "end": 456,
+                "start": 351
+              },
+              "original": {
+                "end": 134,
+                "start": 126
+              }
+            },
+            {
+              "generated": {
+                "end": 469,
+                "start": 456
+              },
+              "original": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "generated": {
+                "end": 622,
+                "start": 469
+              },
+              "original": {
+                "end": 196,
+                "start": 188
+              }
+            },
+            {
+              "generated": {
+                "end": 763,
+                "start": 622
+              },
+              "original": {
+                "end": 205,
+                "start": 197
+              }
+            },
+            {
+              "generated": {
+                "end": 794,
+                "start": 763
+              },
+              "original": {
+                "end": 218,
+                "start": 149
+              }
+            },
+            {
+              "generated": {
+                "end": 885,
+                "start": 794
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 947,
+                "start": 885
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 978,
+                "start": 947
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 1036,
+                "start": 978
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            }
+          ],
+          "processes": [
+            {
+              "binding_kind": "Equal",
+              "id_source": {
+                "end": 96,
+                "start": 95
+              },
+              "local_variables": [
+                "x"
+              ],
+              "name": "P",
+              "source": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "binding_kind": "Member",
+              "id_source": {
+                "end": 167,
+                "start": 162
+              },
+              "local_variables": [
+                "y"
+              ],
+              "name": "Q",
+              "source": {
+                "end": 218,
+                "start": 149
+              }
+            }
+          ],
+          "program_counter": true,
+          "tla": "VARIABLES pc, g, x, y\n\nvars == << pc, g, x, y >>\n\nProcSet == {1} \\cup ({ 2 , 3 })\n\nInit == /\\ g = 0\n        /\\ x = 0\n        /\\ y = [self \\in { 2 , 3 } |-> 0]\n        /\\ pc = [self \\in ProcSet |-> CASE self = 1 -> \"L\" [] self \\in { 2 , 3 } -> \"M\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ x' = 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n     /\\ UNCHANGED << g, y >>\n\nE == /\\ pc[1] = \"E\"\n     /\\ g' = x\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ UNCHANGED << x, y >>\n\nP == L \\/ E\n\nM(self) == /\\ pc[self] = \"M\"\n           /\\ y' = [y EXCEPT ![self] = 2]\n           /\\ pc' = [pc EXCEPT ![self] = \"F\"]\n           /\\ UNCHANGED << g, x >>\n\nF(self) == /\\ pc[self] = \"F\"\n           /\\ g' = y[self]\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ UNCHANGED << x, y >>\n\nQ(self) == M(self) \\/ F(self)\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ (\\E self \\in { 2 , 3 }: Q(self)) \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+          "warnings": []
+        },
+        "exhaustive": false,
+        "exit_code": 0,
+        "model_proved": false,
+        "stage": "artifact",
+        "tokens": [
+          "VARIABLES",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          "vars",
+          "==",
+          "<<",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "ProcSet",
+          "==",
+          "{",
+          "1",
+          "}",
+          "\\cup",
+          "(",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ")",
+          "Init",
+          "==",
+          "/\\",
+          "g",
+          "=",
+          "0",
+          "/\\",
+          "x",
+          "=",
+          "0",
+          "/\\",
+          "y",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "|->",
+          "0",
+          "]",
+          "/\\",
+          "pc",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "ProcSet",
+          "|->",
+          "CASE",
+          "self",
+          "=",
+          "1",
+          "->",
+          "\"L\"",
+          "[]",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "->",
+          "\"M\"",
+          "]",
+          "L",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"L\"",
+          "/\\",
+          "x",
+          "'",
+          "=",
+          "1",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "y",
+          ">>",
+          "E",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "x",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "P",
+          "==",
+          "L",
+          "\\/",
+          "E",
+          "M",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"M\"",
+          "/\\",
+          "y",
+          "'",
+          "=",
+          "[",
+          "y",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "2",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "x",
+          ">>",
+          "F",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "y",
+          "[",
+          "self",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "Q",
+          "(",
+          "self",
+          ")",
+          "==",
+          "M",
+          "(",
+          "self",
+          ")",
+          "\\/",
+          "F",
+          "(",
+          "self",
+          ")",
+          "Terminating",
+          "==",
+          "/\\",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "/\\",
+          "UNCHANGED",
+          "vars",
+          "Next",
+          "==",
+          "P",
+          "\\/",
+          "(",
+          "\\E",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ":",
+          "Q",
+          "(",
+          "self",
+          ")",
+          ")",
+          "\\/",
+          "Terminating",
+          "Spec",
+          "==",
+          "Init",
+          "/\\",
+          "[]",
+          "[",
+          "Next",
+          "]_",
+          "vars",
+          "Termination",
+          "==",
+          "<>",
+          "(",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          ")"
+        ]
+      },
+      "observed": {
+        "outcome": "token-artifact-match",
+        "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+        "action_count": 4,
+        "program_counter": true
+      }
+    },
+    {
+      "control": "bad-exit",
+      "document": {
+        "accepted": true,
+        "artifact": {
+          "actions": [
+            "L",
+            "E",
+            "M",
+            "F"
+          ],
+          "configuration": "",
+          "inserted_labels": [],
+          "mappings": [
+            {
+              "generated": {
+                "end": 50,
+                "start": 0
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 83,
+                "start": 50
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 249,
+                "start": 83
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 351,
+                "start": 249
+              },
+              "original": {
+                "end": 125,
+                "start": 117
+              }
+            },
+            {
+              "generated": {
+                "end": 456,
+                "start": 351
+              },
+              "original": {
+                "end": 134,
+                "start": 126
+              }
+            },
+            {
+              "generated": {
+                "end": 469,
+                "start": 456
+              },
+              "original": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "generated": {
+                "end": 622,
+                "start": 469
+              },
+              "original": {
+                "end": 196,
+                "start": 188
+              }
+            },
+            {
+              "generated": {
+                "end": 763,
+                "start": 622
+              },
+              "original": {
+                "end": 205,
+                "start": 197
+              }
+            },
+            {
+              "generated": {
+                "end": 794,
+                "start": 763
+              },
+              "original": {
+                "end": 218,
+                "start": 149
+              }
+            },
+            {
+              "generated": {
+                "end": 885,
+                "start": 794
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 947,
+                "start": 885
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 978,
+                "start": 947
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            },
+            {
+              "generated": {
+                "end": 1036,
+                "start": 978
+              },
+              "original": {
+                "end": 233,
+                "start": 55
+              }
+            }
+          ],
+          "processes": [
+            {
+              "binding_kind": "Equal",
+              "id_source": {
+                "end": 96,
+                "start": 95
+              },
+              "local_variables": [
+                "x"
+              ],
+              "name": "P",
+              "source": {
+                "end": 147,
+                "start": 84
+              }
+            },
+            {
+              "binding_kind": "Member",
+              "id_source": {
+                "end": 167,
+                "start": 162
+              },
+              "local_variables": [
+                "y"
+              ],
+              "name": "Q",
+              "source": {
+                "end": 218,
+                "start": 149
+              }
+            }
+          ],
+          "program_counter": true,
+          "tla": "VARIABLES pc, g, x, y\n\nvars == << pc, g, x, y >>\n\nProcSet == {1} \\cup ({ 2 , 3 })\n\nInit == /\\ g = 0\n        /\\ x = 0\n        /\\ y = [self \\in { 2 , 3 } |-> 0]\n        /\\ pc = [self \\in ProcSet |-> CASE self = 1 -> \"L\" [] self \\in { 2 , 3 } -> \"M\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ x' = 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n     /\\ UNCHANGED << g, y >>\n\nE == /\\ pc[1] = \"E\"\n     /\\ g' = x\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ UNCHANGED << x, y >>\n\nP == L \\/ E\n\nM(self) == /\\ pc[self] = \"M\"\n           /\\ y' = [y EXCEPT ![self] = 2]\n           /\\ pc' = [pc EXCEPT ![self] = \"F\"]\n           /\\ UNCHANGED << g, x >>\n\nF(self) == /\\ pc[self] = \"F\"\n           /\\ g' = y[self]\n           /\\ pc' = [pc EXCEPT ![self] = \"Done\"]\n           /\\ UNCHANGED << x, y >>\n\nQ(self) == M(self) \\/ F(self)\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ (\\E self \\in { 2 , 3 }: Q(self)) \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+          "warnings": []
+        },
+        "exhaustive": false,
+        "exit_code": 255,
+        "model_proved": false,
+        "stage": "artifact",
+        "tokens": [
+          "VARIABLES",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          "vars",
+          "==",
+          "<<",
+          "pc",
+          ",",
+          "g",
+          ",",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "ProcSet",
+          "==",
+          "{",
+          "1",
+          "}",
+          "\\cup",
+          "(",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ")",
+          "Init",
+          "==",
+          "/\\",
+          "g",
+          "=",
+          "0",
+          "/\\",
+          "x",
+          "=",
+          "0",
+          "/\\",
+          "y",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "|->",
+          "0",
+          "]",
+          "/\\",
+          "pc",
+          "=",
+          "[",
+          "self",
+          "\\in",
+          "ProcSet",
+          "|->",
+          "CASE",
+          "self",
+          "=",
+          "1",
+          "->",
+          "\"L\"",
+          "[]",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          "->",
+          "\"M\"",
+          "]",
+          "L",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"L\"",
+          "/\\",
+          "x",
+          "'",
+          "=",
+          "1",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "y",
+          ">>",
+          "E",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"E\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "x",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "1",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "P",
+          "==",
+          "L",
+          "\\/",
+          "E",
+          "M",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"M\"",
+          "/\\",
+          "y",
+          "'",
+          "=",
+          "[",
+          "y",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "2",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "g",
+          ",",
+          "x",
+          ">>",
+          "F",
+          "(",
+          "self",
+          ")",
+          "==",
+          "/\\",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"F\"",
+          "/\\",
+          "g",
+          "'",
+          "=",
+          "y",
+          "[",
+          "self",
+          "]",
+          "/\\",
+          "pc",
+          "'",
+          "=",
+          "[",
+          "pc",
+          "EXCEPT",
+          "!",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "]",
+          "/\\",
+          "UNCHANGED",
+          "<<",
+          "x",
+          ",",
+          "y",
+          ">>",
+          "Q",
+          "(",
+          "self",
+          ")",
+          "==",
+          "M",
+          "(",
+          "self",
+          ")",
+          "\\/",
+          "F",
+          "(",
+          "self",
+          ")",
+          "Terminating",
+          "==",
+          "/\\",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          "/\\",
+          "UNCHANGED",
+          "vars",
+          "Next",
+          "==",
+          "P",
+          "\\/",
+          "(",
+          "\\E",
+          "self",
+          "\\in",
+          "{",
+          "2",
+          ",",
+          "3",
+          "}",
+          ":",
+          "Q",
+          "(",
+          "self",
+          ")",
+          ")",
+          "\\/",
+          "Terminating",
+          "Spec",
+          "==",
+          "Init",
+          "/\\",
+          "[]",
+          "[",
+          "Next",
+          "]_",
+          "vars",
+          "Termination",
+          "==",
+          "<>",
+          "(",
+          "\\A",
+          "self",
+          "\\in",
+          "ProcSet",
+          ":",
+          "pc",
+          "[",
+          "self",
+          "]",
+          "=",
+          "\"Done\"",
+          ")"
+        ]
+      },
+      "observed": {
+        "outcome": "token-artifact-match",
+        "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+        "action_count": 4,
+        "program_counter": true
+      }
+    }
+  ]
+}

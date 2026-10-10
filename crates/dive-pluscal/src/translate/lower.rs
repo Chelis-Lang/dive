@@ -48,7 +48,7 @@ pub(super) struct Model {
     pub stutter: bool,
     pub fair: bool,
     pub warnings: Vec<TranslationWarning>,
-    pub process: Option<crate::ast::Process>,
+    pub processes: Vec<crate::ast::Process>,
 }
 struct Group {
     label: Label,
@@ -103,6 +103,18 @@ pub(super) fn normalize(
     if let Body::Processes(processes) = &algorithm.body {
         return super::process::normalize(parsed, processes, options);
     }
+    normalize_with_pc(parsed, options, false)
+}
+#[allow(
+    clippy::too_many_lines,
+    reason = "one scoped sequential admission pass precedes continuation normalization"
+)]
+pub(super) fn normalize_with_pc(
+    parsed: &Parsed,
+    options: &TranslationOptions,
+    force_pc: bool,
+) -> Result<Model, TranslationError> {
+    let algorithm = &parsed.algorithm;
     let Body::Sequential(block) = &algorithm.body else {
         return Err(unsupported(algorithm.span, "multiprocess normalization"));
     };
@@ -180,7 +192,11 @@ pub(super) fn normalize(
     let mut labels = BTreeSet::new();
     let mut goto = false;
     let mut binders = BTreeSet::new();
-    for statement in &parsed.statements {
+    for statement in parsed
+        .statements
+        .iter()
+        .filter(|s| s.span.start >= block.span.start && s.span.end <= block.span.end)
+    {
         if let Some(label) = &statement.label {
             if !labels.insert(label.name.text.as_str()) {
                 return Err(failure(Code::Label, label.span, "duplicate source label"));
@@ -238,7 +254,11 @@ pub(super) fn normalize(
             _ => {}
         }
     }
-    for statement in &parsed.statements {
+    for statement in parsed
+        .statements
+        .iter()
+        .filter(|s| s.span.start >= block.span.start && s.span.end <= block.span.end)
+    {
         if let StatementKind::Goto(target) = &statement.kind
             && target.text != "Done"
             && target.text != "\"Done\""
@@ -257,18 +277,22 @@ pub(super) fn normalize(
             &parsed.statements[root.ids[0].0].kind,
             StatementKind::While { test, .. } if truth(parsed, *test, true)
         );
-    let any_modifier = parsed.statements.iter().any(|statement| {
-        statement
-            .label
-            .as_ref()
-            .is_some_and(|label| label.modifier.is_some())
-    });
+    let any_modifier = parsed
+        .statements
+        .iter()
+        .filter(|s| s.span.start >= block.span.start && s.span.end <= block.span.end)
+        .any(|statement| {
+            statement
+                .label
+                .as_ref()
+                .is_some_and(|label| label.modifier.is_some())
+        });
     let inner_labels = labels.len() > 1;
-    lower.use_pc = !(infinite && !goto && !any_modifier && !inner_labels);
+    lower.use_pc = force_pc || !(infinite && !goto && !any_modifier && !inner_labels);
     lower.compile_groups(&groups, "Done")?;
     Ok(Model { actions: lower.actions, variables: algorithm.variables.clone(), use_pc: lower.use_pc,
         stutter: !infinite || parsed.statements.iter().any(|statement| matches!(&statement.kind, StatementKind::Goto(target) if ["Done", "\"Done\""].contains(&target.text.as_str()))),
-        fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, process: None })
+        fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, processes: Vec::new() })
 }
 
 impl Lower<'_> {

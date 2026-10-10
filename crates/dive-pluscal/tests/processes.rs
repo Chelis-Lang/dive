@@ -111,7 +111,7 @@ fn retained_selection(
 #[test]
 fn retained_process_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
     retained_selection("", 208, 96)?;
-    retained_selection("interactions", 16, 8)?;
+    retained_selection("interactions", 16, 10)?;
     retained_selection("subscripts", 12, 8)?;
     retained_selection("names", 6, 0)
 }

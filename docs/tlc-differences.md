@@ -1133,7 +1133,7 @@ TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
 
 The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
 declarations, label guards and explicit pinned fairness options. Translation
-artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
 and unproved domain normalization are still named refusals; full-family
 certification remains pending.
 
@@ -1155,3 +1155,8 @@ junction grouping in both profiles; full width/layout improvement is pending.
 No alternate formatting default is silently adopted. Long-label controls also
 compare full operator CST, since moving TLA junction indentation can change
 expression structure. See [the fairness evidence](pluscal-fairness.md).
+
+The [multiple finite-process increment](pluscal-multiple-processes.md) now binds
+each admitted block to its own storage, labels and fairness context. Overlapping
+IDs, name rewrites and cross-process local references remain explicit refusals;
+translation artifacts still make no model-proof claim.

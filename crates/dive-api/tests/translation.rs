@@ -189,3 +189,34 @@ fn process_fairness_options_remain_validated_nonproof_artifacts() {
         }
     }
 }
+
+#[test]
+fn multiple_process_storage_and_refusals_remain_nonproof() {
+    let source = module(
+        "variable g=0; process P=1 variable x=0; begin L: x:=1; E: g:=x; end process; fair process Q \\in{2,3} variable y=0; begin M: + y:=2; F: - g:=y; end process; end algorithm;",
+    );
+    for compat_tlc in [false, true] {
+        let request = TranslationRequest {
+            compat_tlc,
+            ..TranslationRequest::default()
+        };
+        let doc = translate_source("TranslationTest.tla", &source, &request).to_json();
+        assert_eq!(doc["accepted"], true, "{doc}");
+        assert_eq!(doc["analysis"]["accepted"], true);
+        assert_eq!(doc["model_proved"], false);
+        assert_eq!(doc["exhaustive"], false);
+        assert_eq!(
+            doc["artifact"]["processes"].as_array().map(Vec::len),
+            Some(2)
+        );
+        for changed in [
+            source.replace("\\in{2,3}", "\\in{1,2}"),
+            source.replace("y:=2", "y:=x"),
+        ] {
+            let refusal = translate_source("TranslationTest.tla", &changed, &request).to_json();
+            assert_eq!(refusal["result"], "unsupported", "{refusal}");
+            assert_eq!(refusal["model_proved"], false);
+            assert!(refusal.get("artifact").is_none());
+        }
+    }
+}
