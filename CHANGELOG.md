@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Rust safety-check requests reject a frontier directory without an encoded
+  frontier budget before loading a model, matching CLI option admission.
+
 - TLC-order simulation refuses runtime-name history that cannot yet be
   independently validated; canonical default sampling remains supported.
 
