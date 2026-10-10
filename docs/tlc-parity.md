@@ -253,3 +253,10 @@ has three clean pinned seed controls, and independent TLC-order validation
 refuses namespace history it cannot establish from a witness. Canonical
 validation remains decisive. These repairs do not certify their containing
 families or change the 37-family denominator.
+
+
+Bounded sequential PlusCal translation now has a separate
+[artifact and generated-model matrix](pluscal-translation.md); F-034 remains
+partial and audit-required. Source AST acceptance, generated token/operator
+structure, module validity and finite model/witness behavior are separately
+accounted. None certifies pending process/procedure/macro/option/rewrite/map cases.

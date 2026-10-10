@@ -7,6 +7,8 @@
 //! rule 3).
 #![forbid(unsafe_code)]
 
+mod translate;
+
 use std::io::Write as _;
 use std::process::ExitCode;
 
@@ -31,7 +33,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 
 fn usage() -> String {
     format!(
-        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
+        "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
                [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
@@ -629,6 +631,7 @@ fn main() -> ExitCode {
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
+        Some("translate") => translate::command(&args[1..], &mut stdout, &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
         Some("validate-trace") => validate_trace_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {

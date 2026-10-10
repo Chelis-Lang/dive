@@ -23,6 +23,11 @@
 #![forbid(unsafe_code)]
 
 mod config;
+mod translate;
+pub use translate::{
+    TRANSLATE_SCHEMA_VERSION, TranslationReport, TranslationRequest, translate_file,
+    translate_source,
+};
 
 pub mod temporal;
 pub mod trace;

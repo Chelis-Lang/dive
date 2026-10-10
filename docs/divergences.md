@@ -213,3 +213,14 @@ models match final truth/counts in both profiles/stores at requested workers
 normalization order and bounds component and generated value slots. Deferred,
 infinite, oversized and excessive-work domains remain named failures. This does
 not change the strict temporal compatibility refusal.
+
+
+### PlusCal translator artifact admission (candidate/current limitation)
+
+Clean pinned `pcal.trans` exits 0 for a sequential variable named `Next` or
+`vars`, but SANY rejects each generated module. All five SANY-invalid outputs
+in the complete translation matrix remain visible. Native generation refuses
+unproved generated-name/binder collisions in both profiles and admits an
+artifact only after complete-module syntax/name/level analysis. No alternate
+naming default is adopted. Minimal example, raw evidence and pending options
+are recorded in `docs/tlc-differences.md` and `docs/pluscal-translation.md`.

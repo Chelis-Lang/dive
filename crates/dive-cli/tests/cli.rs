@@ -35,7 +35,7 @@ fn version_succeeds() {
 
 #[test]
 fn unimplemented_commands_refuse_explicitly() {
-    for cmd in ["simulate", "translate", "lsp"] {
+    for cmd in ["simulate", "lsp"] {
         let out = dive(&[cmd]);
         assert_eq!(out.status.code(), Some(3), "{cmd}");
         assert!(
@@ -534,4 +534,37 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
             .as_array()
             .is_some_and(|d| !d.is_empty())
     );
+}
+
+#[test]
+fn translate_returns_an_admitted_module_without_rewriting_input()
+-> Result<(), Box<dyn std::error::Error>> {
+    assert_eq!(dive(&["translate"]).status.code(), Some(2));
+    let source = "---- MODULE TranslateNative ----\nEXTENDS Integers, TLC\n(* --algorithm A variable x=0; begin L: x:=1; E: skip; end algorithm; *)\n====\n";
+    let file = temp_file("TranslateNative.tla", source);
+    let path = file.to_string_lossy();
+    let out = dive(&["translate", &path, "--compat=tlc", "--output", "json"]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let document: serde_json::Value = serde_json::from_slice(&out.stdout)?;
+    assert_eq!(document["result"], "artifact");
+    assert_eq!(document["model_proved"], false);
+    assert_eq!(document["exhaustive"], false);
+    assert_eq!(document["analysis"]["accepted"], true);
+    assert!(
+        document["module_source"]
+            .as_str()
+            .is_some_and(|text| text.contains("Next =="))
+    );
+    assert_eq!(std::fs::read_to_string(&file)?, source);
+    let out = dive(&["translate", &path, "--write"]);
+    assert_eq!(out.status.code(), Some(3));
+    assert!(
+        String::from_utf8_lossy(&out.stderr).contains("unsupported PlusCal translation option")
+    );
+    assert_eq!(std::fs::read_to_string(&file)?, source);
+    Ok(())
 }

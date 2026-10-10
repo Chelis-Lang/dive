@@ -1077,9 +1077,11 @@ of the order in which a trace mentions them.
 
 Native `dive-pluscal` now parses current C/P source into typed, source-mapped
 ASTs. This is the first translation stage, not a translated specification:
-macro expansion, synthetic labels, name/control-flow checks, TLA expression
-validation, translator options/checksums and automatic module-region discovery
-remain pending. `dive translate` still refuses translation explicitly.
+a separate bounded sequential path now normalizes explicit labels/control flow
+and emits validated enclosing modules. Macro expansion, processes/procedures,
+automatic labels, unproved name disambiguation, multiline/binding expression
+substitution and translator options/checksums remain named refusals. See
+[the translation contract](pluscal-translation.md).
 
 The pinned grammar scanner accepts `(1]`, `[1)`, `<<1}` and `[1, end]` because
 it counts delimiter nesting rather than parsing TLA expressions. Native source
@@ -1091,3 +1093,28 @@ and every ordered statement are retained for that later stage.
 200 complete field-level AST matches, 13 grammar rejection matches, four
 macro-expansion stage differences, one reference timeout and four non-standalone
 documentation markers. All remain visible; F-034 is partial and uncertified.
+
+
+### Translator success does not ensure a valid TLA module (candidate)
+
+```tla
+---- MODULE TranslatorName ----
+(* --algorithm A
+variable Next = 0;
+begin L: Next := 1; E: skip; end algorithm; *)
+====
+```
+
+The pinned translator exits **0** and prints successful translation. Its output
+then declares variable `Next` and operator `Next`; pinned SANY rejects the module.
+Changing `Next` to `vars` has the same outcome. The retained complete matrix also
+contains three other SANY-rejected translator outputs: two `define` cases and a
+shadowing `with` binder. All five remain invalid-artifact evidence, never parity
+credit. Raw output and module/config hashes are in
+`crates/dive-pluscal/translation-acceptance/fixtures/manifest.json`.
+
+Native translation refuses generated-name collisions and unproved binder
+shadowing before returning an artifact. The API also performs enclosing-module
+syntax/name/level admission. This is a documented current limitation in both
+profiles, not an approved alternative name-disambiguation algorithm. Precise
+TLC-equivalent disambiguation and rewrite/checksum parity remain pending.

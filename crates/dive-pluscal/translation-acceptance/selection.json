@@ -1,0 +1,759 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "Pc_C_assert_print",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-assert_print.pcal",
+      "source_sha256": "7ab78592f1dfba06ae56862556a13213cc4d00367d068965932e025fc3cd1582"
+    },
+    {
+      "id": "Pc_C_assign",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-assign.pcal",
+      "source_sha256": "f3a11e75107f764732a6aac06109227ac00ecb50a45eced94941a8544ff26bee"
+    },
+    {
+      "id": "Pc_C_await",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-await.pcal",
+      "source_sha256": "a70f82d046ef2501d75971626cea5bfd783ff06076a727c0e2717a20a9448c99"
+    },
+    {
+      "id": "Pc_C_block",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-block.pcal",
+      "source_sha256": "c193f1506d04b6b5ec8b23895d675bdae76d3c5fd85d858e6d24b271abe75bfe"
+    },
+    {
+      "id": "Pc_C_definitions",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-definitions.pcal",
+      "source_sha256": "0d9dd9426592163f145a2f6897c3d8b779c2f9197eff894ff81eb5f13aca332a"
+    },
+    {
+      "id": "Pc_C_either",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-either.pcal",
+      "source_sha256": "be57efec59f7bdcc699b20d8057194d910b7a1bbab5c2e651671e00dd3f389e1"
+    },
+    {
+      "id": "Pc_C_elsif",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-elsif.pcal",
+      "source_sha256": "9dbb00461a4849dc3141298f2f4b5527d256e043ea35f2463cb224bc5fc4bb48"
+    },
+    {
+      "id": "Pc_C_emptyeither",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-emptyeither.pcal",
+      "source_sha256": "765ef9ebfa7bafedb60b775f830498b46fffe6d55864b921a6cf9925c7cbc27d"
+    },
+    {
+      "id": "Pc_C_goto",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-goto.pcal",
+      "source_sha256": "55ca6a7e7cea4d423ed79af423130325bfae6b6a647b2a9d1761f7c1aababeec"
+    },
+    {
+      "id": "Pc_C_if",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-if.pcal",
+      "source_sha256": "ae173fe2fafce827002861dbed70bf96678a139b94fb5263b661494814d932fa"
+    },
+    {
+      "id": "Pc_C_labels",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-labels.pcal",
+      "source_sha256": "2b725262fb958dbf076b12749f8a60ec59d46771fc4c3507e0f83f60f640bf8a"
+    },
+    {
+      "id": "Pc_C_labels_macro",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-labels_macro.pcal",
+      "source_sha256": "b796fd616365b4280692eb16105309ae848a3d56e02fe2a2fa9558f23b9ae48e"
+    },
+    {
+      "id": "Pc_C_macro",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-macro.pcal",
+      "source_sha256": "66990fb89a9273c44716c65494bbd3452280b62fabf9b0cb9e868faa1feecedf"
+    },
+    {
+      "id": "Pc_C_missingsemi",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-missingsemi.pcal",
+      "source_sha256": "c3ada53b5ab2edc1846fa39feebfd96242ba740e58fc0105c944148beea97d72"
+    },
+    {
+      "id": "Pc_C_parallel",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-parallel.pcal",
+      "source_sha256": "02be19a800c0115e43939dc0d319540eaaf4350be3ebb6c7770c57de1eabcaac"
+    },
+    {
+      "id": "Pc_C_procedure",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-procedure.pcal",
+      "source_sha256": "49b7ef4002854a3891939de99b7da678bf7ffd829d12e15566d67c83d3f44fa3"
+    },
+    {
+      "id": "Pc_C_process",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-process.pcal",
+      "source_sha256": "21c366ca701324ccd74fdd4bca1bc2079589cc0dff29dc968bab77ee18b9ed1c"
+    },
+    {
+      "id": "Pc_C_quantifier",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-quantifier.pcal",
+      "source_sha256": "efa496cbfc88ef637aa7b6c6e95336b687190f0210ffd8e1311ebf1470eaf74d"
+    },
+    {
+      "id": "Pc_C_recordfields",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-recordfields.pcal",
+      "source_sha256": "9a6bd661a67704e201e5e0ca2a82f353a76dd5df41ee974d8f8465104b02bdee"
+    },
+    {
+      "id": "Pc_C_reservedlabel",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-reservedlabel.pcal",
+      "source_sha256": "7239b7bb29209cbee797a3408d6916e08b9178ffb82096ecec19bf40f2e30461"
+    },
+    {
+      "id": "Pc_C_selectors",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-selectors.pcal",
+      "source_sha256": "e10c504173a7c06dc930b1e4aa8a488b078de80b81a3d74d8f6fdd9d5e59fb14"
+    },
+    {
+      "id": "Pc_C_skip",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-skip.pcal",
+      "source_sha256": "f38fa4533d90eb2503d3730f2976ffc96ce81c59702dc85d5adcadbf581699c5"
+    },
+    {
+      "id": "Pc_C_unicode",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-unicode.pcal",
+      "source_sha256": "f810f5bfc4e91e17b0d58a0565ce59acf16cac722d5d4549c723f7c31fc6bc12"
+    },
+    {
+      "id": "Pc_C_unterminatedexpr",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-unterminatedexpr.pcal",
+      "source_sha256": "f4e8e5b23dcfe0e9b39b57024eaeffef24324b8030d20e5a2650783225e24a76"
+    },
+    {
+      "id": "Pc_C_while",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-while.pcal",
+      "source_sha256": "13d2306ebd65b6174d6d3042ba9313a2916e14e0e2f36229969c61367bfbae89"
+    },
+    {
+      "id": "Pc_C_with",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/C-with.pcal",
+      "source_sha256": "e58f6fd07661a7614db254e53b13a55288a78067e129c3ac5f0e7431792c68a7"
+    },
+    {
+      "id": "Pc_P_assert_print",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-assert_print.pcal",
+      "source_sha256": "80826fcadf8ab6a59edd79eef159796fd3660f7ee61b3094a4cf2d620afc6ca2"
+    },
+    {
+      "id": "Pc_P_assign",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-assign.pcal",
+      "source_sha256": "27b1dca3af2bb41adb970b9487bd16350093bafedcd7e641847cdbf12a76a975"
+    },
+    {
+      "id": "Pc_P_await",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-await.pcal",
+      "source_sha256": "21ac9f112172f2409133b51ff2475fe85148e53cae32e0e6e3aaef7bab1d2db6"
+    },
+    {
+      "id": "Pc_P_call_goto",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-call-goto.pcal",
+      "source_sha256": "b70bf664b9e68d8869e3a188068f876f746dedba036b57e27c905e9fc5c8d1f0"
+    },
+    {
+      "id": "Pc_P_call_return",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-call-return.pcal",
+      "source_sha256": "81cd9b7de3037e68377b27078c643a307776b9b1f583e3bcff2bd0fc2b01b8b2"
+    },
+    {
+      "id": "Pc_P_comments",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-comments.pcal",
+      "source_sha256": "0b316d4bdaa4f5e3eb86c2ab81a6040ce97bbdb7b1c4841db0e8ca77368dc6db"
+    },
+    {
+      "id": "Pc_P_definitions",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-definitions.pcal",
+      "source_sha256": "a7716a8983f0061e394dd665b64e79942a9be999163509f283c2fb11de459521"
+    },
+    {
+      "id": "Pc_P_either",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-either.pcal",
+      "source_sha256": "f6a1befb0eab51b339b436f13fdd493e8f55edb0011ec5f6c2261f5f5b753afe"
+    },
+    {
+      "id": "Pc_P_elsif",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-elsif.pcal",
+      "source_sha256": "2403283fae13a9be80e672e3f6a8afd480403fd98246f2f03a88cd4d553c335d"
+    },
+    {
+      "id": "Pc_P_emptyeither",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-emptyeither.pcal",
+      "source_sha256": "43b8216588c3ed96c290b7e3e485ec7151b53a57ff15f864b662c518ffe7b4ce"
+    },
+    {
+      "id": "Pc_P_fcn",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-fcn.pcal",
+      "source_sha256": "476614f3f0bedd885657c48c485ba00ce83d19522e0be7a5ea081f73b777c2f2"
+    },
+    {
+      "id": "Pc_P_goto",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-goto.pcal",
+      "source_sha256": "996ad58c29e27c286b730bf4f27a308eedd9efe5650eaef51096398e4896798c"
+    },
+    {
+      "id": "Pc_P_if",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-if.pcal",
+      "source_sha256": "e85701455014d5c70ce71b1fc97e99c8afcbd825b5e63f38e5c813fbb1a48776"
+    },
+    {
+      "id": "Pc_P_labels",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-labels.pcal",
+      "source_sha256": "927125936fa139cc0d2b1b6bb0a51bd926d23a6c87ed2caf3532b40984acb6ce"
+    },
+    {
+      "id": "Pc_P_labels_macro",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-labels_macro.pcal",
+      "source_sha256": "7e5f73f3ad16899b3372269fddee102f9df4ff16d5693e8954c988de5ddf4c9f"
+    },
+    {
+      "id": "Pc_P_macro_label_invalid",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-macro-label-invalid.pcal",
+      "source_sha256": "678c5d8c14d57a08a57b31894f3c6f1581a9cd8df4aaf3c0400f2f6d78d1ff79"
+    },
+    {
+      "id": "Pc_P_macro",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-macro.pcal",
+      "source_sha256": "3504218b20413bbadf822566cc10e07f2e176968a1c2bddd9e53e1861182a8f9"
+    },
+    {
+      "id": "Pc_P_missingsemi",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-missingsemi.pcal",
+      "source_sha256": "a684682b43ab34f8683de300806bed186b5918e27d323886e476740ef82ae27d"
+    },
+    {
+      "id": "Pc_P_parallel",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-parallel.pcal",
+      "source_sha256": "e36a2356162ccde1ba12b3470056ef0ff880cc062dbd3865926b04555eb088df"
+    },
+    {
+      "id": "Pc_P_procedure",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-procedure.pcal",
+      "source_sha256": "6309a00163e7a2dae7df09ef22c15324ef24f74b7702e90555121b060a237cfa"
+    },
+    {
+      "id": "Pc_P_process",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-process.pcal",
+      "source_sha256": "c8d1e6139464f82b192f235e2617858ad37b5b044cc1094f1f3fb357c5e7a0b8"
+    },
+    {
+      "id": "Pc_P_quantifier",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-quantifier.pcal",
+      "source_sha256": "bd8ede127a410203238df0d7092f007b7b11a0d7e4e8f9979fe3d23225512f87"
+    },
+    {
+      "id": "Pc_P_recordfields",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-recordfields.pcal",
+      "source_sha256": "e2c4d462b7974d9404446992d6bc10a63a144bced2c047d91b56ee611b8f1dd5"
+    },
+    {
+      "id": "Pc_P_reservedlabel",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-reservedlabel.pcal",
+      "source_sha256": "2f6724cf6f68e1e138c751b1a694399f966a58990e1b93a47ac68a5eed8559f4"
+    },
+    {
+      "id": "Pc_P_selectors",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-selectors.pcal",
+      "source_sha256": "82f59588778e6558563d980e65763c4aa89a8bea86ff0e3bcccedd4dfb01545f"
+    },
+    {
+      "id": "Pc_P_skip",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-skip.pcal",
+      "source_sha256": "aca904c86a96b667a2955e0adac5bf5535c8985732bd898f6c73b6b6d7123154"
+    },
+    {
+      "id": "Pc_P_unicode",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-unicode.pcal",
+      "source_sha256": "212e2e7116dd78d4fc448662c85554c0aa2f7214b4c866afa2998030d1e1f7ad"
+    },
+    {
+      "id": "Pc_P_unicode_expr",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-unicode_expr.pcal",
+      "source_sha256": "4e3050f605cf268626aacb47505d9a9d788a35d1a20fa899bd63b949cdfbcdf4"
+    },
+    {
+      "id": "Pc_P_unterminatedexpr",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-unterminatedexpr.pcal",
+      "source_sha256": "34d2cbb3c85bceb478efc1a98d7f6e01afde243229de756816d36194cb60e556"
+    },
+    {
+      "id": "Pc_P_while",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-while.pcal",
+      "source_sha256": "faadde3f62ee6f705213c91c1ea13225fa9d87b6d2f640fc06238a229ba21612"
+    },
+    {
+      "id": "Pc_P_with",
+      "kind": "complete-owned-grammar-selection",
+      "source": "crates/dive-pluscal/acceptance/cases/P-with.pcal",
+      "source_sha256": "c973a0b19e706405023c924bf4bf3030f1b54279151e52dd2810c4f7adaba047"
+    },
+    {
+      "id": "Pc_seq_sequential_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_parallel_swap",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_repeated_write",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_empty_variables",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_member_initial",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_default_initial",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_pc_conflict",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_vars_conflict",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_next_conflict",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_label_conflict",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_goto_done",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_infinite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_finite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_nested_labels",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_condition_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_branch_unchanged",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_either_unchanged",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_with_equal",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_with_member",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_with_conflict",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_field_updates",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_fair_algorithm",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_goto_not_last",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_assert_failure",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_print_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_await_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_elsif",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_if_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_either_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_with_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_indexed_update",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_record_field_keys",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_comparison_rhs",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_nested_with",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_label_plus",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_label_minus",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_quoted_done",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_done_label",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_label_assert",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_unicode_forall",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_unicode_exists",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_unicode_function",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_unicode_record",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_unicode_subscript",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_multiline_junction",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_parenthesized_true",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_sequential_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_parallel_swap",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_finite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_infinite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_nested_labels",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_if",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_elsif",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_either",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_with_equal",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_with_member",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_fields",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_assert",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_await",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_print",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_empty",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_group",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_sequential_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_parallel_swap",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_finite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_infinite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_nested_labels",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_if",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_elsif",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_either",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_with_equal",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_with_member",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_fields",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_assert",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_await",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_print",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_native_group",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_sequential_reads",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_parallel_swap",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_finite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_infinite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_nested_labels",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_if",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_elsif",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_either",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_with_equal",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_with_member",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_fields",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_assert",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_await",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_print",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_goto",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_current_group",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_finite_loop",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_nested_labels",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_if",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_elsif",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_either",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_with_equal",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_with_member",
+      "kind": "curated-sequential-control"
+    },
+    {
+      "id": "Pc_seq_c_complete_group",
+      "kind": "curated-sequential-control"
+    }
+  ]
+}
