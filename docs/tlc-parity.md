@@ -315,7 +315,7 @@ INSTANCE reference refusals and two state-only safety classifications. Native
 checks cover 120 final/short profile/store/requested-width combinations, 24
 INSTANCE refusals, four safety classifications, and 1,960 Boolean word/closing
 edge/profile/property controls. Fresh whole-trace negatives reject bad Init,
-unknown claims and invalid loop indices. Capture still uses one worker.
+unknown claims and invalid loop indices. The original scope delivery captured inline; current integration checks the actual requested pool width at 1/4/8 workers.
 
 F-006/F-007/F-019/F-021 remain partial/audit-required. Recursive local-function
 self-binding and branch-sensitive finite preflight, higher-order/operator

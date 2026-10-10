@@ -352,7 +352,7 @@ fn pinned_paired_forwarding_controls_keep_full_census_and_reference_refusals() {
                         );
                         assert_eq!(
                             (capture.workers.requested, capture.workers.used),
-                            (workers, 1)
+                            (workers, workers)
                         );
                     }
                 }
