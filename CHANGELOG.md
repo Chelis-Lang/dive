@@ -33,6 +33,12 @@ All notable changes to this project are documented here. The project will follow
   worker selection seeds. Depth-bound stops never claim model safety, and every
   claimed violation is independently certified. Remaining mode/output contracts
   refuse by name; TLC's stale cross-root witness is retained as reference evidence.
+- Final/short temporal bindings admit closed pure captured filters over bounded
+  finite structural inputs, and maps over those filters. Input work is bounded
+  before predicate evaluation, cached filters retain their original upper bound,
+  and caller state/priming is preserved. Six clean pinned controls match final
+  truth/counts in both profiles/stores with independent periodic validation.
+  Opaque, effectful, infinite and recursive scoped domains remain refused.
 
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown
