@@ -12,6 +12,8 @@ All notable changes to this project are documented here. The project will follow
   that a witness prefix cannot establish, preventing a forged trace from
   choosing its own string order (issue #124). Canonical validation remains
   decisive; supplied seed/fingerprint metadata does not bypass this refusal.
+  Caller-supplied temporal/enabledness predicates receive the same scoped
+  checks; structurally proven tuple-only sequence calls remain supported.
 
 
 - Final/short temporal failures retain their execution stage, actual capture

@@ -246,3 +246,11 @@ no successor enumeration or checker/store dependency is introduced.
 The safe clean-oracle control and the previous forged positive are retained in
 `crates/dive-trace/tests/fixtures/runtime-names/`. Tests check both formats,
 direct decoded validation, metadata presence/absence and canonical controls.
+
+
+Public lasso-formula and independent enabledness APIs also preflight their
+supplied predicates for runtime-name constructors in TLC order. The model's
+configured checking-path flag is insufficient for an unconfigured caller
+predicate. Existing scoped walkers resolve redirects and retain their opaque
+context refusals. No caller may establish independent truth or disabledness
+by choosing an unproved runtime namespace.

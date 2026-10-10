@@ -169,23 +169,6 @@ fn role_preds(model: &Model) -> Vec<&Pred> {
     preds
 }
 
-/// Operators that may allocate interned string values or record field names
-/// during checking. Tuple-only uses are conservatively included until a
-/// type-sensitive proof can exclude them (issue #122).
-fn creates_names(op: StdOp) -> bool {
-    matches!(
-        op,
-        StdOp::TlcToString
-            | StdOp::SequencesTail
-            | StdOp::SequencesConcat
-            | StdOp::SequencesSubSeq
-            | StdOp::SequencesExtLongestCommonPrefix
-            | StdOp::SequencesExtReplaceFirstSubSeq
-            | StdOp::SequencesExtReplaceAllSubSeqs
-            | StdOp::DyadicRationalsReduce
-    )
-}
-
 pub(crate) struct Sequential {
     pub reasons: Vec<String>,
     pub names_only: bool,
@@ -261,7 +244,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
     for (i, d) in ir.defs().iter().enumerate() {
         if reach.get(i).copied().unwrap_or(false) {
             if let Some(op) = d.std {
-                if ordered_names && creates_names(op) {
+                if ordered_names && op.creates_runtime_names() {
                     names.insert(format!(
                         "{} (runtime names require TLC encounter order)",
                         op.qualified_name()
@@ -288,7 +271,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
                         Arg::Expr { expr, .. } => Some(ir.expr(*expr)),
                         Arg::Op { .. } => None,
                     });
-                    if ordered_names && creates_names(op) {
+                    if ordered_names && op.creates_runtime_names() {
                         names.insert(format!(
                             "{} (runtime names require TLC encounter order)",
                             op.qualified_name()
@@ -300,7 +283,7 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
                     if let Arg::Op { op, .. } = a
                         && let Some(op) = native_op(ir, op)
                     {
-                        if ordered_names && creates_names(op) {
+                        if ordered_names && op.creates_runtime_names() {
                             names.insert(format!(
                                 "{} (runtime names require TLC encounter order)",
                                 op.qualified_name()

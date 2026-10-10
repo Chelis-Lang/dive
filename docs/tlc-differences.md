@@ -1063,3 +1063,12 @@ rejects the forged `"7"` step. Ordinary literal strings remain supported.
 This is dive's own limitation, not a new language default. Establishing namespace
 provenance independently is required before lifting the refusal. The admission
 analysis conservatively includes operators with both tuple and string forms.
+
+
+The same restriction applies to directly supplied lasso formulas and independent
+`ENABLED` predicates, even if they are not configured as checked properties.
+The configured model flag alone cannot describe an arbitrary Rust caller's
+predicate. These APIs preflight the supplied context before computing a result.
+Stable checker configuration strings remain supported: a separate forged-prefix
+control verifies that the seed is interned before the fingerprint, independently
+of the order in which a trace mentions them.
