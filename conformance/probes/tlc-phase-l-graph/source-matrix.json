@@ -4,8 +4,8 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "f8465383ce22c90bab87d30e87c2753989ea641cf8747f49df70113d4eb190fb",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/parallel.rs": "a2b37348b78da8cdf9545ee51a20f8e0e585952bc77b1e082b15634f5eac19f9",
-    "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
+    "crates/dive-check/src/parallel.rs": "1fcc2bddf8756fb5c79273a40adc613e1731fdde62a68ab2cbf60c28fafaa612",
+    "crates/dive-check/src/engine.rs": "5bb4277ed1e599e07fc605bbf35fbfc9977147108e9ac776eeb16cc467542312",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
@@ -17,5 +17,5 @@
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758"
   },
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit",
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification"
+  "current_integration_scope": "staged pure safety parallel recovery; captured historical controls retain their original source/runtime identity"
 }
