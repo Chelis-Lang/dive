@@ -3,7 +3,7 @@
   "scope": "curated pure finite single-worker simulation; not family certification",
   "oracle": "tlc-2026.10.06.014338",
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
-  "binary_sha256": "00eac41dbce54d10853ca658b3e085c85ea48b8401540d34c20973b915157385",
+  "binary_sha256": "79c18588a1a60b0d51e1f372e1db37eb26ff140300e8d5f934c5a0fc44a32300",
   "selected": 23,
   "agree": 22,
   "unsupported": 1,
