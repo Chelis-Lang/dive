@@ -135,6 +135,13 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
 
 fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     b.process_spec()?;
+    // Tool.getSymmetryPerms uses the definition table before constant
+    // definitions become values (SpecProcessor.snapshot).
+    let symmetry_definition = b
+        .cfg
+        .symmetry
+        .as_ref()
+        .and_then(|n| b.defns.get(&n.text).cloned());
     b.build_evaluator();
     b.process_constant_defns()?;
     b.process_config()?;
@@ -174,6 +181,7 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         alias: b.process_alias(),
         postconditions: b.process_postconditions(),
         symmetry: b.cfg.symmetry.as_ref().map(|n| n.text.clone()),
+        symmetry_definition,
         settings: model::Settings {
             check_deadlock: b.cfg.checks_deadlock() && !b.opts.no_deadlock,
         },

@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- A staged symmetry declaration API preserves pre-constant definition lookup,
+  configuration substitutions and normalized function records. Early name/type
+  errors match pinned TLC transcripts; effectful declarations refuse by name.
+  Full binding, warnings and state reduction remain unsupported.
+
 - A bounded symmetry-closure kernel preserves TLC generator/composition order,
   with checked bijections and TLC-compatible malformed maps. Binding and state
   reduction remain explicitly unsupported.
