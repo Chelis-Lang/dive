@@ -34,6 +34,7 @@ All notable changes to this project are documented here. The project will follow
   strict runtime-namespace witnesses remain pending; invalid reference artifacts
   are rejected. See `docs/pluscal-process-procedures.md`.
 
+
 - Native recursive sequential PlusCal procedures: self/mutual call stacks,
   frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
   retain pinned artifacts/errors without unrolling. Invalid upstream output is

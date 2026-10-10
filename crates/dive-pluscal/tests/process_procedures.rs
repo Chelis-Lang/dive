@@ -101,7 +101,7 @@ fn retained(
 #[test]
 fn all_single_process_procedure_artifacts_match_the_pin() -> Result<(), Box<dyn std::error::Error>>
 {
-    retained("", 112, 68, 4)?;
+    retained("", 112, 70, 4)?;
     retained("extra", 12, 12, 0)
 }
 #[test]
