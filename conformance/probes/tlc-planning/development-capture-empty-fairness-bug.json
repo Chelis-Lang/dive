@@ -1,0 +1,1491 @@
+{
+  "schema_version": 1,
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "P3 bounded normalization and ordered pre-tableau grouping field controls",
+  "timestamp": "2026-10-10T12:46:29.025137+00:00",
+  "source_sha256": "a60cb37deebe867eeab694ed7a04088ebde390214ad37a6c91efc0aa2902b283",
+  "cases_sha256": "dd9e629aa049c5c4b49885aa5632b548a7b580224ea5cc572a7292967b2ed41b",
+  "compiler": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Note: /Users/jeff/code/dive-planning-normalization-work/conformance/probes/tlc-planning/PlanningProbe.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n"
+  },
+  "command": [
+    "java",
+    "-cp",
+    "<temporary compiled probe>:<pinned jar>",
+    "tlc2.tool.liveness.PlanningProbe",
+    "<ordered fairness>",
+    "<ordered properties>"
+  ],
+  "rows": [
+    {
+      "name": "empty",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "empty": "true"
+      },
+      "stdout_sha256": "94cb09f7cd3d9673a61cbf8fdff9b78ce3f9c8227dba52e738b8ce8e7ae92d2c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-00",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(T)",
+        "pushed": "F",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "5003f09e9e4e7a4767a119d94574f5bfd33ddcfdc6d0a6621cee7696d63d849d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-00",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(T)",
+        "pushed": "C(T)",
+        "simplified": "T",
+        "dnf": "T",
+        "groups": "1",
+        "g0.temporal": "T",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "bc92eb425b7b5860af2c8b80d02186d2000a8336a86dc846c93fdfd058647f84",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-01",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(F)",
+        "pushed": "T",
+        "simplified": "T",
+        "dnf": "T",
+        "groups": "1",
+        "g0.temporal": "T",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "f4df2b8b9570cd6ceb36e8f3bedb9c3ff3483a0ce0d59ebdea7aca2d8a37961c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-01",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(F)",
+        "pushed": "C(F)",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "b46331f23139d6bee0c83e34892331ad0ec84cf99f266d88a8920e5371686fbd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-02",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(s1)",
+        "pushed": "N(s1)",
+        "simplified": "N(s1)",
+        "dnf": "N(s1)",
+        "groups": "1",
+        "g0.temporal": "N(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "7940a44cf5fd065354feb942647a36c517fd46f5c68500560a4b5798f48f2f14",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-02",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(s1)",
+        "pushed": "C(s1)",
+        "simplified": "s1",
+        "dnf": "s1",
+        "groups": "1",
+        "g0.temporal": "s1",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "dd162c2fcbdcf6748a69e7ba8cb88c95665710bb0891f9e428904e3f23735926",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-03",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(N(s1))",
+        "pushed": "s1",
+        "simplified": "s1",
+        "dnf": "s1",
+        "groups": "1",
+        "g0.temporal": "s1",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "9e0939e2a64a666c681595d4fe41725b85493228cfb8690d7c7371db7fdd735e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-03",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(N(s1))",
+        "pushed": "C(N(s1))",
+        "simplified": "N(s1)",
+        "dnf": "N(s1)",
+        "groups": "1",
+        "g0.temporal": "N(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "941efdd3174e93a1cae9a63e76ce5c865f9ff84d53646ffea3b4239df0becc12",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-04",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(s1))",
+        "pushed": "E(N(s1))",
+        "simplified": "E(N(s1))",
+        "dnf": "E(N(s1))",
+        "groups": "1",
+        "g0.temporal": "E(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "f0d5f1d7e6f6e3e484ce2dff2bdde7ebf21bb90b67f3d13f80eab39aa8acd06b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-04",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(s1))",
+        "pushed": "C(G(s1))",
+        "simplified": "G(s1)",
+        "dnf": "G(s1)",
+        "groups": "1",
+        "g0.temporal": "G(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "e8bf855dbca059b81422feb089fb7251ee200aaead563e6269b8cfca04f367d7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-05",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(s1))",
+        "pushed": "G(N(s1))",
+        "simplified": "G(N(s1))",
+        "dnf": "G(N(s1))",
+        "groups": "1",
+        "g0.temporal": "G(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "3b3664b9735943ba6710cd72ba4b02970d5916ad759a06a229a565793e42f8b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-05",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(s1))",
+        "pushed": "C(E(s1))",
+        "simplified": "E(s1)",
+        "dnf": "E(s1)",
+        "groups": "1",
+        "g0.temporal": "E(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "6cf385d806ecd7293a0af198d90443ec56b4d9e74130a5190d99db7f688d7606",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-06",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)"
+      },
+      "stdout_sha256": "7cdf38af14f2781d53f9645aa8bf09a9b392f16d2abaa921845bd7090c1d0653",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-06",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(E(s1)))",
+        "pushed": "C(G(E(s1)))",
+        "simplified": "G(E(s1))",
+        "dnf": "G(E(s1))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "s1",
+        "g0.action": ""
+      },
+      "stdout_sha256": "d5cb05737df1473699d0c5fda953969248d692c3a2a3b3c467500a0cff707294",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-07",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(G(s1)))",
+        "pushed": "G(E(N(s1)))",
+        "simplified": "G(E(N(s1)))",
+        "dnf": "G(E(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "N(s1)",
+        "g0.action": ""
+      },
+      "stdout_sha256": "b81e9d86db6fa63a27a61aa1b2709dc11c72d26568559f6af76a552d8ce6dd43",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-07",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(G(s1)))",
+        "pushed": "C(E(G(s1)))",
+        "simplified": "E(G(s1))",
+        "dnf": "E(G(s1))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "s1"
+      },
+      "stdout_sha256": "6c92f42e35ec6317d90a5600fb80b56036467622dc22aa20c75e68942172bae0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-08",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(G(s1)))",
+        "pushed": "E(E(N(s1)))",
+        "simplified": "E(N(s1))",
+        "dnf": "E(N(s1))",
+        "groups": "1",
+        "g0.temporal": "E(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "9fe58214ab0d6fdf60bd43f8431c8af6708c07aa938db1ab257f9baa5930e29a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-08",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(G(s1)))",
+        "pushed": "C(G(G(s1)))",
+        "simplified": "G(s1)",
+        "dnf": "G(s1)",
+        "groups": "1",
+        "g0.temporal": "G(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "ba9e5b1a3ac624ee26fbded0da29443cdf225bbc3bde393bc969d82302816e5d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-09",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(E(s1)))",
+        "pushed": "G(G(N(s1)))",
+        "simplified": "G(N(s1))",
+        "dnf": "G(N(s1))",
+        "groups": "1",
+        "g0.temporal": "G(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "421e01019b56e88c4561e5f02a04327a0cbfb62826c0473d027b6fed8c73230f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-09",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(E(s1)))",
+        "pushed": "C(E(E(s1)))",
+        "simplified": "E(s1)",
+        "dnf": "E(s1)",
+        "groups": "1",
+        "g0.temporal": "E(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "a32e39abd3a39513357105188fd08468a6ef6e3fd809dabb6c7bbe8d4249adb9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-10",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(T))",
+        "pushed": "E(F)",
+        "simplified": "E(F)",
+        "dnf": "E(F)",
+        "groups": "1",
+        "g0.temporal": "E(F)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "c1f440330062f25d22ea5f0802085c7eff9a69f248ff6e69f2eee43924c1585c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-10",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(T))",
+        "pushed": "C(G(T))",
+        "simplified": "G(T)",
+        "dnf": "G(T)",
+        "groups": "1",
+        "g0.temporal": "G(T)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "1768cd3ac67ba30a348b3109b3314cde60c1b66b9edb99df1a9c27bde08ad57d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-11",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(F))",
+        "pushed": "G(T)",
+        "simplified": "G(T)",
+        "dnf": "G(T)",
+        "groups": "1",
+        "g0.temporal": "G(T)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "043be602f7771c4e4b2ca305a487152fffae243476b4e2dde3f87bf558faffcc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-11",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(F))",
+        "pushed": "C(E(F))",
+        "simplified": "E(F)",
+        "dnf": "E(F)",
+        "groups": "1",
+        "g0.temporal": "E(F)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "6be4878b54d4f18bcf699b326ca294ed4400f8b9a5518f7569a26010b0c9ac1e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-12",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C(T,s1))",
+        "pushed": "D(F,N(s1))",
+        "simplified": "N(s1)",
+        "dnf": "N(s1)",
+        "groups": "1",
+        "g0.temporal": "N(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "fc0650afefedf6b6e46421a5d081816e4f39484d585fa8406caf7cf0f25cc0d3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-12",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(T,s1)",
+        "pushed": "C(T,s1)",
+        "simplified": "s1",
+        "dnf": "s1",
+        "groups": "1",
+        "g0.temporal": "s1",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "e4861f385d95312deee854abe6cbb4cee122d70f674f70c36b20520e6b09b1b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-13",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D(F,s1))",
+        "pushed": "C(T,N(s1))",
+        "simplified": "N(s1)",
+        "dnf": "N(s1)",
+        "groups": "1",
+        "g0.temporal": "N(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "7118dbec2668464af7e657fbc1046a30f3c8fd29986ae202ddcccb10f4a464b3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-13",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(F,s1))",
+        "pushed": "C(D(F,s1))",
+        "simplified": "s1",
+        "dnf": "s1",
+        "groups": "1",
+        "g0.temporal": "s1",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "8226d9a4c69fc160655a8a2fef1440443ec984ac0ee227f7a041596498726ded",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-14",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C(F,G(s1)))",
+        "pushed": "D(T,E(N(s1)))",
+        "simplified": "T",
+        "dnf": "T",
+        "groups": "1",
+        "g0.temporal": "T",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "68cf7668d1bc69819e6dc39b047a056a06c4539fd3f9baf988daeae2d128d43e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-14",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(F,G(s1))",
+        "pushed": "C(F,G(s1))",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "6ccd1460d147feb27de4bba7563d57b125974f1547d1f2b23fd33fd8a37c6cd4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-15",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D(T,E(s1)))",
+        "pushed": "C(F,G(N(s1)))",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "d12479447092889e97b03f65ddf6fd6fd31a81619603450d59fdafbd82e77c54",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-15",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(T,E(s1)))",
+        "pushed": "C(D(T,E(s1)))",
+        "simplified": "T",
+        "dnf": "T",
+        "groups": "1",
+        "g0.temporal": "T",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "8fc3bfe0e161b76006c4a378830f5a6dc306ede389f88d0aec64437ec87bf1e0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-16",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(N(C(G(s1),E(s2))))",
+        "pushed": "C(G(s1),E(s2))",
+        "simplified": "C(G(s1),E(s2))",
+        "dnf": "C(G(s1),E(s2))",
+        "groups": "1",
+        "g0.temporal": "C(G(s1),E(s2))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "76ffa9a3c926055bb96cd1614479fd6d523440995aff1cc980c107967507c460",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-16",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(N(C(G(s1),E(s2))))",
+        "pushed": "C(D(E(N(s1)),G(N(s2))))",
+        "simplified": "D(E(N(s1)),G(N(s2)))",
+        "dnf": "D(E(N(s1)),G(N(s2)))",
+        "groups": "2",
+        "g0.temporal": "E(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "G(N(s2))",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": ""
+      },
+      "stdout_sha256": "b5dac8eabcd958c38d07aa951cea6c68dd8ad83c1b49e68d948fe76b49183fcd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-17",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(N(D(G(s1),E(s2))))",
+        "pushed": "D(G(s1),E(s2))",
+        "simplified": "D(G(s1),E(s2))",
+        "dnf": "D(G(s1),E(s2))",
+        "groups": "2",
+        "g0.temporal": "G(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "E(s2)",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": ""
+      },
+      "stdout_sha256": "ef008820443e582504153b8e31f45afb766605e4ebbb108b31a3e8fa44513e3c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-17",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(N(D(G(s1),E(s2))))",
+        "pushed": "C(E(N(s1)),G(N(s2)))",
+        "simplified": "C(E(N(s1)),G(N(s2)))",
+        "dnf": "C(E(N(s1)),G(N(s2)))",
+        "groups": "1",
+        "g0.temporal": "C(E(N(s1)),G(N(s2)))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "74bdc7a10341b4d3691556e231959092803b53a262c06b68c2e83b504440abe1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-18",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(N(N(G(s1))))",
+        "pushed": "E(N(s1))",
+        "simplified": "E(N(s1))",
+        "dnf": "E(N(s1))",
+        "groups": "1",
+        "g0.temporal": "E(N(s1))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "4c63fe89f829b4f7f1072513b9714f7e6b5221a4bbacde83acd06f487ecee424",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-18",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(N(N(G(s1))))",
+        "pushed": "C(G(s1))",
+        "simplified": "G(s1)",
+        "dnf": "G(s1)",
+        "groups": "1",
+        "g0.temporal": "G(s1)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "f3dea57f9620a0dc880c3d0c753f31afc5da010f5a735836b385a129f509cb6e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-19",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(C(s1,s2)))",
+        "pushed": "E(D(N(s1),N(s2)))",
+        "simplified": "E(D(N(s1),N(s2)))",
+        "dnf": "E(D(N(s1),N(s2)))",
+        "groups": "1",
+        "g0.temporal": "E(D(N(s1),N(s2)))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "55ebc675090bf3a5bb40cbd4e4c0938f11ad289527cb77552918acd63b6f544d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-19",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(C(s1,s2)))",
+        "pushed": "C(G(C(s1,s2)))",
+        "simplified": "G(C(s1,s2))",
+        "dnf": "G(C(s1,s2))",
+        "groups": "1",
+        "g0.temporal": "G(C(s1,s2))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "c06c6633212bd1010a5985549f657442aa24cd915906f71b5be42bd31081acc3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(D(s1,s2)))",
+        "pushed": "G(C(N(s1),N(s2)))",
+        "simplified": "G(C(N(s1),N(s2)))",
+        "dnf": "G(C(N(s1),N(s2)))",
+        "groups": "1",
+        "g0.temporal": "G(C(N(s1),N(s2)))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "2e2f101f15a65a652b970b71b2c64a9970678ddcbf449b8acf280e8096046017",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(D(s1,s2)))",
+        "pushed": "C(E(D(s1,s2)))",
+        "simplified": "E(D(s1,s2))",
+        "dnf": "E(D(s1,s2))",
+        "groups": "1",
+        "g0.temporal": "E(D(s1,s2))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "6039acce635b39b408da648f53a0c9ad8d3b02f6aaf4ff2e87d2900978117f80",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-21",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D(G(E(s1)),s2,G(E(s3))))",
+        "pushed": "C(E(G(N(s1))),N(s2),E(G(N(s3))))",
+        "simplified": "C(E(G(N(s1))),N(s2),E(G(N(s3))))",
+        "dnf": "C(E(G(N(s1))),N(s2),E(G(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "N(s2)",
+        "g0.p0": "AEAction=|AEState=|EAAction=0,1",
+        "g0.state": "",
+        "g0.action": "N(s1);N(s3)"
+      },
+      "stdout_sha256": "ebbcad5f0d6ecb17b369298a765e997418f7d374abf43d62cd1185b97d996cf4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-21",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(G(E(s1)),s2,G(E(s3))))",
+        "pushed": "C(D(G(E(s1)),s2,G(E(s3))))",
+        "simplified": "D(G(E(s1)),s2,G(E(s3)))",
+        "dnf": "D(s2,G(E(D(s1,s3))))",
+        "groups": "2",
+        "g0.temporal": "s2",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "null",
+        "g1.p0": "AEAction=|AEState=0|EAAction=",
+        "g1.state": "D(s1,s3)",
+        "g1.action": ""
+      },
+      "stdout_sha256": "033e2eb61260d5b95d50f71f7914a5fdd5f9e3db2193ac07561f235be3a59c21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-22",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D(G(E(s1)),G(E(s2))))",
+        "pushed": "C(E(G(N(s1))),E(G(N(s2))))",
+        "simplified": "C(E(G(N(s1))),E(G(N(s2))))",
+        "dnf": "C(E(G(N(s1))),E(G(N(s2))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0,1",
+        "g0.state": "",
+        "g0.action": "N(s1);N(s2)"
+      },
+      "stdout_sha256": "a50efb0bdb8d8ce7c603b02db209b1481c4d7c216164f13fbc4b5fc5430e951c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-22",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(G(E(s1)),G(E(s2))))",
+        "pushed": "C(D(G(E(s1)),G(E(s2))))",
+        "simplified": "D(G(E(s1)),G(E(s2)))",
+        "dnf": "D(G(E(D(s1,s2))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "D(s1,s2)",
+        "g0.action": ""
+      },
+      "stdout_sha256": "7bf210c598949affa5d9b361cf881f491c3c5c904b72a8b34a6b1227052c1cc6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-23",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C(D(s1,s2),D(s3,s4)))",
+        "pushed": "D(C(N(s1),N(s2)),C(N(s3),N(s4)))",
+        "simplified": "D(C(N(s1),N(s2)),C(N(s3),N(s4)))",
+        "dnf": "D(C(N(s1),N(s2)),C(N(s3),N(s4)))",
+        "groups": "2",
+        "g0.temporal": "C(N(s1),N(s2))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "C(N(s3),N(s4))",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": ""
+      },
+      "stdout_sha256": "54f0a691c5bc8eab6d6bbed20c1f7338903c51666ad26dfd5cfd5c15becec914",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-23",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(s1,s2),D(s3,s4))",
+        "pushed": "C(D(s1,s2),D(s3,s4))",
+        "simplified": "C(D(s1,s2),D(s3,s4))",
+        "dnf": "D(C(s1,s3),C(s1,s4),C(s2,s3),C(s2,s4))",
+        "groups": "4",
+        "g0.temporal": "C(s1,s3)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "C(s1,s4)",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "",
+        "g2.temporal": "C(s2,s3)",
+        "g2.p0": "AEAction=|AEState=|EAAction=",
+        "g2.state": "",
+        "g2.action": "",
+        "g3.temporal": "C(s2,s4)",
+        "g3.p0": "AEAction=|AEState=|EAAction=",
+        "g3.state": "",
+        "g3.action": ""
+      },
+      "stdout_sha256": "ed95666fa11aa56bdef9722c642ada0a4730585a94d08a4ffc196b5de3a14572",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-24",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4)))))",
+        "pushed": "D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))",
+        "simplified": "D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))",
+        "dnf": "D(C(G(E(N(a1))),E(G(N(a2)))),C(G(E(N(a3))),E(G(N(a4)))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "g0.p1": "AEAction=2|AEState=|EAAction=3",
+        "g0.state": "",
+        "g0.action": "N(a1);N(a2);N(a3);N(a4)"
+      },
+      "stdout_sha256": "e2f4cceb4ce4cc0025d7fdf4608ca360226bcd79fe160cae376bb3b78c0ada83",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-24",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))))",
+        "pushed": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))))",
+        "simplified": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))))",
+        "dnf": "D(C(E(G(a1)),E(G(a3))),C(E(G(a1)),G(E(a4))),C(G(E(a2)),E(G(a3))),C(G(E(a2)),G(E(a4))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0,1",
+        "g0.p1": "AEAction=2|AEState=|EAAction=0",
+        "g0.p2": "AEAction=3|AEState=|EAAction=1",
+        "g0.p3": "AEAction=3,2|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "a1;a3;a4;a2"
+      },
+      "stdout_sha256": "5e63fc49bf7e698f23b9c501928f4fb68320142433b4f55453b14cc31ea90a64",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-25",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D(C(E(G(a1)),G(s2)),C(G(E(a3)),G(s4))))",
+        "pushed": "C(D(G(E(N(a1))),E(N(s2))),D(E(G(N(a3))),E(N(s4))))",
+        "simplified": "C(D(G(E(N(a1))),E(N(s2))),D(E(G(N(a3))),E(N(s4))))",
+        "dnf": "D(C(E(N(s2)),E(G(N(a3)))),C(E(N(s2)),E(N(s4))),C(G(E(N(a1))),E(G(N(a3)))),C(G(E(N(a1))),E(N(s4))))",
+        "groups": "4",
+        "g0.temporal": "E(N(s2))",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(a3)",
+        "g1.temporal": "C(E(N(s2)),E(N(s4)))",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "",
+        "g2.temporal": "null",
+        "g2.p0": "AEAction=0|AEState=|EAAction=1",
+        "g2.state": "",
+        "g2.action": "N(a1);N(a3)",
+        "g3.temporal": "E(N(s4))",
+        "g3.p0": "AEAction=0|AEState=|EAAction=",
+        "g3.state": "",
+        "g3.action": "N(a1)"
+      },
+      "stdout_sha256": "a887c75cef5db2ea2c5fc848fd34adad8d90a15139a44bfe023985cb9cfdef3f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-25",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(C(E(G(a1)),G(s2)),C(G(E(a3)),G(s4))))",
+        "pushed": "C(D(C(E(G(a1)),G(s2)),C(G(E(a3)),G(s4))))",
+        "simplified": "D(C(E(G(a1)),G(s2)),C(G(E(a3)),G(s4)))",
+        "dnf": "D(C(E(G(a1)),G(s2)),C(G(E(a3)),G(s4)))",
+        "groups": "2",
+        "g0.temporal": "G(s2)",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "a1",
+        "g1.temporal": "G(s4)",
+        "g1.p0": "AEAction=0|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "a3"
+      },
+      "stdout_sha256": "118360202346e9f12ad609b36eccaac49a24197efaeb2c0251160d765bfdfa4f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-26",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C(D(E(G(a1)),G(E(a2))),G(s3)))",
+        "pushed": "D(C(G(E(N(a1))),E(G(N(a2)))),E(N(s3)))",
+        "simplified": "D(C(G(E(N(a1))),E(G(N(a2)))),E(N(s3)))",
+        "dnf": "D(C(G(E(N(a1))),E(G(N(a2)))),E(N(s3)))",
+        "groups": "2",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=1",
+        "g0.state": "",
+        "g0.action": "N(a1);N(a2)",
+        "g1.temporal": "E(N(s3))",
+        "g1.p0": "AEAction=|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": ""
+      },
+      "stdout_sha256": "82f3edfeaa305be6f91e19e4aeb0befcca4381cfd6870184d86dfd7391a9ef8c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-26",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(E(G(a1)),G(E(a2))),G(s3))",
+        "pushed": "C(D(E(G(a1)),G(E(a2))),G(s3))",
+        "simplified": "C(D(E(G(a1)),G(E(a2))),G(s3))",
+        "dnf": "D(C(E(G(a1)),G(s3)),C(G(E(a2)),G(s3)))",
+        "groups": "1",
+        "g0.temporal": "G(s3)",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.p1": "AEAction=1|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "a1;a2"
+      },
+      "stdout_sha256": "684fdc1b462425cc8f681fde5ed2c5989305640883ef9def62c8fd189023dcbb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-27",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(a1))",
+        "pushed": "E(N(a1))",
+        "simplified": "E(N(a1))",
+        "dnf": "E(N(a1))",
+        "refusal": "util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A."
+      },
+      "stdout_sha256": "c3a492c2d3e2530a31423488b49ceb328cea6d49162d696f912a95a44fd363dd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-27",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(a1))",
+        "pushed": "C(G(a1))",
+        "simplified": "G(a1)",
+        "dnf": "G(a1)",
+        "refusal": "util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A."
+      },
+      "stdout_sha256": "f3ed13d4326a4fedec0e993c6835184cbc5a087cd7e0ff37cb0d260387ba347a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-28",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(a1))",
+        "pushed": "G(N(a1))",
+        "simplified": "G(N(a1))",
+        "dnf": "G(N(a1))",
+        "refusal": "util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A."
+      },
+      "stdout_sha256": "685ba756a17e730fec873a7c827291680159f4fdc95c8e4c4b2a5a3622063e83",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-28",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(a1))",
+        "pushed": "C(E(a1))",
+        "simplified": "E(a1)",
+        "dnf": "E(a1)",
+        "refusal": "util.Assert$TLCRuntimeException:Temporal formulas containing actions must be of forms <>[]A or []<>A."
+      },
+      "stdout_sha256": "d70b84bd80688f9d74e838cf482f4092fd973c03ae4132d039db7cd637782ac1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-29",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(E(a1)))",
+        "pushed": "E(G(N(a1)))",
+        "simplified": "E(G(N(a1)))",
+        "dnf": "E(G(N(a1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(a1)"
+      },
+      "stdout_sha256": "9111075ebfc2d7cb7976be7dd5cb14a54b53951d93442d5d9d268b7504527dd8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-29",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(E(a1)))",
+        "pushed": "C(G(E(a1)))",
+        "simplified": "G(E(a1))",
+        "dnf": "G(E(a1))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "a1"
+      },
+      "stdout_sha256": "f2f5cdbcabd41292aeb8d3c030b588d31474204dedfc1525d55be07b1fc330de",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-30",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(G(a1)))",
+        "pushed": "G(E(N(a1)))",
+        "simplified": "G(E(N(a1)))",
+        "dnf": "G(E(N(a1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "N(a1)"
+      },
+      "stdout_sha256": "9e77f54a449e44a347db2368903de6edeede684566c9619d51e9f98c41cbcaaf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-30",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(G(a1)))",
+        "pushed": "C(E(G(a1)))",
+        "simplified": "E(G(a1))",
+        "dnf": "E(G(a1))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "a1"
+      },
+      "stdout_sha256": "1c18cebd97590e88f170824907a1f9e0640f1eb7cb24b10c597eb3100f1ed20d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-31",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(E(C(s1,a2))))",
+        "pushed": "E(G(D(N(s1),N(a2))))",
+        "simplified": "E(G(D(N(s1),N(a2))))",
+        "dnf": "E(G(D(N(s1),N(a2))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "D(N(s1),N(a2))"
+      },
+      "stdout_sha256": "9098e91c7f3f085e0fdb97336da47a39c98b956193bb968e53baac939655f757",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-31",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(E(C(s1,a2))))",
+        "pushed": "C(G(E(C(s1,a2))))",
+        "simplified": "G(E(C(s1,a2)))",
+        "dnf": "G(E(C(s1,a2)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "C(s1,a2)"
+      },
+      "stdout_sha256": "b2f41d4a80f41db08a4c489107c3e37c9df4a314df05ea7f924ed6994cee55c9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-32",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(E(G(C(s1,a2))))",
+        "pushed": "G(E(D(N(s1),N(a2))))",
+        "simplified": "G(E(D(N(s1),N(a2))))",
+        "dnf": "G(E(D(N(s1),N(a2))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "D(N(s1),N(a2))"
+      },
+      "stdout_sha256": "43e29b6454c1c14ad8448924442632b29dea5168c55c1f565f3a407d4eb73536",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-32",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(G(C(s1,a2))))",
+        "pushed": "C(E(G(C(s1,a2))))",
+        "simplified": "E(G(C(s1,a2)))",
+        "dnf": "E(G(C(s1,a2)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "C(s1,a2)"
+      },
+      "stdout_sha256": "9eaf6a751c0b9b9042a8b4d72f2c4088111d2f280095424a0319a278aca81697",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-33",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(G(E(G(E(s1)))))",
+        "pushed": "E(G(E(G(N(s1)))))",
+        "simplified": "E(G(E(G(N(s1)))))",
+        "dnf": "E(G(E(G(N(s1)))))",
+        "groups": "1",
+        "g0.temporal": "E(G(E(G(N(s1)))))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "461950393d8b36989494646ad022514d6d2eb3cdca3ab2adf8b6752257889d14",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-33",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(E(G(E(s1)))))",
+        "pushed": "C(G(E(G(E(s1)))))",
+        "simplified": "G(E(G(E(s1))))",
+        "dnf": "G(E(G(E(s1))))",
+        "groups": "1",
+        "g0.temporal": "G(E(G(E(s1))))",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "8f05f7162eff663e2174d6dbe794f616c88c186a56698e9dc90ee9dc7eb96b1e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-34",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(C())",
+        "pushed": "D()",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "d07222c8c53eea7ee88df0ae4bef757e26830ba8a35e3ddcd20184460cfb8a4b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-34",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "empty": "true"
+      },
+      "stdout_sha256": "94cb09f7cd3d9673a61cbf8fdff9b78ce3f9c8227dba52e738b8ce8e7ae92d2c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "property-35",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "N(D())",
+        "pushed": "C()",
+        "simplified": "T",
+        "dnf": "T",
+        "groups": "1",
+        "g0.temporal": "T",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": ""
+      },
+      "stdout_sha256": "f28c9161eb72659c6b2d60cbe1b1b8ef65ebf7236022bf4c6617d1c5f939e53d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "fairness-35",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D())",
+        "pushed": "C(D())",
+        "simplified": "F",
+        "dnf": "F",
+        "groups": "0"
+      },
+      "stdout_sha256": "02abde9d6e420d155873d25e12a1ee053356f9c8d438670561ed2e5d05beb6e2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "multiple-properties",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "D(N(G(E(s1))),N(G(E(s2))),N(E(G(s3))))",
+        "pushed": "D(E(G(N(s1))),E(G(N(s2))),G(E(N(s3))))",
+        "simplified": "D(E(G(N(s1))),E(G(N(s2))),G(E(N(s3))))",
+        "dnf": "D(E(G(N(s1))),E(G(N(s2))),G(E(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.p1": "AEAction=|AEState=|EAAction=1",
+        "g0.p2": "AEAction=|AEState=0|EAAction=",
+        "g0.state": "N(s3)",
+        "g0.action": "N(s1);N(s2)"
+      },
+      "stdout_sha256": "ab71a3a4a4d7ceddd27e2e7bbb8140ca216f426d97fbc9fedb5f7915ff566f84",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "multiple-fairness-properties",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(N(G(E(s5))),N(G(s6))))",
+        "pushed": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(E(G(N(s5))),E(N(s6))))",
+        "simplified": "C(D(E(G(a1)),G(E(a2))),D(E(G(a3)),G(E(a4))),D(E(G(N(s5))),E(N(s6))))",
+        "dnf": "D(C(E(G(a1)),E(G(a3)),E(G(N(s5)))),C(E(G(a1)),E(G(a3)),E(N(s6))),C(E(G(a1)),G(E(a4)),E(G(N(s5)))),C(E(G(a1)),G(E(a4)),E(N(s6))),C(G(E(a2)),E(G(a3)),E(G(N(s5)))),C(G(E(a2)),E(G(a3)),E(N(s6))),C(G(E(a2)),G(E(a4)),E(G(N(s5)))),C(G(E(a2)),G(E(a4)),E(N(s6))))",
+        "groups": "2",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0,1,2",
+        "g0.p1": "AEAction=3|AEState=|EAAction=0,2",
+        "g0.p2": "AEAction=4|AEState=|EAAction=1,2",
+        "g0.p3": "AEAction=4,3|AEState=|EAAction=2",
+        "g0.state": "",
+        "g0.action": "a1;a3;N(s5);a4;a2",
+        "g1.temporal": "E(N(s6))",
+        "g1.p0": "AEAction=|AEState=|EAAction=0,1",
+        "g1.p1": "AEAction=2|AEState=|EAAction=0",
+        "g1.p2": "AEAction=3|AEState=|EAAction=1",
+        "g1.p3": "AEAction=3,2|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "a1;a3;a4;a2"
+      },
+      "stdout_sha256": "d7376fe2ffbcc3b8dd642e43464aeaf046c8cd2d4bb8a82d8e914c0df22b407f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "same-tableau-group",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(E(G(a1)),G(E(a2))),N(E(s3)))",
+        "pushed": "C(D(E(G(a1)),G(E(a2))),G(N(s3)))",
+        "simplified": "C(D(E(G(a1)),G(E(a2))),G(N(s3)))",
+        "dnf": "D(C(E(G(a1)),G(N(s3))),C(G(E(a2)),G(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "G(N(s3))",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.p1": "AEAction=1|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "a1;a2"
+      },
+      "stdout_sha256": "6b0ab614eeeeea0de0910089d986983d68fb7f2de3df98c47eeedbb7af2ba68d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "different-tableau-groups",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(G(E(a1)),D(N(E(s2)),N(E(s3))))",
+        "pushed": "C(G(E(a1)),D(G(N(s2)),G(N(s3))))",
+        "simplified": "C(G(E(a1)),D(G(N(s2)),G(N(s3))))",
+        "dnf": "D(C(G(E(a1)),G(N(s2))),C(G(E(a1)),G(N(s3))))",
+        "groups": "2",
+        "g0.temporal": "G(N(s2))",
+        "g0.p0": "AEAction=0|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "a1",
+        "g1.temporal": "G(N(s3))",
+        "g1.p0": "AEAction=0|AEState=|EAAction=",
+        "g1.state": "",
+        "g1.action": "a1"
+      },
+      "stdout_sha256": "0d6d8ee2b4c9943d2b400878b1a9f24cfacc94e0ebccb6b26783048c333c6efe",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "same-atoms-different-occurrences",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(E(G(a1)),E(G(a2))),N(E(s3)))",
+        "pushed": "C(D(E(G(a1)),E(G(a2))),G(N(s3)))",
+        "simplified": "C(D(E(G(a1)),E(G(a2))),G(N(s3)))",
+        "dnf": "D(C(E(G(a1)),G(N(s3))),C(E(G(a2)),G(N(s3))))",
+        "groups": "1",
+        "g0.temporal": "G(N(s3))",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.p1": "AEAction=|AEState=|EAAction=1",
+        "g0.state": "",
+        "g0.action": "a1;a2"
+      },
+      "stdout_sha256": "f72c39e83c81ccc74e544398226c34ed19672dc55a8e13b90a9635e430a5cfce",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "nested-recurrence-move",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(D(G(E(s1)),s2),D(s3,G(E(s4))),N(F))",
+        "pushed": "C(D(G(E(s1)),s2),D(s3,G(E(s4))),T)",
+        "simplified": "C(D(G(E(s1)),s2),D(s3,G(E(s4))))",
+        "dnf": "D(C(s2,s3),C(s2,G(E(s4))),C(G(E(s1)),s3),C(G(E(s1)),G(E(s4))))",
+        "groups": "4",
+        "g0.temporal": "C(s2,s3)",
+        "g0.p0": "AEAction=|AEState=|EAAction=",
+        "g0.state": "",
+        "g0.action": "",
+        "g1.temporal": "s2",
+        "g1.p0": "AEAction=|AEState=0|EAAction=",
+        "g1.state": "s4",
+        "g1.action": "",
+        "g2.temporal": "s3",
+        "g2.p0": "AEAction=|AEState=0|EAAction=",
+        "g2.state": "s1",
+        "g2.action": "",
+        "g3.temporal": "null",
+        "g3.p0": "AEAction=|AEState=0,1|EAAction=",
+        "g3.state": "s1;s4",
+        "g3.action": ""
+      },
+      "stdout_sha256": "782df89e55e3bce802b41c2986f99905b44f9b3a0071b1e7ff292c1f7f02480a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "state-ea-in-action-bin",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "tagged": "C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))",
+        "pushed": "C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))",
+        "simplified": "C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))",
+        "dnf": "C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=0|AEState=0|EAAction=1,2",
+        "g0.state": "s2",
+        "g0.action": "a3;s1;a4"
+      },
+      "stdout_sha256": "2b2e287ace79bafccc99fcdbc5269ee915588002884ae697ff01513a479ab981",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

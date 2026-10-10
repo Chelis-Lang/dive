@@ -1,0 +1,575 @@
+[
+  {
+    "name": "empty",
+    "fairness": [],
+    "properties": []
+  },
+  {
+    "name": "property-00",
+    "fairness": [],
+    "properties": [
+      "T"
+    ]
+  },
+  {
+    "name": "fairness-00",
+    "fairness": [
+      "T"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-01",
+    "fairness": [],
+    "properties": [
+      "F"
+    ]
+  },
+  {
+    "name": "fairness-01",
+    "fairness": [
+      "F"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-02",
+    "fairness": [],
+    "properties": [
+      "s0"
+    ]
+  },
+  {
+    "name": "fairness-02",
+    "fairness": [
+      "s0"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-03",
+    "fairness": [],
+    "properties": [
+      "N(s0)"
+    ]
+  },
+  {
+    "name": "fairness-03",
+    "fairness": [
+      "N(s0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-04",
+    "fairness": [],
+    "properties": [
+      "G(s0)"
+    ]
+  },
+  {
+    "name": "fairness-04",
+    "fairness": [
+      "G(s0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-05",
+    "fairness": [],
+    "properties": [
+      "E(s0)"
+    ]
+  },
+  {
+    "name": "fairness-05",
+    "fairness": [
+      "E(s0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-06",
+    "fairness": [],
+    "properties": [
+      "G(E(s0))"
+    ]
+  },
+  {
+    "name": "fairness-06",
+    "fairness": [
+      "G(E(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-07",
+    "fairness": [],
+    "properties": [
+      "E(G(s0))"
+    ]
+  },
+  {
+    "name": "fairness-07",
+    "fairness": [
+      "E(G(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-08",
+    "fairness": [],
+    "properties": [
+      "G(G(s0))"
+    ]
+  },
+  {
+    "name": "fairness-08",
+    "fairness": [
+      "G(G(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-09",
+    "fairness": [],
+    "properties": [
+      "E(E(s0))"
+    ]
+  },
+  {
+    "name": "fairness-09",
+    "fairness": [
+      "E(E(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-10",
+    "fairness": [],
+    "properties": [
+      "G(T)"
+    ]
+  },
+  {
+    "name": "fairness-10",
+    "fairness": [
+      "G(T)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-11",
+    "fairness": [],
+    "properties": [
+      "E(F)"
+    ]
+  },
+  {
+    "name": "fairness-11",
+    "fairness": [
+      "E(F)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-12",
+    "fairness": [],
+    "properties": [
+      "C(T,s0)"
+    ]
+  },
+  {
+    "name": "fairness-12",
+    "fairness": [
+      "C(T,s0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-13",
+    "fairness": [],
+    "properties": [
+      "D(F,s0)"
+    ]
+  },
+  {
+    "name": "fairness-13",
+    "fairness": [
+      "D(F,s0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-14",
+    "fairness": [],
+    "properties": [
+      "C(F,G(s0))"
+    ]
+  },
+  {
+    "name": "fairness-14",
+    "fairness": [
+      "C(F,G(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-15",
+    "fairness": [],
+    "properties": [
+      "D(T,E(s0))"
+    ]
+  },
+  {
+    "name": "fairness-15",
+    "fairness": [
+      "D(T,E(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-16",
+    "fairness": [],
+    "properties": [
+      "N(C(G(s0),E(s1)))"
+    ]
+  },
+  {
+    "name": "fairness-16",
+    "fairness": [
+      "N(C(G(s0),E(s1)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-17",
+    "fairness": [],
+    "properties": [
+      "N(D(G(s0),E(s1)))"
+    ]
+  },
+  {
+    "name": "fairness-17",
+    "fairness": [
+      "N(D(G(s0),E(s1)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-18",
+    "fairness": [],
+    "properties": [
+      "N(N(G(s0)))"
+    ]
+  },
+  {
+    "name": "fairness-18",
+    "fairness": [
+      "N(N(G(s0)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-19",
+    "fairness": [],
+    "properties": [
+      "G(C(s0,s1))"
+    ]
+  },
+  {
+    "name": "fairness-19",
+    "fairness": [
+      "G(C(s0,s1))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-20",
+    "fairness": [],
+    "properties": [
+      "E(D(s0,s1))"
+    ]
+  },
+  {
+    "name": "fairness-20",
+    "fairness": [
+      "E(D(s0,s1))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-21",
+    "fairness": [],
+    "properties": [
+      "D(G(E(s0)),s1,G(E(s2)))"
+    ]
+  },
+  {
+    "name": "fairness-21",
+    "fairness": [
+      "D(G(E(s0)),s1,G(E(s2)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-22",
+    "fairness": [],
+    "properties": [
+      "D(G(E(s0)),G(E(s1)))"
+    ]
+  },
+  {
+    "name": "fairness-22",
+    "fairness": [
+      "D(G(E(s0)),G(E(s1)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-23",
+    "fairness": [],
+    "properties": [
+      "C(D(s0,s1),D(s2,s3))"
+    ]
+  },
+  {
+    "name": "fairness-23",
+    "fairness": [
+      "C(D(s0,s1),D(s2,s3))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-24",
+    "fairness": [],
+    "properties": [
+      "C(D(E(G(a0)),G(E(a1))),D(E(G(a2)),G(E(a3))))"
+    ]
+  },
+  {
+    "name": "fairness-24",
+    "fairness": [
+      "C(D(E(G(a0)),G(E(a1))),D(E(G(a2)),G(E(a3))))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-25",
+    "fairness": [],
+    "properties": [
+      "D(C(E(G(a0)),G(s0)),C(G(E(a1)),G(s1)))"
+    ]
+  },
+  {
+    "name": "fairness-25",
+    "fairness": [
+      "D(C(E(G(a0)),G(s0)),C(G(E(a1)),G(s1)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-26",
+    "fairness": [],
+    "properties": [
+      "C(D(E(G(a0)),G(E(a1))),G(s0))"
+    ]
+  },
+  {
+    "name": "fairness-26",
+    "fairness": [
+      "C(D(E(G(a0)),G(E(a1))),G(s0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-27",
+    "fairness": [],
+    "properties": [
+      "G(a0)"
+    ]
+  },
+  {
+    "name": "fairness-27",
+    "fairness": [
+      "G(a0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-28",
+    "fairness": [],
+    "properties": [
+      "E(a0)"
+    ]
+  },
+  {
+    "name": "fairness-28",
+    "fairness": [
+      "E(a0)"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-29",
+    "fairness": [],
+    "properties": [
+      "G(E(a0))"
+    ]
+  },
+  {
+    "name": "fairness-29",
+    "fairness": [
+      "G(E(a0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-30",
+    "fairness": [],
+    "properties": [
+      "E(G(a0))"
+    ]
+  },
+  {
+    "name": "fairness-30",
+    "fairness": [
+      "E(G(a0))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-31",
+    "fairness": [],
+    "properties": [
+      "G(E(C(s0,a0)))"
+    ]
+  },
+  {
+    "name": "fairness-31",
+    "fairness": [
+      "G(E(C(s0,a0)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-32",
+    "fairness": [],
+    "properties": [
+      "E(G(C(s0,a0)))"
+    ]
+  },
+  {
+    "name": "fairness-32",
+    "fairness": [
+      "E(G(C(s0,a0)))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-33",
+    "fairness": [],
+    "properties": [
+      "G(E(G(E(s0))))"
+    ]
+  },
+  {
+    "name": "fairness-33",
+    "fairness": [
+      "G(E(G(E(s0))))"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-34",
+    "fairness": [],
+    "properties": [
+      "C()"
+    ]
+  },
+  {
+    "name": "fairness-34",
+    "fairness": [
+      "C()"
+    ],
+    "properties": []
+  },
+  {
+    "name": "property-35",
+    "fairness": [],
+    "properties": [
+      "D()"
+    ]
+  },
+  {
+    "name": "fairness-35",
+    "fairness": [
+      "D()"
+    ],
+    "properties": []
+  },
+  {
+    "name": "multiple-properties",
+    "fairness": [],
+    "properties": [
+      "G(E(s0))",
+      "G(E(s1))",
+      "E(G(s2))"
+    ]
+  },
+  {
+    "name": "multiple-fairness-properties",
+    "fairness": [
+      "D(E(G(a0)),G(E(a1)))",
+      "D(E(G(a2)),G(E(a3)))"
+    ],
+    "properties": [
+      "G(E(s0))",
+      "G(s1)"
+    ]
+  },
+  {
+    "name": "same-tableau-group",
+    "fairness": [
+      "D(E(G(a0)),G(E(a1)))"
+    ],
+    "properties": [
+      "E(s0)"
+    ]
+  },
+  {
+    "name": "different-tableau-groups",
+    "fairness": [
+      "G(E(a0))"
+    ],
+    "properties": [
+      "E(s0)",
+      "E(s0)"
+    ]
+  },
+  {
+    "name": "same-atoms-different-occurrences",
+    "fairness": [
+      "D(E(G(a0)),E(G(a0)))"
+    ],
+    "properties": [
+      "E(s0)"
+    ]
+  },
+  {
+    "name": "nested-recurrence-move",
+    "fairness": [
+      "C(D(G(E(s0)),s1),D(s2,G(E(s3))))"
+    ],
+    "properties": [
+      "F"
+    ]
+  },
+  {
+    "name": "state-ea-in-action-bin",
+    "fairness": [
+      "C(E(G(s0)),G(E(s1)),G(E(a0)),E(G(a1)))"
+    ],
+    "properties": []
+  }
+]

@@ -1,0 +1,9 @@
+tagged	C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))
+pushed	C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))
+simplified	C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))
+dnf	C(E(G(s1)),G(E(s2)),G(E(a3)),E(G(a4)))
+groups	1
+g0.temporal	null
+g0.p0	AEAction=0|AEState=0|EAAction=1,2
+g0.state	s2
+g0.action	a3;s1;a4
