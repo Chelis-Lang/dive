@@ -36,3 +36,6 @@ pub mod phase_l;
 
 /// Bounded concrete worker capture and actual null-tableau graph commits.
 pub mod phase_graph;
+
+/// Actual ordered safety/source callbacks and multiple null-tableau graph execution.
+pub mod phase_execution;

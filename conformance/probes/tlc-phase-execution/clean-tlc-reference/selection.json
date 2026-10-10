@@ -1,0 +1,10 @@
+[
+  "TemporalBeforeLaterSafety",
+  "EarlierSafetyBeforeTemporal",
+  "TemporalBeforeLaterEnumerator",
+  "TemporalInitBeforeInvariant",
+  "TemporalInitBeforeLaterRoots",
+  "TemporalInitBeforeStateInvariant",
+  "TemporalTableauInitBeforeInvariant",
+  "TemporalTableauInitBeforeLaterRoots"
+]

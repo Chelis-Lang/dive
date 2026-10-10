@@ -513,7 +513,7 @@ impl Session {
 
     pub(crate) fn restore<S: Keyed>(
         &mut self,
-        search: &mut Search<'_, S>,
+        search: &mut Search<'_, '_, S>,
     ) -> std::result::Result<Restored, Verdict> {
         let Some(snapshot) = self.imported.take() else {
             return Ok(None);
@@ -588,7 +588,7 @@ impl Session {
     }
     pub(crate) fn pause<S: Keyed>(
         &mut self,
-        search: &Search<'_, S>,
+        search: &Search<'_, '_, S>,
         frontier: &crate::frontier::Queue,
         level: u64,
     ) -> std::result::Result<(), Verdict> {
