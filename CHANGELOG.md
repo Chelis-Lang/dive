@@ -21,6 +21,16 @@ All notable changes to this project are documented here. The project will follow
   JSON reports frontier-only storage and explicit I/O/cleanup failures. Visited
   states, candidates, traces and temporal graphs remain outside this budget.
 
+- Native bounded sequential PlusCal normalization/generation for explicitly
+  labelled current C/P algorithms, with atomic sequential/parallel assignment
+  semantics and stage-separated errors. `dive translate`, `translate_file` and
+  `translate_source` return in-memory enclosing modules only after syntax/name/
+  level admission; translation never claims model proof. Unsupported naming,
+  processes/procedures/macros, expression scopes/layout, historical flags and
+  rewrite/checksum/map-format remain explicit. Complete pinned evidence retains
+  invalid reference artifacts, compares operator structure and validates finite
+  generated models and corrupted witness controls (issue #131).
+
 - Preserve TLC runtime string encounter order by using reported inline checking
   for reachable string/name constructors. Eagerly intern checker configuration
   values before assumptions, including the seed and fingerprint (issue #122).

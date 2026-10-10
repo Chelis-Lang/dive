@@ -382,3 +382,11 @@ F-019/F-020/F-021/F-022 remain partial/audit-required. This artifact does not
 implement phase-L retention/timing, strict graph/SCC execution, witness selection
 or attribution through execution; existing strict liveness refusals are intact.
 No historical corpus outcomes receive extra matches from these diagnostics.
+
+
+
+Bounded sequential PlusCal translation now has a separate
+[artifact and generated-model matrix](pluscal-translation.md); F-034 remains
+partial and audit-required. Source AST acceptance, generated token/operator
+structure, module validity and finite model/witness behavior are separately
+accounted. None certifies pending process/procedure/macro/option/rewrite/map cases.

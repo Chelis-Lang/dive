@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "control_count": 8,
+  "comparator_sha256": "cb3640193e525f1556d15cc568ddc6473ddaff4ebd626eac8a0189339d80f058",
+  "manifest_sha256": "2478ea3277ac3a4a77df7b958d93b3d417a01e7e7dde9e12d7d9bdda20e7c91f",
+  "native_sha256": "d422314dd2e67a09d606b3dc90f0041ee90f6a857485ae5bff3fdcd3480785b6",
+  "family_certified": false,
+  "rows": [
+    {
+      "control": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "changed-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "control": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "control": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    }
+  ]
+}
