@@ -5,6 +5,7 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import re
 import tempfile
 import unittest
 
@@ -69,7 +70,7 @@ class LedgerControls(unittest.TestCase):
     def test_table_and_census_must_track_json(self):
         for markdown in (
             self.markdown.replace("| implemented | 1 |", "| partial | 1 |", 1),
-            self.markdown.replace("seven have an implemented core", "eight have an implemented core", 1),
+            re.sub(r"(stable feature families\*\*: )[\w-]+", r"\g<1>999", self.markdown, count=1),
             self.markdown.replace("| F-001 |", "| F-999 |", 1),
         ):
             with self.subTest(markdown=markdown[:30]), self.assertRaises(ValueError):
