@@ -638,6 +638,83 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
+    /// Native transaction state is only present on admitted pure safety runs.
+    pub(crate) fn has_checkpoint(&self) -> bool {
+        self.checkpoint.is_some()
+    }
+
+    /// Pause before any work from this frontier, at a completed-level barrier.
+    pub(crate) fn checkpoint_boundary(
+        &mut self,
+        frontier: &crate::frontier::Queue,
+        level: u64,
+    ) -> Option<Verdict> {
+        let session = self.checkpoint.take()?;
+        if !session.pause_due(level) {
+            self.checkpoint = Some(session);
+            return None;
+        }
+        Some(match session.pause::<S>(self, frontier, level) {
+            Ok(()) => crate::checkpoint::failure(
+                "paused at a committed completed-level boundary; incomplete search, no model verdict",
+            ),
+            Err(verdict) => verdict,
+        })
+    }
+
+    /// Record the winning native key without repeating model evaluation.
+    pub(crate) fn checkpoint_discovery(
+        &mut self,
+        key: Vec<u8>,
+        state: &StateVals,
+        parent: StateId,
+        ordinal: u32,
+    ) -> Result<(), Verdict> {
+        if let Some(session) = self.checkpoint.as_mut() {
+            session.record_key(key, state, Some(parent), ordinal, self.ctx)?;
+        }
+        Ok(())
+    }
+
+    /// Begin or resume at the actual saved BFS level, reporting the pool started.
+    fn begin_levels(
+        &mut self,
+        next: crate::frontier::Queue,
+        opts: &CheckOptions,
+        workers: &mut Workers,
+        level: u64,
+    ) -> (Option<Stop>, Stats) {
+        if !next.is_empty()
+            && let Some(verdict) = self.checkpoint_boundary(&next, level)
+        {
+            workers.used = 1;
+            workers.sequential = true;
+            workers.reason = Some("native checkpoint paused before the worker pool started".into());
+            return (
+                Some(Stop {
+                    verdict,
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                self.stats(next.len() as u64),
+            );
+        }
+        if workers.sequential {
+            if level == 1 {
+                return self.inline_levels(next, self.m.settings.check_deadlock);
+            }
+            return self.inline_from(next, self.m.settings.check_deadlock, level);
+        }
+        let (stop, stats, used) = if level == 1 {
+            crate::parallel::levels(self, next, opts, workers.used)
+        } else {
+            crate::parallel::levels_from(self, next, opts, workers.used, level)
+        };
+        workers.used = used;
+        (stop, stats)
+    }
+
     /// One generated state, inline: TLC's `DoInitFunctor.addElement` (no
     /// parent) or `Worker.addElement`. Returns the verdict that stops the
     /// search, whether the successor ends the counterexample, and whether
@@ -942,25 +1019,16 @@ impl<S: Keyed> Search<'_, '_, S> {
         let m = self.m;
         let mut stop: Option<Stop> = None;
         while !next.is_empty() {
-            if let Some(session) = self.checkpoint.take() {
-                if session.pause_due(level) {
-                    let verdict = match session.pause::<S>(self, &next, level) {
-                        Ok(()) => crate::checkpoint::failure(
-                            "paused at a committed completed-level boundary; incomplete search, no model verdict",
-                        ),
-                        Err(verdict) => verdict,
-                    };
-                    return (
-                        Some(Stop {
-                            verdict,
-                            in_init: false,
-                            path: None,
-                            then: None,
-                        }),
-                        self.stats(next.len() as u64),
-                    );
-                }
-                self.checkpoint = Some(session);
+            if let Some(verdict) = self.checkpoint_boundary(&next, level) {
+                return (
+                    Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    }),
+                    self.stats(next.len() as u64),
+                );
             }
             let empty = next.empty_like();
             let current = std::mem::replace(&mut next, empty);
@@ -1406,7 +1474,7 @@ pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome 
     }
 }
 
-/// Restores or pauses the actual inline search at an ordered level boundary.
+/// Restores or pauses actual safety search at an ordered completed-level boundary.
 pub(crate) fn search_checkpoint(
     m: &Model,
     opts: &CheckOptions,
@@ -1482,14 +1550,6 @@ fn search_in<S: Keyed>(
 ) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
-    if checkpoint.is_some() {
-        workers.used = 1;
-        workers.sequential = true;
-        workers.reason = Some(
-            "native checkpoint first slice runs inline; parallel recovery is not implemented"
-                .into(),
-        );
-    }
     let tlc_order: Vec<usize> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
     let keyer = match S::keyer(opts, &tlc_order) {
         Ok(k) => k,
@@ -1568,6 +1628,11 @@ fn search_in<S: Keyed>(
                 }
             }
             if let Some(verdict) = failure {
+                workers.used = 1;
+                workers.sequential = true;
+                workers.reason = Some(
+                    "native checkpoint restoration stopped before the worker pool started".into(),
+                );
                 (
                     Some(Stop {
                         verdict,
@@ -1578,18 +1643,24 @@ fn search_in<S: Keyed>(
                     s.stats(0),
                 )
             } else {
-                s.inline_from(queue, m.settings.check_deadlock, level)
+                s.begin_levels(queue, opts, &mut workers, level)
             }
         }
-        Err(verdict) => (
-            Some(Stop {
-                verdict,
-                in_init: false,
-                path: None,
-                then: None,
-            }),
-            s.stats(0),
-        ),
+        Err(verdict) => {
+            workers.used = 1;
+            workers.sequential = true;
+            workers.reason =
+                Some("native checkpoint admission stopped before the worker pool started".into());
+            (
+                Some(Stop {
+                    verdict,
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                s.stats(0),
+            )
+        }
         Ok(None) => match s.initial_states(&mut next) {
             Some((stop, stats)) => {
                 drop(next);
@@ -1600,12 +1671,7 @@ fn search_in<S: Keyed>(
                 }
                 (Some(stop), stats)
             }
-            None if workers.sequential => s.inline_levels(next, m.settings.check_deadlock),
-            None => {
-                let (stop, stats, used) = crate::parallel::levels(&mut s, next, opts, workers.used);
-                workers.used = used;
-                (stop, stats)
-            }
+            None => s.begin_levels(next, opts, &mut workers, 1),
         },
     };
     let mut frontier = crate::frontier::evidence(&accounting);

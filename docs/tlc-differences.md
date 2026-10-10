@@ -332,7 +332,30 @@ lists its named exclusions and trusted-local, non-certificate contract. Recovery
 original totals is the named, opt-in `--checkpoint-counters retain` behavior,
 with no new default approved. Raw successful and failed recovery controls,
 source hashes and the minimal grid precede implementation. Java/native byte
-interoperability, broader runtime state and parallel recovery remain deferred.
+interoperability and broader runtime state remain deferred.
+
+**Parallel recovery continuation.** Admitted pure safety checkpoints can resume
+through the deterministic pool, at 1/4/8 workers or a different width from the
+pause. Completed-level barriers retain the logical discovery/predecessor/frontier
+order; native counter-limit stops match inline prefixes. Boundary-zero pauses
+report actual 1 before the pool starts. This removes a dive limitation, not a
+claim that TLC cannot recover parallel runs. Counter defaults, archive bounds
+and trust qualifications are unchanged; runtime/temporal/spill recovery remains
+refused. See the [separate parallel study](../conformance/probes/native-checkpoint-parallel/README.md).
+
+**Configured-key recovery (ADR 0038).** Pure supported VIEW and safety symmetry
+now recover through the same reduced-key path as live search. The primary
+minimal CpView/CpSymView/CpSymConcrete controls report 7/4/4, 5/3/3 and 3/3/3
+(generated/distinct/depth) on pinned TLC; ordinary dive agrees. CpSymConcrete
+keeps owner p2 in the actual witness even though the canonical key represents
+p1. Recovery preserves that concrete state. Equivalent keys do not make a changed
+Init or Next witness valid, and archives remain trusted local state, not proof.
+Both profiles/stores retain the TLC counter-reset default; Retain is still
+explicit.
+Public Rust context aliases resolving constant replacements are admitted by their
+actual definition IDs before binding. An effectful local alias refuses before
+output or an archive; structurally valid arena metadata alone is not a purity
+certificate. This is a native admission repair ([issue #164](https://github.com/Chelis-Lang/dive/issues/164)), not a TLC defect. See [raw controls](../conformance/probes/native-checkpoint-keys/README.md).
 
 ## D-008: Results are data, and diagnostics are built for people and agents
 

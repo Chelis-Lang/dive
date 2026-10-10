@@ -18,8 +18,8 @@ and [predecessor storage](../predecessor-storage.md) for accounting and cleanup.
 Native checkpoints are a separate bounded pure safety feature:
 
 ```sh
-dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --checkpoint counter.cp --checkpoint-after-levels 2 --output json
-dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --recover counter.cp --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.cp --checkpoint-after-levels 2 --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.cp --output json
 ```
 
 The pure example pauses after two completed levels with three discovered states
@@ -28,17 +28,43 @@ An unused temporal definition can also trigger the conservative purity refusal;
 the original `Counter.tla` checkpoint attempt is retained in the example observations.
 The pause returns an incomplete resource-stop result; it is not a safety proof.
 A committed archive restores saved discoveries, predecessor records and the
-ordered frontier instead of replaying Init to recreate them. Actual execution
-is inline even when a wider width was requested. Counter reset follows TLC by
+ordered frontier instead of replaying Init to recreate them. Pure admitted models run the level engine at the requested worker width;
+`--sequential` selects inline execution. A boundary-zero pause stops after Init
+before starting the pool and honestly reports one actual worker. Counter reset follows TLC by
 default; `--checkpoint-counters retain` preserves uninterrupted counts and is an
 explicit mixed setting.
 
 Current archives are trusted-local native files, not Java-interoperable archives
 or independently checked model certificates. Source/configuration/profile/model
-identity and structural bounds are checked. The current pure slice refuses
-VIEW, symmetry, liveness, effects, unsupported deferred values and transient
-storage budgets; later key-interaction work is pending until its guide and
-controls land. Filesystem/recovery failures never report success.
+identity and structural bounds are checked. Pure supported VIEW and safety symmetry
+are admitted: recovery recomputes the configured reduced keys while preserving
+original concrete discoveries and witnesses. Liveness, runtime effects/names or
+checker reads, unsupported deferred values, transient storage budgets remain explicit refusals. Filesystem/recovery failures never report success.
 
 See [native checkpoint details](../native-checkpoint.md) for exact limits,
 no-overwrite commits, default recovery settings, API requests and evidence.
+
+
+For a runnable VIEW and symmetry example, see [configured-key recovery](../native-checkpoint.md).
+`CpSymView` pauses with 4 generated states, 2 distinct states and one queued state,
+then resumes to the same concrete invariant violation as uninterrupted checking.
+With `--checkpoint-counters retain`, its final count is 5 generated states; TLC's
+default reset reports 3 generated states and 2 initial states instead. Both reach
+3 distinct states at depth 3. Positive completed-level pauses and continued
+recovery report the requested pool width. Pause at four workers and recover at
+eight if useful; the deterministic result and saved starting level are unchanged.
+Pool width is execution metadata, not a speedup guarantee.
+
+Reduced-key equality is neither an Init/Next proof nor an archive authenticity
+check. Use trusted local archives and independently validate returned concrete
+witnesses. A valid permutation declaration does not prove that the specification
+is symmetric. Effectful configuration aliases are refused before binding output
+or archive creation, including public Rust IR; pure aliases remain supported.
+The [source and raw study](../../conformance/probes/native-checkpoint-keys/README.md)
+separates historical evidence from the current integrated implementation.
+
+The [current integrated verification](../native-checkpoint.md#current-integrated-verification)
+records worker-width, counter-prefix and independently checked concrete-witness
+controls on the shipped feature combination. These controls certify their
+declared fields; they do not certify temporal recovery or a complete archive
+feature family.
