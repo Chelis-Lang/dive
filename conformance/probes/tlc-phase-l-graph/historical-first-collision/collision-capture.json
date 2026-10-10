@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic forced-key actual LiveCheck written/unwritten insertion fields; no fingerprint, ModelChecker or SCC proof",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Isolate actual LiveCheck unwritten duplicate transitions and subsequent written-target suppression with forced collision keys; no FP conformance claim",
+  "timestamp": "2026-10-10T15:53:44.488866+00:00",
+  "source_sha256": {
+    "SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
+    "ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
+    "GraphProbe.java": "f17e16a9959391b63ab7da27497b622b2727c9b88e3f104c2b0ec02484b50633",
+    "CollisionProbe.java": "8faf69eb6537532e6884781c4fed676a5e8f2a0010ac8d6c95109b7b02af2d23",
+    "capture-collision.py": "2739e9d44cc149da949f37d0dc2bf646e50ee4926c118543076d4e452eab1f7a"
+  },
+  "selection_sha256": "47c6945b49722c7652fcb1ecd7d022d62fba7ba55d59f29f190438391582913e",
+  "compiler": {
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "66bcca1c459c184393ca1ea31a078957c7f00ee39c306aba62c0f924af7bc171"
+  },
+  "rows": [
+    {
+      "name": "written-unwritten-collision",
+      "model_source_sha256": {
+        "models/PhaseActionValid/PhaseActionValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionValid/PhaseActionValid.tla": "8ffcba25112f53db4935d6f81b53d7baf3d9ef3e08d91b2d0c5e4124bacc9199"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b7f51515a1ef031d678fd32956b4562107bdfb0bc8e141695f4ec1b3d53630c0"
+    }
+  ]
+}

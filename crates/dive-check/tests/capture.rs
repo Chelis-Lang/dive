@@ -573,3 +573,229 @@ Inv == x >= 14 \/ s = "unset" \/ s = ToString(x)
     assert_eq!((p.workers.used, p.workers.sequential), (1, true));
     assert_eq!(observable(&r), observable(&p));
 }
+
+#[test]
+fn concrete_parallel_capture_retains_equal_nonrepresentative_values_and_real_width() {
+    let source = "---- MODULE Concrete ----\nEXTENDS Naturals\nVARIABLE x\nInit == x = <<1>>\nNext == x' = [i \\in 1..1 |-> i]\n====\n";
+    for width in [1, 3, 4, 8] {
+        for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            let opts = CheckOptions {
+                workers: width,
+                store,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let m = model(source, "INIT Init\nNEXT Next\n", &opts);
+            let Exploration::Complete(c) =
+                capture::explore_concrete_parallel_with_evidence(&m, &opts, Limits::default())
+                    .expect("worker evidence")
+            else {
+                panic!("finite model must complete")
+            };
+            assert_eq!(c.workers.used, width);
+            assert_eq!(c.workers.requested, width);
+            assert!(!c.workers.sequential);
+            assert_eq!((c.stats.generated, c.stats.distinct), (2, 1));
+            let Value::Fcn(stored) = c.graph.states[0][0].as_ref().expect("stored") else {
+                panic!("tuple")
+            };
+            let Value::Fcn(actual) = c.graph.concrete[0][0].state[0].as_ref().expect("actual")
+            else {
+                panic!("function")
+            };
+            assert!(stored.is_tuple_literal());
+            assert!(!actual.is_tuple_literal());
+            assert_eq!(c.graph.concrete[0][0].ordinal, 0);
+            assert_eq!(c.graph.edges[0].len(), 2);
+        }
+    }
+}
+
+#[test]
+fn concrete_parallel_source_rows_equal_inline_across_scheduling_and_fixed_bounds() {
+    let source = "---- MODULE Concrete ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..7\nNext == x' = (x+1)%8 \\/ x' = x \\/ x' = (x+1)%8\nKeep == x < 6\nChange == x' # 4\n====\n";
+    let config =
+        "INIT Init\nNEXT Next\nCONSTRAINT Keep\nACTION_CONSTRAINT Change\nCHECK_DEADLOCK FALSE\n";
+    let baseline_opts = CheckOptions::tlc(0, 0);
+    let baseline = complete(&model(source, config, &baseline_opts), &baseline_opts);
+    for width in [1, 3, 4, 8] {
+        for chaos in [None, Some(7), Some(19)] {
+            let opts = CheckOptions {
+                workers: width,
+                chaos,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let m = model(source, config, &opts);
+            let Exploration::Complete(c) =
+                capture::explore_concrete_parallel_with_evidence(&m, &opts, Limits::default())
+                    .expect("worker evidence")
+            else {
+                panic!("finite model")
+            };
+            assert_eq!(c.graph.states, baseline.graph.states);
+            assert_eq!(c.graph.roots, baseline.graph.roots);
+            assert_eq!(c.graph.edges, baseline.graph.edges);
+            assert_eq!(c.stats, baseline.stats);
+            for (row, want) in c.graph.concrete.iter().zip(&baseline.graph.concrete) {
+                assert_eq!(row.len(), want.len());
+                for (got, want) in row.iter().zip(want) {
+                    assert_eq!(got.state, want.state);
+                    assert_eq!(got.ordinal, want.ordinal);
+                    assert_eq!(got.label, want.label);
+                }
+            }
+        }
+    }
+    for edges in 0..24 {
+        let mut outcomes = Vec::new();
+        for width in [1, 3, 4, 8] {
+            let opts = CheckOptions {
+                workers: width,
+                ..CheckOptions::tlc(0, 0)
+            };
+            let m = model(source, config, &opts);
+            let result = capture::explore_concrete_parallel_with_evidence(
+                &m,
+                &opts,
+                Limits {
+                    edges,
+                    ..Limits::default()
+                },
+            )
+            .expect("evidence");
+            match result {
+                Exploration::Stopped(r) => {
+                    assert!(matches!(r.verdict, Verdict::ResourceLimit { .. }));
+                    outcomes.push(false);
+                }
+                Exploration::Complete(c) => {
+                    assert_eq!(c.graph.edges, baseline.graph.edges);
+                    outcomes.push(true);
+                }
+            }
+        }
+        assert!(outcomes.windows(2).all(|p| p[0] == p[1]));
+    }
+}
+
+#[test]
+fn actual_captured_scopes_are_proved_before_any_pool_evaluation() {
+    let src = r"---- MODULE Captured ----
+EXTENDS Naturals, TLC
+VARIABLE x
+Init == x = 0
+Next == UNCHANGED x
+Q(P(_)) == P(x)
+R(y) == y
+====
+";
+    for width in [1, 4, 8] {
+        let opts = CheckOptions {
+            workers: width,
+            ..CheckOptions::tlc(0, 7)
+        };
+        let mut m = model(src, "INIT Init\nNEXT Next\n", &opts);
+        let d = m.ir.root_def("Q").expect("Q");
+        let sc = m
+            .evaluator
+            .scope_apply(
+                &m.evaluator.scope(d).expect("valid owned scope"),
+                d,
+                &[dive_ir::Arg::Op {
+                    op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
+                    level: dive_ir::Level::Constant,
+                }],
+            )
+            .expect("scope");
+        m.invariants.push(dive_model::Named {
+            name: "hidden PrintT".into(),
+            pred: dive_model::Pred::new(m.ir.def(d).body, sc),
+        });
+        let refusal = |m: &dive_model::Model| {
+            let r = capture::explore_concrete_parallel_with_evidence(m, &opts, Limits::default())
+                .expect("no panic");
+            assert!(
+                matches!(r,Exploration::Stopped(ref r) if matches!(r.verdict,Verdict::Unsupported { .. }) && r.stats.is_none() && r.workers.used==0)
+            );
+            assert!(
+                m.evaluator.take_output().is_empty(),
+                "admission evaluated hidden PrintT"
+            );
+        };
+        refusal(&m);
+        let p = m.invariants.remove(0).pred;
+        m.actions = vec![
+            m.evaluator
+                .predicate_in(&p.scope, p.expr, dive_ir::actions::ActionName::Def(d), 1)
+                .expect("valid owned action"),
+        ];
+        refusal(&m);
+        m.actions.clear();
+        m.invariants.push(dive_model::Named {
+            name: "bad ID".into(),
+            pred: dive_model::Pred::new(
+                dive_ir::ExprId(u32::MAX),
+                m.evaluator.scope(d).expect("valid owned scope"),
+            ),
+        });
+        refusal(&m);
+        let r = m.ir.root_def("R").expect("R");
+        let sc = m.evaluator.scope_apply(
+            &m.evaluator.scope(r).expect("valid owned scope"),
+            r,
+            &[dive_ir::Arg::Expr {
+                expr: dive_ir::ExprId(u32::MAX),
+                pass: dive_ir::Pass::Lazy,
+            }],
+        );
+        assert!(
+            sc.is_err(),
+            "malformed lazy expression refuses during context admission"
+        );
+        assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+        refusal(&m);
+    }
+}
+
+#[test]
+fn speculative_capture_refuses_runtime_name_creation_before_workers() {
+    for width in [1, 4, 8, 65] {
+        let opts = CheckOptions {
+            workers: width,
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            "---- MODULE Names ----\nEXTENDS TLC\nVARIABLE x\nInit == x = FALSE\nNext == x' = ToString(x)\n====\n",
+            "INIT Init\nNEXT Next\n",
+            &opts,
+        );
+        let r = capture::explore_concrete_parallel_with_evidence(&m, &opts, Limits::default())
+            .expect("typed stop");
+        assert!(
+            matches!(r,Exploration::Stopped(ref r) if matches!(r.verdict,Verdict::Unsupported {..}|Verdict::ResourceLimit {..}) && r.workers.used==0 && r.stats.is_none())
+        );
+        assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+    }
+}
+
+#[test]
+fn caller_replaced_ir_or_names_refuses_before_walk_setup_or_workers() {
+    let opts = CheckOptions {
+        workers: 4,
+        ..CheckOptions::tlc(0, 0)
+    };
+    let source = "---- MODULE Owned ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\n====\n";
+    for replace_ir in [true, false] {
+        let mut m = model(source, "INIT Init\nNEXT Next\n", &opts);
+        if replace_ir {
+            m.ir = Arc::new(m.ir.as_ref().clone());
+        } else {
+            m.names = Arc::new(dive_value::Interner::new());
+        }
+        let r = capture::explore_concrete_parallel_with_evidence(&m, &opts, Limits::default())
+            .expect("typed stop");
+        assert!(
+            matches!(r,Exploration::Stopped(ref r) if matches!(&r.verdict,Verdict::Unsupported {feature} if feature.contains("foreign IR or name table")) && r.workers.used==0 && r.stats.is_none())
+        );
+        assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
+    }
+}

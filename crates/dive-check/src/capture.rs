@@ -4,6 +4,8 @@
 //! capture path uses the shared ordered safety engines. It retains every accepted
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
+mod pure;
+
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -56,6 +58,18 @@ pub struct Edge {
     pub label: Option<String>,
 }
 
+/// An accepted generated successor, before stored representative replacement.
+/// This excludes the engine-added stutter; phase-L collection adds that itself.
+#[derive(Clone, Debug)]
+pub struct ConcreteSuccessor {
+    /// Original concrete IR-ordered values, including already seen states.
+    pub state: StateVals,
+    /// Original source-wide generation ordinal.
+    pub ordinal: u64,
+    /// Original action label.
+    pub label: String,
+}
+
 /// A fully explored behavior graph in the engine's discovery order.
 /// States use the bound model's IR variable order. Fingerprint-mode identity
 /// has the same collision qualifications as the safety engine.
@@ -65,6 +79,10 @@ pub struct BehaviorGraph {
     pub states: Vec<StateVals>,
     /// Outgoing edges in generator order, then the implicit stutter.
     pub edges: Vec<Vec<Edge>>,
+    /// Accepted original generated successors in source-wide generator order.
+    /// Rows include duplicates and seen successors, and exclude implicit stutter.
+    /// Their concrete values must not be reconstructed from `states[edge.to]`.
+    pub concrete: Vec<Vec<ConcreteSuccessor>>,
     /// Distinct in-model initial states in discovery order.
     pub roots: Vec<usize>,
 }
@@ -105,6 +123,7 @@ pub(crate) struct Collector<K> {
     graph: BehaviorGraph,
     limits: Limits,
     count: usize,
+    concrete_pool: bool,
 }
 
 impl<K: Ord> Collector<K> {
@@ -114,11 +133,22 @@ impl<K: Ord> Collector<K> {
             graph: BehaviorGraph {
                 states: vec![],
                 edges: vec![],
+                concrete: vec![],
                 roots: vec![],
             },
             limits,
             count: 0,
+            concrete_pool: false,
         }
+    }
+
+    pub(crate) fn with_concrete_pool(mut self, concrete_pool: bool) -> Self {
+        self.concrete_pool = concrete_pool;
+        self
+    }
+
+    pub(crate) fn concrete_pool(&self) -> bool {
+        self.concrete_pool
     }
 
     pub(crate) fn limits(&self) -> Limits {
@@ -151,6 +181,7 @@ impl<K: Ord> Collector<K> {
             self.ids.insert(key, id);
             self.graph.states.push(vals);
             self.graph.edges.push(vec![]);
+            self.graph.concrete.push(vec![]);
             Ok(id)
         } else {
             self.ids
@@ -175,6 +206,24 @@ impl<K: Ord> Collector<K> {
         Ok(())
     }
 
+    /// Derive per-source speculative retention quotas independent of worker
+    /// width. Reserve every implicit stutter before starting the worker pool.
+    pub(crate) fn quotas(&self, sources: usize, generated: u64) -> Result<(usize, u64), Verdict> {
+        let edges = self
+            .limits
+            .edges
+            .checked_sub(self.count)
+            .and_then(|n| n.checked_sub(sources))
+            .ok_or_else(|| limit("implicit stutters"))?;
+        let sources_u64 = u64::try_from(sources).map_err(|_| limit("source count"))?;
+        let remaining = self
+            .limits
+            .generated
+            .checked_sub(generated)
+            .ok_or_else(|| limit("generated states"))?;
+        Ok((edges / sources, remaining / sources_u64))
+    }
+
     pub(crate) fn allow_generated(&self, n: u64) -> Result<(), Verdict> {
         if n > self.limits.generated {
             Err(limit("generated states"))
@@ -191,16 +240,42 @@ impl<K: Ord> Collector<K> {
         parent: Option<u64>,
         succ: &Successor<'_>,
     ) -> Result<(), Verdict> {
+        self.record_fields(key, vals, id, parent, succ.ordinal, succ.action.label())
+    }
+
+    pub(crate) fn record_fields(
+        &mut self,
+        key: K,
+        vals: StateVals,
+        id: Option<u64>,
+        parent: Option<u64>,
+        ordinal: u64,
+        label: &str,
+    ) -> Result<(), Verdict> {
+        let concrete = vals.clone();
         let target = self.state(key, vals, id)?;
         if let Some(from) = parent {
             self.edge(
                 from,
                 Edge {
                     to: target,
-                    ordinal: Some(succ.ordinal),
-                    label: Some(succ.action.label().to_owned()),
+                    ordinal: Some(ordinal),
+                    label: Some(label.to_owned()),
                 },
             )?;
+            // edge() charges the retained-entry bound before this clone is
+            // retained. The original source value survives identity deduplication.
+            let from = usize::try_from(from).map_err(|_| bug("source exceeds address space"))?;
+            let row = self
+                .graph
+                .concrete
+                .get_mut(from)
+                .ok_or_else(|| bug("concrete edge source was not discovered"))?;
+            row.push(ConcreteSuccessor {
+                state: concrete,
+                ordinal,
+                label: label.to_owned(),
+            });
         } else {
             self.root(target);
         }
@@ -291,8 +366,72 @@ pub fn explore_with_evidence(
     limits: Limits,
 ) -> Result<Exploration, String> {
     let started = std::time::Instant::now();
-    let run = || explore_inner(model, opts, limits);
+    let run = || explore_inner(model, opts, limits, false);
     let mut result = run_on_thread(run)?;
+    if let Exploration::Stopped(stop) = &mut result {
+        stop.elapsed = started.elapsed();
+    }
+    Ok(result)
+}
+
+/// Capture accepted concrete successors through the actual deterministic
+/// safety worker pool, preserving original seen-state values before replacement.
+/// This supplies exploration evidence only; it evaluates no temporal predicates.
+///
+/// Per-level speculative quotas divide the remaining entry/generation bounds by
+/// source count, independently of worker width. These conservative named bounds
+/// may refuse a skewed level that fits the inline capture's global budget.
+/// VIEW, symmetry, randomness and checker-state reads remain named refusals.
+/// The staged pool has a fixed structural maximum of 64 workers.
+///
+/// Captured operator/function/lazy-set values are refused by a conservative
+/// no-evaluation scoped proof; no provider is forced to guess purity.
+///
+/// ```
+/// use std::sync::Arc;
+/// use dive_check::{capture, CheckOptions};
+/// let source = "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\nNext == x' = x\n====\n";
+/// let a = dive_sema::analyze_source("M.tla", source, &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+/// let cfg = dive_config::parse("INIT Init\nNEXT Next\n").into_config().expect("config");
+/// let m = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+/// let options = CheckOptions { workers: 4, ..CheckOptions::tlc(0, 0) };
+/// let result = capture::explore_concrete_parallel_with_evidence(&m, &options, Default::default())?;
+/// let capture::Exploration::Complete(c) = result else { return Err("incomplete".into()) };
+/// assert_eq!(c.workers.used, 4);
+/// assert_eq!(c.graph.concrete[0].len(), 1);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
+///
+/// # Errors
+/// A worker or exploration thread fails and loses execution evidence.
+pub fn explore_concrete_parallel_with_evidence(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+) -> Result<Exploration, String> {
+    if opts.workers > 64 {
+        let mut result = crate::bare(
+            limit("concrete pool worker width exceeds 64"),
+            opts,
+            &model.ir,
+        );
+        result.workers.requested = opts.workers;
+        return Ok(Exploration::Stopped(Box::new(result)));
+    }
+    if opts.workers == 0 {
+        let mut result = crate::bare(
+            Verdict::Unsupported {
+                feature: "concrete parallel capture worker width is zero".into(),
+            },
+            opts,
+            &model.ir,
+        );
+        result.workers.requested = 0;
+        return Ok(Exploration::Stopped(Box::new(result)));
+    }
+    let started = std::time::Instant::now();
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true))?;
     if let Exploration::Stopped(stop) = &mut result {
         stop.elapsed = started.elapsed();
     }
@@ -313,13 +452,26 @@ fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration
     })
 }
 
-fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Exploration {
+fn explore_inner(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    parallel: bool,
+) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
         return refuse("frontier spill with behavior graph capture is not yet certified".into());
     }
     if opts.predecessor_memory_bytes.is_some() || opts.predecessor_directory.is_some() {
         return refuse("predecessor spill with behavior graph capture is not implemented".into());
+    }
+    if parallel
+        && model
+            .evaluator
+            .validate_model_context(&model.ir, &model.names)
+            .is_err()
+    {
+        return refuse("concrete pool capture foreign IR or name table".into());
     }
     if model.evaluator.options() != &opts.eval {
         return refuse("graph capture evaluator profile mismatch".into());
@@ -341,6 +493,12 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
         .find(|u| u.kind != UnsupportedKind::TemporalProperty)
     {
         return refuse(u.feature.clone());
+    }
+    if parallel && !pure::model(model) {
+        return refuse(
+            "concrete pool capture effects, runtime names, opaque captures or invalid context"
+                .into(),
+        );
     }
     let host = Arc::new(engine::run_host(opts));
     model
@@ -366,7 +524,11 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
             return Exploration::Stopped(Box::new(result));
         }
     }
-    let outcome = engine::search_graph(model, opts, &host, limits);
+    let outcome = if parallel {
+        engine::search_graph_parallel(model, opts, &host, limits)
+    } else {
+        engine::search_graph(model, opts, &host, limits)
+    };
     result.verdict = outcome.verdict;
     result.stats = outcome.stats;
     result.tlc_prints_stats = outcome.tlc_prints_stats;

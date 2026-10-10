@@ -328,3 +328,12 @@ and finite-membership process storage/action semantics and the distinct process
 `-label` default. Multiple blocks/fairness/unproved names remain named refusals.
 Constant-ID `self` references that leave the primary output SANY-invalid are
 retained without artifact credit; no alternate mathematical default is adopted.
+
+D-013's next staged graph path now consumes concrete source receipts into actual
+native graph nodes for one null-tableau OOS. The safety pool retains original
+successor values and reports its true execution width; graph/predicate commits
+run inline in logical source order. Twelve complete pinned graph projections
+match fields at widths 1/3/4/8; all fifteen selected rows and clean TLC outcomes
+are preserved in `conformance/probes/tlc-phase-l-graph/`. Resource and opaque-scope
+refusals are explicit. This is graph evidence, not strict temporal verdict or
+TLC stopping/SCC/lasso/scheduling credit; #140 remains open.

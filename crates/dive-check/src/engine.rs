@@ -1298,8 +1298,8 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
 /// Runs the search over `m` (assumptions already checked).
 pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false),
     }
 }
 
@@ -1311,8 +1311,21 @@ pub(crate) fn search_graph(
     limits: crate::capture::Limits,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits)),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits)),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), false),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false),
+    }
+}
+
+/// Capture accepted concrete edges through the selected actual safety pool.
+pub(crate) fn search_graph_parallel(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    limits: crate::capture::Limits,
+) -> Outcome {
+    match opts.store {
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true),
     }
 }
 
@@ -1325,6 +1338,7 @@ fn search_in<S: Keyed>(
     opts: &CheckOptions,
     host: &RunHost,
     capture: Option<crate::capture::Limits>,
+    concrete_pool: bool,
 ) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
@@ -1382,7 +1396,7 @@ fn search_in<S: Keyed>(
         generated: 0,
         depth: 0,
         initial_generated: 0,
-        capture: capture.map(Collector::new),
+        capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
