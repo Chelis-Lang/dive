@@ -1,0 +1,11 @@
+{
+  "native_parent": "39caede6348016586221726268fb62a2188d094c",
+  "scope": "two pre-fix native runtime control failures; initial test compilation failure has no oracle credit",
+  "sha256": {
+    "temporal.rs.gz": "6f21773c2271ca125ec6f4929f77af1af3bc8dda7486aa6ec368625452037322",
+    "dive-temporal-atom-order-before.log.gz": "bb3a88129dea898a75eaf17e9af4c2312abd5cf106d5c3cd2b5912755363418f",
+    "dive-temporal-atom-order-before-runtime.log.gz": "bb98289e04ecdee3c3beed113f6d7ecba98aeda47c5841b9214507430fc684a6",
+    "plan.rs.gz": "0c861ab9f7ea72998207a91df4cb5a557d2aa3bb67d9183b6d845120f335b30b",
+    "dive-temporal-atom-order-before-word.log.gz": "3a48b4811480bd2010ee8982928c9853c2bb8b327e96527aecf296cd78095706"
+  }
+}

@@ -53,26 +53,17 @@ impl PredicateAtom {
     /// Missing state, nonboolean predicate or a core evaluation error.
     pub fn evaluate(&self, model: &Model, st: &St) -> Result<bool, EvalError> {
         let ev = &model.evaluator;
-        ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
+        ev.validate_model_context(&model.ir, &model.names)?;
+        ev.validate_predicate(&self.pred.scope, self.pred.expr)?;
         if let AtomTest::Enabled { sub } = self.test {
+            ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
             let StateRef::Vals(current) = &st.s0 else {
                 return Err(EvalError::general("ENABLED atom requires a current state"));
             };
             return ev.enabled_scoped(&self.pred.scope, self.pred.expr, sub, current.clone());
         }
-        let holds = match model.eval(&self.pred, st)? {
-            Value::Bool(b) => b,
-            v => {
-                return Err(EvalError::general(format!(
-                    "temporal predicate is {}, not boolean",
-                    v.kind_name()
-                )));
-            }
-        };
-        if !holds {
-            return Ok(false);
-        }
         if let AtomTest::Nonstuttering { sub } = self.test {
+            ev.validate_predicate(&self.pred.scope, sub)?;
             let (StateRef::Vals(before), StateRef::Vals(after)) = (&st.s0, &st.s1) else {
                 return Err(EvalError::general(
                     "non-stuttering atom requires two states",
@@ -92,8 +83,21 @@ impl PredicateAtom {
             )?;
             let a = ev.eval_scoped(&self.pred.scope, sub, &St::state(before.clone()))?;
             let b = ev.eval_scoped(&self.pred.scope, sub, &St::state(after.clone()))?;
-            return ev.equal_values(&a, &b).map(|same| !same);
+            if ev.equal_values(&a, &b)? {
+                return Ok(false);
+            }
         }
+        ev.check_finite_bindings(&self.pred.scope, self.pred.expr, st, self.binding_limit)?;
+        let holds = match model.eval(&self.pred, st)? {
+            Value::Bool(b) => b,
+            v => {
+                return Err(EvalError::general(format!(
+                    "temporal predicate is {}, not boolean",
+                    v.kind_name()
+                )));
+            }
+        };
+
         Ok(holds)
     }
 }

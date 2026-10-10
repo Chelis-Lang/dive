@@ -199,6 +199,14 @@ impl Word<'_> {
                 return self.eval(self.model.ir.def(d).body, &sc, depth + 1);
             }
         }
+        if let Expr::StepAngle { action, sub } | Expr::StepBox { action, sub } = &node.expr {
+            return self.temporal_action(
+                *action,
+                *sub,
+                scope,
+                matches!(node.expr, Expr::StepBox { .. }),
+            );
+        }
         if self.scoped_level(expr, scope, depth, &mut 0)? <= Level::Action
             && !node
                 .effects
@@ -325,41 +333,8 @@ impl Word<'_> {
         scope: &Scope,
         strong: bool,
     ) -> Result<Vec<bool>, TemporalError> {
-        self.check_atom_context(sub, scope)?;
-        if self.scoped_level(sub, scope, 0, &mut 0)? > Level::State {
-            return Err(TemporalError::Unsupported(
-                "action-level fairness subscript".into(),
-            ));
-        }
-        let occurrences = self.atom(action, scope)?;
-        let ev = &self.model.evaluator;
-        let mut recurrent = false;
-        for (i, occurs) in occurrences.into_iter().enumerate() {
-            if !occurs {
-                continue;
-            }
-            let next = if i + 1 == self.states.len() {
-                self.back_to
-            } else {
-                i + 1
-            };
-            let read = |at: usize| {
-                ev.eval_scoped(scope, sub, &St::state(self.states[at].clone()))
-                    .map_err(|e| {
-                        TemporalError::Unsupported(format!(
-                            "fairness subscript at position {at}: {e}"
-                        ))
-                    })
-            };
-            let before = read(i)?;
-            let after = read(next)?;
-            let same = ev.equal_values(&before, &after).map_err(|e| {
-                TemporalError::Unsupported(format!(
-                    "fairness subscript comparison at position {i}: {e}"
-                ))
-            })?;
-            recurrent |= i >= self.back_to && !same;
-        }
+        let occurrences = self.temporal_action(action, sub, scope, false)?;
+        let recurrent = occurrences[self.back_to..].iter().any(|occurs| *occurs);
         if recurrent {
             Ok(vec![true; self.states.len()])
         } else {
@@ -382,6 +357,70 @@ impl Word<'_> {
             };
             Ok(vec![holds; self.states.len()])
         }
+    }
+
+    // Independent LNAction semantics: a subscript stutter determines the
+    // value before the body is evaluated, including the actual closing edge.
+    fn temporal_action(
+        &self,
+        action: ExprId,
+        sub: ExprId,
+        scope: &Scope,
+        boxed: bool,
+    ) -> Result<Vec<bool>, TemporalError> {
+        self.check_atom_context(action, scope)?;
+        self.check_atom_context(sub, scope)?;
+        if self.scoped_level(sub, scope, 0, &mut 0)? > Level::State {
+            return Err(TemporalError::Unsupported(
+                "action-level temporal subscript".into(),
+            ));
+        }
+        let ev = &self.model.evaluator;
+        let mut out = Vec::with_capacity(self.states.len());
+        for (i, state) in self.states.iter().enumerate() {
+            let next = if i + 1 == self.states.len() {
+                self.back_to
+            } else {
+                i + 1
+            };
+            let read = |at: usize| {
+                let st = St::state(self.states[at].clone());
+                ev.check_finite_bindings(scope, sub, &st, 4096)?;
+                ev.eval_scoped(scope, sub, &st)
+            };
+            let same = (|| {
+                let before = read(i)?;
+                let after = read(next)?;
+                ev.equal_values(&before, &after)
+            })()
+            .map_err(|e: dive_eval::EvalError| {
+                TemporalError::Unsupported(format!("temporal subscript at position {i}: {e}"))
+            })?;
+            if same {
+                out.push(boxed);
+                continue;
+            }
+            let st = St::action(state.clone(), self.states[next].clone());
+            ev.check_finite_bindings(scope, action, &st, 4096)
+                .map_err(|e| {
+                    TemporalError::Unsupported(format!("temporal action at position {i}: {e}"))
+                })?;
+            match ev.eval_scoped(scope, action, &st) {
+                Ok(Value::Bool(b)) => out.push(b),
+                Ok(v) => {
+                    return Err(TemporalError::Invalid(format!(
+                        "temporal action at position {i} is {}, not boolean",
+                        v.kind_name()
+                    )));
+                }
+                Err(e) => {
+                    return Err(TemporalError::Unsupported(format!(
+                        "temporal action at position {i}: {e}"
+                    )));
+                }
+            }
+        }
+        Ok(out)
     }
 
     fn atom(&self, expr: ExprId, scope: &Scope) -> Result<Vec<bool>, TemporalError> {
