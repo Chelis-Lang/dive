@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "parent": "03f11881b",
+  "tests": 876,
+  "skipped": 0,
+  "python_controls": 20,
+  "build_related_input_count": 609,
+  "scope": "first source-only shared-tag repair; final-mode temporal IF admission remains unchanged/refused; no new model/family/periodic claim",
+  "files": {
+    "build-inputs.json": "dc7c6c970f311819711cda2deaf8d5b54876e8e41c3a0112e4f7fc0ad0a790d4",
+    "build-related-source.tar.gz": "96848b6cf9f2dc22fcdfdce10f2c6a833c44acc9f3c3f8810f08ef9910022bd6",
+    "workspace-gate.log": "72a3181640f55d5f19e130e3f23966daedd9397b679d110912d80fb980da59cb",
+    "focused-controls.log": "5ed93e39ac2bf8a35286e140f269a7035f1b5aa0afdc067155ab7fc2ddcad60c",
+    "cli-build.log": "d6ab670f52aa3d30819296247411437dde648e2ead2e0d847f3cf92c5288fa2f",
+    "cm1.log": "a7dea82f10563cf85d560ded07e12517c7be3dcbcdedb6b0ef67a1187c01b807",
+    "validation-smoke.log": "2a93b743b0b256f88990d3cdb2ed28b1ffa62109204ff844d51ae6cf67918d5d"
+  },
+  "executables": {
+    "dive": {
+      "sha256": "ef8deee92fa50c1df4f27ec15c303959fd996710a0ed7a65fa836bfb768fee20",
+      "profile": "current debug, debug information disabled"
+    },
+    "dive_conformance": {
+      "sha256": "58e54e2e428b534fcdf6632786525465189f7f7be056ce66d38bbeb37bab2370",
+      "profile": "unchanged baseline release",
+      "source_commit": "41c7c8b8a971b603919c925d72fffb23df814747",
+      "qualification": "Unchanged comparer and independent-validator source; not a fresh source-level release build/performance measurement."
+    }
+  },
+  "required_conformance": {
+    "workers": [
+      1,
+      4,
+      8
+    ],
+    "cm1": {
+      "selected": 21,
+      "agreed": 21,
+      "seconds": 144
+    },
+    "validation_smoke": {
+      "selected": 16,
+      "agreed": 16,
+      "seconds": 1
+    },
+    "source_and_executables_verified_after": true
+  }
+}

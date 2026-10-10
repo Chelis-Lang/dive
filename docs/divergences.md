@@ -499,3 +499,8 @@ and failed-capture histories remain available. Effects, opaque bindings and
 unverified errors remain explicit; no whole-family certification is claimed.
 See [conditional user guide](tlc-state-if.md), ADR 0036 and
 `conformance/probes/tlc-state-if/`.
+
+Temporal-kind IF remains a named bounded final-mode refusal (#170). Its
+shared-guard normalization/numbered-particle repair is now implemented as
+[diagnostic language evidence](tlc-temporal-if.md), with actual final execution
+and independent witnesses still pending. D-013 and temporal families stay partial.

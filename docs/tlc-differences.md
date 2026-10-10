@@ -1669,3 +1669,11 @@ and failed-capture histories remain available. Effects, opaque bindings and
 unverified errors remain explicit; no whole-family certification is claimed.
 See [conditional user guide](tlc-state-if.md), ADR 0036 and
 `conformance/probes/tlc-state-if/`.
+
+### Temporal IF identity repair (dive limitation, #170)
+
+Pure state conditionals are available in the bounded final-only path. Temporal
+conditionals still refuse there: the source-level shared-guard tag repair now
+matches selected exact normalized/tableau fields, but execution and witness
+admission remain staged. See [the maintained repair note](tlc-temporal-if.md).
+No new result-changing default or ordinary periodic parity is claimed.

@@ -1,0 +1,4 @@
+deciding_failure_code	2214
+deciding_failure_message	@!@!@STARTMSG 2214:0 @!@!@
+Temporal formulas containing actions must be of forms <>[]A or []<>A.
+@!@!@ENDMSG 2214 @!@!@

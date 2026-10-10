@@ -53,3 +53,8 @@ violation credit. A resource stop is never a safety success. See the
 
 [Pure conditional final checks](../tlc-state-if.md) documents the admitted
 state-IF subset, executable CLI/Rust examples, replay and remaining refusals.
+
+Temporal-kind IF still refuses in the bounded final path. Its [shared-guard
+identity repair](../tlc-temporal-if.md) currently has exact diagnostic planning
+and numbered-particle evidence; runtime admission and original stopping/witness
+contracts remain staged.

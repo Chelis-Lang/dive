@@ -445,3 +445,5 @@ clean pinned controls, original constant-Next configuration rejection and
 bounded native stops are retained under `conformance/probes/tlc-final-safety`.
 
 | Pure state conditional final admission (#168) | Pinned `Liveness.astToLive`/`processLiveness`, `LNStateAST.eval`, `LiveCheck.addInitState`/`addNextState` and original `finalCheck` at revision `94d0c50` | MIT | Uses inherited exact conversion and scoped predicate authority; removes only the stale Phase-L syntax refusal. Complete raw fields/words, failures and independent closing/claim mutants retained under `conformance/probes/tlc-state-if/`; ordinary periodic/family parity unclaimed. |
+
+| `dive-liveness::tlc_plan` shared predicate occurrence import (#170) | pinned `Liveness.astToLiveAppl` `OPCODE_ite`, `parseLiveness`/`processLiveness`; `LNState.tagExpr` and `LNAction.tagExpr`, revision `94d0c50` | MIT | Same input-object identity and last-visit tag retained; no expression-truth deduplication. Complete raw tag/stage/OOS/particle controls and independent words remain diagnostic; staged final admission unchanged. |

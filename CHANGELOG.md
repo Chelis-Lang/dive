@@ -12,8 +12,7 @@ All notable changes to this project are documented here. The project will follow
 ## Unreleased
 
 
-- Explicit final/TLC mode routes freshly bound models without implied temporal
-  obligations through bounded ordinary safety checking. Reports retain actual
-  counts, limits and workers, name the safety route and claim no temporal product
-  certificate; finite witnesses require fresh independent memory/JSON replay.
-  Constraint/property replay boundaries remain named refusals.
+- Bounded TLC temporal normalization now retains shared IF-guard object tags
+  and exact last-visit tag holes, with numbered-particle/edge and independent
+  periodic-word controls. This source-level repair does not yet lift the staged
+  final temporal-IF refusal or certify ordinary periodic scheduling (#170).

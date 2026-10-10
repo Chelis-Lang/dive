@@ -1,0 +1,34 @@
+properties	Live
+temporal_role_names	Live
+configured_properties	Live
+before	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNConj:-1;r.0.0.0.0:4:LNStateAST:0;r.0.0.0.1:5:LNStateAST:0;r.0.0.1:6:LNConj:-1;r.0.0.1.0:7:LNNeg:-1;r.0.0.1.0.0:4:LNStateAST:0;r.0.0.1.1:8:LNDisj:-1;r.0.0.1.1.0:9:LNNeg:-1;r.0.0.1.1.0.0:10:LNStateAST:0;r.0.0.1.1.1:11:LNEven:-1;r.0.0.1.1.1.0:12:LNStateAST:0
+tag_count	5
+tagged_ids	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNConj:-1;r.0.0.0.0:4:LNStateAST:3;r.0.0.0.1:5:LNStateAST:2;r.0.0.1:6:LNConj:-1;r.0.0.1.0:7:LNNeg:-1;r.0.0.1.0.0:4:LNStateAST:3;r.0.0.1.1:8:LNDisj:-1;r.0.0.1.1.0:9:LNNeg:-1;r.0.0.1.1.0.0:10:LNStateAST:4;r.0.0.1.1.1:11:LNEven:-1;r.0.0.1.1.1.0:12:LNStateAST:5
+tagged	N(G(D(C(s3,s2),C(N(s3),D(N(s4),E(s5))))))
+pushed	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))))
+simplified	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))))
+dnf	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))))
+groups	1
+g0.temporal	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))))
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	
+actual.groups	1
+actual.g0.state	
+actual.g0.action	
+actual.g0.p0	AEAction=|AEState=|EAAction=
+actual.g0.promises	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))))
+actual.g0.tableauNodes	6
+actual.g0.initial_count	4
+actual.g0.n0.particle	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))));C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5)))));D(N(s3),N(s2));D(s3,C(s4,G(N(s5))));N(s3);C(s4,G(N(s5)));s4;G(N(s5));N(s5);X(G(N(s5)))
+actual.g0.n0.next	4
+actual.g0.n1.particle	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))));C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5)))));D(N(s3),N(s2));D(s3,C(s4,G(N(s5))));N(s2);s3
+actual.g0.n1.next	5
+actual.g0.n2.particle	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))));C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5)))));D(N(s3),N(s2));D(s3,C(s4,G(N(s5))));N(s2);C(s4,G(N(s5)));s4;G(N(s5));N(s5);X(G(N(s5)))
+actual.g0.n2.next	4
+actual.g0.n3.particle	E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5))))));X(E(C(D(N(s3),N(s2)),D(s3,C(s4,G(N(s5)))))))
+actual.g0.n3.next	0,1,2,3
+actual.g0.n4.particle	G(N(s5));N(s5);X(G(N(s5)))
+actual.g0.n4.next	4
+actual.g0.n5.particle	
+actual.g0.n5.next	5

@@ -1,0 +1,28 @@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file /Users/jeff/code/dive-temporal-if-work/conformance/probes/tlc-temporal-if/models/TiLet/TiLet.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-10093935089261578082/Integers.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-10093935089261578082/Naturals.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module TiLet
+Linting of module TiLet
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-10 23:25:54)
+@!@!@ENDMSG 2185 @!@!@
+Exception in thread "main" util.Assert$TLCRuntimeException: @!@!@STARTMSG 2213:0 @!@!@
+TLC cannot handle the temporal formula line 6, col 57 to line 6, col 69 of module TiLet
+@!@!@ENDMSG 2213 @!@!@
+	at util.Assert.fail(Assert.java:86)
+	at tlc2.tool.liveness.Liveness.astToLiveAppl(Liveness.java:298)
+	at tlc2.tool.liveness.Liveness.astToLive(Liveness.java:144)
+	at tlc2.tool.liveness.Liveness.astToLiveAppl(Liveness.java:529)
+	at tlc2.tool.liveness.Liveness.astToLive(Liveness.java:144)
+	at tlc2.tool.liveness.Liveness.parseLiveness(Liveness.java:596)
+	at tlc2.tool.liveness.Liveness.processLiveness(Liveness.java:669)
+	at tlc2.tool.liveness.FinalProbe.run(FinalProbe.java:46)
+	at tlc2.tool.liveness.FinalProbe.main(FinalProbe.java:38)

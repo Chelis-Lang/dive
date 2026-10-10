@@ -4,7 +4,7 @@
   "reason": "Public checker IR pre-effect admission, preserving previous context migration evidence and source bytes",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
   "source_sha256": {
-    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/tlc_plan.rs": "00820e3299de74c702e4ee6ed380d955a1930b012f3d0b67954adce2f82bcc33",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
     "crates/dive-liveness/src/plan.rs": "5adbf560c59388d3b194b43596d3d9f50b399e78c45037eab7ae44b423688db2",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",

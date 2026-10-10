@@ -54,3 +54,13 @@ Original conservative observations and planning/runtime failures stay visible;
 unverified deciding error classes earn no agreement credit. Effects, opaque
 captures and malformed contexts are still refused through shared admission.
 See [user guide](../tlc-state-if.md) and `conformance/probes/tlc-state-if/`.
+
+## Addendum: shared temporal IF guard identity (2026-10-10, #170)
+
+The pinned IF constructor reuses the converted guard in both branches. The
+subsequent tag pass assigns on every visit, so earlier references use the last
+assigned tag and unused tag slots remain. The bounded importer now retains
+this arena identity and charges each earlier-reference update as work. Distinct
+objects are not merged by expression/truth equality. All selected normalized
+and numbered-particle fields plus independent words are preserved; runtime
+admission remains staged until actual stopping/witness controls are proven.
