@@ -1,4 +1,4 @@
-//! Sequential generator matching `PcalTLAGen`'s changed-variable and branch rules.
+//! Owner-aware generator matching `PcalTLAGen`'s changed-variable and branch rules.
 use super::lower::{Kind, Model, Node, tokens};
 use super::macros::Expanded as Parsed;
 use super::{
@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{Assignment, BindingKind, Expr, Fairness, Span},
+    ast::{Assignment, BindingKind, Expr, Span},
 };
 use std::collections::BTreeSet;
 
@@ -16,6 +16,7 @@ struct Emitter<'a> {
     model: &'a Model,
     limit: usize,
     process: Option<&'a crate::ast::Process>,
+    procedure: bool,
 }
 fn failure(span: Span, code: Code, message: impl Into<String>) -> TranslationError {
     error(TranslationStage::Generation, code, span, message)
@@ -34,85 +35,48 @@ fn conjunction(clauses: &[String], force: bool) -> String {
         .join("\n")
 }
 impl Emitter<'_> {
-    fn process_fairness(&self) -> Option<String> {
-        let process = self.process?;
-        let xf = match process.fairness {
-            Fairness::Unfair => return None,
-            Fairness::Weak => "WF",
-            Fairness::Strong => "SF",
-        };
-        let mut labels: Vec<_> = self
-            .parsed
-            .statements
-            .iter()
-            .filter(|s| s.span.start >= process.span.start && s.span.end <= process.span.end)
-            .filter_map(|s| s.label.as_ref())
-            .collect();
-        labels.sort_by_key(|label| label.span.start);
-        let minus: Vec<_> = labels
-            .iter()
-            .filter(|l| l.modifier == Some('-'))
-            .map(|l| format!("\"{}\"", l.name.text))
-            .collect();
-        let plus: Vec<_> = labels
-            .iter()
-            .filter(|l| l.modifier == Some('+'))
-            .map(|l| format!("SF_vars({}{})", l.name.text, self.parameter()))
-            .collect();
-        let guard = match minus.as_slice() {
-            [] => String::new(),
-            [only] => format!("(pc[{}] # {only}) /\\ ", self.process_id()),
-            _ => format!(
-                "(pc[{}] \\notin {{{}}}) /\\ ",
-                self.process_id(),
-                minus.join(", ")
-            ),
-        };
-        let body = format!(
-            "{xf}_vars({guard}{}{})",
-            process.name.text,
-            self.parameter()
-        );
-        let extra =
-            (process.fairness == Fairness::Weak && !plus.is_empty()).then(|| plus.join(" /\\ "));
-        let prefix = if process.id.kind == BindingKind::Member {
-            // The pinned emitter retains the original single-line ID expression
-            // here. Its width affects conjunction grouping, not merely trivia.
-            let source = &self.parsed.source
-                [process.id.expression.span.start..process.id.expression.span.end];
-            format!("\\A self \\in {source} : ")
-        } else {
-            String::new()
-        };
-        let single = extra
-            .as_ref()
-            .map_or_else(|| body.clone(), |sf| format!("{body} /\\ {sf}"));
-        // ProcessFairness.singleLineWidth omits the sole prefix line and the
-        // conjunction separator. Preserve that measured grouping decision;
-        // equal significant tokens alone do not prove equal junction scopes.
-        let width =
-            body.encode_utf16().count() + extra.as_ref().map_or(0, |sf| sf.encode_utf16().count());
-        if extra.is_none() || 11 + width <= 78 {
-            Some(format!("{prefix}{single}"))
-        } else {
-            let col = 11 + prefix.encode_utf16().count();
-            if col + single.encode_utf16().count() + 3 <= 78 {
-                Some(format!("{prefix}/\\ {single}"))
-            } else {
-                Some(format!(
-                    "{prefix}/\\ {body}\n{}/\\ {}",
-                    " ".repeat(col),
-                    extra.unwrap_or_default()
-                ))
-            }
-        }
+    fn procedure_slot(&self, name: &str) -> bool {
+        !self.model.processes.is_empty()
+            && !self.model.procedures.is_empty()
+            && (matches!(name, "pc" | "stack")
+                || self.model.procedures.iter().any(|p| {
+                    p.parameters
+                        .iter()
+                        .chain(&p.variables)
+                        .any(|d| d.name.text == name)
+                }))
     }
     fn local(&self, name: &str) -> bool {
-        self.process.is_some_and(|p| {
-            p.id.kind == BindingKind::Member && p.variables.iter().any(|v| v.name.text == name)
-        })
+        self.procedure_slot(name)
+            || self.process.is_some_and(|p| {
+                p.id.kind == BindingKind::Member && p.variables.iter().any(|v| v.name.text == name)
+            })
+    }
+    fn read(&self, name: &str, changed: &Changed) -> String {
+        format!(
+            "{name}{}{}",
+            if changed.contains(name) { "'" } else { "" },
+            if self.local(name) {
+                format!("[{}]", self.process_id())
+            } else {
+                String::new()
+            }
+        )
+    }
+    fn update(&self, name: &str, value: &str) -> String {
+        if self.local(name) {
+            format!(
+                "{name}' = [{name} EXCEPT ![{}] = {value}]",
+                self.process_id()
+            )
+        } else {
+            format!("{name}' = {value}")
+        }
     }
     fn process_id(&self) -> String {
+        if self.procedure {
+            return "self".into();
+        }
         self.process.map_or_else(String::new, |p| {
             if p.id.kind == BindingKind::Member {
                 "self".into()
@@ -135,9 +99,10 @@ impl Emitter<'_> {
         })
     }
     fn parameter(&self) -> &'static str {
-        if self
-            .process
-            .is_some_and(|p| p.id.kind == BindingKind::Member)
+        if self.procedure
+            || self
+                .process
+                .is_some_and(|p| p.id.kind == BindingKind::Member)
         {
             "(self)"
         } else {
@@ -232,15 +197,20 @@ impl Emitter<'_> {
                 && source
                     .get(index + 1)
                     .is_some_and(|next| matches!(next.text.as_str(), ":" | "|->" | "↦"));
-            if !field && !record_key && self.local(&token.text) {
+            if !field
+                && !record_key
+                && self.local(&token.text)
+                && !matches!(token.text.as_str(), "stack" | "pc")
+            {
                 words.push(format!(
-                    "{}{}[self]",
+                    "{}{}[{}]",
                     token.text,
                     if changed.contains(&token.text) {
                         "'"
                     } else {
                         ""
-                    }
+                    },
+                    self.process_id()
                 ));
             } else if !field && !record_key && changed.contains(&token.text) {
                 words.push(format!("{}'", token.text));
@@ -354,7 +324,7 @@ impl Emitter<'_> {
                         } else {
                             self.expression(item.value, &before)?
                         };
-                        Ok(format!("![self]{selectors} = {value}"))
+                        Ok(format!("![{}]{selectors} = {value}", self.process_id()))
                     })
                     .collect::<Result<Vec<_>, TranslationError>>()?;
                 self.bounded(
@@ -434,23 +404,33 @@ impl Emitter<'_> {
                         "missing label before tail restoring local",
                     ));
                 }
-                assignments.push((name.clone(), format!("{name}' = Head(stack).{name}")));
+                assignments.push((
+                    name.clone(),
+                    self.update(
+                        name,
+                        &format!("Head({}).{name}", self.read("stack", &Changed::new())),
+                    ),
+                ));
                 changed.insert(name.clone());
             }
             let mut fields = vec![
                 format!("procedure |-> {}", serde_string(&target.name.text)),
-                "pc |-> Head(stack).pc".into(),
+                format!("pc |-> Head({}).pc", self.read("stack", &Changed::new())),
             ];
             for decl in target.variables.iter().chain(&target.parameters) {
                 let name = &decl.name.text;
-                fields.push(format!(
-                    "{name} |-> {name}{}",
-                    if before.contains(name) { "'" } else { "" }
-                ));
+                fields.push(format!("{name} |-> {}", self.read(name, &before)));
             }
             assignments.push((
                 "stack".into(),
-                format!("stack' = << [ {} ] >> \\o Tail(stack)", fields.join(", ")),
+                self.update(
+                    "stack",
+                    &format!(
+                        "<< [ {} ] >> \\o Tail({})",
+                        fields.join(", "),
+                        self.read("stack", &Changed::new())
+                    ),
+                ),
             ));
             changed.insert("stack".into());
         }
@@ -465,7 +445,7 @@ impl Emitter<'_> {
             }
             assignments.push((
                 name.clone(),
-                format!("{name}' = {}", self.value_expression(*argument, &before)?),
+                self.update(name, &self.value_expression(*argument, &before)?),
             ));
             changed.insert(name.clone());
         }
@@ -494,7 +474,7 @@ impl Emitter<'_> {
             } else {
                 "defaultInitValue".into()
             };
-            clauses.push(format!("{name}' = {value}"));
+            clauses.push(self.update(name, &value));
             changed.insert(name.clone());
         }
         let entry = self
@@ -503,7 +483,7 @@ impl Emitter<'_> {
             .iter()
             .find(|a| a.span.start >= target.body.span.start && a.span.end <= target.body.span.end)
             .ok_or_else(|| failure(span, Code::Internal, "tail procedure entry missing"))?;
-        clauses.push(format!("pc' = {}", serde_string(&entry.name)));
+        clauses.push(self.update("pc", &serde_string(&entry.name)));
         changed.insert("pc".into());
         Ok(clauses)
     }
@@ -583,10 +563,7 @@ impl Emitter<'_> {
                     ];
                     for decl in procedure.variables.iter().chain(&procedure.parameters) {
                         let name = &decl.name.text;
-                        fields.push(format!(
-                            "{name} |-> {name}{}",
-                            if before.contains(name) { "'" } else { "" }
-                        ));
+                        fields.push(format!("{name} |-> {}", self.read(name, &before)));
                     }
                     let mut assignments = Vec::new();
                     for (parameter, argument) in procedure.parameters.iter().zip(arguments) {
@@ -600,13 +577,20 @@ impl Emitter<'_> {
                         }
                         assignments.push((
                             name.clone(),
-                            format!("{name}' = {}", self.value_expression(*argument, &before)?),
+                            self.update(name, &self.value_expression(*argument, &before)?),
                         ));
                         changed.insert(name.clone());
                     }
                     assignments.push((
                         "stack".into(),
-                        format!("stack' = << [ {} ] >> \\o stack", fields.join(", ")),
+                        self.update(
+                            "stack",
+                            &format!(
+                                "<< [ {} ] >> \\o {}",
+                                fields.join(", "),
+                                self.read("stack", &Changed::new())
+                            ),
+                        ),
                     ));
                     assignments.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
                     let assignments: Vec<_> =
@@ -627,7 +611,7 @@ impl Emitter<'_> {
                         } else {
                             "defaultInitValue".into()
                         };
-                        clauses.push(format!("{name}' = {value}"));
+                        clauses.push(self.update(name, &value));
                         changed.insert(name.clone());
                     }
                     let entry = self
@@ -645,7 +629,7 @@ impl Emitter<'_> {
                                 "procedure entry action missing",
                             )
                         })?;
-                    clauses.push(format!("pc' = {}", serde_string(&entry.name)));
+                    clauses.push(self.update("pc", &serde_string(&entry.name)));
                     changed.insert("pc".into());
                 }
                 Kind::CallReturn {
@@ -666,7 +650,10 @@ impl Emitter<'_> {
                             "multiple procedure transfers in one action",
                         ));
                     }
-                    clauses.push("pc' = Head(stack).pc".into());
+                    clauses.push(self.update(
+                        "pc",
+                        &format!("Head({}).pc", self.read("stack", &Changed::new())),
+                    ));
                     changed.insert("pc".into());
                     for decl in procedure.variables.iter().chain(&procedure.parameters) {
                         let name = &decl.name.text;
@@ -677,10 +664,16 @@ impl Emitter<'_> {
                                 "missing label before restoring procedure variable",
                             ));
                         }
-                        clauses.push(format!("{name}' = Head(stack).{name}"));
+                        clauses.push(self.update(
+                            name,
+                            &format!("Head({}).{name}", self.read("stack", &Changed::new())),
+                        ));
                         changed.insert(name.clone());
                     }
-                    clauses.push("stack' = Tail(stack)".into());
+                    clauses.push(self.update(
+                        "stack",
+                        &format!("Tail({})", self.read("stack", &Changed::new())),
+                    ));
                     changed.insert("stack".into());
                 }
                 Kind::Pc(target) => {
@@ -691,7 +684,7 @@ impl Emitter<'_> {
                             "multiple program-counter updates in one action",
                         ));
                     }
-                    clauses.push(if self.process.is_some() {
+                    clauses.push(if self.process.is_some() || self.procedure {
                         format!(
                             "pc' = [pc EXCEPT ![{}] = {}]",
                             self.process_id(),
@@ -832,6 +825,7 @@ pub(super) fn generate(
         model,
         limit: options.max_output_bytes.min(4_194_304),
         process: model.processes.first(),
+        procedure: false,
     };
     let span = parsed.algorithm.span;
     let names = emitter.variables();
@@ -900,7 +894,13 @@ pub(super) fn generate(
                     .iter()
                     .any(|v| v.name.text == variable.name.text)
             }),
+            procedure: emitter.procedure_slot(&variable.name.text),
             ..emitter
+        };
+        let domain = if emitter.procedure {
+            "ProcSet".into()
+        } else {
+            emitter.domain()
         };
         if let Some(binding) = &variable.initial {
             let op = if binding.kind == BindingKind::Equal {
@@ -911,9 +911,9 @@ pub(super) fn generate(
             let value = emitter.value_expression(binding.expression, &Changed::new())?;
             let value = if emitter.local(&variable.name.text) {
                 if binding.kind == BindingKind::Equal {
-                    format!("[self \\in {} |-> {value}]", emitter.domain())
+                    format!("[self \\in {domain} |-> {value}]")
                 } else {
-                    format!("[{} -> {value}]", emitter.domain())
+                    format!("[{domain} -> {value}]")
                 }
             } else {
                 value
@@ -921,7 +921,7 @@ pub(super) fn generate(
             init.push(format!("{} {op} {value}", variable.name.text));
         } else {
             let value = if emitter.local(&variable.name.text) {
-                format!("[self \\in {} |-> defaultInitValue]", emitter.domain())
+                format!("[self \\in {domain} |-> defaultInitValue]")
             } else {
                 "defaultInitValue".into()
             };
@@ -929,7 +929,11 @@ pub(super) fn generate(
         }
     }
     if !model.procedures.is_empty() {
-        init.push("stack = << >>".into());
+        init.push(if model.processes.is_empty() {
+            "stack = << >>".into()
+        } else {
+            "stack = [self \\in ProcSet |-> << >>]".into()
+        });
     }
     if model.use_pc {
         let value = serde_string(
@@ -978,6 +982,10 @@ pub(super) fn generate(
     )?;
     for (index, action) in model.actions.iter().enumerate() {
         let emitter = Emitter {
+            procedure: !model.processes.is_empty()
+                && model.procedures.iter().any(|p| {
+                    action.span.start >= p.body.span.start && action.span.end <= p.body.span.end
+                }),
             process: model
                 .processes
                 .iter()
@@ -1037,10 +1045,15 @@ pub(super) fn generate(
                     a.span.start >= procedure.body.span.start
                         && a.span.end <= procedure.body.span.end
                 })
-                .map(|a| a.name.as_str())
+                .map(|a| format!("{}{}", a.name, emitter.parameter()))
                 .collect();
             append(
-                format!("{} == {}\n\n", procedure.name.text, actions.join(" \\/ ")),
+                format!(
+                    "{}{} == {}\n\n",
+                    procedure.name.text,
+                    emitter.parameter(),
+                    actions.join(" \\/ ")
+                ),
                 procedure.span,
             )?;
         }
@@ -1082,7 +1095,7 @@ pub(super) fn generate(
     if !model.processes.is_empty() {
         // GenNext emits constant-ID wrappers before quantified process sets,
         // even when the source interleaves the two kinds of declarations.
-        let actions: Vec<_> = model
+        let mut actions: Vec<_> = model
             .processes
             .iter()
             .filter(|p| p.id.kind == BindingKind::Equal)
@@ -1105,6 +1118,25 @@ pub(super) fn generate(
                     }),
             )
             .collect();
+        if !model.procedures.is_empty() {
+            let at = model
+                .processes
+                .iter()
+                .filter(|p| p.id.kind == BindingKind::Equal)
+                .count();
+            actions.insert(
+                at,
+                format!(
+                    "(\\E self \\in ProcSet: {})",
+                    model
+                        .procedures
+                        .iter()
+                        .map(|p| format!("{}(self)", p.name.text))
+                        .collect::<Vec<_>>()
+                        .join(" \\/ ")
+                ),
+            );
+        }
         append(
             format!(
                 "Next == {}{}\n\n",
@@ -1140,30 +1172,35 @@ pub(super) fn generate(
         }
         append(format!("Next == {}\n\n", actions.join(" \\/ ")), span)?;
     }
-    let fairness: Vec<_> = model
-        .processes
-        .iter()
-        .filter_map(|process| {
-            Emitter {
-                process: Some(process),
-                ..emitter
-            }
-            .process_fairness()
-        })
-        .collect();
-    let spec = if model.fair || !fairness.is_empty() {
-        let mut spec = "/\\ Init /\\ [][Next]_vars".to_owned();
-        if model.fair {
-            spec.push_str("\n        /\\ WF_vars(Next)");
-        }
-        for formula in fairness {
-            spec.push_str("\n        /\\ ");
-            spec.push_str(&formula);
-        }
-        spec
+    let mut spec = if model.fair
+        || model
+            .processes
+            .iter()
+            .any(|p| p.fairness != crate::ast::Fairness::Unfair)
+    {
+        "/\\ Init /\\ [][Next]_vars".to_owned()
     } else {
         "Init /\\ [][Next]_vars".into()
     };
+    if model.fair {
+        spec.push_str("\n        /\\ WF_vars(Next)");
+    }
+    let mut fairness_work = 0;
+    for process in &model.processes {
+        if let Some(formula) =
+            super::fairness::formula(parsed, model, process, emitter.limit, &mut fairness_work)?
+        {
+            if 12 + formula.len() > emitter.limit.saturating_sub(spec.len()) {
+                return Err(failure(
+                    process.span,
+                    Code::Resource,
+                    "PlusCal generated-byte limit reached across fairness clauses",
+                ));
+            }
+            spec.push_str("\n        /\\ ");
+            spec.push_str(&formula);
+        }
+    }
     append(format!("Spec == {spec}\n\n"), span)?;
     if model.stutter {
         append(

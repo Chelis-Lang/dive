@@ -1,0 +1,1136 @@
+{
+  "schema_version": 1,
+  "stage": "recursive-procedure-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "26eec8a0fb7bde05400c67fa4a9df8d1b3585280844ed59c1cea059a3bfca06a",
+  "comparator_sha256": "557e87d75f73324056821559575f44a309ef6429dff0fe8ae199ae930fe5c7ff",
+  "native_sha256": "0ae2ec5c25a07497dc7d1f463ddbd331aaff0f6f8e8b3f60de3f03619c0b4a08",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "unproved-process-procedure-storage-and-scoped-renaming",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 112,
+  "summary": {
+    "native-refusal": 28,
+    "token-artifact-match": 64,
+    "disagree": 4,
+    "rejection-match": 10,
+    "invalid-reference-artifact": 6
+  },
+  "rows": [
+    {
+      "id": "ProcessProcedure_C_alias_parameter_local",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_alias_process_parameter",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_auto_labels",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_constant_basic",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1974e19992538e7f8131c02ddefc48260ea03db5cd29887d66a32c57e65e26cf",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_constant_proc_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ec12c4780ba9b2c8fde0b20a990fef61efdbc702a5b71808dd0750d0db7fe1b3",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_constant_self_arg",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_constant_string",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2813d20d0d330d9fa7a0a9230ed68b5bfec930c51ce78897995881855f9ac165",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "447b9c115bf301fa137e64552950c8c71d7d429c29062528d0fd22abcbb409dd",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_global_parameter_alias",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_indexed_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "disagree",
+      "reason": "significant token stream differs",
+      "index": 83,
+      "expected": [
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!",
+        "[",
+        "self",
+        "]"
+      ],
+      "actual": [
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!"
+      ]
+    },
+    {
+      "id": "ProcessProcedure_C_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b379a22e7c68010c987268a260dae20f95f4222f2a215dc1721d31beb2213c9d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_main_return",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_C_member_empty",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1f88a6217bdc48e0ec0453555e7e0081962177e8a6c2cf47e2ac40124f8bef31",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_initializer",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_C_member_interval",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "94fe3bd3f9f6cadd210395b63bda95b8115dd8d8d7e04883685491caf88923ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_one",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dcddffb4c418b0c644d69fc6091d63325bb772ab666b81b1ee4188a9959b0433",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_proc_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9f5f816db6c649b56dfd83ee4fdb78c4e7617005fdbe793dc70f7a671b460cdc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_process_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6be6ef531b3a36bb1cd51dd57c03a8d56326fcaaaf18a2d9047d29ae5d689c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_process_local_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_member_process_local_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_member_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "59af25ae887e7d1b7dd9a57aa7fe30cbfd7807bebf0b84e98eaa0d74882dba92",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3c5c1cf26a76d0f133095a53fcc6cd90648341bde578a34e795ac80a0280ac59",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "50a4b2cbb8c555d55b2d26da98f09889980a69e91f59cdab6d9fcbc2d256905d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_strings",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "92779bd16e8318f44daff1b59b8787ccd6e62da803675179207ea17ff63f6f7f",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_member_two",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e40b67900761e13b4c256d95c7f445110a441b46617d8d5e62251e90d52d74ed",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_missing_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5f6a9c5f41cffd63f40fd04ef8d89b630c6446295f31d124ae0aa9e09b9a69d2",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_mutual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "51964d7204986b428dd74f03d2b7698f26f1f098ffff6dddeadae572cf556588",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a6fa4bb3f4a7973e16a727d2d20a77e85cded91b6e56163d02dea01e0e9e477c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_no_params_tail",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "reason": "generated TLA syntax rejected; source expression validation failed"
+    },
+    {
+      "id": "ProcessProcedure_C_parameter_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "856b5af01232a5eeb43d5f6932c132f3f76d0b096c7cfd9f8c6f8b353f607202",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_parameter_missing",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "284f2eaf2cbd9bed925cdb88b98a1bb0f12f6104c70a65f6c143d130eb35779d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_pc_global_alias",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_procedure_label_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_process_label_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_C_process_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "14ec6d6e913dee010bb21615f5d30d72cb39939d92098effca508f40b64fcdb3",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_process_local_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_process_local_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_process_name_alias",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_repeat_calls",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "850c4e686000dfe7f29496ec72ae9b672456268063203ff87ff7ee316238cef3",
+      "action_count": 5,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_arg",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "562e7af95d6c2e7ed8bd6b7bcd6a48d3b485651ba75617f6e4c707c3c6df20c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d0cf682114aef56dcd523e21b407ba1301fdb70f332d866ce230f7265982a138",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "259e93bba8d4e4b8669fe859514aec0fb088656d06bd15eaa52eda0a5cd89789",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_recursive_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b07558772c06cd8f53d63bcc37e812064fe88dd491e2e2cc918e6a2cd789f67f",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "92d97613674c2205b8a17389ed597835b8f3939c54f83e3eb5a3784abfafa523",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_self_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9dad86ec67773bbbde1406314745a3e16b52a9a4e235456a3b5a12e2fdf128a4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "disagree",
+      "reason": "significant token stream differs",
+      "index": 80,
+      "expected": [
+        "'",
+        "=",
+        "Len",
+        "(",
+        "stack",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!",
+        "[",
+        "self",
+        "]"
+      ],
+      "actual": [
+        "'",
+        "=",
+        "Len",
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!"
+      ]
+    },
+    {
+      "id": "ProcessProcedure_C_tail_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cb9e0ca77b7581525e3f60f19afc0eb0fbd90d78b845acc0aac78d76193e1a5c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f679673fcf79789a88b593e904003a6a32190295dac623e53a73607d1106a000",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_two_parameters",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d64df1f8b28a52a29bfa8ebb12060ab90a2b3e11af3b9f4d00603a7e7fb19263",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_domain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5435f502776d7480481d02b7a61a2d632e9fa897a33ad0659350aefb448fca37",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_C_undefined_arg",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "ProcessProcedure_C_undefined_local",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "ProcessProcedure_C_unknown_call",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_C_weak_option",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_C_wrong_arity",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_P_alias_parameter_local",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_alias_process_parameter",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_auto_labels",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1974e19992538e7f8131c02ddefc48260ea03db5cd29887d66a32c57e65e26cf",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_constant_proc_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ec12c4780ba9b2c8fde0b20a990fef61efdbc702a5b71808dd0750d0db7fe1b3",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_constant_self_arg",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_constant_string",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2813d20d0d330d9fa7a0a9230ed68b5bfec930c51ce78897995881855f9ac165",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "447b9c115bf301fa137e64552950c8c71d7d429c29062528d0fd22abcbb409dd",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_global_parameter_alias",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_indexed_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "disagree",
+      "reason": "significant token stream differs",
+      "index": 83,
+      "expected": [
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!",
+        "[",
+        "self",
+        "]"
+      ],
+      "actual": [
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!"
+      ]
+    },
+    {
+      "id": "ProcessProcedure_P_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b379a22e7c68010c987268a260dae20f95f4222f2a215dc1721d31beb2213c9d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_main_return",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_P_member_empty",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1f88a6217bdc48e0ec0453555e7e0081962177e8a6c2cf47e2ac40124f8bef31",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_initializer",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_P_member_interval",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "94fe3bd3f9f6cadd210395b63bda95b8115dd8d8d7e04883685491caf88923ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_one",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dcddffb4c418b0c644d69fc6091d63325bb772ab666b81b1ee4188a9959b0433",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_proc_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9f5f816db6c649b56dfd83ee4fdb78c4e7617005fdbe793dc70f7a671b460cdc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_process_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6be6ef531b3a36bb1cd51dd57c03a8d56326fcaaaf18a2d9047d29ae5d689c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_process_local_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_member_process_local_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_member_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "59af25ae887e7d1b7dd9a57aa7fe30cbfd7807bebf0b84e98eaa0d74882dba92",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3c5c1cf26a76d0f133095a53fcc6cd90648341bde578a34e795ac80a0280ac59",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "50a4b2cbb8c555d55b2d26da98f09889980a69e91f59cdab6d9fcbc2d256905d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_strings",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "92779bd16e8318f44daff1b59b8787ccd6e62da803675179207ea17ff63f6f7f",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_member_two",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e40b67900761e13b4c256d95c7f445110a441b46617d8d5e62251e90d52d74ed",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_missing_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5f6a9c5f41cffd63f40fd04ef8d89b630c6446295f31d124ae0aa9e09b9a69d2",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_mutual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "51964d7204986b428dd74f03d2b7698f26f1f098ffff6dddeadae572cf556588",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a6fa4bb3f4a7973e16a727d2d20a77e85cded91b6e56163d02dea01e0e9e477c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_no_params_tail",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "reason": "generated TLA syntax rejected; source expression validation failed"
+    },
+    {
+      "id": "ProcessProcedure_P_parameter_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "856b5af01232a5eeb43d5f6932c132f3f76d0b096c7cfd9f8c6f8b353f607202",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_parameter_missing",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "284f2eaf2cbd9bed925cdb88b98a1bb0f12f6104c70a65f6c143d130eb35779d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_pc_global_alias",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_procedure_label_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_process_label_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_P_process_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "14ec6d6e913dee010bb21615f5d30d72cb39939d92098effca508f40b64fcdb3",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_process_local_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_process_local_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure references process-local storage",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_process_name_alias",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_repeat_calls",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "850c4e686000dfe7f29496ec72ae9b672456268063203ff87ff7ee316238cef3",
+      "action_count": 5,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_arg",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "562e7af95d6c2e7ed8bd6b7bcd6a48d3b485651ba75617f6e4c707c3c6df20c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d0cf682114aef56dcd523e21b407ba1301fdb70f332d866ce230f7265982a138",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "259e93bba8d4e4b8669fe859514aec0fb088656d06bd15eaa52eda0a5cd89789",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_recursive_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b07558772c06cd8f53d63bcc37e812064fe88dd491e2e2cc918e6a2cd789f67f",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "92d97613674c2205b8a17389ed597835b8f3939c54f83e3eb5a3784abfafa523",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9dad86ec67773bbbde1406314745a3e16b52a9a4e235456a3b5a12e2fdf128a4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "disagree",
+      "reason": "significant token stream differs",
+      "index": 80,
+      "expected": [
+        "'",
+        "=",
+        "Len",
+        "(",
+        "stack",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!",
+        "[",
+        "self",
+        "]"
+      ],
+      "actual": [
+        "'",
+        "=",
+        "Len",
+        "(",
+        "stack",
+        "[",
+        "self",
+        "]",
+        ")",
+        "/\\",
+        "pc",
+        "'",
+        "=",
+        "[",
+        "pc",
+        "EXCEPT",
+        "!"
+      ]
+    },
+    {
+      "id": "ProcessProcedure_P_tail_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cb9e0ca77b7581525e3f60f19afc0eb0fbd90d78b845acc0aac78d76193e1a5c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f679673fcf79789a88b593e904003a6a32190295dac623e53a73607d1106a000",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_two_parameters",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d64df1f8b28a52a29bfa8ebb12060ab90a2b3e11af3b9f4d00603a7e7fb19263",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_domain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5435f502776d7480481d02b7a61a2d632e9fa897a33ad0659350aefb448fca37",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_arg",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "ProcessProcedure_P_unknown_call",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcessProcedure_P_weak_option",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcessProcedure_P_wrong_arity",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    }
+  ]
+}

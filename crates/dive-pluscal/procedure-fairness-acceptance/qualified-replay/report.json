@@ -1,0 +1,3976 @@
+{
+  "schema_version": 1,
+  "script_sha256": "b3d9d460a8f4b9fcc013df7203caebeb435ea40584dd0d57300847183e4af0e3",
+  "original_report_sha256": "d05eaf25d5701246a0e3fcaac6a264d090721704b32d1751a20926a29ceecf18",
+  "native_sha256": "8e7be53f64ce2cc0d6864d3a4e261563a59bc4b6f5880592a79a7e9df90c48cf",
+  "family_certified": false,
+  "tlc_violation_certified": false,
+  "scope": "Default/canonical replay is qualified separate evidence; no #124 guard relaxation or strict validation credit. Original strict disagreement campaign remains unchanged.",
+  "summary": {
+    "strict-complete-model-match": 37,
+    "strict-witness-pending": 37
+  },
+  "rows": [
+    {
+      "id": "FairProcedure_C_constant_algorithm.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 2,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_member_strong.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_member_weak.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 2,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_member_strong.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_member_weak.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 6,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    }
+  ],
+  "controls": [
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_algorithm.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_algorithm.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_algorithm.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_algorithm.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_algorithm.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_algorithm.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_nof.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_nof.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_nof.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_nof.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_nof.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_nof.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_sf.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_sf.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_sf.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_sf.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_sf.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_sf.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_option_wfNext.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_option_wfNext.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_strong.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_strong.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_strong.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_strong.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_strong.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_strong.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_weak.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_weak.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_weak.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_weak.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constant_weak.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constant_weak.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_both_fair.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_both_fair.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_both_fair.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_both_fair.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_both_fair.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_both_fair.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_disjoint.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_disjoint.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_false_branch.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_false_branch.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_mutual.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_mutual.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_nested.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_nested.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.original.stdout.gz",
+          "sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-init.stdout.gz",
+          "sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-next.stdout.gz",
+          "sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.missing-final-variable.stdout.gz",
+          "sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_no_calls.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-closing.stdout.gz",
+          "sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_no_calls.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.original.stdout.gz",
+          "sha256": "7064f860618c96262d7305a41d29bee982bf197236959ccd27c1adb0fc13569d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_constants_reach_self_recursion.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_constants_reach_self_recursion.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_strong.violation.original.stdout.gz",
+          "sha256": "4b1ffff73b8f825f7b3873fb038081f693a55702cf4039f1cc84072aa60a81ea"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_strong.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_strong.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_strong.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_strong.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_strong.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_weak.violation.original.stdout.gz",
+          "sha256": "4b1ffff73b8f825f7b3873fb038081f693a55702cf4039f1cc84072aa60a81ea"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_weak.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_weak.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_weak.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_member_weak.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_member_weak.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_both_fair.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_both_fair.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_mutual.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_mutual.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_C_mixed_reach_nested.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_C_mixed_reach_nested.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_algorithm.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_algorithm.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_algorithm.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_algorithm.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_algorithm.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_algorithm.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_nof.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_nof.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_nof.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_nof.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_nof.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_nof.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_sf.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_sf.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_sf.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_sf.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_sf.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_sf.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wf.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wf.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wf.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wf.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wf.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wf.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_option_wfNext.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_option_wfNext.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_strong.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_strong.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_strong.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_strong.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_strong.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_strong.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_weak.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_weak.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_weak.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_weak.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constant_weak.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constant_weak.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_both_fair.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_both_fair.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_both_fair.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_both_fair.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_both_fair.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_both_fair.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_disjoint.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_disjoint.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_false_branch.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_false_branch.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_mutual.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_mutual.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_nested.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_nested.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.original.stdout.gz",
+          "sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-init.stdout.gz",
+          "sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-next.stdout.gz",
+          "sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.missing-final-variable.stdout.gz",
+          "sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_no_calls.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-closing.stdout.gz",
+          "sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_no_calls.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.original.stdout.gz",
+          "sha256": "7064f860618c96262d7305a41d29bee982bf197236959ccd27c1adb0fc13569d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_constants_reach_self_recursion.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_constants_reach_self_recursion.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_strong.violation.original.stdout.gz",
+          "sha256": "4b1ffff73b8f825f7b3873fb038081f693a55702cf4039f1cc84072aa60a81ea"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_strong.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_strong.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_strong.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_strong.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_strong.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_weak.violation.original.stdout.gz",
+          "sha256": "4b1ffff73b8f825f7b3873fb038081f693a55702cf4039f1cc84072aa60a81ea"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_weak.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_weak.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_weak.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_member_weak.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_member_weak.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_both_fair.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_both_fair.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_mutual.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_mutual.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.original.stdout.gz",
+          "sha256": "66fb44f5e5317dde0d13a8e36d1fa1825f5dbc0394775de75aa73696ce3b7573"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-init.stdout.gz",
+          "sha256": "6ceb9014dfe385cbdd729b3d61b0ee226d57860b608d6cc17270843f5408da06"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-next.stdout.gz",
+          "sha256": "b5b6532f1d1aae31fa00189148e4a8c3f6a63c00b9f5ea74d53f4f6e036e29c7"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.missing-final-variable.stdout.gz",
+          "sha256": "36daecd3e6547857e0b4c08483f2f9f01fcdcd94bf36d60a11b70bff43325f96"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "FairProcedure_P_mixed_reach_nested.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-closing.stdout.gz",
+          "sha256": "6c42fcf3d3809ba3c1b11e9acfb811934c1484397aba3041abd88784e4399893"
+        },
+        "stderr": {
+          "path": "FairProcedure_P_mixed_reach_nested.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

@@ -449,3 +449,43 @@ exact-store, accepting-sink, recovery, effect or resource refusals. The separate
 replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
 alias targets are admitted through actual module contexts before any startup
 binding effect. See [the user guide](tlc-final-api.md).
+
+D-008 now includes native single finite process procedure ownership (ADR 0044).
+No result-changing default is introduced: all owned call/return generation is
+matched to the pinned reference. Explicit source `stack` stays unsubstituted;
+generated stack operations index the owner. Invalid primary artifacts remain
+public rejections; multiple blocks/renaming/fairness and strict #124 witnesses
+remain pending, as documented in `docs/pluscal-process-procedures.md`.
+
+A further D-008 candidate is a procedure/parameter named `ProcSet` in a process
+algorithm. Four retained C/P primary translations exit 0 but their clean SANY
+runs exit 4 because generated ProcSet conflicts with the source name. Native
+public admission rejects these in both profiles; generation is diagnostic-only,
+with no corrected-output option or naming default adopted. The minimal source
+and exact disposition are in the D-008 user log and process procedure `names`
+study, not credited as artifact matches.
+
+D-008's later shared-procedure increment (ADR 0045) admits multiple disjoint
+finite process blocks with individual owned frames. Procedure definitions and
+slots are generated once, with reference constant/procedure/member scheduling.
+No mathematical default changes: both profiles preserve reference generation
+and reject invalid enclosing artifacts. Scope rewriting, overlapping/unproved
+domains, process-declared fairness and strict #124 replay remain explicit
+limitations. See `docs/pluscal-multiple-procedures.md`; prior single-process
+limitations above describe that historical increment.
+
+The shared-procedure D-008 study also retains two constant-caller local `self`
+initialization artifacts: pinned translation exits 0 but SANY exits 4 because
+call actions leave `self` unbound. An empty P process similarly produces invalid
+zero-exit output. Native public admission rejects these without adopting a
+corrected-output default; all source/raw outputs and dispositions stay selected.
+See the minimal user log examples and shared procedure acceptance manifest.
+
+**D-008 PlusCal procedure fairness status:** native bounded finite processes can
+now generate caller-owned weak/strong fairness for syntactically reachable
+procedures, including process/procedure label modifiers and pinned fairness
+options. The [fair procedure guide](pluscal-procedure-fairness.md) describes exact
+use and admission. Generation is nonproof; strict runtime-name witness replay,
+scoped renaming, unproved multiline fairness domains and sequential procedure
+modifiers remain separately refused or pending. Original malformed modifier
+controls and primary SANY-invalid artifacts remain uncredited historical evidence.

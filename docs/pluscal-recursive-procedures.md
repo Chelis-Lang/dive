@@ -176,3 +176,7 @@ The current bounded control explicitly defaults the additive per-unit successor
 limit. Its prior compile failure, original probe and coherent dependency-build
 receipt are retained. All 192 bounded native controls and 12 primary timeouts
 remain incomplete observations rather than termination proofs.
+
+The subsequent [single finite process procedure slice](pluscal-process-procedures.md)
+admits bounded process-owned frames separately; this sequential delivery's
+original evidence and pending qualifications remain unchanged.

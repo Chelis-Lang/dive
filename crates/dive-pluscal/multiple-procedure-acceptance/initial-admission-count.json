@@ -1,0 +1,8 @@
+{
+  "reason": "Copied ancestry helper expected fourteen invalid references; this complete source selection has eleven. All22 CLI controls actually rejected correctly before stale final census assertion failed.",
+  "selection_sha256": "999638bef9ec7d9ebb4cb0adea719767c8057dabf09b27f03e12f9393154104d",
+  "old_expected_controls": 28,
+  "actual_controls": 22,
+  "primary_sany_invalid": 11,
+  "native_behavior_changed": false
+}
