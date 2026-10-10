@@ -70,6 +70,8 @@ pub(crate) struct Core {
     /// Interned field names of record constructors, record sets and record
     /// selections, by node.
     pub(crate) fields: Vec<Option<Box<[Atom]>>>,
+    pub(crate) frame_owners: Vec<DefId>,
+    pub(crate) frame_required: Vec<bool>,
     /// Values of zero-arity constant-level definitions, cached once computed
     /// (TLC precomputes them at start-up; only successes are kept, so a
     /// failing definition stays lazy, as in `SpecProcessor.processConstantDefns`).
@@ -102,6 +104,7 @@ impl Core {
     pub(crate) fn new(model: Model, opts: Options, sink: Arc<dyn PrintSink>) -> Self {
         let ir = model.ir;
         let names = model.names;
+        let (frame_owners, frame_required) = crate::context::frame_metadata(&ir);
         let n = ir.nodes().len();
         let mut lits = Vec::with_capacity(n);
         let mut fields = Vec::with_capacity(n);
@@ -156,6 +159,8 @@ impl Core {
             std_redirects,
             lits,
             fields,
+            frame_owners,
+            frame_required,
             def_cache,
             open_ok,
             warned: Mutex::default(),
@@ -188,7 +193,9 @@ impl Core {
     /// TLC's `SemanticNode.toString()` for an expression: the image of a
     /// numeral or decimal, otherwise the location string.
     pub(crate) fn loc(&self, e: ExprId) -> String {
-        let node = self.ir.node(e);
+        let Some(node) = self.ir.nodes().get(e.index()) else {
+            return format!("unknown expression #{}", e.0);
+        };
         match &node.expr {
             Expr::Num(text) => text.to_string(),
             Expr::Decimal { int, frac } => format!("{int}.{frac}"),

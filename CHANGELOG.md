@@ -13,6 +13,12 @@ All notable changes to this project are documented here. The project will follow
   preserve explicit resource, structural and scope refusals. Strict integrated
   liveness, checker behavior and defaults remain unchanged.
 
+- Public evaluator construction now returns typed admission errors before
+  literal interning or callbacks. Scope/action creation checks IDs, arity,
+  ownership and stored captures; independent trace and temporal endpoints reject
+  foreign model/evaluator metadata before replay setup. Unpublished Rust callers
+  must handle the new fallible constructor/scope results (ADR 0028).
+
 - TLC-order simulation refuses runtime-name history that cannot yet be
   independently validated; canonical default sampling remains supported.
 

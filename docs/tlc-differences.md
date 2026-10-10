@@ -1362,3 +1362,16 @@ shadowing before returning an artifact. The API also performs enclosing-module
 syntax/name/level admission. This is a documented current limitation in both
 profiles, not an approved alternative name-disambiguation algorithm. Precise
 TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
+
+**D-008 public Rust context update:** a caller-created invalid evaluator redirect
+previously panicked after interning a literal, while malformed lazy expression
+IDs could enter captured scopes. Constructor and scope admission now produce
+stable `DIVE-EVAL-C001`–`C007` refusals before evaluation or interning. Independent
+trace/predicate APIs also reject foreign model/evaluator metadata before replay
+setup. Valid configured models keep TLC's existing startup diagnostics. The
+checks apply equally to both profiles; no compatibility flag disables them.
+Original native observations and source are retained in
+`crates/dive-api/tests/fixtures/public-context/`; ADR 0028 documents migration and
+remaining limits. Bare numeric IDs do not carry provenance, and opaque deferred
+Rust bindings refuse rather than call user code to establish their shape.
+F-035 remains partial; this is not a full Rust API or IR certification.

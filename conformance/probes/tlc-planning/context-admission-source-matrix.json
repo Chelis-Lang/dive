@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "base_commit": "8f451ff",
+  "reason": "Fallible evaluator/context API migration, preserving historical source and raw pinned captures",
+  "historical_matrix_sha256": "66a2a6e497e0beb95eda7235d1b8ce0f1887ed97901ab9bfe24e0207895b2350",
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "crates/dive-liveness/src/plan.rs": "0c861ab9f7ea72998207a91df4cb5a557d2aa3bb67d9183b6d845120f335b30b",
+    "crates/dive-liveness/src/lib.rs": "febb1bd0d2361ff4545fcc7017835d18ade48e5be645d87a4e9a144a21161d89",
+    "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+    "scripts/check-tlc-planning.py": "0ec2e8a787acc7f6f5b9ec44075448a6519dbe371f9829ffc64ae19788844af6",
+    "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
+    "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290",
+    "crates/dive-eval/src/context.rs": "408950cb75dd5c85271a015ff12b7274531920511188af287755b772ae7f5c08",
+    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
+    "crates/dive-eval/tests/contexts.rs": "222536ed297b090e97c16cb1225a492ed13cab9f9dd9ec317fe3af1f88a1ae3e"
+  },
+  "evidence_scope": "Current migration controls; no new oracle or full family certification"
+}

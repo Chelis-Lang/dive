@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "parent_translation_commit": "e2a3a8d5343c0831e28529c8ae282e549f0736f5",
+  "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
+  "reason": "Integrate fallible evaluator context admission with bounded tableau consumers; preserve prior source matrices and raw captures",
+  "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
+  "historical_tableau_matrix_sha256": "8cf642c4d97b1488be5d0edffd3b03afc8adec6ed45a685dc21bfef1a4afaec0",
+  "source_sha256": {
+    "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290",
+    "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
+    "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
+    "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
+    "crates/dive-eval/src/context.rs": "408950cb75dd5c85271a015ff12b7274531920511188af287755b772ae7f5c08",
+    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "crates/dive-eval/tests/contexts.rs": "222536ed297b090e97c16cb1225a492ed13cab9f9dd9ec317fe3af1f88a1ae3e",
+    "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "crates/dive-liveness/src/lib.rs": "26dbdc61368b29cbc7362a6b18a347dcc93f8d08043365818eff93a7fe99a073",
+    "crates/dive-liveness/src/plan.rs": "0c861ab9f7ea72998207a91df4cb5a557d2aa3bb67d9183b6d845120f335b30b",
+    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
+    "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+    "crates/dive-liveness/tests/tlc_tableau.rs": "ae2df720ceb2145a0dbd9630b9ba427196f524f8f4f7107dd610c84811d59179",
+    "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
+    "scripts/check-tlc-planning.py": "31e73ef62e370ae2574c6709b57c20e3199a12a01c5491e04ab8da00e6da0ffb",
+    "scripts/check-tlc-tableau.py": "101e5ad96edf880d6643e7290f384d2653cbba36077fdede633d2b2628d6a0f4"
+  },
+  "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
+  "historical_pre_context_planning_matrix_sha256": "daac985ec3ffe01e1e1f7e70b35430e9f211dbb12642351b67aaee0859bd604d"
+}

@@ -58,7 +58,10 @@ impl Binder<'_> {
                         if !self.ir().def(d).params.is_empty() {
                             return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[&name]));
                         }
-                        let scope = self.ev().scope(d);
+                        let scope = self
+                            .ev()
+                            .scope(d)
+                            .map_err(|e| BindError::unsupported(e.to_string()))?;
                         let body = self.ir().def(d).body;
                         self.spec(body, scope, None)?;
                     }
@@ -89,7 +92,10 @@ impl Binder<'_> {
                         self.output
                             .push(Message::warning(Ec::TlcLiveFormulaStateLevel, &[&name]));
                     }
-                    let scope = self.ev().scope(d);
+                    let scope = self
+                        .ev()
+                        .scope(d)
+                        .map_err(|e| BindError::unsupported(e.to_string()))?;
                     let body = self.ir().def(d).body;
                     self.props(name.clone(), body, scope.clone(), None)?;
                     self.configured_properties.push(Named {
@@ -191,7 +197,12 @@ impl Binder<'_> {
                         };
                         return Err(BindError::tlc(Ec::TlcInvariantViolatedLevel, params));
                     }
-                    let pred = Pred::new(def.body, self.ev().scope(d));
+                    let pred = Pred::new(
+                        def.body,
+                        self.ev()
+                            .scope(d)
+                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                    );
                     self.invariants.push(Named { name, pred });
                 }
                 None => {
@@ -252,7 +263,12 @@ impl Binder<'_> {
                     &[which, &name],
                 ));
             }
-            let pred = Pred::new(self.ir().def(d).body, self.ev().scope(d));
+            let pred = Pred::new(
+                self.ir().def(d).body,
+                self.ev()
+                    .scope(d)
+                    .map_err(|e| BindError::unsupported(e.to_string()))?,
+            );
             if which == "initial predicate" {
                 self.init.push(Init { pred, def: Some(d) });
             } else {
@@ -272,7 +288,12 @@ impl Binder<'_> {
                     if !self.ir().def(d).params.is_empty() {
                         return Err(BindError::tlc(Ec::TlcConfigIdRequiresNoArg, &[what, name]));
                     }
-                    let pred = Pred::new(self.ir().def(d).body, self.ev().scope(d));
+                    let pred = Pred::new(
+                        self.ir().def(d).body,
+                        self.ev()
+                            .scope(d)
+                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                    );
                     out.push(Named {
                         name: name.clone(),
                         pred,
@@ -316,7 +337,12 @@ impl Binder<'_> {
                         &["view function", &name],
                     ));
                 }
-                let pred = Pred::new(self.ir().def(d).body, self.ev().scope(d));
+                let pred = Pred::new(
+                    self.ir().def(d).body,
+                    self.ev()
+                        .scope(d)
+                        .map_err(|e| BindError::unsupported(e.to_string()))?,
+                );
                 Ok(Some(Named { name, pred }))
             }
             Some(_) => Err(BindError::tlc(
@@ -356,7 +382,12 @@ impl Binder<'_> {
                 }
                 Ok(Named {
                     name: name.to_owned(),
-                    pred: Pred::new(self.ir().def(d).body, self.ev().scope(d)),
+                    pred: Pred::new(
+                        self.ir().def(d).body,
+                        self.ev()
+                            .scope(d)
+                            .map_err(|e| BindError::unsupported(e.to_string()))?,
+                    ),
                 })
             }
             Some(_) => Err(BindError::tlc(
@@ -383,8 +414,8 @@ impl Binder<'_> {
             .map_err(|err| BindError::bug(format!("binding a LET: {err}")))
     }
 
-    fn level(&self, e: ExprId, scope: &Scope) -> u8 {
-        LevelCx::new(&self.t).level(e, scope)
+    fn level(&self, e: ExprId, scope: &Scope) -> R<u8> {
+        LevelCx::new(&self.t).try_level(e, scope)
     }
 
     /// TLC's `toString()` of a node: its location (or a numeral's image).
@@ -394,9 +425,9 @@ impl Binder<'_> {
 
     /// `lookup(opNode, c)` for a zero-argument application, or `None` if the
     /// expression is not one.
-    fn lookup_zero(&self, e: ExprId, scope: &Scope) -> Option<(String, Found)> {
+    fn lookup_zero(&self, e: ExprId, scope: &Scope) -> R<Option<(String, Found)>> {
         let ir = self.ir();
-        Some(match ir.expr(e) {
+        Ok(Some(match ir.expr(e) {
             Expr::Def(d) => {
                 let name = ir.def(*d).name.clone();
                 let found = match self.t.lookup_def(*d) {
@@ -409,10 +440,14 @@ impl Binder<'_> {
                     },
                     Look::Value(v) => Found::Value(v),
                     Look::Literal(lit) => {
-                        match self
-                            .ev()
-                            .eval_scoped(&self.ev().scope(*d), lit, &St::constant())
-                        {
+                        match self.ev().eval_scoped(
+                            &self
+                                .ev()
+                                .scope(*d)
+                                .map_err(|e| BindError::unsupported(e.to_string()))?,
+                            lit,
+                            &St::constant(),
+                        ) {
                             Ok(v) => Found::Value(v),
                             Err(err) => Found::Other(err.to_string()),
                         }
@@ -452,8 +487,8 @@ impl Binder<'_> {
                 if *b { "TRUE" } else { "FALSE" }.to_owned(),
                 Found::Value(Value::Bool(*b)),
             ),
-            _ => return None,
-        })
+            _ => return Ok(None),
+        }))
     }
 
     /// A declaration's tool object (TLC's lookup does not see instance
@@ -490,14 +525,14 @@ impl Binder<'_> {
             }
             _ => {}
         }
-        if let Some((name, found)) = self.lookup_zero(e, &scope) {
+        if let Some((name, found)) = self.lookup_zero(e, &scope)? {
             match found {
                 Found::Def(d, s) => {
                     if !ir.def(d).params.is_empty() {
                         return Err(BindError::tlc(Ec::TlcConfigOpNoArgs, &[&name]));
                     }
                     let body = ir.def(d).body;
-                    if self.level(body, &s) == 1 {
+                    if self.level(body, &s)? == 1 {
                         let mut pred = Pred::new(body, s);
                         if let Some(w) = wrap {
                             pred.location = w;
@@ -584,7 +619,7 @@ impl Binder<'_> {
             Expr::Selected(a) => return self.spec(*a, scope, wrap),
             _ => {}
         }
-        let level = self.level(e, &scope);
+        let level = self.level(e, &scope)?;
         let mut pred = Pred::new(e, scope);
         if let Some(w) = wrap {
             pred.location = w;
@@ -772,7 +807,7 @@ impl Binder<'_> {
             _ => {}
         }
         let is_var = matches!(ir.expr(e), Expr::Var { .. });
-        if !is_var && let Some((op_name, found)) = self.lookup_zero(e, &scope) {
+        if !is_var && let Some((op_name, found)) = self.lookup_zero(e, &scope)? {
             match found {
                 Found::Def(d, s) => {
                     if !ir.def(d).params.is_empty() {
@@ -816,7 +851,10 @@ impl Binder<'_> {
                 // `opDefEvaluator.contexts(pred1, c)`: the domains in TLC's
                 // context, which does not hold the substitutions; a
                 // `TLCRuntimeException` makes TLC handle the formula below.
-                let plain = self.ev().scope_without_substs(&scope);
+                let plain = self
+                    .ev()
+                    .scope_without_substs(&scope)
+                    .map_err(|e| BindError::unsupported(e.to_string()))?;
                 match self.ev().scope_bindings(&plain, e, &St::constant()) {
                     Ok(scopes) => {
                         if scopes.is_empty() {
@@ -825,7 +863,7 @@ impl Binder<'_> {
                         let n = self.node_string(body);
                         for s in scopes {
                             // The bindings, over the scope with its substitutions.
-                            let s = self.rebase_bindings(&scope, &s, e);
+                            let s = self.rebase_bindings(&scope, &s, e)?;
                             self.props(n.clone(), body, s, wrap)?;
                         }
                         return Ok(());
@@ -857,8 +895,8 @@ impl Binder<'_> {
                 }
                 if matches!(ir.expr(a), Expr::StepBox { .. }) {
                     self.implied_actions.push(Named { name, pred });
-                } else if self.level(a, &scope) < 2 {
-                    let n = match self.lookup_zero(a, &scope) {
+                } else if self.level(a, &scope)? < 2 {
+                    let n = match self.lookup_zero(a, &scope)? {
                         Some((op_name, _)) => op_name,
                         None => name,
                     };
@@ -875,7 +913,7 @@ impl Binder<'_> {
             Expr::Selected(a) => return self.props(name, *a, scope, wrap),
             _ => {}
         }
-        let level = self.level(e, &scope);
+        let level = self.level(e, &scope)?;
         let mut pred = Pred::new(e, scope);
         if let Some(w) = wrap {
             pred.location = w;
@@ -943,21 +981,24 @@ impl Binder<'_> {
     }
 
     /// `scope` with the variables of quantifier `q` bound as in `bound`.
-    fn rebase_bindings(&self, scope: &Scope, bound: &Scope, q: ExprId) -> Scope {
+    fn rebase_bindings(&self, scope: &Scope, bound: &Scope, q: ExprId) -> R<Scope> {
         let ir = self.ir();
         let Expr::Quant { bounds, .. } = ir.expr(q) else {
-            return bound.clone();
+            return Ok(bound.clone());
         };
         let mut s = scope.clone();
         for b in bounds {
             for &slot in &b.vars {
                 let r = dive_ir::LocalRef { up: 0, slot };
                 if let SlotView::Value(v) = self.ev().scope_slot(bound, r) {
-                    s = self.ev().scope_bind(&s, slot, v);
+                    s = self
+                        .ev()
+                        .scope_bind(&s, slot, v)
+                        .map_err(|e| BindError::unsupported(e.to_string()))?;
                 }
             }
         }
-        s
+        Ok(s)
     }
 }
 

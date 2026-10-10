@@ -104,7 +104,10 @@ fn entry_model(source: &str, cfg: &str, tlc: bool) -> Model {
 
 fn predicate(m: &Model, name: &str) -> dive_model::Pred {
     let id = m.ir.root_def(name).expect("predicate definition");
-    dive_model::Pred::new(m.ir.def(id).body, m.evaluator.scope(id))
+    dive_model::Pred::new(
+        m.ir.def(id).body,
+        m.evaluator.scope(id).expect("valid scope"),
+    )
 }
 
 fn entry_state() -> dive_trace::State {

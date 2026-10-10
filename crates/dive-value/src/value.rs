@@ -231,7 +231,7 @@ pub(crate) struct SetInner {
 ///
 /// `dive-value` stores and prints such sets but cannot evaluate them: `dive-eval`
 /// implements this trait.
-pub trait DeferredSet: Send + Sync + fmt::Debug {
+pub trait DeferredSet: Send + Sync + fmt::Debug + std::any::Any {
     /// Which construct the set is.
     fn kind(&self) -> DeferredKind;
     /// Computes the set's elements in any order; `dive-value` normalizes them.
@@ -347,6 +347,16 @@ impl Set {
         ));
         let _ = set.0.elems.set(elems);
         set
+    }
+
+    /// Stored explicit elements, without normalization, enumeration or callbacks.
+    #[must_use]
+    pub fn stored_elements(&self) -> Option<&[Value]> {
+        match &self.0.repr {
+            SetRepr::Enum => self.0.elems.get().map(AsRef::as_ref),
+            SetRepr::Raw(e) => Some(e),
+            _ => None,
+        }
     }
 
     /// The set's kind.

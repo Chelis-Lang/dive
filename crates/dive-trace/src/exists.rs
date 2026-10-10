@@ -248,7 +248,12 @@ impl Search<'_> {
         depth: usize,
     ) -> Result<(), ExistsError> {
         self.step(depth)?;
-        let node = self.model.ir.node(expr);
+        let node = self
+            .model
+            .ir
+            .nodes()
+            .get(expr.index())
+            .ok_or_else(|| ExistsError::Unsupported("missing action expression".into()))?;
         if node
             .effects
             .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
@@ -781,6 +786,20 @@ pub fn exists_successor(
     nonstuttering: Option<&Pred>,
     limits: Limits,
 ) -> Result<Decision, ExistsError> {
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+    model
+        .evaluator
+        .validate_predicate(&action.scope, action.expr)
+        .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+    if let Some(sub) = nonstuttering {
+        model
+            .evaluator
+            .validate_predicate(&sub.scope, sub.expr)
+            .map_err(|e| ExistsError::Unsupported(e.to_string()))?;
+    }
     if state.len() != model.ir.vars().len() || state.iter().any(Option::is_none) {
         return Err(ExistsError::Invalid(
             "state does not assign every variable".into(),
@@ -800,7 +819,14 @@ pub fn exists_successor(
     let mut needed = BTreeSet::new();
     cx.scan(action.expr, &action.scope, false, &mut needed, 0)?;
     if let Some(sub) = nonstuttering {
-        if model.ir.node(sub.expr).level > Level::State {
+        if model
+            .ir
+            .nodes()
+            .get(sub.expr.index())
+            .ok_or_else(|| ExistsError::Unsupported("missing change subscript".into()))?
+            .level
+            > Level::State
+        {
             return Err(ExistsError::Unsupported(
                 "action-level change subscript".into(),
             ));
@@ -876,23 +902,24 @@ mod tuple_shape_tests {
             .expect("cfg");
         let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind");
         let id = model.ir.root_def("Identity").expect("identity");
-        let scope = model.evaluator.scope(id);
+        let scope = model.evaluator.scope(id).expect("valid scope");
         let bad = ExprId(u32::MAX);
         let arg = Arg::Expr {
             expr: bad,
             pass: dive_ir::Pass::Lazy,
         };
-        let captured = model
+        let error = model
             .evaluator
             .scope_apply(&scope, id, &[arg])
-            .expect("lazy scope");
+            .expect_err("malformed capture refused");
+        assert!(error.message().contains("DIVE-EVAL-C001"));
         let mut proof = TupleProof {
             model: &model,
             fuel: 256,
         };
         assert!(!proof.tuple(bad, &scope));
         assert!(!proof.definition(DefId(u32::MAX), &scope));
-        assert!(!proof.tuple(model.ir.def(id).body, &captured));
+        assert_eq!(model.take_output(), Vec::<String>::new());
         let pair = model.ir.root_def("Pair").expect("pair");
         assert!(proof.tuple(model.ir.def(pair).body, &scope));
         let mut exhausted = TupleProof {

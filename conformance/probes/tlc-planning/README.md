@@ -79,3 +79,19 @@ The probe records all three pinned tables rather than substituting a formula
 helper's name for the configured property. Keeping action attribution through
 future tableau/witness execution is a separate representation obligation
 tracked in #134, not certified by normalization/grouping equality here.
+
+
+The original native source matrix is immutable historical evidence. Its exact
+source bytes are retained under `native-source-0b02e46/` and checked against the
+unchanged `source-matrix.json`. The fallible evaluator/scope API migration is
+tracked separately by `context-admission-source-matrix.json`; that record checks
+the current implementation/test bytes and links to the historical matrix. The
+same field/truth/negative controls still run; pinned selections and raw oracle
+captures were not rewritten to accommodate this migration.
+
+The evaluator admission integration preserves the prior source matrices exactly
+against archived native source bytes. The separate
+`conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json`
+hashes the current union of planning, context and particle/tableau controls.
+Both historical and current controls are verified; no pinned selection, raw
+transcript or earlier observation is replaced.

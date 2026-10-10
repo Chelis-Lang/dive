@@ -342,3 +342,9 @@ are in `crates/dive-pluscal/translation-acceptance/`. Both surface syntaxes, tok
 streams and span/trivia-free CST structure are checked. TLC runs only in the
 development capture tools; the Rust runtime invokes no Java or external translator.
 No algorithm is borrowed from competitor implementations.
+
+## Public evaluator context admission
+
+| Implementation | Reference | License | Evidence and scope |
+|---|---|---|---|
+| Public evaluator/context admission (`dive-eval/src/context.rs`, scope/action creation and independent endpoint checks) | Own defensive Rust API design; existing IR structural validator and TLC binding signatures matched above | Own design | Non-evaluating typed admission, source `8f451ff` panic reproduction in `crates/dive-api/tests/fixtures/public-context/`, valid recursion/operator and foreign-scope controls. The `.cfg` constant-substitution arity mapping preserves `SpecProcessor.processConstantDefns` / EC 2225 at pin `94d0c50`; no new checker algorithm port or full caller-IR certification. |

@@ -51,23 +51,24 @@ pub(crate) struct Tables {
 }
 
 impl Tables {
-    pub(crate) fn new(ir: Arc<Ir>) -> Self {
-        let root_vars = ir.vars().iter().map(|&d| ir.decl(d).name.clone()).collect();
+    pub(crate) fn new(ir: Arc<Ir>) -> Result<Self, crate::BindError> {
         let n = ir.consts().len();
         // A placeholder until the constants are bound, with its own name
         // table so that it interns nothing in the run's.
         let ev = Evaluator::new(
             dive_eval::Model::new(ir.clone()),
             dive_eval::Options::default(),
-        );
-        Self {
+        )
+        .map_err(|e| crate::BindError::unsupported(e.to_string()))?;
+        let root_vars = ir.vars().iter().map(|&d| ir.decl(d).name.clone()).collect();
+        Ok(Self {
             ir,
             ev,
             root_vars,
             consts: vec![None; n],
             tool_obj: HashMap::new(),
             body_obj: HashMap::new(),
-        }
+        })
     }
 
     pub(crate) fn set_evaluator(&mut self, ev: Evaluator) {

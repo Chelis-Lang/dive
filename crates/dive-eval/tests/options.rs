@@ -21,7 +21,7 @@ fn run(src: &str, opts: Options) -> (Vec<String>, AssumptionOutcome) {
         root_text: src.to_owned(),
     };
     let model = harness::bind(&loaded, None, opts).expect("binds");
-    let ev = Evaluator::new(model, opts);
+    let ev = Evaluator::new(model, opts).expect("valid evaluator context");
     let outcome = ev.check_assumptions(|_| false);
     (ev.take_output(), outcome)
 }
@@ -156,7 +156,8 @@ fn equality_api_obeys_the_evaluator_comparison_profile() {
     let analysis = dive_sema::analyze_source("M.tla", &source, &dive_sema::Options::default());
     let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
     for opts in [Options::tlc(), Options::dive()] {
-        let evaluator = Evaluator::new(dive_eval::Model::new(ir.clone()), opts);
+        let evaluator = Evaluator::new(dive_eval::Model::new(ir.clone()), opts)
+            .expect("valid evaluator context");
         let a = evaluator
             .eval_def(ir.root_def("A").expect("A"), &dive_eval::St::constant())
             .expect("tuple");

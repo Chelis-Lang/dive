@@ -1,0 +1,22 @@
+//! Original public constructor/capture reproduction on source 8f451ff.
+#![allow(clippy::expect_used, reason = "baseline regression reproduction")]
+use std::sync::Arc;
+use dive_eval::{Evaluator, Model, Options};
+#[test]
+fn original_constructor_and_lazy_capture() {
+    let source = "---- MODULE Before ----\nIdentity(x) == x\nText == \"literal interned before failure\"\n====\n";
+    let a = dive_sema::analyze_source("Before.tla",source,&dive_sema::Options::default());
+    let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+    let id = ir.root_def("Identity").expect("identity");
+    let mut model = Model::new(ir.clone());
+    let names = model.names.clone();
+    let before = names.len();
+    model.redirects.insert(id,dive_ir::DefId(u32::MAX));
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| Evaluator::new(model,Options::tlc())));
+    println!("redirect_target_out_of_range: panicked={}, names_before={}, names_after={}",result.is_err(),before,names.len());
+    assert!(result.is_err());
+    let ev = Evaluator::new(Model::new(ir),Options::tlc());
+    let captured = ev.scope_apply(&ev.scope(id),id,&[dive_ir::Arg::Expr { expr: dive_ir::ExprId(u32::MAX), pass: dive_ir::Pass::Lazy }]);
+    println!("missing_lazy_expression: constructor_admitted={}",captured.is_ok());
+    assert!(captured.is_ok());
+}

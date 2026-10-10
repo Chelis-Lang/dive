@@ -48,7 +48,7 @@ impl std::error::Error for TemporalError {}
 /// let cfg = dive_config::parse("INIT Init\nNEXT Next\n").into_config().unwrap();
 /// let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc())?;
 /// let p = model.ir.root_def("P").unwrap();
-/// let pred = Pred::new(model.ir.def(p).body, model.evaluator.scope(p));
+/// let pred = Pred::new(model.ir.def(p).body, model.evaluator.scope(p).expect("valid scope"));
 /// let states = vec![Arc::from([Some(Value::Bool(true))]),
 ///                   Arc::from([Some(Value::Bool(false))])];
 /// assert_eq!(evaluate_lasso(&model, &pred, &states, 0)?, vec![true, true]);
@@ -67,6 +67,14 @@ pub fn evaluate_lasso(
     states: &[State],
     back_to: usize,
 ) -> Result<Vec<bool>, TemporalError> {
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+    model
+        .evaluator
+        .validate_predicate(&formula.scope, formula.expr)
+        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
     if states.is_empty() || back_to >= states.len() {
         return Err(TemporalError::Invalid("invalid lasso back edge".into()));
     }
@@ -90,6 +98,14 @@ pub fn evaluate_lasso(
 /// Preflight for finite predicates used to certify a periodic behavior.
 /// Refuse search-dependent or opaque reads before evaluating anything.
 pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), TemporalError> {
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
+    model
+        .evaluator
+        .validate_predicate(&pred.scope, pred.expr)
+        .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
     let node = model.ir.nodes().get(pred.expr.index()).ok_or_else(|| {
         TemporalError::Unsupported("missing periodic predicate expression".into())
     })?;
