@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "comparator_sha256": "76606413a055898ffc39afed090a217dc67081aec4fb8a1290ce29c62751e325",
+  "manifest_sha256": "26eec8a0fb7bde05400c67fa4a9df8d1b3585280844ed59c1cea059a3bfca06a",
+  "native_sha256": "dbf8240c1656279bcd122809785891d9665155918607d43a8f473689ee3c0dd8",
+  "control_count": 39,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_constant_basic",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_self_tail_local",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "false-exhaustive",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "missing-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "bad-disposition",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "bad-exit",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "artifact disposition/exit contradicts artifact claim"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "wrong-stage",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native artifact without primary translation"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "wrong-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_undefined_local",
+      "mutation": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    }
+  ]
+}

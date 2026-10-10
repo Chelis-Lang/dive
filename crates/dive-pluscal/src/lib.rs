@@ -2,8 +2,9 @@
 //!
 //! [`parse`] produces a source AST, not a translated TLA+ specification.
 //! [`translate`] supports bounded sequential and disjoint finite-process paths, including reference labels;
-//! disjoint sequential procedures (including recursion) and bounded macros are
-//! admitted. Unproved process/procedure scopes, names and branch-internal labels
+//! disjoint sequential procedures (including recursion), single finite process-owned
+//! procedures and bounded macros are admitted. Unproved process/procedure scopes,
+//! combined fairness, names and branch-internal labels
 //! remain separate pending stages. Expression slices retain counted nesting and are
 //! neither syntax-checked as TLA+ expressions nor evaluated.
 //! No Java runtime is used by this crate.

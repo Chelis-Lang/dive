@@ -52,6 +52,12 @@ pub(super) fn normalize(
     options: &TranslationOptions,
 ) -> Result<lower::Model, TranslationError> {
     if processes.len() != 1 {
+        if !parsed.algorithm.procedures.is_empty() {
+            return Err(unsupported(
+                parsed.algorithm.span,
+                "multiple process procedure ownership",
+            ));
+        }
         return normalize_multiple(parsed, processes, options);
     }
     normalize_one(parsed, &processes[0], options, false)
@@ -166,6 +172,38 @@ fn normalize_one(
             ));
         }
     }
+    if !parsed.algorithm.procedures.is_empty() {
+        if process.fairness != Fairness::Unfair || options.fairness != FairnessOption::Declared {
+            return Err(unsupported(
+                process.span,
+                "process/procedure fairness ownership",
+            ));
+        }
+        for procedure in &parsed.algorithm.procedures {
+            if procedure.name.text == process.name.text
+                || procedure
+                    .parameters
+                    .iter()
+                    .chain(&procedure.variables)
+                    .any(|d| d.name.text == process.name.text)
+            {
+                return Err(unsupported(
+                    procedure.span,
+                    "process/procedure name disambiguation",
+                ));
+            }
+            if parsed
+                .semantic_tokens(procedure.span)
+                .iter()
+                .any(|t| locals.contains(t.text.as_str()))
+            {
+                return Err(unsupported(
+                    procedure.span,
+                    "procedure references process-local storage",
+                ));
+            }
+        }
+    }
     // Names are admitted before concatenating the scalar storage declarations.
     // Existing continuation/changed-variable rules then apply to this one body.
     let mut sequential = parsed.clone();
@@ -177,7 +215,22 @@ fn normalize_one(
         .algorithm
         .variables
         .extend(process.variables.clone());
-    let mut model = lower::normalize_with_pc(&sequential, options, force_pc)?;
+    let mut model = if sequential.algorithm.procedures.is_empty() {
+        lower::normalize_with_pc(&sequential, options, force_pc)?
+    } else {
+        let mut model = super::procedures::normalize(&sequential, options)?;
+        // GenVars/GenInit put all procedure slots before process locals.
+        let names: BTreeSet<_> = process
+            .variables
+            .iter()
+            .map(|d| d.name.text.as_str())
+            .collect();
+        model
+            .variables
+            .retain(|d| !names.contains(d.name.text.as_str()));
+        model.variables.extend(process.variables.clone());
+        model
+    };
     let mut process = process.clone();
     process.fairness = if options.fairness == FairnessOption::None {
         Fairness::Unfair

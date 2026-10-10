@@ -1213,3 +1213,37 @@ See [recursive procedure use and limits](pluscal-recursive-procedures.md).
 Strict stack-witness namespace proof remains pending; bounded unbounded-model
 stops never claim exhaustive search or termination. Process/scoped name handling
 and full translator parity remain pending.
+
+**PlusCal process procedure status (D-008):** one unfair finite process block
+can now call disjoint procedures in both syntaxes, including recursive and
+self-tail transfers. Slots and stack are owned by the process ID, while explicit
+source `stack` expressions remain as written by the reference. Invalid upstream
+artifacts, including empty self-tail conjunctions, are still rejected in both
+profiles. Multiple blocks with procedures, scoped rewriting/fairness and strict
+runtime-namespace witnesses remain named limitations; canonical witnesses do
+not certify TLC replay. See [process procedure use](pluscal-process-procedures.md).
+
+### Procedure names can collide with generated ProcSet (D-008 candidate)
+
+This minimal C-style PlusCal body uses a parameter named `ProcSet`:
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First(ProcSet = 0) { F: x := ProcSet; R: return; };
+  process (Worker = 1) { L: call First(2); E: skip; }
+}
+```
+
+The pinned translator exits **0**, declaring variable `ProcSet` and also emitting
+operator `ProcSet == {1}`. Clean SANY with `-error-codes` exits **4**, reporting
+the multiply-defined symbol. Naming the procedure itself `ProcSet` similarly
+produces a zero-exit translation with conflicting zero/one-argument operators.
+Both C/P versions are retained: four invalid primary artifacts in
+`crates/dive-pluscal/process-procedure-acceptance/names/primary`.
+
+Successful generation is not a usable artifact. Public native translation in
+both profiles rejects the enclosing module and claims neither acceptance nor
+proof. These rows earn diagnostic credit only; no automatic rename, corrected
+output option or new default has been adopted. Status: measured upstream
+artifact-generation defect, with source/raw/SANY and CLI/API rejection controls.

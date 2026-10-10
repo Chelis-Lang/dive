@@ -1,4 +1,4 @@
-//! Bounded sequential `PcalTranslate` procedure namespace and call admission.
+//! Bounded `PcalTranslate` procedure namespace and borrowed-scope call admission.
 use super::{
     TranslationError, TranslationOptions, TranslationStage, error, lower, macros::Expanded,
 };

@@ -315,3 +315,10 @@ strict pending versus qualified canonical witnesses are separate contracts.
 Unbounded-model primary timeouts and explicit native capture bounds never earn
 proof credit. F-034/F-035 remain partial/audit-required; see
 [recursive procedures](pluscal-recursive-procedures.md).
+
+The [single finite process procedure increment](pluscal-process-procedures.md)
+retains 112 capture-first C/P controls and owned parameter/local/stack/pc
+transfers. Native artifacts and generated-model/witness stages remain separate;
+all invalid primary output is uncredited. Multiple process/procedure ownership,
+renaming/fairness and strict #124 namespace replay remain pending. F-034/F-035
+stay partial/audit-required; no family denominator or certification change.

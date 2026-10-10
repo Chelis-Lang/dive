@@ -1,0 +1,75 @@
+---- MODULE ProcessProcedure_P_member_process_local_assign ----
+EXTENDS Integers, Sequences, TLC
+(* --algorithm A
+variable x=0;
+procedure First(a=0)
+
+begin
+F:y:=a; R:return;
+end procedure;
+
+process Worker \in {1,2}
+variable y=self;
+begin
+L:call First(2); E:skip;
+end process;
+end algorithm; *)
+\* BEGIN TRANSLATION (chksum(pcal) = "c3b17efb" /\ chksum(tla) = "1d8a092")
+VARIABLES pc, x, stack, a, y
+
+vars == << pc, x, stack, a, y >>
+
+ProcSet == ({1,2})
+
+Init == (* Global variables *)
+        /\ x = 0
+        (* Procedure First *)
+        /\ a = [ self \in ProcSet |-> 0]
+        (* Process Worker *)
+        /\ y = [self \in {1,2} |-> self]
+        /\ stack = [self \in ProcSet |-> << >>]
+        /\ pc = [self \in ProcSet |-> "L"]
+
+F(self) == /\ pc[self] = "F"
+           /\ y' = [y EXCEPT ![self] = a[self]]
+           /\ pc' = [pc EXCEPT ![self] = "R"]
+           /\ UNCHANGED << x, stack, a >>
+
+R(self) == /\ pc[self] = "R"
+           /\ pc' = [pc EXCEPT ![self] = Head(stack[self]).pc]
+           /\ a' = [a EXCEPT ![self] = Head(stack[self]).a]
+           /\ stack' = [stack EXCEPT ![self] = Tail(stack[self])]
+           /\ UNCHANGED << x, y >>
+
+First(self) == F(self) \/ R(self)
+
+L(self) == /\ pc[self] = "L"
+           /\ /\ a' = [a EXCEPT ![self] = 2]
+              /\ stack' = [stack EXCEPT ![self] = << [ procedure |->  "First",
+                                                       pc        |->  "E",
+                                                       a         |->  a[self] ] >>
+                                                   \o stack[self]]
+           /\ pc' = [pc EXCEPT ![self] = "F"]
+           /\ UNCHANGED << x, y >>
+
+E(self) == /\ pc[self] = "E"
+           /\ TRUE
+           /\ pc' = [pc EXCEPT ![self] = "Done"]
+           /\ UNCHANGED << x, stack, a, y >>
+
+Worker(self) == L(self) \/ E(self)
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
+               /\ UNCHANGED vars
+
+Next == (\E self \in ProcSet: First(self))
+           \/ (\E self \in {1,2}: Worker(self))
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+
+\* END TRANSLATION 
+====

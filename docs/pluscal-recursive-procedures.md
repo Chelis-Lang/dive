@@ -158,3 +158,7 @@ Worker widths in this study are requested widths. TLC encounter-order paths may
 run inline with the actual execution mode and reason recorded in each checker
 document. These controls prove result agreement, not physical parallel scaling.
 No performance claim follows from this artifact/execution campaign.
+
+The subsequent [single finite process procedure slice](pluscal-process-procedures.md)
+admits bounded process-owned frames separately; this sequential delivery's
+original evidence and pending qualifications remain unchanged.

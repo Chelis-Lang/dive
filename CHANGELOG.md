@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native PlusCal procedure calls from one finite process block: owned indexed
+  parameter/local slots, stack/pc transitions, recursive and self-tail calls,
+  both source syntaxes and explicit global limits. Process/scoped renaming and
+  strict runtime-namespace witnesses remain pending; invalid reference artifacts
+  are rejected. See `docs/pluscal-process-procedures.md`.
+
 - Native recursive sequential PlusCal procedures: self/mutual call stacks,
   frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
   retain pinned artifacts/errors without unrolling. Invalid upstream output is

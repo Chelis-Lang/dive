@@ -269,3 +269,18 @@ before native changes; the full P-syntax selection is retained too. This is
 candidate evidence, never an admitted artifact or finite-loop proof. Native
 public admission keeps invalid primary output rejected in both profiles; no
 silent repair/default is adopted.
+
+D-008 now includes native single finite process procedure ownership (ADR 0044).
+No result-changing default is introduced: all owned call/return generation is
+matched to the pinned reference. Explicit source `stack` stays unsubstituted;
+generated stack operations index the owner. Invalid primary artifacts remain
+public rejections; multiple blocks/renaming/fairness and strict #124 witnesses
+remain pending, as documented in `docs/pluscal-process-procedures.md`.
+
+A further D-008 candidate is a procedure/parameter named `ProcSet` in a process
+algorithm. Four retained C/P primary translations exit 0 but their clean SANY
+runs exit 4 because generated ProcSet conflicts with the source name. Native
+public admission rejects these in both profiles; generation is diagnostic-only,
+with no corrected-output option or naming default adopted. The minimal source
+and exact disposition are in the D-008 user log and process procedure `names`
+study, not credited as artifact matches.

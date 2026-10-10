@@ -1,0 +1,1001 @@
+{
+  "schema_version": 1,
+  "stage": "incomplete-process-owned-recursive-controls",
+  "script_sha256": "55a0238bbb52c395a3e21c7a1ba11281d8e5ac179547b9f9c507757281a6138e",
+  "probe_sha256": "c383a7a6a8f35b55c372d6bf71c7d4700ddceecf8404717ea2c0ba246d8968b0",
+  "library_sha256": {
+    "dive_sema": "5b960fc68baa8117bd8c58a312b4457c2ff408c2018906b816652c1ed997a7b7",
+    "dive_ir": "d03b65a3d0e21ac0779767cd56d9c691f1694d5b385f3def8bbddc06a2c33324",
+    "dive_config": "e9ae5d117697e61752edea636dfe23ba06bad39fcc97fc2757e164f158970832",
+    "dive_model": "d78529b2365089b32e8a7b87a4b7027f0c266ade12ac0e0cb8b292f3838b13c4",
+    "dive_check": "e4c0cea8b9b9bb390c36da8cff725c370c2f2cc4baf206c6b2d7471ff4fc5019",
+    "dive_store": "4078865680f11f7355d55c905d08545437225630da5a29ed9dc8dab1c1d8cc78",
+    "serde_json": "341c90d3e91ca7be598a2b4fe8bca5d507a8b4b3918cd00eb1a63927a1d05e61"
+  },
+  "native_sha256": "23466627a82d6cae363602d73f642f712b12a583e04cbbdd8013d3df943cfaf6",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_sha256": "96db79c655de7edbfced2fab47b15c99ec0fdf931d2c04ca482e3efad9396d77",
+  "primary_rows": [
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc-prefix.stdout.gz",
+          "sha256": "22f7fd5d1ac5b0907fb4f1f341b7d25c84fa9c08db5828c968e76df42a9f2be9"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc-prefix.stdout.gz",
+          "sha256": "c49ea3c84f47fd5c5896e8ad45c1ed9d67e4e18cebc15f42d6b466e20091e0c1"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "native_controls": [
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_C_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_C_unbounded_recursive.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedure_P_unbounded_recursive",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "ProcessProcedure_P_unbounded_recursive.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "family_certified": false
+}
