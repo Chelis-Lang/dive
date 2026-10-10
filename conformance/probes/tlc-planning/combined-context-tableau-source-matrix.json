@@ -14,7 +14,7 @@
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/lib.rs": "26dbdc61368b29cbc7362a6b18a347dcc93f8d08043365818eff93a7fe99a073",
+    "crates/dive-liveness/src/lib.rs": "4f8bd73b8626e3a82b325ed1a1cb6216b038bbaaa983d2f304f9c39574e6b139",
     "crates/dive-liveness/src/plan.rs": "5718a53f0547816ec1cb9a810756d794602a925a1b9e755421c2ff62e4c0a07c",
     "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
     "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
@@ -26,7 +26,10 @@
     "crates/dive-value/src/value.rs": "59428e7acb957b8c17a00472297e516492eca9d9f4f0305f287b21df40848d0a",
     "crates/dive-trace/src/temporal.rs": "7fc135838c764142c6213ce42efac4d913da5a44f1efe8eca6a070cef776baf5",
     "crates/dive-liveness/tests/planning.rs": "75a989d09237f12fc9c3c2743a1e2630038636840c5ea4d0757bd025dd660193",
-    "crates/dive-trace/tests/temporal.rs": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16"
+    "crates/dive-trace/tests/temporal.rs": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16",
+    "crates/dive-liveness/src/phase_l.rs": "e96101367a0f3b79b0476c3cdc35d14b7c1afd4c0d5535bad61b4f6b6e326abe",
+    "crates/dive-liveness/tests/phase_l.rs": "26b5867aa5bb83a054538c68f65939e336db03a17456c68d4cda4c43d9ad9945",
+    "scripts/check-phase-l.py": "933c32efa560bad71e7dceaac1b93a33f7d47b6f851b70b9c8a3dae94fdc2be3"
   },
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_pre_context_planning_matrix_sha256": "daac985ec3ffe01e1e1f7e70b35430e9f211dbb12642351b67aaee0859bd604d",
@@ -34,13 +37,21 @@
     "crates/dive-value/src/value.rs",
     "crates/dive-trace/src/temporal.rs",
     "crates/dive-liveness/tests/planning.rs",
-    "crates/dive-trace/tests/temporal.rs"
+    "crates/dive-trace/tests/temporal.rs",
+    "crates/dive-liveness/src/phase_l.rs",
+    "crates/dive-liveness/tests/phase_l.rs",
+    "scripts/check-phase-l.py"
   ],
   "historical_integrations": [
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-admitted-context/matrix.json",
       "matrix_sha256": "ca87bed28c143dab3ccb7cdb8840f70a9f364c5d645d1762c563c9ad04432e6a",
       "source_archive": "conformance/probes/tlc-planning/historical-admitted-context/sources"
+    },
+    {
+      "matrix_path": "conformance/probes/tlc-planning/historical-before-phase-l-integration/matrix.json",
+      "matrix_sha256": "9ef26c649db95bada96869274de6b40e88baa12a4b49151b49b5f0d9e8ec71e1",
+      "source_archive": "conformance/probes/tlc-planning/historical-before-phase-l-integration/sources"
     }
   ]
 }

@@ -1,0 +1,21 @@
+action_names	Live
+role_names	Identity
+configured_names	Live
+g0.tableau	false
+g0.initial	0
+source.fp	17760107650593637555
+incoming.0.fp	11330885170241725411
+incoming.0.duplicate	false
+incoming.1.fp	17760107650593637555
+incoming.1.duplicate	false
+incoming.2.fp	15040402659625261443
+incoming.2.duplicate	false
+incoming.3.fp	11330885170241725411
+incoming.3.duplicate	true
+stutter.duplicate	true
+capacity	16
+count	3
+slots	3:11330885170241725411;4:17760107650593637555;5:15040402659625261443
+initial.log	
+completion	bin-and-disk-insertion
+log	g0.a0:true;g0.a0:true;g0.a0:true

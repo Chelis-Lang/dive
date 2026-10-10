@@ -1,0 +1,32 @@
+Parsing file /Users/jeff/code/dive-phase-l-work/conformance/probes/tlc-phase-l/models/PhaseActionError/PhaseActionError.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4446827438636061414/Integers.tla (jar:file:/Users/jeff/code/dive-phase-l-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4446827438636061414/TLC.tla (jar:file:/Users/jeff/code/dive-phase-l-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4446827438636061414/Naturals.tla (jar:file:/Users/jeff/code/dive-phase-l-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4446827438636061414/Sequences.tla (jar:file:/Users/jeff/code/dive-phase-l-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-4446827438636061414/FiniteSets.tla (jar:file:/Users/jeff/code/dive-phase-l-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module PhaseActionError
+Semantic errors:
+
+*** Errors: 1
+
+line 6, col 11 to line 6, col 53 of module PhaseActionError
+
+<> followed by action not of form <<A>>_v.
+
+
+Starting... (2026-10-10 15:44:17)
+Exception in thread "main" util.Assert$TLCRuntimeException: Parsing or semantic analysis failed.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processSpec(SpecProcessor.java:451)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:199)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at tlc2.tool.liveness.ModelProbe.main(ModelProbe.java:39)

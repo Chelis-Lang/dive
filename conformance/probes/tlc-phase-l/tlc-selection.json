@@ -1,0 +1,62 @@
+[
+  {
+    "name": "PhaseAction"
+  },
+  {
+    "name": "PhaseActionConstraint"
+  },
+  {
+    "name": "PhaseActionError"
+  },
+  {
+    "name": "PhaseActionErrorValid"
+  },
+  {
+    "name": "PhaseActionValid"
+  },
+  {
+    "name": "PhaseBoth"
+  },
+  {
+    "name": "PhaseBothValid"
+  },
+  {
+    "name": "PhaseConstraint"
+  },
+  {
+    "name": "PhaseDualError"
+  },
+  {
+    "name": "PhaseDualErrorValid"
+  },
+  {
+    "name": "PhaseEffect"
+  },
+  {
+    "name": "PhaseIdentity"
+  },
+  {
+    "name": "PhaseLiveGet"
+  },
+  {
+    "name": "PhaseLocalRole"
+  },
+  {
+    "name": "PhaseSafetyStop"
+  },
+  {
+    "name": "PhaseState"
+  },
+  {
+    "name": "PhaseStateError"
+  },
+  {
+    "name": "PhaseSubscriptFalse"
+  },
+  {
+    "name": "PhaseSubscriptTrue"
+  },
+  {
+    "name": "PhaseTableau"
+  }
+]

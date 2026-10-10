@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "scope": "actual LiveCheck synthetic null-tableau invocation; no model execution or SCC verdict",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Issue 140 corrected synthetic callback adapter, retaining original compiler rejection; actual LiveCheck full selection",
+  "timestamp": "2026-10-10T14:34:10.658327+00:00",
+  "source_sha256": {
+    "SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
+    "EvaluationProbe.java": "03da2ccfc4b5d7db9812eed5bb03de6b117cc7e0341b10b8cfdf56c01507221a",
+    "capture-evaluation.py": "11cc976b2955a4a524d2946949174ae567544cb34b9520c0aca91f66dfb5d77a"
+  },
+  "selection_sha256": "9fbf9522af07edd79265ff42c45c8f9bdfde2177237d7ebb08374b8f571626fa",
+  "compiler": {
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "rows": [
+    {
+      "name": "g0-s0-a0-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g0-s0-a0-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g0-s0-a0-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g0-s0-a0-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g0-s0-a0-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a0-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a0-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a0-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a0-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a0-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "490ab1362d8a392044fdbe93b05a055c3786a59928a392d6932d793c6d2d9018",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a2-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1d19f64b47c2479081fb5fb13347460a1d1b42665ef72601fcad7fd196272d21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a2-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:first",
+        "log": "g0.a0:source:first",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "8fe7bfa752b8e10c641c50c0e6babb1abe3370f05cbc545a9b08bf778b198f81",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a2-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:second",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "26e63e64d695b069f948c509fe4550f18f4b6fe1bfaf744d03aaf23c3f76ab57",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a2-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1d19f64b47c2479081fb5fb13347460a1d1b42665ef72601fcad7fd196272d21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s0-a2-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1d19f64b47c2479081fb5fb13347460a1d1b42665ef72601fcad7fd196272d21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a0-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "efab03d90f74a8a8ee0197b75f9ddda6e99fe46da31ab352cc1ac181547ee9b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a0-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.s0:source:-",
+        "log": "g0.s0:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "afd70ba8823bdbf8505e69df853299f03e48157276f9b620a4c20fa6ba243eed",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a0-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "efab03d90f74a8a8ee0197b75f9ddda6e99fe46da31ab352cc1ac181547ee9b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a0-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "efab03d90f74a8a8ee0197b75f9ddda6e99fe46da31ab352cc1ac181547ee9b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a0-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "efab03d90f74a8a8ee0197b75f9ddda6e99fe46da31ab352cc1ac181547ee9b6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a2-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "dc12132a01fd2015193dc7f50b7f04a7387bc0f5b137b53fcb9d25d8becfc125",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a2-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:first",
+        "log": "g0.a0:source:first",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "8fe7bfa752b8e10c641c50c0e6babb1abe3370f05cbc545a9b08bf778b198f81",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a2-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:second",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "26e63e64d695b069f948c509fe4550f18f4b6fe1bfaf744d03aaf23c3f76ab57",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a2-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.s1:source:-",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "98897ca3dea334d94d94a9d0e4b9f993b98a3bea07735b973e96441c937b454a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g1-s2-a2-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "dc12132a01fd2015193dc7f50b7f04a7387bc0f5b137b53fcb9d25d8becfc125",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g2-s2-a2-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-;g1.a0:source:first;g1.a1:source:first;g1.a0:source:second;g1.a1:source:second;g1.a0:source:source-copy;g1.a1:source:source-copy;g1.s0:source:-;g1.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1bdda4a73064d6e24e11a2e7d157b980a073c4603a7c02ca8f621b3cfc28bf5a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g2-s2-a2-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:first",
+        "log": "g0.a0:source:first",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "8fe7bfa752b8e10c641c50c0e6babb1abe3370f05cbc545a9b08bf778b198f81",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g2-s2-a2-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:second",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "26e63e64d695b069f948c509fe4550f18f4b6fe1bfaf744d03aaf23c3f76ab57",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g2-s2-a2-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.s1:source:-",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "98897ca3dea334d94d94a9d0e4b9f993b98a3bea07735b973e96441c937b454a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g2-s2-a2-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a0:source:second;g0.a1:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.s0:source:-;g0.s1:source:-;g1.a0:source:first;g1.a1:source:first;g1.a0:source:second;g1.a1:source:second;g1.a0:source:source-copy;g1.a1:source:source-copy;g1.s0:source:-;g1.s1:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1bdda4a73064d6e24e11a2e7d157b980a073c4603a7c02ca8f621b3cfc28bf5a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g3-s1-a3-fail0",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a2:source:first;g0.a0:source:second;g0.a1:source:second;g0.a2:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.a2:source:source-copy;g0.s0:source:-;g1.a0:source:first;g1.a1:source:first;g1.a2:source:first;g1.a0:source:second;g1.a1:source:second;g1.a2:source:second;g1.a0:source:source-copy;g1.a1:source:source-copy;g1.a2:source:source-copy;g1.s0:source:-;g2.a0:source:first;g2.a1:source:first;g2.a2:source:first;g2.a0:source:second;g2.a1:source:second;g2.a2:source:second;g2.a0:source:source-copy;g2.a1:source:source-copy;g2.a2:source:source-copy;g2.s0:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "c64bf233800f98967ad78d2e6c42133c57f2b1c6181909ed9a3f949f495cf608",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g3-s1-a3-fail1",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a0:source:first",
+        "log": "g0.a0:source:first",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "8fe7bfa752b8e10c641c50c0e6babb1abe3370f05cbc545a9b08bf778b198f81",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g3-s1-a3-fail3",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a2:source:first",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a2:source:first",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "88f71151378ec4f540d62dbd53456d15f77ea1274d9e46e767b1bc2bfd82955a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g3-s1-a3-fail8",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g0.a1:source:source-copy",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a2:source:first;g0.a0:source:second;g0.a1:source:second;g0.a2:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "1d6e934dd31177477b0b782f226d82ac181d240c031466b2396daac7fadfc0f3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "g3-s1-a3-fail20",
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "initial.log": "",
+        "failure_class": "java.lang.IllegalStateException",
+        "failure_message": "diagnostic failure at g1.s0:source:-",
+        "log": "g0.a0:source:first;g0.a1:source:first;g0.a2:source:first;g0.a0:source:second;g0.a1:source:second;g0.a2:source:second;g0.a0:source:source-copy;g0.a1:source:source-copy;g0.a2:source:source-copy;g0.s0:source:-;g1.a0:source:first;g1.a1:source:first;g1.a2:source:first;g1.a0:source:second;g1.a1:source:second;g1.a2:source:second;g1.a0:source:source-copy;g1.a1:source:source-copy;g1.a2:source:source-copy;g1.s0:source:-",
+        "slots": "0:first;1:second;2:source-copy",
+        "capacity": "16",
+        "count": "3"
+      },
+      "stdout_sha256": "5777e194bb61f96f16f83a33f508190f4afaada1216361f53a72c7bbd325193b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

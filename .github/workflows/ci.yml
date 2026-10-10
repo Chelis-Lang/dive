@@ -84,6 +84,7 @@ jobs:
           python3 -I scripts/check-tlc-planning.py
           python3 -I scripts/check-tlc-tableau.py
           python3 -I scripts/check-temporal-action-order.py
+          python3 -I scripts/check-phase-l.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: tests
