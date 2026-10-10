@@ -15,6 +15,33 @@ and PlusCal. The [feature ledger](tlc-parity.md) inventories 37 semantic
 families and their source surfaces. Its implemented/partial labels and current
 model counts do not certify complete families or establish an overall percent.
 
+## Current delivered increments, 2026-10-10
+
+Since the preserved standard report below, the verified increments now include:
+
+- Pure safety symmetry, with concrete independently validated counterexamples;
+  unsupported value/startup and temporal combinations still refuse by name.
+- Bounded pure deferred domains and caller-scope preservation for supported
+  temporal arguments. Recursive and exported INSTANCE cases remain explicit gaps.
+- Seeded finite safety simulation and native DFID. Each mode reports its actual
+  scope and named refusals; neither implies complete simulation/DFID parity.
+- Ordered parallel temporal graph capture, plus a bounded TLC normalization,
+  DNF and order-of-solution projection. These planning artifacts do not lift
+  ordinary strict temporal model-checking refusals.
+- A native PlusCal source parser with field-level AST controls against the pin.
+  Source parsing does not imply translation, rewrite or checksum parity.
+- Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
+  ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
+  disk forced from the start. Current/next encoded frontiers are bounded;
+  visited sets, candidates, traces and temporal graphs are still outside that
+  budget, and checkpoint/recovery is not implemented by these transient files.
+
+The implementation census is seven implemented cores, 25 partial families and
+five missing families out of 37. Every family remains audit-required. The
+retained whole-selection standard report still provides the strict baseline;
+these smaller acceptance studies do not replace it or establish a percentage
+of complete TLC parity.
+
 ## Preserved standard strict model evidence
 
 Built from main `7ceb59f`, with binary SHA-256
@@ -57,7 +84,7 @@ it supplies cross-platform evidence, not a substitute for their validation.
 - **M5 errors:** value-construction provenance is still needed to reproduce
   ten source-dependent TLC deciding error classes (#61). These classes
   remain unverified and cannot count as agreement.
-- **M5 storage/IR:** disk spill, bounded-memory frontiers/candidates, and
+- **M5 storage/IR:** visited/candidate/trace spill, native checkpoint/recovery, and
   the remaining IR cache work in the work-package plan.
 - **M5 performance:** the benchmark runner is implemented; the recorded
   smoke timings come from a busy machine and establish correctness and
@@ -74,8 +101,10 @@ behavior-graph capture, then integrated accepting-lasso search and
 property attribution. A bounded formula/tableau language kernel now checks
 boolean combinations, always and eventually over supplied state/action atoms.
 Pure bound predicates lower to that kernel with retained scopes and source
-diagnostics and WF/SF enabledness expansion; dynamic contexts and TLC-exact
-planning remain pending.
+diagnostics and WF/SF enabledness expansion. Pure caller-scoped temporal
+arguments and bounded TLC normalization/DNF planning are implemented; dynamic
+contexts, recursive/exported INSTANCE arguments and exact execution remain
+pending.
 Independent fairness and successor-existence checking
 (#63), exact TLC lasso choice, remaining symmetry interactions, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
