@@ -2,8 +2,7 @@
   "schema_version": 1,
   "family_certified": false,
   "native_binary_sha256": "f554476fb66f24a910480ebfa9586839c2905cc4c22d6cc58edb1e580f10cbe6",
-  "runtime_source_commit": "8da1f96eb42ef928e7b7358ffdad592748fc38d3",
-  "source_note": "implementation bytes bound by the original macro delivery; this documentation replay uses its frozen artifact, not the subsequent shipping integration",
+  "source_note": "Frozen binary and exact checked source bytes are recorded by the original macro delivery. The delivery commit archives those bytes; it is not asserted to be the executable build commit.",
   "delivery": "crates/dive-pluscal/macro-acceptance/delivery.json",
   "rows": [
     {
@@ -64,5 +63,6 @@
       "stderr": "MacroExampleC-tlc.stderr",
       "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
-  ]
+  ],
+  "implementation_delivery_commit": "8da1f96eb42ef928e7b7358ffdad592748fc38d3"
 }
