@@ -443,3 +443,5 @@ introduced. The original safety `CheckResult` is retained privately; finite
 witnesses are replayed using `dive-trace` without successor enumeration. Nine
 clean pinned controls, original constant-Next configuration rejection and
 bounded native stops are retained under `conformance/probes/tlc-final-safety`.
+
+| Pure state conditional final admission (#168) | Pinned `Liveness.astToLive`/`processLiveness`, `LNStateAST.eval`, `LiveCheck.addInitState`/`addNextState` and original `finalCheck` at revision `94d0c50` | MIT | Uses inherited exact conversion and scoped predicate authority; removes only the stale Phase-L syntax refusal. Complete raw fields/words, failures and independent closing/claim mutants retained under `conformance/probes/tlc-state-if/`; ordinary periodic/family parity unclaimed. |

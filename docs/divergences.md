@@ -331,8 +331,10 @@ preserves that error and the reference's distinct user-call/boolean fallbacks.
 No alternate default is adopted: independent formula evaluation keeps its
 existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
-`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
-conservative. This is a native limitation repair, not family certification.
+`conformance/probes/state-if-planning/`. That capture predates the bounded
+[pure state-IF admission](tlc-state-if.md) in explicit final TLC mode (#168);
+ordinary periodic scheduling and unproved temporal-kind IF remain refused.
+This is a native limitation repair, not family certification.
 
 The [single-process increment](pluscal-processes.md) matches unfair constant-ID
 and finite-membership process storage/action semantics and the distinct process
@@ -488,3 +490,12 @@ pool work. No ordinary schedule, liveness-family or broad corpus credit follows.
 Original all-refusal studies and the constant `Next == FALSE` binding rejection
 are preserved. See [the safety-only user contract](tlc-final-api.md#safety-only-route)
 and `conformance/probes/tlc-final-safety` for clean paired evidence.
+
+D-013 conditional-admission progress (#168): pure state IF atoms are admitted
+through the corrected shared planner and independent final-word replay. This
+removes the older duplicate syntax refusal without changing conversion/error
+order, resource defaults or ordinary periodic scheduling. All original refusal
+and failed-capture histories remain available. Effects, opaque bindings and
+unverified errors remain explicit; no whole-family certification is claimed.
+See [conditional user guide](tlc-state-if.md), ADR 0036 and
+`conformance/probes/tlc-state-if/`.

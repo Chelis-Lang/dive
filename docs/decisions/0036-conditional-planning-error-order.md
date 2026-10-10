@@ -39,3 +39,18 @@ development failures. CI checks the complete raw/source bytes. Phase-L tests
 require the deciding constant error before any worker, fingerprint or predicate
 work. Successful state-IF phase-L admission remains conservative; this does not
 certify strict integrated liveness, all source-conversion paths or the family.
+
+## Addendum: pure conditional final execution (2026-10-10, #168)
+
+The corrected TLC-shaped planner already performs pinned conditional conversion
+and scope-proves every retained atom with the unchanged formula/binding bounds.
+Phase-L now uses that authority instead of reclassifying state IF atoms with its
+older blanket syntax refusal. No planner algorithm, ordinary evaluator default,
+resource threshold or periodic scheduling contract changes in this increment.
+
+Actual process/LiveCheck fields, original final checks and fresh independent
+entry/closing/property mutants accompany the supported final-only controls.
+Original conservative observations and planning/runtime failures stay visible;
+unverified deciding error classes earn no agreement credit. Effects, opaque
+captures and malformed contexts are still refused through shared admission.
+See [user guide](../tlc-state-if.md) and `conformance/probes/tlc-state-if/`.

@@ -1,0 +1,24 @@
+{
+  "scope": "current combined source; frozen original delivery retained separately",
+  "source_sha256": {
+    "crates/dive-api/src/check.rs": "322b89128c1b44990e3396faeb7ff6056704c31f30f31530a595c08f3e843e3e",
+    "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+    "crates/dive-check/src/checkpoint.rs": "8204fd0ecc64c125fc8ec15103efa7b2e5297cdfd665362d2baaf16c31798b7e",
+    "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
+    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+    "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
+    "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
+    "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
+    "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd",
+    "crates/dive-cli/tests/cli.rs": "5bd7ed87e105c35b3e72ae83793c84794deb34ae83e6bcd5ff58feeade1c353a"
+  },
+  "current_integration_scope": "Current bounded safety-only route with producer-retained actual caller Limits and focused controls. Exact before-limits successful 865-test source/gate, original producer observations and all-refusal studies remain separate historical evidence; no retagged run or general temporal certification.",
+  "historical_integration_sources": [
+    {
+      "matrix": "before-final-mode-source/matrix.json",
+      "matrix_sha256": "df483feff6ba044615c90151c01428f18b3062642c80fbcadb53c63f00568a63",
+      "source_archive": "before-final-mode-source/sources"
+    }
+  ]
+}

@@ -198,7 +198,7 @@ The first unchanged 140-model small Examples run on the frozen CLI source
 produced **140 named refusals and no agreements**, with all 138 started
 subprocesses retained. It earns no general corpus credit. The focused eight
 positive models pass at 1, 3, 4 and 8 workers, but most corpus specifications
-still encounter conservative scope/effect admission, state conditionals or
+still encounter conservative scope/effect admission or
 unimplemented witness recovery. Safety-only models currently refuse an empty
 temporal OOS list; a future real safety route must preserve their actual
 counters and independently validated witnesses. See
@@ -291,3 +291,10 @@ finite witness was independently validated. This observation is retained in
 it does not certify temporal products, periodic scheduling or whole semantic
 families. The failed launcher setup is separately preserved and executed zero
 native checker subprocesses.
+
+Pure state conditional predicates now use the corrected shared TLC-shaped
+planner through final execution and fresh replay. See the
+[conditional guide](tlc-state-if.md) for runnable CLI/Rust examples and exact
+remaining restrictions. Earlier complete small-model reports remain unchanged
+and source-qualified; this increment supplies selected controls, not new broad
+corpus or family certification.

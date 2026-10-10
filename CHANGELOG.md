@@ -1,5 +1,11 @@
 # Changelog
 
+- Explicit final TLC mode now admits pure state conditional predicates through
+  the corrected shared planner and fresh independent witness replay. Scoped
+  LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
+  resource bounds and ordinary periodic scheduling restrictions stay unchanged.
+
+
 All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 

@@ -61,3 +61,8 @@ For exact type signatures and compiled examples run `cargo doc -p dive-api --no-
 and consult [the API root](../../crates/dive-api/src/lib.rs),
 [trace guide](traces.md), [temporal guide](temporal.md) and
 [the final TLC API/CLI contract](../tlc-final-api.md).
+
+For pure conditional predicates through `FinalTlc`/`tlc_temporal::check_final`,
+see [the conditional API example](../tlc-state-if.md). Ordinary periodic
+scheduling, exact temporal identity and unproved captured bindings remain
+explicitly unavailable in this bounded path.

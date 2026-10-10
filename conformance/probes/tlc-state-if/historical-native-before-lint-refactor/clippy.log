@@ -1,0 +1,1 @@
+crates/dive-liveness/src/phase_l.rs:372:1: unproved_temporal_if has 106/100 lines (clippy::too_many_lines); source requires a semantics-preserving helper extraction before gate.

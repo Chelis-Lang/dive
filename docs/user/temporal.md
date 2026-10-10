@@ -50,3 +50,6 @@ and explicitly states that no temporal product or certificate was constructed.
 A finite counterexample must pass fresh independent replay before earning
 violation credit. A resource stop is never a safety success. See the
 [safety-only route contract](../tlc-final-api.md#safety-only-route).
+
+[Pure conditional final checks](../tlc-state-if.md) documents the admitted
+state-IF subset, executable CLI/Rust examples, replay and remaining refusals.

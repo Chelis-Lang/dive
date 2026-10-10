@@ -366,67 +366,124 @@ fn failure(error: Error, progress: &Progress, partial: Option<Receipt>) -> Box<F
     })
 }
 
-// State-level IF is split by pinned astToLive before constant branches are
-// evaluated. The current bound planner can retain it as an atomic predicate.
-// Until that classifier/error precedence is ported, refuse the reachable
-// state-kind IF syntax conservatively, without evaluating branches or captures.
-fn unproved_state_if(model: &Model, plan: &BoundProjection, limits: Limits) -> Result<bool, Error> {
-    use dive_eval::SlotView;
+fn conditional_structure(
+    model: &Model,
+    roots: Vec<dive_ir::ExprId>,
+    temporal: bool,
+    remaining: &mut usize,
+) -> Result<bool, Error> {
     use dive_ir::{Expr, OpRef};
-    for atom in plan
-        .inputs
-        .iter()
-        .flat_map(|p| &p.atoms)
-        .filter(|a| a.kind == AtomKind::State)
-    {
-        let mut todo = vec![(atom.pred.expr, atom.pred.scope.clone(), 0usize)];
-        let mut seen = std::collections::BTreeSet::new();
-        while let Some((expr, scope, depth)) = todo.pop() {
-            if depth > 256 || seen.len() >= limits.formula.formula_nodes {
-                return Err(Error::Limit("state conditional syntax proof"));
+    let mut todo = roots;
+    let mut seen = std::collections::BTreeSet::new();
+    while let Some(expr) = todo.pop() {
+        if !seen.insert(expr) {
+            continue;
+        }
+        *remaining = remaining
+            .checked_sub(1)
+            .ok_or(Error::Limit("conditional structural admission work"))?;
+        let node =
+            model.ir.nodes().get(expr.index()).ok_or_else(|| {
+                Error::Input("conditional structural expression reference".into())
+            })?;
+        let found = if temporal {
+            matches!(
+                node.expr,
+                Expr::Always(_)
+                    | Expr::Eventually(_)
+                    | Expr::LeadsTo(..)
+                    | Expr::Wf { .. }
+                    | Expr::Sf { .. }
+                    | Expr::TemporalQuant { .. }
+            )
+        } else {
+            matches!(node.expr, Expr::If { .. })
+        };
+        if found {
+            return Ok(true);
+        }
+        let def = match node.expr {
+            Expr::Def(def)
+            | Expr::Apply {
+                callee: OpRef::Def(def),
+                ..
+            } => Some(model.evaluator.redirected(def)),
+            _ => None,
+        };
+        if let Some(def) = def {
+            let body = model.ir.defs().get(def.index()).ok_or_else(|| {
+                Error::Input("conditional structural definition reference".into())
+            })?;
+            if body.std.is_none() && !model.evaluator.is_value_override(def) {
+                todo.push(body.body);
             }
-            if !seen.insert(expr) {
-                continue;
-            }
-            let node = model
-                .ir
-                .nodes()
-                .get(expr.index())
-                .ok_or_else(|| Error::Input("state conditional expression reference".into()))?;
-            if matches!(node.expr, Expr::If { .. }) {
+        }
+        todo.extend(node.expr.children());
+    }
+    Ok(false)
+}
+
+// This is deliberately a conservative whole-arena proof, not a configured-role
+// classifier. Structural expression/definition edges prevent callers hiding a
+// temporal IF by altering its level/effects annotations. No predicate is forced.
+fn unproved_temporal_if(model: &Model, limits: Limits) -> Result<bool, Error> {
+    use dive_ir::{Arg, Expr, ExprId, OpRef};
+    if model.ir.nodes().len() > limits.formula.formula_nodes {
+        return Err(Error::Limit("conditional admission arena entries"));
+    }
+    let mut remaining = limits.formula.formula_nodes;
+    let mut roots = Vec::new();
+    for (i, node) in model.ir.nodes().iter().enumerate() {
+        if matches!(node.expr, Expr::If { .. }) {
+            if node.level > dive_ir::Level::Action
+                || node.effects.intersects(dive_ir::Effects::TEMPORAL)
+            {
                 return Ok(true);
             }
-            let definition = match &node.expr {
-                Expr::Def(d)
-                | Expr::Apply {
-                    callee: OpRef::Def(d),
-                    ..
-                } => Some(model.evaluator.redirected(*d)),
-                _ => None,
-            };
-            if let Some(d) = definition {
-                let def =
-                    model.ir.defs().get(d.index()).ok_or_else(|| {
-                        Error::Input("state conditional definition reference".into())
-                    })?;
-                if def.std.is_none() && !model.evaluator.is_value_override(d) {
-                    todo.push((def.body, scope.clone(), depth + 1));
-                }
+            roots.push(ExprId(
+                u32::try_from(i).map_err(|_| Error::Limit("conditional arena index"))?,
+            ));
+        }
+    }
+    if roots.is_empty() {
+        return Ok(false);
+    }
+    if conditional_structure(model, roots, true, &mut remaining)? {
+        return Ok(true);
+    }
+    // A formal may conceal the temporal argument inside an otherwise constant
+    // IF definition. Inspect every user-call site structurally, including unused
+    // calls, so another pure instantiation cannot authorize this context.
+    for node in model.ir.nodes() {
+        if let Expr::Apply {
+            callee: OpRef::Def(def),
+            args,
+        } = &node.expr
+        {
+            let def = model.evaluator.redirected(*def);
+            let definition = model
+                .ir
+                .defs()
+                .get(def.index())
+                .ok_or_else(|| Error::Input("conditional call definition reference".into()))?;
+            if definition.std.is_some() || model.evaluator.is_value_override(def) {
+                continue;
             }
-            let binding = match node.expr {
-                Expr::Local(r) => Some(model.evaluator.scope_slot(&scope, r)),
-                Expr::SubstRef { decl, .. } => Some(model.evaluator.scope_subst_slot(&scope, decl)),
-                _ => None,
-            };
-            if let Some(SlotView::Lazy(body, sc)) = binding {
-                todo.push((body, sc, depth + 1));
+            let args = args
+                .iter()
+                .filter_map(|arg| {
+                    if let Arg::Expr { expr: e, .. } = arg {
+                        Some(*e)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if conditional_structure(model, args, true, &mut remaining)?
+                && conditional_structure(model, vec![definition.body], false, &mut remaining)?
+            {
+                return Ok(true);
             }
-            todo.extend(
-                node.expr
-                    .children()
-                    .into_iter()
-                    .map(|e| (e, scope.clone(), depth + 1)),
-            );
         }
     }
     Ok(false)
@@ -480,9 +537,17 @@ impl<'a> Session<'a> {
             let fingerprint = TlcFingerprint::new(polynomial)
                 .ok_or_else(|| Error::Input("fingerprint polynomial index".into()))?;
             let plan = tlc_plan::lower_model(model, limits.formula).map_err(Error::Planning)?;
-            if unproved_state_if(model, &plan, limits)? {
+            // The pinned planner converts IF branches in reference order before
+            // atom fallback and scope-proves every retained predicate. Do not
+            // reclassify its pure conditional atoms with a syntax-only refusal.
+            // Pure state/action IF atoms have passed the shared planner proof.
+            // Temporal-kind IF expansion still has an independently observed
+            // tableau identity/order gap; don't award graph identity from a
+            // matching word or acceptance result. This conservative arena scan
+            // also rejects unused temporal IF definitions in the admitted IR.
+            if unproved_temporal_if(model, limits)? {
                 return Err(Error::Unsupported(
-                    "state-kind IF predicate planning/error precedence",
+                    "temporal-kind IF tableau identity/order",
                 ));
             }
             let tableaux =
