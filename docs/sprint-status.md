@@ -32,7 +32,8 @@ Since the preserved standard report below, the verified increments now include:
   Source parsing does not imply translation, rewrite or checksum parity. A
   separate bounded C/P translation slice compares generated operator trees and
   checks admitted enclosing modules, sequential algorithms and disjoint finite
-  processes with pinned fairness. Procedures, macros, general renaming,
+  processes with pinned fairness. Bounded macros now expand with checked source origins and enclosing-module
+  admission; procedures, general renaming,
   rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and

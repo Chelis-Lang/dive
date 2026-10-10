@@ -23,3 +23,7 @@ and retain failed observations rather than changing their expected status silent
 The [additional observations](command-observations/checkpoint-pause.observation.json)
 retain actual checkpoint pause/recovery output and the initial named purity
 refusal from `Counter.tla`; the original source was not weakened to hide it.
+
+`MacroExample.tla` and `MacroExampleC.tla` are the checked C/P examples in
+[the bounded macro guide](../../pluscal-macros.md). The macro delivery retains
+their original runtime observations; current integration controls remain separate.
