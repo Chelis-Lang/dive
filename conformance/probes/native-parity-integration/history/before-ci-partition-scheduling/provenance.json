@@ -1,0 +1,7 @@
+{
+  "source_commit": "8b0b7db2f335eca7f7faeaa0329a26990419f6f2",
+  "scope": "Retained pre-CI scheduling metadata; no fresh execution credit",
+  "source_sha256": {
+    "CHANGELOG.md": "46ea4cb17b3496c650c6493f72587bad126e2921c5ca25316bcdd28176c5128b"
+  }
+}
