@@ -173,7 +173,7 @@ impl SpecModel {
             model.evaluator.intern_checker_names();
             #[allow(clippy::cast_possible_wrap, reason = "Java's long: same bits")]
             let fingerprint = dive_value::fp64::POLYS.get(fp_index).copied().unwrap_or(0) as i64;
-            h.set_config(Some(dive_eval::RunConfig {
+            let config = dive_eval::RunConfig {
                 deadlock: model.settings.check_deadlock,
                 workers: 1,
                 seed,
@@ -181,7 +181,9 @@ impl SpecModel {
                 install: std::env::current_exe()
                     .map(|p| p.display().to_string())
                     .unwrap_or_default(),
-            }));
+            };
+            model.evaluator.intern_bfs_config(&config);
+            h.set_config(Some(config));
         }
         match bound {
             Ok(model) => Ok(Self {

@@ -1,0 +1,31 @@
+{
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_revision": "94d0c5070852b37b801bb8998c40292ec8dd57c1a5c63a25056485ffa05bc7131",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "flags": [
+    "-tool",
+    "-seed",
+    "0",
+    "-fp",
+    "0",
+    "-workers",
+    "1",
+    "-cleanup",
+    "-metadir",
+    "<separate directory>"
+  ],
+  "exit_code": 0,
+  "generated": 3,
+  "distinct": 2,
+  "depth": 2,
+  "prior_native_binary_sha256": "99717b2af76a8495b07d7ea8c40292ec8dd57c1a5c63a25056485ffa05bc7131",
+  "files": {
+    "ReplayNames.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+    "bad.json": "23768c5570cf9da44e769cec8b075275e2eb359faae7449f878d876880f05a1d",
+    "ReplayNames.tla": "3b7b3a1bf426c86f8d0965779ee42a6fe22aaf7bc2359f3e29983aa1b9efdc92",
+    "tlc-2026.10.06.014338/tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc-2026.10.06.014338/tlc.stdout": "982cae381ee7eb94c3e519b7aca57c1fe7c59ccaeff64579fd00dd11015cced1",
+    "tlc-2026.10.06.014338/check.json": "d310ef71e40bb679f7d4f315062533aadcfc82fff7dc12756330c0da9728233c",
+    "tlc-2026.10.06.014338/validate-trace.json": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6"
+  }
+}

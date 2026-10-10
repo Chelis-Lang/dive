@@ -152,6 +152,10 @@ pub struct Report {
 /// The reason given for a deadlock ending (ADR 0016, amendment 1).
 pub const DEADLOCK_UNSUPPORTED: &str = "deadlock: the independent finite-cover check could not decide absence of successors; every other check passed (ADR 0016, amendment 1)";
 
+/// Runtime string tokens depend on evaluations outside the supplied trace.
+/// Reading witness strings must never establish the order that validates them.
+pub const RUNTIME_NAMES_UNSUPPORTED: &str = "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)";
+
 /// The checking run's random streams, for replaying its draws: the seed
 /// and seeding mode ([`Streams`]) and the fingerprint polynomial's index
 /// (`-fp`), which keys the stream of each expanded state.
@@ -404,6 +408,9 @@ impl<'a> Run<'a> {
 
     /// Validates `trace`.
     pub(crate) fn validate(&mut self, trace: &Trace) -> Validation {
+        if self.model.runtime_name_order {
+            return Validation::Unsupported(RUNTIME_NAMES_UNSUPPORTED.to_owned());
+        }
         match self.run(trace) {
             Ok(None) => Validation::Valid,
             Ok(Some(why)) => Validation::Unsupported(why),

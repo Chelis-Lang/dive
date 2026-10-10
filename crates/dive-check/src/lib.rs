@@ -225,7 +225,9 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
     // TLC creates its model checker here: `TLCGet("config")` and the
     // checker's names exist from now on, and the counters read 0.
     m.evaluator.intern_checker_names();
-    host.set_config(Some(engine::run_config(opts, m.settings.check_deadlock)));
+    let config = engine::run_config(opts, m.settings.check_deadlock);
+    m.evaluator.intern_bfs_config(&config);
+    host.set_config(Some(config));
     engine::startup_counters(&host);
     let assumptions = m.check_assumptions();
     r.output.extend(m.take_output());

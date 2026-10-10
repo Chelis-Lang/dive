@@ -647,6 +647,32 @@ impl Word<'_> {
             .map_err(|e| TemporalError::Unsupported(format!("predicate quantifier bindings: {e}")))
     }
 
+    fn check_native(
+        &self,
+        op: Option<StdOp>,
+        args: &[Arg],
+        scope: &Scope,
+    ) -> Result<(), TemporalError> {
+        if op == Some(StdOp::TlcTLCGet) {
+            return Err(TemporalError::Unsupported(
+                "TLCGet: checker introspection is not a function of a lasso".into(),
+            ));
+        }
+        let opts = self.model.evaluator.options();
+        if (opts.ctx.order == dive_value::ValueOrder::Tlc
+            || opts.exploration == dive_eval::ExplorationOrder::Tlc)
+            && op.is_some_and(|op| {
+                op.creates_runtime_names()
+                    && !crate::exists::native_tuple_only(self.model, op, args, scope)
+            })
+        {
+            return Err(TemporalError::Unsupported(
+                crate::RUNTIME_NAMES_UNSUPPORTED.to_owned(),
+            ));
+        }
+        Ok(())
+    }
+
     fn check_atom_context(&self, expr: ExprId, scope: &Scope) -> Result<(), TemporalError> {
         self.check_scoped_context(expr, scope, 0, &mut 0)
     }
@@ -744,6 +770,9 @@ impl Word<'_> {
                                 "nonconstant/recursive/parameterized constant override".into(),
                             ));
                         }
+                        if !ev.is_value_override(d) {
+                            self.check_native(def.std, &[], &scope)?;
+                        }
                         let sc = ev
                             .scope_enter(&scope, d)
                             .map_err(|e| TemporalError::Unsupported(e.to_string()))?;
@@ -773,7 +802,11 @@ impl Word<'_> {
                             todo.push((def.body, sc, depth + 1));
                             continue;
                         }
-                        def.std
+                        if ev.is_value_override(d) {
+                            None
+                        } else {
+                            def.std
+                        }
                     }
                     OpRef::Param(_) | OpRef::Subst(_) | OpRef::Const(_) => {
                         return Err(TemporalError::Unsupported(
@@ -782,11 +815,7 @@ impl Word<'_> {
                     }
                     _ => None,
                 };
-                if standard == Some(StdOp::TlcTLCGet) {
-                    return Err(TemporalError::Unsupported(
-                        "TLCGet: checker introspection is not a function of a lasso".into(),
-                    ));
-                }
+                self.check_native(standard, args, &scope)?;
                 if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
                     return Err(TemporalError::Unsupported(
                         "higher-order periodic predicate argument".into(),
