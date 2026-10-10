@@ -157,3 +157,64 @@ fn valid_controls_preserve_metadata_and_capture_evidence() {
     assert_eq!(c.stats.distinct, 1);
     assert_eq!(c.graph.states.len(), 1);
 }
+
+#[test]
+fn checkpoint_context_alias_to_effectful_let_refuses_before_binding() {
+    let base = ir(
+        "---- MODULE PublicArena ----\nEXTENDS Naturals\nCONSTANT Gate\nVARIABLE x\nContainer(v) == LET Hidden == TRUE IN v\nInit == x = 0\nNext == x < 3 /\\ x' = x + 1\n====\n",
+    );
+    let selected = base
+        .defs()
+        .iter()
+        .position(|d| d.name == "Hidden")
+        .expect("local definition");
+    let mut arena = serde_json::to_value(base.as_ref()).expect("arena");
+    arena["modules"][base.root().index()]["standard"] = serde_json::json!(true);
+    let body = base.defs()[selected].body.index();
+    let mut call = arena["exprs"][body].clone();
+    let new = arena["exprs"].as_array().expect("nodes").len();
+    call["expr"] = serde_json::json!({"Apply": {"callee": {"Std": "TlcPrintT"}, "args": [{"Expr": {"expr": body, "pass": "Direct"}}]}});
+    call["effects"] = serde_json::json!(5);
+    arena["exprs"].as_array_mut().expect("nodes").push(call);
+    arena["defs"][selected]["body"] = serde_json::json!(new);
+    arena["defs"][selected]["effects"] = serde_json::json!(5);
+    arena["defs"][selected]["scope"]["LetValue"]["pass"] = serde_json::json!("Lazy");
+    arena["modules"][base.root().index()]["context"]
+        .as_array_mut()
+        .expect("context")
+        .push(serde_json::json!(["Alias", {"Def": selected}]));
+    let edited: Arc<Ir> = Arc::new(serde_json::from_value(arena).expect("public IR"));
+    dive_eval::validate_ir(&edited).expect("genuine lexical ownership remains structurally valid");
+    let cfg =
+        dive_config::parse("CONSTANT Gate <- Alias\nINIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n")
+            .into_config()
+            .expect("config");
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("clock")
+        .as_nanos();
+    let path = std::env::temp_dir().join(format!(
+        "dive-checkpoint-alias-{}-{now}.cp",
+        std::process::id()
+    ));
+    assert!(!path.exists());
+    for mut options in [CheckOptions::tlc(0, 7), CheckOptions::dive(0)] {
+        for width in [1, 4, 8] {
+            options.workers = width;
+            let native = checkpoint::check(
+                &edited,
+                &cfg,
+                &options,
+                &checkpoint::Request {
+                    path: path.clone(),
+                    action: checkpoint::Action::PauseAfterLevels(0),
+                    counters: checkpoint::Counters::Retain,
+                    config_source_sha256: None,
+                },
+            );
+            no_work(&native.check, "runtime effects");
+            assert!(native.receipt.is_none());
+            assert!(!path.exists(), "no archive before effect admission");
+        }
+    }
+}
