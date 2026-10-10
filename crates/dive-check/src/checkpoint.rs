@@ -350,7 +350,7 @@ fn admit_source(ir: &Ir, cfg: &ModelConfig) -> std::result::Result<(), Verdict> 
                 .union(Effects::TEMPORAL),
         ) {
             return Err(unsupported(format!(
-                "runtime/temporal effects in {}",
+                "runtime effects or temporal effects in {}",
                 def.name
             )));
         }

@@ -49,11 +49,11 @@ fn observable(mut value: serde_json::Value) -> serde_json::Value {
     clippy::too_many_lines,
     reason = "one complete recovery/independent-witness matrix per source case"
 )]
-fn recovery_case(name: &str) {
+fn recovery_case(name: &str, profiles: &[bool]) {
     let directory = directory();
     let mut serial = 0;
     {
-        for compat_tlc in [false, true] {
+        for &compat_tlc in profiles {
             let base = request(name);
             let spec = SpecModel::load(
                 &base.file,
@@ -176,14 +176,26 @@ fn recovery_case(name: &str) {
 }
 
 #[test]
-fn view_recovery_matches_full_and_checks_concrete_witnesses() {
-    recovery_case("CpView");
+fn view_recovery_dive_matches_full_and_checks_concrete_witnesses() {
+    recovery_case("CpView", &[false]);
 }
 #[test]
-fn symmetry_view_recovery_matches_full_and_checks_concrete_witnesses() {
-    recovery_case("CpSymView");
+fn view_recovery_tlc_matches_full_and_checks_concrete_witnesses() {
+    recovery_case("CpView", &[true]);
 }
 #[test]
-fn symmetry_recovery_preserves_concrete_owner_and_rejects_equal_key_witnesses() {
-    recovery_case("CpSymConcrete");
+fn symmetry_view_recovery_dive_matches_full_and_checks_concrete_witnesses() {
+    recovery_case("CpSymView", &[false]);
+}
+#[test]
+fn symmetry_view_recovery_tlc_matches_full_and_checks_concrete_witnesses() {
+    recovery_case("CpSymView", &[true]);
+}
+#[test]
+fn symmetry_recovery_dive_preserves_concrete_owner_and_rejects_equal_key_witnesses() {
+    recovery_case("CpSymConcrete", &[false]);
+}
+#[test]
+fn symmetry_recovery_tlc_preserves_concrete_owner_and_rejects_equal_key_witnesses() {
+    recovery_case("CpSymConcrete", &[true]);
 }

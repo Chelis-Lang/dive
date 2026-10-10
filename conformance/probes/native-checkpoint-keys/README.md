@@ -90,3 +90,17 @@ scratch controls are retained separately rather than counted as successes.
 
 Final `*-alias-fixed.log` files correspond only to the current 738-test source
 and 1,008-run matrix. Older `*-final.log` and unsuffixed logs are historical.
+
+
+## Current-source integration
+
+The 738-test delivery and its `native-alias-fixed` matrix above are immutable
+historical feature evidence from commit `099e7a45`, not evidence for later runtime
+source. Its complete source authority is archived under `historical-delivery-source/`.
+This separate integration starts from `4715fb54`, retaining the current frontier
+Queue/predecessor request fields, pre-effect IR/context admission, the six-way
+baseline API matrix split and direct public-IR alias refusal control. The exact
+parent checkpoint and combined-source authorities are preserved under
+`integration-parent-source/` before current authorities are regenerated. Current
+release captures and gate records will be labelled separately; no historical
+raw bytes, source claims or goldens are replaced.
