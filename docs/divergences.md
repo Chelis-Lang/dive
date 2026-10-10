@@ -315,3 +315,10 @@ defaults, default model-value initialization and sequential label modifiers;
 [its full selection](pluscal-normalization.md) retains branch/name refusals. No
 alternate label/fairness default is introduced. Process/procedure/macro and
 historical/checksum/map contracts remain pending.
+
+D-013 diagnostic phase-L receipts now retain concrete TLC successor slots and
+logical capacity history, with ordered null-tableau bins and separate initial
+consistency (ADR 0029). All receipts say graph_insertion=false. Tableau graph
+revisitation, wider diagnostic execution and unproved state-kind IF planning
+remain explicit refusals; strict integrated liveness remains unsupported. The
+original native error-order gaps (#147/#149) are retained and receive no match credit.
