@@ -1,0 +1,18 @@
+
+thread 'main' (99359781) panicked at crates/dive-ir/src/lib.rs:422:20:
+index out of bounds: the len is 12 but the index is 4294967295
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'main' (99359781) panicked at crates/dive-ir/src/lib.rs:422:20:
+index out of bounds: the len is 12 but the index is 4294967295
+root: planner_panicked=true validator_panicked=true
+
+thread 'main' (99359781) panicked at crates/dive-ir/src/lib.rs:422:20:
+index out of bounds: the len is 12 but the index is 4294967295
+
+thread 'main' (99359781) panicked at crates/dive-ir/src/lib.rs:422:20:
+index out of bounds: the len is 12 but the index is 4294967295
+capture: planner_panicked=true validator_panicked=true
+
+thread 'main' (99359781) panicked at crates/dive-ir/src/lib.rs:406:19:
+index out of bounds: the len is 4 but the index is 4294967295

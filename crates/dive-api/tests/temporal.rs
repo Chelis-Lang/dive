@@ -2146,7 +2146,7 @@ S == []<><<Prefix(IF x=0 THEN <<>> ELSE <<1>>,IF x'=0 THEN <<>> ELSE <<1>>)>>_x
 }
 
 #[test]
-fn action_argument_effects_and_temporal_helper_forwarding_remain_refusals() {
+fn action_argument_effects_and_action_in_temporal_helper_remain_refusals() {
     let (ir, cfg) = input(
         r#"---- MODULE ActionRefused ----
 EXTENDS Naturals,TLC
@@ -2165,7 +2165,7 @@ S == Temporal(x'=1)
         "INIT Init\nNEXT Next\n",
     );
     let model = dive_model::bind(ir.clone(), &cfg, &dive_model::BindOptions::tlc()).expect("bind");
-    for name in ["P", "Q", "R", "S"] {
+    for name in ["P", "Q", "S"] {
         let d = ir.root_def(name).expect(name);
         let p = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d));
         assert!(

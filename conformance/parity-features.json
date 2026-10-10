@@ -107,7 +107,8 @@
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
       "issues": [
         63,
-        66
+        66,
+        127
       ],
       "acceptance": "Lazy scalar/action/temporal/operator parameters, LET, nested INSTANCE and substitutions retain levels and caller scope through evaluation and validation.",
       "interactions": [
@@ -119,11 +120,14 @@
       "additional_evidence": [
         "conformance/probes/finite-deferred-audit/README.md",
         "crates/dive-api/tests/deferred_domains.rs",
-        "crates/dive-eval/tests/bounded_domains.rs"
+        "crates/dive-eval/tests/bounded_domains.rs",
+        "conformance/probes/temporal-forwarding/README.md",
+        "crates/dive-api/tests/temporal_forwarding.rs"
       ],
       "evidence_updates": [
         "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
-      ]
+      ],
+      "evidence_scope": "Retained temporal expression arguments have focused paired and independent-word evidence. Recursive/exported INSTANCE/operator gaps remain open."
     },
     {
       "id": "F-007",
@@ -136,7 +140,8 @@
       "conformance_evidence": "crates/dive-api/tests/constructor_covers.rs",
       "issues": [
         107,
-        63
+        63,
+        127
       ],
       "acceptance": "Explicit and finite lazy domains preserve TLC successor order and duplicates; independent finite covers decide ENABLED/deadlock, including scope and closing edges.",
       "interactions": [
@@ -151,12 +156,15 @@
         "conformance/reports/studies/lazy-domains-10-final-short-tlc.json",
         "conformance/probes/finite-deferred-audit/README.md",
         "crates/dive-api/tests/deferred_domains.rs",
-        "crates/dive-eval/tests/bounded_domains.rs"
+        "crates/dive-eval/tests/bounded_domains.rs",
+        "conformance/probes/temporal-forwarding/README.md",
+        "crates/dive-api/tests/temporal_forwarding.rs"
       ],
       "notes": "Budgeted finite lazy constructors pass paired oracle and independent-validator controls. The complete ten-model final/short follow-up has zero completed matches: seven unsupported, two resource bounds and one timeout; deferred domains and substituted scopes remain open.",
       "evidence_updates": [
         "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
-      ]
+      ],
+      "evidence_scope": "Retained temporal expression arguments have focused paired and independent-word evidence. Recursive/exported INSTANCE/operator gaps remain open."
     },
     {
       "id": "F-008",
@@ -388,7 +396,8 @@
       "issues": [
         63,
         66,
-        107
+        107,
+        127
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -396,7 +405,13 @@
         "F-007",
         "F-021",
         "F-022"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/temporal-forwarding/README.md",
+        "crates/dive-api/tests/temporal_forwarding.rs",
+        "recursive/exported INSTANCE/operator gaps remain)"
+      ],
+      "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)"
     },
     {
       "id": "F-020",
@@ -433,7 +448,8 @@
       "rust_evidence": "crates/dive-trace/src/lib.rs",
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
       "issues": [
-        63
+        63,
+        127
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [
@@ -441,7 +457,13 @@
         "F-007",
         "F-018",
         "F-019"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/temporal-forwarding/README.md",
+        "crates/dive-api/tests/temporal_forwarding.rs",
+        "recursive/exported INSTANCE/operator gaps remain)"
+      ],
+      "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)"
     },
     {
       "id": "F-022",
@@ -717,7 +739,8 @@
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
       "issues": [
         111,
-        124
+        124,
+        129
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -781,6 +804,9 @@
         "F-022",
         "F-026",
         "F-035"
+      ],
+      "additional_evidence": [
+        "crates/dive-api/tests/temporal_forwarding.rs"
       ]
     }
   ]

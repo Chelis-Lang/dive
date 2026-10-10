@@ -123,8 +123,16 @@ impl Source {
     pub(crate) fn new(model: &Model, expr: ExprId) -> Self {
         Self {
             expr,
-            origin: model.ir.node(expr).origin,
-            location: model.evaluator.location(expr),
+            origin: model
+                .ir
+                .nodes()
+                .get(expr.index())
+                .map_or(Origin::NONE, |n| n.origin),
+            location: if model.ir.nodes().get(expr.index()).is_some() {
+                model.evaluator.location(expr)
+            } else {
+                format!("unchecked expression reference {}", expr.index())
+            },
         }
     }
 }
@@ -216,6 +224,17 @@ impl Lower<'_> {
         }))
     }
 
+    fn checked_definition(&self, expr: ExprId, def: DefId) -> Result<DefId, PlanningError> {
+        if self.model.ir.defs().get(def.index()).is_none() {
+            return Err(self.refused(expr, "missing scoped definition"));
+        }
+        let target = self.model.evaluator.redirected(def);
+        if self.model.ir.defs().get(target.index()).is_none() {
+            return Err(self.refused(expr, "missing redirected scoped definition"));
+        }
+        Ok(target)
+    }
+
     fn push(&mut self, n: Node) -> Result<usize, PlanningError> {
         if self.nodes.len() >= self.limits.formula_nodes {
             return Err(PlanningError::formula(
@@ -278,6 +297,7 @@ impl Lower<'_> {
             ));
         }
         let ev = &self.model.evaluator;
+        let def = self.checked_definition(expr, def)?;
         let d = self.model.ir.def(def);
         if d.recursive
             || d.std.is_some()
@@ -299,11 +319,18 @@ impl Lower<'_> {
             } else {
                 Level::Action
             };
-            if level > maximum {
-                return Err(self.refused(*arg, "action/temporal operator argument"));
+            if level == Level::Temporal {
+                if scope.has_substitutions() {
+                    return Err(self.refused(*arg, "temporal argument inside INSTANCE context"));
+                }
+                self.forwarded_context(*arg, scope, depth + 1)?;
+            } else {
+                if level > maximum {
+                    return Err(self.refused(*arg, "action/temporal operator argument"));
+                }
+                self.pure_scoped(*arg, scope, depth + 1)?;
             }
             constant &= level == Level::Constant;
-            self.pure_scoped(*arg, scope, depth + 1)?;
         }
         if constant {
             let values = args
@@ -325,6 +352,148 @@ impl Lower<'_> {
         }
     }
 
+    // Admission proof for a temporal expression argument. Keep its lexical
+    // scope; do not force it as a constant or trust a formal's static level.
+    // This walk does not interpret temporal truth or materialize binders.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit retained temporal context admission and refusal paths"
+    )]
+    fn forwarded_context(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+    ) -> Result<(), PlanningError> {
+        let mut todo = vec![(expr, scope.clone(), depth)];
+        while let Some((e, sc, depth)) = todo.pop() {
+            self.step()?;
+            if depth > 256 {
+                return Err(PlanningError::formula(
+                    self.model,
+                    self.root_expr,
+                    FormulaError::Limit("forwarded temporal context depth"),
+                ));
+            }
+            let ir = &self.model.ir;
+            let ev = &self.model.evaluator;
+            let n = ir.nodes().get(e.index()).ok_or_else(|| {
+                self.refused(self.root_expr, "missing forwarded temporal expression")
+            })?;
+            if n.effects.intersects(Effects::IMPURE | Effects::LIVE_TLCGET)
+                || ev.scope_shares_side_effects(&sc)
+            {
+                return Err(self.refused(e, "effectful forwarded temporal context"));
+            }
+            match &n.expr {
+                Expr::Local(r) => match ev.scope_slot(&sc, *r) {
+                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Lazy(body, inner) => {
+                        todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    _ => return Err(self.refused(e, "opaque forwarded temporal local")),
+                },
+                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&sc, *decl) {
+                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Lazy(body, inner) => {
+                        todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    _ => return Err(self.refused(e, "opaque forwarded temporal substitution")),
+                },
+                Expr::Let { body, .. } => {
+                    todo.push((
+                        *body,
+                        ev.scope_let(&sc, e)
+                            .map_err(|err| self.refused(e, err.to_string()))?,
+                        depth + 1,
+                    ));
+                    continue;
+                }
+                Expr::Subst { body, .. } => {
+                    todo.push((
+                        *body,
+                        ev.scope_subst(&sc, e)
+                            .map_err(|err| self.refused(e, err.to_string()))?,
+                        depth + 1,
+                    ));
+                    continue;
+                }
+                Expr::Quant { body, .. }
+                | Expr::FcnCons { body, .. }
+                | Expr::SetMap { expr: body, .. }
+                | Expr::SetFilter { pred: body, .. } => {
+                    let inner = ev
+                        .scope_binder_analysis(&sc, e)
+                        .map_err(|err| self.refused(e, err.to_string()))?;
+                    for c in n.expr.children() {
+                        todo.push((
+                            c,
+                            if c == *body {
+                                inner.clone()
+                            } else {
+                                sc.clone()
+                            },
+                            depth + 1,
+                        ));
+                    }
+                    continue;
+                }
+                _ => {}
+            }
+            let call = match &n.expr {
+                Expr::Def(d) => Some((OpRef::Def(*d), &[][..])),
+                Expr::Apply { callee, args } => Some((callee.clone(), args.as_ref())),
+                _ => None,
+            };
+            if let Some((op, args)) = call {
+                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    return Err(self.refused(e, "higher-order forwarded temporal argument"));
+                }
+                match op {
+                    OpRef::Def(d) => {
+                        let d = self.checked_definition(e, d)?;
+                        let def = ir.def(d);
+                        if def.recursive || ev.is_value_override(d) {
+                            return Err(
+                                self.refused(e, "recursive/overridden forwarded temporal call")
+                            );
+                        }
+                        if def.std.is_none() {
+                            todo.push((
+                                def.body,
+                                ev.scope_apply(&sc, d, args)
+                                    .map_err(|err| self.refused(e, err.to_string()))?,
+                                depth + 1,
+                            ));
+                            continue;
+                        }
+                        if def.std == Some(StdOp::TlcTLCGet) {
+                            return Err(
+                                self.refused(e, "checker introspection in temporal argument")
+                            );
+                        }
+                    }
+                    OpRef::Std(StdOp::TlcTLCGet)
+                    | OpRef::Param(_)
+                    | OpRef::Const(_)
+                    | OpRef::Subst(_) => {
+                        return Err(self.refused(e, "opaque/checker forwarded temporal operator"));
+                    }
+                    _ => {}
+                }
+            }
+            todo.extend(
+                n.expr
+                    .children()
+                    .into_iter()
+                    .map(|c| (c, sc.clone(), depth + 1)),
+            );
+        }
+        Ok(())
+    }
+
     // SANY's levels on a formal parameter assume a constant. Follow its actual
     // context before deciding whether an atom is constant, state or action.
     fn scoped_level(
@@ -343,7 +512,10 @@ impl Lower<'_> {
         }
         let ir = &self.model.ir;
         let ev = &self.model.evaluator;
-        let node = ir.node(expr);
+        let node = ir
+            .nodes()
+            .get(expr.index())
+            .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
         match &node.expr {
             Expr::Subst { body, .. } => {
                 let sc = ev
@@ -382,14 +554,14 @@ impl Lower<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(expr, *d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1);
                 }
             }
             Expr::Def(d) => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(expr, *d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(expr, scope, d, &[], depth + 1)?;
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1);
@@ -532,7 +704,10 @@ impl Lower<'_> {
             }
             let ir = &self.model.ir;
             let ev = &self.model.evaluator;
-            let n = ir.node(e);
+            let n = ir
+                .nodes()
+                .get(e.index())
+                .ok_or_else(|| self.refused(e, "missing scoped expression"))?;
             if n.effects
                 .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
                 || ev.scope_shares_side_effects(&scope)
@@ -588,7 +763,7 @@ impl Lower<'_> {
                 Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
-                        let d = ev.redirected(d);
+                        let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
                         if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
                             return Err(self.refused(
@@ -614,7 +789,7 @@ impl Lower<'_> {
                 let standard = match op {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
-                        let d = ev.redirected(d);
+                        let d = self.checked_definition(e, d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
                             let sc = self.scoped_call(e, &scope, d, args, depth + 1)?;
@@ -677,7 +852,10 @@ impl Lower<'_> {
         }
         let ir = &self.model.ir;
         let ev = &self.model.evaluator;
-        let node = ir.node(expr);
+        let node = ir
+            .nodes()
+            .get(expr.index())
+            .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
         if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(self.refused(expr, "effects or dynamic bindings in temporal planning"));
         }
@@ -711,7 +889,7 @@ impl Lower<'_> {
             args,
         } = &node.expr
         {
-            let d = ev.redirected(*d);
+            let d = self.checked_definition(expr, *d)?;
             if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                 let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
                 return self.expr(ir.def(d).body, &sc, depth + 1);
@@ -791,12 +969,12 @@ impl Lower<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(expr, *d)?;
                 let sc = self.scoped_call(expr, scope, d, args, depth)?;
                 return self.expr(ir.def(d).body, &sc, depth);
             }
             Expr::Def(d) => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(expr, *d)?;
                 if ev.is_value_override(d) || ir.def(d).recursive || !ir.def(d).params.is_empty() {
                     return Err(self.refused(
                         expr,
