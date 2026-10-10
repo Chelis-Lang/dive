@@ -442,3 +442,11 @@ ported. The configured TLC live-search key path, discovery IDs and replay ordina
 remain those matched against `ModelChecker`/`Worker`/`TLCTrace` at revision
 `94d0c50` (MIT), as recorded above. ADR 0038 and the native spill recovery study
 keep original parallel source/raw evidence separate from current storage controls.
+
+
+Pure-runtime-name native recovery (ADR 0038, 2026-10-11) reuses dive's ordered name
+archive and the `dive-model` typed encounter-order fallback. It introduces no
+ported Java checkpoint codec. Clean `tlc2.TLC` safety runs with `-workers 1`,
+`-seed` 0/7/14 and `-fp 0` provide the separately retained constructor/CHOOSE
+counterparts in `conformance/probes/native-checkpoint-runtime-names/tlc-primary/`.
+The independent TLC trace runtime-name refusal remains unchanged.

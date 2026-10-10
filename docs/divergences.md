@@ -484,3 +484,12 @@ Java byte-interop or archive certificate claim. Counter reset/Retain and pure
 VIEW/symmetry witnesses retain their existing semantics. See
 [the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
 and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
+
+
+D-007 native recovery admits pure runtime string/name constructors, preserving
+saved encounter order and the typed actual inline fallback under TLC value or
+exploration order. Canonical order may use the deterministic pool. Effects,
+checker/register reads and independent TLC name-history witness proof remain
+explicitly unsupported; no archive certificate or total-memory claim is added.
+See `conformance/probes/native-checkpoint-runtime-names/README.md` and
+`docs/native-checkpoint.md#pure-strings-and-recovery-encounter-order`.

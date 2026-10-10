@@ -38,7 +38,7 @@ Current archives are trusted-local native files, not Java-interoperable archives
 or independently checked model certificates. Source/configuration/profile/model
 identity and structural bounds are checked. Pure supported VIEW and safety symmetry
 are admitted: recovery recomputes the configured reduced keys while preserving
-original concrete discoveries and witnesses. Liveness, runtime effects/names or
+original concrete discoveries and witnesses. Liveness, runtime effects or
 checker reads and unsupported deferred values remain explicit refusals. Frontier and
 predecessor budgets can be used independently or together for pause/recovery;
 recovery may change budgets or worker width. Native archive work remains outside
@@ -71,3 +71,12 @@ Current source-bound spill/recovery and executable CLI/Rust example evidence is
 in the [combined recovery receipt](../../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json).
 It proves the listed finite-safety selection, not total-memory bounds, archive
 authenticity or complete TLC recovery interoperability.
+
+
+Pure string constructors also support native pause/recovery. The
+[string example and exact worker/counter contract](../native-checkpoint.md#pure-strings-and-recovery-encounter-order)
+include a runnable `ToString` case with both zero-byte transient budgets. TLC
+encounter order uses an explicit one-worker inline fallback; canonical default
+order may use the pool. The saved ordered name table restores execution context,
+not independent proof: TLC witness validation still explicitly refuses runtime
+name history. Keep that separate from the archive checksum and recovery result.

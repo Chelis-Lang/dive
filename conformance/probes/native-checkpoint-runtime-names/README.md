@@ -1,0 +1,6 @@
+# Native recovery and pure runtime names
+
+The immutable `before/` study uses runtime source `7872bf687ad0b40fd90f7d186f963ec05e621070`, separately packaged in delivery `425474bc61210d3a178f5f373d332c72a01d8d1c`.
+`RuntimeStrings.tla` creates `ToString(n + 1)` along a finite safety path. Ordinary native checking under both profiles at requested widths 1, 4 and 8 finds the invariant violation with 4 generated, 4 distinct states and depth 4. Clean pinned Java TLC at one worker, seed 7 and fingerprint polynomial 0 reports the same numbers and verdict. Native checkpoint requests after one completed level refuse before work in every setting. Raw commands, stdout/stderr, input bytes, executable/oracle hashes and the original source bytes are preserved; the receipt hashes every file.
+
+This is a native recovery admission limitation, not a TLC bug. A recovery admission expansion must restore the complete ordered name table, preserve actual inline fallback for TLC encounter order, keep runtime effects and checker/register reads refused, and retain the independent TLC witness replay refusal for history-dependent name creation. Snapshot consistency is not an independent reachability certificate.
