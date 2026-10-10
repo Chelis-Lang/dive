@@ -465,3 +465,11 @@ Bounded [multiple finite-process translation](pluscal-multiple-processes.md) ret
 and independently validated/corrupted witnesses cover the admitted storage/action
 subset. F-034 and F-035 remain partial and audit-required; this does not certify
 full process renaming, procedures/macros, historical options or file rewriting.
+
+
+The [bounded native macro increment](pluscal-macros.md) adds simultaneous lexical
+substitution, selector tails, earlier nested declarations and original definition/
+call locations. Source/parser/normalization/raw generation/module admission
+remain separate: invalid primary artifacts never count as admitted matches.
+Unproved binders/procedures/name rewrites/options/maps remain pending; F-034/F-035
+stay partial and audit-required and the certification denominator is unchanged.

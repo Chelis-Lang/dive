@@ -1,10 +1,11 @@
 //! Sequential generator matching `PcalTLAGen`'s changed-variable and branch rules.
 use super::lower::{Kind, Model, Node, tokens};
+use super::macros::Expanded as Parsed;
 use super::{
     Translation, TranslationError, TranslationMap, TranslationOptions, TranslationStage, error,
 };
 use crate::{
-    Code, Parsed,
+    Code,
     ast::{Assignment, BindingKind, Expr, Fairness, Span},
 };
 use std::collections::BTreeSet;
@@ -174,7 +175,11 @@ impl Emitter<'_> {
         }
     }
     fn expression(&self, expr: Expr, changed: &Changed) -> Result<String, TranslationError> {
-        if self.parsed.source[expr.span.start..expr.span.end].contains(['\n', '\r']) {
+        if self
+            .parsed
+            .text(expr.span)
+            .is_some_and(|text| text.contains(['\n', '\r']))
+        {
             return Err(failure(
                 expr.span,
                 Code::Unsupported,
@@ -241,9 +246,15 @@ impl Emitter<'_> {
     }
     fn value_expression(&self, expr: Expr, changed: &Changed) -> Result<String, TranslationError> {
         let text = self.expression(expr, changed)?;
-        let first_line_end = self.parsed.source[expr.span.start..expr.span.end]
-            .find(['\n', '\r'])
-            .map_or(expr.span.end, |offset| expr.span.start + offset);
+        let first_line_end = if expr.span.start > self.parsed.source.len() {
+            usize::MAX
+        } else {
+            self.parsed
+                .text(expr.span)
+                .unwrap_or_default()
+                .find(['\n', '\r'])
+                .map_or(expr.span.end, |offset| expr.span.start + offset)
+        };
         let mut depth: i32 = 0;
         let mut needs = false;
         // NeedsParentheses scans the first normalized line repeatedly (the
@@ -444,6 +455,14 @@ impl Emitter<'_> {
                 }
                 Kind::Await(expr) => clauses.push(self.expression(*expr, changed)?),
                 Kind::Assert(expr) => {
+                    if let Some(location) = self.parsed.assertion_location(node.span, *expr) {
+                        clauses.push(format!(
+                            "Assert({}, \"Failure of assertion at {}.\")",
+                            self.expression(*expr, changed)?,
+                            location
+                        ));
+                        continue;
+                    }
                     // Labels belong to the statement source span, but the
                     // reference diagnostic points at the assertion keyword.
                     let keyword = self

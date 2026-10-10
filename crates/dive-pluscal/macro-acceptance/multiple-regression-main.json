@@ -1,0 +1,984 @@
+{
+  "schema_version": 1,
+  "stage": "multiple-process-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "5afc9791e8dc3ab8c11b53163e049be20f4d13b7898f039e960409dca592df71",
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "native_sha256": "9347cc5152dda2a89a5612ddcf26a27862ac70d48c17817ce4add3218d95017e",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 108,
+  "summary": {
+    "rejection-match": 2,
+    "native-refusal": 14,
+    "token-artifact-match": 92
+  },
+  "rows": [
+    {
+      "id": "Multi_C_crossgoto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Multi_C_crosslocal",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: cross-process local-variable scope",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_dup_set",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "99190655292269f39405b129873896139350b5acef57189f4c6096f21b3e775d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_empty",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "834b92b0db60b2ca95f23b0d7a843a21311f77d2517a69e3afac044a1e73a9c7",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_empty_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1f8a7f8fdf428935b3b448abbdd2b119bd1f2d9c508eea236f128aeb0645e579",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a2b1bdd5f5d27bc37f48a89096efcb0ce2ac4b6655475e4ff6ace95df160a11",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3dbc54a4e5b2d099687224d08a3733d3e83e16a014cf5a5a92d7076a83b2cb6e",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a2b1bdd5f5d27bc37f48a89096efcb0ce2ac4b6655475e4ff6ace95df160a11",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b270e949e5ad10eb622f0fcaadfb61968bbc87d116933448e45d2ebb38d6020a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e13d264f745ec0dae08b8edf24606f8429b7be5c63252f23b16579b4fc540f7c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f51db14f0a296c3d406b8d1f93c99f9108c4939dc43190de4a7848dbaf915909",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f51db14f0a296c3d406b8d1f93c99f9108c4939dc43190de4a7848dbaf915909",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4a3501a69806fcf56ce4142d5abeee821d61987f8d0c8efc352aec67bd5c7bfb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cc18bea952e784dfc426220ef2ce0b1803d6aa5a6e44e350201668f96e7bb11e",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e67698ef1cdc44b58e8d8f9635e2acbe6a21a7789f0d67b8e81918e62eab7658",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b270e949e5ad10eb622f0fcaadfb61968bbc87d116933448e45d2ebb38d6020a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_ids_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e13d264f745ec0dae08b8edf24606f8429b7be5c63252f23b16579b4fc540f7c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a87dc03931f7fc3ce47ed7b5d4fdb4a40cc67d23a30b26593fd3103984c5809b",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f2d1bfdef3ac4aaaec10f1d3bb48ac2931a77d8727b9d3a572ec56a9b49d76c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5de4de7a701b86877884bbb92104151bb9e6933ee8474221676afeae72ff22ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22e2b19a38b39419455e912eba8d9886372a55dbe2e6f2681154d7ca645fe0e1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22e2b19a38b39419455e912eba8d9886372a55dbe2e6f2681154d7ca645fe0e1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f4d5fff7f603cb234b76d16585661bd8ecffc29d6d7912038f63120aba4e1b48",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8b438c04492b4905d7ec1573d5aa97a51b30c95defe17886e11bbbb193c2a828",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a896ddf469d4ceb58d0eca8b69eed239ad381b2071a29a04a3841af7b32c4ab7",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f2d1bfdef3ac4aaaec10f1d3bb48ac2931a77d8727b9d3a572ec56a9b49d76c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_idset_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5de4de7a701b86877884bbb92104151bb9e6933ee8474221676afeae72ff22ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_infinite",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef91ba0c056e19281092d6b1ae0f6a50e9e1880759fa2ffba6e4b931bb4cfba7",
+      "action_count": 2,
+      "program_counter": false
+    },
+    {
+      "id": "Multi_C_infinite_one",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "345aaa114126dcff3cec782a71b86d6e754290ded4a526f88b54ffec459b302e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_intervals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd2e58c44828bdefedfb165027ccfc075a759c8fbab69339f81285d6a969a840",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_labelcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process label/name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_localcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process local/process/global name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9aae4e1db362d6ccddfe8dd2bad17522a1a953b31620f25e471befe0d9b3018d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_nonliteral",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_overlap",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_overlap_sets",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_processcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process local/process/global name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_C_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "11845dd76323ce7bc09b62def84ed45a70fd79360dcb2c83510a3d851ea82ecb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_setid",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "123523e40d7edfed7b6a1c180f92da3aca9acf46f870a11605cdc3620cb46cf1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cbc941fc846d0cf09da9b657caef641b4824e5acd0288a457e30826f85889acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e1f13c648b6029045387a89c07a020ad4d5ede5798318f0457ffa9f30eded593",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cbc941fc846d0cf09da9b657caef641b4824e5acd0288a457e30826f85889acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8cafa513af715698c9b277fa40b7fc0d953619bcdb7f0f9e9aa7e2fb524b8927",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "66cd3b2b3ca31f039bf52143d513c6de24b16d30d86509ea716e87a46a2be04c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bcbd9c55415772b2c338fbacc4c39fb665f797a24743137f6277d14ec218d099",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bcbd9c55415772b2c338fbacc4c39fb665f797a24743137f6277d14ec218d099",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "da7e9f63c50fd668219924f2328146c2015074bd447974e0e23d5eb3c1f15e81",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6e5ad4e49c11ec9aa8ea5453c95dfac4475b8fd6b771c13d49f5b2e52a64563",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a402113dce1be6d0098f9b355b2d7a09f3c0b6d5a339436a54d7ccbae54bd490",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8cafa513af715698c9b277fa40b7fc0d953619bcdb7f0f9e9aa7e2fb524b8927",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_sets_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "66cd3b2b3ca31f039bf52143d513c6de24b16d30d86509ea716e87a46a2be04c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_C_strings",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8aec958741b2f81543943fcc7a8cc238e92c70926eae0f4fa6cbd006aefc4272",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_crossgoto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Multi_P_crosslocal",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: cross-process local-variable scope",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_dup_set",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "99190655292269f39405b129873896139350b5acef57189f4c6096f21b3e775d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_empty",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "834b92b0db60b2ca95f23b0d7a843a21311f77d2517a69e3afac044a1e73a9c7",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_empty_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1f8a7f8fdf428935b3b448abbdd2b119bd1f2d9c508eea236f128aeb0645e579",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a2b1bdd5f5d27bc37f48a89096efcb0ce2ac4b6655475e4ff6ace95df160a11",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3dbc54a4e5b2d099687224d08a3733d3e83e16a014cf5a5a92d7076a83b2cb6e",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a2b1bdd5f5d27bc37f48a89096efcb0ce2ac4b6655475e4ff6ace95df160a11",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b270e949e5ad10eb622f0fcaadfb61968bbc87d116933448e45d2ebb38d6020a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e13d264f745ec0dae08b8edf24606f8429b7be5c63252f23b16579b4fc540f7c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f51db14f0a296c3d406b8d1f93c99f9108c4939dc43190de4a7848dbaf915909",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f51db14f0a296c3d406b8d1f93c99f9108c4939dc43190de4a7848dbaf915909",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4a3501a69806fcf56ce4142d5abeee821d61987f8d0c8efc352aec67bd5c7bfb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cc18bea952e784dfc426220ef2ce0b1803d6aa5a6e44e350201668f96e7bb11e",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e67698ef1cdc44b58e8d8f9635e2acbe6a21a7789f0d67b8e81918e62eab7658",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b270e949e5ad10eb622f0fcaadfb61968bbc87d116933448e45d2ebb38d6020a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_ids_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e13d264f745ec0dae08b8edf24606f8429b7be5c63252f23b16579b4fc540f7c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a87dc03931f7fc3ce47ed7b5d4fdb4a40cc67d23a30b26593fd3103984c5809b",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c166682eaaae3055cdf81a100cecd7e6768d0c70edac54d7e9983104346dc5fc",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f2d1bfdef3ac4aaaec10f1d3bb48ac2931a77d8727b9d3a572ec56a9b49d76c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5de4de7a701b86877884bbb92104151bb9e6933ee8474221676afeae72ff22ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22e2b19a38b39419455e912eba8d9886372a55dbe2e6f2681154d7ca645fe0e1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22e2b19a38b39419455e912eba8d9886372a55dbe2e6f2681154d7ca645fe0e1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f4d5fff7f603cb234b76d16585661bd8ecffc29d6d7912038f63120aba4e1b48",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8b438c04492b4905d7ec1573d5aa97a51b30c95defe17886e11bbbb193c2a828",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a896ddf469d4ceb58d0eca8b69eed239ad381b2071a29a04a3841af7b32c4ab7",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f2d1bfdef3ac4aaaec10f1d3bb48ac2931a77d8727b9d3a572ec56a9b49d76c4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_idset_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5de4de7a701b86877884bbb92104151bb9e6933ee8474221676afeae72ff22ac",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_infinite",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef91ba0c056e19281092d6b1ae0f6a50e9e1880759fa2ffba6e4b931bb4cfba7",
+      "action_count": 2,
+      "program_counter": false
+    },
+    {
+      "id": "Multi_P_infinite_one",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "345aaa114126dcff3cec782a71b86d6e754290ded4a526f88b54ffec459b302e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_intervals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd2e58c44828bdefedfb165027ccfc075a759c8fbab69339f81285d6a969a840",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_labelcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process label/name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_localcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process local/process/global name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9aae4e1db362d6ccddfe8dd2bad17522a1a953b31620f25e471befe0d9b3018d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_nonliteral",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_overlap",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_overlap_sets",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_processcollision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process local/process/global name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Multi_P_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "11845dd76323ce7bc09b62def84ed45a70fd79360dcb2c83510a3d851ea82ecb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_setid",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "123523e40d7edfed7b6a1c180f92da3aca9acf46f870a11605cdc3620cb46cf1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cbc941fc846d0cf09da9b657caef641b4824e5acd0288a457e30826f85889acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_default",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e1f13c648b6029045387a89c07a020ad4d5ede5798318f0457ffa9f30eded593",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_flag_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cbc941fc846d0cf09da9b657caef641b4824e5acd0288a457e30826f85889acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_flag_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8cafa513af715698c9b277fa40b7fc0d953619bcdb7f0f9e9aa7e2fb524b8927",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_flag_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "66cd3b2b3ca31f039bf52143d513c6de24b16d30d86509ea716e87a46a2be04c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_flag_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bcbd9c55415772b2c338fbacc4c39fb665f797a24743137f6277d14ec218d099",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_globalfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bcbd9c55415772b2c338fbacc4c39fb665f797a24743137f6277d14ec218d099",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "da7e9f63c50fd668219924f2328146c2015074bd447974e0e23d5eb3c1f15e81",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6e5ad4e49c11ec9aa8ea5453c95dfac4475b8fd6b771c13d49f5b2e52a64563",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a402113dce1be6d0098f9b355b2d7a09f3c0b6d5a339436a54d7ccbae54bd490",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8cafa513af715698c9b277fa40b7fc0d953619bcdb7f0f9e9aa7e2fb524b8927",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_sets_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "66cd3b2b3ca31f039bf52143d513c6de24b16d30d86509ea716e87a46a2be04c",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Multi_P_strings",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8aec958741b2f81543943fcc7a8cc238e92c70926eae0f4fa6cbd006aefc4272",
+      "action_count": 4,
+      "program_counter": true
+    }
+  ]
+}

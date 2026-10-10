@@ -1,0 +1,704 @@
+{
+  "schema_version": 1,
+  "reason": "Issue 162 formal binding capture and qualified-name lexical substitution evidence requested by independent source review",
+  "generated_at": "2026-10-10T18:19:17Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "MacroScope_C_function_shadow",
+      "input": "MacroScope_C_function_shadow.tla",
+      "input_sha256": "f162a65d9d957ee494713932496ee02dbf46dd9e736fd2dfb05f2d2baf4b1de2",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_function_shadow.translation.stdout.gz",
+        "stdout_sha256": "bd7ed40697ce0e35f344315379c81bd3aea10cb885f66fdc8c6f5cb884a9344a",
+        "stderr": "MacroScope_C_function_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_function_shadow.normalized.stdout.gz",
+        "stdout_sha256": "c0f6e6a9a0476aebc62c9284ca469c2bb34d86a936069f2c9492f5cec7f6a310",
+        "stderr": "MacroScope_C_function_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_function_shadow.normalized.json",
+          "sha256": "b5334b0b1da9987131a0f44149ee56c0db1b0a00880db8c22b969a1e6933a64d"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_function_shadow.translated.tla",
+        "sha256": "0ca84874d050698dcd465d6f0235f40c6c5d4db988b995fdc1245778fda8b8f8"
+      },
+      "config": {
+        "path": "MacroScope_C_function_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_C_function_shadow.sany.stdout.gz",
+        "stdout_sha256": "d886be112c57eecb51f5a9ade43f61d5e8bf326aeda0d8f53ca9cc775b66a3aa",
+        "stderr": "MacroScope_C_function_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_C_let_shadow",
+      "input": "MacroScope_C_let_shadow.tla",
+      "input_sha256": "befb63a609f1b75746df4a5e876987f42d352cf88eda810afd3b864d5203c3f4",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_let_shadow.translation.stdout.gz",
+        "stdout_sha256": "afca14c25c3188e9a9d64bfb8ce20fb39b3b0dddb0ad1e3bd86918648b1938be",
+        "stderr": "MacroScope_C_let_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_let_shadow.normalized.stdout.gz",
+        "stdout_sha256": "4721a53fdf9b38fda4cf2ff264fa4e3dbf65377ec38a5350d3d4ffc8f668233f",
+        "stderr": "MacroScope_C_let_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_let_shadow.normalized.json",
+          "sha256": "b077bbb48083b3d3b690124acdabe9c5a5e67fda290b921d7a7e4b818791438d"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_let_shadow.translated.tla",
+        "sha256": "3112c4b31b94792c8879852beb56c2b4171a28499a1dbc91a74d215959be37a2"
+      },
+      "config": {
+        "path": "MacroScope_C_let_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_C_let_shadow.sany.stdout.gz",
+        "stdout_sha256": "9f77c787e361657dade622850381bde55b2ed520d33a7a3c033f31babee1d149",
+        "stderr": "MacroScope_C_let_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_C_qualified_actual",
+      "input": "MacroScope_C_qualified_actual.tla",
+      "input_sha256": "efd5886cd99987c10f45aa57e655103d58db9d5d538b407e89c16a049d9c9aae",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.translation.stdout.gz",
+        "stdout_sha256": "5dfb273d463fa6615a72ff7517a288118bcd460fc2863ae77e9582756174d44c",
+        "stderr": "MacroScope_C_qualified_actual.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.normalized.stdout.gz",
+        "stdout_sha256": "a99673d93c0a81c52d5613983024c5fbac6462b74b60ce1d36cf53c45f28974d",
+        "stderr": "MacroScope_C_qualified_actual.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_qualified_actual.normalized.json",
+          "sha256": "b58f0cb2dfa239cea3d26fbf7b7dec3af648ca3907f5cfd500dada213f15f815"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_qualified_actual.translated.tla",
+        "sha256": "8b92e2ed71f49deb4e8e6b8f8f433e9ee26f9a7721b51cd98ebd8390a0970ebc"
+      },
+      "config": {
+        "path": "MacroScope_C_qualified_actual.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.sany.stdout.gz",
+        "stdout_sha256": "f7f2248e9bfd613eea68d2e13305cf99f90bc7f97dce5d15cb6a3867de59a5f3",
+        "stderr": "MacroScope_C_qualified_actual.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_C_qualified_formal",
+      "input": "MacroScope_C_qualified_formal.tla",
+      "input_sha256": "c4c63c373f980ccb52b4c92863f5bd817ef84428994a2fa5aa71694e0d467d67",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_formal.translation.stdout.gz",
+        "stdout_sha256": "f10d5cc73bcdfa537d3303cb2d9827938c531a57ac90a963adc1308724f82567",
+        "stderr": "MacroScope_C_qualified_formal.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_formal.normalized.stdout.gz",
+        "stdout_sha256": "64d8cb6c8beb8878eda686cbd564912de15eab38919423bbdf81151cdb1942c9",
+        "stderr": "MacroScope_C_qualified_formal.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_qualified_formal.normalized.json",
+          "sha256": "113c30bd6173c650822b606914dea2fea5fc8b74f54c1fc528277498b28e89a2"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_qualified_formal.translated.tla",
+        "sha256": "0ac91c47d02576b78feb4bbbd92f75839673e3337d40bc00cd91ac2b6808fc6b"
+      },
+      "config": {
+        "path": "MacroScope_C_qualified_formal.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroScope_C_qualified_formal.sany.stdout.gz",
+        "stdout_sha256": "f7eb30ba48b399a8f46f3890898022fa6f354765f9aca5bf4c4a38d01fd6c995",
+        "stderr": "MacroScope_C_qualified_formal.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_C_quantifier_shadow",
+      "input": "MacroScope_C_quantifier_shadow.tla",
+      "input_sha256": "bda047b2563bcfdbe77da2e268372419fe841982e610cf010448114c75f25d24",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_quantifier_shadow.translation.stdout.gz",
+        "stdout_sha256": "ef8b386fd893fdba31728819d087fbf32fc92d72b8196f5c1497b39daa031235",
+        "stderr": "MacroScope_C_quantifier_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_quantifier_shadow.normalized.stdout.gz",
+        "stdout_sha256": "4bec42af2995727eb67b1a695365c79a264e73f5331cd15f24e5c36601823928",
+        "stderr": "MacroScope_C_quantifier_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_quantifier_shadow.normalized.json",
+          "sha256": "24ceec46849a534794583a5f3ed337f707645a36f95913a339e13a50f1c9f745"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_quantifier_shadow.translated.tla",
+        "sha256": "f65786296e6c4226f302d4bd72c26adaa86df33df9d302f5364153978872fafc"
+      },
+      "config": {
+        "path": "MacroScope_C_quantifier_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_C_quantifier_shadow.sany.stdout.gz",
+        "stdout_sha256": "8f744d623024613d52df80f30c51946f1810d641f611a106473071bc2150f6b8",
+        "stderr": "MacroScope_C_quantifier_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_C_record_selector",
+      "input": "MacroScope_C_record_selector.tla",
+      "input_sha256": "5180eeabb8936bf6c0be457992dde9ff9f3312844191051ec237c2ee5e9f3a86",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.translation.stdout.gz",
+        "stdout_sha256": "3d666890d650461f79aecbe7d1856cea8a010f4c6b2154a3040ab724ff4dc90b",
+        "stderr": "MacroScope_C_record_selector.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.normalized.stdout.gz",
+        "stdout_sha256": "a7e2c51e85276c0b669c528da4a3db842dde6dab8c9746c78b9370b754925230",
+        "stderr": "MacroScope_C_record_selector.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_record_selector.normalized.json",
+          "sha256": "53c381c2f627bf80f4322ad4e7a07824a56eb008246f7d123dbdc8d84e53888f"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_record_selector.translated.tla",
+        "sha256": "5d4769a9240cf04088675c5fe9f3bf3b9d708c62c684559884191f6d4fc8302a"
+      },
+      "config": {
+        "path": "MacroScope_C_record_selector.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.sany.stdout.gz",
+        "stdout_sha256": "a1527270ffd13cb1388836e5623138d16ab5b013ac6424148e4f0a79af4da684",
+        "stderr": "MacroScope_C_record_selector.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined",
+      "input": "MacroScope_C_simultaneous_defined.tla",
+      "input_sha256": "837da58d514bcf7e133a6dd79fd8972e387576418d8be500297dfa152557f2d1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.translation.stdout.gz",
+        "stdout_sha256": "f2ef59d376a4da6228238889dfb9bdee9fb5dd7b2d9776d3f5945fdd84a3a681",
+        "stderr": "MacroScope_C_simultaneous_defined.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.normalized.stdout.gz",
+        "stdout_sha256": "fef209b8260dfc5c2e1e914b9aa9d054a41e366d64d0ace6df5437fd462dc896",
+        "stderr": "MacroScope_C_simultaneous_defined.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_simultaneous_defined.normalized.json",
+          "sha256": "da791c4570b99364986b8f0e71d57759a1afbbecc749512b73ec744ceea5e63b"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_simultaneous_defined.translated.tla",
+        "sha256": "8d6244a761cad6398aa84b62d031935116458397caba1a3819712b6b454c6e4e"
+      },
+      "config": {
+        "path": "MacroScope_C_simultaneous_defined.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.sany.stdout.gz",
+        "stdout_sha256": "5e3b047b22b3a2d069afe849630a6740d602bff86245664fd055b8463e5762f0",
+        "stderr": "MacroScope_C_simultaneous_defined.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_C_with_shadow",
+      "input": "MacroScope_C_with_shadow.tla",
+      "input_sha256": "e912a6b8d3f35bf258b71de023ff96e516af864d3176e0ce0a2b6eed724ae1b7",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.translation.stdout.gz",
+        "stdout_sha256": "f5984236640966015961693504bcbfdc1c95166228b5746a517fef9570c68389",
+        "stderr": "MacroScope_C_with_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.normalized.stdout.gz",
+        "stdout_sha256": "a38b979888d694e791aafb40189db65b60b5dfc71a2b8cff616dee4b48c0b55a",
+        "stderr": "MacroScope_C_with_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_C_with_shadow.normalized.json",
+          "sha256": "78ec4aa95de59543b3b49c100dffcf27614c466f608b8b36c24a92d5f59f96bd"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_C_with_shadow.translated.tla",
+        "sha256": "ad26339569acac4ac5abbcd386b6610f840d47d85937ea208baa7acaa462b57e"
+      },
+      "config": {
+        "path": "MacroScope_C_with_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.sany.stdout.gz",
+        "stdout_sha256": "31e41b2990b699f65fdb1f29e17dc96110617464f918475255d8de8e522634ff",
+        "stderr": "MacroScope_C_with_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_P_function_shadow",
+      "input": "MacroScope_P_function_shadow.tla",
+      "input_sha256": "0ec006e8a8ad04a9f730a5375d1710e2eb05c41504d0b0a116de86389ac63a64",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_function_shadow.translation.stdout.gz",
+        "stdout_sha256": "89ade4a758a300c0927865dffeeffa2cbf7ed5261d4d97ec521c0b97e64215ba",
+        "stderr": "MacroScope_P_function_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_function_shadow.normalized.stdout.gz",
+        "stdout_sha256": "8c6b4163d6a03938f43f805284ed79bc7cec5632b80783aeb517d6f1f69eb7b0",
+        "stderr": "MacroScope_P_function_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_function_shadow.normalized.json",
+          "sha256": "fc1242ad43a4054da2b62cb81a8f2668b3ccec4c95fd6fab0f858c353ee14d08"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_function_shadow.translated.tla",
+        "sha256": "f3a89e52cb00c1889f7aa4bf10ba5db14afa29ce8feed2c504dbb32eaf274b31"
+      },
+      "config": {
+        "path": "MacroScope_P_function_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_P_function_shadow.sany.stdout.gz",
+        "stdout_sha256": "589dd02a2e1f4443cc30cff0033883b6eaafb8c8e57cc24f7bf348788a3e4b30",
+        "stderr": "MacroScope_P_function_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_P_let_shadow",
+      "input": "MacroScope_P_let_shadow.tla",
+      "input_sha256": "5cce0f3f1fccafa152f278f8864d3fb013400b4a6583714f06ae70227a4bbba9",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_let_shadow.translation.stdout.gz",
+        "stdout_sha256": "9c6029ee387e59a714dda2b4e73d9fd330b844f17d67c8c1791a8646918e9035",
+        "stderr": "MacroScope_P_let_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_let_shadow.normalized.stdout.gz",
+        "stdout_sha256": "d3ead897f730d87df6e1c9f9c2e1225d92ecb476a86cf0a3026be2216892a320",
+        "stderr": "MacroScope_P_let_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_let_shadow.normalized.json",
+          "sha256": "2821c3f0aff456317860ce8b2678edc92e7925b7ddd43f8d3ec3a2f481302a4d"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_let_shadow.translated.tla",
+        "sha256": "14e30fe75703f852010656fbd2f81bfbc5de588f01bc66c2084227f835f98fd7"
+      },
+      "config": {
+        "path": "MacroScope_P_let_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_P_let_shadow.sany.stdout.gz",
+        "stdout_sha256": "ab912d2782c5166dfd455045da0f44e2442df6687cd8fe728b3925ae0783b84c",
+        "stderr": "MacroScope_P_let_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_P_qualified_actual",
+      "input": "MacroScope_P_qualified_actual.tla",
+      "input_sha256": "58b991bdfd74706eac3f9e1f6562049e02a23011f91640a13c807edd0da3cfbf",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.translation.stdout.gz",
+        "stdout_sha256": "f8a3135934e01b3577db8159590bfec64fd3d476ed044f4c21562e9825bd15f4",
+        "stderr": "MacroScope_P_qualified_actual.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.normalized.stdout.gz",
+        "stdout_sha256": "195b9b8da684c91d163cad7e090e375e7a4dd226b20d17c4632768295975adc0",
+        "stderr": "MacroScope_P_qualified_actual.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_qualified_actual.normalized.json",
+          "sha256": "4d91c0daf23aa26149c5d6cc7464eccf06ddf78212fc66d15138fa14544fc035"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_qualified_actual.translated.tla",
+        "sha256": "1e89d3fba8b35a7c93a4eab19ebfdbadb9aba7d015a3056e7ef54657385a8c00"
+      },
+      "config": {
+        "path": "MacroScope_P_qualified_actual.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.sany.stdout.gz",
+        "stdout_sha256": "0e4eab928ccfec787cf25d3782729a7aff1a9c0722e590bbc8e319896182c24c",
+        "stderr": "MacroScope_P_qualified_actual.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_P_qualified_formal",
+      "input": "MacroScope_P_qualified_formal.tla",
+      "input_sha256": "a8df9b38d3b0452cedad0c802a4f87dd9e651321452d7a8f0f9708577ddb65e1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_formal.translation.stdout.gz",
+        "stdout_sha256": "9d44e4de3a795283e6c22b401278e9f8d375ae37d406b34431c787314656dca9",
+        "stderr": "MacroScope_P_qualified_formal.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_formal.normalized.stdout.gz",
+        "stdout_sha256": "13c6cef3d79da3569e2e409b2897b890668bcb931df21722c0148497e8322a79",
+        "stderr": "MacroScope_P_qualified_formal.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_qualified_formal.normalized.json",
+          "sha256": "43c784bbabbf30a4b1058c1f974d3fbed77e9ac92bc3908178c29e6b5cede773"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_qualified_formal.translated.tla",
+        "sha256": "db24448e13db854b031fcfd58ac75d548f0c515133818fc4288f15f5c4d0ee99"
+      },
+      "config": {
+        "path": "MacroScope_P_qualified_formal.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroScope_P_qualified_formal.sany.stdout.gz",
+        "stdout_sha256": "325691d69930ebc29d0321d13eb5910305056d143cd9eb891b6ba9534992f0d5",
+        "stderr": "MacroScope_P_qualified_formal.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_P_quantifier_shadow",
+      "input": "MacroScope_P_quantifier_shadow.tla",
+      "input_sha256": "57c007bf28d34636bb220144c7aed4bb3d0db428975bf2019ac49804fb04e33f",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_quantifier_shadow.translation.stdout.gz",
+        "stdout_sha256": "532f4b8b6138213c918ab7c2b305171a7d07b8624e8f10280374cd017ab52662",
+        "stderr": "MacroScope_P_quantifier_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_quantifier_shadow.normalized.stdout.gz",
+        "stdout_sha256": "a3b6cb39dae57c50c05be89059fa5f487f5883de956b2ac2eae55031db47292b",
+        "stderr": "MacroScope_P_quantifier_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_quantifier_shadow.normalized.json",
+          "sha256": "300ae07006d65d677a6e427fe6c922865ac911e9fa3d3d33b2ad467aedefa526"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_quantifier_shadow.translated.tla",
+        "sha256": "602bd524c8226bfaf1bbb88e76897125340156445a457fdd1e220e1c2b5e88ea"
+      },
+      "config": {
+        "path": "MacroScope_P_quantifier_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 255,
+        "stdout": "MacroScope_P_quantifier_shadow.sany.stdout.gz",
+        "stdout_sha256": "aa5d5b1310a6d87891efc1446e06885a5c6850a0dc92bbea4c65536d16a201fe",
+        "stderr": "MacroScope_P_quantifier_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroScope_P_record_selector",
+      "input": "MacroScope_P_record_selector.tla",
+      "input_sha256": "7a17ea5c7cd5857cc269f7921094afd9160c7175d05c1a0d51bf81e4edbeb074",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.translation.stdout.gz",
+        "stdout_sha256": "a8d7d0de62751158b6ac61663b8a689282adf2bf5a406601ddc3e1f5af32af4f",
+        "stderr": "MacroScope_P_record_selector.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.normalized.stdout.gz",
+        "stdout_sha256": "1fca4c98ededae81599c70c4d7efca7fdaadc9c1843c7bb4c05d16dd533b20c3",
+        "stderr": "MacroScope_P_record_selector.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_record_selector.normalized.json",
+          "sha256": "c8e19b42654beb6a29e93aea14b17b6ad792ca52d4fd95b7f876888a8e87abdf"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_record_selector.translated.tla",
+        "sha256": "cdad2a1119c89e6b5a822bf37fba1947953a0f18d8e8cf02be60d51b2f292ea8"
+      },
+      "config": {
+        "path": "MacroScope_P_record_selector.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.sany.stdout.gz",
+        "stdout_sha256": "30859d82b17a4b194b9630fef06e17d98bfba1ef72589f9e9f84f6633562d0f0",
+        "stderr": "MacroScope_P_record_selector.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined",
+      "input": "MacroScope_P_simultaneous_defined.tla",
+      "input_sha256": "1666c852888d59adacaf982a1f52be55652b83796e78b491673f3e8c0f407148",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.translation.stdout.gz",
+        "stdout_sha256": "392a6d7bb203b934f9d7ca36bdf2875c3c85786eb823b38367dd430d83a68069",
+        "stderr": "MacroScope_P_simultaneous_defined.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.normalized.stdout.gz",
+        "stdout_sha256": "31bab02e363b6172c9c1cfcd4445b2e2b3492a4efadb9a659f0367c083a20e2d",
+        "stderr": "MacroScope_P_simultaneous_defined.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_simultaneous_defined.normalized.json",
+          "sha256": "33575826ae0803c3d818bcaf24d21244763e188bb3ff97e597f38495da00a831"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_simultaneous_defined.translated.tla",
+        "sha256": "4253b7e370195c71577e24c391b65cdefccb0ea2b8711007ec89af4afa4b0e57"
+      },
+      "config": {
+        "path": "MacroScope_P_simultaneous_defined.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.sany.stdout.gz",
+        "stdout_sha256": "0d4133bd17c35d99fdce4e83534c972d4955bf524e9a868646c5976d9f3e4ef4",
+        "stderr": "MacroScope_P_simultaneous_defined.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroScope_P_with_shadow",
+      "input": "MacroScope_P_with_shadow.tla",
+      "input_sha256": "46ba4df82d349a96cfca1a8334c5ad01d030ea59e0d22fcf44235901a135ecd8",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.translation.stdout.gz",
+        "stdout_sha256": "96bdb59fc7c9abb6bd53a7c561f2ced58da042d30e32428df219d3be886213cc",
+        "stderr": "MacroScope_P_with_shadow.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.normalized.stdout.gz",
+        "stdout_sha256": "7eeb9f414b92a6164f614b6df3ea65ca31778012cb2388b1571c8a1b24f6b6c3",
+        "stderr": "MacroScope_P_with_shadow.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroScope_P_with_shadow.normalized.json",
+          "sha256": "8c7017a43f00ffd9d9b9b997dacb591965a27de73f6a3a32d7e4446077d74540"
+        }
+      },
+      "translated": {
+        "path": "MacroScope_P_with_shadow.translated.tla",
+        "sha256": "3e9009a06f0e6e193012f833f5f8c8465311103f6c5584f7f0a105e661542340"
+      },
+      "config": {
+        "path": "MacroScope_P_with_shadow.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.sany.stdout.gz",
+        "stdout_sha256": "f1e8d7573a8cbb3b57c5f3b1ee466ecabf3200955f3476bde184008b4661c4e7",
+        "stderr": "MacroScope_P_with_shadow.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}

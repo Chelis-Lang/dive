@@ -42,8 +42,9 @@ limited by the checker's supported temporal families.
 ## Bounds and retained controls
 
 The existing source/node/action/output bounds remain active. Multiple process
-blocks, procedure/macro fairness, renaming, unproved domain normalization and
-historical generation modes remain explicit refusals. Fair domains containing
+blocks with unproved domains, procedure fairness, renaming and
+historical generation modes remain explicit refusals. Bounded macro expansion
+now runs before fairness generation; see [native macros](pluscal-macros.md). Fair domains containing
 newlines, tabs or comments are refused until the reference prefix transformation
 is proved. Pretty-width, rewriting, checksums and map-file parity remain pending.
 

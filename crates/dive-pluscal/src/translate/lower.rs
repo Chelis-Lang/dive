@@ -1,10 +1,11 @@
 //! Label/action normalization matching pinned `PcalTranslate`'s continuations.
+use super::macros::Expanded as Parsed;
 use super::{
     FairnessOption, TranslationError, TranslationOptions, TranslationStage, TranslationWarning,
     error,
 };
 use crate::{
-    Code, Parsed,
+    Code,
     ast::{
         Assignment, BindingKind, Block, Body, Decl, Expr, Fairness, Label, Span, StatementKind,
         StmtId, WithBinding,
@@ -75,13 +76,7 @@ fn unsupported(span: Span, feature: &str) -> TranslationError {
     )
 }
 pub(super) fn tokens(parsed: &Parsed, expr: Expr) -> &[crate::ast::Token] {
-    let start = parsed
-        .tokens
-        .partition_point(|token| token.span.start < expr.span.start);
-    let end = parsed
-        .tokens
-        .partition_point(|token| token.span.end <= expr.span.end);
-    parsed.tokens.get(start..end).unwrap_or_default()
+    parsed.tokens(expr)
 }
 fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
     let text: Vec<_> = tokens(parsed, expr)
