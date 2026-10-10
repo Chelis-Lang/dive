@@ -333,3 +333,9 @@ existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
 `conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
 conservative. This is a native limitation repair, not family certification.
+
+The [single-process increment](pluscal-processes.md) matches unfair constant-ID
+and finite-membership process storage/action semantics and the distinct process
+`-label` default. Multiple blocks/fairness/unproved names remain named refusals.
+Constant-ID `self` references that leave the primary output SANY-invalid are
+retained without artifact credit; no alternate mathematical default is adopted.

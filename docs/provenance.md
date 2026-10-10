@@ -383,3 +383,9 @@ ordinals (the TLC `TLCTrace`/`ModelChecker` replay semantics matched in ADR 0015
 without importing Java disk/checkpoint formats or porting an I/O algorithm.
 `crates/dive-api/tests/predecessor_spill.rs` checks ordered replay and independent
 symmetry witnesses across memory/disk, stores, profiles and worker widths.
+
+## Single-process storage and scheduling
+
+| dive component | Source | Licence | Nature |
+|---|---|---|---|
+| Single-process PlusCal storage/actions (`dive-pluscal/translate/process.rs`, `emit.rs`, `labels.rs`) | `pcal/ParseAlgorithm.getAlgorithm` process LabelFlag check, `checkBody`; `pcal/PcalSymTab` unconditional reserved pc symbol; `pcal/PcalTLAGen.GenProcess`, `GenVarsAndDefs`, `GenProcSet`, `GenInit`, `GenLabeledStmt`, `GenNext`, `GenSpec`, `GenTermination`, `AddSubscriptsToExpr`, `GenAssign` at `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded single unfair constant-ID/finite-membership process, indexed pc, scalar/indexed locals and assignment/expression substitutions. Primary translation/SANY and normalized secondary AST stages kept separate; no Java runtime delegation. |

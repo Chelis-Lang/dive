@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "stage": "single-process-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "13c8410b7d0e4e546becac99cddb046e1517deea040a69bd3cb405d34de16b1c",
+  "comparator_sha256": "d4f5eddf8f9cff6a3451135789af06fe87973c92527a542f10f0a94eeba43fbf",
+  "native_sha256": "bc4bc567e70d5c44815d831c90c72c91ef2b86b136edbf45f269afcee67be13a",
+  "model_proved": false,
+  "pending": [
+    "multiple-process-blocks",
+    "process-fairness",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 6,
+  "summary": {
+    "rejection-match": 2,
+    "disagree": 4
+  },
+  "rows": [
+    {
+      "id": "ProcNames_C_process_finite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_C_process_infinite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "disagree",
+      "reason": "native artifact without primary translation"
+    },
+    {
+      "id": "ProcNames_C_sequential_infinite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "disagree",
+      "reason": "native artifact without primary translation"
+    },
+    {
+      "id": "ProcNames_P_process_finite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_P_process_infinite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "disagree",
+      "reason": "native artifact without primary translation"
+    },
+    {
+      "id": "ProcNames_P_sequential_infinite",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "disagree",
+      "reason": "native artifact without primary translation"
+    }
+  ]
+}
