@@ -107,17 +107,14 @@ certification. The original 140-row small census remains source-qualified and
 unchanged. See [ADR 0036](decisions/0036-conditional-planning-error-order.md)
 and [provenance](provenance.md) for the shared conversion authority.
 
-The temporary temporal-IF identity restriction scans the **whole admitted IR**,
-including unused/imported definitions and call arguments. A temporal IF such as
-`[](IF x=0 THEN x=0 ELSE x=1 => <>(x=2))` remains explicitly refused: the pinned
-initial particle is 3 while the preserved native observation selected 4.
-Matching words or counts does not excuse that identity disagreement. The scan
-uses the existing 4,096 formula-entry/work ceiling, structural child/definition
-edges and user-call argument checks in addition to metadata; changing a node's
-level/effects cannot authorize this case. A large arena or structural walk can
-therefore be refused even when the configured property does not use the IF.
-This conservative staged restriction remains until the separate numbering fix
-tracked in [#170](https://github.com/Chelis-Lang/dive/issues/170).
+The original whole-arena temporal-IF refusal and its initial particle 3-versus-4
+failure remain preserved as historical evidence. The separate
+[temporal conditional repair](tlc-temporal-if.md) now admits its proven direct
+subset through actual final execution and independent replay. Temporal argument
+forwarding into IF-bearing user bodies still refuses throughout the whole arena,
+including unused/imported calls. The existing 4,096 arena-entry/structural-work
+ceilings and shared context/effect admission remain unchanged. No periodic or
+family certification follows from this extension.
 
 ## Complete current small-model census
 

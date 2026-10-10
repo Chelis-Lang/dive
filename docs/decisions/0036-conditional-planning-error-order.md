@@ -64,3 +64,15 @@ this arena identity and charges each earlier-reference update as work. Distinct
 objects are not merged by expression/truth equality. All selected normalized
 and numbered-particle fields plus independent words are preserved; runtime
 admission remains staged until actual stopping/witness controls are proven.
+
+### 2026-10-10: proven direct temporal-IF final admission (#170)
+
+The source-only shared-tag repair is followed by actual explicit final execution
+and fresh independent memory/JSON witnesses. Direct temporal IF now admits;
+whole-arena temporal-argument forwarding into IF-bearing bodies remains staged
+because clean pin2213 rejects selected examples. The existing arena/structural
+admission bounds remain unchanged. Accepting-sink early source stops remain
+refused rather than converted to completed final verdicts. Thirty complete raw
+controls, 120 native width outcomes and independent word/closing mutations retain
+all failures and configured/derived claim identities. No ordinary periodic or
+full-family contract is asserted.

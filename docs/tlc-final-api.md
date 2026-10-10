@@ -298,3 +298,12 @@ planner through final execution and fresh replay. See the
 remaining restrictions. Earlier complete small-model reports remain unchanged
 and source-qualified; this increment supplies selected controls, not new broad
 corpus or family certification.
+
+Direct temporal conditionals now use pinned shared-guard tags and exact numbered
+particles through final execution and fresh replay. The
+[temporal conditional guide](tlc-temporal-if.md) supplies runnable CLI/Rust
+examples and complete selected controls. Upstream-refused temporal argument
+forwarding into IF-bearing bodies and accepting-sink early witnesses remain
+named unsupported boundaries, including unused forwarding calls in admission.
+All existing bounds, effect/context checks and ordinary-schedule restrictions
+remain in force.

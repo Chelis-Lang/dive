@@ -2,14 +2,14 @@
   "schema_version": 1,
   "scope": "Bounded explicit final conditional admission; original refusals and every selected reference error retained without ordinary periodic/family certification",
   "source_sha256": {
-    "crates/dive-liveness/src/phase_l.rs": "5996b79a1c09ee6860a39f7e4a7a18930b1f5d0cfa761da037110d685933db0a",
-    "crates/dive-api/tests/tlc_state_if.rs": "85c03e05dfaf55e63a04e7f7627d5dcccde11832ae59faeec8f134681a28e392",
-    "crates/dive-cli/tests/cli.rs": "2bdea6bf0c5cb5480d9fa8c42421dfb9fd8e0292c6053a02de2e9c48d27ddb5a",
-    "docs/tlc-state-if.md": "9e688120c4cffea4c7294fe0b59bffdabfe43e1a9281a7401ba34e3f6d670824",
-    "docs/tlc-final-api.md": "36116d333d77b7ce72780c5bd50aa0404ffd140fb060e538bfdcf80d7e131963",
-    "docs/decisions/0036-conditional-planning-error-order.md": "fe9f69e995f754c75c2bd2b108d81b6cc4b7118001754b8400d33b95f1bd5f8a",
-    "scripts/check-tlc-state-if.py": "7e93fd2b62682b400e96df10b7d80b57d034ebccb3a812da6c2e678739418fd3",
-    "conformance/parity-features.json": "59859c46694d86c40e89910df87d66cc2925e1e61e06a50c1b14caa7c6d07884"
+    "crates/dive-liveness/src/phase_l.rs": "0f7bfb58ac387ecfb68a751666ec10c6312c9a046628b0a7c13ac2a30521fa87",
+    "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
+    "crates/dive-cli/tests/cli.rs": "26f9baa1d61534dc83219a64d6165e213e7854a9b433187c792e82ba18f5fd5d",
+    "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
+    "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
+    "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
+    "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
+    "conformance/parity-features.json": "18f3284bc70f3907c5c6e22afed98d30b9e9715010dfc4c366469223eeace224"
   },
   "history_sha256": {
     "current-integration-before-admission/conformance/probes/native-checkpoint/current-integration-source.json": "ee158aed604043a2f9395ae8ed49f2fffedba871844832c5f8f2b691e3c49ec0",
@@ -993,5 +993,7 @@
     "historical-gated-before-full-census/sources/docs/decisions/0036-conditional-planning-error-order.md.gz": "abcb41c5690b8170cfffcd8af243c2add5101303cb603581fc3717f562c45459",
     "historical-gated-before-full-census/sources/scripts/check-tlc-state-if.py.gz": "2384a56593f1d5e6f2b3aec9320ced877bba21fd38039f6aeb5703d47038a76e",
     "historical-gated-before-full-census/sources/conformance/parity-features.json.gz": "ddec3ab99d1c5e605d8170909bee212811c8ad0a0882419deec19d7a87b35b37"
-  }
+  },
+  "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit."
 }

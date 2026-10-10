@@ -1,0 +1,22 @@
+{
+  "scope": "Previous current-source matrices before a proved CLI expectation/paired refusal test-only update; all referenced sources preserved",
+  "matrices": [
+    {
+      "path": "matrices/native-checkpoint/current-integration-source.json",
+      "sha256": "3e1e3a0ddb88762cfb2824f443cb57a0e44accc429e74730ab9e880ca36fa672"
+    },
+    {
+      "path": "matrices/tlc-final-check/source-matrix.json",
+      "sha256": "6a39c3a68bad0b0eba50a6a2172cef13cd2965c3eea28eb72ca6429401a68b99"
+    },
+    {
+      "path": "matrices/tlc-state-if/source-matrix.json",
+      "sha256": "2f3688a79263f76f50fdbfc6cde7da02b0f12fdebf1ab99fd068ef7b97323442"
+    },
+    {
+      "path": "aggregate-current-source.json",
+      "sha256": "f2e93477258454f9ca2220ada39a49bca79e0c08b6ad9174ba98ac403785cf25",
+      "source_dir": "aggregate-sources"
+    }
+  ]
+}

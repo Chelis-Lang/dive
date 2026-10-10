@@ -121,8 +121,17 @@ fn tableau_text(t: &Tableau, i: usize) -> String {
     reason = "complete field-level selection retains every identity and failure"
 )]
 fn complete_model_normalization_group_and_tableau_identity_selection() {
+    complete_fields("tlc-temporal-if", 20);
+    complete_fields("tlc-temporal-if-final", 25);
+}
+#[allow(
+    clippy::too_many_lines,
+    reason = "all selected fields and refusals retained"
+)]
+fn complete_fields(family: &str, expected_supported: usize) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-temporal-if");
+        .join("../../conformance/probes")
+        .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -248,7 +257,7 @@ fn complete_model_normalization_group_and_tableau_identity_selection() {
             }
         }
     }
-    assert_eq!((supported, refused), (20, 5));
+    assert_eq!((supported, refused), (expected_supported, 5));
 }
 // A separate finite-word product checker: state consistency, positive-path
 // reachability and mutually reachable cyclic components. It never uses the
@@ -381,8 +390,13 @@ fn projected_holds(
 
 #[test]
 fn sharing_preserves_independent_words_and_every_closing_position() {
+    independent_words("tlc-temporal-if", 18, 5076);
+    independent_words("tlc-temporal-if-final", 23, 6486);
+}
+fn independent_words(family: &str, expected_models: usize, expected_comparisons: usize) {
     let base = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../conformance/probes/tlc-temporal-if");
+        .join("../../conformance/probes")
+        .join(family);
     let capture: Value =
         serde_json::from_str(&std::fs::read_to_string(base.join("capture.json")).expect("capture"))
             .expect("JSON");
@@ -473,8 +487,8 @@ fn sharing_preserves_independent_words_and_every_closing_position() {
         }
         assert_eq!(model.take_output(), Vec::<String>::new());
     }
-    assert_eq!(models, 18);
-    assert_eq!(comparisons, 5076);
+    assert_eq!(models, expected_models);
+    assert_eq!(comparisons, expected_comparisons);
 }
 #[test]
 fn shared_objects_keep_last_tags_holes_and_bounded_rewrite_work() {

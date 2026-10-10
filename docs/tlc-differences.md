@@ -1490,7 +1490,7 @@ existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
 `conformance/probes/state-if-planning/`. That capture predates the bounded
 [pure state-IF admission](tlc-state-if.md) in explicit final TLC mode (#168);
-ordinary periodic scheduling and unproved temporal-kind IF remain refused.
+ordinary periodic scheduling and upstream-refused temporal-argument IF forwarding remain refused.
 This is a native limitation repair, not family certification.
 
 The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
@@ -1677,3 +1677,13 @@ conditionals still refuse there: the source-level shared-guard tag repair now
 matches selected exact normalized/tableau fields, but execution and witness
 admission remain staged. See [the maintained repair note](tlc-temporal-if.md).
 No new result-changing default or ordinary periodic parity is claimed.
+
+The proven direct temporal-IF subset now runs in explicit final/TLC mode after
+shared-object tag repair, exact particle/edge checks and fresh independent
+in-memory/JSON witness replay. The unchanged full selected controls retain
+upstream 2213/2214 errors and source-prefix 2116/exit-12 cases as named refusals,
+without matching-error credit. Compound guards and INSTANCE claim/role identity
+are separately checked. Existing arena/work ceilings and whole-arena forwarding
+admission remain; no aggregate memory bound or periodic-family claim is added.
+See [the user guide](tlc-temporal-if.md) and
+`conformance/probes/tlc-temporal-if-final/`.

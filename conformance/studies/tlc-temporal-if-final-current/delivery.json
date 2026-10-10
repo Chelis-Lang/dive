@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scope": "916-test frozen current direct temporal-IF final increment; no ordinary-periodic or family certification",
+  "source_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "source_head_before_commit": "0b1ba526e4f55203c7b7e5cecb721e5fd0225b06",
+  "production_changes_uncommitted_at_gate": true,
+  "gate": {
+    "rust_tests": 916,
+    "passed": 916,
+    "skipped": 0,
+    "workspace_gate_exit": 0,
+    "rust_cargo_input_superset_count": 657,
+    "input_manifest_sha256": "35a3d2e20716d9cd9a55f4f077f9d00e5ddb866b559b7cc1729a95ed873f9ca1",
+    "archive_sha256": "ab883cc90f9c582ae336cb8b69217ff37bc09c60dddace0323bf5323fa533262",
+    "gate_log_sha256": "e4d0bcbae9f50c73f79ad7c6895437e8cd191c84d5370d459a4fc3ec84df82ba"
+  },
+  "binaries_sha256": {
+    "dive": "cf03484fd2fa475dc6cc4fa432302562205fecc80ebf8548cb8d97fc82b1047a",
+    "dive-conformance": "b9c7f4a71e21a997df63c6bf109b2bd0fedcd2c1cfbe01906aca4412264d2287"
+  },
+  "conformance": {
+    "cm1_models": 21,
+    "validation_smoke_models": 16,
+    "workers": [
+      1,
+      4,
+      8
+    ],
+    "cm1_log_sha256": "9513ee0e9c6b78c72f128c7428fe9eae4346cf62a08ea7814d353b99a7e73706",
+    "vts_log_sha256": "f03112e2d7f65186d64f189aeeeef4b42d9e275877146da72cfb46ff30b30450",
+    "binary_equal_to_current_after_gate": true,
+    "test_only_repair_after_these_runs": "proved IfTableau positive and added scoped forwarding refusal; engine/API/CLI production bytes unchanged"
+  },
+  "focused": {
+    "primary_selected": 30,
+    "native_rows": 120,
+    "supported_final_outcomes": 80,
+    "named_refusals": 40,
+    "word_controls": 6486,
+    "word_models": 23
+  },
+  "whole_small": {
+    "selected": 140,
+    "native_invocations": 138,
+    "agree": 6,
+    "unsupported": 134,
+    "disagree": 0,
+    "timeout": 0,
+    "harness_exit": 0,
+    "corpus_coverage_gain": 0,
+    "source_receipt": "development-stale-cli-expectation archives preserve the full-study pre-test-only producer inputs; all original raw outcomes unchanged"
+  }
+}

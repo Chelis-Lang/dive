@@ -1024,7 +1024,7 @@ fn pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode()
         ("IfLet", 13),
         ("IfEntry", 13),
         ("IfHoldTrue", 0),
-        ("IfTableau", 3),
+        ("IfTableau", 13),
     ] {
         for workers in ["1", "3", "4", "8"] {
             let path = base.join(name).join(format!("{name}.tla"));
@@ -1063,6 +1063,39 @@ fn pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode()
                 }
             }
         }
+    }
+    Ok(())
+}
+
+#[test]
+fn final_temporal_if_retains_exported_forwarding_refusal() -> Result<(), Box<dyn std::error::Error>>
+{
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/tlc-temporal-if-final/models/TiForward/TiForward.tla");
+    for workers in ["1", "3", "4", "8"] {
+        let output = dive(&[
+            "check",
+            &path.to_string_lossy(),
+            "--compat=tlc",
+            "--seed=0",
+            "--fp=0",
+            "--lncheck=final",
+            "--lasso=tlc",
+            "--workers",
+            workers,
+            "--output=json",
+        ]);
+        let report: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+        assert_eq!(output.status.code(), Some(3), "{report}");
+        assert_eq!(report["schema_version"], 2);
+        assert_eq!(report["verdict"], "unsupported");
+        assert_eq!(report["options"]["workers"]["used"], 0);
+        assert!(report["counterexample"].is_null());
+        assert!(report["tlc"].is_null());
+        assert_eq!(
+            report["options"]["ordinary_temporal_schedule_supported"],
+            false
+        );
     }
     Ok(())
 }

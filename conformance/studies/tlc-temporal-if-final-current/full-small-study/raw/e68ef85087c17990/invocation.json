@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "check",
+    "--output",
+    "json",
+    "--config",
+    "$DIVE_CACHE_DIR/git/examples/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/ewd998/AsyncTerminationDetection.cfg",
+    "--workers",
+    "1",
+    "--seed",
+    "0",
+    "--fp",
+    "0",
+    "--module-path",
+    "$DIVE_CACHE_DIR/jar-modules/b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad",
+    "--module-path",
+    "$DIVE_CACHE_DIR/jar-modules/dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d",
+    "--module-path",
+    "$DIVE_CACHE_DIR/git/apalache-modules-v0.62.3/3eb15b253482005222fabbf50bb7aae501eb9f8d/src/tla",
+    "--module-path",
+    "$DIVE_CACHE_DIR/git/tlapm-library-d8b9747/d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37/library",
+    "--lncheck",
+    "final",
+    "--lasso",
+    "tlc",
+    "AsyncTerminationDetection.tla"
+  ],
+  "cwd": "$DIVE_CACHE_DIR/git/examples/6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f/specifications/ewd998",
+  "real_binary_sha256": "cf03484fd2fa475dc6cc4fa432302562205fecc80ebf8548cb8d97fc82b1047a",
+  "started_unix_seconds": 1791674023.634835
+}

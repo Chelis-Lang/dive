@@ -11,6 +11,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Explicit final/TLC checking admits proven direct temporal conditionals with
+  pinned shared-guard tags, exact particles and independent counterexample replay.
+  Compound guards and INSTANCE attribution have source-bound controls; forwarding,
+  accepting-sink early witnesses, ordinary schedules and existing bounds remain
+  explicit restrictions.
+
 
 - Bounded TLC temporal normalization now retains shared IF-guard object tags
   and exact last-visit tag holes, with numbered-particle/edge and independent

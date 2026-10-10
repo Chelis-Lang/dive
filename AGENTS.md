@@ -160,6 +160,7 @@ python3 -I scripts/test-frontend-campaign.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py
 python3 -I scripts/check-tlc-temporal-if.py
+python3 -I scripts/check-tlc-temporal-if-final.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

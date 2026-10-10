@@ -39,20 +39,6 @@ fn pure_if_final_words_counts_and_all_independent_mutations() {
         if row["exit"] != 0 {
             continue;
         }
-        if row["name"] == "IfTableau" {
-            let (ir, cfg) = inputs("IfTableau");
-            let failure =
-                tlc_temporal::check_final(&ir, &cfg, &CheckOptions::tlc(0, 0), Limits::default())
-                    .expect_err("unproved temporal IF numbering remains refused");
-            assert!(
-                failure
-                    .to_string()
-                    .contains("temporal-kind IF tableau identity/order")
-            );
-            assert_eq!(failure.workers.expect("before graph").used, 0);
-            assert!(failure.evidence.is_none());
-            continue;
-        }
         supported += 1;
         let name = row["name"].as_str().expect("name");
         let (ir, cfg) = inputs(name);
@@ -162,7 +148,7 @@ fn pure_if_final_words_counts_and_all_independent_mutations() {
             assert_ne!(check(&bad), Validation::Valid, "{name} foreign claim");
         }
     }
-    assert_eq!(supported, 10);
+    assert_eq!(supported, 11);
 }
 #[test]
 fn conditional_planning_errors_remain_before_any_graph_or_workers() {
@@ -309,7 +295,7 @@ fn assert_fields(
 
 #[test]
 fn unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations() {
-    for predicate in ["IF x=0 THEN <>(x=1) ELSE TRUE", "Gate(<>(x=1))"] {
+    for predicate in ["Gate(<>(x=1))"] {
         let source = format!(
             "---- MODULE UnusedIf ----\nVARIABLE x\nGate(v) == IF x=0 THEN v ELSE TRUE\nUnused == {predicate}\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=1)\n====\n"
         );
@@ -340,7 +326,7 @@ fn unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations() {
                 matches!(failure.error, tlc_temporal::Error::Context(_))
                     || failure
                         .to_string()
-                        .contains("temporal-kind IF tableau identity/order"),
+                        .contains("temporal-argument forwarding into IF-bearing user body"),
                 "{failure}"
             );
             assert_eq!(failure.workers.expect("before execution").used, 0);

@@ -447,3 +447,12 @@ bounded native stops are retained under `conformance/probes/tlc-final-safety`.
 | Pure state conditional final admission (#168) | Pinned `Liveness.astToLive`/`processLiveness`, `LNStateAST.eval`, `LiveCheck.addInitState`/`addNextState` and original `finalCheck` at revision `94d0c50` | MIT | Uses inherited exact conversion and scoped predicate authority; removes only the stale Phase-L syntax refusal. Complete raw fields/words, failures and independent closing/claim mutants retained under `conformance/probes/tlc-state-if/`; ordinary periodic/family parity unclaimed. |
 
 | `dive-liveness::tlc_plan` shared predicate occurrence import (#170) | pinned `Liveness.astToLiveAppl` `OPCODE_ite`, `parseLiveness`/`processLiveness`; `LNState.tagExpr` and `LNAction.tagExpr`, revision `94d0c50` | MIT | Same input-object identity and last-visit tag retained; no expression-truth deduplication. Complete raw tag/stage/OOS/particle controls and independent words remain diagnostic; staged final admission unchanged. |
+
+Direct temporal-IF final admission (#170) retains the existing shared
+`Liveness.astToLiveAppl` conversion and `LNState.tagExpr` last-visit identities,
+`TBGraph` ordered particles/edges, `LiveCheck.finalCheck` selected components and
+lassos. Independent `dive-trace` memory/JSON replay still certifies every concrete
+word separately; neither normalization equality nor backend flags certify it.
+All30 actual captures and120 native outcomes are in
+`conformance/probes/tlc-temporal-if-final/`; clean source-prefix/refused controls
+receive no matching-error or ordinary-schedule credit.

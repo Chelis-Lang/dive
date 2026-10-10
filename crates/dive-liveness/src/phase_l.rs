@@ -425,7 +425,9 @@ fn conditional_structure(
 
 // This is deliberately a conservative whole-arena proof, not a configured-role
 // classifier. Structural expression/definition edges prevent callers hiding a
-// temporal IF by altering its level/effects annotations. No predicate is forced.
+// IF forwarding by altering its level/effects annotations. Direct temporal IF
+// identities have pinned particle/edge proof; upstream-refused temporal argument
+// forwarding into IF-bearing user bodies remains staged. No predicate is forced.
 fn unproved_temporal_if(model: &Model, limits: Limits) -> Result<bool, Error> {
     use dive_ir::{Arg, Expr, ExprId, OpRef};
     if model.ir.nodes().len() > limits.formula.formula_nodes {
@@ -435,11 +437,6 @@ fn unproved_temporal_if(model: &Model, limits: Limits) -> Result<bool, Error> {
     let mut roots = Vec::new();
     for (i, node) in model.ir.nodes().iter().enumerate() {
         if matches!(node.expr, Expr::If { .. }) {
-            if node.level > dive_ir::Level::Action
-                || node.effects.intersects(dive_ir::Effects::TEMPORAL)
-            {
-                return Ok(true);
-            }
             roots.push(ExprId(
                 u32::try_from(i).map_err(|_| Error::Limit("conditional arena index"))?,
             ));
@@ -448,9 +445,10 @@ fn unproved_temporal_if(model: &Model, limits: Limits) -> Result<bool, Error> {
     if roots.is_empty() {
         return Ok(false);
     }
-    if conditional_structure(model, roots, true, &mut remaining)? {
-        return Ok(true);
-    }
+    // Preserve the bounded structural admission work alongside the arena
+    // ceiling. A direct temporal IF is now proven; its presence alone is not
+    // a refusal. Forwarded arguments still require the distinct proof below.
+    let _ = conditional_structure(model, roots, true, &mut remaining)?;
     // A formal may conceal the temporal argument inside an otherwise constant
     // IF definition. Inspect every user-call site structurally, including unused
     // calls, so another pure instantiation cannot authorize this context.
@@ -541,13 +539,13 @@ impl<'a> Session<'a> {
             // atom fallback and scope-proves every retained predicate. Do not
             // reclassify its pure conditional atoms with a syntax-only refusal.
             // Pure state/action IF atoms have passed the shared planner proof.
-            // Temporal-kind IF expansion still has an independently observed
-            // tableau identity/order gap; don't award graph identity from a
-            // matching word or acceptance result. This conservative arena scan
-            // also rejects unused temporal IF definitions in the admitted IR.
+            // Shared temporal IF tags and numbered particles now have exact
+            // reference proof. Temporal-formal forwarding into IF-bearing user
+            // bodies remains upstream-refused and is conservatively rejected
+            // throughout the arena, including unused calls.
             if unproved_temporal_if(model, limits)? {
                 return Err(Error::Unsupported(
-                    "temporal-kind IF tableau identity/order",
+                    "temporal-argument forwarding into IF-bearing user body",
                 ));
             }
             let tableaux =

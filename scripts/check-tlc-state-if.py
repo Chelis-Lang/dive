@@ -1,6 +1,6 @@
 """Verify complete raw state-IF controls, historical failures and source authority."""
 from pathlib import Path
-import hashlib, json, gzip
+import hashlib, json, gzip, tarfile
 ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/tlc-state-if'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
@@ -95,3 +95,23 @@ assert sha(BASE/'user-example.rs')==em['source_sha256'] and em['compile_exit']==
 assert em['crate_source_sha256']==nm['source_sha256']
 for path,digest in em['files'].items():assert sha(example/path)==digest,path
 assert (example/'stdout').read_text().strip()=='["Live"]'
+
+print('Verified executable user API example and retained first compilation failure')
+
+# Complete immutable full selection: no dropped, repaired or promoted row.
+study=ROOT/'conformance/studies/tlc-state-if-current/full-small-study'
+before=json.loads((study/'before.json').read_text());after=json.loads((study/'after.json').read_text());census=json.loads((study/'census.json').read_text())
+assert before['source_commit'].startswith('03f11881b') and after['source_and_binaries_unchanged'] is True and after['harness_exit']==0
+with tarfile.open(study.parent/'build-related-source.tar.gz','r:gz') as archive:
+ for path,digest in before['source_matrix']['source_sha256'].items():assert hashlib.sha256(archive.extractfile(path).read()).hexdigest()==digest,path
+for path,digest in after['artifact_sha256'].items():assert sha(study/path)==digest,path
+report=json.loads((study/census['report']).read_text());assert sha(study/census['report'])==census['report_sha256']
+assert report['summary']['models_selected']==census['selected']==140
+assert len(report['models'])==140 and len(census['raw_outcomes'])==census['actual_subprocesses']==138
+assert report['summary']['models']['agree']==6 and report['summary']['models']['unsupported']==134
+assert all(report['summary']['models'][k]==0 for k in ['disagree','timeout','oracle-error','agree-pending-trace-validation'])
+assert census['safety_route_agreements']==5 and census['temporal_final_agreements']==1
+assert any(r['model']==census['temporal_final_model'] and r['outcome']=='agree' for r in report['models'])
+for row in census['raw_outcomes']:
+ d=study/row['raw_directory'];out=d/'outcome.json';assert row['actual_exit_code']==(json.loads(out.read_text())['exit_code'] if out.exists() else None)
+print('Verified unchanged full140 census:6 agree (5 safety/1 final temporal),134 named refusals;138 actual raw outcomes retained')
