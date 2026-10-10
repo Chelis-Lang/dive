@@ -234,3 +234,8 @@ moving pins or changing expected counts.
 The harness resolves relative implementation executable paths before changing
 child model directories (F-036), with a regression control covering that launch
 path. This fixes execution plumbing; it does not certify a checking family.
+
+F-007 now includes budgeted finite lazy constructor controls. Its complete
+[ten-model follow-up](lazy-domain-study.md) records zero completed corpus matches,
+seven named refusals, two resource bounds and one timeout. These controls widen
+the implementation without completing or certifying the domain family.

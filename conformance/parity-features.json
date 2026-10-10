@@ -134,7 +134,13 @@
         "F-006",
         "F-012",
         "F-021"
-      ]
+      ],
+      "additional_evidence": [
+        "crates/dive-eval/src/bounded_domain.rs",
+        "docs/lazy-domain-study.md",
+        "conformance/reports/studies/lazy-domains-10-final-short-tlc.json"
+      ],
+      "notes": "Budgeted finite lazy constructors pass paired oracle and independent-validator controls. The complete ten-model final/short follow-up has zero completed matches: seven unsupported, two resource bounds and one timeout; deferred domains and substituted scopes remain open."
     },
     {
       "id": "F-008",
