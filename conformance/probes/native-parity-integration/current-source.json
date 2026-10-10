@@ -5,7 +5,7 @@
   "historical_slices_sha256": "f5ef1c33def4e42c23b5a5fe01b47739095b1fba330fb80b0e68e5abd84cdadb",
   "source_sha256": {
     "conformance/parity-features.json": "dc2d22b222944fc6ce876ee8d4c008a039f0ce3a6009fe80da607a5d728e0345",
-    "conformance/probes/native-checkpoint/current-integration-source.json": "04a6666f4649ed096597ccea6ca16acc7786111b88415ab7af4c09acc108477e",
+    "conformance/probes/native-checkpoint/current-integration-source.json": "32b5c00e4d5902aa168205b1daa342f5e1d5890883b3b30cedc11c940879eca0",
     "conformance/probes/predecessor-spill/current-integration-source.json": "ed68e6e25c18d96d1ae52a5401feff5c3dcf7648b30200cf330e216eefef9999",
     "conformance/probes/public-ir-admission/before-fixture-repair.rs": "632d30dc753522550713cef2f21a2c938ad898e9fb4ebea39dbf855335bb03ac",
     "conformance/probes/public-ir-admission/fixed-reproducer.rs": "e770333da408048c536423e1d5e699237f3d20b134d7f4c3b9d92fb2dcf316a0",
@@ -29,7 +29,7 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/src/lib.rs": "9462a364dec72bca66901cc9d7dab6f805c8217318b090ca9053a168ec5d60cf",
     "crates/dive-api/src/translate.rs": "9b3b1516ca207dbe682dac07606a98b5e1bad6e750d52fb22fa625954b7778b0",
-    "crates/dive-api/tests/native_checkpoint.rs": "a2d2b781a522c9419647fc61cece56ea10a296a92ccece7796b26dfbb87ac1d1",
+    "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
     "crates/dive-api/tests/predecessor_spill.rs": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e",
     "crates/dive-api/tests/symmetry_trace.rs": "ac3b5ff2758b1b124e421a8672d36e5b5e0ba7b8250d734ebd394ae8351ccfb4",
     "crates/dive-api/tests/translation.rs": "f351be1e3554a04a238aa411efb867de651ec3c09f04ca46fff3f46d64dc02bb",

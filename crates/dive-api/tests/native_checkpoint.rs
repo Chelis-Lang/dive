@@ -41,18 +41,10 @@ fn observable(mut j: serde_json::Value) -> serde_json::Value {
     j
 }
 
-#[test]
-fn actual_frontier_recovery_matches_pinned_safety_cases_and_validates_witnesses() {
+fn verify_frontier_recovery_cases(names: &[&str]) {
     let dir = dir();
     let mut serial = 0;
-    for name in [
-        "DuplicateSuccessors",
-        "MidLevelViolation",
-        "DeadlockMidLevel",
-        "EvalErrorMidLevel",
-        "ConstrainedViolation",
-        "ActionConstraintNoDeadlock",
-    ] {
+    for &name in names {
         for compat in [false, true] {
             for store in [Store::Fingerprint, Store::Exact] {
                 for workers in [1, 4, 8] {
@@ -126,6 +118,36 @@ fn actual_frontier_recovery_matches_pinned_safety_cases_and_validates_witnesses(
         }
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
+fn frontier_recovery_duplicate_successors() {
+    verify_frontier_recovery_cases(&["DuplicateSuccessors"]);
+}
+
+#[test]
+fn frontier_recovery_mid_level_violation() {
+    verify_frontier_recovery_cases(&["MidLevelViolation"]);
+}
+
+#[test]
+fn frontier_recovery_deadlock_mid_level() {
+    verify_frontier_recovery_cases(&["DeadlockMidLevel"]);
+}
+
+#[test]
+fn frontier_recovery_eval_error_mid_level() {
+    verify_frontier_recovery_cases(&["EvalErrorMidLevel"]);
+}
+
+#[test]
+fn frontier_recovery_constrained_violation() {
+    verify_frontier_recovery_cases(&["ConstrainedViolation"]);
+}
+
+#[test]
+fn frontier_recovery_action_constraint_no_deadlock() {
+    verify_frontier_recovery_cases(&["ActionConstraintNoDeadlock"]);
 }
 
 #[test]
