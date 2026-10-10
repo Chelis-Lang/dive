@@ -228,7 +228,7 @@ R(y) == y
     let scope = m
         .evaluator
         .scope_apply(
-            &m.evaluator.scope(d),
+            &m.evaluator.scope(d).expect("valid scope"),
             d,
             &[dive_ir::Arg::Op {
                 op: dive_ir::OpRef::Std(dive_ir::StdOp::TlcPrintT),
@@ -251,12 +251,16 @@ R(y) == y
     // A caller can replace the actual enumerated action independently of the
     // model's original Next role. Its captured scope needs the same proof.
     let pred = m.invariants.remove(0).pred;
-    m.actions = vec![m.evaluator.predicate_in(
-        &pred.scope,
-        pred.expr,
-        dive_ir::actions::ActionName::Def(d),
-        1,
-    )];
+    m.actions = vec![
+        m.evaluator
+            .predicate_in(
+                &pred.scope,
+                pred.expr,
+                dive_ir::actions::ActionName::Def(d),
+                1,
+            )
+            .expect("valid action"),
+    ];
     let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
     assert!(matches!(report.outcome, Outcome::Unsupported(_)));
     assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
@@ -264,24 +268,26 @@ R(y) == y
     m.actions.clear();
     m.invariants.push(dive_model::Named {
         name: "invalid captured expression".into(),
-        pred: dive_model::Pred::new(dive_ir::ExprId(u32::MAX), m.evaluator.scope(d)),
+        pred: dive_model::Pred::new(
+            dive_ir::ExprId(u32::MAX),
+            m.evaluator.scope(d).expect("valid scope"),
+        ),
     });
     let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
     assert!(matches!(report.outcome, Outcome::Unsupported(_)));
 
     let r = m.ir.root_def("R").expect("R");
-    let scope = m
+    let error = m
         .evaluator
         .scope_apply(
-            &m.evaluator.scope(r),
+            &m.evaluator.scope(r).expect("valid scope"),
             r,
             &[dive_ir::Arg::Expr {
                 expr: dive_ir::ExprId(u32::MAX),
                 pass: dive_ir::Pass::Lazy,
             }],
         )
-        .expect("scope captures without forcing");
-    m.invariants[0].pred = dive_model::Pred::new(m.ir.def(r).body, scope);
-    let report = dive_check::dfid::check(&m, &Options::new(CheckOptions::tlc(0, 7), 6));
-    assert!(matches!(report.outcome, Outcome::Unsupported(_)));
+        .expect_err("malformed lazy capture rejected before DFID");
+    assert!(error.message().contains("DIVE-EVAL-C001"));
+    assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
 }

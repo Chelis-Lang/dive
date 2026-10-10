@@ -326,7 +326,7 @@ pub fn run_spec(
         Err(_) => None,
     };
     let model = bind(&loaded, cfg.as_ref(), opts)?;
-    let ev = Evaluator::new(model, opts);
+    let ev = Evaluator::new(model, opts).expect("valid evaluator context");
     if let Some(e) = ev.startup_error() {
         // TLC fails while processing the specification: render it as the
         // top-level error it is (see `dive_assumption_part`).

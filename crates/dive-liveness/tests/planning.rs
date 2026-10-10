@@ -25,7 +25,10 @@ fn bound(source: &str, config: &str) -> Model {
 
 fn pred(model: &Model, name: &str) -> Pred {
     let d = model.ir.root_def(name).expect("definition");
-    Pred::new(model.ir.def(d).body, model.evaluator.scope(d))
+    Pred::new(
+        model.ir.def(d).body,
+        model.evaluator.scope(d).expect("valid scope"),
+    )
 }
 
 fn accepts(model: &Model, plan: &Plan, t: &Tableau, word: &[Value], back: usize) -> bool {

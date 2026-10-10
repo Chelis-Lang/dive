@@ -817,12 +817,17 @@
       ],
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending.",
       "evidence_updates": [
-        "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
+        "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required.",
+        "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required."
       ],
       "additional_evidence": [
         "crates/dive-api/tests/simulate.rs",
         "crates/dive-api/src/translate.rs",
-        "crates/dive-api/tests/translation.rs"
+        "crates/dive-api/tests/translation.rs",
+        "crates/dive-eval/tests/contexts.rs",
+        "crates/dive-trace/tests/contexts.rs",
+        "crates/dive-api/tests/fixtures/public-context/README.md",
+        "docs/decisions/0028-validated-evaluator-contexts.md"
       ]
     },
     {

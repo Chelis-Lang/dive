@@ -1,0 +1,54 @@
+   Compiling autocfg v1.5.1
+   Compiling proc-macro2 v1.0.107
+   Compiling num-traits v0.2.19
+   Compiling quote v1.0.47
+   Compiling libc v0.2.190
+   Compiling unicode-ident v1.0.26
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling getrandom v0.3.4
+   Compiling serde_core v1.0.229
+   Compiling rowan v0.16.1
+   Compiling cfg-if v1.0.5
+   Compiling dive-syntax v0.0.0 (<baseline-worktree>/crates/dive-syntax)
+   Compiling syn v3.0.6
+   Compiling serde v1.0.229
+   Compiling zerocopy v0.8.62
+   Compiling serde_derive v1.0.229
+   Compiling rand_core v0.9.5
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.5.1
+   Compiling dive-sema v0.0.0 (<baseline-worktree>/crates/dive-sema)
+   Compiling zmij v1.0.23
+   Compiling ppv-lite86 v0.2.21
+   Compiling dive-ir v0.0.0 (<baseline-worktree>/crates/dive-ir)
+   Compiling dive-value v0.0.0 (<baseline-worktree>/crates/dive-value)
+   Compiling serde_json v1.0.151
+   Compiling rand_chacha v0.9.0
+   Compiling dive-eval v0.0.0 (<baseline-worktree>/crates/dive-eval)
+   Compiling rand_xorshift v0.4.0
+   Compiling rand v0.9.5
+   Compiling dive-config v0.0.0 (<baseline-worktree>/crates/dive-config)
+   Compiling itoa v1.0.18
+   Compiling unarray v0.1.4
+   Compiling regex-syntax v0.8.11
+   Compiling memchr v2.8.3
+   Compiling bitflags v2.13.2
+   Compiling proptest v1.11.0
+   Compiling dive-model v0.0.0 (<baseline-worktree>/crates/dive-model)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 43s
+     Running tests/context_before.rs (<baseline-target>/debug/deps/context_before-2401a1c8ee17e3ab)
+
+running 1 test
+
+thread 'original_constructor_and_lazy_capture' (101690316) panicked at crates/dive-ir/src/lib.rs:406:19:
+index out of bounds: the len is 2 but the index is 4294967295
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+redirect_target_out_of_range: panicked=true, names_before=0, names_after=1
+missing_lazy_expression: constructor_admitted=true
+test original_constructor_and_lazy_capture ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

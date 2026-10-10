@@ -231,7 +231,7 @@ pub(crate) struct SetInner {
 ///
 /// `dive-value` stores and prints such sets but cannot evaluate them: `dive-eval`
 /// implements this trait.
-pub trait DeferredSet: Send + Sync + fmt::Debug {
+pub trait DeferredSet: Send + Sync + fmt::Debug + std::any::Any {
     /// Which construct the set is.
     fn kind(&self) -> DeferredKind;
     /// Computes the set's elements in any order; `dive-value` normalizes them.
@@ -347,6 +347,16 @@ impl Set {
         ));
         let _ = set.0.elems.set(elems);
         set
+    }
+
+    /// Stored explicit elements, without normalization, enumeration or callbacks.
+    #[must_use]
+    pub fn stored_elements(&self) -> Option<&[Value]> {
+        match &self.0.repr {
+            SetRepr::Enum => self.0.elems.get().map(AsRef::as_ref),
+            SetRepr::Raw(e) => Some(e),
+            _ => None,
+        }
     }
 
     /// The set's kind.
@@ -538,6 +548,20 @@ impl Set {
                 .map(|(a, f)| (Some(a.clone()), f.clone()))
                 .collect(),
             _ => Vec::new(),
+        }
+    }
+
+    /// Counts the structural components returned by [`Self::components`],
+    /// without cloning values, enumerating the set or invoking deferred callbacks.
+    /// Bounded callers can check this before allocating a component work list.
+    #[must_use]
+    pub fn component_count(&self) -> usize {
+        match &self.0.repr {
+            SetRepr::Subset(_) | SetRepr::Seq(_) => 1,
+            SetRepr::FcnSet(..) => 2,
+            SetRepr::Product(fs) => fs.len(),
+            SetRepr::RcdSet(fs) => fs.len(),
+            _ => 0,
         }
     }
 

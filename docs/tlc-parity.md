@@ -390,3 +390,11 @@ Bounded sequential PlusCal translation now has a separate
 partial and audit-required. Source AST acceptance, generated token/operator
 structure, module validity and finite model/witness behavior are separately
 accounted. None certifies pending process/procedure/macro/option/rewrite/map cases.
+
+Public Rust admission (#129, ADR 0028) now rejects malformed evaluator maps,
+expression/operator IDs, redirect cycles/signatures and foreign captured
+contexts before effects. Trace/planner/enabledness entries check the bound
+model/evaluator pair before certificate work. Native regressions and the
+original constructor panic are retained in
+`crates/dive-api/tests/fixtures/public-context/`; this is additional F-035 evidence,
+not a status upgrade or a full semantic-annotation/provenance certification.

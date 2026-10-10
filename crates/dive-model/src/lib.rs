@@ -110,7 +110,12 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
     let walk = {
-        let t = tables::Tables::new(ir.clone());
+        let t = tables::Tables::new(ir.clone()).map_err(|error| {
+            Box::new(Failure {
+                error,
+                output: Vec::new(),
+            })
+        })?;
         walk::process_constants(&t, opts.eval.ctx.int_mode)
     };
     let ir: Arc<Ir> = ir;
@@ -121,7 +126,12 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
         }));
     }
     let names = Arc::new(intern::feed(&ir, cfg));
-    let mut b = bind::Binder::new(ir, cfg, opts, names);
+    let mut b = bind::Binder::new(ir, cfg, opts, names).map_err(|error| {
+        Box::new(Failure {
+            error,
+            output: Vec::new(),
+        })
+    })?;
     let result = run(&mut b);
     b.drain_prints();
     match result {
@@ -142,12 +152,12 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
         .symmetry
         .as_ref()
         .and_then(|n| b.defns.get(&n.text).cloned());
-    b.build_evaluator();
+    b.build_evaluator()?;
     b.process_constant_defns()?;
     b.process_config()?;
     let view = b.process_view()?;
     #[cfg(feature = "enumerate")]
-    let (init_actions, actions) = (b.init_actions(), b.expand_actions()?);
+    let (init_actions, actions) = (b.init_actions()?, b.expand_actions()?);
     b.drain_prints();
     let ir = b.t.ir.clone();
     let root = ir.module(ir.root());

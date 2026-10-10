@@ -118,7 +118,9 @@ pub fn bind_model(loaded: &Loaded, cfg: &ModelConfig, opts: Options) -> Result<B
     }
     let check = |n: &dive_model::Named| Check {
         name: n.name.clone(),
-        pred: ev.predicate_in(&n.pred.scope, n.pred.expr, ActionName::Unnamed, 0),
+        pred: ev
+            .predicate_in(&n.pred.scope, n.pred.expr, ActionName::Unnamed, 0)
+            .expect("valid action"),
     };
     let checks = |v: &[dive_model::Named]| v.iter().map(check).collect::<Vec<_>>();
     Ok(Bound {

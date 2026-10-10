@@ -98,7 +98,10 @@ fn lazy_domain_oracles_match_final_truth_counts_and_independent_word_controls() 
                 let model = dive_model::bind(ir.clone(), &cfg, &bind_options)
                     .expect("fresh independent model");
                 let d = ir.root_def("Live").expect("property");
-                let p = Pred::new(ir.def(d).body, model.evaluator.scope(d));
+                let p = Pred::new(
+                    ir.def(d).body,
+                    model.evaluator.scope(d).expect("valid scope"),
+                );
                 let word: Vec<dive_trace::State> = [false, true]
                     .into_iter()
                     .map(|v| Arc::from([Some(Value::from(v))]))

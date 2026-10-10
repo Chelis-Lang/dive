@@ -104,9 +104,9 @@ impl<'a> Binder<'a> {
         cfg: &'a ModelConfig,
         opts: &'a BindOptions,
         names: Arc<Interner>,
-    ) -> Self {
-        Self {
-            t: Tables::new(ir),
+    ) -> R<Self> {
+        Ok(Self {
+            t: Tables::new(ir)?,
             cfg,
             opts,
             names,
@@ -125,7 +125,7 @@ impl<'a> Binder<'a> {
             action_constraints: Vec::new(),
             unsupported: Vec::new(),
             refused: HashMap::new(),
-        }
+        })
     }
 
     pub(crate) fn ir(&self) -> &Ir {
@@ -488,14 +488,23 @@ impl<'a> Binder<'a> {
     }
 
     /// Builds the evaluator once the constants and overrides are bound.
-    pub(crate) fn build_evaluator(&mut self) {
+    pub(crate) fn build_evaluator(&mut self) -> R<()> {
         let ir = self.t.ir.clone();
         let mut model = dive_eval::Model::new(ir.clone());
         model.names = self.names.clone();
         for (i, slot) in self.t.consts.iter().enumerate() {
             model.constants[i] = match slot {
                 Some(Look::Value(v)) => Some(ConstBinding::Value(v.clone())),
-                Some(Look::Def(d) | Look::Java(_, d)) => Some(ConstBinding::Def(*d)),
+                Some(Look::Def(d) | Look::Java(_, d)) => {
+                    let constant = ir.decl(ir.consts()[i]);
+                    if ir.def(*d).params.len() != constant.arity as usize {
+                        return Err(BindError::tlc(
+                            Ec::TlcConfigWrongSubstitutionNumberOfArgs,
+                            &[&constant.name, &ir.def(*d).name],
+                        ));
+                    }
+                    Some(ConstBinding::Def(*d))
+                }
                 Some(Look::Literal(_)) | None => None,
             };
         }
@@ -512,11 +521,13 @@ impl<'a> Binder<'a> {
                 }
             }
         }
-        let ev = Evaluator::new(model, self.opts.eval);
+        let ev = Evaluator::new(model, self.opts.eval)
+            .map_err(|e| BindError::unsupported(e.to_string()))?;
         if let Some(h) = &self.opts.host {
             ev.set_host(h.clone());
         }
         self.t.set_evaluator(ev);
+        Ok(())
     }
 
     // -------------------------------------------------------------------
@@ -580,8 +591,11 @@ impl<'a> Binder<'a> {
                 }
                 Ok(None) => {}
                 Err(e) => {
-                    let scope = self.ev().scope(def);
-                    let level = LevelCx::new(&self.t).level(ir.def(def).body, &scope);
+                    let scope = self
+                        .ev()
+                        .scope(def)
+                        .map_err(|e| BindError::unsupported(e.to_string()))?;
+                    let level = LevelCx::new(&self.t).try_level(ir.def(def).body, &scope)?;
                     if level > 0 {
                         self.drain_prints();
                         // `(e instanceof EvalException) ? "" : " - specifically: " + e.getMessage()`.
@@ -623,8 +637,11 @@ impl<'a> Binder<'a> {
                     Look::Value(_) | Look::Java(..) | Look::Literal(_) => continue,
                 },
             };
-            let scope = self.ev().scope(real);
-            let level = LevelCx::new(&self.t).level(ir.def(real).body, &scope);
+            let scope = self
+                .ev()
+                .scope(real)
+                .map_err(|e| BindError::unsupported(e.to_string()))?;
+            let level = LevelCx::new(&self.t).try_level(ir.def(real).body, &scope)?;
             if level != 0 {
                 continue;
             }
