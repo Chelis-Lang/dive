@@ -80,3 +80,12 @@ Native generated/initial counters are bounded by the largest positive TLC `long`
 (9,223,372,036,854,775,807). Imported larger values refuse before binding;
 continuation uses checked increments and stops explicitly before exceeding that
 schema bound. Wrapped counts can never become a completed-search report.
+
+
+## Subsequent configured-key increment
+
+ADR 0038 admits pure supported VIEW and safety symmetry. Restored visited keys
+use the live configured canonicalization-before-VIEW path; concrete discoveries
+and witness ordinals remain unchanged. The native semantics identity changes,
+so older archives do not silently enter the extended path. Original captures and
+first-slice source matrices remain historical evidence, not rewritten results.

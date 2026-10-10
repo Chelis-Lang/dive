@@ -377,6 +377,18 @@ per-block storage, label and fairness ownership for disjoint literal domains.
 Overlapping IDs, namespace rewrites and cross-process local references remain
 explicit refusals in both profiles. Full translation families remain partial.
 
+
+Pure supported VIEW and safety symmetry now compose with D-007 native recovery
+(ADR 0038). Saved visited keys are recomputed through the configured search
+path, while actual concrete discoveries/predecessors remain unchanged. The
+separate concrete witness validator rejects altered equivalent-key Init/Next
+states. Runtime/graph/liveness/spill recovery remain refused; no default
+or independent archive-certificate claim changes. Captures and the initial
+unused-standard-body refusal are preserved in
+`conformance/probes/native-checkpoint-keys/README.md`.
+
+### D-008 progress: native PlusCal artifact admission
+
 The bounded [native macro translator](pluscal-macros.md) retains all invalid
 primary outputs as diagnostic evidence. Under D-008, public CLI/API module
 admission rejects them in both profiles and never grants artifact/proof credit.
@@ -394,7 +406,10 @@ candidate evidence, never an admitted artifact or finite-loop proof. Native
 public admission keeps invalid primary output rejected in both profiles; no
 silent repair/default is adopted.
 
-### D-013 progress: ordered temporal execution
+### D-013 historical increment: ordered temporal execution
+
+The earlier staged source records this scope; the later explicit final CLI
+contract is described in [the current user guide](tlc-final-api.md).
 
 The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
 source order, with initial consistency before initial invariants and immediate
@@ -410,7 +425,10 @@ liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
 remain partial/audit-required, F-023 missing and #140 open. Previous complete
 studies keep their original outcomes and receive no new corpus verdict credit.
 
-### D-013 progress: pinned final-only SCC and witness selection
+### D-013 historical library increment: pinned final-only SCC and witness selection
+
+This section preserves the first library producer and its selected controls.
+The later CLI exposure does not retroactively change that receipt.
 
 The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
 graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
@@ -449,3 +467,10 @@ exact-store, accepting-sink, recovery, effect or resource refusals. The separate
 replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
 alias targets are admitted through actual module contexts before any startup
 binding effect. See [the user guide](tlc-final-api.md).
+
+D-007 native pure safety recovery now uses the deterministic worker pool at the
+requested width, with cross-width saved-level continuation and ordered counter-limit
+stop evidence (ADR 0038 addendum). Boundary-zero pauses remain actual 1 before the
+pool starts. TLC-reset/explicit-retain policies, archive trust/bounds and remaining
+runtime/graph/liveness/spill refusals are unchanged. See
+`conformance/probes/native-checkpoint-parallel/README.md`; no full F-032 claim.
