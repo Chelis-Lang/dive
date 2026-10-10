@@ -35,7 +35,8 @@ family still requires its full-selection audit before certification. See
 [the parity ledger](tlc-parity.md), [checkpoint details](native-checkpoint.md),
 [PlusCal fairness](pluscal-fairness.md) and ADRs 0028, 0029, 0033, 0035, 0036 and 0037.
 
-Fresh combined release evidence is retained under `current-controls`: all 576
+Source-bound combined release evidence from runtime `9699950` is retained
+under `current-controls`: all 576
 checkpoint runs, all 404 fairness cases (250 artifacts, 148 rejections and six
 refusals), and all 264 multiple-process cases (206 artifacts, ten rejections
 and 48 refusals). All 456 artifacts match full operator structure and SANY;
@@ -45,3 +46,11 @@ The original single-process comparator failure is retained: its one-process
 assumption was replaced in a separate adapter by checking every process.
 CM1 and ValidationTestSuite remain 21 and 16 models at 1/4/8 workers. These
 results do not replace the standard whole-selection report.
+
+The later context-alias admission repair (issue #164) is verified separately in
+[`context-alias-repair`](../conformance/probes/native-parity-integration/current-controls/context-alias-repair/verification.json):
+821 Rust tests, 20 Python tests, ten source checks, all 576 fresh recovery runs,
+CM1/ValidationTestSuite at 1/4/8 workers, eleven user CLI examples and two compiled
+Rust examples. These runs identify their own repaired source and binary. The
+older combined captures remain bound to their immutable archived runtime; they
+are never retagged as runs of the repaired implementation.

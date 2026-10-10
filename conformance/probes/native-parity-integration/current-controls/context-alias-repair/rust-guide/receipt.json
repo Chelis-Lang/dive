@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source_commit": "c72f5a646fe65e2099477f6178857429211da819",
+  "api_library_sha256": "78f3809ec1bf84927f886469bdfaf45af9ceeafd6bebd701dbf62b069f8cfb6d",
+  "serde_library_sha256": "ead18741c470a1adcf1569906bf0f6c0159bbc84868440dea2483c4af0a0e3f5",
+  "rows": [
+    {
+      "example": "rust-api",
+      "compiled": true,
+      "ran": true,
+      "source_sha256": "f788080ea74d8322dee0b97096a75f31c5253a2fa4bef9cc7b99978685d752df",
+      "binary_sha256": "bb980923906794e3955970567ef703e67baffc5a4cd108a0fcb6f650683b21a3"
+    },
+    {
+      "example": "traces",
+      "compiled": true,
+      "ran": true,
+      "source_sha256": "94ba247f37d71f750bae5dd591255fd7eb6dcae61a63fa8e1c35d78a46052d63",
+      "binary_sha256": "f99e9bd11635a42a4a8747159c60852b164f5b9a6dea4fc55f3c17fc0085e0a5"
+    }
+  ]
+}
