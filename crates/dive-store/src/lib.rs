@@ -74,6 +74,7 @@ mod exact;
 mod fpset;
 pub mod frontier;
 mod set;
+pub mod spill;
 pub mod state;
 pub mod trace;
 

@@ -212,6 +212,122 @@ enum Frame<'a> {
     Tok(&'a Atom),
 }
 
+/// Maximum nodes inspected by one callback-free frontier codec admission.
+pub const FRONTIER_MAX_NODES: usize = 65_536;
+
+/// A conservative byte bound for callback-free lossless frontier encoding.
+/// This walks representation only, never normalizes a set or evaluates a
+/// deferred callback. Its traversal is capped at 65,536 nodes. The ordinary
+/// [`encode`] contract remains unchanged.
+///
+/// # Errors
+/// [`ErrorKind::NotEnumerable`] for any evaluator-driven deferred set, or
+/// [`ErrorKind::DiveLimit`] when the byte/traversal admission limit is exceeded.
+#[allow(clippy::too_many_lines, reason = "all lossless representation forms")]
+pub fn frontier_size_bound(value: &Value, maximum: usize) -> Result<usize> {
+    let limit = || {
+        ValueError::new(
+            ErrorKind::DiveLimit,
+            "frontier codec byte or 65536-node admission limit",
+        )
+    };
+    let mut stack = vec![value];
+    let mut visited = 0usize;
+    let mut bytes = 0usize;
+    while let Some(v) = stack.pop() {
+        visited += 1;
+        if visited + stack.len() > FRONTIER_MAX_NODES {
+            return Err(limit());
+        }
+        let mut overhead = 11usize;
+        match v {
+            Value::Bool(_) => overhead = 1,
+            Value::Int(_) | Value::Str(_) | Value::Model(_) => {}
+            Value::BigInt(b) => {
+                overhead = usize::try_from(b.bits().div_ceil(8))
+                    .map_err(|_| limit())?
+                    .saturating_add(12);
+            }
+            Value::Fcn(f) => match &f.0.repr {
+                FcnRepr::Tuple(e) => {
+                    if visited + stack.len() + e.len() > FRONTIER_MAX_NODES {
+                        return Err(limit());
+                    }
+                    stack.extend(e.iter());
+                }
+                FcnRepr::Record(fields) => {
+                    if visited + stack.len() + fields.len() > FRONTIER_MAX_NODES {
+                        return Err(limit());
+                    }
+                    overhead = overhead.saturating_add(fields.len().saturating_mul(10));
+                    stack.extend(fields.iter().map(|(_, v)| v));
+                }
+                FcnRepr::General(pairs) => {
+                    if visited + stack.len() + pairs.len().saturating_mul(2) > FRONTIER_MAX_NODES {
+                        return Err(limit());
+                    }
+                    for (d, v) in pairs {
+                        stack.push(d);
+                        stack.push(v);
+                    }
+                }
+            },
+            Value::Set(set) => match set.repr() {
+                SetRepr::Deferred(_) => {
+                    return Err(ValueError::new(
+                        ErrorKind::NotEnumerable,
+                        "frontier spill refuses evaluator-driven deferred values without evaluating them",
+                    ));
+                }
+                SetRepr::Enum => {
+                    if let Some(e) = set.0.elems.get() {
+                        if visited + stack.len() + e.len() > FRONTIER_MAX_NODES {
+                            return Err(limit());
+                        }
+                        stack.extend(e.iter());
+                    }
+                }
+                SetRepr::Raw(e) | SetRepr::Product(e) => {
+                    if visited + stack.len() + e.len() > FRONTIER_MAX_NODES {
+                        return Err(limit());
+                    }
+                    overhead += 1;
+                    stack.extend(e.iter());
+                }
+                SetRepr::Subset(v) | SetRepr::Seq(v) => stack.push(v),
+                SetRepr::FcnSet(d, r) => {
+                    stack.push(d);
+                    stack.push(r);
+                }
+                SetRepr::RcdSet(fields) => {
+                    if visited + stack.len() + fields.len() > FRONTIER_MAX_NODES {
+                        return Err(limit());
+                    }
+                    overhead = overhead.saturating_add(fields.len().saturating_mul(10));
+                    stack.extend(fields.iter().map(|(_, v)| v));
+                }
+                SetRepr::Interval(a, b) => {
+                    for i in [a, b] {
+                        let n = match i {
+                            Int::Small(_) => 11,
+                            Int::Big(v) => usize::try_from(v.bits().div_ceil(8))
+                                .map_err(|_| limit())?
+                                .saturating_add(12),
+                        };
+                        overhead = overhead.saturating_add(n);
+                    }
+                }
+                SetRepr::Nat | SetRepr::Int | SetRepr::Strings => overhead = 1,
+            },
+        }
+        bytes = bytes.checked_add(overhead).ok_or_else(limit)?;
+        if bytes > maximum {
+            return Err(limit());
+        }
+    }
+    Ok(bytes)
+}
+
 /// Encodes `v` losslessly, appending to `out` (see the module documentation).
 ///
 /// `ctx` is needed only to enumerate evaluator-driven lazy sets.

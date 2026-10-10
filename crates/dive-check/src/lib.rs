@@ -67,6 +67,8 @@ pub mod capture;
 mod class;
 pub mod dfid;
 pub mod engine;
+mod frontier;
+pub use frontier::FrontierUsage;
 mod host;
 mod options;
 mod parallel;
@@ -165,6 +167,13 @@ pub(crate) fn eval_code_name(code: u32) -> &'static str {
 
 fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
     CheckResult {
+        frontier: crate::FrontierUsage {
+            memory_bytes_per_queue: opts.frontier_memory_bytes,
+            max_record_bytes: opts
+                .frontier_memory_bytes
+                .map(|_| dive_store::spill::MAX_RECORD_BYTES),
+            ..crate::FrontierUsage::default()
+        },
         verdict,
         stats: None,
         tlc_prints_stats: false,
@@ -276,6 +285,7 @@ fn run_check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResul
         }
     }
     let outcome = engine::search(&m, opts, &host);
+    r.frontier = outcome.frontier;
     r.verdict = outcome.verdict;
     r.stats = outcome.stats;
     r.tlc_prints_stats = outcome.tlc_prints_stats;
