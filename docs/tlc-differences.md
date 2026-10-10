@@ -332,7 +332,16 @@ lists its named exclusions and trusted-local, non-certificate contract. Recovery
 original totals is the named, opt-in `--checkpoint-counters retain` behavior,
 with no new default approved. Raw successful and failed recovery controls,
 source hashes and the minimal grid precede implementation. Java/native byte
-interoperability, broader runtime state and parallel recovery remain deferred.
+interoperability and broader runtime state remain deferred.
+
+**Parallel recovery continuation.** Admitted pure safety checkpoints can resume
+through the deterministic pool, at 1/4/8 workers or a different width from the
+pause. Completed-level barriers retain the logical discovery/predecessor/frontier
+order; native counter-limit stops match inline prefixes. Boundary-zero pauses
+report actual 1 before the pool starts. This removes a dive limitation, not a
+claim that TLC cannot recover parallel runs. Counter defaults, archive bounds
+and trust qualifications are unchanged; runtime/temporal/spill recovery remains
+refused. See the [separate parallel study](../conformance/probes/native-checkpoint-parallel/README.md).
 
 **Configured-key recovery (ADR 0038).** Pure supported VIEW and safety symmetry
 now recover through the same reduced-key path as live search. The primary

@@ -1,8 +1,8 @@
 # Native safety checkpoint and recovery
 
 `dive check` can pause a supported safety search at a completed level and resume
-its saved frontier. This first increment runs with one actual worker and accepts
-pure, concrete INIT/NEXT models, including supported pure VIEW and safety
+its saved frontier. Pure, concrete INIT/NEXT models can pause and resume
+through the deterministic worker pool, including supported pure VIEW and safety
 symmetry. It refuses liveness, runtime
 names/effects/checker reads, evaluator-driven deferred state values and transient storage
 budgets. These restrictions apply in both profiles and are reported explicitly.
@@ -32,8 +32,11 @@ error. Equal reduced keys cannot validate an illegal Init or Next witness.
 Ordinary counterexample reconstruction can still replay saved initial/successor
 ordinals to produce a concrete witness, followed by independent trace validation. An admitted archive has a `recovered`
 receipt; the resumed search then produces its ordinary result. Requested worker
-count remains in output; actual width is one. Parallel/native graph recovery is
-not implemented by this slice.
+count and actual pool width remain in output. A pause immediately after Init
+(`--checkpoint-after-levels 0`) reports one actual worker because the pool has
+not started. Positive completed-level pauses and continued recovery use the
+requested pool width; `--sequential` explicitly keeps inline execution. Native
+graph recovery remains unsupported.
 
 TLC resets generated and initial counters to recovered distinct states. Both
 profiles use that policy by default. To retain original totals so they compare
@@ -44,7 +47,9 @@ queue order, distinct count or depth. Seed and fingerprint defaults on recovery
 come from the archive and are labelled `checkpoint`.
 
 The same executable, model, exact config source bytes, profile, store and semantic
-evaluation settings must match. Changing even a config comment requires a new
+evaluation settings must match. Worker width, chaos scheduling and explicit inline
+execution are scheduling choices; they can change on recovery without changing
+the ordered search result. Changing even a config comment requires a new
 snapshot. Archive checksums are corruption checks, not signatures. Use only
 trusted local archives: serialization does not independently prove reachability
 or completeness. A resumed violation still needs independent trace validation.
@@ -52,7 +57,8 @@ or completeness. A resumed violation still needs independent trace validation.
 The format bounds its payload to 64 MiB, discoveries/names to 65,536, each native
 state/key/name to 1 MiB, variables to 1,024 and depth to 65,536. Concrete discovery
 records, frontiers, visited sets and encode/decode/reconstruction workspaces are
-retained in memory. These are archive admission bounds, not a total RAM budget.
+retained in memory. Parallel candidates, resolved winner keys and worker scratch
+are also outside the archive payload limit. These are archive admission bounds, not a total RAM budget.
 The first slice refuses both frontier and predecessor transient storage settings,
 including directory settings without budgets.
 
@@ -94,7 +100,8 @@ dive check conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.t
 The pause is an intentional incomplete stop: `verdict` is `resource-limit`,
 `checkpoint.status` is `paused-incomplete`, and `counterexample` is null. It has
 4 generated states, 2 distinct states and one queued state. Requested workers
-are 8; `options.workers.used` is 1 and its reason explains the inline restriction.
+are 8; `options.workers.used` is 8 for this positive completed-level pause
+and the resumed search. `options.checkpoint.parallel_recovery` is true.
 The archive is committed despite this non-success verdict.
 
 Recovery with `retain` reaches the invariant violation with 5 generated states,
@@ -145,3 +152,31 @@ supported. [Issue #164](https://github.com/Chelis-Lang/dive/issues/164) fixed an
 admission escape in dive; the [preserved before-and-after controls](../conformance/probes/native-checkpoint-keys/README.md)
 include the original effect and incomplete archive. Structurally valid public IR
 and an archive checksum do not authorize effects or independently prove safety.
+
+## Deterministic parallel recovery
+
+The same runnable CpSymView commands above use eight workers on both sides of
+the archive. You may instead pause at four workers and recover at eight: omit
+`--sequential` and set `--workers` independently on each command. The recovered
+level comes from the archive; the engine never restarts its depth at one or
+regenerates Init. Every completed level records new concrete discoveries,
+predecessor ordinals and their already-resolved configured keys in reference
+order before publishing the next frontier. A snapshot is written only at that
+completed barrier, after the whole deciding prefix is committed.
+
+With `retain`, verdict, generated/distinct/initial counts, queue, depth and
+concrete counterexample match uninterrupted inline execution. With the default
+TLC counter policy, generated and initial counts reset to recovered distinct
+states exactly as before; worker scaling does not change that choice. Native
+MAX_COUNTER stops are resolved in logical successor order, not whichever
+worker reaches a local limit first. Any retained trace at a resource stop is
+partial path evidence, not an invariant violation or a completed-search proof.
+
+This supports pure finite safety only. Temporal graphs, runtime effects or name
+construction, checker reads, evaluator-driven deferred values, and either
+transient spill family remain refused before effects in both profiles. The
+worker field reports pool width, not speedup or simultaneous useful work.
+The [parallel recovery study](../conformance/probes/native-checkpoint-parallel/README.md)
+keeps the previous inline-only captures separate from new width, cross-width,
+counter-prefix and independent witness controls. The trusted-local archive
+contract and all existing byte/state/depth/identity bounds remain unchanged.

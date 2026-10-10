@@ -381,7 +381,14 @@ Pure supported VIEW and safety symmetry now compose with D-007 native recovery
 (ADR 0038). Saved visited keys are recomputed through the configured search
 path, while actual concrete discoveries/predecessors remain unchanged. The
 separate concrete witness validator rejects altered equivalent-key Init/Next
-states. Runtime/graph/liveness/spill/parallel recovery remain refused; no default
+states. Runtime/graph/liveness/spill recovery remain refused; no default
 or independent archive-certificate claim changes. Captures and the initial
 unused-standard-body refusal are preserved in
 `conformance/probes/native-checkpoint-keys/README.md`.
+
+D-007 native pure safety recovery now uses the deterministic worker pool at the
+requested width, with cross-width saved-level continuation and ordered counter-limit
+stop evidence (ADR 0038 addendum). Boundary-zero pauses remain actual 1 before the
+pool starts. TLC-reset/explicit-retain policies, archive trust/bounds and remaining
+runtime/graph/liveness/spill refusals are unchanged. See
+`conformance/probes/native-checkpoint-parallel/README.md`; no full F-032 claim.

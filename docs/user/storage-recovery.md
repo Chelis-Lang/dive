@@ -18,8 +18,8 @@ and [predecessor storage](../predecessor-storage.md) for accounting and cleanup.
 Native checkpoints are a separate bounded pure safety feature:
 
 ```sh
-dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --checkpoint counter.cp --checkpoint-after-levels 2 --output json
-dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --recover counter.cp --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --seed 7 --fp 0 --workers 4 --checkpoint counter.cp --checkpoint-after-levels 2 --output json
+dive check docs/user/examples/CheckpointCounter.tla --compat=tlc --workers 8 --recover counter.cp --output json
 ```
 
 The pure example pauses after two completed levels with three discovered states
@@ -28,8 +28,9 @@ An unused temporal definition can also trigger the conservative purity refusal;
 the original `Counter.tla` checkpoint attempt is retained in the example observations.
 The pause returns an incomplete resource-stop result; it is not a safety proof.
 A committed archive restores saved discoveries, predecessor records and the
-ordered frontier instead of replaying Init to recreate them. Actual execution
-is inline even when a wider width was requested. Counter reset follows TLC by
+ordered frontier instead of replaying Init to recreate them. Pure admitted models run the level engine at the requested worker width;
+`--sequential` selects inline execution. A boundary-zero pause stops after Init
+before starting the pool and honestly reports one actual worker. Counter reset follows TLC by
 default; `--checkpoint-counters retain` preserves uninterrupted counts and is an
 explicit mixed setting.
 
@@ -38,8 +39,7 @@ or independently checked model certificates. Source/configuration/profile/model
 identity and structural bounds are checked. Pure supported VIEW and safety symmetry
 are admitted: recovery recomputes the configured reduced keys while preserving
 original concrete discoveries and witnesses. Liveness, runtime effects/names or
-checker reads, unsupported deferred values, transient storage budgets and parallel
-recovery remain explicit refusals. Filesystem/recovery failures never report success.
+checker reads, unsupported deferred values, transient storage budgets remain explicit refusals. Filesystem/recovery failures never report success.
 
 See [native checkpoint details](../native-checkpoint.md) for exact limits,
 no-overwrite commits, default recovery settings, API requests and evidence.
@@ -50,8 +50,10 @@ For a runnable VIEW and symmetry example, see [configured-key recovery](../nativ
 then resumes to the same concrete invariant violation as uninterrupted checking.
 With `--checkpoint-counters retain`, its final count is 5 generated states; TLC's
 default reset reports 3 generated states and 2 initial states instead. Both reach
-3 distinct states at depth 3. A wider worker request is recorded, but this native
-recovery slice runs inline with one actual worker.
+3 distinct states at depth 3. Positive completed-level pauses and continued
+recovery report the requested pool width. Pause at four workers and recover at
+eight if useful; the deterministic result and saved starting level are unchanged.
+Pool width is execution metadata, not a speedup guarantee.
 
 Reduced-key equality is neither an Init/Next proof nor an archive authenticity
 check. Use trusted local archives and independently validate returned concrete

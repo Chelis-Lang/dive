@@ -88,7 +88,10 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                             let paused = check_file_checkpoint(&req, &cp).expect("pause").to_json();
                             assert_eq!(paused["verdict"], "resource-limit", "{paused}");
                             assert_eq!(paused["checkpoint"]["status"], "paused-incomplete");
-                            assert_eq!(paused["options"]["workers"]["used"], 1);
+                            assert_eq!(
+                                paused["options"]["workers"]["used"],
+                                if boundary == 0 { 1 } else { workers }
+                            );
                             assert!(paused["counterexample"].is_null());
                             let resumed = check_file_checkpoint(
                                 &req,
@@ -105,7 +108,8 @@ fn recovery_case(name: &str, profiles: &[bool]) {
                                 "{name}, profile{compat_tlc}, store{store:?}, width{workers}, chaos{chaos:?}, boundary{boundary}"
                             );
                             assert_eq!(resumed["options"]["workers"]["requested"], workers);
-                            assert_eq!(resumed["options"]["workers"]["used"], 1);
+                            assert_eq!(resumed["options"]["workers"]["used"], workers);
+                            assert_eq!(resumed["options"]["checkpoint"]["parallel_recovery"], true);
                             assert_eq!(
                                 resumed["options"]["checkpoint"]["independent_certificate"],
                                 false

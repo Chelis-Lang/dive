@@ -442,7 +442,7 @@ full option/map contracts remain pending.
 Native F-032 evidence is a bounded pure safety snapshot/resume slice, with actual
 saved frontier recovery, concrete predecessor identity, ordered names and strict
 archive admission. It has no Java-byte interoperability or independent snapshot
-certificate. Graph/liveness/runtime/spill/parallel recovery remain pending; see
+certificate. Graph/liveness/runtime/spill recovery remain pending; see
 [native-checkpoint.md](native-checkpoint.md). No family certification is added.
 
 
@@ -472,3 +472,9 @@ The primary pinned minimal models and separate native recovery matrix preserve
 concrete witnesses while rebuilding configured reduced visited keys. Equivalent
 keys never substitute for independent Init/Next validation. This adds staged
 evidence only: F-032 remains partial/audit-required with broader recovery pending.
+
+F-032 pure finite safety recovery additionally resumes the saved level through
+the deterministic worker pool, with width/chaos and cross-width concrete-result
+controls and inline-equivalent native counter stopping prefixes. This remains
+staged evidence: runtime/temporal/graph/spill recovery, broader persistence
+interactions and full certification remain pending.

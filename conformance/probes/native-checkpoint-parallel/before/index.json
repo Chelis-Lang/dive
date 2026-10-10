@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "source_commit": "54999da336d093ce6da52b4639879933b1b171a0",
+  "runtime_source_commit": "4d73720a8341164ef21c9566a2057cc1cc892420",
+  "binary_sha256": "0160711b9a35a6b127d0dd57fcf3de012cf59cb5da255d4ec5629a66499dec80",
+  "source_sha256": {
+    "crates/dive-check/src/parallel.rs": "a2b37348b78da8cdf9545ee51a20f8e0e585952bc77b1e082b15634f5eac19f9",
+    "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
+    "crates/dive-check/src/checkpoint.rs": "d2c6851f55beff3397bd084107683c9d2c5fd75c980f107ecb1250fdbaafa728"
+  },
+  "controls": [
+    {
+      "profile": "dive",
+      "stage": "pause",
+      "args": [
+        "check",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla",
+        "--config",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json",
+        "--checkpoint",
+        "conformance/probes/native-checkpoint-parallel/before/dive.cp",
+        "--checkpoint-after-levels",
+        "1",
+        "--checkpoint-counters",
+        "retain"
+      ],
+      "exit": 3,
+      "stdout": "dive-pause.stdout.json",
+      "stderr": "dive-pause.stderr",
+      "stdout_sha256": "9ed673199364c7e1811398b0933f3e418abd3423be5ea83eff319958e0c1d75a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workers": {
+        "chaos": null,
+        "reason": "native checkpoint first slice runs inline; parallel recovery is not implemented",
+        "requested": 8,
+        "sequential": true,
+        "used": 1
+      }
+    },
+    {
+      "profile": "dive",
+      "stage": "recover",
+      "args": [
+        "check",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla",
+        "--config",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json",
+        "--recover",
+        "conformance/probes/native-checkpoint-parallel/before/dive.cp",
+        "--checkpoint-counters",
+        "retain"
+      ],
+      "exit": 10,
+      "stdout": "dive-recover.stdout.json",
+      "stderr": "dive-recover.stderr",
+      "stdout_sha256": "03d1895e79eb2bae32038d4c9461d24214194d4223000ea27f4e03de4a14a0c6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workers": {
+        "chaos": null,
+        "reason": "native checkpoint first slice runs inline; parallel recovery is not implemented",
+        "requested": 8,
+        "sequential": true,
+        "used": 1
+      }
+    },
+    {
+      "profile": "tlc",
+      "stage": "pause",
+      "args": [
+        "check",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla",
+        "--config",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json",
+        "--compat=tlc",
+        "--checkpoint",
+        "conformance/probes/native-checkpoint-parallel/before/tlc.cp",
+        "--checkpoint-after-levels",
+        "1",
+        "--checkpoint-counters",
+        "retain"
+      ],
+      "exit": 3,
+      "stdout": "tlc-pause.stdout.json",
+      "stderr": "tlc-pause.stderr",
+      "stdout_sha256": "d20efd7cb836c303549f924f0167137437f3ed95b8e106cfb1b73fb52383ef9d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workers": {
+        "chaos": null,
+        "reason": "native checkpoint first slice runs inline; parallel recovery is not implemented",
+        "requested": 8,
+        "sequential": true,
+        "used": 1
+      }
+    },
+    {
+      "profile": "tlc",
+      "stage": "recover",
+      "args": [
+        "check",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla",
+        "--config",
+        "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg",
+        "--workers",
+        "8",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json",
+        "--compat=tlc",
+        "--recover",
+        "conformance/probes/native-checkpoint-parallel/before/tlc.cp",
+        "--checkpoint-counters",
+        "retain"
+      ],
+      "exit": 12,
+      "stdout": "tlc-recover.stdout.json",
+      "stderr": "tlc-recover.stderr",
+      "stdout_sha256": "71b30700ca35d931a9909cb0ae8842bd447dcef60dfd6888d7ed8d5b19790fe0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workers": {
+        "chaos": null,
+        "reason": "native checkpoint first slice runs inline; parallel recovery is not implemented",
+        "requested": 8,
+        "sequential": true,
+        "used": 1
+      }
+    }
+  ],
+  "archive_sha256": {
+    "dive.cp": "e6713033bd144ef4e46f0913eeec9261c7e072a685912875ee4f9469fdc6ac93",
+    "tlc.cp": "70154c044718373308da57e6e8e98cedc6f8efa51a7a2ad7ecc6b9d0e6575e5a"
+  }
+}

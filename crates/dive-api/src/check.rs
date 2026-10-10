@@ -554,7 +554,7 @@ impl CheckReport {
                 "max_counter": dive_check::checkpoint::MAX_COUNTER,
                 "trusted_local_archive": true,
                 "independent_certificate": false,
-                "parallel_recovery": false,
+                "parallel_recovery": true,
             });
         }
         options

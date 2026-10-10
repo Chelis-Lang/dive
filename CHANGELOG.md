@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native pure safety checkpoints pause and resume through the deterministic worker
+  pool, including supported VIEW/safety symmetry, cross-width recovery and
+  ordered counter-limit stops. Boundary-zero pauses report one actual worker
+  before pool startup; runtime/temporal/graph/spill restrictions remain explicit.
+
 - TLC-shaped temporal planning preserves eager state-conditional conversion
   failures, typed TLC errors and source-order fallback before graph work.
 
