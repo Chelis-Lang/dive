@@ -309,3 +309,9 @@ caller callbacks; native captures are inspected structurally. Original panic and
 pre-interning observations are retained in
 `crates/dive-api/tests/fixtures/public-context/`. These are native safety controls,
 not TLC parity certification or a new result-changing default.
+
+The sequential normalization follow-up matches pinned automatic-label option
+defaults, default model-value initialization and sequential label modifiers;
+[its full selection](pluscal-normalization.md) retains branch/name refusals. No
+alternate label/fairness default is introduced. Process/procedure/macro and
+historical/checksum/map contracts remain pending.

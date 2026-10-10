@@ -16,7 +16,7 @@ unsupported-feature or resource qualifications.
 
 ## Supported boundary
 
-An explicitly labelled single sequential algorithm may declare initialized or
+A bounded single sequential algorithm may declare initialized or
 finite-membership variables, assign whole variables/fields/indices, perform
 simultaneous assignment, branch with `if`/`elsif` or `either`, use non-shadowing
 `with`, loop with `while`, jump to an existing label/`Done`, await, print, assert
@@ -26,7 +26,7 @@ read-after-write priming follow the pinned translator. Assertion locations point
 to the keyword, including when a label precedes it.
 
 Named refusals cover processes, procedures/calls/returns, macros, `define`,
-automatic label insertion/label fairness modifiers, unproved label placement, default initialization,
+unproved branch-internal label placement,
 name disambiguation/generated-name collisions and shadowing binders. TLA lexical
 binding constructs (including Unicode quantifiers/function binders) and multiline
 expression layout are refused until scope/layout-preserving substitution is
@@ -43,6 +43,11 @@ Diagnostic stages distinguish source, normalization, generation and enclosing
 artifact analysis. No partially accepted output is returned on a bound or error.
 Native exits are 0 artifact, 1 rejected, 3 unsupported/bound and 4 internal error;
 these do not imply TLC model-checking verdicts or historical translator CLI parity.
+
+Sequential automatic labels, default model-value initialization and label modifiers
+are now extended in the separate [normalization contract](pluscal-normalization.md).
+The following matrix records the original explicit-label delivery; every row
+remains retained, with current dispositions separately reproduced by that increment.
 
 ## Evidence and limitations
 
