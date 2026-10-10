@@ -445,7 +445,8 @@
         117,
         130,
         136,
-        149
+        149,
+        140
       ],
       "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
       "interactions": [
@@ -459,7 +460,9 @@
       "additional_evidence": [
         "conformance/probes/tlc-planning/README.md",
         "crates/dive-liveness/tests/tlc_planning.rs",
-        "conformance/probes/temporal-action-order/README.md"
+        "conformance/probes/temporal-action-order/README.md",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
       ],
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
@@ -468,7 +471,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-021",
@@ -483,7 +486,8 @@
         63,
         127,
         130,
-        136
+        136,
+        140
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [
@@ -496,7 +500,9 @@
         "conformance/probes/temporal-forwarding/README.md",
         "crates/dive-api/tests/temporal_forwarding.rs",
         "conformance/probes/tlc-planning/README.md",
-        "crates/dive-liveness/tests/tlc_planning.rs"
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
       ],
       "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -506,7 +512,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-022",
@@ -520,7 +526,8 @@
       "issues": [
         66,
         136,
-        149
+        149,
+        140
       ],
       "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
       "interactions": [
@@ -533,9 +540,11 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending.",
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained.",
       "additional_evidence": [
-        "conformance/probes/temporal-action-order/README.md"
+        "conformance/probes/temporal-action-order/README.md",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
       ]
     },
     {
@@ -548,14 +557,20 @@
       "rust_evidence": "crates/dive-api/src/check.rs",
       "conformance_evidence": "docs/design/m6-plan.md",
       "issues": [
-        66
+        66,
+        140
       ],
       "acceptance": "Every accepted lncheck variant has matching enable/stop behavior; test TLC wall-clock decisions separately from deterministic level-boundary defaults, recording volatile fields.",
       "interactions": [
         "F-020",
         "F-022",
         "F-027"
-      ]
+      ],
+      "additional_evidence": [
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs"
+      ],
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
     },
     {
       "id": "F-024",
