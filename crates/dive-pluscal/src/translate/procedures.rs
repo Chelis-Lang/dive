@@ -1,10 +1,10 @@
-//! Bounded sequential `PcalTranslate` call/return graph admission.
+//! Bounded sequential `PcalTranslate` procedure namespace and call admission.
 use super::{
     TranslationError, TranslationOptions, TranslationStage, error, lower, macros::Expanded,
 };
 use crate::{
     Code,
-    ast::{BindingKind, Body, Span, StatementKind},
+    ast::{BindingKind, Body, Span},
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -96,7 +96,6 @@ pub(super) fn normalize(
         }
     }
     let mut labels = BTreeSet::new();
-    let mut graph = vec![Vec::new(); parsed.algorithm.procedures.len()];
     for statement in &parsed.statements {
         if let Some(label) = &statement.label {
             if label.modifier.is_some() {
@@ -109,16 +108,9 @@ pub(super) fn normalize(
                 return Err(refusal(label.span, "procedure/global label disambiguation"));
             }
         }
-        if let StatementKind::Call { name, .. } = &statement.kind
-            && let Some(to) = procedures.get(name.text.as_str())
-            && let Some(from) = parsed.algorithm.procedures.iter().position(|p| {
-                statement.span.start >= p.body.span.start && statement.span.end <= p.body.span.end
-            })
-        {
-            graph[from].push(*to);
-        }
     }
-    reject_cycles(&graph, parsed.algorithm.span)?;
+    // Calls remain runtime stack transitions, including cycles. No call graph
+    // is recursively expanded while translating a finite source program.
     // One private arena holds all source statements and declarations. Each
     // scope borrows it; no whole-arena clone is multiplied by procedure count.
     let mut scoped = parsed.clone();
@@ -163,33 +155,6 @@ pub(super) fn normalize(
     model.actions = actions;
     model.procedures.clone_from(&parsed.algorithm.procedures);
     Ok(model)
-}
-
-fn reject_cycles(graph: &[Vec<usize>], span: Span) -> Result<(), TranslationError> {
-    let mut color = vec![0u8; graph.len()];
-    for root in 0..graph.len() {
-        if color[root] != 0 {
-            continue;
-        }
-        color[root] = 1;
-        let mut pending = vec![(root, 0usize)];
-        while let Some((node, edge)) = pending.last_mut() {
-            if let Some(&target) = graph[*node].get(*edge) {
-                *edge += 1;
-                if color[target] == 1 {
-                    return Err(refusal(span, "recursive procedure call graph"));
-                }
-                if color[target] == 0 {
-                    color[target] = 1;
-                    pending.push((target, 0));
-                }
-            } else {
-                color[*node] = 2;
-                pending.pop();
-            }
-        }
-    }
-    Ok(())
 }
 
 fn charge(

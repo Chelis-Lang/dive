@@ -101,10 +101,11 @@ fn retained(
 #[test]
 fn pinned_nonrecursive_graph_artifacts_and_invalid_output() -> Result<(), Box<dyn std::error::Error>>
 {
-    retained("", 120, 68, 4)
+    retained("", 120, 78, 4)
 }
 #[test]
-fn all_call_graph_cycles_are_refused_even_when_unused() -> Result<(), Box<dyn std::error::Error>> {
+fn historical_cycles_now_match_the_retained_primary_artifacts()
+-> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("procedure-graph-acceptance/cases");
     for kind in [
         "self_recursive",
@@ -119,24 +120,16 @@ fn all_call_graph_cycles_are_refused_even_when_unused() -> Result<(), Box<dyn st
             )?;
             let start = source.find("--algorithm").ok_or("marker")?;
             let end = source.rfind("*)").ok_or("comment")?;
-            let err = translate_at(&source, start..end, &TranslationOptions::default())
-                .err()
-                .ok_or("cycle must refuse")?;
-            assert_eq!(err.diagnostic.code, Code::Unsupported);
-            assert!(
-                err.diagnostic
-                    .message
-                    .contains("recursive procedure call graph")
-            );
-            assert!(
-                source
-                    .get(err.diagnostic.span.start..err.diagnostic.span.end)
-                    .is_some()
-            );
+            let artifact = translate_at(&source, start..end, &TranslationOptions::default())?;
+            assert_ne!(artifact.actions.len(), 0);
+            // The complete retained test above compares every original action
+            // and token against its unchanged capture-first primary artifact.
+            assert!(artifact.tla.contains("stack"));
         }
     }
     Ok(())
 }
+
 #[test]
 fn graph_scope_actions_are_globally_bounded_and_source_is_unchanged()
 -> Result<(), Box<dyn std::error::Error>> {

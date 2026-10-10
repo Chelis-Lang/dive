@@ -474,47 +474,27 @@ remain separate: invalid primary artifacts never count as admitted matches.
 Unproved binders/procedures/name rewrites/options/maps remain pending; F-034/F-035
 stay partial and audit-required and the certification denominator is unchanged.
 
-### D-013 progress: ordered temporal execution
 
-The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
-source order, with initial consistency before initial invariants and immediate
-done-state re-enumeration. Fifteen completed pinned graph-field cases match at
-1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
-in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
-batch emissions and recursive enumeration work remain separate. Independent
-validation rejects altered words, closing edges and incomplete property claims.
+The [sequential procedure study](pluscal-procedures.md) retains 84 C/P rows:
+48 admitted artifacts, 14 matching rejections, 20 named refusals and two diagnostic
+invalid-reference dispositions. All four primary SANY-invalid outputs stay
+uncredited. Forty-six complete generated models match TLC; thirty invariant
+witnesses have matched exploration but pending strict encounter-order validation.
+Separately qualified default replay validates them and rejects 120 mutants without
+conferring TLC certification. F-034/F-035 remain partial and audit-required.
 
-This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
-initial error replay and periodic checking are not certified. Ordinary strict
-liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
-remain partial/audit-required, F-023 missing and #140 open. Previous complete
-studies keep their original outcomes and receive no new corpus verdict credit.
+The [nonrecursive procedure graph increment](pluscal-procedure-graphs.md) retains
+120 capture-first C/P rows: 68 admitted artifacts, 19 source rejections, 29 named
+refusals and four diagnostic invalid-reference dispositions. All eight primary
+SANY-invalid outputs stay uncredited. Cycles, scopes/renaming, process stacks,
+options/maps and strict encounter-order/deadlock evidence remain pending.
+F-034/F-035 remain partial and audit-required; no denominator change.
 
-### Bounded final-only progress: pinned final-only SCC and witness selection
-
-The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
-graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
-bucket closure. It retains configured claims separately from derived role names.
-At 1/3/4/8 workers, 19 completed pinned controls match their SCC/witness fields;
-all 30 controls, including 11 uncredited failures, remain available in
-`conformance/probes/tlc-final-check/`. Fresh independent validation accepts the
-supported original words and rejects changed Init, Next/closing edges, loop
-targets and incomplete claims. A 4,096-graph independent census checks acceptance
-and selected path labels.
-
-This is an explicit final-only TLC/fingerprint library mode, not ordinary strict
-CLI parity or periodic-schedule support. Exact-store temporal proof is refused:
-a fingerprint graph must not silently merge concrete states while claiming exact
-identity. Accepting-sink reconstruction, initial error replay, symmetry/VIEW/ALIAS,
-periodic hooks, unsupported scopes/effects and fixed resource bounds remain named
-limitations. Holds results retain collision qualifications; backend candidates
-never carry their own validation certificate. F-019 through F-022 remain partial/
-audit-required, F-023 missing and #140 open. Old broad studies retain their original
-outcomes; no default or ordinary strict conformance credit changes.
-
-See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
-actual evidence and refusal boundaries. The API admits startup sources before
-binding creates a host; effectful ASSUMEs, unused top-level constants, config
-replacement candidates and hooks return named refusal with zero used workers.
-Standard-module classification does not bypass this admission. Explicit sequential
-requests/fallback execution remain refused until their observer path is certified.
+The native disjoint sequential recursive procedure increment (ADR 0043) retains
+all 116 C/P source cases: 86 artifact matches, 15 matching rejections, nine named
+refusals and six diagnostic invalid-reference dispositions. All ten SANY-invalid
+primary outputs remain uncredited. Enclosing SANY/CST, finite execution and
+strict pending versus qualified canonical witnesses are separate contracts.
+Unbounded-model primary timeouts and explicit native capture bounds never earn
+proof credit. F-034/F-035 remain partial/audit-required; see
+[recursive procedures](pluscal-recursive-procedures.md).

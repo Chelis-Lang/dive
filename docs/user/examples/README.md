@@ -39,3 +39,9 @@ checkpoint pause/recovery and original named refusal.
 from the [procedure guide](../../pluscal-procedures.md). Four CLI translations
 and two compiled Rust calls passed in the separate current procedure receipt.
 Translation acceptance remains an artifact claim, not a model proof.
+
+`RecursiveExample.tla` and `RecursiveExampleC.tla` are the C/P inputs in
+[the recursive-procedure guide](../../pluscal-recursive-procedures.md). Its
+original capture-first campaign checks four CLI translations and two compiled
+Rust calls. Integrated-source observations are recorded separately; translation
+acceptance remains an artifact claim, and strict stack witness replay is pending.

@@ -1,0 +1,18 @@
+{
+  "slice": "recursive-procedures",
+  "source_commit": "7102c566a8bc4d682da5a5ad6e88b8f982087992",
+  "source_tree": "f220e6d7f4e641925aa91e85c74175e3c2781693",
+  "matrices_sha256": {},
+  "source_sha256": {
+    "crates/dive-pluscal/recursive-procedure-acceptance/budgets/probe.rs": "c383a7a6a8f35b55c372d6bf71c7d4700ddceecf8404717ea2c0ba246d8968b0",
+    "crates/dive-pluscal/recursive-procedure-acceptance/initial-budget-campaign/budgets/probe.rs": "d99bf7a78b23bf5d52d69e6319f3b53059cbf1d01421c124d9189d5bfb84998b",
+    "crates/dive-pluscal/recursive-procedure-acceptance/initial-test-campaign/recursive_procedures.rs": "6ec48a33136f0769601b73b174a4152bea7bfac3eeae002f3383e8af2bcec7c8",
+    "crates/dive-pluscal/src/lib.rs": "c517646dc2de3dbc34aa51266fa99ce1ff0b1039136b18ed7cbc0fa6031789a4",
+    "crates/dive-pluscal/src/translate/emit.rs": "d0cc71bf9b9b9a9d6cf9bba4241cacb3874421bd4166bd67449cb24a605132e5",
+    "crates/dive-pluscal/src/translate/procedures.rs": "6efa744614132f340540b0dc038d6afbbc70ba1f0ab4612d4f3caab89c7c3158",
+    "crates/dive-pluscal/tests/procedure_graph.rs": "fa9f648322915f93345711059179117d0293fd25edf8437a4545014919d0ae57",
+    "crates/dive-pluscal/tests/procedures.rs": "847d64f3924c3a2fd44b1eaabe8c8cceb7e25cfee94d8d23fb61f57f5c0573d3",
+    "crates/dive-pluscal/tests/recursive_procedures.rs": "0ff80096fc1e20168b0565cb3fdaadd463fec6122608807ce7cd940448af8f6c"
+  },
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}

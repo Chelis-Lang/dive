@@ -101,7 +101,7 @@ fn retained(
 #[test]
 fn pinned_procedure_artifacts_rejections_and_uncredited_invalid_output()
 -> Result<(), Box<dyn std::error::Error>> {
-    retained("", 84, 48, 2)
+    retained("", 84, 52, 2)
 }
 #[test]
 fn call_and_return_do_not_mutate_the_source_ast_or_exceed_action_budget()

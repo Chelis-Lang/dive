@@ -1,0 +1,5891 @@
+{
+  "schema_version": 1,
+  "stage": "incomplete-unbounded-recursive-controls",
+  "script_sha256": "435a8f158dc68859262fe2eee8cdc0cd130edd053d9eadb280ccd80f48ab8607",
+  "probe_sha256": "c383a7a6a8f35b55c372d6bf71c7d4700ddceecf8404717ea2c0ba246d8968b0",
+  "library_sha256": {
+    "dive_sema": "f6823ac3b88c27e5dc5b24063687b4aeb3ed48902a5654d75264ee6ed56cc4fd",
+    "dive_ir": "8890741c69f0b6ccbc705c5a19c92a0701fff2abfb0b7191fc5f312b358000a4",
+    "dive_config": "9eb58d7438ce6d434610b44e2f73c24d291df0dc302881f08d5a6a5aa575d103",
+    "dive_model": "d2ab075d5315a1676518823aa808f330d15131622096449fd9809e15de2f551e",
+    "dive_check": "325de9da9f652af8656571afe7aabd3edcfafc1e171f384ef0e5daccce865569",
+    "dive_store": "6723646d27a8bb15673c6c4edb4e4a7a97d1902dbb60de35d0ff62ddf583a221",
+    "serde_json": "6210a48d1742dd1c6ce81a057b4e7f5b955669fc1183fe5d5d0d4d305ddb8b15"
+  },
+  "native_sha256": "4d63f3f227433f09f8b5ad4dfea1cfbb8f7a0e78c3490de856650862cf7ccdb5",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_sha256": "739c5592b8f6b19fe54680e5a5c2e7081677a23244e01c444b538d4b840be8a2",
+  "primary_rows": [
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "5de6697bc86743029602594f8ba70769643b643df990c091ae9aae24118ece2d"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "8b4b2ee38a80fd9247b37d17e42a30cfea65e78d55a240e2cbd689e908e8834f"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc-prefix.stdout.gz",
+          "sha256": "f9bd81e6b7d09c23dfcf01635acf682630706a23cf3faf9223ec8aa237e05d2e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "3af1e5f1564691decd89f23162936baa20da3acd223c3587467ee04d822876a4"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "c20ae3ccc6118accec2b320f14f611bfed16b3cc1e3e7abe83bc1440933052da"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "c3614d8706687a5c34ff8bd68aecdd654323b7c0cff42c46fc9b6b343233533e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "2b0b13620129f0bc594c21d50ed6ee2d16fdfa14d1cf99c548b0d3bb55bfb3bd"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "483b4c98bc69a74c381458c05aebd7b454a188ec86a1f52295bdeae09b4820d5"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc-prefix.stdout.gz",
+          "sha256": "f889fd67c8d91dca16bc8b5e2958a2d5a3d68a40522408602ecb7d5cd1a49d44"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "10a6efa0d351ff3ca1a35f9524be01f51250b3eba375029ff44d51f2932e8494"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "6b17b22a67e6b3b445159a55109e3bcf44df35f23e52246accea425b2465ee94"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "outcome": "timeout",
+      "timeout_seconds": 2,
+      "model_proved": false,
+      "exhaustive": false,
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc-prefix.stdout.gz",
+          "sha256": "a64afe9bbfc530cfc0b25be77e703b176e848dd85276f8dfb4edc045ce76c76b"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc-prefix.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "native_controls": [
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_tail_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_mutual_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "0c7444304da23555057b6b65513ff07c79546e1d8e33365f8b779ada0587423e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "c5d7e8d18d7c61c1bd10b356974b526c78cfda0ecf531eb4d3d3d5a879b50c5e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "81c13d706b9857e0727b3efdc84c538481828dd14ebd9b96d9ffe923d719ee93"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "9f285d60a6bf72d84fef70eea119a529269e4fa6ab995a5b13b2dc5732df42dc"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "217c923f06affaff2c0fc5fde9a55bea269996dfc8df037663326bca38d41f3c"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "a296e009889b30e73bab198d1d72f7cbf63b97fd04f0da0d1af72cef8b070b3d"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "af8bf7ea3a0824c8b0eba5f4d5efffeae62e2a5dccbfef882ff124f84653eb7c"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "74b0fdbf7a89025ef14ae40b62e1607bcb03b106ec9404756d7fdf1b869f682b"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_goto_done.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_goto_done.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_no_params_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "0c7444304da23555057b6b65513ff07c79546e1d8e33365f8b779ada0587423e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "c5d7e8d18d7c61c1bd10b356974b526c78cfda0ecf531eb4d3d3d5a879b50c5e"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "81c13d706b9857e0727b3efdc84c538481828dd14ebd9b96d9ffe923d719ee93"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "9f285d60a6bf72d84fef70eea119a529269e4fa6ab995a5b13b2dc5732df42dc"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "217c923f06affaff2c0fc5fde9a55bea269996dfc8df037663326bca38d41f3c"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "a296e009889b30e73bab198d1d72f7cbf63b97fd04f0da0d1af72cef8b070b3d"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "af8bf7ea3a0824c8b0eba5f4d5efffeae62e2a5dccbfef882ff124f84653eb7c"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "74b0fdbf7a89025ef14ae40b62e1607bcb03b106ec9404756d7fdf1b869f682b"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_tail_counter_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_C_self_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_C_self_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_tail_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_mutual_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "0c7444304da23555057b6b65513ff07c79546e1d8e33365f8b779ada0587423e"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "c5d7e8d18d7c61c1bd10b356974b526c78cfda0ecf531eb4d3d3d5a879b50c5e"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "81c13d706b9857e0727b3efdc84c538481828dd14ebd9b96d9ffe923d719ee93"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "9f285d60a6bf72d84fef70eea119a529269e4fa6ab995a5b13b2dc5732df42dc"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "217c923f06affaff2c0fc5fde9a55bea269996dfc8df037663326bca38d41f3c"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "a296e009889b30e73bab198d1d72f7cbf63b97fd04f0da0d1af72cef8b070b3d"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "af8bf7ea3a0824c8b0eba5f4d5efffeae62e2a5dccbfef882ff124f84653eb7c"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "74b0fdbf7a89025ef14ae40b62e1607bcb03b106ec9404756d7fdf1b869f682b"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_goto_done.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_goto_done.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_no_params_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "0c7444304da23555057b6b65513ff07c79546e1d8e33365f8b779ada0587423e"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "c5d7e8d18d7c61c1bd10b356974b526c78cfda0ecf531eb4d3d3d5a879b50c5e"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "81c13d706b9857e0727b3efdc84c538481828dd14ebd9b96d9ffe923d719ee93"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "9f285d60a6bf72d84fef70eea119a529269e4fa6ab995a5b13b2dc5732df42dc"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "217c923f06affaff2c0fc5fde9a55bea269996dfc8df037663326bca38d41f3c"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "a296e009889b30e73bab198d1d72f7cbf63b97fd04f0da0d1af72cef8b070b3d"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "af8bf7ea3a0824c8b0eba5f4d5efffeae62e2a5dccbfef882ff124f84653eb7c"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!\\o (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "74b0fdbf7a89025ef14ae40b62e1607bcb03b106ec9404756d7fdf1b869f682b"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_tail_counter_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.0-100-100.stdout.gz",
+          "sha256": "e940f147559bf2b527296f19a4f054e6257e0f023c25427d915584f9da04b19d"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.8-100-100.stdout.gz",
+          "sha256": "119720fa3bdb62d3f849fb728ae50756bec7f253fa5ebcdb3085631e30ef7591"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.100-0-100.stdout.gz",
+          "sha256": "9545a4b9964aadcbf227c23845193f739e64e174e42d8a830de41cb215de0fda"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.100-100-0.stdout.gz",
+          "sha256": "edcf5c1ca16e705277a605e72a3ba72317e95feea9daaa4394ded96939cddbf7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.0-100-100.stdout.gz",
+          "sha256": "cf65768722c003b33c7bb37627e7abb1100cae522cdd58d310e83197cb873340"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.8-100-100.stdout.gz",
+          "sha256": "7fc8cb6ed0f7ca6ccbe5c63ede54bcf8d79ddb56ee0ea18ea8cd518430204449"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.100-0-100.stdout.gz",
+          "sha256": "c94b0295aaf407a74816ef03c9786116b54a7e0ab5b2434051a5edcae55652a0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "graph capture with stateful checking: Sequences!Tail (runtime names require TLC encounter order)",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "tlc",
+        "result": "unsupported",
+        "statistics": null,
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.100-100-0.stdout.gz",
+          "sha256": "daa39a74921e88fb9f29a0b6e5754228ef089bed3cf4b7873955efcd29e762a3"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.tlc.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.fp.0-100-100.stdout.gz",
+          "sha256": "e9f99b1c989de1237370d9b298615b7fafb9d89e5f41b5e540406f979f2a3dbb"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.fp.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.fp.8-100-100.stdout.gz",
+          "sha256": "99751a9b70ef825dfc8b7fe0cb7a72ef5459887ef1c8fddcfec53741f04cf9ad"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.fp.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.fp.100-0-100.stdout.gz",
+          "sha256": "2337dca9b5cc2256e156fd9ebf7f07dababbec153a95d1266d892c5610c263d9"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.fp.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "fp"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.fp.100-100-0.stdout.gz",
+          "sha256": "a8cf4c851c46325429ed82ac9854927b92462054cc7730823a868d79cb3337ea"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.fp.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 0
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "left_on_queue": 1
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.exact.0-100-100.stdout.gz",
+          "sha256": "5f1d01b8726b315dd5e9ba6eef0ea4c66f53362eede7097ccd7f5a45c8004c76"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.exact.0-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture states",
+        "limits": {
+          "edges": 100,
+          "generated": 100,
+          "states": 8
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 9,
+          "distinct": 9,
+          "generated": 9,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.exact.8-100-100.stdout.gz",
+          "sha256": "9e7e429f42b75383c47c110e44aa5ffb461da68f6e7766858425e58d89b169c8"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.exact.8-100-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture edges",
+        "limits": {
+          "edges": 0,
+          "generated": 100,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 2,
+          "distinct": 2,
+          "generated": 2,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.exact.100-0-100.stdout.gz",
+          "sha256": "846d90cb153a7fd0d3b61e07b95b09c47afe1a1b38bb8e2fba71124b46b133d7"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.exact.100-0-100.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "result": {
+        "exhaustive": false,
+        "feature": "behavior graph capture generated states",
+        "limits": {
+          "edges": 100,
+          "generated": 0,
+          "states": 100
+        },
+        "model_proved": false,
+        "profile": "dive",
+        "result": "resource-limit",
+        "statistics": {
+          "depth": 1,
+          "distinct": 0,
+          "generated": 1,
+          "left_on_queue": 0
+        },
+        "store": "exact"
+      },
+      "captures": {
+        "stdout": {
+          "path": "Recursive_P_self_unbounded.dive.exact.100-100-0.stdout.gz",
+          "sha256": "f635648c2227b32ce6566ef3c1caaa0c5ebf85389cf69a06ba92ee8871a39dd0"
+        },
+        "stderr": {
+          "path": "Recursive_P_self_unbounded.dive.exact.100-100-0.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "family_certified": false
+}

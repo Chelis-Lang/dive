@@ -1,5 +1,10 @@
 # Native PlusCal procedure graphs
 
+This guide preserves the earlier bounded delivery and its original evidence.
+The current disjoint sequential path also admits recursion; see
+[recursive procedure use and limitations](pluscal-recursive-procedures.md).
+
+
 `dive translate FILE.tla --output json` admits multiple sequential procedures
 with disjoint names and a nonrecursive call graph. Both PlusCal syntaxes use
 native Rust translation. Save this as `ProcedureGraphExample.tla`:
