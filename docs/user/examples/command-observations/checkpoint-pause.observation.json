@@ -1,0 +1,22 @@
+{
+  "args": [
+    "check",
+    "docs/user/examples/CheckpointCounter.tla",
+    "--compat=tlc",
+    "--seed",
+    "7",
+    "--fp",
+    "0",
+    "--checkpoint",
+    "<temporary checkpoint archive>",
+    "--checkpoint-after-levels",
+    "2",
+    "--output",
+    "json"
+  ],
+  "exit": 3,
+  "verdict": "resource-limit",
+  "message": "DIVE-S0400: native checkpoint paused at a committed completed-level boundary; incomplete search, no model verdict",
+  "stdout_sha256": "1c24ee92b51272b985183fe969dccd4128c35c6c0529e934aca19eb7b0f49ab1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

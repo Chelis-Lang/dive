@@ -768,3 +768,7 @@ All notable changes to this project are documented here. The project will follow
   are printed once each, and not at all with warnings off.
 
 - Public checker, native checkpoint and graph-capture entry points refuse malformed/foreign IR contexts before effects, with checked no-work error metadata (#157).
+
+- User manual covering exposed CLI/API features, runnable guide examples, report
+  interpretation and current limits; developer documentation map and maintenance
+  requirements applied throughout feature delivery.
