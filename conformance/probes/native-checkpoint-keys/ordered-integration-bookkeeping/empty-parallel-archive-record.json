@@ -1,0 +1,10 @@
+{
+  "slice": "parallel-checkpoint-recovery",
+  "source_commit": "d835d9ebb1f38e41049d3d5203e5235a482d3a91",
+  "source_tree": "4bb28526d9e2346b2b922f0301fdbeff09b2480f",
+  "matrices_sha256": {
+    "history/parallel-checkpoint-recovery/matrices/conformance/probes/native-checkpoint-parallel/delivery.json": "7ca3aaccd3ea8d5b312fd67c34758776ed349a361f6df871aa7705dfb5483b99"
+  },
+  "source_sha256": {},
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}

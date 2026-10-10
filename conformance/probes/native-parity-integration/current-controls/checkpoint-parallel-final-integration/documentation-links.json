@@ -1,0 +1,411 @@
+{
+  "pages": 20,
+  "checked_local_links": 101,
+  "broken": [],
+  "links": [
+    {
+      "page": "README.md",
+      "link": "docs/sprint-status.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/user/README.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/user/examples/README.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/developer/README.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/CHARTER.md"
+    },
+    {
+      "page": "README.md",
+      "link": "AGENTS.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/ROADMAP.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/tlc-parity.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/tlc-differences.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/temporal-api.md"
+    },
+    {
+      "page": "README.md",
+      "link": "crates/dive-sim/README.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/decisions/"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/survey/"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/conformance.md"
+    },
+    {
+      "page": "README.md",
+      "link": "docs/temporal-api.md#command-line-access"
+    },
+    {
+      "page": "README.md",
+      "link": "crates/dive-check/tests/fixtures/dfid/README.md"
+    },
+    {
+      "page": "conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/README.md",
+      "link": "../../../../../docs/user/storage-recovery.md"
+    },
+    {
+      "page": "conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/README.md",
+      "link": "../../../../../docs/native-checkpoint.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../../AGENTS.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../CHARTER.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../ROADMAP.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../design/tlc-parity-plan.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../sprint-status.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../tlc-parity.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../user/README.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../decisions/"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../design/"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../tlc-differences.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../divergences.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../provenance.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../conformance-corpora.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../../crates/dive-conformance/README.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../open-questions.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "documentation-policy.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../native-parity-integration.md"
+    },
+    {
+      "page": "docs/developer/README.md",
+      "link": "../temporal-execution-api.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint-keys/README.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "decisions/0033-native-safety-checkpoints.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "decisions/0038-checkpoint-transformed-safety-keys.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint/README.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "tlc-differences.md#d-007-exact-state-storage"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint-keys/README.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-parity-integration/current-controls/checkpoint-keys-ordered-integration/verification.json"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-checkpoint-parallel/README.md"
+    },
+    {
+      "page": "docs/native-checkpoint.md",
+      "link": "../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json"
+    },
+    {
+      "page": "docs/tlc-final-api.md",
+      "link": "../conformance/probes/tlc-final-check/README.md"
+    },
+    {
+      "page": "docs/tlc-final-api.md",
+      "link": "decisions/0040-pinned-final-scc-and-witness.md"
+    },
+    {
+      "page": "docs/tlc-final-api.md",
+      "link": "provenance.md"
+    },
+    {
+      "page": "docs/tlc-final-api.md",
+      "link": "tlc-parity.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "getting-started.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "front-end.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "checking.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "compatibility.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "simulation.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "dfid.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "pluscal.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "traces.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "temporal.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "storage-recovery.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "rust-api.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "reports-and-errors.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "../sprint-status.md"
+    },
+    {
+      "page": "docs/user/README.md",
+      "link": "../tlc-differences.md"
+    },
+    {
+      "page": "docs/user/checking.md",
+      "link": "temporal.md"
+    },
+    {
+      "page": "docs/user/checking.md",
+      "link": "compatibility.md"
+    },
+    {
+      "page": "docs/user/checking.md",
+      "link": "storage-recovery.md"
+    },
+    {
+      "page": "docs/user/checking.md",
+      "link": "reports-and-errors.md"
+    },
+    {
+      "page": "docs/user/checking.md",
+      "link": "../tlc-parity.md"
+    },
+    {
+      "page": "docs/user/compatibility.md",
+      "link": "dfid.md"
+    },
+    {
+      "page": "docs/user/compatibility.md",
+      "link": "../tlc-differences.md"
+    },
+    {
+      "page": "docs/user/compatibility.md",
+      "link": "../decisions/0002-oracle-pinning.md"
+    },
+    {
+      "page": "docs/user/dfid.md",
+      "link": "../../crates/dive-check/tests/fixtures/dfid/README.md"
+    },
+    {
+      "page": "docs/user/dfid.md",
+      "link": "../decisions/0021-native-dfid.md"
+    },
+    {
+      "page": "docs/user/dfid.md",
+      "link": "reports-and-errors.md"
+    },
+    {
+      "page": "docs/user/front-end.md",
+      "link": "../frontend-campaign.md"
+    },
+    {
+      "page": "docs/user/getting-started.md",
+      "link": "reports-and-errors.md"
+    },
+    {
+      "page": "docs/user/getting-started.md",
+      "link": "traces.md"
+    },
+    {
+      "page": "docs/user/pluscal.md",
+      "link": "../pluscal-normalization.md"
+    },
+    {
+      "page": "docs/user/pluscal.md",
+      "link": "../pluscal-processes.md"
+    },
+    {
+      "page": "docs/user/pluscal.md",
+      "link": "../pluscal-multiple-processes.md"
+    },
+    {
+      "page": "docs/user/pluscal.md",
+      "link": "../pluscal-fairness.md"
+    },
+    {
+      "page": "docs/user/reports-and-errors.md",
+      "link": "../sprint-status.md"
+    },
+    {
+      "page": "docs/user/reports-and-errors.md",
+      "link": "../conformance.md"
+    },
+    {
+      "page": "docs/user/rust-api.md",
+      "link": "../../crates/dive-api/src/lib.rs"
+    },
+    {
+      "page": "docs/user/rust-api.md",
+      "link": "traces.md"
+    },
+    {
+      "page": "docs/user/rust-api.md",
+      "link": "temporal.md"
+    },
+    {
+      "page": "docs/user/simulation.md",
+      "link": "../../crates/dive-sim/README.md"
+    },
+    {
+      "page": "docs/user/simulation.md",
+      "link": "reports-and-errors.md"
+    },
+    {
+      "page": "docs/user/storage-recovery.md",
+      "link": "../frontier-storage.md"
+    },
+    {
+      "page": "docs/user/storage-recovery.md",
+      "link": "../predecessor-storage.md"
+    },
+    {
+      "page": "docs/user/storage-recovery.md",
+      "link": "../native-checkpoint.md"
+    },
+    {
+      "page": "docs/user/storage-recovery.md",
+      "link": "../native-checkpoint.md"
+    },
+    {
+      "page": "docs/user/storage-recovery.md",
+      "link": "../../conformance/probes/native-checkpoint-keys/README.md"
+    },
+    {
+      "page": "docs/user/temporal.md",
+      "link": "../temporal-api.md"
+    },
+    {
+      "page": "docs/user/temporal.md",
+      "link": "../tlc-final-api.md"
+    },
+    {
+      "page": "docs/user/temporal.md",
+      "link": "../temporal-execution-api.md"
+    },
+    {
+      "page": "docs/user/traces.md",
+      "link": "../../crates/dive-api/src/trace.rs"
+    },
+    {
+      "page": "docs/user/traces.md",
+      "link": "../temporal-api.md"
+    },
+    {
+      "page": "docs/user/traces.md",
+      "link": "../decisions/0016-trace-validator-independence.md"
+    }
+  ]
+}

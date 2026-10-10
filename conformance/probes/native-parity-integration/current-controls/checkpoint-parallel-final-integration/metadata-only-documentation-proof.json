@@ -1,0 +1,6 @@
+{
+  "runtime_source_commit": "6a75d8543c710c7457448f84983917dd490f54ed",
+  "verified_unchanged_rust_and_cargo_inputs": 608,
+  "post_doc_source_controls_sha256": "45e9ad3179b85cfeeb8f37801a350db884d76252faaac0088f5a4df16eca08e8",
+  "scope": "User guides/current status updated and historical records restored without changing frozen Rust or Cargo inputs. Earlier producer results retained separately."
+}

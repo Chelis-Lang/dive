@@ -5,8 +5,8 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
-    "crates/dive-check/src/parallel.rs": "75efa7fd0967fcc9f9177be4e7849a0ec3f1dac49f06ad258ebce8bf5e725f54",
+    "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
+    "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
@@ -15,5 +15,5 @@
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
   "historical_execution_slice": "execution",
-  "current_integration_scope": "Focused current-source admission/final API/CLI/worker contracts; all original producer outcomes and the72f8 full-refusal census retain their separate immutable source histories; no wider parity certification."
+  "current_integration_scope": "Current integrity after parallel checkpoint integration; original26 execution observations retain original source archives and earn no new runtime credit."
 }

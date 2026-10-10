@@ -1,0 +1,17 @@
+{
+  "scope": "current combined source; frozen original delivery retained separately",
+  "source_sha256": {
+    "crates/dive-api/src/check.rs": "b1dd8564ad5ea95f2284618040d81cbbb29f83ffc25116ab70fe5712dea7124a",
+    "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+    "crates/dive-check/src/checkpoint.rs": "d2c6851f55beff3397bd084107683c9d2c5fd75c980f107ecb1250fdbaafa728",
+    "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
+    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-cli/src/main.rs": "0d04f84cb4e7658676ee4ffebcebcdc175240a9c43684c32c8f891dabd422d33",
+    "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
+    "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
+    "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
+    "scripts/check-native-checkpoint.py": "1dc7e25decea6795de0534ce01eb9c6b15f6ba14d9b6d34a002a5551df72a4e6",
+    "crates/dive-cli/tests/cli.rs": "46f1b028780bd7589f79600564dec41e08697bcbac929d249d6c4aae92f87103"
+  },
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification; pure configured VIEW/safety symmetry native recovery, resolved context-alias admission"
+}

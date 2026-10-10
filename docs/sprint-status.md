@@ -15,6 +15,10 @@ and PlusCal. The [feature ledger](tlc-parity.md) inventories 37 semantic
 families and their source surfaces. Its implemented/partial labels and current
 model counts do not certify complete families or establish an overall percent.
 
+Historical incremental notes retain the scope of their original sources.
+Use the [user manual](user/README.md) and the current guides for executable
+functionality; smaller studies do not replace the preserved standard baseline.
+
 ## Current delivered increments, 2026-10-10
 
 Since the preserved standard report below, the verified increments now include:
@@ -98,8 +102,11 @@ it supplies cross-platform evidence, not a substitute for their validation.
 - **M5 storage/IR:** bounded predecessor spill and pure safety native checkpoints
   are implemented as explicit options. General visited/candidate/value/graph
   spill, temporal/runtime checkpoint recovery and distribution remain pending.
-  Current checkpoints recover saved discoveries/frontiers, run inline, and
-  explicitly refuse unproved interactions.
+  Current checkpoints recover saved discoveries/frontiers through the deterministic
+  worker pool, including configured pure VIEW and safety symmetry. Temporal,
+  runtime-effect and transient-spill interactions remain explicit refusals.
+  [Current integrated verification](native-checkpoint.md#current-integrated-verification)
+  retains the frozen source, comparison executables and complete selected controls.
 - **M5 performance:** the benchmark runner is implemented; the recorded
   smoke timings come from a busy machine and establish correctness and
   reproducibility of measurement, not achievement of the performance

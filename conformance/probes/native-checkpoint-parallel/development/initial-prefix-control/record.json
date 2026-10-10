@@ -1,0 +1,10 @@
+{
+  "source_sha256": {
+    "crates/dive-check/src/checkpoint.rs": "544340435d7e6076490e5e557971b676fb7d1e3baf6ecc35169bc880559928c4",
+    "crates/dive-check/src/engine.rs": "5bb4277ed1e599e07fc605bbf35fbfc9977147108e9ac776eeb16cc467542312",
+    "crates/dive-check/src/parallel.rs": "1fcc2bddf8756fb5c79273a40adc613e1731fdde62a68ab2cbf60c28fafaa612",
+    "crates/dive-check/tests/native_checkpoint.rs": "0a9dc7034f429478925a053728a877a8715625f22a0560c15182515454adf3cf"
+  },
+  "failure": "New assertion incorrectly required no retained prefix trace for a native counter resource stop; existing inline engine retains the expanded-state path. Verdict/count/queue/depth equality assertions passed before it. Preserve resource-stop witness evidence separately from an invariant certificate.",
+  "test_binary_sha256": "a67d2cf1ee64a508e672e36afaa2f164ed4f3db2c351f2103a551501ba8daf4b"
+}

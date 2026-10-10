@@ -68,7 +68,10 @@ fn actual_resume_matches_uninterrupted_and_tlc_reset_is_explicit() {
                         pause.receipt.as_ref().expect("committed").status,
                         "paused-incomplete"
                     );
-                    assert_eq!(pause.check.workers.used, 1);
+                    assert_eq!(
+                        pause.check.workers.used,
+                        if boundary == 0 { 1 } else { width }
+                    );
                     assert!(pause.check.counterexample.is_none());
                     let resume = checkpoint::check(
                         &ir,
@@ -415,6 +418,186 @@ fn retained_near_maximum_generated_counts_refuse_before_continuation() {
             "recovered"
         );
         assert_eq!(result.check.output, Vec::<String>::new());
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+/// Reference inline execution and each speculative width must stop at the same
+/// logical successor, even when the remaining count spans expansion units.
+fn verify_native_counter_stopping_prefix(profile: bool, store: dive_store::StoreMode) {
+    use sha2::{Digest, Sha256};
+    let (ir, cfg) = model(
+        "---- MODULE Checkpoint ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..3\nA == x<12 /\\ x'=x+4\nB == x<12 /\\ x'=x+5\nNext == A \\/ B\n====\n",
+        "INIT Init\nNEXT Next\nCHECK_DEADLOCK FALSE\n",
+    );
+    let dir = directory();
+    let mut opts = if profile {
+        CheckOptions::tlc(0, 7)
+    } else {
+        CheckOptions::dive(7)
+    };
+    opts.store = store;
+    opts.sequential = true;
+    let request = checkpoint::Request {
+        path: dir.join(format!("{profile}-{store:?}.cp")),
+        action: checkpoint::Action::PauseAfterLevels(1),
+        counters: checkpoint::Counters::Retain,
+        config_source_sha256: None,
+    };
+    let pause = checkpoint::check(&ir, &cfg, &opts, &request);
+    assert!(pause.receipt.is_some(), "{:?}", pause.check);
+    let original: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&request.path).expect("snapshot")[48..])
+            .expect("payload");
+    for remaining in [0, 1, 2, 3, 5, 7] {
+        let mut value = original.clone();
+        value["generated"] = serde_json::json!(checkpoint::MAX_COUNTER - remaining);
+        let payload = serde_json::to_vec(&value).expect("serialize");
+        let mut bytes = b"DIVECP01".to_vec();
+        bytes.extend(
+            u64::try_from(payload.len())
+                .expect("payload length")
+                .to_le_bytes(),
+        );
+        bytes.extend(Sha256::digest(&payload));
+        bytes.extend(payload);
+        let recover = checkpoint::Request {
+            path: dir.join(format!("{profile}-{store:?}-{remaining}.cp")),
+            action: checkpoint::Action::Recover,
+            ..request.clone()
+        };
+        std::fs::write(&recover.path, bytes).expect("coherent checksum");
+        let reference = checkpoint::check(&ir, &cfg, &opts, &recover);
+        assert!(matches!(
+            reference.check.verdict,
+            Verdict::ResourceLimit { .. }
+        ));
+        assert_eq!(
+            reference.check.stats.as_ref().expect("stats").generated,
+            checkpoint::MAX_COUNTER
+        );
+        for width in [1, 4, 8] {
+            for chaos in [None, Some(19)] {
+                let mut parallel = opts.clone();
+                parallel.sequential = false;
+                parallel.workers = width;
+                parallel.chaos = chaos;
+                let resumed = checkpoint::check(&ir, &cfg, &parallel, &recover);
+                assert_eq!(resumed.check.verdict, reference.check.verdict);
+                assert_eq!(
+                    resumed.check.stats, reference.check.stats,
+                    "remaining{remaining},width{width},chaos{chaos:?}"
+                );
+                assert_eq!(resumed.check.workers.used, width);
+                assert!(!resumed.check.workers.sequential);
+                let actual = resumed
+                    .check
+                    .counterexample
+                    .as_ref()
+                    .expect("retained resource-stop prefix");
+                let expected = reference
+                    .check
+                    .counterexample
+                    .as_ref()
+                    .expect("inline prefix");
+                assert_eq!(actual.states.len(), expected.states.len());
+                for (a, b) in actual.states.iter().zip(&expected.states) {
+                    assert_eq!(a.values, b.values);
+                    assert_eq!(a.action, b.action);
+                }
+                assert_eq!(
+                    resumed.receipt.as_ref().expect("admitted").status,
+                    "recovered"
+                );
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}
+
+#[test]
+fn native_counter_prefix_fingerprint_dive() {
+    verify_native_counter_stopping_prefix(false, dive_store::StoreMode::Fingerprint);
+}
+
+#[test]
+fn native_counter_prefix_fingerprint_tlc() {
+    verify_native_counter_stopping_prefix(true, dive_store::StoreMode::Fingerprint);
+}
+
+#[test]
+fn native_counter_prefix_exact_dive() {
+    verify_native_counter_stopping_prefix(false, dive_store::StoreMode::Exact);
+}
+
+#[test]
+fn native_counter_prefix_exact_tlc() {
+    verify_native_counter_stopping_prefix(true, dive_store::StoreMode::Exact);
+}
+
+#[test]
+fn recovery_can_change_pool_width_and_resume_an_actual_later_level() {
+    let (ir, cfg) = model(
+        "---- MODULE Checkpoint ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..2\nA == x<20 /\\ x'=x+3\nB == x<20 /\\ x'=x+4\nNext == A \\/ B\nInv == x<17\n====\n",
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n",
+    );
+    let dir = directory();
+    for profile in [false, true] {
+        for store in [
+            dive_store::StoreMode::Fingerprint,
+            dive_store::StoreMode::Exact,
+        ] {
+            let mut opts = if profile {
+                CheckOptions::tlc(0, 7)
+            } else {
+                CheckOptions::dive(7)
+            };
+            opts.store = store;
+            opts.sequential = true;
+            let reference = dive_check::check(&ir, &cfg, &opts);
+            assert!(matches!(
+                reference.verdict,
+                Verdict::InvariantViolated { .. }
+            ));
+            for pause_width in [1, 4, 8] {
+                opts.sequential = false;
+                opts.workers = pause_width;
+                opts.chaos = Some(31);
+                let request = checkpoint::Request {
+                    path: dir.join(format!("{profile}-{store:?}-{pause_width}.cp")),
+                    action: checkpoint::Action::PauseAfterLevels(2),
+                    counters: checkpoint::Counters::Retain,
+                    config_source_sha256: None,
+                };
+                let pause = checkpoint::check(&ir, &cfg, &opts, &request);
+                assert_eq!(pause.receipt.as_ref().expect("committed").next_level, 3);
+                assert_eq!(pause.check.workers.used, pause_width);
+                for resume_width in [1, 4, 8] {
+                    opts.workers = resume_width;
+                    opts.chaos = Some(19);
+                    let resumed = checkpoint::check(
+                        &ir,
+                        &cfg,
+                        &opts,
+                        &checkpoint::Request {
+                            action: checkpoint::Action::Recover,
+                            ..request.clone()
+                        },
+                    );
+                    assert_eq!(resumed.check.workers.used, resume_width);
+                    assert!(!resumed.check.workers.sequential);
+                    assert_eq!(resumed.check.verdict, reference.verdict);
+                    assert_eq!(resumed.check.stats, reference.stats);
+                    let actual = resumed.check.counterexample.as_ref().expect("actual");
+                    let expected = reference.counterexample.as_ref().expect("reference");
+                    assert_eq!(actual.states.len(), expected.states.len());
+                    for (a, b) in actual.states.iter().zip(&expected.states) {
+                        assert_eq!(a.values, b.values);
+                        assert_eq!(a.action, b.action);
+                    }
+                }
+            }
+        }
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
