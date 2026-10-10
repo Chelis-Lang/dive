@@ -734,11 +734,17 @@ LiveProperty == []<>(TLCGet("level") = 0)
         ] {
             let mut model = dive_model::bind(ir.clone(), &cfg, &options).expect("model");
             let p = ir.root_def("P").expect("P");
-            let mut pred = dive_model::Pred::new(ir.def(p).body, model.evaluator.scope(p).unwrap());
+            let mut pred = dive_model::Pred::new(
+                ir.def(p).body,
+                model.evaluator.scope(p).expect("valid P scope"),
+            );
             match case {
                 "PrintProperty" | "LiveProperty" => {
                     let d = ir.root_def(case).expect("property");
-                    pred = dive_model::Pred::new(ir.def(d).body, model.evaluator.scope(d).unwrap());
+                    pred = dive_model::Pred::new(
+                        ir.def(d).body,
+                        model.evaluator.scope(d).expect("valid property scope"),
+                    );
                 }
                 "opaque" => {
                     let d = ir.root_def("Capture").expect("capture");
