@@ -1,0 +1,1 @@
+The first metadata merge concatenated changed feature records and duplicated four stable IDs. The ledger checker rejected it. The frozen Rust inputs passed all 847 tests and the other workspace gates. After completion, metadata was merged by stable family ID; assertions, selections, source behavior and archived observations were unchanged.

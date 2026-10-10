@@ -4,7 +4,7 @@
   "scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
   "historical_slices_sha256": "78fc757ed4f70042b43a50cb22cb34c1cb4dbe77fe27c742416871c5b33cc302",
   "source_sha256": {
-    "conformance/parity-features.json": "8e53fdc7a2e3b263a008ca7b530be1ea882719628b456da755178e9cb483bb17",
+    "conformance/parity-features.json": "a80ac943ed57e7af584a5db2cd5ac75f98b9e624b366ebcfbb0925201cc77fa1",
     "conformance/probes/native-checkpoint/current-integration-source.json": "e4e562ccb914c44b1e8aace54ed10413fba94bf198cd416e345c988947549aa4",
     "conformance/probes/predecessor-spill/current-integration-source.json": "c59562cfd64b747aa4cc145b7d3eae8d0f28d0305d82cdff83e494dc0b51c101",
     "conformance/probes/public-ir-admission/before-fixture-repair.rs": "632d30dc753522550713cef2f21a2c938ad898e9fb4ebea39dbf855335bb03ac",
