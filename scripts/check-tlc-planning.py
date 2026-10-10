@@ -1,5 +1,6 @@
 """Verify complete pinned planning selections, raw captures and native source hashes."""
 import hashlib
+import gzip
 import json
 from pathlib import Path
 
@@ -83,6 +84,15 @@ def main():
     tableau = ROOT / 'conformance/probes/tlc-tableau/source-matrix.json'
     assert combined['historical_tableau_matrix_sha256'] == sha(tableau)
     assert set(combined['source_sha256']) == set(current['source_sha256']) | set(json.loads(tableau.read_text())['source_sha256']) | set(combined['integration_extra_sources'])
+    assert len(combined['historical_integrations']) >= 1
+    for snapshot in combined['historical_integrations']:
+        history_path = ROOT / snapshot['matrix_path']
+        assert sha(history_path) == snapshot['matrix_sha256']
+        historical = json.loads(history_path.read_text())
+        archive = ROOT / snapshot['source_archive']
+        for path, digest in historical['source_sha256'].items():
+            data = gzip.decompress((archive / (path + '.gz')).read_bytes())
+            assert hashlib.sha256(data).hexdigest() == digest, path
     for path, digest in combined['source_sha256'].items():
         assert sha(ROOT / path) == digest, path
     print('verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models')

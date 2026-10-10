@@ -1378,3 +1378,6 @@ Original native observations and source are retained in
 remaining limits. Bare numeric IDs do not carry provenance, and opaque deferred
 Rust bindings refuse rather than call user code to establish their shape.
 F-035 remains partial; this is not a full Rust API or IR certification.
+
+
+Temporal predicate integration (#149) fixes a native limitation: TLC's liveness evaluator skips an action body on a subscript stutter, while ordinary action evaluation checks the body first. Native shared temporal atoms and independent angle/box/fairness-occurrence replay now follow the liveness order. The minimal division-by-zero example and all 36 direct pinned controls are in `conformance/probes/temporal-action-order/README.md`. Broader conversion error precedence and strict liveness integration remain pending; this is a TLC-matching fix, not a new default divergence.
