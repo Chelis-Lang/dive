@@ -1,0 +1,1729 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "2f43179eedb98949031d9d7e10e141cc50bada38a98d7ad493afaf82d025e0e9",
+  "script_sha256": "503e7ad01d7f925e3a81171ed00b33c1609e13d5c0141886521cc448d453f9dd",
+  "native_sha256": "f554476fb66f24a910480ebfa9586839c2905cc4c22d6cc58edb1e580f10cbe6",
+  "cst_dumper_sha256": "56bb3bc5488d072d1b7fcee42a6f24d068b71ff04da49a4e4237e6e16b20b143",
+  "selected_artifacts": 8,
+  "artifact_summary": {
+    "native-sany-match": 8
+  },
+  "model_summary": {
+    "finite-model-match": 12
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "MacroScope_C_qualified_actual",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "0d98da1d9637d255e46b4a59ad50f12e0de03a9f65921c6a23127b92879e061e",
+      "artifact": "MacroScope_C_qualified_actual.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.native.stdout.gz",
+        "stdout_sha256": "b00771aee0db34a55fffc0eac0e7bff121b41beec98f121341bb486c3960f3c1",
+        "stderr": "MacroScope_C_qualified_actual.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.native-sany.stdout.gz",
+        "stdout_sha256": "600286ac4b8b131afaf866e44f6d99c8567aaca8cdb43a9e5a145c80d60dda19",
+        "stderr": "MacroScope_C_qualified_actual.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "b55ddaf2299ed1121319f48b45c0764c04d193a3a01679b0889250561c696779"
+    },
+    {
+      "id": "MacroScope_C_record_selector",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "69f50858d450dc9fad36e1248f63d422b295d2245d3bc9c127b4fca89671a47e",
+      "artifact": "MacroScope_C_record_selector.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.native.stdout.gz",
+        "stdout_sha256": "f217c8bb278792df9f6a4953d82760fa174d71a93702eb39a4711c6ce1a1a5b2",
+        "stderr": "MacroScope_C_record_selector.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.native-sany.stdout.gz",
+        "stdout_sha256": "2cff96fd1d217e721a0576da0595a0931e99363c70b22d275a82c9839569ab20",
+        "stderr": "MacroScope_C_record_selector.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "9e875cc8c939074d896eee999b538890f42fef29a1646f88734d6789e217a970"
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "c6c284f2a29388b53e805d88ae2c16676026403cd216310c37045b70b9f70cb5",
+      "artifact": "MacroScope_C_simultaneous_defined.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.native.stdout.gz",
+        "stdout_sha256": "443697c1790c16a381ae8ef1cc0a537857ba74ae8713e8025b021e1f3364b7cf",
+        "stderr": "MacroScope_C_simultaneous_defined.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.native-sany.stdout.gz",
+        "stdout_sha256": "2f8591b5612a7d282fc851b398f2c95ba899cc0f778055b05c513f81a537d9af",
+        "stderr": "MacroScope_C_simultaneous_defined.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f246f495970c2c0dedcc0738e24721e5df7f037e13d3106a4d914d69017ed746"
+    },
+    {
+      "id": "MacroScope_C_with_shadow",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "f03e0fb6d11556b5474c83f186a068bbee10047008ae41968afd3ceedbfc95bb",
+      "artifact": "MacroScope_C_with_shadow.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.native.stdout.gz",
+        "stdout_sha256": "fd6e7f4ffe0ad26516d1c078d6eb2a6b9243e2d836a6312f2bbae9f3b1b7c16c",
+        "stderr": "MacroScope_C_with_shadow.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.native-sany.stdout.gz",
+        "stdout_sha256": "243a9045aa8ec851f8ee62a925c87e27e8d0ee7981362b37775b794a2070e83e",
+        "stderr": "MacroScope_C_with_shadow.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "83c6f9340157e50891391a6df51083e366fc5697c5bf754a23a86e5d0a729eb2"
+    },
+    {
+      "id": "MacroScope_P_qualified_actual",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "b460b868f769210ff332ec5051c40b8dc55b9a117ed0773dc57f04ae3338755a",
+      "artifact": "MacroScope_P_qualified_actual.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.native.stdout.gz",
+        "stdout_sha256": "194d42f7c868b5bfe91a470df6a2dc077e73d76540fae238683b2c2ef701b5a9",
+        "stderr": "MacroScope_P_qualified_actual.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.native-sany.stdout.gz",
+        "stdout_sha256": "bf6ee4d50207cf037280e6e14deed98d78070ffb6b146dadea99ecc0e6960ed8",
+        "stderr": "MacroScope_P_qualified_actual.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "03a5da5057177d5ad8812308eb3102259aa4e56ef6bfaa75b60c14345abc02e3"
+    },
+    {
+      "id": "MacroScope_P_record_selector",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "cceb962f7c00dccec1c36264c081a49a6fc87d6a25c371492b3a0a6d33856cfb",
+      "artifact": "MacroScope_P_record_selector.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.native.stdout.gz",
+        "stdout_sha256": "c2ed134c1e4aaeb4ab206f1f83ca7bf12896a46e3720ac5154f224a7313120c6",
+        "stderr": "MacroScope_P_record_selector.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.native-sany.stdout.gz",
+        "stdout_sha256": "741574a524bb9f92746e14c8efebb9136591879150ca8ff6a4f22c489ec13d2f",
+        "stderr": "MacroScope_P_record_selector.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "0430391b221a2d78f7b1ed142e5055e7c040a649cdbd8ad392316b31feb80e05"
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "72d9e6694befec778fdd57efcaa700dcb544ca094e04739d030d10a81846a039",
+      "artifact": "MacroScope_P_simultaneous_defined.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.native.stdout.gz",
+        "stdout_sha256": "e965f31f0fa98b4c4a23866ee22f3ff238ac5f69e1b9c8a505e3a2a7248b95af",
+        "stderr": "MacroScope_P_simultaneous_defined.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.native-sany.stdout.gz",
+        "stdout_sha256": "426a6b11b865c21ed9e7d1857ac82b26ac07ccd3c356f313d6ff55cac23381d3",
+        "stderr": "MacroScope_P_simultaneous_defined.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "e6d8f52076efc482347e847fa216badbc5acd64570c62f9de87cc35c8d38cb6d"
+    },
+    {
+      "id": "MacroScope_P_with_shadow",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "6a42a5a792fae8cb540c4e5440a6c53f04bd442db5ea13cb3cb9777dd396b76d",
+      "artifact": "MacroScope_P_with_shadow.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.native.stdout.gz",
+        "stdout_sha256": "92b4db898c2216e043e1fb88b83fb056bd3bfb0228cd0e40dae479e87c98c378",
+        "stderr": "MacroScope_P_with_shadow.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.native-sany.stdout.gz",
+        "stdout_sha256": "6d378b4e1f17a629d61bb397a1bdce091b313190d2d57351c69cf072655884a6",
+        "stderr": "MacroScope_P_with_shadow.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f6f334d528bdb37ea660624fc28cd6f7477cd6fd8dca191c0f0ee0ff25ab8078"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "MacroScope_C_qualified_actual.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.complete.tlc.stdout.gz",
+        "stdout_sha256": "a4030d5d1dfe10fbd43a2dba7192033b13046efa373a4c59e4ff07eaa4f74b1c",
+        "stderr": "MacroScope_C_qualified_actual.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_qualified_actual.complete.check.stdout.gz",
+        "stdout_sha256": "929fdc01af8d7cab2ce4b9ecb7a64fb9975eb40b16090a8578478fbc5fa79193",
+        "stderr": "MacroScope_C_qualified_actual.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "929fdc01af8d7cab2ce4b9ecb7a64fb9975eb40b16090a8578478fbc5fa79193",
+            "stderr": "MacroScope_C_qualified_actual.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "33d48c6f7122821a1f59da7c73fa3d834c198a72030a5bcdb27f600068cdb764",
+            "stderr": "MacroScope_C_qualified_actual.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "9c750381efcdaa148c8f96916897021e81755f0632536db65283cfd36abb69ef",
+            "stderr": "MacroScope_C_qualified_actual.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "b1a456ccb11524ac60e105707a5faa5ba7f29a176351744cf58e18e329dbe214",
+            "stderr": "MacroScope_C_qualified_actual.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "320ba79df369c33ede48f5551dab0141230789d8ff362e5bd6bb6cf9b3012f7b",
+            "stderr": "MacroScope_C_qualified_actual.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_qualified_actual.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "f454f8285198e32d068cd77101760ecb40c060cc1f3bd5da22d30851cfd02f3b",
+            "stderr": "MacroScope_C_qualified_actual.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_qualified_actual.complete.model.tla",
+      "source_sha256": "0d98da1d9637d255e46b4a59ad50f12e0de03a9f65921c6a23127b92879e061e",
+      "config": "MacroScope_C_qualified_actual.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_C_record_selector.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.complete.tlc.stdout.gz",
+        "stdout_sha256": "3d243c4bb7de1d8de1562d5a75a0d62c3e751c2ec2bae651c8105f9d88b57a9a",
+        "stderr": "MacroScope_C_record_selector.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_record_selector.complete.check.stdout.gz",
+        "stdout_sha256": "cf59cb893d03cd5b780080d827d86fa9095f4e242207a529166884caf33a42ed",
+        "stderr": "MacroScope_C_record_selector.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "a6ea5208b3f641c9095f30d1277492145b15d3e63fd66fb6b0de44e396bcb65a",
+            "stderr": "MacroScope_C_record_selector.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "6e48883b7a7c738db703fde21ec0fd65a7c58815f8422fd9346296fa1088ceec",
+            "stderr": "MacroScope_C_record_selector.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "6edcb537ffdf2d0911b1d237b6172fa862a5b1cdbcbe9debab013938b3caf608",
+            "stderr": "MacroScope_C_record_selector.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "b174c9951979e090b0e31cba1be93fddeb1ae766f3e908f6c2a908cdf29db32a",
+            "stderr": "MacroScope_C_record_selector.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "2e88f0c01916ce15659e419d534c522c0bb793a1eac2507d8ccc23eedcbc565f",
+            "stderr": "MacroScope_C_record_selector.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_record_selector.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "7711f80ae235757c4a79c3709a201afde39cdf9e68b132464ed3cbdfde583f11",
+            "stderr": "MacroScope_C_record_selector.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_record_selector.complete.model.tla",
+      "source_sha256": "69f50858d450dc9fad36e1248f63d422b295d2245d3bc9c127b4fca89671a47e",
+      "config": "MacroScope_C_record_selector.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.complete.tlc.stdout.gz",
+        "stdout_sha256": "6d8c32ddfde4dfa073532f8f5c78d0e61e31c5380259f2a7731884d1cb5a8aaa",
+        "stderr": "MacroScope_C_simultaneous_defined.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_simultaneous_defined.complete.check.stdout.gz",
+        "stdout_sha256": "8074281adaf4dbf97cdd375fd566921288139d4660eb6ac08c21cd2d450dc6b9",
+        "stderr": "MacroScope_C_simultaneous_defined.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "7734de1b55f94a2e1161a2528d8e3ea73cf381b2382f4ae640143a5afd2f2e4f",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "b95ade67433384c9cfd60c9878dc0c3e18599ce19c4c14a7f7612ab19aec5218",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "80e6c4f25ac8dc1e323511b1b83fbb8031c47cb86d2e3d1940dcc3083120a7ac",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "055d035b905022092072d4bbc0f8520ee9463669b8c230d79f9d00c728905ee9",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "bbd9b0e608b8b32ee7404d136b053d95896b05a77c8f21239e6d99bff0606d70",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d661c80600cb5eb7945af133f88ad1bcd46007d523bab8b0a748771601b15520",
+            "stderr": "MacroScope_C_simultaneous_defined.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_simultaneous_defined.complete.model.tla",
+      "source_sha256": "c6c284f2a29388b53e805d88ae2c16676026403cd216310c37045b70b9f70cb5",
+      "config": "MacroScope_C_simultaneous_defined.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroScope_C_simultaneous_defined.violation.tlc.stdout.gz",
+        "stdout_sha256": "a9a117f8c553ab2f8061e37ba87d14887e24d64282a4ab70126b1ea697a17436",
+        "stderr": "MacroScope_C_simultaneous_defined.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroScope_C_simultaneous_defined.violation.check.stdout.gz",
+        "stdout_sha256": "c381424beb84296a94f921a6e6a4cf2445740852a1c86f6d7493d8b4e6278854",
+        "stderr": "MacroScope_C_simultaneous_defined.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "c573a1c228aff1f4b83c3eb4ef76207f7ad9093a2f35edcf56aaff76db139b59",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "cea156f2485cb6c380a1b8aa794d1b3c1d60dcadc5e967616c2abc3fe79babb0",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "f6a24f3ee339fe950d25dd02e0ea3caeace1b6e8033b72e591f60c20ca2b4a2f",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "54ddcd7bde20d29a9c3adabd5ba6ba3838206bdf983ade548e9c28a036c9af09",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "c332cc627551e12cc9835e2e63046f072631e7ceb4d270c51a8b04b6495bb303",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_simultaneous_defined.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "24f9d23902a167f9ce733247668c397d1d2ce8fd0161a5da83ad0ec5572db82f",
+            "stderr": "MacroScope_C_simultaneous_defined.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_simultaneous_defined.violation.model.tla",
+      "source_sha256": "6d1d4ab74a93627f0a6d645afa1e603f0c4676daef8281aa4ee4cf40aa08b614",
+      "config": "MacroScope_C_simultaneous_defined.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroScope_C_with_shadow.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.complete.tlc.stdout.gz",
+        "stdout_sha256": "4330f1d02e3de2f31ca7a1a81441fd1653dc72dc6d0be3fdb4afb5ce394b089a",
+        "stderr": "MacroScope_C_with_shadow.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_C_with_shadow.complete.check.stdout.gz",
+        "stdout_sha256": "6b146b880e932be0da41ff4037f54b0ee21d7efb3c3f922f578e2d47ba22d6ce",
+        "stderr": "MacroScope_C_with_shadow.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "c8e4feb4c4002c5a3d5d2c137c04b0f65d29b7eba8c503c4e93eefeac41717f3",
+            "stderr": "MacroScope_C_with_shadow.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "13cf99789a9666058347f19261cd2cf5e512813796bc75566f61d4a62c7bfb11",
+            "stderr": "MacroScope_C_with_shadow.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "a145e42c3af2a634d437683b3af6f676f4c2f0ce2bdba6fe34af0b3eb0c21030",
+            "stderr": "MacroScope_C_with_shadow.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "5a54b81bbedc7ca5dee24c95399ff0463486d343fb5a3e7c6b63b8e5e297f107",
+            "stderr": "MacroScope_C_with_shadow.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "bd255f53c9d507f7a00e6b41bb6111260e908f6f62f8880f491c2946947ff0d2",
+            "stderr": "MacroScope_C_with_shadow.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "36b1cfbaed0be099abe8aed8180d4a3533256571b939ff18bb2d72c79c133617",
+            "stderr": "MacroScope_C_with_shadow.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_with_shadow.complete.model.tla",
+      "source_sha256": "f03e0fb6d11556b5474c83f186a068bbee10047008ae41968afd3ceedbfc95bb",
+      "config": "MacroScope_C_with_shadow.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_C_with_shadow.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroScope_C_with_shadow.violation.tlc.stdout.gz",
+        "stdout_sha256": "6c948b45eafe17fac22a03e30597c00dcd6f356478e54eba1e2b760f938b4aff",
+        "stderr": "MacroScope_C_with_shadow.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroScope_C_with_shadow.violation.check.stdout.gz",
+        "stdout_sha256": "352f32728c993270824afda27f773a42ea41b24bf9deb6b1d1747300536b1283",
+        "stderr": "MacroScope_C_with_shadow.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_C_with_shadow.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "MacroScope_C_with_shadow.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_with_shadow.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroScope_C_with_shadow.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_with_shadow.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroScope_C_with_shadow.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_with_shadow.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroScope_C_with_shadow.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_C_with_shadow.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroScope_C_with_shadow.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "341113069dfbf5132354a7f003587b9984161e81bb96c4642bb6decd56acadff",
+            "stderr": "MacroScope_C_with_shadow.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "a03dbbd0de8abd8724a67227157ebe180246522ece9cd543adcc81090da22fb3",
+            "stderr": "MacroScope_C_with_shadow.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "3c9a831df1e10a333c4eb5d135bfa7f10513ffabb79ac4d3efb40a566925fa64",
+            "stderr": "MacroScope_C_with_shadow.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "712af75c861cf8bec1c76bc3ca4a1dfee02e01e5117ce00c897d1bbc960e0ea2",
+            "stderr": "MacroScope_C_with_shadow.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "6bc4d8abf3b50ad0c49e289616668680f6d450d7cccbbf66b92aa079527b6573",
+            "stderr": "MacroScope_C_with_shadow.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_C_with_shadow.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "486cbeedf4bca4bd3c3def3d6bff467167417a408e3981fdd2ce477fd9b93266",
+            "stderr": "MacroScope_C_with_shadow.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_C_with_shadow.violation.model.tla",
+      "source_sha256": "cc046a36c8fe5fe591b46029ca507b9e52ca2a410499ab3390b4500955ca5671",
+      "config": "MacroScope_C_with_shadow.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroScope_P_qualified_actual.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.complete.tlc.stdout.gz",
+        "stdout_sha256": "efab7a02bf0a2ee071ea977cd96e0b057021907ed1daed2b417740679f3cc05e",
+        "stderr": "MacroScope_P_qualified_actual.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_qualified_actual.complete.check.stdout.gz",
+        "stdout_sha256": "2171d1364aba6dca4105b6651ece14ec599317ba32b046294a2b437aaed7b29f",
+        "stderr": "MacroScope_P_qualified_actual.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "6439a7f5a82c291ac5389ce18566858e0f6c9dc57d3041b16d5d037337ed89e0",
+            "stderr": "MacroScope_P_qualified_actual.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "fe2ab71a0f179be7b07ed0f4eb0c4a8e4026a995995e9bde4a74dd40f0d52bed",
+            "stderr": "MacroScope_P_qualified_actual.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "307cd194e06f5e33c86f4b4972769165e72682f0880882d47a8c8cb2dc887fd6",
+            "stderr": "MacroScope_P_qualified_actual.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "b4225573c3fb73c6915ba23278422e5e8961b21849258d3cb74445ca8287173c",
+            "stderr": "MacroScope_P_qualified_actual.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "995683b8072b535f810f98f2e53555910c6c61aa532f6cbab19dc80c81311532",
+            "stderr": "MacroScope_P_qualified_actual.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_qualified_actual.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "404e9c51fab5eab4f4e05f8bab58520e36aa91ddaf77ca6174408fac69e85df6",
+            "stderr": "MacroScope_P_qualified_actual.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_qualified_actual.complete.model.tla",
+      "source_sha256": "b460b868f769210ff332ec5051c40b8dc55b9a117ed0773dc57f04ae3338755a",
+      "config": "MacroScope_P_qualified_actual.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_P_record_selector.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.complete.tlc.stdout.gz",
+        "stdout_sha256": "9c3a9d0f1a7764e402b4b25ab043a0ebd2411fd17a446248aa9f90a740a86fda",
+        "stderr": "MacroScope_P_record_selector.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_record_selector.complete.check.stdout.gz",
+        "stdout_sha256": "a29fe6b766405ba117235524d31c5284a69496b5ad392a0d711cba8349e015c6",
+        "stderr": "MacroScope_P_record_selector.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "03f1cd585a41bb95cae2d0a9751bf844b64ea31bd83371da5b6cc34282d8fb11",
+            "stderr": "MacroScope_P_record_selector.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "f9202c131a1ffea17f9f834c3891259f8a69388364e68f3ad79df0513674c10f",
+            "stderr": "MacroScope_P_record_selector.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "46df9dd0d148e46d0d8714ac21964612134ebe76c16486e205b4058ce96e2e61",
+            "stderr": "MacroScope_P_record_selector.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "6cfcd85bc977db7d552da83b33755eb996f40634cd2144b4ed59dadcf12ebca4",
+            "stderr": "MacroScope_P_record_selector.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "cf0536eec8126b4eda044ce8a8fad0b18a92e825e5f1c3c5fd8dec5022a5deaa",
+            "stderr": "MacroScope_P_record_selector.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_record_selector.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "323bd57bd0f38170ec5d14bd0856834135370b1c0b8db66b3016994014a9dfcb",
+            "stderr": "MacroScope_P_record_selector.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_record_selector.complete.model.tla",
+      "source_sha256": "cceb962f7c00dccec1c36264c081a49a6fc87d6a25c371492b3a0a6d33856cfb",
+      "config": "MacroScope_P_record_selector.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.complete.tlc.stdout.gz",
+        "stdout_sha256": "84a63515b464278f7cdf7cf0e3926fc6321a52428678ec9caafa09cf48d0a2a4",
+        "stderr": "MacroScope_P_simultaneous_defined.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_simultaneous_defined.complete.check.stdout.gz",
+        "stdout_sha256": "9e43de28103b6edb4fe77c5d42f72c1660c746a79c3f27b84e1f56859de7738f",
+        "stderr": "MacroScope_P_simultaneous_defined.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "9e43de28103b6edb4fe77c5d42f72c1660c746a79c3f27b84e1f56859de7738f",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5c9df043c35dbad329170398c76a0207be2a03da726ee441ab3d2653d4ffbf04",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "db51481d2f0a91cfb9bd8b8fdde406469db2be0ccf2a29b519f0cd5ff77e28eb",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "9b00410884d75b197baace96ea221bcc6c7e6bab7084d48bd5d623f560bb0989",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "6c12ef2f79876c80842e39c2009d926471c62c39d58a008bc20b7f76fb16826c",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "250bdcf45975a53e3ba33bb6cd5c1313214be6bf47ed93d06498b3ce1270ea7b",
+            "stderr": "MacroScope_P_simultaneous_defined.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_simultaneous_defined.complete.model.tla",
+      "source_sha256": "72d9e6694befec778fdd57efcaa700dcb544ca094e04739d030d10a81846a039",
+      "config": "MacroScope_P_simultaneous_defined.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroScope_P_simultaneous_defined.violation.tlc.stdout.gz",
+        "stdout_sha256": "351560f04a76053838b2c093668e3af2de946fdcfe2b998d3d2b88b7c8ce47f3",
+        "stderr": "MacroScope_P_simultaneous_defined.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroScope_P_simultaneous_defined.violation.check.stdout.gz",
+        "stdout_sha256": "013a6af4bbbd4980896143537fd05953e5b7cf848e101b8ad83c05389bf85fd0",
+        "stderr": "MacroScope_P_simultaneous_defined.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "d20335288ffc009c0bde06c17ba943a23bc0beb898f06d22c273f88eb694e5dc",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "b593d8ee72a70a9420047e766ff40b711ab5631f9304726a096d7a98920cb71c",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "0dc6c581cbf7086f516c7dead6e24f4f15ddfba619673bca4759c0f1b5cbd18c",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "1b00f8219d6c561478bcc174714084de1d7fa1c5d55a11985be1fe9d01dd5aff",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "9217624e6808a4fadd26b0cebacfc4ff1250938cdaff109f8df8f972922d94d3",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_simultaneous_defined.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "cde845761fe31c75a2eb19ff71d23f95e01e2031baa8abeb282f6f83c41ef11b",
+            "stderr": "MacroScope_P_simultaneous_defined.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_simultaneous_defined.violation.model.tla",
+      "source_sha256": "a5db53aa8e8d7829aa269c4b0bc25378da4e645474bfe1501e12412e0fb9b2e1",
+      "config": "MacroScope_P_simultaneous_defined.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroScope_P_with_shadow.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.complete.tlc.stdout.gz",
+        "stdout_sha256": "606f600b898ba4520d8a07b083a7a9a03d2c1f0996602ba1404e14c13b857679",
+        "stderr": "MacroScope_P_with_shadow.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroScope_P_with_shadow.complete.check.stdout.gz",
+        "stdout_sha256": "0354ec471117963644bbb2efe053b597fa5dd7c2451ec39d41d52e1b756a85cf",
+        "stderr": "MacroScope_P_with_shadow.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "ed707b2c372a42605c09b271b5e55720e7888788e178014b8eaef5abfef4d7d1",
+            "stderr": "MacroScope_P_with_shadow.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "20d540a050bb0e4b95c89f829507398a66f49dca3ef25c7e195280ff5252c4da",
+            "stderr": "MacroScope_P_with_shadow.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "1136d214df1f3c9073421d1c32644149ebe1561e40a2f842cf8688d2e07031ce",
+            "stderr": "MacroScope_P_with_shadow.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "6096b53c7b11ccd6c7e7dc7eda996583f982935970e54f3217aaec51c73bd524",
+            "stderr": "MacroScope_P_with_shadow.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "801ff5ae13cc2925a36b0db99374553512371c628d047c7d1aef1258e1ff9a26",
+            "stderr": "MacroScope_P_with_shadow.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "e452ec2e40a5512d54c3dedb3ddf8db78ae8f7ead1d2978ea530c73d3c3bd521",
+            "stderr": "MacroScope_P_with_shadow.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_with_shadow.complete.model.tla",
+      "source_sha256": "6a42a5a792fae8cb540c4e5440a6c53f04bd442db5ea13cb3cb9777dd396b76d",
+      "config": "MacroScope_P_with_shadow.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroScope_P_with_shadow.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroScope_P_with_shadow.violation.tlc.stdout.gz",
+        "stdout_sha256": "9b8e1fc58e5b90f190b4433cf2d9fc824f3bbbfe821235c4e3def67d3cc5c953",
+        "stderr": "MacroScope_P_with_shadow.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroScope_P_with_shadow.violation.check.stdout.gz",
+        "stdout_sha256": "f35af4dd2a3e3976f05436d28d598822f1973e8f2cb767d6cabd183a3b70c233",
+        "stderr": "MacroScope_P_with_shadow.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroScope_P_with_shadow.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "MacroScope_P_with_shadow.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_with_shadow.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroScope_P_with_shadow.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_with_shadow.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroScope_P_with_shadow.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_with_shadow.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroScope_P_with_shadow.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroScope_P_with_shadow.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroScope_P_with_shadow.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "d9d4696bdeb8c1b216457dcdf8ab303fe558d1c3c3cd7b1eb149703aa7a881d2",
+            "stderr": "MacroScope_P_with_shadow.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "07346a6280fe2c0399350ed3e253f208fd7392a048d5ef17bf72568f702876e3",
+            "stderr": "MacroScope_P_with_shadow.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "cdce18ac6e2013fc66898d852f9a83c90bbe1769fbc67c265d3c61a21d811867",
+            "stderr": "MacroScope_P_with_shadow.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "240980acd0bc463cf662afd57dca4fdcaf95edc19b3971e6a8186959f17b017a",
+            "stderr": "MacroScope_P_with_shadow.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "732ad1d891ecce47e157a8bdae21c770235e2ae8d0ef8a11d2353323799fb406",
+            "stderr": "MacroScope_P_with_shadow.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroScope_P_with_shadow.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "b68d681d2abe88a8ac213a3f8aae9be373e4c44fa4dae771dc7491c798860e5b",
+            "stderr": "MacroScope_P_with_shadow.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroScope_P_with_shadow.violation.model.tla",
+      "source_sha256": "6d1afd8e68116d2ae72f65241a78cf59153a7ce2adbfc6088c36fb7d91c42336",
+      "config": "MacroScope_P_with_shadow.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    }
+  ]
+}

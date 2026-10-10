@@ -1,0 +1,952 @@
+{
+  "schema_version": 1,
+  "stage": "recursive-procedure-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "2d1eb85d4e6b26c6ae5cb5f643781ce9e33bd0c74d2c631242ab27ff3a8290cb",
+  "comparator_sha256": "557e87d75f73324056821559575f44a309ef6429dff0fe8ae199ae930fe5c7ff",
+  "native_sha256": "d69f605b4f43d5bbf7b4dd04497e1eedec5971a0c990a70d1b22a5c097531cf2",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "unproved-process-procedure-storage-and-scoped-renaming",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 116,
+  "summary": {
+    "native-refusal": 111,
+    "rejection-match": 5
+  },
+  "rows": [
+    {
+      "id": "Recursive_C_auto_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_duplicate_scope",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_empty_main",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Recursive_C_fair_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_false_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_main_call_return",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_missing_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mixed_tail_ordinary",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_base",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_tail_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_mutual_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_read_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_read_stack_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_repeat_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_reserved_parameter",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_reserved_wrapper",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure operator/name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_base",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_base_negative",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_base_zero",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_either",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_goto_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_local_mutate",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Recursive_C_self_no_params_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_parameter_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_assign_global",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_changed_local",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_changed_param",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_counter_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_no_params",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_tail_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_twice",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_while",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_self_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_strong_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_triple_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_triple_tail_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_undefined_base",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_unknown_tail",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Recursive_C_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_unused_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_wrong_arity_self",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_C_wrong_arity_tail",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_auto_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_duplicate_scope",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_empty_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_fair_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_false_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_main_call_return",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_missing_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mixed_tail_ordinary",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_base",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_tail_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_mutual_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_read_stack_depth",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_read_stack_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_repeat_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_reserved_parameter",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_reserved_wrapper",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure operator/name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_base",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_base_negative",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_base_zero",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_either",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_goto_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_local_mutate",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Recursive_P_self_no_params_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_parameter_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_assign_global",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_changed_local",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_changed_param",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_counter_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_no_params",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_parallel_args",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_tail_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_twice",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_two_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_unbounded",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_while",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_self_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_strong_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_triple_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_triple_tail_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_undefined_base",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_unknown_tail",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Recursive_P_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_unused_self",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_wrong_arity_self",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Recursive_P_wrong_arity_tail",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: recursive procedure call graph",
+      "code": "DIVE-P0090"
+    }
+  ]
+}

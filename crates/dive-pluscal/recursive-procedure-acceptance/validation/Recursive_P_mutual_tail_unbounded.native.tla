@@ -1,0 +1,64 @@
+---- MODULE Recursive_P_mutual_tail_unbounded ----
+EXTENDS Integers, Sequences, TLC
+(* --algorithm A
+variable x=0;
+procedure First(a=0)
+
+begin
+F:call Second(a+1); return;
+end procedure;
+procedure Second(b=0)
+
+begin
+S:call First(b+1); return;
+end procedure;
+begin
+L:call First(2); E:skip;
+end algorithm; *)
+
+VARIABLES pc, x, stack, a, b
+
+vars == << pc, x, stack, a, b >>
+
+Init == /\ x = 0
+        /\ a = 0
+        /\ b = 0
+        /\ stack = << >>
+        /\ pc = "L"
+
+F == /\ pc = "F"
+     /\ /\ b' = a + 1
+        /\ stack' = << [ procedure |-> "Second", pc |-> Head(stack).pc, b |-> b ] >> \o Tail(stack)
+     /\ pc' = "S"
+     /\ UNCHANGED << x, a >>
+
+First == F
+
+S == /\ pc = "S"
+     /\ /\ a' = b + 1
+        /\ stack' = << [ procedure |-> "First", pc |-> Head(stack).pc, a |-> a ] >> \o Tail(stack)
+     /\ pc' = "F"
+     /\ UNCHANGED << x, b >>
+
+Second == S
+
+L == /\ pc = "L"
+     /\ /\ a' = 2
+        /\ stack' = << [ procedure |-> "First", pc |-> "E", a |-> a ] >> \o stack
+     /\ pc' = "F"
+     /\ UNCHANGED << x, b >>
+
+E == /\ pc = "E"
+     /\ TRUE
+     /\ pc' = "Done"
+     /\ UNCHANGED << x, stack, a, b >>
+
+Terminating == pc = "Done" /\ UNCHANGED vars
+
+Next == First \/ Second \/ L \/ E \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(pc = "Done")
+
+====

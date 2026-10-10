@@ -1,0 +1,29 @@
+{
+  "rows": [
+    {
+      "filename": "MacroExample.tla",
+      "profile": "dive",
+      "passed": true
+    },
+    {
+      "filename": "MacroExample.tla",
+      "profile": "tlc",
+      "passed": true
+    },
+    {
+      "filename": "MacroExampleC.tla",
+      "profile": "dive",
+      "passed": true
+    },
+    {
+      "filename": "MacroExampleC.tla",
+      "profile": "tlc",
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "MacroExample.tla": "48209a31e5be620cfa0b30d348b876ac52592bc4d57732e60fbaf5833b1afc07",
+    "MacroExampleC.tla": "9972ee7227f738e8abc5a02860742e4c7c26eeacee543c323567a6d4881d162f"
+  },
+  "native_sha256": "d92c835c564c641fb4c2701d913b3baea25f348d739f1043620a9d73b3727800"
+}

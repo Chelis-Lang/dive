@@ -1,0 +1,2117 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "011d04f139d3e002053a5c33a311905f73a3ead140acbdba07a35a0c82902d20",
+  "script_sha256": "503e7ad01d7f925e3a81171ed00b33c1609e13d5c0141886521cc448d453f9dd",
+  "native_sha256": "d92c835c564c641fb4c2701d913b3baea25f348d739f1043620a9d73b3727800",
+  "cst_dumper_sha256": "84258dd446fb7006e5a7df3c78c7ce31672002c435842d351f4636c1988fa42e",
+  "selected_artifacts": 16,
+  "artifact_summary": {
+    "native-sany-match": 16
+  },
+  "model_summary": {
+    "finite-model-match": 16
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "MacroLexical_C_escaped_backslash",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "618cb0970aa0ac0dc1a217c3762ab29ba40f674147579a3ff899ce0be2fd447b",
+      "artifact": "MacroLexical_C_escaped_backslash.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_backslash.native.stdout.gz",
+        "stdout_sha256": "9352dded3c336ce17e8b07c99c43f28f501fe94f7e70baed72799e97ce175036",
+        "stderr": "MacroLexical_C_escaped_backslash.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_backslash.native-sany.stdout.gz",
+        "stdout_sha256": "b0f542966674dd5a1de5c4075a7920f46ab2cf848937b2129d1a17ec307aec1c",
+        "stderr": "MacroLexical_C_escaped_backslash.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "b8d617e771b3f4b84039baa1e2f34a240d8a7e8f253c2597b8266e1c0024e983"
+    },
+    {
+      "id": "MacroLexical_C_escaped_formfeed",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "cc060bfe02541841fea71c01d197dfbd36c4501de41415c041178a5e5ce02c3d",
+      "artifact": "MacroLexical_C_escaped_formfeed.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_formfeed.native.stdout.gz",
+        "stdout_sha256": "0621e64c60af68ee060f3aa9f7786b6ce3ed66a8463edeb2684733fa65786c59",
+        "stderr": "MacroLexical_C_escaped_formfeed.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_formfeed.native-sany.stdout.gz",
+        "stdout_sha256": "07cc3d3691037018f3af11ef38d5b88203d5ec66f24ff3baace366c0af30ca25",
+        "stderr": "MacroLexical_C_escaped_formfeed.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "7e15993b657bd796eed7b991925e90f966ac7ae1b1ec79796f93ce12bbeab849"
+    },
+    {
+      "id": "MacroLexical_C_escaped_newline",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "1bbf2f5bac284f97648914b84ba5b19e97be80b814decb011fb34ae70a65388a",
+      "artifact": "MacroLexical_C_escaped_newline.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_newline.native.stdout.gz",
+        "stdout_sha256": "69ed8f529f66287ce72456cc7e7c0e8513ed51419c2331f120b9c8a9b0d6fb7d",
+        "stderr": "MacroLexical_C_escaped_newline.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_newline.native-sany.stdout.gz",
+        "stdout_sha256": "35f5ac2d593e17ac30a3e9d8a232f96f50c3e2c0610f7e82536c92268f2a529e",
+        "stderr": "MacroLexical_C_escaped_newline.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "5a920b9dac962cc95d4707e07838cdae8e9b0d7f9cbd64dcb4a4bcf879ba2ff2"
+    },
+    {
+      "id": "MacroLexical_C_escaped_quote",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "8edb35e9a8467b2abe100144010a1c1f698e5405b07a89894c7720d8512214a7",
+      "artifact": "MacroLexical_C_escaped_quote.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_quote.native.stdout.gz",
+        "stdout_sha256": "2d9616f4a3a28c0dd59c8b339123d185d40194625a48fdc51e4bb67ddaedc7a0",
+        "stderr": "MacroLexical_C_escaped_quote.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_quote.native-sany.stdout.gz",
+        "stdout_sha256": "e230eb91dffb9c5adbadf0943e653acfee36ece4a217b81e4a85beba8909faf0",
+        "stderr": "MacroLexical_C_escaped_quote.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f2c112cb976b651f207eb8ce3a65e51da3e80b9dd2b143f76b229ee602e3586e"
+    },
+    {
+      "id": "MacroLexical_C_escaped_return",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "32b9bb6fbc5a510aeb3d1122d95acf9aed9b8f4907ebed6a2430451bec710061",
+      "artifact": "MacroLexical_C_escaped_return.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_return.native.stdout.gz",
+        "stdout_sha256": "81c0e025dbfafa212d1fd8506320de84b9d9011cb3e0c155ca14f0b0dee34314",
+        "stderr": "MacroLexical_C_escaped_return.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_return.native-sany.stdout.gz",
+        "stdout_sha256": "f3b21161e2af62c0e5903a12bfe81de9f3bc3222fc877802d7fb41270f13ba79",
+        "stderr": "MacroLexical_C_escaped_return.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "17af8f133c44ea5c7c592000989ef60b3db0c8ec7628a6bc5f3da545d4c4cd5b"
+    },
+    {
+      "id": "MacroLexical_C_escaped_tab",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "a48d8083f1cc9ca626c5e8d439b09998abb5c0053673d51d206c16abecfc85fc",
+      "artifact": "MacroLexical_C_escaped_tab.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_tab.native.stdout.gz",
+        "stdout_sha256": "6c9d135785bacfb7aa6d2ab295d8042fa2078dcd6a106778d4ba173f01d050fe",
+        "stderr": "MacroLexical_C_escaped_tab.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_tab.native-sany.stdout.gz",
+        "stdout_sha256": "2674059aab69cbc74c723c97a10f375d5f104a3a1e420640caed839fc45d803f",
+        "stderr": "MacroLexical_C_escaped_tab.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "695d26d00490976dfcf515cc41983ae43968c92f9ae69245e38cd5bbc2bb1b79"
+    },
+    {
+      "id": "MacroLexical_C_space",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "7eb3c6915ff728a365a37103b534db52d6aff7b4b35d2736383206f1873e5578",
+      "artifact": "MacroLexical_C_space.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_space.native.stdout.gz",
+        "stdout_sha256": "0b9ae5f3d80bcd05784c0d97b6e29b5cfe527e51b1f678657daca81fc143e3e6",
+        "stderr": "MacroLexical_C_space.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_space.native-sany.stdout.gz",
+        "stdout_sha256": "2c6a05745a62c5a52e5a9ce580b4b33363334dd58407123aabb01addec314cff",
+        "stderr": "MacroLexical_C_space.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "6fad8b093b61cfef99bd67a6cc0cfd839b631da7a5b648c97a110ae96c16bea5"
+    },
+    {
+      "id": "MacroLexical_C_tilde",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "4151bd7e3e562864b65542d68abc483703b6a99d4ff6ac05b65e998e3246b47a",
+      "artifact": "MacroLexical_C_tilde.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_tilde.native.stdout.gz",
+        "stdout_sha256": "b2268e99eae1d1527ac99c5bf112981949ddc51e6e4a3ccbaa7ce1611393c04e",
+        "stderr": "MacroLexical_C_tilde.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_tilde.native-sany.stdout.gz",
+        "stdout_sha256": "ae3d0c8ec9f7dc09b80fb394f52e669e92c63921cfcb66cf71e7fb878b7d8264",
+        "stderr": "MacroLexical_C_tilde.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "99c77d126b4dfb7599c706428296bd0fa6b66f06fcbfa852fb461a6412197cee"
+    },
+    {
+      "id": "MacroLexical_P_escaped_backslash",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "fd7bdb8c82c6a3db4c70f99b757e59d4e5ea282c37bc308ebe6da496b5183e2e",
+      "artifact": "MacroLexical_P_escaped_backslash.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_backslash.native.stdout.gz",
+        "stdout_sha256": "43296319b8a1ea78601ef6b6fae9c8791076e92dfedc2225dc84c694012e0a85",
+        "stderr": "MacroLexical_P_escaped_backslash.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_backslash.native-sany.stdout.gz",
+        "stdout_sha256": "dba4825addaf9726183ea1c7a1d527a6985cd58f43e3608051fd3bf2e11d6678",
+        "stderr": "MacroLexical_P_escaped_backslash.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "56e5aa23bd839373a5096811dd8ff721f7f79726eaf52fe80d15b4ebe2db1e7e"
+    },
+    {
+      "id": "MacroLexical_P_escaped_formfeed",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "7b79a1eeacba8415ceea34af6b03354ec4bdc3a09c9c611f49c4d1e0488ba177",
+      "artifact": "MacroLexical_P_escaped_formfeed.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_formfeed.native.stdout.gz",
+        "stdout_sha256": "43266c20197e6f3315bc4387a4ea0c38d31c55a8752983f6ab3bf4b5eb552e2d",
+        "stderr": "MacroLexical_P_escaped_formfeed.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_formfeed.native-sany.stdout.gz",
+        "stdout_sha256": "470cf126437877c192c271ef51c2c3765cf70678850d18518fddfacad00ac1b6",
+        "stderr": "MacroLexical_P_escaped_formfeed.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "b98d2bcd04905da823027897510e41c85bd81a45a7625625df26cc139c149f59"
+    },
+    {
+      "id": "MacroLexical_P_escaped_newline",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "f38f787882f51a5b9f1af89de6a1c80f9f2b05face510365da34df890b163334",
+      "artifact": "MacroLexical_P_escaped_newline.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_newline.native.stdout.gz",
+        "stdout_sha256": "060b8fd48bc23db1492305190ed12abbf986747ffba7d0df8b12be5d7cf7ae89",
+        "stderr": "MacroLexical_P_escaped_newline.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_newline.native-sany.stdout.gz",
+        "stdout_sha256": "39f5f1aa919f93885c5080df28a04ee95477f4ab2e1139ee3e082fcb90aa06fb",
+        "stderr": "MacroLexical_P_escaped_newline.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "445d7e729d18119e78910ead31bf597fb414ef250abc667d904e4a29dbe60c16"
+    },
+    {
+      "id": "MacroLexical_P_escaped_quote",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "c75b38497ab08a65fe44d433d8f819af54175acced510595a366517882df250a",
+      "artifact": "MacroLexical_P_escaped_quote.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_quote.native.stdout.gz",
+        "stdout_sha256": "b1b9b7be9e7f9df096db855f80fd41af7266e715a9a1d955a44cea7ca14d1ee8",
+        "stderr": "MacroLexical_P_escaped_quote.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_quote.native-sany.stdout.gz",
+        "stdout_sha256": "bba98675e0a4cfacd725d1b2258c06573fc318072790f37097d303d892a63859",
+        "stderr": "MacroLexical_P_escaped_quote.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "8ceb11f382efb1a3e01d0afc991c74320b5ee16232b5ae7da8d3e764efe5b126"
+    },
+    {
+      "id": "MacroLexical_P_escaped_return",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "9017e978af447e8459a2e11b2320e2896c81f7db125e47747dccf887d5eb1021",
+      "artifact": "MacroLexical_P_escaped_return.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_return.native.stdout.gz",
+        "stdout_sha256": "8af39ccc5e41f6b81b6d5e7e52eea82971899b9c3e741296a9d70a5e1f334961",
+        "stderr": "MacroLexical_P_escaped_return.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_return.native-sany.stdout.gz",
+        "stdout_sha256": "55408543fea50e9440c0c481d46fa3f58e34a106888e0bdf02d55a68d604ac74",
+        "stderr": "MacroLexical_P_escaped_return.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "8857ed5462c4eeb721aecf11528110d10d837e89b49fa92beda5d056ed47cdb7"
+    },
+    {
+      "id": "MacroLexical_P_escaped_tab",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "e4d51bb1e42f04c33ebdf7d40b06a63c4874e355be53f30793ea329da72371bc",
+      "artifact": "MacroLexical_P_escaped_tab.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_tab.native.stdout.gz",
+        "stdout_sha256": "a006778e7f87ab68856f879a0f265b30564864fc93dbf8e1c0d1d4d2ddd2da9c",
+        "stderr": "MacroLexical_P_escaped_tab.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_tab.native-sany.stdout.gz",
+        "stdout_sha256": "c76489bb9855a41749df9fcbd101e3a67d71d775bf4f542a7ab246ab6f66128c",
+        "stderr": "MacroLexical_P_escaped_tab.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f2c2ca3c3b67f4bc1cee0799f6091bd017e4844dd5d6e876b6922363b2c07276"
+    },
+    {
+      "id": "MacroLexical_P_space",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "84d3879812f4811a3054d37c91072194295f70cda84d44e5bbdfe0d8c39d1aa7",
+      "artifact": "MacroLexical_P_space.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_space.native.stdout.gz",
+        "stdout_sha256": "4091978749f3488e572c10ea0904ca20f1ff55d7c49d6a479d01a8b89d8ebb58",
+        "stderr": "MacroLexical_P_space.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_space.native-sany.stdout.gz",
+        "stdout_sha256": "30bd0746c1c50e599b01f9cf5247203952bee68fcf977f2efde9a77447e5ad1a",
+        "stderr": "MacroLexical_P_space.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "774098a3714e2839e8703253cd0b0a189421d9a024cd6c12b4dec60c43a99935"
+    },
+    {
+      "id": "MacroLexical_P_tilde",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "09ee9a7dfd504cc4950cd5b648c4069c54b863db8b53c9151dc04cdfce4f6222",
+      "artifact": "MacroLexical_P_tilde.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_tilde.native.stdout.gz",
+        "stdout_sha256": "d37444e434608ffac9e0f9780cce3eb490eec1c7753681e79f1ec49c10c51207",
+        "stderr": "MacroLexical_P_tilde.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_tilde.native-sany.stdout.gz",
+        "stdout_sha256": "4a6dd5814d925aea049077e0a22b8c85cc059d1b60a5f172ec1f5af5cad59864",
+        "stderr": "MacroLexical_P_tilde.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "233e19b676c497de53fd38b0a62c215ba3a8f3ff3f5e9f42cb3fe28ad0f1ccad"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "MacroLexical_C_escaped_backslash.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_backslash.complete.tlc.stdout.gz",
+        "stdout_sha256": "81e5f2134c811bcf9c31cda12c9659366352bb32bacbbf21801d0725e428b6f2",
+        "stderr": "MacroLexical_C_escaped_backslash.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_backslash.complete.check.stdout.gz",
+        "stdout_sha256": "2f5d0f5b0dd1e35d4bbcd12dbf13c281d86e31dc8dc91babf355027e1cd85daa",
+        "stderr": "MacroLexical_C_escaped_backslash.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "2f5d0f5b0dd1e35d4bbcd12dbf13c281d86e31dc8dc91babf355027e1cd85daa",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5bd9929cd713fa87ce36cffb24575ff551fa58ca20c7525e30dbdc6025219551",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "84033d7c1c1868a1d60eec09f369d537ff188b30684965d81cb60d749b1bee49",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "b9465b7f7cac058916b940804745c8a153c41a9d78aac2e39b21524984aa8e4b",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b5d8e30c044f7c242bec31c71b77e349fc541eddc8c18888444144114db6923d",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_backslash.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d87c9b03d110d4e7aebd8bef62e6f0436cd0d73cd29c867eadd7e4daa726e9ff",
+            "stderr": "MacroLexical_C_escaped_backslash.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_backslash.complete.model.tla",
+      "source_sha256": "618cb0970aa0ac0dc1a217c3762ab29ba40f674147579a3ff899ce0be2fd447b",
+      "config": "MacroLexical_C_escaped_backslash.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_escaped_formfeed.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_formfeed.complete.tlc.stdout.gz",
+        "stdout_sha256": "06f62478bb09de76d1e37577d25fc1783374c57fcbe97c6bd03b323213692660",
+        "stderr": "MacroLexical_C_escaped_formfeed.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_formfeed.complete.check.stdout.gz",
+        "stdout_sha256": "187998f7e97a2a50e1c65f2455d31e019b188b393ace10e2831d1fd7f45132f4",
+        "stderr": "MacroLexical_C_escaped_formfeed.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "187998f7e97a2a50e1c65f2455d31e019b188b393ace10e2831d1fd7f45132f4",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "0882705f87afdd5cfe69cb87b9e8fc8679c58dea17f6171d9de87311ec85dffa",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "349ef01c6c574b495dfbd87df927b7a1dcc0da2d8b5eae05e24fb1ece0c06a40",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "3bbcfba8a3c37515b91b2721c06e0a2f2bc592d844aa6e2381b718d07bdac76d",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "2b8b1dcdb529bc55d22831cd24cc76aa58a992c64e7f53906753054d60d4967c",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_formfeed.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "524cb1e40cdfd1758bef9c7aa7ac1a6dce29e13568a99f0d8065783b10407c0d",
+            "stderr": "MacroLexical_C_escaped_formfeed.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_formfeed.complete.model.tla",
+      "source_sha256": "cc060bfe02541841fea71c01d197dfbd36c4501de41415c041178a5e5ce02c3d",
+      "config": "MacroLexical_C_escaped_formfeed.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_escaped_newline.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_newline.complete.tlc.stdout.gz",
+        "stdout_sha256": "5e06a90a9489b63942f0e115a38d2f0bf966a2f786f77819a9132f57c4ce7e73",
+        "stderr": "MacroLexical_C_escaped_newline.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_newline.complete.check.stdout.gz",
+        "stdout_sha256": "dcbc834c43662eb1545d7b5f96eea8c22552b3346678e77f299f9a61c37a90ce",
+        "stderr": "MacroLexical_C_escaped_newline.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "fd4402218a39249dd377e6ebe345862c286b315293214d1c6a52b1457102699d",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "a9f6dc9c43ff2501e099f61702c47625dc4d80bbe156c6e7fb94621b8ad8bae3",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "88514ad5dcb54cec5e3a243ba0bca1b08cc3007f43d849e03fd32637c349723a",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "a4e9bdaf91637e9b8f1391fece7686e98c9dec39a4babf8cecff0b6584ceee2d",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "2168fc70ad7417652b3c7021badb35bc3ce84fa20f53de99128985855db70c06",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_newline.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "ce86017aa0ac6e9f97f928901b47093568c88ee177f1ab8d97eedf5496d62359",
+            "stderr": "MacroLexical_C_escaped_newline.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_newline.complete.model.tla",
+      "source_sha256": "1bbf2f5bac284f97648914b84ba5b19e97be80b814decb011fb34ae70a65388a",
+      "config": "MacroLexical_C_escaped_newline.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_escaped_quote.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_quote.complete.tlc.stdout.gz",
+        "stdout_sha256": "bd0f036247cc576e13f3f12a544f184c658bab5e581d6c0fe0b53f9074b0c17f",
+        "stderr": "MacroLexical_C_escaped_quote.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_quote.complete.check.stdout.gz",
+        "stdout_sha256": "8d637df6c296d992f3c6a4cf337ec4d9879a94fb793d7b6f729c06f4fe58146a",
+        "stderr": "MacroLexical_C_escaped_quote.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "1c7c11ec492495a66ec7039e2d215b28cef0b40e8e09bf3433a8e2caa08406ab",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "3d21ff2b2934bf31069ddceae618935e45b3021cbd7dec6a2f256000fe7ca2ac",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "8bbbfa7aa7e89b120746063c19731cf12f296d864ed7914c409bcbcdae8ef7ed",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "8c019bfc62deb722d1bd6a8626d91e34c3d6eb30a1ac67e829ec60f1a20c7f39",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "1b97661dc50f3c1280ecdb6d794b4ef237fdb4f9104d19e487738d658d036e18",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_quote.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "3aa92534354f5db41ebc75d884acf3e738926973e179de3a61ce34221e7e07a6",
+            "stderr": "MacroLexical_C_escaped_quote.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_quote.complete.model.tla",
+      "source_sha256": "8edb35e9a8467b2abe100144010a1c1f698e5405b07a89894c7720d8512214a7",
+      "config": "MacroLexical_C_escaped_quote.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_escaped_return.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_return.complete.tlc.stdout.gz",
+        "stdout_sha256": "6ab212be68cc9ddf9a83a93ac62cbad57307b9500e4716ea4f43320bbf6d66b9",
+        "stderr": "MacroLexical_C_escaped_return.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_return.complete.check.stdout.gz",
+        "stdout_sha256": "9ded76db6efd3d5b557beaaf22096530b979c531243c36d59cc22207cbcb3f91",
+        "stderr": "MacroLexical_C_escaped_return.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "5e4f2d82c092b4488bde83d7f30afa4dfc91242213d7941a6a6aea23efe8e521",
+            "stderr": "MacroLexical_C_escaped_return.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "6cd82b1b6960ec047a48ed27f2482120bce5d500aa06fe8ee64812121e90d175",
+            "stderr": "MacroLexical_C_escaped_return.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "7eda49f8c6a4771e2d6a2d6879ef86ed057c4a543a0009c0d078ec25e41b89af",
+            "stderr": "MacroLexical_C_escaped_return.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "e516a2febe140c14224ea25338ed8f6c601795bc80d89d4ab5f22b57b4bdd462",
+            "stderr": "MacroLexical_C_escaped_return.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "e7133bf47225c200cfc03fbc6356229d7ea1bd4650e853eecb6d8a6d802e7c9f",
+            "stderr": "MacroLexical_C_escaped_return.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_return.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "affa31b7191569880a3663a7d6d9a867f84ba77cc8d4c31e7150fa33eb43aa95",
+            "stderr": "MacroLexical_C_escaped_return.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_return.complete.model.tla",
+      "source_sha256": "32b9bb6fbc5a510aeb3d1122d95acf9aed9b8f4907ebed6a2430451bec710061",
+      "config": "MacroLexical_C_escaped_return.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_escaped_tab.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_tab.complete.tlc.stdout.gz",
+        "stdout_sha256": "37c4afc0253d02a1f19def3fd0e42f30b1332f364dbf0df7bc84a57db742129a",
+        "stderr": "MacroLexical_C_escaped_tab.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_escaped_tab.complete.check.stdout.gz",
+        "stdout_sha256": "8b7352eb91e21174d6ae4fd5412ba7caa71cc3aef4a20ccca81aa779b8ddfe73",
+        "stderr": "MacroLexical_C_escaped_tab.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "4df7714d3df78819ce7252404a555c13a6b60dee2084f1afdda153b50e61eb3c",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "77dbb2a00b74d23bf28f0901e8aecb91ed873e78a946ae78ed6c16af6b2d86e4",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "9d438f6dcc4556364f839f9a6e901b32e28e6c8d3aa7f2aae2effc2fe5dc9327",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "8ec34908912eae22fef293775da6ef5a3d66dad7c13d16943be810d0ad731fb5",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "fe7d76001568e2be356e8b7928b510ee4ffa7ec7e392a26becd62c79c1e4b1e9",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_escaped_tab.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d37888adf49633a3b6f89f6eb07721a9b919326bfef09f5b95b59f28d1965c66",
+            "stderr": "MacroLexical_C_escaped_tab.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_escaped_tab.complete.model.tla",
+      "source_sha256": "a48d8083f1cc9ca626c5e8d439b09998abb5c0053673d51d206c16abecfc85fc",
+      "config": "MacroLexical_C_escaped_tab.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_space.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_space.complete.tlc.stdout.gz",
+        "stdout_sha256": "02c4c3f8f634c9697364b1cdcc5f55db3fbc2e04cfeff56fb87cb979c489a013",
+        "stderr": "MacroLexical_C_space.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_space.complete.check.stdout.gz",
+        "stdout_sha256": "8ea89e9a4c28bf2a1aadfc6bd65fec91dcbb1f8a33f181afbb8d750eea3982eb",
+        "stderr": "MacroLexical_C_space.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "830f7e68382af926cfde7b9d49e3101d10f68acbc825dbc3b1a74ecc0c6c9f0e",
+            "stderr": "MacroLexical_C_space.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "09f6df6ab1f515bba1a18721a82dc240557d005ff5dc85b68d60ab5151f4da2c",
+            "stderr": "MacroLexical_C_space.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "023b7a6cbaec0d0d1e23088ef02a079262a1e456fdab2f9ea05b509b49ee64d1",
+            "stderr": "MacroLexical_C_space.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "503a19e9891e09fa711dd8ac2e525f29ba1ea15c26d8608578395f3607ca8c6a",
+            "stderr": "MacroLexical_C_space.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "28a953b9982051293d8b91c9615b6421213c5dd22db70ec2b3d9f62881861e50",
+            "stderr": "MacroLexical_C_space.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_space.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d50f0d6a63d80be40c5c19002ceff652b3e1482fff863778190ea26839277b77",
+            "stderr": "MacroLexical_C_space.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_space.complete.model.tla",
+      "source_sha256": "7eb3c6915ff728a365a37103b534db52d6aff7b4b35d2736383206f1873e5578",
+      "config": "MacroLexical_C_space.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_C_tilde.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_tilde.complete.tlc.stdout.gz",
+        "stdout_sha256": "215ff5ae2a08e8f033f08fe5eb0379c69941ad33fae89d2fb22d0a784a672448",
+        "stderr": "MacroLexical_C_tilde.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_C_tilde.complete.check.stdout.gz",
+        "stdout_sha256": "9733038ee34c554a9909c607279ed06db0b7cc6e332bb0eff18ce6b4c8b31a5f",
+        "stderr": "MacroLexical_C_tilde.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "36677888c2738a540177f3d15150c2f36f16820073f9cf93cfd8d4b94921afc2",
+            "stderr": "MacroLexical_C_tilde.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "7f832d7540f792858707d2b2f612d8f9a41d1dbc722278506804520aeb82a184",
+            "stderr": "MacroLexical_C_tilde.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "328e6356a9eb9db64fe6ce6c033d6598d8c3ea59d2f8abf6d46828b396989dfc",
+            "stderr": "MacroLexical_C_tilde.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "cf1fa4b67a70f9a954bfcf058554592658b4a4bf7c84a1cf06c5b93839fe1e83",
+            "stderr": "MacroLexical_C_tilde.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "5ed6e80042c8408cbf01133624fe6d937a6b4840340f12d8382aa0f31df9cec4",
+            "stderr": "MacroLexical_C_tilde.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_C_tilde.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "7c92281df7a083e4716671357859765b99649d9dcdf6942d00eca74f111bd8ac",
+            "stderr": "MacroLexical_C_tilde.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_C_tilde.complete.model.tla",
+      "source_sha256": "4151bd7e3e562864b65542d68abc483703b6a99d4ff6ac05b65e998e3246b47a",
+      "config": "MacroLexical_C_tilde.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_backslash.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_backslash.complete.tlc.stdout.gz",
+        "stdout_sha256": "9b030c0b4a31e6e041207350d0520862e2c65cffc3163e216d26773f2763c1c2",
+        "stderr": "MacroLexical_P_escaped_backslash.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_backslash.complete.check.stdout.gz",
+        "stdout_sha256": "b27c078cc20c28f9a805f5c19154d129dd5fc0def44fbb44202e6071d138900e",
+        "stderr": "MacroLexical_P_escaped_backslash.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "b27c078cc20c28f9a805f5c19154d129dd5fc0def44fbb44202e6071d138900e",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "0465da40b630d24938846beef63b882a9aea47a0d7b1a9b8cb21985c2959ecf9",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "e1b128343b499ac88667487b8e42bcf04b101a23e5ff2153681c93fbe8a06a56",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "c028f3c5202ac896e7a03191c1693d3c28a5c19901fb8a992c95e4f8ab09763a",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "05c2aa8d21c42aaf9111511b06d859185c2257e8325a9443cd7d970bad233454",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_backslash.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "68d22b4f56779189210ec517b1a5ed3645467e593bfa8f7512e75bf61801e9a1",
+            "stderr": "MacroLexical_P_escaped_backslash.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_backslash.complete.model.tla",
+      "source_sha256": "fd7bdb8c82c6a3db4c70f99b757e59d4e5ea282c37bc308ebe6da496b5183e2e",
+      "config": "MacroLexical_P_escaped_backslash.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_formfeed.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_formfeed.complete.tlc.stdout.gz",
+        "stdout_sha256": "d441f122bfc324a756a924188bb4111444a14fc7108841e249d60bf13bc029ac",
+        "stderr": "MacroLexical_P_escaped_formfeed.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_formfeed.complete.check.stdout.gz",
+        "stdout_sha256": "9fb22344cec7657ec4ba2e340431cb31c1957e74324cb6ab2834f3db02f56224",
+        "stderr": "MacroLexical_P_escaped_formfeed.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "9fb22344cec7657ec4ba2e340431cb31c1957e74324cb6ab2834f3db02f56224",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "e7780ce70805e96a65630b3376ffc6cf9d8202e3df4e423d5bb291c5b0e12912",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "cdecceaabbe63bed0b9e9ac5f8352b979e50648411579c0c4adf1dff9d9728c2",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "de513f0a17e77cda64a83a656944497bbaf789e42a8c479d889f0865f9c56f8d",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "751989f0e5b3d1f39d03d8a5b6bd7e6c71a8bdc706f367c9f84794bba598b966",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_formfeed.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "46a88ab85df1ce265d821c5ced5bd8514c34d207c3fe41265c647fac776d1a75",
+            "stderr": "MacroLexical_P_escaped_formfeed.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_formfeed.complete.model.tla",
+      "source_sha256": "7b79a1eeacba8415ceea34af6b03354ec4bdc3a09c9c611f49c4d1e0488ba177",
+      "config": "MacroLexical_P_escaped_formfeed.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_newline.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_newline.complete.tlc.stdout.gz",
+        "stdout_sha256": "a52fa77deae6f0e6b0aef4183db43f9476de7274f46053e655a71aab67901ca7",
+        "stderr": "MacroLexical_P_escaped_newline.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_newline.complete.check.stdout.gz",
+        "stdout_sha256": "f6340f24d875279005c486cdebceddd2602361c1ae83e61f4c562effac2faa9f",
+        "stderr": "MacroLexical_P_escaped_newline.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "196ec1ff5dc2f23a53ec08c418ff90ef9b67f5dcd22f584dc2d5d138a9df2b80",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "72d6bacdeeee23540cd2aee80503f8c0457b050d7d5e8ec5d72269dc9036692a",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "293a56d19560445ed4d536b267d36f288216990dff34c0307bec7f6acc6782c4",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "a2e88d8c37257de827ae07c284f25c2847720132dde09a0b8cb7730fe9b85f1f",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "6ba91bcf53b6762e5c7982867dcd699bfa28c8a54c5252b934b79062b49a7c93",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_newline.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "e93951d1479cd0ecce87f5b8a7d6112b82aa2b748048eb74ab81a29c71702c9c",
+            "stderr": "MacroLexical_P_escaped_newline.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_newline.complete.model.tla",
+      "source_sha256": "f38f787882f51a5b9f1af89de6a1c80f9f2b05face510365da34df890b163334",
+      "config": "MacroLexical_P_escaped_newline.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_quote.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_quote.complete.tlc.stdout.gz",
+        "stdout_sha256": "9456797ed1bf00501e3836fdca5890dc6e68c6a073a07e873dfaad92bb27b209",
+        "stderr": "MacroLexical_P_escaped_quote.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_quote.complete.check.stdout.gz",
+        "stdout_sha256": "2429a90526b09d71d3ed9f26a10ac1bd051ba71cf5d499ea3aeb779c4c077140",
+        "stderr": "MacroLexical_P_escaped_quote.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "84ac9e814936d3a27684da0469f6422115444686c61d46c232ee8b0a1e248f93",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "d24d5e12f218ed59ed694560ce756a670d35f04c17ff01b17c8015972a61f218",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "7edf46384c1f7546ee4fa32be753d6507f94bac8b8c872bd2c4bc859cc1ccbb3",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "9c6fd6e5cc66fe646ca13db9e4ec655b091c19774241cb345f71058e181c0d25",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "679c0c9f47ac69f719cf1d0e84d8c21c2148d7d41da33dda1eb46d6d87b49ecf",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_quote.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "2d311430f84d009d9967b9fe4293123536bdb02721bc49ab2b5faf86abff3ec1",
+            "stderr": "MacroLexical_P_escaped_quote.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_quote.complete.model.tla",
+      "source_sha256": "c75b38497ab08a65fe44d433d8f819af54175acced510595a366517882df250a",
+      "config": "MacroLexical_P_escaped_quote.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_return.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_return.complete.tlc.stdout.gz",
+        "stdout_sha256": "69f9a9df09966f27602b45baeca551699c48a91119705ed670efcb324a9f0c0c",
+        "stderr": "MacroLexical_P_escaped_return.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_return.complete.check.stdout.gz",
+        "stdout_sha256": "95b1c957804b71501fcd11a55dc749bca5789c57cb26a8d5dbbb549ad002b42a",
+        "stderr": "MacroLexical_P_escaped_return.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "95b1c957804b71501fcd11a55dc749bca5789c57cb26a8d5dbbb549ad002b42a",
+            "stderr": "MacroLexical_P_escaped_return.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "4e8f3a320375039c0a13b0bcc9ec323d0e6ec2fb2e8fa25d6cb5bfcd5fc64cc4",
+            "stderr": "MacroLexical_P_escaped_return.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "368a810715ea33e9cbc174a8178f9b6706e259da0d3e28df2f858628fdb2ac8c",
+            "stderr": "MacroLexical_P_escaped_return.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "97566be1c86244327e9be71c654e49951aa73845355318481f7ce1d730076ff5",
+            "stderr": "MacroLexical_P_escaped_return.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "8fad43159d23d18931b251a0e6ac18174c650893d2a8179324249702d72c095a",
+            "stderr": "MacroLexical_P_escaped_return.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_return.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "71a7621ba5b31fb8b114541d03f4344e5f4b7f2d139f644f2c34e64c47e809af",
+            "stderr": "MacroLexical_P_escaped_return.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_return.complete.model.tla",
+      "source_sha256": "9017e978af447e8459a2e11b2320e2896c81f7db125e47747dccf887d5eb1021",
+      "config": "MacroLexical_P_escaped_return.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_tab.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_tab.complete.tlc.stdout.gz",
+        "stdout_sha256": "0de975f79d334fb52af0d4c96b96f66120cd3c4dd1cfa7b7f280bc5587c0cbf6",
+        "stderr": "MacroLexical_P_escaped_tab.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_escaped_tab.complete.check.stdout.gz",
+        "stdout_sha256": "900dc1aa5be01c812ec497938d2d5a1af25f14d9c5822c67a19204a65e44870f",
+        "stderr": "MacroLexical_P_escaped_tab.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "900dc1aa5be01c812ec497938d2d5a1af25f14d9c5822c67a19204a65e44870f",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5ad54cc4471edba05e0a624693560a590a4fb5bca2533ac8f8198bad87452584",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "5069d7df9a73e7b9267dbcc3b7fd4bb6a71a8df4fc4793814f3434ab96550f5d",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "88657419d681b89c72395d496493c21fbad543033726825da96bec07f64558de",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "9bb60f3fccf9d417d9bfed9acbe53c9bcb61fee9751fcb3fc201853e86ad1cb6",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_escaped_tab.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "2d115acd45767a54df45df427fe4266c0ff570c733bb5a6d9c1567a62396d26f",
+            "stderr": "MacroLexical_P_escaped_tab.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_escaped_tab.complete.model.tla",
+      "source_sha256": "e4d51bb1e42f04c33ebdf7d40b06a63c4874e355be53f30793ea329da72371bc",
+      "config": "MacroLexical_P_escaped_tab.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_space.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_space.complete.tlc.stdout.gz",
+        "stdout_sha256": "6e81e3ff89c85344e9e28d94ad2150dae63adefc44597cfe0357f02db3056566",
+        "stderr": "MacroLexical_P_space.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_space.complete.check.stdout.gz",
+        "stdout_sha256": "8b28d74869162149b64de3c99c97d1fc6788951ff4fb6e25a98675a72e5c83fc",
+        "stderr": "MacroLexical_P_space.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "8b28d74869162149b64de3c99c97d1fc6788951ff4fb6e25a98675a72e5c83fc",
+            "stderr": "MacroLexical_P_space.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "71ae8cd52f31bed12468fcedc1fc09e41bc62056e45f8af554308c6503b04e77",
+            "stderr": "MacroLexical_P_space.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "dedfe7a448aa39dbbbe3ee474b9c1fb9ea58338d9caa5e988604bbd5d7b3309a",
+            "stderr": "MacroLexical_P_space.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "addd8ed632b2e84e72017e1f6c20ab8290b3bb463266426878c1f3570bec8284",
+            "stderr": "MacroLexical_P_space.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "9311c26243efd97d854cf7c6e0a13a5a985421854c071aae85890fbd7b9ee260",
+            "stderr": "MacroLexical_P_space.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_space.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "effa6e13a3e49ee801c693f4337a8ba379b48fe5cbdb98b3e465df687d2ae908",
+            "stderr": "MacroLexical_P_space.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_space.complete.model.tla",
+      "source_sha256": "84d3879812f4811a3054d37c91072194295f70cda84d44e5bbdfe0d8c39d1aa7",
+      "config": "MacroLexical_P_space.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroLexical_P_tilde.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_tilde.complete.tlc.stdout.gz",
+        "stdout_sha256": "aec93d3975e5c44ff1e74f66dbd63f071d9d8b8fc8c4e79201a5251e6d397ce0",
+        "stderr": "MacroLexical_P_tilde.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroLexical_P_tilde.complete.check.stdout.gz",
+        "stdout_sha256": "104805ef5abdcbef56afbf248ffd322e45bfd297362d421ba00b03717f5fb6f7",
+        "stderr": "MacroLexical_P_tilde.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "b7dd586bdf53567bbdb3a6514f587c82471d80f64235938817ea0c447c6f1a99",
+            "stderr": "MacroLexical_P_tilde.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "4f7e4b50756ac83cb99688eeae4d0e557570072f6b1310b3c7cccd08b6c1ef5b",
+            "stderr": "MacroLexical_P_tilde.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "5d331b1dabd6d5b49b846520b8770d6150fb1456c5261fdfffed7cb0789a14bd",
+            "stderr": "MacroLexical_P_tilde.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "bff548899930338f07f4c625d6a19d1fdeefc5e17354dd8a510a85cee7d4fca8",
+            "stderr": "MacroLexical_P_tilde.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b385dd8b3280b2412c6bdd8f5e49a055cd25b32f07be397caf8b454fa7d5ce72",
+            "stderr": "MacroLexical_P_tilde.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroLexical_P_tilde.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "5a07aa8947104cb2b7244b7b428e55fd769c16267cdcec59e31ecb238006038d",
+            "stderr": "MacroLexical_P_tilde.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroLexical_P_tilde.complete.model.tla",
+      "source_sha256": "09ee9a7dfd504cc4950cd5b648c4069c54b863db8b53c9151dc04cdfce4f6222",
+      "config": "MacroLexical_P_tilde.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    }
+  ]
+}

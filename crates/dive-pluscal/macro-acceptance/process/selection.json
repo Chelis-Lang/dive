@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "selected": 32,
+  "rows": [
+    {
+      "id": "MacroProcess_C_set",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_id",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_mixed",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_fair",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_strong",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_plus",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_minus",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "MacroProcess_C_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "MacroProcess_C_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "MacroProcess_C_wfnext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "MacroProcess_C_auto",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "MacroProcess_C_with",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_free_self",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_foreign",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_set",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_id",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_mixed",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_fair",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_strong",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_plus",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_minus",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_nof",
+      "options": [
+        "-nof"
+      ]
+    },
+    {
+      "id": "MacroProcess_P_wf",
+      "options": [
+        "-wf"
+      ]
+    },
+    {
+      "id": "MacroProcess_P_sf",
+      "options": [
+        "-sf"
+      ]
+    },
+    {
+      "id": "MacroProcess_P_wfnext",
+      "options": [
+        "-wfNext"
+      ]
+    },
+    {
+      "id": "MacroProcess_P_auto",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "MacroProcess_P_with",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_free_self",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_foreign",
+      "options": []
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign",
+      "options": []
+    }
+  ]
+}

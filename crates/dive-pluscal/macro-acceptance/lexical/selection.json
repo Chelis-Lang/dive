@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "selected": 26,
+  "rows": [
+    {
+      "id": "MacroLexical_C_space",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_tilde",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_unit_separator",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_delete",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_emoji",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escape_unicode",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escape_hex",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_tab",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_newline",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_formfeed",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_return",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_quote",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_C_escaped_backslash",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_space",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_tilde",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_unit_separator",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_delete",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_emoji",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escape_unicode",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escape_hex",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_tab",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_newline",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_formfeed",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_return",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_quote",
+      "options": []
+    },
+    {
+      "id": "MacroLexical_P_escaped_backslash",
+      "options": []
+    }
+  ]
+}

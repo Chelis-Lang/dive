@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "result": "campaign-stopped",
+  "model": "ProcedureGraph_C_implicit_callee",
+  "expected_exit": 0,
+  "observed_primary_exit": 11,
+  "model_proved": false,
+  "reason": "Incorrect campaign expectation: pinned implicit callee fallthrough reaches pc=\"Error\" and deadlocks. Complete selection preserved; new campaign compares this as deadlock, without proof credit.",
+  "primary": {
+    "exit_code": 11,
+    "stdout": "validation/ProcedureGraph_C_implicit_callee.complete.tlc.stdout.gz",
+    "stdout_sha256": "9c9ef8989d0fdf8feb570fae9d0834812ae5fa72e00dbf976dc939a1afdcfea4",
+    "stderr": "validation/ProcedureGraph_C_implicit_callee.complete.tlc.stderr.gz",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "counts": {
+    "generated": 4,
+    "distinct": 4,
+    "left_on_queue": 0,
+    "depth": 4
+  },
+  "failed_script_sha256": "36f0b7b0561d39188d475ef207a965aca27c60698b5cd680996b1790505dd78e"
+}

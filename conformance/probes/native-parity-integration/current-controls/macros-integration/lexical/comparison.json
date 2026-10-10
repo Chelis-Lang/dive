@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "stage": "macro-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "a89e80362b8761e0ee64307691b9cc3b09790e33b6d63b42598596a7e4bdc94a",
+  "comparator_sha256": "5acd942d6cd0d3a12b7dd523be7d91aead5ff6936aaed607a45c93d1780362f7",
+  "native_sha256": "009c620039aa4299388b5e94d4498388b04548b85b9e6dce0a345ca2063e3287",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 26,
+  "summary": {
+    "rejection-match": 10,
+    "token-artifact-match": 16
+  },
+  "rows": [
+    {
+      "id": "MacroLexical_C_delete",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_C_emoji",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_C_escape_hex",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_C_escape_unicode",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_C_escaped_backslash",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "38f0502c843fd3655575ddf87c0b0120bca86607f6f6f54c7af55fb1bbaeb720",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_escaped_formfeed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fa95fb424554b4f75a659b83efc28648263df402f673c5029c61f4ce71a804d3",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_escaped_newline",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5285c19823aeacb0691c13e2e57487e5cdcf1f9a441eadfb2d3eff6707f7089d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_escaped_quote",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b996ef258451cee4f30c70ecf3b4880344a4f58aa891af54db49df6417804e1a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_escaped_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "81a6d3a0e9c528c4e3f51af3b8752387793e4cdbb1127389b4f0f9161987abba",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_escaped_tab",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd299e9a8594fae5b25db01b18fc3698102d33e8d7595a0cb025abb081128d79",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_space",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a0332b1cf9f19a2fc3f90daa004fa4b59a7890b42006b53078862f949a485b69",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_tilde",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a1b49e7a686b2029e75060dd2a27a7954c8b53e3d43e4fd8491a467ef03a2c7b",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_C_unit_separator",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_P_delete",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_P_emoji",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_P_escape_hex",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_P_escape_unicode",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    },
+    {
+      "id": "MacroLexical_P_escaped_backslash",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "38f0502c843fd3655575ddf87c0b0120bca86607f6f6f54c7af55fb1bbaeb720",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_escaped_formfeed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fa95fb424554b4f75a659b83efc28648263df402f673c5029c61f4ce71a804d3",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_escaped_newline",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5285c19823aeacb0691c13e2e57487e5cdcf1f9a441eadfb2d3eff6707f7089d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_escaped_quote",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b996ef258451cee4f30c70ecf3b4880344a4f58aa891af54db49df6417804e1a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_escaped_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "81a6d3a0e9c528c4e3f51af3b8752387793e4cdbb1127389b4f0f9161987abba",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_escaped_tab",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd299e9a8594fae5b25db01b18fc3698102d33e8d7595a0cb025abb081128d79",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_space",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a0332b1cf9f19a2fc3f90daa004fa4b59a7890b42006b53078862f949a485b69",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_tilde",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a1b49e7a686b2029e75060dd2a27a7954c8b53e3d43e4fd8491a467ef03a2c7b",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroLexical_P_unit_separator",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0001"
+    }
+  ]
+}

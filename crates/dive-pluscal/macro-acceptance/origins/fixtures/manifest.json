@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "reason": "Issue 162 nested macro assertion/if/while and C/P with inserted-label composite source origin controls",
+  "generated_at": "2026-10-10T18:34:13Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "MacroOrigin_C_assert",
+      "input": "MacroOrigin_C_assert.tla",
+      "input_sha256": "f0d8f9a74e13070fd1436e2e548bbf501c36a0fd84c3ffcbcbbc46c52842bb5e",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_assert.translation.stdout.gz",
+        "stdout_sha256": "6a1bb657387347ebc7e97c8670c86a14ad35fae1f9fc9f07c0b8c55c017e96eb",
+        "stderr": "MacroOrigin_C_assert.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_assert.normalized.stdout.gz",
+        "stdout_sha256": "cc2fec056cd9fcfae63e4caa432b0fec42296b1ef0ae58c44100c9a09b66fe62",
+        "stderr": "MacroOrigin_C_assert.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_C_assert.normalized.json",
+          "sha256": "1004e4a5b1978b19a29c25a9dc8ed812421b605c4f06b613dcfbc02070b7dc5d"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_C_assert.translated.tla",
+        "sha256": "c1ba480ee1a237230d03f7d030063a091daf6e6189765a2560d569b14bfa701d"
+      },
+      "config": {
+        "path": "MacroOrigin_C_assert.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_assert.sany.stdout.gz",
+        "stdout_sha256": "1f7f98f17c6bebbd00fbf0c591b7c41f8c2d8e25bb042ceaff98ac4f537f7f3c",
+        "stderr": "MacroOrigin_C_assert.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_C_if",
+      "input": "MacroOrigin_C_if.tla",
+      "input_sha256": "ddaf234bc58937d9e9b0d7c93a5e5d390c52f8ddb4984c7048eb4a7f3eed065f",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_if.translation.stdout.gz",
+        "stdout_sha256": "7541ee272a7cfcc5192909f1c70eb9202b1aa0e7cdd62a456626c24fdbe545b8",
+        "stderr": "MacroOrigin_C_if.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_if.normalized.stdout.gz",
+        "stdout_sha256": "f58d8d679dec7413dc2f68cc455480b11117a87503da8f7073c5e9c8fbcc6b42",
+        "stderr": "MacroOrigin_C_if.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_C_if.normalized.json",
+          "sha256": "f755781ee74850e5abd313c93f85ca3ce7ca70ce5e1adfa5808640b1b1af7722"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_C_if.translated.tla",
+        "sha256": "aac441c64efdfae3565067b74682d57e523af8eb6ff04aeeb62dd1591920d0d5"
+      },
+      "config": {
+        "path": "MacroOrigin_C_if.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_if.sany.stdout.gz",
+        "stdout_sha256": "ef1ffc9367ecdb16eda56c1f3f90c442ae99090655121bcb584cdc445df8daeb",
+        "stderr": "MacroOrigin_C_if.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_C_while",
+      "input": "MacroOrigin_C_while.tla",
+      "input_sha256": "cc7ffd9d633ef3be1a3996ea4ac838fe225d4b7b6de4b79fcbe8400094afee0d",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_while.translation.stdout.gz",
+        "stdout_sha256": "26d0dd3351f4cfbdaa587512a432bc5ade64d1bee7c2beae56d1f6de23814e3a",
+        "stderr": "MacroOrigin_C_while.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_while.normalized.stdout.gz",
+        "stdout_sha256": "d8817f7c585aac6ab22ad5d7d445bdbf164934d8912fb1a4d8625ac84d3272db",
+        "stderr": "MacroOrigin_C_while.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_C_while.normalized.json",
+          "sha256": "7ed4b51fdda0989b0865d5d02f15359745acd67e6f85e3caf07ec07d97a77400"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_C_while.translated.tla",
+        "sha256": "4d2707597e59a7054d5a050f0724c483b076c0869a62cf4eae0c898047d335c5"
+      },
+      "config": {
+        "path": "MacroOrigin_C_while.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_while.sany.stdout.gz",
+        "stdout_sha256": "0fc3027715fdd9acfcd1548e117e39e55927f82b2993e57a77a88366de9b6412",
+        "stderr": "MacroOrigin_C_while.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_C_with",
+      "input": "MacroOrigin_C_with.tla",
+      "input_sha256": "3050ca4d3ea45373eb2d9de985de45d7f34633d475fb6ee78e22a30a24c918de",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_with.translation.stdout.gz",
+        "stdout_sha256": "3eac4503496449bced2565f0396901e49a26e4166096ef0de728d139d0377d73",
+        "stderr": "MacroOrigin_C_with.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_with.normalized.stdout.gz",
+        "stdout_sha256": "62d2999a8337d3f6f07a4fe194c4c62a4433abee565b4bc71c23f11625a95bbb",
+        "stderr": "MacroOrigin_C_with.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_C_with.normalized.json",
+          "sha256": "8b60de5aff547462ae11f036134e2eceec442e786107adbb3ac1919888136133"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_C_with.translated.tla",
+        "sha256": "b8cbe8784ab2d286f391fa782a827561df2680c31f506b6a374bf6d2dfffb004"
+      },
+      "config": {
+        "path": "MacroOrigin_C_with.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_C_with.sany.stdout.gz",
+        "stdout_sha256": "1e0a6b60e91028dc9f66218cabb9dc175f30e0b82341be0e4e46bf328ddf4c49",
+        "stderr": "MacroOrigin_C_with.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_P_assert",
+      "input": "MacroOrigin_P_assert.tla",
+      "input_sha256": "2e3d0699266103f4d525dccaa4ab8962c5a87f90f370ed386e97fcf954b2c25f",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_assert.translation.stdout.gz",
+        "stdout_sha256": "d6ff05d2f788db2156b19eade1790a7562fff6c258c5a38ae1637721cda50cd4",
+        "stderr": "MacroOrigin_P_assert.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_assert.normalized.stdout.gz",
+        "stdout_sha256": "b42b09e860655567d394a3594c4a3e90567c8fcaacd40da2b7955e4a81a23150",
+        "stderr": "MacroOrigin_P_assert.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_P_assert.normalized.json",
+          "sha256": "52b607a09d677e9db29fe998150f2260e2460d3281a4cc5cf1abe834e264b7e0"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_P_assert.translated.tla",
+        "sha256": "a7ed2e885cf4304a87185fd62261e1ace13bdc5f4f7fb0ed4593cabace6420c5"
+      },
+      "config": {
+        "path": "MacroOrigin_P_assert.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_assert.sany.stdout.gz",
+        "stdout_sha256": "ba8585d6ebfb1eb42518c78a4518fd1f77b8a0aabd364898c09bd0bfdf378afb",
+        "stderr": "MacroOrigin_P_assert.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_P_if",
+      "input": "MacroOrigin_P_if.tla",
+      "input_sha256": "0b00ba821e88f62040f89bce1de2273bfd671c5d21637d78414b868608a3505a",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_if.translation.stdout.gz",
+        "stdout_sha256": "a44878fa34aa169d3877e2d8bee8229c6d5cba051e3af3eec43ca204308abd09",
+        "stderr": "MacroOrigin_P_if.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_if.normalized.stdout.gz",
+        "stdout_sha256": "ae1b8b79eee7bd9501250b7088f7d035a2e45dc34516f0c4246cdfecaab4a66c",
+        "stderr": "MacroOrigin_P_if.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_P_if.normalized.json",
+          "sha256": "43908af7afb0eefdddc71a57af8e0a49c327b111630acd72d1c0ee27b6750288"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_P_if.translated.tla",
+        "sha256": "0b6b39bfb116c61d3c7ae85c1abe5ff1ae30d887515847b695e812d4bc0b53f5"
+      },
+      "config": {
+        "path": "MacroOrigin_P_if.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_if.sany.stdout.gz",
+        "stdout_sha256": "9ef04c8f05903445c3e264f364d1f7f0e0e572b43e611de718526c6720266cf5",
+        "stderr": "MacroOrigin_P_if.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_P_while",
+      "input": "MacroOrigin_P_while.tla",
+      "input_sha256": "065556e507050ae59b793f83a0afde2e92cde333b6f880d9afb6678d3751dc97",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_while.translation.stdout.gz",
+        "stdout_sha256": "b737a57f23d21310c598b4cf001f581de604b9fe80d7b1ca9327f6fe83ecd851",
+        "stderr": "MacroOrigin_P_while.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_while.normalized.stdout.gz",
+        "stdout_sha256": "3453d1ee75530edf7095e5972c6505aee759b21e5ccde29a2914ee72d75ca21e",
+        "stderr": "MacroOrigin_P_while.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_P_while.normalized.json",
+          "sha256": "389ecc65dde4d5020e96c84faabfa03706298db3700feeea334cc8a3da0a2e3a"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_P_while.translated.tla",
+        "sha256": "aaecd73a5d3d9758b4ef667505128cf84a7e2e7355bf811873b6e3b5e6b73e5d"
+      },
+      "config": {
+        "path": "MacroOrigin_P_while.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_while.sany.stdout.gz",
+        "stdout_sha256": "edd53d30884479f3532364c4721c177ce41614340bd0909b1b1e5a349847013e",
+        "stderr": "MacroOrigin_P_while.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroOrigin_P_with",
+      "input": "MacroOrigin_P_with.tla",
+      "input_sha256": "77788d8c93d63efd0e3f139873513d6518e6e6f00d8fd290bc9ee2416f01ebe6",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_with.translation.stdout.gz",
+        "stdout_sha256": "a27d0fee31b79099c8dabc00e6b0ac1371ce54e066709a50d432093eb3e2585f",
+        "stderr": "MacroOrigin_P_with.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_with.normalized.stdout.gz",
+        "stdout_sha256": "db15cc74561c78aa071187cf98e35f868547f65106b6e61ac73376838e42ca49",
+        "stderr": "MacroOrigin_P_with.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroOrigin_P_with.normalized.json",
+          "sha256": "c7127ce5df2963c001ef76d0432a21401fbb83f5918ffc96028fe242c7325004"
+        }
+      },
+      "translated": {
+        "path": "MacroOrigin_P_with.translated.tla",
+        "sha256": "e920069bfe529a667f63597f6f10f3c7ebc4994227701ee38c7df51fd06c2317"
+      },
+      "config": {
+        "path": "MacroOrigin_P_with.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroOrigin_P_with.sany.stdout.gz",
+        "stdout_sha256": "0590028f3ddf318ee2c4669e01a5ab2ed0f29d854369011772e266355bed4fe3",
+        "stderr": "MacroOrigin_P_with.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}

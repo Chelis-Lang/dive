@@ -1,4 +1,12 @@
 {
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "historical_integration_sources": [
+    {
+      "matrix": "before-final-mode-source/matrix.json",
+      "matrix_sha256": "c59562cfd64b747aa4cc145b7d3eae8d0f28d0305d82cdff83e494dc0b51c101",
+      "source_archive": "before-final-mode-source/sources"
+    }
+  ],
   "schema_version": 1,
   "scope": "combined native frontier and predecessor storage; no total-memory claim",
   "source_sha256": {
@@ -16,13 +24,5 @@
     "crates/dive-store/src/trace.rs": "3df7a6b8f467346733c961998dc75729f2f5685917453c6c7106db7952f33f72",
     "crates/dive-store/src/predecessor.rs": "d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5",
     "crates/dive-api/tests/predecessor_spill.rs": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e"
-  },
-  "current_integration_scope": "Current final-mode API/CLI integration source identity; original predecessor/checkpoint observations retain immutable producer sources. No retagged run or wider certification.",
-  "historical_integration_sources": [
-    {
-      "matrix": "before-final-mode-source/matrix.json",
-      "matrix_sha256": "c59562cfd64b747aa4cc145b7d3eae8d0f28d0305d82cdff83e494dc0b51c101",
-      "source_archive": "before-final-mode-source/sources"
-    }
-  ]
+  }
 }

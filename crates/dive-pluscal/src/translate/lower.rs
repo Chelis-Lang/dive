@@ -1,10 +1,11 @@
 //! Label/action normalization matching pinned `PcalTranslate`'s continuations.
+use super::macros::Expanded as Parsed;
 use super::{
     FairnessOption, TranslationError, TranslationOptions, TranslationStage, TranslationWarning,
     error,
 };
 use crate::{
-    Code, Parsed,
+    Code,
     ast::{
         Assignment, BindingKind, Block, Body, Decl, Expr, Fairness, Label, Span, StatementKind,
         StmtId, WithBinding,
@@ -25,6 +26,17 @@ pub(super) enum Kind {
     Print(Expr),
     Skip,
     Pc(String),
+    Call {
+        procedure: usize,
+        arguments: Vec<Expr>,
+        next: String,
+    },
+    Return(usize),
+    CallReturn {
+        from: usize,
+        to: usize,
+        arguments: Vec<Expr>,
+    },
     If {
         test: Expr,
         yes: Vec<Node>,
@@ -49,6 +61,8 @@ pub(super) struct Model {
     pub fair: bool,
     pub warnings: Vec<TranslationWarning>,
     pub processes: Vec<crate::ast::Process>,
+    pub procedures: Vec<crate::ast::Procedure>,
+    pub initial_pc: Option<String>,
 }
 struct Group {
     label: Label,
@@ -62,6 +76,7 @@ struct Lower<'a> {
     warnings: Vec<TranslationWarning>,
     use_pc: bool,
     nodes: usize,
+    procedure: Option<&'a crate::ast::Procedure>,
 }
 
 fn failure(code: Code, span: Span, message: impl Into<String>) -> TranslationError {
@@ -75,13 +90,7 @@ fn unsupported(span: Span, feature: &str) -> TranslationError {
     )
 }
 pub(super) fn tokens(parsed: &Parsed, expr: Expr) -> &[crate::ast::Token] {
-    let start = parsed
-        .tokens
-        .partition_point(|token| token.span.start < expr.span.start);
-    let end = parsed
-        .tokens
-        .partition_point(|token| token.span.end <= expr.span.end);
-    parsed.tokens.get(start..end).unwrap_or_default()
+    parsed.tokens(expr)
 }
 fn truth(parsed: &Parsed, expr: Expr, strict: bool) -> bool {
     let text: Vec<_> = tokens(parsed, expr)
@@ -100,6 +109,9 @@ pub(super) fn normalize(
     options: &TranslationOptions,
 ) -> Result<Model, TranslationError> {
     let algorithm = &parsed.algorithm;
+    if !algorithm.procedures.is_empty() {
+        return super::procedures::normalize(parsed, options);
+    }
     if let Body::Processes(processes) = &algorithm.body {
         return super::process::normalize(parsed, processes, options);
     }
@@ -114,19 +126,29 @@ pub(super) fn normalize_with_pc(
     options: &TranslationOptions,
     force_pc: bool,
 ) -> Result<Model, TranslationError> {
+    normalize_context(parsed, options, force_pc, None)
+}
+#[allow(
+    clippy::too_many_lines,
+    reason = "one scoped name/control admission pass precedes normalization"
+)]
+pub(super) fn normalize_context(
+    parsed: &Parsed,
+    options: &TranslationOptions,
+    force_pc: bool,
+    procedure: Option<&crate::ast::Procedure>,
+) -> Result<Model, TranslationError> {
     let algorithm = &parsed.algorithm;
     let Body::Sequential(block) = &algorithm.body else {
         return Err(unsupported(algorithm.span, "multiprocess normalization"));
     };
-    if let Some(procedure) = algorithm.procedures.first() {
-        return Err(unsupported(procedure.span, "procedure normalization"));
-    }
     if let Some(mac) = algorithm.macros.first() {
         return Err(unsupported(mac.span, "macro expansion"));
     }
     if let Some(definition) = algorithm.definitions {
         return Err(unsupported(definition.span, "define-block name binding"));
     }
+    let block = procedure.map_or(block, |p| &p.body);
     let mut lower = Lower {
         parsed,
         options,
@@ -134,6 +156,7 @@ pub(super) fn normalize_with_pc(
         warnings: Vec::new(),
         use_pc: true,
         nodes: 0,
+        procedure,
     };
     if algorithm.fairness == Fairness::Weak
         && matches!(
@@ -244,9 +267,8 @@ pub(super) fn normalize_with_pc(
             }
         }
         match &statement.kind {
-            StatementKind::Goto(_) => goto = true,
-            StatementKind::Call { .. } | StatementKind::Return => {
-                return Err(unsupported(statement.span, "procedure control flow"));
+            StatementKind::Goto(_) | StatementKind::Call { .. } | StatementKind::Return => {
+                goto = true;
             }
             StatementKind::MacroCall { .. } => {
                 return Err(unsupported(statement.span, "macro invocation"));
@@ -289,10 +311,10 @@ pub(super) fn normalize_with_pc(
         });
     let inner_labels = labels.len() > 1;
     lower.use_pc = force_pc || !(infinite && !goto && !any_modifier && !inner_labels);
-    lower.compile_groups(&groups, "Done")?;
-    Ok(Model { actions: lower.actions, variables: algorithm.variables.clone(), use_pc: lower.use_pc,
+    lower.compile_groups(&groups, if procedure.is_some() { "Error" } else { "Done" })?;
+    Ok(Model { actions: lower.actions, variables: if procedure.is_none() { algorithm.variables.clone() } else { Vec::new() }, use_pc: lower.use_pc,
         stutter: !infinite || parsed.statements.iter().any(|statement| matches!(&statement.kind, StatementKind::Goto(target) if ["Done", "\"Done\""].contains(&target.text.as_str()))),
-        fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, processes: Vec::new() })
+        fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, processes: Vec::new(), procedures: Vec::new(), initial_pc: None })
 }
 
 impl Lower<'_> {
@@ -459,6 +481,19 @@ impl Lower<'_> {
         for (index, id) in ids.iter().enumerate() {
             let statement = &self.parsed.statements[id.0];
             let last = index + 1 == ids.len();
+            if index > 0
+                && matches!(
+                    statement.kind,
+                    StatementKind::Goto(_) | StatementKind::Return
+                )
+                && matches!(
+                    self.parsed.statements[ids[index - 1].0].kind,
+                    StatementKind::Call { .. }
+                )
+            {
+                // ParseAlgorithm folds an immediately following goto into CallGoto.
+                continue;
+            }
             self.charge(statement.span)?;
             let kind = match &statement.kind {
                 StatementKind::Assign(assignments) => Kind::Assign(assignments.clone()),
@@ -482,6 +517,117 @@ impl Lower<'_> {
                     } else {
                         target.text.clone()
                     })
+                }
+                StatementKind::Call { name, arguments } => {
+                    let continuation = if last {
+                        next.into()
+                    } else if index + 2 == ids.len() {
+                        if let StatementKind::Goto(target) =
+                            &self.parsed.statements[ids[index + 1].0].kind
+                        {
+                            target.text.trim_matches('"').to_owned()
+                        } else if matches!(
+                            self.parsed.statements[ids[index + 1].0].kind,
+                            StatementKind::Return
+                        ) {
+                            String::new()
+                        } else {
+                            return Err(failure(
+                                Code::Label,
+                                statement.span,
+                                "missing label after procedure call",
+                            ));
+                        }
+                    } else {
+                        return Err(failure(
+                            Code::Label,
+                            statement.span,
+                            "missing label after procedure call",
+                        ));
+                    };
+                    let target = self
+                        .parsed
+                        .algorithm
+                        .procedures
+                        .iter()
+                        .position(|p| p.name.text == name.text)
+                        .ok_or_else(|| {
+                            failure(
+                                Code::Syntax,
+                                name.span,
+                                format!("call of non-existent procedure {}", name.text),
+                            )
+                        })?;
+                    let procedure = &self.parsed.algorithm.procedures[target];
+                    if procedure.parameters.len() != arguments.len() {
+                        return Err(failure(
+                            Code::Syntax,
+                            statement.span,
+                            "procedure called with wrong number of arguments",
+                        ));
+                    }
+                    needs_goto = false;
+                    if !last
+                        && matches!(
+                            self.parsed.statements[ids[index + 1].0].kind,
+                            StatementKind::Return
+                        )
+                    {
+                        let from = self.procedure.ok_or_else(|| {
+                            failure(
+                                Code::Syntax,
+                                statement.span,
+                                "return statement following call not in a procedure",
+                            )
+                        })?;
+                        let owner = self
+                            .parsed
+                            .algorithm
+                            .procedures
+                            .iter()
+                            .position(|p| p.name.text == from.name.text)
+                            .ok_or_else(|| {
+                                failure(Code::Internal, statement.span, "return owner missing")
+                            })?;
+                        Kind::CallReturn {
+                            from: owner,
+                            to: target,
+                            arguments: arguments.clone(),
+                        }
+                    } else {
+                        Kind::Call {
+                            procedure: target,
+                            arguments: arguments.clone(),
+                            next: continuation,
+                        }
+                    }
+                }
+                StatementKind::Return => {
+                    if !last {
+                        return Err(failure(
+                            Code::Label,
+                            statement.span,
+                            "missing label after return",
+                        ));
+                    }
+                    let owner = self.procedure.ok_or_else(|| {
+                        failure(
+                            Code::Syntax,
+                            statement.span,
+                            "return statement not in procedure",
+                        )
+                    })?;
+                    needs_goto = false;
+                    Kind::Return(
+                        self.parsed
+                            .algorithm
+                            .procedures
+                            .iter()
+                            .position(|p| p.name.text == owner.name.text)
+                            .ok_or_else(|| {
+                                failure(Code::Internal, statement.span, "return owner missing")
+                            })?,
+                    )
                 }
                 StatementKind::While { .. } => {
                     return Err(failure(
@@ -587,9 +733,6 @@ impl Lower<'_> {
                         statement.span,
                         "unexpected unflattened C block",
                     ));
-                }
-                StatementKind::Call { .. } | StatementKind::Return => {
-                    return Err(unsupported(statement.span, "procedure control flow"));
                 }
                 StatementKind::MacroCall { .. } => {
                     return Err(unsupported(statement.span, "macro invocation"));

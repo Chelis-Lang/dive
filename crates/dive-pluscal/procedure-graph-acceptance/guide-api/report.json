@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "script_sha256": "44699574f18d036648bd70ba0cb6669cabeb79aa98c4461231505cd18bb8c526",
+  "guide_sha256": "b52a5ac0eeaf9dede96dbff158d6d48d1069a7b2627fc8fcb4c522f12c40907c",
+  "library_sha256": "a60b076bd8739db8f44dbb1f7edbc3e7cc085e764a7a670b5637202134807a8d",
+  "controls": 2,
+  "rows": [
+    {
+      "module": "ProcedureGraphExample",
+      "source_sha256": "94f27adea1fbdd0839420008572087d42805e14586c2b78e35eaf8c619c1e572",
+      "program_sha256": "e921f4d7bfead6b120eeb476dc33e357916e6663b0c4c18cc7bfad081ca0a638",
+      "result": "artifact",
+      "model_proved": false,
+      "exhaustive": false,
+      "exit_code": 0,
+      "capture": {
+        "stdout": {
+          "path": "ProcedureGraphExample.stdout.gz",
+          "sha256": "311ea8f92cea0d4652a402d0ceeaa0f043774375ebe474030dc3eeb0b2559fd9"
+        },
+        "stderr": {
+          "path": "ProcedureGraphExample.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "module": "ProcedureGraphExampleC",
+      "source_sha256": "75b605981ded5e88d1a337eab56ca3d0894e3273e90845cc1a60bbebd3a84744",
+      "program_sha256": "b07111a84cdf87933183ac09a9add302264598e91d6013a389a9cc3bc5032740",
+      "result": "artifact",
+      "model_proved": false,
+      "exhaustive": false,
+      "exit_code": 0,
+      "capture": {
+        "stdout": {
+          "path": "ProcedureGraphExampleC.stdout.gz",
+          "sha256": "c08fa3b6a5a3aa406d304fb5ee201550e9fbc722d121dcba51448ac843e5868a"
+        },
+        "stderr": {
+          "path": "ProcedureGraphExampleC.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

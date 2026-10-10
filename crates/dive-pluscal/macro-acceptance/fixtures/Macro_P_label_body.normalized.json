@@ -1,0 +1,2 @@
+pcal.exception.ParseAlgorithmException: A label may not appear in a macro.
+    line 3, column 60

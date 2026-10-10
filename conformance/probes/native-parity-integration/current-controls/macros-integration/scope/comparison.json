@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "stage": "macro-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "2d96311ebcf2b76cc4b0240ec9f532715e8a4b63e87a034dc0e0aeaa210421c6",
+  "comparator_sha256": "5acd942d6cd0d3a12b7dd523be7d91aead5ff6936aaed607a45c93d1780362f7",
+  "native_sha256": "009c620039aa4299388b5e94d4498388b04548b85b9e6dce0a345ca2063e3287",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 16,
+  "summary": {
+    "native-refusal": 6,
+    "token-artifact-match": 8,
+    "invalid-reference-artifact": 2
+  },
+  "rows": [
+    {
+      "id": "MacroScope_C_function_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: function/set expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_C_let_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: TLA expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_C_qualified_actual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f747e79e4c6ccada7236f493a32a684736740e017902271912fc48f70a19b7a0",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_C_qualified_formal",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "MacroScope_C_quantifier_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: TLA expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_C_record_selector",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "267e1d963cae2afb901a61cd3efb704921d36f80691d97d23f1cc5967ce4e7c8",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f03817e09612570c4f2b57d45a8831ee3587e4fb009382b17370ab3a0be6a726",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_C_with_shadow",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "59f0cc7bece69bbe164c7ef03190c965dba237da37da361434b2d9266e860bb3",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_P_function_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: function/set expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_P_let_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: TLA expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_P_qualified_actual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f747e79e4c6ccada7236f493a32a684736740e017902271912fc48f70a19b7a0",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_P_qualified_formal",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "MacroScope_P_quantifier_shadow",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: TLA expression binder substitution",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MacroScope_P_record_selector",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "267e1d963cae2afb901a61cd3efb704921d36f80691d97d23f1cc5967ce4e7c8",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f03817e09612570c4f2b57d45a8831ee3587e4fb009382b17370ab3a0be6a726",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "MacroScope_P_with_shadow",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "59f0cc7bece69bbe164c7ef03190c965dba237da37da361434b2d9266e860bb3",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}
