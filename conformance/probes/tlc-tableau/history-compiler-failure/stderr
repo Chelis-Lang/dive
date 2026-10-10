@@ -1,0 +1,8 @@
+/tmp/dive-tlc-tableau-initial-compiler-failure/TableauProbe.java:105: error: for-each not applicable to expression type
+      List<String> names=new ArrayList<>();for(String name:tool.getModelConfig().getProperties())names.add(name);field("configured_names",String.join(";",names));
+                                                                                              ^
+  required: array or java.lang.Iterable
+  found:    Vect
+Note: /tmp/dive-tlc-tableau-initial-compiler-failure/PlanningProbe.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 error

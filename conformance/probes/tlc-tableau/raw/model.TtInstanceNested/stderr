@@ -1,0 +1,28 @@
+Parsing file /Users/jeff/code/dive-tlc-tableau-work/conformance/probes/tlc-tableau/models/TtInstanceNested/TtInstanceNested.tla
+Parsing file /Users/jeff/code/dive-tlc-tableau-work/conformance/probes/tlc-tableau/models/TtInstanceNested/TtPart.tla
+Semantic processing of module TtPart
+Semantic processing of module TtInstanceNested
+Semantic errors:
+
+*** Errors: 1
+
+line 5, col 1 to line 5, col 32 of module TtInstanceNested
+
+Level error in instantiating module 'TtPart':
+The level of the expression or operator substituted for 'p' 
+must be at most 0.
+
+
+Starting... (2026-10-10 14:46:55)
+failure_code	3002
+Exception in thread "main" util.Assert$TLCRuntimeException: Parsing or semantic analysis failed.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processSpec(SpecProcessor.java:451)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:199)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at tlc2.tool.liveness.TableauProbe.run(TableauProbe.java:102)
+	at tlc2.tool.liveness.TableauProbe.main(TableauProbe.java:113)

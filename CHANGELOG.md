@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Add bounded diagnostic TLC binary particle tableaux: exact first-encounter
+  node/edge order, state predicates, initial particles and promise identities.
+  Complete pinned projections and independent periodic/closing-witness controls
+  preserve explicit resource, structural and scope refusals. Strict integrated
+  liveness, checker behavior and defaults remain unchanged.
+
 - Add a bounded diagnostic TLC planning projection: predicate occurrence tags,
   negation/simplification/DNF stages, ordered EA/AE and OOS/PEM grouping, and
   original configured property identities. Field-level pinned Java controls and

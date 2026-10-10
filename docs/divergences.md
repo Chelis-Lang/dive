@@ -251,3 +251,12 @@ EA/AE classification and first-encounter OOS/PEM bins. Original property names
 remain available independently of combined DNF. This is diagnostic planning
 support only: no new default, tableau identity or strict integrated-liveness
 claim. Existing opaque/scope/effect and construction-limit refusals remain.
+
+D-013 diagnostic planning now also projects bounded TLC particle/tableau
+numbering and promise identities (ADR 0027). Actual pinned graph fields and
+independent periodic/closing-witness controls cover this artifact; it never
+reports a temporal verdict. Empty/nonpositive direct structures, actions,
+unchecked group/tag/bin metadata, opaque/effectful scopes and resource limits
+remain named refusals. Strict integrated TLC liveness, phase-L timing, SCC and
+witness selection remain unsupported by this stage. Original configured/Action
+claims and derived role names stay separate; no new default is adopted.

@@ -1,0 +1,5 @@
+Exception in thread "main" util.WrongInvocationException: LiveExprNode.makeBinary: TLC encounters actions.
+	at tlc2.tool.liveness.LNAction.makeBinary(LNAction.java:113)
+	at tlc2.tool.liveness.TableauProbe.formulaGraph(TableauProbe.java:48)
+	at tlc2.tool.liveness.TableauProbe.run(TableauProbe.java:109)
+	at tlc2.tool.liveness.TableauProbe.main(TableauProbe.java:113)
