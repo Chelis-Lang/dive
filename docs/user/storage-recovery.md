@@ -66,3 +66,8 @@ is symmetric. Effectful configuration aliases are refused before binding output
 or archive creation, including public Rust IR; pure aliases remain supported.
 The [source and raw study](../../conformance/probes/native-checkpoint-keys/README.md)
 separates historical evidence from the current integrated implementation.
+
+Current source-bound spill/recovery and executable CLI/Rust example evidence is
+in the [combined recovery receipt](../../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json).
+It proves the listed finite-safety selection, not total-memory bounds, archive
+authenticity or complete TLC recovery interoperability.

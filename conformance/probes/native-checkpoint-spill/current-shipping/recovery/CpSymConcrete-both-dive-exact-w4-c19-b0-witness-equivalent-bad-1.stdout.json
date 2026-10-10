@@ -1,0 +1,1 @@
+{"command":"validate-trace","failure":{"check":"next","detail":"the step into this state does not satisfy the next-state relation line 6, col 9 to line 6, col 52 of module CpSymConcrete","state":1},"length":3,"notes":[],"result":"invalid","schema_version":1}

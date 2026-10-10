@@ -137,3 +137,15 @@ storage directories are separate obligations. Runtime/effect/temporal/deferred
 recovery and full F-032 certification remain pending. Native archive workspace,
 visited sets/candidates/worker scratch and reconstructed paths remain outside
 both transient budgets; no aggregate-memory or Java byte-interop claim.
+
+### Combined implementation verification, 2026-10-11
+
+The transient-storage continuation was integrated with the current parallel
+recovery/observer engine and newer temporal/PlusCal CLI without changing their
+production code. Its source-bound current receipt is
+`conformance/probes/native-checkpoint-spill/current-shipping/delivery.json`;
+the prior delivery/source maps remain immutable. Fresh 576-group recovery and
+96 failure selections, concrete independent witnesses, CLI/Rust guide examples,
+916 workspace tests and CM1/VTS at 1/4/8 passed. Limits, named exclusions and
+trusted-local non-certificate status remain as specified above. Local two-thread
+timing does not certify the Linux job budget; all test/time bounds are unchanged.

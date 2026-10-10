@@ -287,3 +287,14 @@ The separate encoded-frontier and resident-predecessor budgets still exclude
 native archive serialization, visited sets, candidate payloads and reconstruction
 workspace. Neither archive checksums nor successful recovery authenticate or
 independently certify imported snapshots.
+
+## Current transient-storage verification
+
+The [combined-source receipt](../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json)
+records a fresh complete 576-group recovery campaign, 4,032 CLI calls, 1,728
+independent witness controls and 96 failure controls. Its runtime executable and
+254 implementation inputs are separate from the earlier frozen producers. The
+CLI and Rust examples above executed on this source. All 916 workspace tests and
+CM1/ValidationTestSuite selections at 1/4/8 workers passed locally. Local timings
+and the pending Linux CI scheduling qualification are retained in the study;
+they are not performance or full recovery-family certification.

@@ -94,3 +94,34 @@ python3 -I conformance/probes/native-checkpoint-spill/capture_failures.py DIVE F
 F-032 remains partial/audit-required. The native snapshot and its corruption
 checksum are trusted-local recovery inputs, never an independent reachability
 certificate; neither transient budget bounds total search or archive memory.
+
+## Current combined-source verification (2026-10-11)
+
+[`current-shipping/delivery.json`](current-shipping/delivery.json) pins the new
+`7872bf6` runtime and release executable separately from the original frozen
+producer above. The existing parallel engine, graph capture and production CLI
+are unchanged from its integrated baseline. All 576 recovery groups, 4,032 CLI
+calls, 1,728 independent witness controls and 96 failure controls passed again;
+10,609 raw/trace/archive/source hashes verified. Three CLI guide commands and
+the maintained Rust guide ran against this combined implementation. Its 254
+implementation inputs and exact historical authority bytes are archived.
+
+The full gate passed 916 tests, all 15 Python/source scripts, documentation,
+layering, standalone trace and dependency checks. CM1 21/21 and validation-smoke
+16/16 fully agreed at 1/4/8 workers. Nextest took 1,314.189 seconds at two local
+threads; total gate time was 1,915.979 seconds, including cold compilation/docs.
+The 18 spill matrix wrappers took 20.344–85.079 seconds; their aggregate test
+work plus the two failure/cross-budget tests was 867.460 seconds. All 180-second
+per-test bounds and selected cases remained unchanged. Release compilation,
+recovery campaigns and conformance ran concurrently; recorded load and individual
+times are functional evidence, not Linux runtime or performance claims.
+
+The lead reported a following main Workspace job exceeding its unchanged
+15-minute budget without a failed test; publication is held for scheduling repair
+that preserves the complete selection. No test, oracle, assertion or timeout was
+weakened here. Immutable preparation reuse is a possible future optimization;
+startup/binding, ordered names and evaluator-specific caches remain per-run.
+This study leaves F-032 partial/audit-required and preserves every earlier
+producer/source/raw receipt. Capture this integrated selection with
+`capture_shipping_recovery.py` and `capture_shipping_failures.py` into fresh
+output directories; original capture scripts and receipts remain historical.
