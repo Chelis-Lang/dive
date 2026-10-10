@@ -130,8 +130,13 @@ pub(super) fn normalize(
                 format!("global variable {} redefined", decl.name.text),
             ));
         }
-        if decl.initial.is_none() {
-            return Err(unsupported(decl.span, "default variable initialization"));
+        if decl.name.text == "defaultInitValue"
+            && algorithm.variables.iter().any(|var| var.initial.is_none())
+        {
+            return Err(unsupported(
+                decl.span,
+                "default initializer name disambiguation",
+            ));
         }
         if ["vars", "Init", "Next", "Spec", "Termination", "Terminating"]
             .contains(&decl.name.text.as_str())
@@ -144,9 +149,6 @@ pub(super) fn normalize(
     let mut binders = BTreeSet::new();
     for statement in &parsed.statements {
         if let Some(label) = &statement.label {
-            if label.modifier.is_some() {
-                return Err(unsupported(label.span, "label fairness modifiers"));
-            }
             if !labels.insert(label.name.text.as_str()) {
                 return Err(failure(Code::Label, label.span, "duplicate source label"));
             }
