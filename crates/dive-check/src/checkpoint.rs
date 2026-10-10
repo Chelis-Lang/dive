@@ -2,7 +2,8 @@
 //!
 //! This format restores a trusted local search, not an independent certificate.
 //! Checksums detect corruption, not malicious rewriting. Java checkpoint bytes,
-//! temporal graphs, runtime effects and parallel recovery are not admitted.
+//! temporal graphs and runtime effects are not admitted. Pure safety recovery
+//! uses the deterministic level-synchronous worker pool, or explicit inline mode.
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
@@ -120,8 +121,10 @@ type Fallible<T> = std::result::Result<T, String>;
 
 /// Checks or resumes a pure safety model with a native snapshot.
 ///
-/// This first slice runs the level engine inline with one actual worker even if
-/// more were requested. Runtime effects, names, evaluator-driven deferred state values,
+/// Pure admitted models use the deterministic level engine at the requested
+/// worker width, unless explicit inline mode is selected. Boundary-zero pauses
+/// stop before the pool starts and report one actual worker. Runtime effects,
+/// names, evaluator-driven deferred state values,
 /// Temporal properties and transient-spill options refuse by name. Pure supported
 /// VIEW and safety symmetry use the configured live-search key path during restore.
 /// Identity and archive structure are validated before evaluation. Recovery
@@ -533,6 +536,29 @@ impl Session {
         ordinal: u32,
         ctx: dive_value::Ctx,
     ) -> std::result::Result<(), Verdict> {
+        self.record_bytes(|| S::checkpoint_key(key), state, parent, ordinal, ctx)
+    }
+
+    /// An already resolved key, copied before the winner's key is consumed.
+    pub(crate) fn record_key(
+        &mut self,
+        key: Vec<u8>,
+        state: &StateVals,
+        parent: Option<StateId>,
+        ordinal: u32,
+        ctx: dive_value::Ctx,
+    ) -> std::result::Result<(), Verdict> {
+        self.record_bytes(|| key, state, parent, ordinal, ctx)
+    }
+
+    fn record_bytes(
+        &mut self,
+        key: impl FnOnce() -> Vec<u8>,
+        state: &StateVals,
+        parent: Option<StateId>,
+        ordinal: u32,
+        ctx: dive_value::Ctx,
+    ) -> std::result::Result<(), Verdict> {
         if self.discoveries.len() >= MAX_STATES {
             return Err(failure("65536 discovery limit"));
         }
@@ -558,7 +584,7 @@ impl Session {
             .try_reserve_exact(bound)
             .map_err(|e| failure(e.to_string()))?;
         encode_state(&values, ctx, &mut bytes).map_err(|e| failure(e.to_string()))?;
-        let key = S::checkpoint_key(key);
+        let key = key();
         if key.len() > MAX_STATE_BYTES {
             return Err(failure("key record limit"));
         }

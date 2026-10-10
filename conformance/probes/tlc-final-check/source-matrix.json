@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
-  "scope": "Current focused API/CLI final-only controls and admission; original30 reference/120 native producer outcomes retain frozen historical-before-cli source and are not new broad-corpus evidence. Ordinary periodic checking and unverified errors receive no coverage.",
+  "scope": "Current integrated-source integrity; historical final producer outcomes remain bound to preserved sources and are not recertified by this matrix.",
   "source_sha256": {
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/tlc_scc.rs": "2a3386de8d846ce025b3f65d529be7b0c8501908a583cb8b67d8e8a87ba8f77e",
@@ -18,7 +18,7 @@
     "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3",
     "docs/tlc-final-api.md": "9731c605878aab7fbeb5486678774d3b148c91d4cb9bcb2e5e2bce682e60b52b",
     "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd",
-    "crates/dive-api/src/check.rs": "d99a141d993d2c196ccb83c23d7b058f0874dba0ef3702af25dc68db34c8d975",
+    "crates/dive-api/src/check.rs": "5c0c20a568e895735ab134f4df5a1e41d2fda51035112d8ac94a9792a9e731ae",
     "crates/dive-api/src/check_tlc_temporal.rs": "a5f8a6531d3c966d6cee3a06c50d1b1738a0ae32e9bbc1cf758a341d1ab00d52",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "a56d98b475a089116a9352a969ece2573df1eff784089fdefeb4da6ce5124fb0",

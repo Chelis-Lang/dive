@@ -1,0 +1,45 @@
+RUN test-validation-import.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.232s
+
+OK
+RESULT 0
+RUN test-frontend-campaign.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 2.584s
+
+OK
+RESULT 0
+RUN test-parity-ledger.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.123s
+
+OK
+RESULT 0
+RUN check-parity-ledger.py
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+RESULT 0
+RUN check-tlc-planning.py
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+RESULT 0
+RUN check-tlc-tableau.py
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+RESULT 0
+RUN check-temporal-action-order.py
+verified all 36 pinned direct controls, compiler failure and native before observations
+RESULT 0
+RUN check-phase-l.py
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+RESULT 0
+RUN check-phase-l-graph.py
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+RESULT 0
+RUN check-phase-execution.py
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-checkpoint-keys-shipping-work/scripts/check-phase-execution.py", line 34, in <module>
+    for name,digest in matrix['source_sha256'].items():assert phase_l.sha(ROOT/name)==digest,name
+AssertionError: crates/dive-check/src/engine.rs
+RESULT 1

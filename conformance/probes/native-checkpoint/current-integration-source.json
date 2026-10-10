@@ -7,13 +7,13 @@
       "source_archive": "before-final-mode-source/sources"
     }
   ],
-  "scope": "current combined source; frozen original delivery retained separately",
+  "scope": "current combined source; frozen original delivery retained separately; staged deterministic pure safety parallel recovery",
   "source_sha256": {
-    "crates/dive-api/src/check.rs": "d99a141d993d2c196ccb83c23d7b058f0874dba0ef3702af25dc68db34c8d975",
+    "crates/dive-api/src/check.rs": "5c0c20a568e895735ab134f4df5a1e41d2fda51035112d8ac94a9792a9e731ae",
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
-    "crates/dive-api/tests/native_checkpoint.rs": "b22d813041e55a4ae70441c97e63070718832f7d11d3195f0d49e828105e9fd3",
-    "crates/dive-check/src/checkpoint.rs": "ee4e4416d8c4a945d4e9e72e3c12d0272ceb3a2a9c84c1dc3ec88f428709e3a3",
-    "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
+    "crates/dive-api/tests/native_checkpoint.rs": "5862572c7b3618c7f856027cb2b0c0542bdfda896add46f4a3735b45c821b6e0",
+    "crates/dive-check/src/checkpoint.rs": "096e3daa74bb0bbebb06fd0ebdb8f7e302b436fd1442ce9c971377d038a7745b",
+    "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
     "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "a56d98b475a089116a9352a969ece2573df1eff784089fdefeb4da6ce5124fb0",

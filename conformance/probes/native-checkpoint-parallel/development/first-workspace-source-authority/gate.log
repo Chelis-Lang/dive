@@ -1,0 +1,22 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.279s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 2.815s
+
+OK
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.085s
+
+OK
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-checkpoint-parallel-work/scripts/check-tlc-planning.py", line 107, in <module>
+    main()
+  File "/Users/jeff/code/dive-checkpoint-parallel-work/scripts/check-tlc-planning.py", line 103, in main
+    assert sha(ROOT / path) == digest, path
+AssertionError: crates/dive-check/src/parallel.rs

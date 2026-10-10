@@ -342,6 +342,80 @@
         "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0"
       },
       "scope": "Immutable runtime of combined controls before ordered temporal execution; historical execution only."
+    },
+    {
+      "slice": "parallel-checkpoint-recovery",
+      "source_commit": "d835d9ebb1f38e41049d3d5203e5235a482d3a91",
+      "source_tree": "4bb28526d9e2346b2b922f0301fdbeff09b2480f",
+      "matrices_sha256": {
+        "history/parallel-checkpoint-recovery/matrices/conformance/probes/native-checkpoint-parallel/delivery.json": "7ca3aaccd3ea8d5b312fd67c34758776ed349a361f6df871aa7705dfb5483b99"
+      },
+      "source_sha256": {
+        "crates/dive-api/src/check.rs": "eff3f0947c232d63d9dbd75de84cfcdf3ea234e254b482ebf10fcad3fe62461e",
+        "crates/dive-api/tests/native_checkpoint.rs": "5862572c7b3618c7f856027cb2b0c0542bdfda896add46f4a3735b45c821b6e0",
+        "crates/dive-api/tests/native_checkpoint_keys.rs": "f33a97ea9eadf6e97f04913a400a2c91a7c2a37efdb93c9ac06fb6e2ea6e16f9",
+        "crates/dive-check/src/checkpoint.rs": "5ff4d8b18ab0d8b8335e904d250008b5250489b5ed993b97318bfffa65e9f358",
+        "crates/dive-check/src/engine.rs": "5bb4277ed1e599e07fc605bbf35fbfc9977147108e9ac776eeb16cc467542312",
+        "crates/dive-check/src/parallel.rs": "1fcc2bddf8756fb5c79273a40adc613e1731fdde62a68ab2cbf60c28fafaa612",
+        "crates/dive-check/tests/native_checkpoint.rs": "47d2cb810414506a0f251bf4e0168d18353784a559ae27fd6afd9f423f399a1f"
+      },
+      "scope": "Immutable parallel-recovery delivery; archived Rust inputs from its recorded runtime commit, exact delivery matrix from delivery commit. No combined-source or family certification.",
+      "runtime_source_commit": "aae23a08c97b1095e9545df530c267ab4552cc17",
+      "runtime_implementation_commit": "32916a53dac005ffa16edd2145b31fa4653fd72b"
+    },
+    {
+      "slice": "execution-before-parallel-recovery",
+      "source_commit": "ca310144865e35656ff007e1e34fcce02eeee240",
+      "source_tree": "3ca318cf58634d8386b984735243f5e523717748",
+      "matrices_sha256": {
+        "history/execution-before-parallel-recovery/matrices/conformance/probes/tlc-phase-execution/source-matrix.json": "7e27900a5b12dc74f9f2b9d9767722d7cf3dfc39539d90f23238d4301a04ddf6"
+      },
+      "source_sha256": {
+        "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
+        "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
+        "crates/dive-check/src/engine.rs": "141f082ee1e1ef32e013e986db8ad144c6d0497cd09c43ac3f694ebda5737ea5",
+        "crates/dive-check/src/parallel.rs": "75efa7fd0967fcc9f9177be4e7849a0ec3f1dac49f06ad258ebce8bf5e725f54",
+        "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
+        "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+        "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
+        "crates/dive-liveness/src/phase_execution.rs": "41c538f9a50c59bd83c0e02b18f579b43b131f87d90dbf4c8905cf0e7f905a51",
+        "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
+        "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
+      },
+      "scope": "immutable separately verified slice; no combined-source or full family certification"
+    },
+    {
+      "slice": "final-before-parallel-recovery",
+      "source_commit": "ca310144865e35656ff007e1e34fcce02eeee240",
+      "source_tree": "3ca318cf58634d8386b984735243f5e523717748",
+      "matrices_sha256": {
+        "history/final-before-parallel-recovery/matrices/conformance/probes/tlc-final-check/source-matrix.json": "3634d17f2a79738b347c467141f1c86a3fb5ff73b778a1c81d3fd4f308ad0ef5"
+      },
+      "source_sha256": {
+        "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+        "crates/dive-liveness/src/tlc_scc.rs": "2a3386de8d846ce025b3f65d529be7b0c8501908a583cb8b67d8e8a87ba8f77e",
+        "crates/dive-liveness/src/tlc_witness.rs": "ece2eac8aa955ee0af5938bc3912c59851b166d9af2fdbf73fe995e3c30f84b5",
+        "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
+        "crates/dive-liveness/src/phase_execution.rs": "41c538f9a50c59bd83c0e02b18f579b43b131f87d90dbf4c8905cf0e7f905a51",
+        "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
+        "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
+        "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
+        "crates/dive-api/src/lib.rs": "7e1e90f04ac38eba01a13c0a26a603f4a7c14090a3383148f01458580fcaa6ed",
+        "crates/dive-api/src/tlc_temporal.rs": "324027d35874c5698c7cf56d7adc6ec10b46a900df0d02b6a54a2f6802013591",
+        "crates/dive-api/src/tlc_temporal_admission.rs": "263c5d553c2f45552a299b9da48375b9870b9cbc6865b2dd20fd8f1952d67a29",
+        "crates/dive-api/tests/tlc_temporal.rs": "c2477974fabe6fd04be10e4dff4bd9e8151ba39d18661d033fff330bcf94c1e6",
+        "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3",
+        "docs/tlc-final-api.md": "9731c605878aab7fbeb5486678774d3b148c91d4cb9bcb2e5e2bce682e60b52b",
+        "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd",
+        "crates/dive-api/src/check.rs": "d99a141d993d2c196ccb83c23d7b058f0874dba0ef3702af25dc68db34c8d975",
+        "crates/dive-api/src/check_tlc_temporal.rs": "a5f8a6531d3c966d6cee3a06c50d1b1738a0ae32e9bbc1cf758a341d1ab00d52",
+        "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+        "crates/dive-cli/tests/cli.rs": "a56d98b475a089116a9352a969ece2573df1eff784089fdefeb4da6ce5124fb0",
+        "crates/dive-conformance/src/dive.rs": "2b2263d687019c64a74fe832fe7a25c2765ae8b742b41dd01d849963a453eee8",
+        "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
+        "crates/dive-conformance/src/pipeline.rs": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4"
+      },
+      "scope": "immutable separately verified slice; no combined-source or full family certification"
     }
   ]
 }

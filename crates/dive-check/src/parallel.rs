@@ -79,9 +79,10 @@ type Key = (Pos, u8);
 
 const PH_ENUM: u8 = 0;
 const PH_CHECK: u8 = 1;
-const PH_CAPTURE: u8 = 2;
-const PH_INV: u8 = 3;
-const PH_IMPLIED: u8 = 4;
+const PH_NATIVE: u8 = 2;
+const PH_CAPTURE: u8 = 3;
+const PH_INV: u8 = 4;
+const PH_IMPLIED: u8 = 5;
 const PH_DEADLOCK: u8 = 9;
 
 /// Below this many candidates a level's resolve runs on one thread.
@@ -212,6 +213,8 @@ struct Expand<'env, S: Keyed> {
     outs: Vec<Mutex<Option<BlockOut<S::Key>>>>,
     /// Per-source scratch cap, absent for ordinary safety exploration.
     capture_limit: Option<u64>,
+    /// Per-unit ceiling; the aggregate native counter is resolved in reference order.
+    native_counter_remaining: Option<u64>,
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
     chaos: Option<u64>,
@@ -348,6 +351,26 @@ impl<S: Keyed> Expand<'_, S> {
             let r = m
                 .evaluator
                 .next_states(&m.actions[a], s0, first, &mut |succ: &Successor<'_>| {
+                    if self
+                        .native_counter_remaining
+                        .is_some_and(|limit| generated >= limit)
+                    {
+                        event = Some(Event {
+                            key: (
+                                (state, ua, u32::try_from(succ.ordinal).unwrap_or(u32::MAX)),
+                                PH_ENUM,
+                            ),
+                            unit,
+                            c: generated,
+                            verdict: crate::checkpoint::failure(
+                                "generated counter exceeds native positive TLC-long bound",
+                            ),
+                            then: None,
+                            resume: false,
+                            stutter: false,
+                        });
+                        return Flow::Stop;
+                    }
                     generated += 1;
                     let Ok(ord) = u32::try_from(succ.ordinal) else {
                         event = Some(Event {
@@ -565,6 +588,62 @@ struct Winner {
     pos: Pos,
     vals: StateVals,
     action: u32,
+    /// The actual resolved store key, retained without re-keying a concrete state.
+    checkpoint_key: Option<Vec<u8>>,
+}
+
+fn ordinal_of(winner: &Winner, gens: &[u64], narrow: bool, actions: usize) -> Option<u32> {
+    let (i, action, ordinal) = winner.pos;
+    let prior = if narrow {
+        let i = usize::try_from(i).ok()?;
+        gens[i * actions..i * actions + action as usize]
+            .iter()
+            .sum::<u64>()
+    } else {
+        0
+    };
+    u32::try_from(prior.checked_add(u64::from(ordinal))?).ok()
+}
+
+fn unit_position(unit: usize, narrow: bool, actions: usize, ordinal: u64) -> Pos {
+    if narrow {
+        (
+            unit as u64 / actions as u64,
+            u32::try_from(unit % actions).unwrap_or(u32::MAX),
+            u32::try_from(ordinal).unwrap_or(u32::MAX),
+        )
+    } else {
+        (unit as u64, 0, u32::try_from(ordinal).unwrap_or(u32::MAX))
+    }
+}
+
+/// Native integer limits are prefix decisions, never worker-local cutoffs.
+fn native_counter_event(
+    generated: u64,
+    gens: &[u64],
+    units: Range<usize>,
+    narrow: bool,
+    actions: usize,
+) -> Option<Event> {
+    let mut remaining = crate::checkpoint::MAX_COUNTER.saturating_sub(generated);
+    for unit in units {
+        let count = gens[unit];
+        if count > remaining {
+            return Some(Event {
+                key: (unit_position(unit, narrow, actions, remaining), PH_ENUM),
+                unit,
+                c: remaining,
+                verdict: crate::checkpoint::failure(
+                    "generated counter exceeds native positive TLC-long bound",
+                ),
+                then: None,
+                resume: false,
+                stutter: false,
+            });
+        }
+        remaining -= count;
+    }
+    None
 }
 
 struct ChunkOut {
@@ -690,9 +769,20 @@ pub(crate) fn levels<S: Keyed>(
     opts: &CheckOptions,
     workers: usize,
 ) -> (Option<Stop>, Stats, usize) {
+    levels_from(search, next, opts, workers, 1)
+}
+
+/// Resume from the archive's actual completed-level boundary.
+pub(crate) fn levels_from<S: Keyed>(
+    search: &mut Search<'_, '_, S>,
+    next: crate::frontier::Queue,
+    opts: &CheckOptions,
+    workers: usize,
+    level: u64,
+) -> (Option<Stop>, Stats, usize) {
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
-        let (stop, stats) = run_levels(search, &set, next, opts, pool);
+        let (stop, stats) = run_levels(search, &set, next, opts, pool, level);
         (stop, stats, pool.threads())
     });
     search.set = set.into_inner().unwrap_or_else(PoisonError::into_inner);
@@ -790,6 +880,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     next: crate::frontier::Queue,
     opts: &CheckOptions,
     pool: &Pool<'env>,
+    mut level: u64,
 ) -> (Option<Stop>, Stats) {
     let m: &'env Model = search.m;
     let keyer: &'env S::Keyer = search.keyer;
@@ -816,7 +907,6 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         }
     };
     let mut frontier = Arc::new(next);
-    let mut level = 1u64;
     let stats_now = |search: &Search<'_, '_, S>, left: u64| Stats {
         generated: search.generated,
         distinct: set.read().unwrap_or_else(PoisonError::into_inner).len(),
@@ -825,6 +915,17 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         initial_generated: search.initial_generated,
     };
     while !frontier.is_empty() {
+        if let Some(verdict) = search.checkpoint_boundary(&frontier, level) {
+            return (
+                Some(Stop {
+                    verdict,
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                stats_now(search, frontier.len() as u64),
+            );
+        }
         let mut rng = opts
             .chaos
             .map(|c| Rng(c ^ level.wrapping_mul(0xa076_1d64_78bd_642f)));
@@ -911,6 +1012,9 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         .min(c.limits().generated.saturating_sub(search.generated))
                         .min(capture_quotas.map_or(u64::MAX, |(_, generated)| generated))
                 }),
+                native_counter_remaining: search
+                    .has_checkpoint()
+                    .then(|| crate::checkpoint::MAX_COUNTER.saturating_sub(search.generated)),
                 outs: blocks.iter().map(|_| Mutex::new(None)).collect(),
                 blocks,
                 order,
@@ -991,9 +1095,71 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         pos: c.pos,
                         vals: c.payload.vals,
                         action: c.payload.action,
+                        checkpoint_key: search.has_checkpoint().then(|| S::checkpoint_key(&c.key)),
                     })
                     .collect(),
             );
+            if search.has_checkpoint() {
+                first = earlier(
+                    native_counter_event(
+                        search.generated,
+                        &gens,
+                        wave_start..wave_end,
+                        narrow,
+                        n_actions,
+                    ),
+                    first,
+                );
+                // Record winners in discovery order before the invariant phase,
+                // matching inline admission's key/record/invariant ordering.
+                // The resolved key is retained; the model is never re-keyed here.
+                for winner in winners.iter() {
+                    if first
+                        .as_ref()
+                        .is_some_and(|event| (winner.pos, PH_NATIVE) > event.key)
+                    {
+                        break;
+                    }
+                    let Some(ordinal) = ordinal_of(winner, &gens, narrow, n_actions) else {
+                        return internal(
+                            "more than 2^32 successors of one state".into(),
+                            stats_now(search, 0),
+                        );
+                    };
+                    let Some(key) = &winner.checkpoint_key else {
+                        return internal(
+                            "native winner key was not retained".into(),
+                            stats_now(search, 0),
+                        );
+                    };
+                    if let Err(verdict) = search.checkpoint_discovery(
+                        key.clone(),
+                        &winner.vals,
+                        first_id + winner.pos.0,
+                        ordinal,
+                    ) {
+                        let unit = if narrow {
+                            usize::try_from(winner.pos.0).unwrap_or(usize::MAX) * n_actions
+                                + winner.pos.1 as usize
+                        } else {
+                            usize::try_from(winner.pos.0).unwrap_or(usize::MAX)
+                        };
+                        first = earlier(
+                            Some(Event {
+                                key: (winner.pos, PH_NATIVE),
+                                unit,
+                                c: u64::from(winner.pos.2) + 1,
+                                verdict,
+                                then: None,
+                                resume: false,
+                                stutter: false,
+                            }),
+                            first,
+                        );
+                        break;
+                    }
+                }
+            }
             // Resolve logical generated limits in reference order, independently of
             // which workers consumed the bounded per-source scratch budget.
             if let Some(capture) = &search.capture {
@@ -1185,10 +1351,11 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 let (pos, _) = e.key;
                 let i = usize::try_from(pos.0).unwrap_or(usize::MAX);
                 let upto = winners
-                    .partition_point(|w| w.pos < pos || (w.pos == pos && e.key.1 >= PH_CAPTURE));
+                    .partition_point(|w| w.pos < pos || (w.pos == pos && e.key.1 >= PH_NATIVE));
                 let before = winners.partition_point(|w| w.pos < pos);
                 let generated = search.generated + gens[..e.unit].iter().sum::<u64>() + e.c;
-                let depth = if upto > 0 {
+                let depth_prefix = if e.key.1 == PH_NATIVE { before } else { upto };
+                let depth = if depth_prefix > 0 {
                     search.depth.max(level + 1)
                 } else {
                     search.depth
@@ -1254,16 +1421,8 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
             search.generated += gens.iter().sum::<u64>();
             // The trace log and the next frontier, in position order.
             for w in winners.iter() {
-                let (i, ua, j) = w.pos;
-                let ordinal = if narrow {
-                    let i = usize::try_from(i).unwrap_or(usize::MAX);
-                    let prior: u64 = gens[i * n_actions..i * n_actions + ua as usize]
-                        .iter()
-                        .sum();
-                    u32::try_from(prior + u64::from(j)).ok()
-                } else {
-                    Some(j)
-                };
+                let i = w.pos.0;
+                let ordinal = ordinal_of(w, &gens, narrow, n_actions);
                 let Some(ordinal) = ordinal else {
                     return internal(
                         "more than 2^32 successors of one state".to_owned(),
@@ -1291,6 +1450,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                         pos: x.pos,
                         vals: x.vals.clone(),
                         action: x.action,
+                        checkpoint_key: x.checkpoint_key.clone(),
                     })
                     .collect()
             });

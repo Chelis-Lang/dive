@@ -70,3 +70,41 @@ The resolved-alias admission control fixes [issue #164](https://github.com/Cheli
 The complete pre-repair 737-test source/matrix and failing effect control remain
 historical evidence; the current 738-test source passes the same refusal plus a
 pure alias positive, with fresh actual recovery and independent witness records.
+
+## Implementation addendum: deterministic parallel recovery (2026-10-10)
+
+The inline-only restriction above describes the historical first configured-key
+slice. The continuation admits its same pure finite safety models through the
+existing deterministic three-phase parallel engine. No temporal/effect/spill
+admission changes and no dependency graph changes are made.
+
+Resume the archive's actual next level. Each winner retains its already-resolved
+configured store key and original concrete state. In ordered discovery position,
+record that key/state/parent/ordinal in the native session before invariant
+checks. At a completed-level barrier the frontier, predecessor log, seen set
+and native discovery sequence describe the same committed prefix; only then
+can a pause write its archive. No key is recomputed during parallel commit.
+Speculatively retained records beyond a later deciding event cannot become an
+archive: a stopped/incomplete level has no checkpoint barrier. Pure admission
+prevents that speculative record encoding from introducing model effects.
+
+Native record failure has its own event phase between key insertion and depth
+publication, preserving inline distinct/depth behavior. MAX_COUNTER decisions
+use the logical ordered generated prefix. Local speculative enumerations cap
+work at the remaining native count, but worker scheduling never selects the
+reported cutoff. Inline and pool stopping-prefix controls include duplicate
+keys, multiple actions, multiple frontier states and chaos scheduling.
+
+Worker/chaos/explicit-inline choices are excluded from semantic identity as
+before, so one executable can recover at a different pool width. Boundary-zero
+pauses or restored-state admission failures remain actual-inline-one with a
+reported reason; continued admitted pool execution reports its actual width.
+Wire schema and configured-key semantics remain0038-v1; exact executable SHA
+already refuses imports made by a different implementation. The checksum is
+still corruption detection, not authenticity or independent reachability proof.
+
+The original inline-only raw/source receipts stay frozen. Separate current
+controls cover both profiles/stores, 1/4/8 widths, chaos, cross-width restoration,
+actual later-level recovery, counters and concrete independent witnesses. The
+archive 64 MiB/state 65,536 bounds remain; parallel candidates/keys/scratch and
+ordinary retention are not a total-memory budget. Full F-032 remains partial.

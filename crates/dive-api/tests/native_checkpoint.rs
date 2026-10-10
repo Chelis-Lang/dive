@@ -86,7 +86,7 @@ fn verify_frontier_recovery_cases(names: &[&str]) {
                             observable(reference),
                             "{name} profile{compat},store{store:?},width{workers},chaos{chaos:?}"
                         );
-                        assert_eq!(resumed["options"]["workers"]["used"], 1);
+                        assert_eq!(resumed["options"]["workers"]["used"], workers);
                         assert_eq!(resumed["checkpoint"]["status"], "recovered");
                         assert_eq!(
                             resumed["options"]["checkpoint"]["independent_certificate"],

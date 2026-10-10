@@ -798,11 +798,14 @@
         "conformance/probes/native-checkpoint-keys/README.md",
         "crates/dive-api/tests/native_checkpoint_keys.rs",
         "crates/dive-check/tests/checkpoint_keys.rs",
-        "docs/decisions/0038-checkpoint-transformed-safety-keys.md"
+        "docs/decisions/0038-checkpoint-transformed-safety-keys.md",
+        "conformance/probes/native-checkpoint-parallel/README.md",
+        "crates/dive-check/tests/native_checkpoint.rs"
       ],
       "evidence_updates": [
         "Pure VIEW and safety symmetry snapshots recompute configured live-search keys while preserving concrete discoveries, parents and names; actual recovery equality and independent equivalent-key witness negatives cover both profiles/stores. Archive trust remains local; runtime/temporal/graph/spill/parallel recovery and full-family certification remain pending.",
-        "Before binding, configured context aliases resolve to actual definition IDs; effectful local replacements refuse without output/archive while pure aliases remain admitted. Preserved pre-repair and current raw matrices are distinct; issue #164 is a native admission defect, not reference behavior."
+        "Before binding, configured context aliases resolve to actual definition IDs; effectful local replacements refuse without output/archive while pure aliases remain admitted. Preserved pre-repair and current raw matrices are distinct; issue #164 is a native admission defect, not reference behavior.",
+        "Pure finite safety recovery uses ordered completed-level pool barriers and resumes the actual saved level, including changed worker widths and inline-equivalent native counter/record stopping prefixes. Boundary-zero pauses report actual1 before pool startup. Runtime/temporal/graph/spill recovery and full family certification remain pending."
       ]
     },
     {
