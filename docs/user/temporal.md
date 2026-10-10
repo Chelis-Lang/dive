@@ -29,3 +29,7 @@ and a closing edge. Read [the temporal API contract](../temporal-api.md) for the
 Rust `temporal::check` example, supported forms, limits, source-qualified errors
 and indexing conventions. Pending pinned final-only APIs must be documented and
 verified separately before this guide marks them available.
+
+For Rust tool builders, the separate [ordered execution API](../temporal-execution-api.md)
+retains concrete graph and deciding-prefix evidence. Its completion is explicitly
+not a temporal verdict and it is not exposed as a CLI checking mode.
