@@ -547,9 +547,13 @@ fn malformed_bound_roles_refuse_before_temporal_planning_and_pool() {
             assert!(failed.stats.is_none() && failed.groups.is_empty());
             assert_eq!(failed.phase_work.predicates, 0);
             assert_eq!(m.evaluator.take_output(), Vec::<String>::new());
-            let failed = match dive_liveness::phase_l::Session::new(&m, 0, 1, Default::default()) {
-                Err(failure) => failure,
-                Ok(_) => panic!("public session accepted malformed metadata"),
+            let Err(failed) = dive_liveness::phase_l::Session::new(
+                &m,
+                0,
+                1,
+                dive_liveness::phase_l::Limits::default(),
+            ) else {
+                panic!("public session accepted malformed metadata");
             };
             assert!(matches!(
                 failed.error,
