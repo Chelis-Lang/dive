@@ -178,6 +178,7 @@ fn block_size(n: usize, threads: usize) -> usize {
 
 /// One level's phase-1 output of a block.
 struct Accepted<K> {
+    vals: StateVals,
     pos: Pos,
     key: K,
     action: u32,
@@ -211,6 +212,7 @@ struct Expand<'env, S: Keyed> {
     outs: Vec<Mutex<Option<BlockOut<S::Key>>>>,
     /// Per-source scratch cap, absent for ordinary safety exploration.
     capture_limit: Option<u64>,
+    capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
     chaos: Option<u64>,
 }
@@ -337,6 +339,7 @@ impl<S: Keyed> Expand<'_, S> {
         let s0 = &state_values;
         let state = index as u64;
         let mut generated = 0u64;
+        let accepted_start = accepted.len();
         let mut event: Option<Event> = None;
         for a in actions {
             set_thread_level(level_of(self.level));
@@ -376,7 +379,18 @@ impl<S: Keyed> Expand<'_, S> {
                         });
                         return Flow::Stop;
                     }
-                    match self.successor(set, s0, succ, action, pos, buf, cap, lines, accepted) {
+                    match self.successor(
+                        set,
+                        s0,
+                        succ,
+                        action,
+                        pos,
+                        buf,
+                        cap,
+                        lines,
+                        accepted,
+                        accepted_start,
+                    ) {
                         None => Flow::Continue,
                         Some(s) => {
                             event = Some(Event {
@@ -443,6 +457,7 @@ impl<S: Keyed> Expand<'_, S> {
         cap: &PrintCapture,
         lines: &mut Lines,
         accepted: &mut Vec<Accepted<S::Key>>,
+        accepted_start: usize,
     ) -> Option<Stopped> {
         let m = self.m;
         if !succ.complete() {
@@ -481,7 +496,18 @@ impl<S: Keyed> Expand<'_, S> {
             }
             Ok(Some(key)) => {
                 if self.capture_limit.is_some() {
+                    if self
+                        .capture_quotas
+                        .is_some_and(|(quota, _)| accepted.len() - accepted_start >= quota)
+                    {
+                        return Some(Stopped {
+                            verdict: crate::capture::limit("concrete per-source retained quota"),
+                            phase: PH_CHECK,
+                            with: false,
+                        });
+                    }
                     accepted.push(Accepted {
+                        vals: t.clone(),
                         pos,
                         key: S::duplicate_key(&key),
                         action,
@@ -689,7 +715,6 @@ pub(crate) fn levels<S: Keyed>(
 )]
 fn capture_wave<S: Keyed>(
     search: &mut Search<'_, S>,
-    frontier: &crate::frontier::Queue,
     first_id: u64,
     winners: &[Winner],
     mut accepted: Vec<Accepted<S::Key>>,
@@ -711,38 +736,15 @@ fn capture_wave<S: Keyed>(
             }
             let at = winners.partition_point(|w| w.pos < record.pos);
             let fresh = winners.get(at).filter(|w| w.pos == record.pos);
-            let vals = match fresh {
-                Some(w) => w.vals.clone(),
-                None => match frontier.read(unit, &search.m.names) {
-                    Ok((state, _)) => state,
-                    Err(verdict) => {
-                        return earlier(
-                            first,
-                            Some(Event {
-                                key,
-                                unit,
-                                c: u64::from(record.pos.2) + 1,
-                                verdict,
-                                then: None,
-                                resume: false,
-                                stutter: false,
-                            }),
-                        );
-                    }
-                },
-            };
             let id = fresh.map(|_| base + at as u64);
-            let target = capture.state(record.key, vals, id);
-            let result = target.and_then(|to| {
-                capture.edge(
-                    first_id + unit as u64,
-                    crate::capture::Edge {
-                        to,
-                        ordinal: Some(u64::from(record.pos.2)),
-                        label: Some(search.m.actions[record.action as usize].label().to_owned()),
-                    },
-                )
-            });
+            let result = capture.record_fields(
+                record.key,
+                record.vals,
+                id,
+                Some(first_id + unit as u64),
+                u64::from(record.pos.2),
+                search.m.actions[record.action as usize].label(),
+            );
             if let Err(verdict) = result {
                 return earlier(
                     first,
@@ -836,6 +838,33 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         let n_units = if narrow { len * n_actions } else { len };
         let mut next_frontier = frontier.empty_like();
         let new_first = search.log.len();
+        let concrete_pool = search
+            .capture
+            .as_ref()
+            .is_some_and(crate::capture::Collector::concrete_pool);
+        let capture_quotas = if concrete_pool {
+            match search
+                .capture
+                .as_ref()
+                .map(|c| c.quotas(len, search.generated))
+            {
+                Some(Ok(q)) => Some(q),
+                Some(Err(verdict)) => {
+                    return (
+                        Some(Stop {
+                            verdict,
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        stats_now(search, 0),
+                    );
+                }
+                None => None,
+            }
+        } else {
+            None
+        };
         let wave_size = if search.capture.is_some() {
             crate::capture::MAX_EXPANSION_UNITS
         } else {
@@ -859,10 +888,11 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
             if let Some(r) = &mut rng {
                 r.shuffle(&mut order);
             }
-            let inline = match &mut rng {
-                Some(r) => r.coin(),
-                None => blocks.len() == 1,
-            };
+            let inline = !concrete_pool
+                && match &mut rng {
+                    Some(r) => r.coin(),
+                    None => blocks.len() == 1,
+                };
             // Phase 1: expand.
             let expand = Arc::new(Expand::<S> {
                 m,
@@ -873,10 +903,12 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 frontier: frontier.clone(),
                 narrow,
                 check_deadlock,
+                capture_quotas,
                 capture_limit: search.capture.as_ref().map(|c| {
                     c.limits()
                         .successors_per_unit
                         .min(c.limits().generated.saturating_sub(search.generated))
+                        .min(capture_quotas.map_or(u64::MAX, |(_, generated)| generated))
                 }),
                 outs: blocks.iter().map(|_| Mutex::new(None)).collect(),
                 blocks,
@@ -991,7 +1023,6 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
             if search.capture.is_some() {
                 first = capture_wave(
                     search,
-                    &frontier,
                     first_id,
                     &winners,
                     accepted,
@@ -1014,10 +1045,11 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 if let Some(r) = &mut rng {
                     r.shuffle(&mut order);
                 }
-                let inline = match &mut rng {
-                    Some(r) => r.coin(),
-                    None => chunks.len() == 1,
-                };
+                let inline = !concrete_pool
+                    && match &mut rng {
+                        Some(r) => r.coin(),
+                        None => chunks.len() == 1,
+                    };
                 let check = Arc::new(Check {
                     m,
                     level,

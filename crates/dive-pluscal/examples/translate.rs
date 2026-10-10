@@ -46,6 +46,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         match flag.as_str() {
             "-label" | "-reportLabels" => options.insert_missing_labels = true,
             "-labelRoot" => options.label_root = flags.next().ok_or("missing label root")?,
+            "-nof" => options.fairness = dive_pluscal::FairnessOption::None,
+            "-wf" => options.fairness = dive_pluscal::FairnessOption::Weak,
+            "-sf" => options.fairness = dive_pluscal::FairnessOption::Strong,
+            "-wfNext" => options.fairness = dive_pluscal::FairnessOption::Next,
             _ => return Err("unknown development option".into()),
         }
     }
@@ -71,10 +75,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .to_owned()
                 })
                 .collect();
-            serde_json::json!({"stage":"artifact", "artifact":artifact,"tokens":tokens, "model_proved":false})
+            serde_json::json!({"stage":"artifact", "artifact":artifact,"tokens":tokens, "model_proved":false,"exhaustive":false,"accepted":true,"exit_code":0})
         }
         Err(error) => {
-            serde_json::json!({"stage":error.stage,"error":error.diagnostic,"code":error.diagnostic.code.as_str(),"model_proved":false})
+            serde_json::json!({"stage":error.stage,"error":error.diagnostic,"code":error.diagnostic.code.as_str(),"model_proved":false,"exhaustive":false})
         }
     };
     writeln!(std::io::stdout(), "{document}")?;

@@ -109,6 +109,37 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
+    bind_in(ir, cfg, opts, None)
+}
+
+/// Binds a trusted native recovered ordered name table before evaluating constants.
+/// The complete startup feed must be an identical prefix; missing, duplicate or
+/// reordered names refuse before any model callback. This is not an authenticity
+/// check and does not admit runtime state absent from the native checkpoint.
+///
+/// # Errors
+/// The ordinary binding errors, or a named unsupported restored-table mismatch.
+pub fn bind_with_names(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    restored: &[String],
+) -> Result<Model, Box<Failure>> {
+    bind_in(ir, cfg, opts, Some(restored))
+}
+
+fn bind_in(
+    ir: Arc<Ir>,
+    cfg: &ModelConfig,
+    opts: &BindOptions,
+    restored: Option<&[String]>,
+) -> Result<Model, Box<Failure>> {
+    dive_eval::validate_ir(&ir).map_err(|error| {
+        Box::new(Failure {
+            error: BindError::unsupported(error.to_string()),
+            output: Vec::new(),
+        })
+    })?;
     let walk = {
         let t = tables::Tables::new(ir.clone()).map_err(|error| {
             Box::new(Failure {
@@ -125,7 +156,46 @@ pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model,
             output: Vec::new(),
         }));
     }
-    let names = Arc::new(intern::feed(&ir, cfg));
+    let feed = intern::feed(&ir, cfg);
+    let names = if let Some(restored) = restored {
+        let refuse = || {
+            Box::new(Failure {
+                error: BindError {
+                    kind: ErrorKind::Unsupported {
+                        feature: "native checkpoint ordered name table/startup-prefix mismatch"
+                            .into(),
+                    },
+                    message: "native checkpoint ordered name table/startup-prefix mismatch".into(),
+                },
+                output: Vec::new(),
+            })
+        };
+        if restored.len() < feed.len()
+            || restored.len() > 65_536
+            || restored.iter().any(|s| s.len() > 1 << 20)
+            || restored
+                .iter()
+                .try_fold(0usize, |n, s| n.checked_add(s.len()))
+                .is_none_or(|n| n > 64 << 20)
+        {
+            return Err(refuse());
+        }
+        let names = dive_value::Interner::new();
+        for (i, text) in restored.iter().enumerate() {
+            if (i < feed.len()
+                && feed
+                    .resolve(u32::try_from(i).unwrap_or(u32::MAX))
+                    .is_none_or(|a| a.as_str() != text))
+                || names.get(text).is_some()
+            {
+                return Err(refuse());
+            }
+            names.intern(text);
+        }
+        Arc::new(names)
+    } else {
+        Arc::new(feed)
+    };
     let mut b = bind::Binder::new(ir, cfg, opts, names).map_err(|error| {
         Box::new(Failure {
             error,

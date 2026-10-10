@@ -30,17 +30,23 @@ Since the preserved standard report below, the verified increments now include:
   ordinary strict temporal model-checking refusals.
 - A native PlusCal source parser with field-level AST controls against the pin.
   Source parsing does not imply translation, rewrite or checksum parity. A
-  separate explicitly labelled sequential C/P translation slice now compares
-  generated operator trees and checks admitted enclosing modules; processes,
-  procedures, macros, automatic labels, rewriting and checksums remain pending.
+  separate bounded C/P translation slice compares generated operator trees and
+  checks admitted enclosing modules, sequential algorithms and disjoint finite
+  processes with pinned fairness. Procedures, macros, general renaming,
+  rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;
   visited sets, candidates, traces and temporal graphs are still outside that
   budget, and checkpoint/recovery is not implemented by these transient files.
 
-The implementation census is seven implemented cores, 25 partial families and
-five missing families out of 37. Every family remains audit-required. The
+The [combined parity increment](native-parity-integration.md) preserves the
+original source and probe histories for planning, concrete graphs, checkpoints,
+public IR admission and bounded process fairness. Graph insertion remains an
+explicit staged API, not ordinary strict temporal checking.
+
+The implementation census is seven implemented cores, 26 partial families and
+four missing families out of 37. Every family remains audit-required. The
 retained whole-selection standard report still provides the strict baseline;
 these smaller acceptance studies do not replace it or establish a percentage
 of complete TLC parity.
@@ -87,8 +93,11 @@ it supplies cross-platform evidence, not a substitute for their validation.
 - **M5 errors:** value-construction provenance is still needed to reproduce
   ten source-dependent TLC deciding error classes (#61). These classes
   remain unverified and cannot count as agreement.
-- **M5 storage/IR:** visited/candidate/trace spill, native checkpoint/recovery, and
-  the remaining IR cache work in the work-package plan.
+- **M5 storage/IR:** bounded predecessor spill and pure safety native checkpoints
+  are implemented as explicit options. General visited/candidate/value/graph
+  spill, temporal/runtime checkpoint recovery and distribution remain pending.
+  Current checkpoints recover saved discoveries/frontiers, run inline, and
+  explicitly refuse unproved interactions.
 - **M5 performance:** the benchmark runner is implemented; the recorded
   smoke timings come from a busy machine and establish correctness and
   reproducibility of measurement, not achievement of the performance

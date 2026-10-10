@@ -81,6 +81,26 @@ impl From<ContextError> for EvalError {
 }
 
 type CResult<T> = Result<T, ContextError>;
+
+/// Admits a public IR arena without creating an evaluator, interning literals,
+/// evaluating expressions or invoking caller code. Uses the same structural
+/// authority as evaluator construction with empty constant/override bindings.
+///
+/// # Errors
+/// A typed malformed arena or bounded structural admission refusal. Numeric IDs
+/// remain relative to this arena; this does not certify their foreign provenance.
+///
+/// ```
+/// use std::sync::Arc;
+/// let analysis = dive_sema::analyze_source("M.tla",
+///     "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\n====\n", &Default::default());
+/// let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+/// dive_eval::validate_ir(&ir).expect("well-formed arena");
+/// ```
+pub fn validate_ir(ir: &Arc<dive_ir::Ir>) -> CResult<()> {
+    validate(&mut Model::new(ir.clone()))
+}
+
 fn unknown(what: impl Into<String>) -> ContextError {
     ContextError::new(ContextErrorKind::UnknownId, what)
 }

@@ -176,7 +176,9 @@ dependencies = [
  "dive-stdlib",
  "dive-store",
  "dive-value",
+ "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

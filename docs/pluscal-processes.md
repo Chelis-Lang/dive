@@ -1,6 +1,6 @@
 # Single-process PlusCal translation
 
-`dive translate FILE.tla --output json` supports one bounded, unfair process
+The original bounded process slice, extended by [multiple finite blocks](pluscal-multiple-processes.md), supports a process
 declaration in current C and P syntax. A process with a constant ID has scalar
 locals; a process set has locals indexed by `self`:
 
@@ -42,7 +42,7 @@ syntax/name/level analysis and report `model_proved=false` / `exhaustive=false`.
 
 ## Current limits
 
-Multiple process blocks, process/label fairness, procedures/macros, `define`,
+Unproved/overlapping process domains, procedure/macro fairness, procedures/macros, `define`,
 name renaming, branch-internal labelled expansion, multiline/binder substitution,
 nonliteral IDs and local membership initializers depending on another local or
 `self` remain named refusals. Global/local/generated-name shadowing is refused
@@ -119,3 +119,7 @@ python3 -I crates/dive-pluscal/process-acceptance/validate.py \
 Repeat the same comparison/validation commands with `interactions/` and
 `subscripts/` paths. The complete prior sequential/normalization/label selections
 are retained and rerun; historical evidence files are not edited.
+
+The [fairness increment](pluscal-fairness.md) adds bounded weak/strong process
+declarations, post-colon label modifiers and four pinned fairness options. The
+242-row study above remains the original unfair-process delivery evidence.

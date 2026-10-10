@@ -137,6 +137,8 @@ enum Phase {
 /// The outcome of `dive check`.
 #[derive(Debug)]
 pub struct CheckReport {
+    checkpoint_request: Option<dive_check::checkpoint::Request>,
+    checkpoint_receipt: Option<dive_check::checkpoint::Receipt>,
     file: String,
     config: String,
     profile: Profile,
@@ -170,25 +172,94 @@ fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
 /// Loads, binds and checks the request.
 ///
 /// # Errors
-/// [`crate::ApiError`] if the request is inconsistent or the root file or
-/// configuration cannot be read. Request admission precedes file access.
+/// [`crate::ApiError`] if the root file or the configuration cannot be read.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
+    check_file_in(req, None)
+}
+
+/// Runs the first native pure-safety checkpoint/recovery slice. It refuses
+/// temporal and transient-spill combinations before loading files. Recovery uses
+/// saved seed/fingerprint defaults when not explicitly supplied; profile/store
+/// and all semantic options must match. Actual workers are reported separately.
+///
+/// ```no_run
+/// use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
+/// let model = CheckRequest { file: "Counter.tla".into(), ..CheckRequest::default() };
+/// let native = checkpoint::Request {
+///     path: "counter.cp".into(),
+///     action: checkpoint::Action::PauseAfterLevels(2),
+///     counters: checkpoint::Counters::Tlc,
+///     config_source_sha256: None,
+/// };
+/// let report = check_file_checkpoint(&model, &native)?;
+/// assert_eq!(report.to_json()["options"]["checkpoint"]["action"], "pause");
+/// # Ok::<(), dive_api::ApiError>(())
+/// ```
+///
+/// # Errors
+/// File I/O or malformed native request/metadata, without a model verdict.
+pub fn check_file_checkpoint(
+    req: &CheckRequest,
+    checkpoint: &dive_check::checkpoint::Request,
+) -> Result<CheckReport, crate::ApiError> {
+    if req.temporal != TemporalMode::Ordinary
+        || req.frontier_memory_bytes.is_some()
+        || req.frontier_directory.is_some()
+        || req.predecessor_memory_bytes.is_some()
+        || req.predecessor_directory.is_some()
+    {
+        return Err(crate::ApiError::Unsupported {
+            feature:
+                "native checkpoint with temporal or transient frontier/predecessor spill is not implemented"
+                    .into(),
+        });
+    }
+    check_file_in(req, Some(checkpoint))
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "single ordered loader dispatch for ordinary and native recovery admission"
+)]
+fn check_file_in(
+    req: &CheckRequest,
+    checkpoint: Option<&dive_check::checkpoint::Request>,
+) -> Result<CheckReport, crate::ApiError> {
     admit_storage_request(req)?;
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
         Profile::Dive
     };
-    let seed = req.seed.unwrap_or_else(dive_stdlib::random::fresh_seed);
-    let fp = req.fp.unwrap_or_else(|| {
-        if req.compat_tlc {
-            // TLC: a random polynomial per run unless `-fp` is given
-            // (`TLC.java`); reported either way.
-            usize::try_from(seed.unsigned_abs() % 131).unwrap_or(0)
-        } else {
-            0
-        }
-    });
+    let recovered_defaults = if let Some(request) = checkpoint
+        && request.action == dive_check::checkpoint::Action::Recover
+    {
+        Some(
+            dive_check::checkpoint::recovery_seed_fp(&request.path).map_err(|message| {
+                crate::ApiError::Rejected {
+                    message: format!("DIVE-S0400: {message}"),
+                }
+            })?,
+        )
+    } else {
+        None
+    };
+    let seed = req
+        .seed
+        .or(recovered_defaults.map(|p| p.0))
+        .unwrap_or_else(dive_stdlib::random::fresh_seed);
+    let fp = req
+        .fp
+        .or(recovered_defaults.map(|p| p.1))
+        .unwrap_or_else(|| {
+            if req.compat_tlc {
+                // TLC: a random polynomial per run unless `-fp` is given
+                // (`TLC.java`); reported either way.
+                usize::try_from(seed.unsigned_abs() % 131).unwrap_or(0)
+            } else {
+                0
+            }
+        });
     let workers_requested = req.workers.unwrap_or_else(|| {
         if req.compat_tlc {
             1
@@ -221,6 +292,8 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
         .clone()
         .unwrap_or_else(|| req.file.with_extension("cfg"));
     let mut report = CheckReport {
+        checkpoint_request: checkpoint.cloned(),
+        checkpoint_receipt: None,
         file: req.file.display().to_string(),
         config: cfg_path.display().to_string(),
         profile,
@@ -262,7 +335,17 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
             return Ok(report);
         }
     };
-    report.phase = check_backend(&ir, &model, &report.opts, req.temporal);
+    report.phase = if let Some(request) = checkpoint {
+        let mut request = request.clone();
+        request.config_source_sha256 = Some(dive_check::checkpoint::config_source_hash(
+            cfg.source_bytes(),
+        ));
+        let native = dive_check::checkpoint::check(&ir, &model, &report.opts, &request);
+        report.checkpoint_receipt = native.receipt;
+        Phase::Checked(Box::new(native.check))
+    } else {
+        check_backend(&ir, &model, &report.opts, req.temporal)
+    };
     Ok(report)
 }
 
@@ -393,7 +476,14 @@ impl CheckReport {
 
     fn profile_name(&self) -> &'static str {
         match self.profile {
-            Profile::Tlc if self.temporal_final_short => "tlc+overrides",
+            Profile::Tlc
+                if self.temporal_final_short
+                    || self.checkpoint_request.as_ref().is_some_and(|r| {
+                        r.counters == dive_check::checkpoint::Counters::Retain
+                    }) =>
+            {
+                "tlc+overrides"
+            }
             Profile::Tlc => "tlc",
             Profile::Dive => "dive",
         }
@@ -422,7 +512,7 @@ impl CheckReport {
         let fingerprint = (o.store == StoreMode::Fingerprint).then(|| {
             json!({
                 "polynomial_index": o.fp_index,
-                "polynomial_source": if self.fp_given { "flag" } else if self.profile == Profile::Tlc { "random" } else { "default" },
+                "polynomial_source": if self.fp_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_check::checkpoint::Action::Recover) { "checkpoint" } else if self.profile == Profile::Tlc { "random" } else { "default" },
                 "scheme": if o.tlc_fingerprints { "tlc" } else { "dive" },
             })
         });
@@ -436,7 +526,7 @@ impl CheckReport {
             "store": o.store.name(),
             "fingerprint": fingerprint,
             "seed": o.seed,
-            "seed_source": if self.seed_given { "flag" } else { "fresh" },
+            "seed_source": if self.seed_given { "flag" } else if self.checkpoint_request.as_ref().is_some_and(|r| r.action == dive_check::checkpoint::Action::Recover) { "checkpoint" } else { "fresh" },
             "deadlock_flag": o.no_deadlock,
             "workers": self.workers_json(),
             "frontier_memory_bytes_per_queue": o.frontier_memory_bytes,
@@ -450,6 +540,22 @@ impl CheckReport {
             options["lasso"] = json!("short");
             options["temporal_bounds"] = temporal_limits_json();
             options["tlc_exact_temporal"] = json!(false);
+        }
+        if let Some(request) = &self.checkpoint_request {
+            options["checkpoint"] = json!({
+                "path": request.path,
+                "action": match request.action { dive_check::checkpoint::Action::Recover => "recover", dive_check::checkpoint::Action::PauseAfterLevels(_) => "pause" },
+                "pause_after_levels": match request.action { dive_check::checkpoint::Action::PauseAfterLevels(n) => Some(n), dive_check::checkpoint::Action::Recover => None },
+                "counters": request.counters,
+                "max_payload_bytes": dive_check::checkpoint::MAX_PAYLOAD_BYTES,
+                "max_states": dive_check::checkpoint::MAX_STATES,
+                "max_state_bytes": dive_check::checkpoint::MAX_STATE_BYTES,
+                "max_level": dive_check::checkpoint::MAX_LEVEL,
+                "max_counter": dive_check::checkpoint::MAX_COUNTER,
+                "trusted_local_archive": true,
+                "independent_certificate": false,
+                "parallel_recovery": false,
+            });
         }
         options
     }
@@ -750,6 +856,9 @@ impl CheckReport {
                 doc["elapsed_ms"] = json!(u64::try_from(r.elapsed.as_millis()).unwrap_or(u64::MAX));
             }
         }
+        if self.checkpoint_request.is_some() {
+            doc["checkpoint"] = json!(self.checkpoint_receipt);
+        }
         doc
     }
 
@@ -779,6 +888,20 @@ impl CheckReport {
             && let Some(why) = &r.workers.reason
         {
             let _ = writeln!(out, "{why}");
+        }
+        if let Some(request) = &self.checkpoint_request {
+            let _ = writeln!(
+                out,
+                "native checkpoint {:?}, counters {:?}; trusted local archive, not an independent certificate",
+                request.action, request.counters
+            );
+            if let Some(receipt) = &self.checkpoint_receipt {
+                let _ = writeln!(
+                    out,
+                    "{}: {} discoveries, {} queued, next level{}",
+                    receipt.status, receipt.discovered, receipt.queued, receipt.next_level
+                );
+            }
         }
         match &self.phase {
             Phase::SpecRejected(a) => out.push_str(&a.render_human()),
@@ -1114,6 +1237,8 @@ mod evidence_controls {
             },
         };
         CheckReport {
+            checkpoint_request: None,
+            checkpoint_receipt: None,
             file: "M.tla".into(),
             config: "M.cfg".into(),
             profile: Profile::Tlc,

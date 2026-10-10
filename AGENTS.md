@@ -163,7 +163,12 @@ python3 -I scripts/check-tlc-planning.py
 python3 -I scripts/check-tlc-tableau.py
 python3 -I scripts/check-temporal-action-order.py
 python3 -I scripts/check-phase-l.py
+python3 -I scripts/check-phase-l-graph.py
+
+python3 -I scripts/check-state-if-planning.py
 python3 -I scripts/check-predecessor-spill.py
+python3 -I scripts/check-native-checkpoint.py
+python3 -I scripts/check-native-parity-integration.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
@@ -227,6 +232,17 @@ See the harness README, "Cache layout". The private oracle asset needs `GH_TOKEN
   `Closes #N`.
 - **Owner questions.** Open questions for the owner live in
   `docs/open-questions.md`. Add to it rather than guessing.
+
+## Documentation delivery
+
+Documentation is part of implementation, not a separate phase that pauses other
+work. Every user-visible feature/change updates its user-facing Markdown guide
+in the same PR: exact CLI/API invocation, runnable example, outputs/exits,
+defaults/TLC counterparts, supported/refused combinations and resource/proof
+qualifications. Keep `docs/user/README.md` current and link new feature pages.
+Maintain developer design, provenance, known TLC issues, parity obligations and
+historical evidence alongside the user contract. ADRs and experiment READMEs
+alone do not replace a user guide. Follow `docs/developer/documentation-policy.md`.
 
 ## Documentation style
 
