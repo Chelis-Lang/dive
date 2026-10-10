@@ -11,8 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: seven have an implemented core, twenty-one are partial,
-and nine are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 22 are partial, and 8 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
