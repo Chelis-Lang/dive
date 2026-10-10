@@ -338,3 +338,60 @@ fn direct_enabledness_is_evaluated_independently_at_every_word_position() {
         vec![false, false]
     );
 }
+
+#[test]
+fn temporal_action_subscript_short_circuit_includes_closing_edge() {
+    let model = bound(
+        "---- MODULE ActionOrder ----\nEXTENDS Integers\nVARIABLE x\nInit == x = 0\nNext == x' \\in {0, 1, 2}\nBody == IF x' = 1 THEN 1 \\div 0 = 0 ELSE x' = 2\nAngle == []<><<Body>>_x\nDirectAngle == <<Body>>_x\nBox == [Body]_x\nWeak == WF_x(Body)\nStrong == SF_x(Body)\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let state = |x| Arc::from([Some(Value::Int(x))]);
+    let stutter = vec![state(1)];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Angle"), &stutter, 0)
+            .expect("stutter skips body"),
+        vec![false]
+    );
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Box"), &stutter, 0)
+            .expect("boxed stutter skips body"),
+        vec![true]
+    );
+    let word = vec![state(1), state(2)];
+    assert_eq!(
+        evaluate_lasso(&model, &predicate(&model, "Angle"), &word, 1).expect("closing stutter"),
+        vec![false, false]
+    );
+    let recurrent = vec![state(1), state(2), state(0)];
+    for name in ["Weak", "Strong"] {
+        assert_eq!(
+            evaluate_lasso(&model, &predicate(&model, name), &recurrent, 1).expect(name),
+            vec![true, true, true],
+            "{name}"
+        );
+    }
+    let captured: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../conformance/probes/temporal-action-order/capture.json"
+    ))
+    .expect("pinned capture");
+    for before in 0..3 {
+        for after in 0..3 {
+            let word = vec![state(before), state(after)];
+            for (name, mode) in [("DirectAngle", "angle"), ("Box", "box")] {
+                let expected = captured["fields"][format!("{mode}:{before}:{after}")]
+                    .as_str()
+                    .expect("complete pinned row");
+                let observed = evaluate_lasso(&model, &predicate(&model, name), &word, 1);
+                match observed {
+                    Ok(values) => assert_eq!(values[0].to_string(), expected),
+                    Err(error) => assert!(
+                        expected == "error:2179" && error.to_string().contains("2179"),
+                        "{mode}:{before}:{after}: {error}"
+                    ),
+                }
+            }
+        }
+    }
+    let bad = vec![state(0), state(1)];
+    assert!(evaluate_lasso(&model, &predicate(&model, "Angle"), &bad, 1).is_err());
+}

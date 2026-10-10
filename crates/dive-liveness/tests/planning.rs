@@ -340,3 +340,124 @@ fn fairness_product_distinguishes_weak_and_strong_intermittent_enabledness() {
         }
     }
 }
+
+#[test]
+fn temporal_nonstuttering_checks_subscript_before_body() {
+    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    let model = bound(
+        "---- MODULE ActionOrder ----\nEXTENDS Integers\nVARIABLE x\nInit == x = 0\nNext == x' \\in {0, 1, 2}\nBody == IF x' = 1 THEN 1 \\div 0 = 0 ELSE x' = 2\nSub == x\nRuntime == <<Body>>_x\n====\n",
+        "INIT Init\nNEXT Next\n",
+    );
+    let atom = PredicateAtom {
+        pred: pred(&model, "Body"),
+        kind: AtomKind::Action,
+        test: AtomTest::Nonstuttering {
+            sub: pred(&model, "Sub").expr,
+        },
+        binding_limit: 4096,
+    };
+    let state = |x| Arc::from([Some(Value::Int(x))]);
+    let stutter = St::action(state(1), state(1));
+    assert!(
+        !atom
+            .evaluate(&model, &stutter)
+            .expect("stutter skips erroneous body")
+    );
+    assert!(
+        !atom
+            .evaluate(&model, &St::action(state(1), state(0)))
+            .expect("false body")
+    );
+    assert!(
+        atom.evaluate(&model, &St::action(state(1), state(2)))
+            .expect("true body")
+    );
+    assert_eq!(
+        atom.evaluate(&model, &St::action(state(0), state(1)))
+            .expect_err("nonstutter evaluates body")
+            .ec()
+            .code(),
+        2179
+    );
+    // Ordinary runtime action expressions follow Tool.eval, which checks the
+    // body first. Temporal LNAction evaluation has a different short circuit.
+    assert_eq!(
+        model
+            .eval(&pred(&model, "Runtime"), &stutter)
+            .expect_err("runtime body-first error")
+            .ec()
+            .code(),
+        2179
+    );
+}
+
+#[test]
+fn direct_temporal_and_runtime_atoms_match_pinned_order_controls() {
+    use dive_liveness::plan::{AtomTest, PredicateAtom};
+    let model = bound(
+        include_str!("../../../conformance/probes/temporal-action-order/ActionOrder.tla"),
+        "INIT Init\nNEXT Next\n",
+    );
+    let capture: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../conformance/probes/temporal-action-order/capture.json"
+    ))
+    .expect("pinned capture");
+    let state = |x| Arc::from([Some(Value::Int(x))]);
+    for mode in ["angle", "bad-sub", "runtime"] {
+        for before in 0..3 {
+            for after in 0..3 {
+                let key = format!("{mode}:{before}:{after}");
+                let expected = capture["fields"][&key]
+                    .as_str()
+                    .expect("complete row")
+                    .to_ascii_lowercase();
+                let st = St::action(state(before), state(after));
+                let value = match mode {
+                    "runtime" => model
+                        .eval(&pred(&model, "Runtime"), &st)
+                        .map(|v| v == Value::Bool(true))
+                        .map_err(|e| format!("error:{}", e.ec().code())),
+                    _ => PredicateAtom {
+                        pred: pred(
+                            &model,
+                            if mode == "bad-sub" {
+                                "FalseBody"
+                            } else {
+                                "Body"
+                            },
+                        ),
+                        kind: AtomKind::Action,
+                        test: AtomTest::Nonstuttering {
+                            sub: pred(&model, if mode == "bad-sub" { "BadSub" } else { "Sub" })
+                                .expr,
+                        },
+                        binding_limit: 4096,
+                    }
+                    .evaluate(&model, &st)
+                    .map_err(|e| format!("error:{}", e.ec().code())),
+                };
+                assert_eq!(
+                    value.map_or_else(|e| e, |b| b.to_string()),
+                    expected,
+                    "{key}"
+                );
+            }
+        }
+    }
+    let mut invalid = PredicateAtom {
+        pred: pred(&model, "Body"),
+        kind: AtomKind::Action,
+        test: AtomTest::Nonstuttering {
+            sub: pred(&model, "Sub").expr,
+        },
+        binding_limit: 4096,
+    };
+    invalid.pred.expr = dive_ir::ExprId(u32::MAX);
+    assert_eq!(
+        invalid
+            .evaluate(&model, &St::action(state(1), state(1)))
+            .expect_err("invalid body rejected before short circuit")
+            .class(),
+        dive_eval::ErrorClass::Unsupported
+    );
+}

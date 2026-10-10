@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Temporal non-stuttering predicates compare their subscript before evaluating
+  the action body, matching TLC liveness short-circuiting. Independent temporal
+  trace evaluation uses the same order separately for angles, boxes and fairness
+  occurrences; ordinary runtime action evaluation remains body-first.
+
 - Rust safety-check requests reject a frontier directory without an encoded
   frontier budget before loading a model, matching CLI option admission.
 - Add bounded diagnostic TLC binary particle tableaux: exact first-encounter
