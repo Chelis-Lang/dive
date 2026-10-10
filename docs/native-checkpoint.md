@@ -189,11 +189,10 @@ keeps the previous inline-only captures separate from new width, cross-width,
 counter-prefix and independent witness controls. The trusted-local archive
 contract and all existing byte/state/depth/identity bounds remain unchanged.
 
-<<<<<<< HEAD
 
-## Current integrated verification
+## Earlier parallel integrated verification
 
-The fresh source-bound [integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json)
+The preserved source-bound [integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json)
 records 873 passing workspace tests, 144 recovery groups, 1,008 CLI runs,
 176 counter-limit controls and 36 record-codec controls. CM1's 21 models and
 ValidationTestSuite's 16 smoke models fully agree at 1/4/8 workers. The
@@ -204,7 +203,6 @@ This receipt identifies its frozen runtime source and binary. Earlier inline
 receipts remain historical; their smaller source scope is not relabelled as
 parallel evidence. These controls do not certify temporal checkpointing, spill
 composition or the complete recovery feature family.
-=======
 ## Recovery with transient disk storage
 
 The existing budgets work with pause and recovery, independently or together:
@@ -280,4 +278,12 @@ keeps original admission refusals/source bytes separate from actual recovered
 searches, independent original/altered witnesses and failure controls. Effects,
 runtime names/checker reads, evaluator-driven deferred values, temporal graphs
 and Java checkpoint byte interoperability remain excluded in both profiles.
->>>>>>> f7143b643 (feat: compose native recovery with transient search storage)
+
+The transient-storage composition keeps that integrated worker/observer contract.
+Its original pre-integration run is preserved with its own executable and source
+map; a fresh combined-source recovery/failure/guide receipt is recorded separately
+in the [spill study](../conformance/probes/native-checkpoint-spill/README.md).
+The separate encoded-frontier and resident-predecessor budgets still exclude
+native archive serialization, visited sets, candidate payloads and reconstruction
+workspace. Neither archive checksums nor successful recovery authenticate or
+independently certify imported snapshots.

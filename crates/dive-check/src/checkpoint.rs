@@ -139,8 +139,8 @@ type Fallible<T> = std::result::Result<T, String>;
 /// Pure admitted models use the deterministic level engine at the requested
 /// worker width, unless explicit inline mode is selected. Boundary-zero pauses
 /// stop before the pool starts and report one actual worker. Runtime effects,
-/// names, evaluator-driven deferred state values,
-/// Temporal properties refuse by name. Frontier and predecessor budgets apply
+/// name creation, evaluator-driven deferred state values and temporal properties
+/// refuse by name. Frontier and predecessor budgets apply
 /// only to their transient queue/log records, not the resident native archive. Pure supported
 /// VIEW and safety symmetry use the configured live-search key path during restore.
 /// Identity and archive structure are validated before evaluation. Recovery
@@ -631,12 +631,8 @@ impl Session {
 
     pub(crate) fn restore<S: Keyed>(
         &mut self,
-<<<<<<< HEAD
         search: &mut Search<'_, '_, S>,
-=======
-        search: &mut Search<'_, S>,
         frontier: &mut crate::frontier::Queue,
->>>>>>> f7143b643 (feat: compose native recovery with transient search storage)
     ) -> std::result::Result<Restored, Verdict> {
         let Some(snapshot) = self.imported.take() else {
             return Ok(None);
