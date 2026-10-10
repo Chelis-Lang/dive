@@ -1,0 +1,1 @@
+{"counterexample":{"action":[[[1,{"x":false}],{"name":"UnnamedAction","location":{"beginLine":0,"beginColumn":0,"endLine":0,"endColumn":0,"module":"--TLA+ BUILTINS--"}},[1,{"x":false}]]],"state":[[1,{"x":false}]]},"vars":["x"]}

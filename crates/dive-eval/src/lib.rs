@@ -39,6 +39,7 @@
 //! validator uses its separate bounded finite-cover procedure.
 #![forbid(unsafe_code)]
 
+mod bounded_domain;
 pub mod capture;
 mod community;
 mod core;

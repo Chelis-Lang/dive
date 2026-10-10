@@ -204,3 +204,12 @@ bounded kernel returns `TooFewGenerators`; binding/reduction remain refused.
 No alternative empty-declaration default is adopted. Raw evidence:
 `crates/dive-model/tests/fixtures/symmetry-group/` and the corresponding
 under-consideration entry in `docs/tlc-differences.md`.
+
+D-013 finite lazy-domain bindings now support bounded `SUBSET S`, `[S -> T]`,
+record sets and Cartesian products, including nested constructors and the
+singleton empty-domain function with an infinite range. Eight pinned `Ld*`
+models match final truth/counts in both profiles/stores at requested workers
+1/4/8; actual final capture remains sequential. Preflight preserves raw operand
+normalization order and bounds component and generated value slots. Deferred,
+infinite, oversized and excessive-work domains remain named failures. This does
+not change the strict temporal compatibility refusal.

@@ -1,0 +1,12 @@
+# Exact ten finite lazy-domain refusals in small-temporal-53-final-short-tlc.json
+# Retained full selection; this study is not strict TLC conformance.
+specifications/LoopInvariance/MCQuicksort.cfg
+specifications/MultiCarElevator/ElevatorLivenessMedium.cfg
+specifications/YoYo/MCYoYoPruning.cfg
+specifications/YoYo/YoYoAllGraphs.cfg
+specifications/allocator/AllocatorImplementation.cfg
+specifications/allocator/AllocatorRefinement.cfg
+specifications/allocator/SchedulingAllocator.cfg
+specifications/allocator/SimpleAllocator.cfg
+specifications/bcastByz/bcastByz.cfg
+specifications/ewd998/EWD998ChanID.cfg

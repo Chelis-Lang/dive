@@ -197,3 +197,18 @@ model-value and group checks are separate pending stages; no reduction is enable
 Unverified declaration-evaluation and normalization startup errors refuse by
 name rather than reuse an evaluator diagnostic as an exact startup message.
 A division-by-zero control verifies that no TLC code is claimed for that refusal.
+
+
+## Bounded lazy binder domains
+
+`dive-eval/src/bounded_domain.rs` is an original structural resource preflight
+for `scope_bindings_bounded`; it does not port a checker enumerator. The unchanged
+binding/exploration path matches TLC `ContextEnumerator` and the value constructors
+`SubsetValue.elements`, `SetOfFcnsValue.elements`, `SetOfRcdsValue.elements`,
+`SetOfTuplesValue.elements` at tlaplus `94d0c50` (MIT reference). Raw cardinality
+upper bounds are inspected without normalization, and the original size and
+exploration code subsequently determines exact errors and order. The empty-domain
+function short circuit matches `SetOfFcnsValue`. Eight clean pinned `Ld*` captures,
+both-profile enumeration/error-order controls and independent periodic-word checks
+provide evidence. The validator shares expression binding but retains its separate
+word/ENABLED algorithms and no successor enumeration feature.
