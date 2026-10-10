@@ -158,11 +158,8 @@ fn resource_failures_return_no_artifact() {
 #[test]
 fn opaque_and_unproved_normalizations_refuse() {
     for source in [
-        "--algorithm A variable x=0; begin x:=1; end algorithm",
-        "--algorithm A variable x; begin L: x:=1; end algorithm",
         "--algorithm A variable Next=0; begin L: Next:=1; end algorithm",
         "--algorithm A variable x=0; begin L: with pc=1 do skip; end with; end algorithm",
-        "--algorithm A variable x=0; begin L:+ x:=1; E: skip; end algorithm",
         "--algorithm A variable x=0; begin L: print CHOOSE k \\in {1}: TRUE; end algorithm",
     ] {
         assert!(
@@ -225,13 +222,15 @@ fn quoted_done_is_the_terminal_label() -> Result<(), Box<dyn std::error::Error>>
 }
 
 #[test]
-fn valid_label_fairness_modifiers_refuse_before_emission() {
+fn sequential_label_modifiers_force_pc_without_inventing_fairness()
+-> Result<(), Box<dyn std::error::Error>> {
     for modifier in ["+", "-"] {
-        let source =
-            format!("--algorithm A variable x=0; begin L:{modifier} x:=1; E: skip; end algorithm");
-        let result = translate(&source, &TranslationOptions::default());
-        assert!(
-            matches!(result, Err(error) if error.diagnostic.code==Code::Unsupported && error.diagnostic.message.contains("label fairness modifiers"))
+        let source = format!(
+            "--algorithm A variable x=0; begin L:{modifier} while TRUE do x:=1; end while; end algorithm"
         );
+        let result = translate(&source, &TranslationOptions::default())?;
+        assert!(result.program_counter);
+        assert!(!result.tla.contains("WF_vars") && !result.tla.contains("SF_vars"));
     }
+    Ok(())
 }

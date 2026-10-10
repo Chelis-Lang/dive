@@ -1,0 +1,633 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "Norm_P_simple_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_simple_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_simple_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_simple_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_simple_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_simple_invalid_root",
+      "options": [
+        "-labelRoot",
+        "_Step"
+      ]
+    },
+    {
+      "id": "Norm_P_simple_digit_root",
+      "options": [
+        "-labelRoot",
+        "1Step"
+      ]
+    },
+    {
+      "id": "Norm_P_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_repeat_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_repeat_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_repeat_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_repeat_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_partial_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_partial_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_partial_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_partial_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_partial_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_while_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_while_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_while_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_while_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_while_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_inner_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_branch_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_branch_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_branch_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_branch_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_branch_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_branch_inner_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_goto_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_goto_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_goto_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_goto_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_goto_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_typed_collision_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_typed_collision_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_typed_collision_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_typed_collision_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_typed_collision_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_variable_collision_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_with_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_with_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_with_repeat_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_P_with_repeat_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_with_repeat_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_P_with_repeat_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_P_default_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_mixed_default_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_default_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_default_name_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_plus_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_minus_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_plus_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_minus_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_P_fair_plus_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_simple_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_simple_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_simple_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_simple_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_simple_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_simple_invalid_root",
+      "options": [
+        "-labelRoot",
+        "_Step"
+      ]
+    },
+    {
+      "id": "Norm_C_simple_digit_root",
+      "options": [
+        "-labelRoot",
+        "1Step"
+      ]
+    },
+    {
+      "id": "Norm_C_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_repeat_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_repeat_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_repeat_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_repeat_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_partial_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_partial_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_partial_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_partial_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_partial_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_while_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_while_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_while_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_while_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_while_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_inner_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_branch_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_branch_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_branch_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_branch_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_branch_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_branch_inner_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_goto_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_goto_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_goto_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_goto_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_goto_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_typed_collision_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_typed_collision_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_typed_collision_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_typed_collision_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_typed_collision_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_variable_collision_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_with_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_with_repeat_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_with_repeat_label",
+      "options": [
+        "-label"
+      ]
+    },
+    {
+      "id": "Norm_C_with_repeat_root",
+      "options": [
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_with_repeat_label_root",
+      "options": [
+        "-label",
+        "-labelRoot",
+        "Step"
+      ]
+    },
+    {
+      "id": "Norm_C_with_repeat_report",
+      "options": [
+        "-reportLabels"
+      ]
+    },
+    {
+      "id": "Norm_C_default_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_mixed_default_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_default_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_default_name_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_plus_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_minus_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_plus_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_minus_loop_default",
+      "options": []
+    },
+    {
+      "id": "Norm_C_fair_plus_loop_default",
+      "options": []
+    }
+  ]
+}
