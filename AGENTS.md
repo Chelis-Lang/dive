@@ -234,6 +234,17 @@ See the harness README, "Cache layout". The private oracle asset needs `GH_TOKEN
 - **Owner questions.** Open questions for the owner live in
   `docs/open-questions.md`. Add to it rather than guessing.
 
+## Documentation delivery
+
+Documentation is part of implementation, not a separate phase that pauses other
+work. Every user-visible feature/change updates its user-facing Markdown guide
+in the same PR: exact CLI/API invocation, runnable example, outputs/exits,
+defaults/TLC counterparts, supported/refused combinations and resource/proof
+qualifications. Keep `docs/user/README.md` current and link new feature pages.
+Maintain developer design, provenance, known TLC issues, parity obligations and
+historical evidence alongside the user contract. ADRs and experiment READMEs
+alone do not replace a user guide. Follow `docs/developer/documentation-policy.md`.
+
 ## Documentation style
 
 Docs describe the current state. Use repo-relative paths only: no absolute local

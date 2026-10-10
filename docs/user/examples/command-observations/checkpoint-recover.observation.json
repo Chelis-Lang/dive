@@ -1,0 +1,16 @@
+{
+  "args": [
+    "check",
+    "docs/user/examples/CheckpointCounter.tla",
+    "--compat=tlc",
+    "--recover",
+    "<temporary checkpoint archive>",
+    "--output",
+    "json"
+  ],
+  "exit": 0,
+  "verdict": "success",
+  "message": null,
+  "stdout_sha256": "06b9c206e1b2ffb2e0f980e013267bc5c3437480d79a37fba03d22dc4e082310",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
