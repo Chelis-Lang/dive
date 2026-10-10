@@ -135,7 +135,7 @@ See [ADR 0045](decisions/0045-pluscal-shared-process-procedures.md),
 [one-process procedures](pluscal-process-procedures.md) and
 [the parity ledger](tlc-parity.md). F-034/F-035 remain partial and audit-required.
 
-The preserved 166-source C/P campaign admits 94 artifacts, matches 15 source
+The historical 166-source C/P campaign admits 94 artifacts, matches 15 source
 rejections, refuses 49 unproved inputs by name, and records eight diagnostic
 invalid-reference comparisons. All eleven SANY-invalid primary outputs remain
 uncredited. Each admitted artifact is separately checked against SANY and the
@@ -149,3 +149,18 @@ Process-declared/option fairness and process-owned procedure modifiers are
 extended by the [fair procedure increment](pluscal-procedure-fairness.md).
 The earlier unfair-only capture and its dispositions remain historical evidence;
 fairness generation alone does not certify liveness execution.
+
+## Current integrated fairness coverage
+
+The current translator also admits the proved process/procedure fairness cases
+described in [procedure fairness](pluscal-procedure-fairness.md). Fresh comparison
+of this guide's original selection now matches 106 artifacts; the older counts
+above retain their original source qualification. All 14 newly admitted cases
+across the one-process and shared-procedure selections pass separate pinned
+SANY and operator-CST checks.
+
+The [combined-source receipt](../conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/verification.json)
+records 906 passing tests, 302 fair translation artifacts and distinct producer
+identities for execution and test-expectation reconciliation. It retains the
+initial failed gate. Strict runtime-namespace witnesses remain pending under
+#124; these results certify neither liveness execution nor full PlusCal parity.

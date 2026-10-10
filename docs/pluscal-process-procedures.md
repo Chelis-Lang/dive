@@ -143,7 +143,7 @@ See [ADR 0044](decisions/0044-pluscal-process-procedure-ownership.md),
 file rewriting/checksums/maps and full strict witness certification remain
 pending; F-034/F-035 stay partial and audit-required.
 
-Current evidence retains 130 source rows in three immutable selections: 80
+The historical one-process study retains 130 source rows in three immutable selections: 80
 admitted token/SANY/operator-CST artifacts, ten matching source rejections, 30
 named refusals and ten invalid-reference diagnostic dispositions. All fourteen
 SANY-invalid reference outputs remain uncredited. The 130 finite model rows have
@@ -164,3 +164,18 @@ A later [multiple-process procedure increment](pluscal-multiple-procedures.md)
 lifts this historical slice's one-block restriction for disjoint finite IDs and
 names. Its complete study and support boundaries are separate; none of the
 original source or witness dispositions above is retroactively changed.
+
+## Current integrated fairness coverage
+
+The current translator also admits the proved process/procedure fairness cases
+described in [procedure fairness](pluscal-procedure-fairness.md). Fresh comparison
+of the base 112-source selection now matches 70 artifacts; the older counts
+above retain their original source qualification. All 14 newly admitted cases
+across the one-process and shared-procedure selections pass separate pinned
+SANY and operator-CST checks.
+
+The [combined-source receipt](../conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/verification.json)
+records 906 passing tests, 302 fair translation artifacts and distinct producer
+identities for execution and test-expectation reconciliation. It retains the
+initial failed gate. Strict runtime-namespace witnesses remain pending under
+#124; these results certify neither liveness execution nor full PlusCal parity.

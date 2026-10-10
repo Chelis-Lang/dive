@@ -1,0 +1,5 @@
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal)
+    Finished `release` profile [optimized + debuginfo] target(s) in 30.05s

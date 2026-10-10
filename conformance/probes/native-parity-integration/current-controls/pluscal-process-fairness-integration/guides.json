@@ -1,0 +1,404 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "script_sha256": "efe2a0c044d57dc25fc2a2d5f50e4849369866e3fec8d40884c0f69c1d618756",
+  "native_sha256": "87ecbbf954ddd5a8df0adfc4df93301cd84bdec3cc78fb3f83747f8c788156e0",
+  "api_library_sha256": "83d9aea050cfc72efc97c3db2be503378e80dfc53387b09fd605a83c1ffca75d",
+  "api_library_name": "libdive_api-e4acb51a96df8488.rlib",
+  "controls": 18,
+  "cli_controls": 12,
+  "compiled_rust_controls": 6,
+  "rows": [
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExample",
+      "source_sha256": "c7a1754c964fe98784770003848640c3588f9c9d2999230219a8aaaf4e6de750",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExample-dive-cli.stdout.gz",
+          "sha256": "28d76b4ad1c4f0bc8b184cc6958a56ca60a919d72ac6688fe79a55aa06d8919b"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExample-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExample",
+      "source_sha256": "c7a1754c964fe98784770003848640c3588f9c9d2999230219a8aaaf4e6de750",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExample-tlc-cli.stdout.gz",
+          "sha256": "62229c72ee0caef7b5b6322353a81dd80a35c3b6348c62b985087c29a6c8bbc6"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExample-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExample",
+      "source_sha256": "c7a1754c964fe98784770003848640c3588f9c9d2999230219a8aaaf4e6de750",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExample-dive-rust-api.stdout.gz",
+          "sha256": "28d76b4ad1c4f0bc8b184cc6958a56ca60a919d72ac6688fe79a55aa06d8919b"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExample-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "f3cd5fd8b5f0de207b77d690e4df0069cba5ea7aa22e8351d61760bfa0465c3d",
+      "executable_sha256": "b63b74f2961939c9e2d496116ae67887f4a160887a85302e5298787343099011"
+    },
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExampleC",
+      "source_sha256": "3f140b2ae0b8ef6e86d6e124c7a2c7db8b36e4f0c5fba0fa76b2c0c6d73c7e20",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-dive-cli.stdout.gz",
+          "sha256": "a846cf267c5c199054da9ad85f4c74c0eafad33f4be9e6613e124104af70ac60"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExampleC",
+      "source_sha256": "3f140b2ae0b8ef6e86d6e124c7a2c7db8b36e4f0c5fba0fa76b2c0c6d73c7e20",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-tlc-cli.stdout.gz",
+          "sha256": "fec01f7d79d9aa5df7dbe0d99736105f0399c8aeec2334e88b26bac753022d39"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-process-procedures.md",
+      "guide_sha256": "d3fce35faffddb38ec2f917ecc7ad8b0ffa9b73f3e2a77b54daf38854b8fe215",
+      "module": "ProcessCallExampleC",
+      "source_sha256": "3f140b2ae0b8ef6e86d6e124c7a2c7db8b36e4f0c5fba0fa76b2c0c6d73c7e20",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-dive-rust-api.stdout.gz",
+          "sha256": "a846cf267c5c199054da9ad85f4c74c0eafad33f4be9e6613e124104af70ac60"
+        },
+        "stderr": {
+          "path": "pluscal-process-procedures-ProcessCallExampleC-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "dc691abb10116ad2f01ade5776dce4359cc452a13f765d637eb96fc20d983ee2",
+      "executable_sha256": "ac74ab4d134e7ddfbaf0a8c39faaea0959dda38bd175bdfde4ca62974ce05d3a"
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExample",
+      "source_sha256": "142300889dd1910a9361adaafb75c3c5685186a8a73127b8cab95d651e8e1984",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-dive-cli.stdout.gz",
+          "sha256": "ecf3771eff454c4b564e9ea51461f46a114ef44beb8fa832defa9120424b5227"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExample",
+      "source_sha256": "142300889dd1910a9361adaafb75c3c5685186a8a73127b8cab95d651e8e1984",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-tlc-cli.stdout.gz",
+          "sha256": "a50070f2a4f7f7246f12eb689f28d5ccaefce91c614aae6c925de6363d70e8e4"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExample",
+      "source_sha256": "142300889dd1910a9361adaafb75c3c5685186a8a73127b8cab95d651e8e1984",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-dive-rust-api.stdout.gz",
+          "sha256": "ecf3771eff454c4b564e9ea51461f46a114ef44beb8fa832defa9120424b5227"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExample-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "bb8147fd1c9a9d04634720ab5f09147c24932f27cbe58f7abada937b40a10885",
+      "executable_sha256": "5b5f15ad3102fb6b9b42306517f670676aeb35eb9a0e6cb87626a5037f1570b1"
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExampleC",
+      "source_sha256": "fce6fd732b9b6b570e0d45cd2763560069045b3628d6a93e24bf01ee8a7cf0b4",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-dive-cli.stdout.gz",
+          "sha256": "820688a6e2402a77cd46e7d4e8243f6b9c790e5068913219b31aa173c21fe7b1"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExampleC",
+      "source_sha256": "fce6fd732b9b6b570e0d45cd2763560069045b3628d6a93e24bf01ee8a7cf0b4",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-tlc-cli.stdout.gz",
+          "sha256": "05a54b81b29529a77a4c74942cc5a90909e8246647bfcaeacb6e93d55ad46c2a"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-multiple-procedures.md",
+      "guide_sha256": "f96d3dbf7eda727e12e2c4a20c3ab3c5e812948684b4c27830d30cd546d914e1",
+      "module": "MultipleCallExampleC",
+      "source_sha256": "fce6fd732b9b6b570e0d45cd2763560069045b3628d6a93e24bf01ee8a7cf0b4",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-dive-rust-api.stdout.gz",
+          "sha256": "820688a6e2402a77cd46e7d4e8243f6b9c790e5068913219b31aa173c21fe7b1"
+        },
+        "stderr": {
+          "path": "pluscal-multiple-procedures-MultipleCallExampleC-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "fb596628d01679d7b8696f15b30a5e67872c3e922c165a583958859940d84066",
+      "executable_sha256": "cd850dbf2eb27796527cdebdfedb70c6c86cbd0553531c6f873e0be66496e61c"
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCall",
+      "source_sha256": "3d99fbdd4db13704831a261f1bfca9b189b2d8e19db3c758206f828bf8526fa9",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCall-dive-cli.stdout.gz",
+          "sha256": "ee6ad3c39f6c51af662c54b4fab0dde01d7c1d5f104d656be1a0020a44d4057c"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCall-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCall",
+      "source_sha256": "3d99fbdd4db13704831a261f1bfca9b189b2d8e19db3c758206f828bf8526fa9",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCall-tlc-cli.stdout.gz",
+          "sha256": "a63afc198309fd890ff1fa56316d2dbf66818257771f501f32651f0ae65c5b17"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCall-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCall",
+      "source_sha256": "3d99fbdd4db13704831a261f1bfca9b189b2d8e19db3c758206f828bf8526fa9",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCall-dive-rust-api.stdout.gz",
+          "sha256": "0aab0bfa9863c7ed2e793318ea1004156910908b385ff3e690949702fa6fe895"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCall-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "8a23d1ecdf1c18d9056b4642f9963c0be49c8ebfb73d1943d9883bca8decec1c",
+      "executable_sha256": "be14576838860b8cc655862c91ff967310e93145c6a177db8bd0d8993f648364"
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCallC",
+      "source_sha256": "ee0c647dd6d1d29140bfe800267966087d1b55899058fa1d504720ce3358755e",
+      "profile": "dive",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCallC-dive-cli.stdout.gz",
+          "sha256": "b54396f95196208062cfede529370075f6a1f437437861a1b974fe776484b185"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCallC-dive-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCallC",
+      "source_sha256": "ee0c647dd6d1d29140bfe800267966087d1b55899058fa1d504720ce3358755e",
+      "profile": "tlc",
+      "kind": "cli",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCallC-tlc-cli.stdout.gz",
+          "sha256": "50a2f05fd59a7d019e2c687c43fe06c8bdc712a3db8032dd95f01e7a77e261c5"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCallC-tlc-cli.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false
+    },
+    {
+      "guide": "docs/pluscal-procedure-fairness.md",
+      "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+      "module": "FairCallC",
+      "source_sha256": "ee0c647dd6d1d29140bfe800267966087d1b55899058fa1d504720ce3358755e",
+      "profile": "dive",
+      "kind": "rust-api",
+      "exit_code": 0,
+      "captures": {
+        "stdout": {
+          "path": "pluscal-procedure-fairness-FairCallC-dive-rust-api.stdout.gz",
+          "sha256": "3a0edf40b76e45cafcf59bb660461ae7ad21b4deb99988930c9cce815eb7fdc4"
+        },
+        "stderr": {
+          "path": "pluscal-procedure-fairness-FairCallC-dive-rust-api.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "model_proved": false,
+      "exhaustive": false,
+      "program_sha256": "79b2afc1765eac4c81a440222692bdbcbb922c3999d3681098fd32381aef6331",
+      "executable_sha256": "7cfc47f1442fbb498335c3d3d773c18b7d6b55404587fbe389146345ef078950"
+    }
+  ],
+  "model_proved": false,
+  "family_certified": false
+}

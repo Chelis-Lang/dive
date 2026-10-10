@@ -1,0 +1,456 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "checked_links": 75,
+  "rows": [
+    {
+      "source": "docs/user/rust-api.md",
+      "target": "../../crates/dive-api/src/lib.rs",
+      "resolved": "crates/dive-api/src/lib.rs",
+      "exists": true
+    },
+    {
+      "source": "docs/user/rust-api.md",
+      "target": "traces.md",
+      "resolved": "docs/user/traces.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/rust-api.md",
+      "target": "temporal.md",
+      "resolved": "docs/user/temporal.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/rust-api.md",
+      "target": "../pluscal-procedure-fairness.md",
+      "resolved": "docs/pluscal-procedure-fairness.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/rust-api.md",
+      "target": "pluscal.md",
+      "resolved": "docs/user/pluscal.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/front-end.md",
+      "target": "../frontend-campaign.md",
+      "resolved": "docs/frontend-campaign.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/front-end.md",
+      "target": "modules.md",
+      "resolved": "docs/user/modules.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../frontier-storage.md",
+      "resolved": "docs/frontier-storage.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../predecessor-storage.md",
+      "resolved": "docs/predecessor-storage.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../native-checkpoint.md",
+      "resolved": "docs/native-checkpoint.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../native-checkpoint.md",
+      "resolved": "docs/native-checkpoint.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../../conformance/probes/native-checkpoint-keys/README.md",
+      "resolved": "conformance/probes/native-checkpoint-keys/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/storage-recovery.md",
+      "target": "../native-checkpoint.md#current-integrated-verification",
+      "resolved": "docs/native-checkpoint.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-macros.md",
+      "resolved": "docs/pluscal-macros.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-procedures.md",
+      "resolved": "docs/pluscal-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-procedure-graphs.md",
+      "resolved": "docs/pluscal-procedure-graphs.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-recursive-procedures.md",
+      "resolved": "docs/pluscal-recursive-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-process-procedures.md",
+      "resolved": "docs/pluscal-process-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-multiple-procedures.md",
+      "resolved": "docs/pluscal-multiple-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-procedure-fairness.md",
+      "resolved": "docs/pluscal-procedure-fairness.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-normalization.md",
+      "resolved": "docs/pluscal-normalization.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-processes.md",
+      "resolved": "docs/pluscal-processes.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-multiple-processes.md",
+      "resolved": "docs/pluscal-multiple-processes.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/pluscal.md",
+      "target": "../pluscal-fairness.md",
+      "resolved": "docs/pluscal-fairness.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/modules.md",
+      "target": "compatibility.md",
+      "resolved": "docs/user/compatibility.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/modules.md",
+      "target": "front-end.md",
+      "resolved": "docs/user/front-end.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/modules.md",
+      "target": "compatibility.md",
+      "resolved": "docs/user/compatibility.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/modules.md",
+      "target": "../tlc-parity.md",
+      "resolved": "docs/tlc-parity.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/modules.md",
+      "target": "../tlc-differences.md",
+      "resolved": "docs/tlc-differences.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/traces.md",
+      "target": "../../crates/dive-api/src/trace.rs",
+      "resolved": "crates/dive-api/src/trace.rs",
+      "exists": true
+    },
+    {
+      "source": "docs/user/traces.md",
+      "target": "../temporal-api.md",
+      "resolved": "docs/temporal-api.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/traces.md",
+      "target": "../decisions/0016-trace-validator-independence.md",
+      "resolved": "docs/decisions/0016-trace-validator-independence.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/getting-started.md",
+      "target": "reports-and-errors.md",
+      "resolved": "docs/user/reports-and-errors.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/getting-started.md",
+      "target": "traces.md",
+      "resolved": "docs/user/traces.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "getting-started.md",
+      "resolved": "docs/user/getting-started.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "front-end.md",
+      "resolved": "docs/user/front-end.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "modules.md",
+      "resolved": "docs/user/modules.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "checking.md",
+      "resolved": "docs/user/checking.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "compatibility.md",
+      "resolved": "docs/user/compatibility.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "simulation.md",
+      "resolved": "docs/user/simulation.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "dfid.md",
+      "resolved": "docs/user/dfid.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "pluscal.md",
+      "resolved": "docs/user/pluscal.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "traces.md",
+      "resolved": "docs/user/traces.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "temporal.md",
+      "resolved": "docs/user/temporal.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "storage-recovery.md",
+      "resolved": "docs/user/storage-recovery.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "rust-api.md",
+      "resolved": "docs/user/rust-api.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "reports-and-errors.md",
+      "resolved": "docs/user/reports-and-errors.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "../sprint-status.md",
+      "resolved": "docs/sprint-status.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/README.md",
+      "target": "../tlc-differences.md",
+      "resolved": "docs/tlc-differences.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/simulation.md",
+      "target": "../../crates/dive-sim/README.md",
+      "resolved": "crates/dive-sim/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/simulation.md",
+      "target": "reports-and-errors.md",
+      "resolved": "docs/user/reports-and-errors.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/temporal.md",
+      "target": "../temporal-api.md",
+      "resolved": "docs/temporal-api.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/temporal.md",
+      "target": "../tlc-final-api.md",
+      "resolved": "docs/tlc-final-api.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/temporal.md",
+      "target": "../temporal-execution-api.md",
+      "resolved": "docs/temporal-execution-api.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/compatibility.md",
+      "target": "dfid.md",
+      "resolved": "docs/user/dfid.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/compatibility.md",
+      "target": "../tlc-differences.md",
+      "resolved": "docs/tlc-differences.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/compatibility.md",
+      "target": "../decisions/0002-oracle-pinning.md",
+      "resolved": "docs/decisions/0002-oracle-pinning.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/reports-and-errors.md",
+      "target": "../sprint-status.md",
+      "resolved": "docs/sprint-status.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/reports-and-errors.md",
+      "target": "../conformance.md",
+      "resolved": "docs/conformance.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/dfid.md",
+      "target": "../../crates/dive-check/tests/fixtures/dfid/README.md",
+      "resolved": "crates/dive-check/tests/fixtures/dfid/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/dfid.md",
+      "target": "../decisions/0021-native-dfid.md",
+      "resolved": "docs/decisions/0021-native-dfid.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/dfid.md",
+      "target": "reports-and-errors.md",
+      "resolved": "docs/user/reports-and-errors.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/checking.md",
+      "target": "temporal.md",
+      "resolved": "docs/user/temporal.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/checking.md",
+      "target": "compatibility.md",
+      "resolved": "docs/user/compatibility.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/checking.md",
+      "target": "storage-recovery.md",
+      "resolved": "docs/user/storage-recovery.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/checking.md",
+      "target": "reports-and-errors.md",
+      "resolved": "docs/user/reports-and-errors.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/checking.md",
+      "target": "../tlc-parity.md",
+      "resolved": "docs/tlc-parity.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "observations.json",
+      "resolved": "docs/user/examples/observations.json",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "command-observations/checkpoint-pause.observation.json",
+      "resolved": "docs/user/examples/command-observations/checkpoint-pause.observation.json",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../pluscal-macros.md",
+      "resolved": "docs/pluscal-macros.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/guide/receipt.json",
+      "resolved": "conformance/probes/native-parity-integration/current-controls/context-alias-repair/guide/receipt.json",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../../conformance/probes/native-parity-integration/current-controls/context-alias-repair/rust-guide/receipt.json",
+      "resolved": "conformance/probes/native-parity-integration/current-controls/context-alias-repair/rust-guide/receipt.json",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../pluscal-procedures.md",
+      "resolved": "docs/pluscal-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../pluscal-recursive-procedures.md",
+      "resolved": "docs/pluscal-recursive-procedures.md",
+      "exists": true
+    },
+    {
+      "source": "docs/user/examples/README.md",
+      "target": "../../../conformance/probes/native-parity-integration/current-controls/recursive-final-integration/verification.json",
+      "resolved": "conformance/probes/native-parity-integration/current-controls/recursive-final-integration/verification.json",
+      "exists": true
+    }
+  ]
+}
