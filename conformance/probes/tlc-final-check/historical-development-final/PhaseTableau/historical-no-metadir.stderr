@@ -1,0 +1,35 @@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file /private/tmp/dive-strict-final-probe/PhaseTableau/PhaseTableau.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-8586352749418243879/Integers.tla (jar:file:/Users/jeff/code/dive-phase-l-execution-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-8586352749418243879/TLC.tla (jar:file:/Users/jeff/code/dive-phase-l-execution-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/TLC.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-8586352749418243879/Naturals.tla (jar:file:/Users/jeff/code/dive-phase-l-execution-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-8586352749418243879/Sequences.tla (jar:file:/Users/jeff/code/dive-phase-l-execution-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Sequences.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-8586352749418243879/FiniteSets.tla (jar:file:/Users/jeff/code/dive-phase-l-execution-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/FiniteSets.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module PhaseTableau
+Linting of module PhaseTableau
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-10 18:29:59)
+@!@!@ENDMSG 2185 @!@!@
+Exception in thread "main" java.io.FileNotFoundException: /tmp/dive-strict-final-probe/PhaseTableau/meta/nodes_0 (No such file or directory)
+	at java.base/java.io.RandomAccessFile.open0(Native Method)
+	at java.base/java.io.RandomAccessFile.open(Unknown Source)
+	at java.base/java.io.RandomAccessFile.<init>(Unknown Source)
+	at java.base/java.io.RandomAccessFile.<init>(Unknown Source)
+	at tlc2.util.BufferedRandomAccessFile.<init>(BufferedRandomAccessFile.java:173)
+	at tlc2.util.BufferedRandomAccessFile.<init>(BufferedRandomAccessFile.java:195)
+	at tlc2.tool.liveness.AbstractDiskGraph.<init>(AbstractDiskGraph.java:104)
+	at tlc2.tool.liveness.TableauDiskGraph.<init>(TableauDiskGraph.java:46)
+	at tlc2.tool.liveness.LiveCheck$TableauLiveChecker.<init>(LiveCheck.java:633)
+	at tlc2.tool.liveness.LiveCheck.<init>(LiveCheck.java:78)
+	at tlc2.tool.liveness.LiveCheck.<init>(LiveCheck.java:64)
+	at tlc2.tool.liveness.SccProbe.main(SccProbe.java:50)

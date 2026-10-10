@@ -1,0 +1,204 @@
+warning: 25 path(s) in corpus `examples` are not covered by any manifest (no goldens): specifications/CASPaxos/ (no manifest.json), specifications/Caesar/ (no manifest.json), specifications/DataPort/ (no manifest.json), specifications/HLC/ (no manifest.json), specifications/L1/ (no manifest.json), ...
+running dive-final-tlc against examples golden(s) of tlc-2026.10.06.014338 on 140 model(s) and 0 module(s), workers [1], SANY phase Full
+[1/140] unsupported   specifications/Bakery-Boulangerie/MCBakery.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[2/140] unsupported   specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_1/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[3/140] unsupported   specifications/CarTalkPuzzle/CarTalkPuzzle.toolbox/Model_2/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[4/140] unsupported   specifications/Chameneos/Chameneos.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[5/140] unsupported   specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[6/140] unsupported   specifications/CigaretteSmokers/CigaretteSmokers.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[7/140] unsupported   specifications/CoffeeCan/CoffeeCan1000Beans.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[8/140] unsupported   specifications/CoffeeCan/CoffeeCan100Beans.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[9/140] unsupported   specifications/DieHard/DieHard.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[10/140] unsupported   specifications/DieHard/MCDieHarder.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[11/140] unsupported   specifications/DieHard/MCDieHardest.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[12/140] unsupported   specifications/DiningPhilosophers/DiningPhilosophers.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[13/140] unsupported   specifications/Disruptor/MCDisruptor_MPMC.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[14/140] unsupported   specifications/Disruptor/MCDisruptor_MPMC_liveliness.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[15/140] unsupported   specifications/Disruptor/MCDisruptor_SPMC.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[16/140] unsupported   specifications/FiniteMonotonic/MCCRDT.cfg (action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`))
+[17/140] unsupported   specifications/FiniteMonotonic/MCDistributedReplicatedLog.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[18/140] unsupported   specifications/FiniteMonotonic/MCReplicatedLog.cfg (action composition (TLC's `-Dtlc2.tool.impl.Tool.cdot=true`))
+[19/140] unsupported   specifications/FlashProtocol/MCFlashWithMutex.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[20/140] unsupported   specifications/FlashProtocol/MCFlashWithMutexLive.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[21/140] unsupported   specifications/GameOfLife/GameOfLife.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[22/140] unsupported   specifications/GermanProtocol/MCGermanCMPWithMutex.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[23/140] unsupported   specifications/GermanProtocol/MCGermanControl.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[24/140] unsupported   specifications/GermanProtocol/MCGermanData.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[25/140] unsupported   specifications/LearnProofs/MCFindHighest.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[26/140] unsupported   specifications/LeastCircularSubstring/MCLeastCircularSubstringSmall.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[27/140] unsupported   specifications/LoopInvariance/MCBinarySearch.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[28/140] unsupported   specifications/LoopInvariance/MCQuicksort.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[29/140] unsupported   specifications/Majority/MCMajority.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[30/140] unsupported   specifications/MisraReachability/MCParReach.cfg (unsupported: DIVE-L0020: unsupported liveness planning in line 148, col 12 to line 148, col 47 of module ParReach: opaque substituted predicate atom (at line 120, col 63 to line 120, col 66 of module ParReach))
+[31/140] unsupported   specifications/MisraReachability/MCReachabilityTestAllGraphs.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[32/140] unsupported   specifications/MisraReachability/MCReachabilityTestRandomGraphs.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[33/140] unsupported   specifications/MissionariesAndCannibals/MissionariesAndCannibals.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[34/140] unsupported   specifications/Moving_Cat_Puzzle/CatEvenBoxes.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[35/140] unsupported   specifications/Moving_Cat_Puzzle/CatOddBoxes.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[36/140] unsupported   specifications/MultiCarElevator/ElevatorLivenessMedium.cfg (unsupported: DIVE-L0020: unsupported liveness planning in line 225, col 8 to line 225, col 57 of module Elevator: effectful, temporal or ENABLED operand in a pure predicate atom (at line 225, col 36 to line 225, col 56 of module Elevator))
+[37/140] unsupported   specifications/MultiCarElevator/ElevatorSafetySmall.cfg (unsupported: DIVE-L0020: unsupported liveness planning in line 225, col 8 to line 225, col 57 of module Elevator: effectful, temporal or ENABLED operand in a pure predicate atom (at line 225, col 36 to line 225, col 56 of module Elevator))
+[38/140] unsupported   specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[39/140] unsupported   specifications/N-Queens/Queens.toolbox/FourQueens/MC.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[40/140] unsupported   specifications/N-Queens/QueensPluscal.toolbox/FourQueens/MC.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[41/140] unsupported   specifications/NanoBlockchain/MCNanoMedium.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[42/140] unsupported   specifications/NanoBlockchain/MCNanoSmall.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[43/140] unsupported   specifications/Paxos/MCConsensus.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[44/140] unsupported   specifications/Paxos/MCPaxos.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[45/140] unsupported   specifications/Paxos/MCVoting.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[46/140] unsupported   specifications/PaxosHowToWinATuringAward/MCConsensus.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[47/140] unsupported   specifications/PaxosHowToWinATuringAward/MCPaxosTiny.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[48/140] unsupported   specifications/PaxosHowToWinATuringAward/MCVoting.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[49/140] unsupported   specifications/Prisoners/Prisoners.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[50/140] unsupported   specifications/Prisoners_Single_Switch/Prisoner.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[51/140] unsupported   specifications/Prisoners_Single_Switch/PrisonerLightUnknown.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[52/140] unsupported   specifications/Prisoners_Single_Switch/PrisonerSolo.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[53/140] unsupported   specifications/Prisoners_Single_Switch/PrisonerSoloLightUnknown.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[54/140] unsupported   specifications/ReadersWriters/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[55/140] unsupported   specifications/SDP_Verification/SDP_Attack_New_Solution_Spec/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[56/140] unsupported   specifications/SDP_Verification/SDP_Attack_Spec/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[57/140] unsupported   specifications/SimplifiedFastPaxos/FastPaxos.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[58/140] unsupported   specifications/SimplifiedFastPaxos/Paxos.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[59/140] unsupported   specifications/SingleLaneBridge/MC.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[60/140] unsupported   specifications/SlidingPuzzles/SlidingPuzzles.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[61/140] unsupported   specifications/SlidingPuzzles/SlidingPuzzles_anim.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[62/140] unsupported   specifications/SlushProtocol/SlushSmall.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[63/140] unsupported   specifications/SpanningTree/SpanTree.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[64/140] unsupported   specifications/SpanningTree/SpanTreeRandom.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[65/140] unsupported   specifications/SpanningTree/SpanTreeTest4Nodes.cfg (unsupported: graph capture with random operators)
+[66/140] unsupported   specifications/SpecifyingSystems/AdvancedExamples/MCInnerSequential.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[67/140] unsupported   specifications/SpecifyingSystems/AsynchronousInterface/AsynchInterface.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[68/140] unsupported   specifications/SpecifyingSystems/AsynchronousInterface/Channel.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[69/140] unsupported   specifications/SpecifyingSystems/AsynchronousInterface/PrintValues.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[70/140] unsupported   specifications/SpecifyingSystems/CachingMemory/MCInternalMemory.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[71/140] unsupported   specifications/SpecifyingSystems/CachingMemory/MCWriteThroughCache.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[72/140] unsupported   specifications/SpecifyingSystems/FIFO/MCInnerFIFO.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[73/140] unsupported   specifications/SpecifyingSystems/HourClock/HourClock.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[74/140] unsupported   specifications/SpecifyingSystems/HourClock/HourClock2.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[75/140] unsupported   specifications/SpecifyingSystems/Liveness/LiveHourClock.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[76/140] unsupported   specifications/SpecifyingSystems/Liveness/MCLiveInternalMemory.cfg (unsupported: DIVE-L0020: unsupported liveness planning in line 18, col 14 to line 18, col 53 of module LiveInternalMemory: dynamically bound predicate operator (at line 34, col 14 to line 34, col 46 of module InternalMemory))
+[77/140] unsupported   specifications/SpecifyingSystems/Liveness/MCLiveWriteThroughCache.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[78/140] unsupported   specifications/SpecifyingSystems/RealTime/MCRealTimeHourClock.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[79/140] unsupported   specifications/SpecifyingSystems/SimpleMath/SimpleMath.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[80/140] unsupported   specifications/SpecifyingSystems/TLC/ABCorrectness.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[81/140] unsupported   specifications/SpecifyingSystems/TLC/MCAlternatingBit.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[82/140] unsupported   specifications/Stones/Stones.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[83/140] unsupported   specifications/TLC/TestGraphs.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[84/140] unsupported   specifications/TeachingConcurrency/Simple.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[85/140] unsupported   specifications/TeachingConcurrency/SimpleRegular.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[86/140] unsupported   specifications/TransitiveClosure/TransitiveClosure.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[87/140] unsupported   specifications/TwoPhase/MCTwoPhase.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[88/140] unsupported   specifications/YoYo/MCYoYoNoPruning.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[89/140] unsupported   specifications/YoYo/MCYoYoPruning.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[90/140] unsupported   specifications/YoYo/YoYoAllGraphs.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[91/140] unsupported   specifications/acp/ACP_NB_TLC.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[92/140] unsupported   specifications/acp/ACP_NB_WRONG_TLC.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[93/140] unsupported   specifications/acp/ACP_SB_TLC.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[94/140] unsupported   specifications/allocator/AllocatorImplementation.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[95/140] unsupported   specifications/allocator/AllocatorRefinement.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[96/140] unsupported   specifications/allocator/SchedulingAllocator.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[97/140] unsupported   specifications/allocator/SimpleAllocator.cfg (unsupported: DIVE-L0021: temporal formula resource limit: TLC planning terms (requested model formula at line 73, col 6 to line 73, col 51 of module SimpleAllocator))
+[98/140] unsupported   specifications/barriers/Barrier.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[99/140] unsupported   specifications/barriers/Barriers.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[100/140] unsupported   specifications/bcastByz/bcastByz.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[101/140] unsupported   specifications/bcastByz/bcastByzNoBcast.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[102/140] unsupported   specifications/braf/BufferedRandomAccessFile.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[103/140] unsupported   specifications/btree/MCbtree.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[104/140] unsupported   specifications/btree/kvstore.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[105/140] unsupported   specifications/byihive/VoucherCancel.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[106/140] unsupported   specifications/byihive/VoucherIssue.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[107/140] unsupported   specifications/byihive/VoucherLifeCycle.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[108/140] unsupported   specifications/byihive/VoucherRedeem.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[109/140] unsupported   specifications/byihive/VoucherTransfer.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[110/140] unsupported   specifications/byzpaxos/Consensus.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[111/140] unsupported   specifications/byzpaxos/VoteProof.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[112/140] unsupported   specifications/chang_roberts/MCChangRoberts.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[113/140] unsupported   specifications/dag-consensus/BlockDagTest.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[114/140] unsupported   specifications/dag-consensus/TLCSailfish1.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[115/140] unsupported   specifications/echo/MCEcho.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[116/140] unsupported   specifications/ewd426/TokenRing.cfg (unsupported: unsupported final-only TLC check: symmetry/VIEW/ALIAS concrete witness recovery)
+[117/140] unsupported   specifications/ewd840/EWD840.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[118/140] unsupported   specifications/ewd840/EWD840_json.cfg (unsupported: unsupported pinned final-only check: pre-bind impure/live ASSUME/constant/user definition)
+[119/140] unsupported   specifications/ewd840/SyncTerminationDetection.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[120/140] unsupported   specifications/ewd998/AsyncTerminationDetection.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[121/140] unsupported   specifications/ewd998/EWD998ChanID.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[122/140] unsupported   specifications/ewd998/EWD998ChanTrace.cfg (unsupported: unsupported pinned final-only check: periodic/RL/postcondition/possible hooks)
+[123/140] unsupported   specifications/ewd998/EWD998PCal.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[124/140] unsupported   specifications/glowingRaccoon/clean.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[125/140] unsupported   specifications/glowingRaccoon/product.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[126/140] unsupported   specifications/glowingRaccoon/stages.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[127/140] unsupported   specifications/lamport_mutex/MCLamportMutex.cfg (unsupported: unsupported pinned final-only check: pre-bind native callback/runtime-name effects)
+[128/140] unsupported   specifications/locks_auxiliary_vars/Lock.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[129/140] unsupported   specifications/locks_auxiliary_vars/LockHS.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[130/140] unsupported   specifications/locks_auxiliary_vars/Peterson.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[131/140] unsupported   specifications/nbacc_ray97/nbacc_ray97.cfg (unsupported: DIVE-L0020: unsupported liveness planning in line 108, col 17 to line 111, col 64 of module nbacc_ray97: action/temporal predicate domain (at line 77, col 44 to line 77, col 54 of module nbacc_ray97))
+[132/140] unsupported   specifications/nbacg_guer01/nbacg_guer01.cfg (unsupported: concrete pool capture effects, runtime names, opaque captures or invalid context)
+[133/140] unsupported   specifications/spanning/MC_spanning.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[134/140] unsupported   specifications/sums_even/MC_sums_even.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[135/140] unsupported   specifications/tcp/MCtcp.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[136/140] unsupported   specifications/tower_of_hanoi/Hanoi.toolbox/Model_1/MC.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[137/140] unsupported   specifications/tower_of_hanoi/Hanoi_anim.cfg (unsupported: unsupported pinned final-only check: pre-bind opaque operator capture)
+[138/140] unsupported   specifications/transaction_commit/2PCwithBTM.cfg (unsupported: unsupported phase-L diagnostic: state-kind IF predicate planning/error precedence)
+[139/140] unsupported   specifications/transaction_commit/TCommit.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+[140/140] unsupported   specifications/transaction_commit/TwoPhase.cfg (unsupported: unsupported phase-L diagnostic: ordered execution requires temporal OOS groups)
+report: /private/tmp/dive-tlc-final-shipping-study/reports/20261010T201418426-dive-final-tlc-small.json
+{
+  "by_corpus": {
+    "examples": {
+      "models": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 140
+      },
+      "modules": {
+        "agree": 0,
+        "agree-pending-trace-validation": 0,
+        "disagree": 0,
+        "divergence-mode": 0,
+        "expected-divergence": 0,
+        "known-upstream-change": 0,
+        "oracle-error": 0,
+        "out-of-scope": 0,
+        "timeout": 0,
+        "unsupported": 0
+      }
+    }
+  },
+  "informational_drift_findings": 0,
+  "models": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 140
+  },
+  "modules": {
+    "agree": 0,
+    "agree-pending-trace-validation": 0,
+    "disagree": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "known-upstream-change": 0,
+    "oracle-error": 0,
+    "out-of-scope": 0,
+    "timeout": 0,
+    "unsupported": 0
+  },
+  "oracle_drift_findings": 0,
+  "run_id": "20261010T201418426-dive-final-tlc-small",
+  "worker_counts_variant": 0,
+  "worker_depth_variant": 0,
+  "worker_property_variant": 0,
+  "worker_verdict_variant": 0
+}

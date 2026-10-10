@@ -7662,21 +7662,6 @@
     "context-alias-repair/rust-guide/rust-api.run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "context-alias-repair/rust-guide/traces.run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "context-alias-repair/rust-guide/rust-api.compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "context-alias-repair/rust-guide/receipt.json": "d40d08032c4e244a408e45120970af253c43acd7e527c2627a3298a86ab6768a",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-7.log.gz": "f2153fe4fe1e11cca033acfcc3c154556d46ffa61b8f4fcab01363093138e69e",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-5.log.gz": "91f68c3efbfd1b97173ea58b42e182a6cd0fc9e5411aa2e91b879598990c2a44",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-1.log.gz": "4636e1ff1afda3b13d47ff0f728f6dffd86ca9edee3d4ee14eacacc4a92f7b1c",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-3.log.gz": "ee6bc3d0b40849320928869a110e9bc382e81c198d28fc8e575d40ff6aabfa56",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-6.log.gz": "b0c8c35e2456e41cdc890de2512ea30486b98143326c8c0d51caa795e4426e14",
-    "ordered-execution-integration/dive-phase-execution-integration-release-build.log.gz": "4c3e34ca19b0208ec42344d91176bfe57f6cee9dc97f0416155f9c035b572ea3",
-    "ordered-execution-integration/dive-phase-execution-integration-cm1.log.gz": "e87fcf545f7681c3ec782ceaf318778d01365b649eab44bb64e28e8c900c8199",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-4.log.gz": "fba39598bf06fbc770a4b92bb867c0da5462b7a46c433102859e5d906bdad40d",
-    "ordered-execution-integration/verification.json": "17f3f7889edd5300ccb9288e8606bb48e8b0d42a22a94e5f2b29d06c1383f5ce",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-0.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
-    "ordered-execution-integration/dive-phase-execution-integration-source-checks-final.log.gz": "2bcf74b7975658298c8df61a176ed91c2b95f2b50e4f0e6a29eb7f0c6b1d4082",
-    "ordered-execution-integration/dive-phase-execution-integration-final-full-gate.log.gz": "a911817f4c615376446da87561d025fda036e0ed6b0427c8ff75c610e3750fa5",
-    "ordered-execution-integration/dive-phase-execution-integration-validation.log.gz": "8f3f38120bff9f7b9b51a824d226b693a0a82b383133cd10e627a140f63145c7",
-    "ordered-execution-integration/dive-phase-execution-integration-final-gate-2.log.gz": "18006d269ba2dded7a16526f633c96946e27dfa55938ca4af0f93dc52f3865e1",
-    "ordered-execution-integration/receipt-path-initial-failure.txt.gz": "57726d440c55185e01aa08238e867f84318fd2d84144f02ecfd0ff56d0c80679"
+    "context-alias-repair/rust-guide/receipt.json": "d40d08032c4e244a408e45120970af253c43acd7e527c2627a3298a86ab6768a"
   }
 }

@@ -79,6 +79,10 @@ def main():
     for path, digest in current['source_sha256'].items():
         assert sha(PROBE / 'historical-context-source' / path) == digest
         assert sha(PROBE / 'native-source-context-admission' / path) == digest
+    preserved = load('public-ir-before-final-mode/matrix.json')
+    for path, digest in preserved['source_sha256'].items():
+        data = gzip.decompress((PROBE / 'public-ir-before-final-mode/sources' / (path + '.gz')).read_bytes())
+        assert hashlib.sha256(data).hexdigest() == digest, path
     repaired = load('public-ir-admission-source-matrix.json')
     assert repaired['base_commit'] == 'fb11b981'
     assert repaired['historical_context_matrix_sha256'] == sha(PROBE / 'context-admission-source-matrix.json')
