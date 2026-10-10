@@ -408,8 +408,7 @@
       ],
       "additional_evidence": [
         "conformance/probes/temporal-forwarding/README.md",
-        "crates/dive-api/tests/temporal_forwarding.rs",
-        "recursive/exported INSTANCE/operator gaps remain)"
+        "crates/dive-api/tests/temporal_forwarding.rs"
       ],
       "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)"
     },
@@ -460,8 +459,7 @@
       ],
       "additional_evidence": [
         "conformance/probes/temporal-forwarding/README.md",
-        "crates/dive-api/tests/temporal_forwarding.rs",
-        "recursive/exported INSTANCE/operator gaps remain)"
+        "crates/dive-api/tests/temporal_forwarding.rs"
       ],
       "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)"
     },
