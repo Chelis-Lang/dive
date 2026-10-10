@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "reason": "Preserve junction wrapping and unproved domain normalization boundaries",
+  "generated_at": "2026-10-10T16:10:25Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "FairInteraction_C_comment",
+      "input": "FairInteraction_C_comment.tla",
+      "input_sha256": "93db52983b495f10dcec58e7ab0ed315ba261fba1b8dc40d46fe1667b290c9e4",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_comment.translation.stdout.gz",
+        "stdout_sha256": "ca4df3e3e49fb9dd94a5441bcc1fd179438d7a4c5bacb5d22d945082c3d9e028",
+        "stderr": "FairInteraction_C_comment.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_comment.normalized.stdout.gz",
+        "stdout_sha256": "5497b839ac305344b8fcf3d317b5cfac6d6aa2e4c64990bcad2967493ab80e95",
+        "stderr": "FairInteraction_C_comment.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_C_comment.normalized.json",
+          "sha256": "7cdda69a746610541e106dbb6b3fd563afb706be0acc240c68188cd2410a0052"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_C_comment.translated.tla",
+        "sha256": "a9223f0b474bde5953faa656b90a4df2641ee88af527e97595a150c11b46c3b6"
+      },
+      "config": {
+        "path": "FairInteraction_C_comment.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_comment.sany.stdout.gz",
+        "stdout_sha256": "13ab14d0ca70433990cd4e2557a5f79f6aeca0882ad6995ea68c63a1b860e292",
+        "stderr": "FairInteraction_C_comment.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_C_multiline",
+      "input": "FairInteraction_C_multiline.tla",
+      "input_sha256": "effe7451b8dd75cf6305ac4a01701d78648c121c06f088af710a115c2c2feef0",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_multiline.translation.stdout.gz",
+        "stdout_sha256": "83032b921cff4f064af09dba8b38006327a0af27ec91bf62298109c54686a703",
+        "stderr": "FairInteraction_C_multiline.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_multiline.normalized.stdout.gz",
+        "stdout_sha256": "632c578756bf0e6454f206d60c7d9951944d29cbcfd427d228afaf3b3f95a6e3",
+        "stderr": "FairInteraction_C_multiline.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_C_multiline.normalized.json",
+          "sha256": "4dc14d75ee302f5834841cdb0ec194a2a1ca6a4e78d59fdd2ddf400ed48912f4"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_C_multiline.translated.tla",
+        "sha256": "30588074e347500fa10b4c76e92f05e3a7b2d38e4569bb30fe2f106c36bae7ed"
+      },
+      "config": {
+        "path": "FairInteraction_C_multiline.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_multiline.sany.stdout.gz",
+        "stdout_sha256": "cc5b8de029681ea8afa944f3c625c93bb38d7411833046c637a6775cd3b16301",
+        "stderr": "FairInteraction_C_multiline.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_C_tab",
+      "input": "FairInteraction_C_tab.tla",
+      "input_sha256": "adddde1d93e8f7fc2a882659378e385e1d22a1f5b433a28c243110ba43c4576a",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_tab.translation.stdout.gz",
+        "stdout_sha256": "188d886d657ae79c6bdd4df6bdd126763042ddb272e9a8ecb4534886e80f0c24",
+        "stderr": "FairInteraction_C_tab.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_tab.normalized.stdout.gz",
+        "stdout_sha256": "9ef3404020604b07c1645c9500fe6da888802420df99a1f178fe579f722f9d5f",
+        "stderr": "FairInteraction_C_tab.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_C_tab.normalized.json",
+          "sha256": "6c481be0b3648a1c0c90919ff7f0e6b4bd8167156b9579482e596c1b23d394de"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_C_tab.translated.tla",
+        "sha256": "57e55f6c3a3a5b06432e4727911de8ffa8b412aadb7026763ab7b52a6f5c993b"
+      },
+      "config": {
+        "path": "FairInteraction_C_tab.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_tab.sany.stdout.gz",
+        "stdout_sha256": "b2f1dcdb78356b7ee4dc392461429b3d450ba7984e7fbef1e513c3fa514b240d",
+        "stderr": "FairInteraction_C_tab.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_C_wrapped",
+      "input": "FairInteraction_C_wrapped.tla",
+      "input_sha256": "fe97c2597b42d983c0f4a72c8af8526d7a3934786688d37b84b9ec6d359a123d",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_wrapped.translation.stdout.gz",
+        "stdout_sha256": "db2ce40fa87feae0ba5125c34bda3a2c8c16a75cffd41f01685e0581f9cdb8da",
+        "stderr": "FairInteraction_C_wrapped.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_wrapped.normalized.stdout.gz",
+        "stdout_sha256": "2a461c44a8c14d365bb52a57d08be9f0093b49c902b80380602f777e6c1be82d",
+        "stderr": "FairInteraction_C_wrapped.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_C_wrapped.normalized.json",
+          "sha256": "5ba20ad0039f5fa4dcae8ba0ed97d4afba0bfbbc3639ee251322c7330ebbe905"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_C_wrapped.translated.tla",
+        "sha256": "ff0f31e00bd86b26855b0c7e57488126f4c2c5c43f0ccc5661bdf976162b6cca"
+      },
+      "config": {
+        "path": "FairInteraction_C_wrapped.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_C_wrapped.sany.stdout.gz",
+        "stdout_sha256": "162da5cb1372decd1f0a03c36680ef67679948b973cc62eb4bced83f8bb5cc4c",
+        "stderr": "FairInteraction_C_wrapped.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_P_comment",
+      "input": "FairInteraction_P_comment.tla",
+      "input_sha256": "558e1b964c2b66a11907f13128979f02bda6543b11d04e161b45e17ca4ca070f",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_comment.translation.stdout.gz",
+        "stdout_sha256": "77756fc4435f1c13c8a3af97aba82529ba98b5ccff1831609da8dfa43c95e357",
+        "stderr": "FairInteraction_P_comment.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_comment.normalized.stdout.gz",
+        "stdout_sha256": "6994075a2324ca89c3c4d2c915f336265ea58386b59011da10411fcbd3680e25",
+        "stderr": "FairInteraction_P_comment.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_P_comment.normalized.json",
+          "sha256": "1aba2a4ce4449a5609eca60c87ea52753af50f692953b6ae31986b444a264254"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_P_comment.translated.tla",
+        "sha256": "e78651392f526d4a2adc04e890af0be14c3f8ce68f47291577d467eaf20a6e7d"
+      },
+      "config": {
+        "path": "FairInteraction_P_comment.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_comment.sany.stdout.gz",
+        "stdout_sha256": "d15e8b497b55ca3251e50965bdd7694586d40d654b893a52cec53f86223537e1",
+        "stderr": "FairInteraction_P_comment.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_P_multiline",
+      "input": "FairInteraction_P_multiline.tla",
+      "input_sha256": "ebada2271dfbdb6075ac70bfecff72a2036049b420a8132c624fb1f9c1a7f2f5",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_multiline.translation.stdout.gz",
+        "stdout_sha256": "8148e60f3b6edea722813d2784706327db13cb7bbf9f1bd7229408b8d60fa4dc",
+        "stderr": "FairInteraction_P_multiline.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_multiline.normalized.stdout.gz",
+        "stdout_sha256": "870198721fe80fe5403f18774c391e3592ba010134e65befdf01fb1d992879d0",
+        "stderr": "FairInteraction_P_multiline.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_P_multiline.normalized.json",
+          "sha256": "5a21fb18971dd191d03dc7e39df52eb7b8cd5cc7f09c8e7de48849906ea34f2f"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_P_multiline.translated.tla",
+        "sha256": "2193cfcf4d7349c80c407fb89cb3dce2a6073a100f594c5a6a7797c173f8563e"
+      },
+      "config": {
+        "path": "FairInteraction_P_multiline.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_multiline.sany.stdout.gz",
+        "stdout_sha256": "fd1c22a79fb72cdb75f36adcdf36a86c072306d46f5c7a664c42ae4a992846ab",
+        "stderr": "FairInteraction_P_multiline.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_P_tab",
+      "input": "FairInteraction_P_tab.tla",
+      "input_sha256": "423dc6b8b8025397f037b07b9543bb43313b2a90de490c195a4cf3405f4c90c1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_tab.translation.stdout.gz",
+        "stdout_sha256": "b6c1e1171c979cefdd83aec2d9b6787e24ecc0f2e128f9f0fbf064f20b97843d",
+        "stderr": "FairInteraction_P_tab.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_tab.normalized.stdout.gz",
+        "stdout_sha256": "5d3b34ef06ecfbfac05fea558c903e9211994088af45ecc798fc1ff56e585a44",
+        "stderr": "FairInteraction_P_tab.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_P_tab.normalized.json",
+          "sha256": "e8b56a2b743ba7754629192b906e0d84358ece9f4330c0c475bd80d3cffc88ca"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_P_tab.translated.tla",
+        "sha256": "88e9302f4349b109e6df97444933d99499d916ffea6bc4fad45267c4441a2c55"
+      },
+      "config": {
+        "path": "FairInteraction_P_tab.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_tab.sany.stdout.gz",
+        "stdout_sha256": "7d02963acecbe95fd82bc569c29ae9aecdf9ef4e2c8768f5353b6610b6c7fc50",
+        "stderr": "FairInteraction_P_tab.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "FairInteraction_P_wrapped",
+      "input": "FairInteraction_P_wrapped.tla",
+      "input_sha256": "81e657fc7ff98fb921b88c921246726b4dcf0960df81d9f9c0b97b59680aed2e",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_wrapped.translation.stdout.gz",
+        "stdout_sha256": "f481d87b9f546def693fc5b7a2911df83dc0c417aa8c89303d9ef9cb574474ee",
+        "stderr": "FairInteraction_P_wrapped.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_wrapped.normalized.stdout.gz",
+        "stdout_sha256": "51b9ecc33744bae5bdbff5c7ff5ac04ddb4475f1b3222b4f2f1ab4c782c5379e",
+        "stderr": "FairInteraction_P_wrapped.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "FairInteraction_P_wrapped.normalized.json",
+          "sha256": "83d5a3b468887f5221ec4eb5d9ca480bcae935a8479cbd217df252f256a9ba60"
+        }
+      },
+      "translated": {
+        "path": "FairInteraction_P_wrapped.translated.tla",
+        "sha256": "f0a1d81b9883fbee01567131ef3007e68e09ee430f276e20109dae474ade341d"
+      },
+      "config": {
+        "path": "FairInteraction_P_wrapped.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "FairInteraction_P_wrapped.sany.stdout.gz",
+        "stdout_sha256": "13af8090c2d13b4f41f1d7327f29eecb07d6be0bf6b067e966af8005ed4c0e42",
+        "stderr": "FairInteraction_P_wrapped.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}

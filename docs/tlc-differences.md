@@ -1467,3 +1467,28 @@ existing semantics, and strict integrated liveness remains unsupported. Complete
 24 current controls, original18 and the native false completion are retained in
 `conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
 conservative. This is a native limitation repair, not family certification.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+**D-008 PlusCal fairness formatter observation:** the pinned translator prints
+an **87-column** fairness line with its default **78-column** setting for:
+
+```tla
+--algorithm A {
+  variables g=0;
+  fair process (P \in{1,2}) variables x=0;
+  { L: + x:=1; E: - g:=x; }
+}
+```
+
+`ProcessFairness.singleLineWidth` omits the sole quantifier-prefix line and
+conjunction separator. The retained `FairPositive_C_set_weak_both` primary output
+shows the 87-column line. Current native translation preserves its measured
+junction grouping in both profiles; full width/layout improvement is pending.
+No alternate formatting default is silently adopted. Long-label controls also
+compare full operator CST, since moving TLA junction indentation can change
+expression structure. See [the fairness evidence](pluscal-fairness.md).

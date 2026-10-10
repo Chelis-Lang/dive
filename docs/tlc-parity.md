@@ -444,3 +444,10 @@ saved frontier recovery, concrete predecessor identity, ordered names and strict
 archive admission. It has no Java-byte interoperability or independent snapshot
 certificate. Graph/liveness/runtime/spill/parallel recovery remain pending; see
 [native-checkpoint.md](native-checkpoint.md). No family certification is added.
+
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.

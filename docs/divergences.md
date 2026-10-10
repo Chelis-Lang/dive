@@ -353,3 +353,14 @@ Checkpoint evidence for D-007 is preserved in
 `conformance/probes/native-checkpoint/README.md`. TLC recovery resets counters;
 original totals are an opt-in proposed native capability, not an approved default.
 An incomplete native pause must never report a complete model-checking verdict.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+D-008 also records a pinned PlusCal fairness line of 87 columns under the
+default 78-column setting. Native generation currently preserves the measured
+reference junction grouping in both profiles; a width/layout improvement remains
+pending. The minimal source and raw output are retained in the fairness corpus.

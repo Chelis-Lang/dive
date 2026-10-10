@@ -25,6 +25,8 @@
 
 mod config;
 mod translate;
+/// Native PlusCal fairness selection, including pinned translator option spellings.
+pub use dive_pluscal::FairnessOption as TranslationFairness;
 pub use translate::{
     TRANSLATE_SCHEMA_VERSION, TranslationReport, TranslationRequest, translate_file,
     translate_source,

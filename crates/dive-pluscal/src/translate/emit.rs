@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     Code, Parsed,
-    ast::{Assignment, BindingKind, Expr, Span},
+    ast::{Assignment, BindingKind, Expr, Fairness, Span},
 };
 use std::collections::BTreeSet;
 
@@ -32,6 +32,78 @@ fn conjunction(clauses: &[String], force: bool) -> String {
         .join("\n")
 }
 impl Emitter<'_> {
+    fn process_fairness(&self) -> Option<String> {
+        let process = self.model.process.as_ref()?;
+        let xf = match process.fairness {
+            Fairness::Unfair => return None,
+            Fairness::Weak => "WF",
+            Fairness::Strong => "SF",
+        };
+        let mut labels: Vec<_> = self
+            .parsed
+            .statements
+            .iter()
+            .filter_map(|s| s.label.as_ref())
+            .collect();
+        labels.sort_by_key(|label| label.span.start);
+        let minus: Vec<_> = labels
+            .iter()
+            .filter(|l| l.modifier == Some('-'))
+            .map(|l| format!("\"{}\"", l.name.text))
+            .collect();
+        let plus: Vec<_> = labels
+            .iter()
+            .filter(|l| l.modifier == Some('+'))
+            .map(|l| format!("SF_vars({}{})", l.name.text, self.parameter()))
+            .collect();
+        let guard = match minus.as_slice() {
+            [] => String::new(),
+            [only] => format!("(pc[{}] # {only}) /\\ ", self.process_id()),
+            _ => format!(
+                "(pc[{}] \\notin {{{}}}) /\\ ",
+                self.process_id(),
+                minus.join(", ")
+            ),
+        };
+        let body = format!(
+            "{xf}_vars({guard}{}{})",
+            process.name.text,
+            self.parameter()
+        );
+        let extra =
+            (process.fairness == Fairness::Weak && !plus.is_empty()).then(|| plus.join(" /\\ "));
+        let prefix = if process.id.kind == BindingKind::Member {
+            // The pinned emitter retains the original single-line ID expression
+            // here. Its width affects conjunction grouping, not merely trivia.
+            let source = &self.parsed.source
+                [process.id.expression.span.start..process.id.expression.span.end];
+            format!("\\A self \\in {source} : ")
+        } else {
+            String::new()
+        };
+        let single = extra
+            .as_ref()
+            .map_or_else(|| body.clone(), |sf| format!("{body} /\\ {sf}"));
+        // ProcessFairness.singleLineWidth omits the sole prefix line and the
+        // conjunction separator. Preserve that measured grouping decision;
+        // equal significant tokens alone do not prove equal junction scopes.
+        let width =
+            body.encode_utf16().count() + extra.as_ref().map_or(0, |sf| sf.encode_utf16().count());
+        if extra.is_none() || 11 + width <= 78 {
+            Some(format!("{prefix}{single}"))
+        } else {
+            let col = 11 + prefix.encode_utf16().count();
+            if col + single.encode_utf16().count() + 3 <= 78 {
+                Some(format!("{prefix}/\\ {single}"))
+            } else {
+                Some(format!(
+                    "{prefix}/\\ {body}\n{}/\\ {}",
+                    " ".repeat(col),
+                    extra.unwrap_or_default()
+                ))
+            }
+        }
+    }
     fn local(&self, name: &str) -> bool {
         self.model.process.as_ref().is_some_and(|p| {
             p.id.kind == BindingKind::Member && p.variables.iter().any(|v| v.name.text == name)
@@ -686,10 +758,19 @@ pub(super) fn generate(
         }
         append(format!("Next == {}\n\n", actions.join(" \\/ ")), span)?;
     }
-    let spec = if model.fair {
-        "/\\ Init /\\ [][Next]_vars\n        /\\ WF_vars(Next)"
+    let fairness = emitter.process_fairness();
+    let spec = if model.fair || fairness.is_some() {
+        let mut spec = "/\\ Init /\\ [][Next]_vars".to_owned();
+        if model.fair {
+            spec.push_str("\n        /\\ WF_vars(Next)");
+        }
+        if let Some(formula) = fairness {
+            spec.push_str("\n        /\\ ");
+            spec.push_str(&formula);
+        }
+        spec
     } else {
-        "Init /\\ [][Next]_vars"
+        "Init /\\ [][Next]_vars".into()
     };
     append(format!("Spec == {spec}\n\n"), span)?;
     if model.stutter {

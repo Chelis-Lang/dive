@@ -1,5 +1,8 @@
 //! Label/action normalization matching pinned `PcalTranslate`'s continuations.
-use super::{TranslationError, TranslationOptions, TranslationStage, TranslationWarning, error};
+use super::{
+    FairnessOption, TranslationError, TranslationOptions, TranslationStage, TranslationWarning,
+    error,
+};
 use crate::{
     Code, Parsed,
     ast::{
@@ -120,6 +123,23 @@ pub(super) fn normalize(
         use_pc: true,
         nodes: 0,
     };
+    if algorithm.fairness == Fairness::Weak
+        && matches!(
+            options.fairness,
+            FairnessOption::None | FairnessOption::Strong
+        )
+    {
+        let option = if options.fairness == FairnessOption::None {
+            "nof"
+        } else {
+            "sf"
+        };
+        lower.warnings.push(TranslationWarning {
+            code: "PCALW_FAIR_OPTION".into(),
+            span: algorithm.span,
+            message: format!("Option `{option}' specified for --fair algorithm."),
+        });
+    }
     let ids = lower.flatten(block)?;
     let groups = lower.groups(&ids)?;
     let root = groups
@@ -248,7 +268,7 @@ pub(super) fn normalize(
     lower.compile_groups(&groups, "Done")?;
     Ok(Model { actions: lower.actions, variables: algorithm.variables.clone(), use_pc: lower.use_pc,
         stutter: !infinite || parsed.statements.iter().any(|statement| matches!(&statement.kind, StatementKind::Goto(target) if ["Done", "\"Done\""].contains(&target.text.as_str()))),
-        fair: algorithm.fairness == Fairness::Weak, warnings: lower.warnings, process: None })
+        fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, process: None })
 }
 
 impl Lower<'_> {
