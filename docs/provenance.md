@@ -10,6 +10,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
+| `dive-eval` `Evaluator::intern_bfs_config` and `dive-check` startup | tlaplus `tlc2/tool/AbstractChecker.java` constructor and `createConfig`, commit `94d0c50` | MIT | Eagerly intern bfs, seed, fingerprint polynomial and install strings in source order; clean seed 0/7/14 captures in `crates/dive-check/tests/fixtures/runtime-names/` reproduce counts and chosen violation |
 | `dive-syntax` lexer (`crates/dive-syntax/src/lexer.rs`) | tlaplus `tlatools/org.lamport.tlatools/javacc/tla+.jj`: token definitions and the `DEFAULT`, `PRAGMA`, `SPEC` and comment lexical states; `tla2sany/parser/SimpleCharStream.java` `UpdateLineColumn` (column counting); commit `94d0c50` | MIT | Semantics matched: same tokens, longest-match and tie-break order, same columns |
 | `dive-syntax` parser (`crates/dive-syntax/src/parser/`) | tlaplus `tla+.jj` productions `CompilationUnit` to `OpenStart`, including `belchDEF`, `matchFcnConst`, `isMinusOpStart`, `isFieldNameToken`, `isLabel`, `labelDoesNotChangeParse`, `checkIndentation`, `caseSep`, `beginsProof`, `correctLevel`, and `tla2sany/parser/JunctionListContext.java`; commit `94d0c50` | MIT | Semantics matched; structure is idiomatic Rust, one function per production |
 | `dive-syntax` operator stack (`crates/dive-syntax/src/parser/expr.rs`) | tlaplus `tla2sany/parser/OperatorStack.java` (`reduceStack`, `finalReduce`, `reduceRecord`, `preInEmptyTop`) and `Operator.java` (`prec`, `succ`); commit `94d0c50` | MIT | Algorithm adapted: the case analysis is kept in the same order so the two can be compared |
@@ -212,3 +213,11 @@ function short circuit matches `SetOfFcnsValue`. Eight clean pinned `Ld*` captur
 both-profile enumeration/error-order controls and independent periodic-word checks
 provide evidence. The validator shares expression binding but retains its separate
 word/ENABLED algorithms and no successor enumeration feature.
+
+
+Runtime namespace startup matches pinned `AbstractChecker.createConfig`
+(`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint
+and installation strings are interned before assumptions. The independent
+validator's runtime-name refusal is dive's own admission rule (#124), supported
+by the clean pinned capture and prior false-positive trace in
+`crates/dive-trace/tests/fixtures/runtime-names/`.

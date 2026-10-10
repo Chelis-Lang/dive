@@ -491,3 +491,15 @@ What the numbers show:
 - **Against TLC, per state.** dive at 1 worker is about 1–6× slower per state than TLC at 1 worker on these models. That is the evaluator's cost (G2), not the engine's.
 
 The method and how to reproduce it are in `crates/dive-bench/README.md`. Re-measure on a quiet machine before quoting any of these numbers.
+
+### Runtime name ordering admission (2026-10-10, issue #122)
+
+Creating a runtime string or record name is observable under TLC token ordering.
+Reachable constructors therefore use reported inline evaluation under TLC value
+or exploration order, even for a pool of one with chaos enabled. Canonical
+ordering retains parallel admission. This conservative fallback also covers
+aliases and operator arguments and currently includes tuple-only uses of mixed
+string/tuple operators. An ordered parallel name allocator is future work.
+Checker startup must eagerly intern the real configuration strings in
+`AbstractChecker.createConfig` order before assumptions. Fixed seed 0/7/14 clean
+pinned captures demonstrate both startup and successor ordering.

@@ -324,6 +324,26 @@ std_ops! {
 }
 
 impl StdOp {
+    /// Whether the native implementation can intern string values or record
+    /// field names during evaluation. TLC encounter ordering therefore needs
+    /// the complete evaluation history, not only a supplied state or trace.
+    /// Tuple-only calls are conservatively included until their argument types
+    /// prove that no names can be created (issues #122 and #124).
+    #[must_use]
+    pub fn creates_runtime_names(self) -> bool {
+        matches!(
+            self,
+            Self::TlcToString
+                | Self::SequencesTail
+                | Self::SequencesConcat
+                | Self::SequencesSubSeq
+                | Self::SequencesExtLongestCommonPrefix
+                | Self::SequencesExtReplaceFirstSubSeq
+                | Self::SequencesExtReplaceAllSubSeqs
+                | Self::DyadicRationalsReduce
+        )
+    }
+
     /// The override for this module and definition name, if TLC has one.
     #[must_use]
     pub fn lookup(module: &str, name: &str) -> Option<StdOp> {
