@@ -42,7 +42,7 @@ syntax/name/level analysis and report `model_proved=false` / `exhaustive=false`.
 
 ## Current limits
 
-Unproved/overlapping process domains, procedure/macro fairness, procedures/macros, `define`,
+Unproved/overlapping process domains, procedure fairness and calls/returns, `define`,
 name renaming, branch-internal labelled expansion, multiline/binder substitution,
 nonliteral IDs and local membership initializers depending on another local or
 `self` remain named refusals. Global/local/generated-name shadowing is refused
@@ -123,3 +123,8 @@ are retained and rerun; historical evidence files are not edited.
 The [fairness increment](pluscal-fairness.md) adds bounded weak/strong process
 declarations, post-colon label modifiers and four pinned fairness options. The
 242-row study above remains the original unfair-process delivery evidence.
+
+Bounded [macro substitution](pluscal-macros.md) is now admitted before process
+actions and fairness are generated. Procedure interactions, unproved binders
+and name rewrites remain explicit refusals. The retained matrix above records
+the original process-only delivery.

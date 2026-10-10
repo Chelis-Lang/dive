@@ -5,13 +5,14 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
-- TLC-shaped temporal planning preserves eager state-conditional conversion
-  failures, typed TLC errors and source-order fallback before graph work.
 
-- Native PlusCal translation admits multiple disjoint finite process blocks, with
-  source-owned scalar/indexed storage, shared CASE `pc` initialization, actions
-  and fairness formulas. Aggregate bounds and named scope/domain refusals remain
-  active; artifacts report no exhaustive search or model proof.
+- Native recursive sequential PlusCal procedures: self/mutual call stacks,
+  frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
+  retain pinned artifacts/errors without unrolling. Invalid upstream output is
+  rejected; finite/count, strict pending and canonical witness evidence remain
+  separate. Process-owned/scoped renaming and strict namespace provenance are
+  still pending. See `docs/pluscal-recursive-procedures.md`.
+
 
 - Bounded single-process PlusCal translation supports weak/strong declarations,
   post-colon `+`/`-` label modifiers and pinned `-nof`/`-wf`/`-sf`/`-wfNext`

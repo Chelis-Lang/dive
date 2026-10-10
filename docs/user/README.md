@@ -9,11 +9,12 @@ still in progress. A named refusal or resource stop does not establish safety.
 | --- | --- | --- |
 | Build and run a first model | [Getting started](getting-started.md) | Native binary; source checkout |
 | Parse, analyze and resolve modules | [Front end](front-end.md) | Source/config acceptance is not model checking |
+| Use modules and library operators | [Modules](modules.md) | Resolution and executable support are separate |
 | Explore safety properties | [Checking](checking.md) | Supported explicit BFS and pure safety symmetry |
 | Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
-| Translate algorithms | [PlusCal](pluscal.md) | Admitted C/P sequential and finite process subset |
+| Translate algorithms | [PlusCal](pluscal.md) | Admitted C/P sequential, finite processes and bounded macros and disjoint sequential procedure graphs with recursion |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |
