@@ -1514,3 +1514,10 @@ as diagnostic evidence; public translation rejects the invalid enclosing module
 in both profiles and makes no proof claim (D-008). General binder/procedure/name
 rewrites remain named refusals. Source PlusCal strings deliberately preserve the
 pinned printable-ASCII boundary; no wider Unicode-string default is adopted.
+
+The bounded sequential PlusCal procedure path now generates saved parameter/local
+frames and call/return continuations. Its 84-row selection keeps four primary
+SANY-invalid modules uncredited. Thirty generated invariant witnesses reproduce
+TLC exploration but strict independent replay refuses runtime string encounter
+order (#124); default/canonical replay is separately qualified evidence, not
+TLC-profile certification. See [the procedure guide](pluscal-procedures.md).

@@ -284,3 +284,42 @@ fn free_macro_actual_name_is_validated_at_enclosing_module_boundary() {
         assert!(report.to_json().get("artifact").is_none());
     }
 }
+
+#[test]
+fn invalid_primary_procedure_outputs_are_never_public_artifacts()
+-> Result<(), Box<dyn std::error::Error>> {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../dive-pluscal/procedure-acceptance");
+    let manifest: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(base.join("fixtures/manifest.json"))?)?;
+    let mut controls = 0;
+    for row in manifest["rows"].as_array().ok_or("rows")? {
+        if row["sany"]["status"] != "rejected" {
+            continue;
+        }
+        let source = std::fs::read_to_string(
+            base.join("cases")
+                .join(row["input"].as_str().ok_or("input")?),
+        )?;
+        for compat_tlc in [false, true] {
+            let report = translate_source(
+                row["input"].as_str().ok_or("file")?,
+                &source,
+                &TranslationRequest {
+                    compat_tlc,
+                    ..TranslationRequest::default()
+                },
+            );
+            assert!(!report.accepted());
+            assert!(matches!(report.exit_code(), 1 | 3));
+            let doc = report.to_json();
+            assert_eq!(doc["model_proved"], false);
+            assert_eq!(doc["exhaustive"], false);
+            assert!(doc.get("artifact").is_none());
+            assert!(doc.get("module_source").is_none());
+            controls += 1;
+        }
+    }
+    assert_eq!(controls, 8);
+    Ok(())
+}

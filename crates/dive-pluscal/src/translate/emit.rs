@@ -165,6 +165,12 @@ impl Emitter<'_> {
                 .iter()
                 .map(|var| var.name.text.as_str()),
         );
+        if !self.model.procedures.is_empty() {
+            vars.insert(
+                usize::from(self.model.use_pc) + self.parsed.algorithm.variables.len(),
+                "stack",
+            );
+        }
         vars
     }
     fn unchanged(names: &[&str]) -> Option<String> {
@@ -434,6 +440,125 @@ impl Emitter<'_> {
                         clauses.extend(assignments);
                     }
                 }
+                Kind::Call {
+                    procedure,
+                    arguments,
+                    next,
+                } => {
+                    let procedure = self.model.procedures.get(*procedure).ok_or_else(|| {
+                        failure(
+                            node.span,
+                            Code::Internal,
+                            "normalized procedure target missing",
+                        )
+                    })?;
+                    if changed.contains("stack") || changed.contains("pc") {
+                        return Err(failure(
+                            node.span,
+                            Code::Label,
+                            "multiple procedure transfers in one action",
+                        ));
+                    }
+                    let before = changed.clone();
+                    let mut fields = vec![
+                        format!("procedure |-> {}", serde_string(&procedure.name.text)),
+                        format!("pc |-> {}", serde_string(next)),
+                    ];
+                    for decl in procedure.variables.iter().chain(&procedure.parameters) {
+                        let name = &decl.name.text;
+                        fields.push(format!(
+                            "{name} |-> {name}{}",
+                            if before.contains(name) { "'" } else { "" }
+                        ));
+                    }
+                    let mut assignments = Vec::new();
+                    for (parameter, argument) in procedure.parameters.iter().zip(arguments) {
+                        let name = &parameter.name.text;
+                        if changed.contains(name) {
+                            return Err(failure(
+                                node.span,
+                                Code::Label,
+                                "missing label before repeated procedure parameter assignment",
+                            ));
+                        }
+                        assignments.push((
+                            name.clone(),
+                            format!("{name}' = {}", self.value_expression(*argument, &before)?),
+                        ));
+                        changed.insert(name.clone());
+                    }
+                    assignments.push((
+                        "stack".into(),
+                        format!("stack' = << [ {} ] >> \\o stack", fields.join(", ")),
+                    ));
+                    assignments.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
+                    let assignments: Vec<_> =
+                        assignments.into_iter().map(|(_, value)| value).collect();
+                    clauses.push(conjunction(&assignments, assignments.len() > 1));
+                    changed.insert("stack".into());
+                    for local in &procedure.variables {
+                        let name = &local.name.text;
+                        if changed.contains(name) {
+                            return Err(failure(
+                                node.span,
+                                Code::Label,
+                                "missing label before procedure local initialization",
+                            ));
+                        }
+                        let value = if let Some(binding) = &local.initial {
+                            self.value_expression(binding.expression, changed)?
+                        } else {
+                            "defaultInitValue".into()
+                        };
+                        clauses.push(format!("{name}' = {value}"));
+                        changed.insert(name.clone());
+                    }
+                    let entry = self
+                        .model
+                        .actions
+                        .iter()
+                        .find(|a| {
+                            a.span.start >= procedure.body.span.start
+                                && a.span.end <= procedure.body.span.end
+                        })
+                        .ok_or_else(|| {
+                            failure(
+                                procedure.span,
+                                Code::Internal,
+                                "procedure entry action missing",
+                            )
+                        })?;
+                    clauses.push(format!("pc' = {}", serde_string(&entry.name)));
+                    changed.insert("pc".into());
+                }
+                Kind::Return(procedure) => {
+                    let procedure = self.model.procedures.get(*procedure).ok_or_else(|| {
+                        failure(node.span, Code::Internal, "normalized return owner missing")
+                    })?;
+                    if changed.contains("stack") || changed.contains("pc") {
+                        return Err(failure(
+                            node.span,
+                            Code::Label,
+                            "multiple procedure transfers in one action",
+                        ));
+                    }
+                    clauses.push("pc' = Head(stack).pc".into());
+                    changed.insert("pc".into());
+                    for decl in procedure.variables.iter().chain(&procedure.parameters) {
+                        let name = &decl.name.text;
+                        if changed.contains(name) {
+                            return Err(failure(
+                                node.span,
+                                Code::Label,
+                                "missing label before restoring procedure variable",
+                            ));
+                        }
+                        clauses.push(format!("{name}' = Head(stack).{name}"));
+                        changed.insert(name.clone());
+                    }
+                    clauses.push("stack' = Tail(stack)".into());
+                    changed.insert("stack".into());
+                }
                 Kind::Pc(target) => {
                     if changed.contains("pc") {
                         return Err(failure(
@@ -679,8 +804,16 @@ pub(super) fn generate(
             init.push(format!("{} = {value}", variable.name.text));
         }
     }
+    if !model.procedures.is_empty() {
+        init.push("stack = << >>".into());
+    }
     if model.use_pc {
-        let value = serde_string(&model.actions[0].name);
+        let value = serde_string(
+            model
+                .initial_pc
+                .as_deref()
+                .unwrap_or(&model.actions[0].name),
+        );
         init.push(if model.processes.len() > 1 {
             let arms: Vec<_> = model
                 .processes
@@ -764,6 +897,29 @@ pub(super) fn generate(
             ),
             action.span,
         )?;
+        if let Some(procedure) = model
+            .procedures
+            .iter()
+            .find(|p| action.span.start >= p.body.span.start && action.span.end <= p.body.span.end)
+            && model
+                .actions
+                .get(index + 1)
+                .is_none_or(|next| next.span.start >= procedure.body.span.end)
+        {
+            let actions: Vec<_> = model
+                .actions
+                .iter()
+                .filter(|a| {
+                    a.span.start >= procedure.body.span.start
+                        && a.span.end <= procedure.body.span.end
+                })
+                .map(|a| a.name.as_str())
+                .collect();
+            append(
+                format!("{} == {}\n\n", procedure.name.text, actions.join(" \\/ ")),
+                procedure.span,
+            )?;
+        }
         if model.use_pc
             && let Some(process) = emitter.process
             && model
@@ -841,8 +997,20 @@ pub(super) fn generate(
         let mut actions: Vec<_> = model
             .actions
             .iter()
+            .filter(|action| {
+                !model.procedures.iter().any(|p| {
+                    action.span.start >= p.body.span.start && action.span.end <= p.body.span.end
+                })
+            })
             .map(|action| action.name.as_str())
             .collect();
+        let mut procedures: Vec<_> = model
+            .procedures
+            .iter()
+            .map(|p| p.name.text.as_str())
+            .collect();
+        procedures.append(&mut actions);
+        let mut actions = procedures;
         if model.stutter {
             actions.push("Terminating");
         }

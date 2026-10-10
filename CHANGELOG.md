@@ -7,6 +7,9 @@ All notable changes to this project are documented here. The project will follow
 
 - TLC-shaped temporal planning preserves eager state-conditional conversion
   failures, typed TLC errors and source-order fallback before graph work.
+- Native bounded sequential PlusCal procedure calls/returns: saved stack frames,
+  parameter/local initialization, procedure action wrappers and original spans;
+  unproved scopes refuse explicitly, with qualified replay evidence kept separate.
 
 - Native PlusCal translation admits multiple disjoint finite process blocks, with
   source-owned scalar/indexed storage, shared CASE `pc` initialization, actions
