@@ -1,0 +1,14 @@
+{
+  "original_matrix_sha256": "daac985ec3ffe01e1e1f7e70b35430e9f211dbb12642351b67aaee0859bd604d",
+  "head_source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "crates/dive-liveness/src/plan.rs": "5adbf560c59388d3b194b43596d3d9f50b399e78c45037eab7ae44b423688db2",
+    "crates/dive-liveness/src/lib.rs": "5194102a7801246660e08525560fcfdb4fc0385dd552f173df2a132152052739",
+    "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+    "scripts/check-tlc-planning.py": "dd97a1643191b7367498764f154cd981125febf57599f92bf1357be1f8729f9b",
+    "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
+    "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290"
+  },
+  "scope": "The preserved original matrix may reference an earlier producer; these independently hashed files describe the current pre-integration HEAD. Existing original producer histories remain authoritative."
+}

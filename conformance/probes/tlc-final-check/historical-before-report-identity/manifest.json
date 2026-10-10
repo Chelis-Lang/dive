@@ -1,0 +1,10 @@
+{
+  "scope": "Unproved development final-only mapping accepted renamed scalar property despite document claims; no agreement credit. Full gate stopped before fixing source; exact failed regression and pre-fix source retained.",
+  "source_sha256": {
+    "crates/dive-conformance/src/dive.rs": "54522878f43b353eb83e828d1970d19a0ec1adc04d7999630bfc207c5c77d353"
+  },
+  "artifact_sha256": {
+    "failed-control.log": "61402a1375e252bf944516bc32990d4d0da1e77c35e5737016dd4c4eae17fb6c",
+    "stopped-gate.log": "06335345bf6f074c714abf667bf584bef252ffec9685d9209b5edcc88c44087c"
+  }
+}

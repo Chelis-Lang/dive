@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "base_commit": "0b02e46",
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "crates/dive-liveness/src/plan.rs": "4997128f5f2ff6a25372a70d8d1916a838cfbf32e33d0a77b1b9495ea247cb7e",
+    "crates/dive-liveness/src/lib.rs": "26dbdc61368b29cbc7362a6b18a347dcc93f8d08043365818eff93a7fe99a073",
+    "crates/dive-liveness/tests/tlc_planning.rs": "d57faae5aa07969ac0c62369d143390a976f3f8d7c4b14be77ecb8cf94fe2016",
+    "scripts/check-tlc-planning.py": "16a29ad646ebe3bf6ca86c8c92f97edfcf9fa00b5d93f21c9e4bd658a96e159c",
+    "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
+    "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290"
+  },
+  "evidence_scope": "Bounded normalization/pre-tableau grouping; no strict integrated liveness or new corpus verdict credit"
+}

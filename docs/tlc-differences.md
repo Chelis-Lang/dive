@@ -791,7 +791,7 @@ dive refuses rather than approximates (soundness contract rule 3). These are hon
   Also: `ALIAS` is not yet applied to printed counterexamples (dive prints the states themselves, and says so), and `POSTCONDITION`s are evaluated after a complete search but not after a violation.
 - **Trace validation** (`dive-trace`, `dive validate-trace`). The validator refuses, naming the reason, rather than trust the checker:
   - that the last state of a trace is deadlocked: checking it needs a search for successors, which the validator deliberately does not have. Every other check is still made, so a wrong deadlock trace can still be rejected. The conformance harness confirms deadlocks against TLC's own counterexample;
-  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture, while TLC-exact selection remains pending;
+  - ordinary strict CLI temporal checking still refuses; explicit final/short CLI and library checks provide independently validated, complete property claims with bounded ordered parallel capture, while explicit schema-2 final-only pinned selection now has a separate API/CLI/harness contract; ordinary schedules and wider recovery remain refused;
   - liveness claims that lack a complete named-property list or need unestablished fairness, `ENABLED`, effects or VIEW/symmetry closing evidence. Pure concrete periodic words are checked through their closing edge and complete property set;
   - the final claim of an assertion failure or evaluation error (re-raising it needs the successor generator). The steps are checked;
   - a TLC `-dumpTrace json` document written under an `ALIAS` whose records do not contain the variables, and one too ambiguous to search exhaustively when no interpretation tried validates;
@@ -870,7 +870,7 @@ in final/short checking, including nested calls, tuple arguments and calls from
 finite temporal quantifiers. The five `temporal-calls` probes match the pinned
 oracle's final verdict truth and state counts in both profiles/stores. Each
 returned lasso validates independently. Broader lazy/higher-order arguments,
-phase-L timing and TLC-exact selection remain pending; no new default or
+ordinary scheduled timing and strict CLI integration remain pending; bounded final-only pinned selection is available in the separate Rust facade. No new default or
 compatibility claim is introduced.
 
 **D-013 validation update:** independent finite ENABLED covers now preserve
@@ -1521,3 +1521,43 @@ initial error replay and periodic checking are not certified. Ordinary strict
 liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
 remain partial/audit-required, F-023 missing and #140 open. Previous complete
 studies keep their original outcomes and receive no new corpus verdict credit.
+
+### D-013 progress: pinned final-only SCC and witness selection
+
+The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
+graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
+bucket closure. It retains configured claims separately from derived role names.
+At 1/3/4/8 workers, 19 completed pinned controls match their SCC/witness fields;
+all 30 controls, including 11 uncredited failures, remain available in
+`conformance/probes/tlc-final-check/`. Fresh independent validation accepts the
+supported original words and rejects changed Init, Next/closing edges, loop
+targets and incomplete claims. A 4,096-graph independent census checks acceptance
+and selected path labels.
+
+This is an explicit final-only TLC/fingerprint library mode, not ordinary strict
+CLI parity or periodic-schedule support. Exact-store temporal proof is refused:
+a fingerprint graph must not silently merge concrete states while claiming exact
+identity. Accepting-sink reconstruction, initial error replay, symmetry/VIEW/ALIAS,
+periodic hooks, unsupported scopes/effects and fixed resource bounds remain named
+limitations. Holds results retain collision qualifications; backend candidates
+never carry their own validation certificate. F-019 through F-022 remain partial/
+audit-required, F-023 missing and #140 open. Old broad studies retain their original
+outcomes; no default or ordinary strict conformance credit changes.
+
+See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
+actual evidence and refusal boundaries. The API admits startup sources before
+binding creates a host; effectful ASSUMEs, unused top-level constants, config
+replacement candidates and hooks return named refusal with zero used workers.
+Standard-module classification does not bypass this admission. Explicit sequential
+requests/fallback execution remain refused until their observer path is certified.
+
+
+**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+--lasso tlc` now exposes the independently certified bounded final-only path.
+Actual counts/worker/stage metadata and original property identities are retained,
+including TLC's stuttering marker. This does not enable periodic checking or lift
+exact-store, accepting-sink, recovery, effect or resource refusals. The separate
+`dive-final-tlc` harness mode requires a final-schedule golden and fresh independent
+replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
+alias targets are admitted through actual module contexts before any startup
+binding effect. See [the user guide](tlc-final-api.md).

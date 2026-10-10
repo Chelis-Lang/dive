@@ -37,5 +37,13 @@ pub mod phase_l;
 /// Bounded concrete worker capture and actual null-tableau graph commits.
 pub mod phase_graph;
 
-/// Actual ordered safety/source callbacks and multiple null-tableau graph execution.
+/// Actual ordered safety/source callbacks and multiple OOS/tableau graph execution.
 pub mod phase_execution;
+
+/// Bounded pinned final SCC visitation over supplied product labels.
+pub mod tlc_scc;
+/// Pinned bounded product witness selection; no concrete validation claim.
+pub mod tlc_witness;
+
+/// Constructed-model final-only pinned SCC/lasso analysis; candidates require validation.
+pub mod tlc_final;

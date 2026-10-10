@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "purpose": "development probe: actual pinned finalCheck, separate from current gated delivery; no native agreement claim",
+  "selection": [
+    "PhaseTableau",
+    "ExecMultiple",
+    "ExecRevisit"
+  ],
+  "pinned_jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "retained_history": "First complete selected attempt failed because the caller had not created metadir; each original stdout/stderr is retained. Current probe creates metadir before method call.",
+  "sha256": {
+    "compiler.stderr": "66bcca1c459c184393ca1ea31a078957c7f00ee39c306aba62c0f924af7bc171",
+    "SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
+    "compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
+    "SccProbe.java": "0fe45063007b3802c8c7ad81c5dec1eba3f7a846268dbe58ef60f7f6d963fad6",
+    "PhaseTableau/PhaseTableau.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+    "PhaseTableau/historical-no-metadir.stderr": "9aaa7c9b34372ffafce3d7cf5265f8a830c91e8e45dc84d9c5cf0906279cc3f5",
+    "PhaseTableau/scc.stdout": "65ee5ed6ae747db5387e5ee7a968ef8ee5334e4eba1517e636980b0fb91259ae",
+    "PhaseTableau/PhaseTableau.tla": "a4944057a4e9951e1cf9e69b0dacd07f8ccbc781787b7d7cfb2a323180e815b7",
+    "PhaseTableau/scc.stderr": "37efc9c2c43949d50f8c9c165458c4da90c847f746c0f3e7ffc065621aed4840",
+    "PhaseTableau/historical-no-metadir.stdout": "c15fa6a1cdfc23b7e4be7c4f2fe2a6605f0136ce62552afd6f771488307bac26",
+    "ExecRevisit/ExecRevisit.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+    "ExecRevisit/ExecRevisit.tla": "8241c8e64bbf4111163c65bcea9d9a26eb33ad93427dff72025c596f843d9871",
+    "ExecRevisit/historical-no-metadir.stderr": "4ce6e62a57f35c539df89cca809c55d8c7cd280872828c97f58e5c9e35ba8863",
+    "ExecRevisit/scc.stdout": "993ca6f78d58891689df9440cfcd1d23de5243e495e4c1e7e50f92d9d6c8ea95",
+    "ExecRevisit/scc.stderr": "0aa99f8f6c6c8726d755b8f2a010cb099b7b999e246637ae3a72bc46c8afd71f",
+    "ExecRevisit/historical-no-metadir.stdout": "c15fa6a1cdfc23b7e4be7c4f2fe2a6605f0136ce62552afd6f771488307bac26",
+    "ExecMultiple/ExecMultiple.tla": "9ae9614bad3571309abae7b0747029e33a9ea3d29ca95426c600bd5d4f79deaa",
+    "ExecMultiple/historical-no-metadir.stderr": "62bd020b43b3b1a4c948126e3c65c7c118608681b874498d55106de729a0a31a",
+    "ExecMultiple/scc.stdout": "caaf0e8e2b9c2c97777b38ec49c5240af45139597c1e5b85784ba5ae52e4fca1",
+    "ExecMultiple/scc.stderr": "9fe1119f88ec632420be7d19b1a24e790bb4724600db579a0bac064f66ed18fc",
+    "ExecMultiple/ExecMultiple.cfg": "04d5356fb6bf2afb4249e1ff075ec6c206fca7b51d3700b107ae3da4a06511ea",
+    "ExecMultiple/historical-no-metadir.stdout": "1c818af8462e551c2472fe878b4aeec768b748aa9bf751832b14a6088f7fbd70"
+  }
+}
