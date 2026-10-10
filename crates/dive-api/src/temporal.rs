@@ -372,8 +372,9 @@ fn run(
 /// Binds and checks a lowered specification's pure temporal properties after
 /// complete exploration, returning only independently validated violations.
 /// The run uses [`dive_liveness::analyze::Limits`] and the supplied profile,
-/// store, seed and worker request. Capture currently runs inline and reports
-/// its actual width. Selection is always `short`, including when `options`
+/// store, seed and worker request. Capture uses the ordered parallel engine
+/// with bounded source waves and reports its actual pool width. Selection is
+/// always `short`, including when `options`
 /// requests TLC value semantics: this API does not claim byte-identical TLC
 /// lassos, error timing or full TLC compatibility.
 ///

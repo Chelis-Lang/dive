@@ -113,3 +113,12 @@ Tracked next steps: [finite lazy-domain bindings (#107)](https://github.com/Chel
 and [isolated capture profiling (#108)](https://github.com/Chelis-Lang/dive/issues/108).
 Symmetry binding, warnings and canonical keys remain in #104; broader scoped
 semantics and exact temporal integration remain in #63 and #66.
+
+
+The preserved study above predates bounded ordered parallel capture (P4-capture,
+issue #117). Current supported pure final/short runs can use the requested pool,
+with fixed eight-source waves and a separate per-source scratch admission cap.
+The historical model totals, timeouts and source artifacts remain unchanged.
+Current graph, tiny-bound and validated witness controls are documented in
+[the temporal API](temporal-api.md#bounded-parallel-graph-retention); exact TLC
+lassos and phase-L timing are still not certified.

@@ -34,6 +34,9 @@ pub struct CheckOptions {
     /// (ADR 0015). TLC setting: 1, TLC's default; a spec that depends on
     /// TLC's sequential side effects runs with one logical worker whatever
     /// this says (sequential mode, ADR 0015 §6), and the result says so.
+    /// Final/short graph capture expands at most
+    /// [`crate::capture::MAX_EXPANSION_UNITS`] source units concurrently even
+    /// with a wider pool; its scratch admission bound is reported separately.
     pub workers: usize,
     /// Run every level inline on one thread, as sequential mode does, even
     /// when the specification does not need it. For tests and diagnosis

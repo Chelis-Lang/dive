@@ -55,8 +55,8 @@ fn post_capture_product_and_atom_limits_retain_actual_work() {
                     (3, 2, 2)
                 );
                 let workers = failure.workers(4).expect("known execution width");
-                assert_eq!((workers.requested, workers.used), (4, 1));
-                assert!(workers.sequential);
+                assert_eq!((workers.requested, workers.used), (4, 4));
+                assert!(!workers.sequential);
                 assert!(failure.elapsed() > std::time::Duration::ZERO);
                 assert_eq!(capture.collision.is_some(), store == StoreMode::Fingerprint);
                 assert!(!failure.to_string().contains("no search ran"));
@@ -113,7 +113,7 @@ fn capture_stop_retains_partial_safety_result() {
         panic!("partial capture cannot become a temporal verdict");
     };
     assert!(matches!(stop.verdict, Verdict::ResourceLimit { .. }));
-    assert_eq!(stop.workers.used, 1);
+    assert_eq!(stop.workers.used, 8);
     assert_eq!(stop.workers.requested, 8);
     assert!(stop.stats.is_some());
 }

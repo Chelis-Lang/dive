@@ -42,7 +42,10 @@ checker-register reads remain explicit refusals. The independent validator
 needs a finite successor cover to prove some ENABLED/fairness cases; missing
 covers return a validation refusal even if analysis finds a candidate.
 
-Capture runs inline and reports the actual width and the requested width.
+Capture uses the ordered parallel safety engine and reports the actual pool
+width and the requested width. Explicit sequential mode retains its reason.
+Each fixed wave expands at most eight source states; fewer sources can use
+fewer concurrent units than the pool width.
 The limits bound formula entries, graph states/edges/generated work, labels and
 product construction; these are **entry/work counts**, not byte limits or a
 wall-clock deadline, and do not bound the preceding binding stage. Fingerprint mode retains the safety engine's collision
@@ -92,8 +95,8 @@ classes or periodic scheduling. The `tlc` class field stays null for temporal
 holds/violations. Default-profile violations exit 10. The ordinary strict
 conformance path retains its temporal refusal until those counterparts land.
 
-Capture currently runs inline even when more workers were requested; actual
-width and its reason are reported. Bounds are counts of retained entries,
+Capture honors the requested worker pool for supported pure models, while
+fixed eight-source waves bound scratch retention. Bounds are counts of retained entries,
 not a hard byte-memory limit; they exclude preceding model binding.
 
 Constant arguments are inspected for purity before evaluation and become value
@@ -152,3 +155,51 @@ Independent ENABLED covers also preserve finite set-map, filter and nonrecursive
 function-constructor scopes. Concrete current-state domains are supported there,
 while successor-dependent primed domains and missing finite covers remain refused.
 This does not broaden the planner to state-dependent domains.
+
+## Bounded parallel graph retention
+
+Capture preserves every accepted successor occurrence, including already seen
+states and duplicates in one wave. Original action labels and global successor
+ordinals are retained; discovery IDs agree with the safety trace log. Roots
+keep initial discovery order and each source ends with an implicit stutter,
+including when generated transitions are filtered by constraints. The graph is
+collected while expanding the safety search, without re-enumeration.
+
+`dive_check::capture::Limits::successors_per_unit` is a separate scratch
+admission limit, default **65,536 emitted successors per expanded source**.
+Existing retained-state (1,000,000), retained-edge (8,000,000), and logical
+generated-state (32,000,000) defaults are unchanged. Every source's actions
+remain one unit, so the scratch boundary is independent of workers and chaos.
+At most eight units are buffered: at the defaults, no more than 524,288
+accepted edge records and 524,288 candidate payloads can await one commit.
+Each unit stops before checking its first over-budget successor. The first
+logical generated-budget violation takes precedence if the two coincide.
+The bound counts callback admissions, not arbitrary evaluation operations;
+source expansion can do expensive work before emitting a successor. Exact
+keys, values, and output can have different sizes, so this is not a byte-memory
+limit. Binding, atom evaluation and product construction have separate limits.
+
+The library can explicitly raise the scratch cap for a high-fanout source;
+there is no automatic increase. Its TLC counterpart is unbounded admission.
+A scratch refusal never counts as a complete TLC-equivalent search. A bound
+or earlier safety event retains only the ordered prefix's counters and evidence,
+never an incomplete graph labeled complete. The cap applies to explicit
+sequential capture too, making admission consistent at 1, 4 and 8 workers.
+Eight-source waves are a conservative scaling boundary, not a claim of
+64-way expansion scalability.
+
+Controls compare complete graph order and bounded stopping against the inline
+engine in both profiles/stores at 1/4/8 workers and chaos schedules. Thirteen
+clean pinned liveness probes retain TLC final counts and produce identical,
+independently validated short-word documents across those widths. Pure safety
+error/constraint/invariant/implied-action/deadlock stopping and ordered output
+also agree across waves. VIEW, symmetry, random operators and stateful checker
+reads remain named graph-capture refusals; this increment does not establish
+phase-L timing, TLC-exact lassos or strict integrated liveness conformance.
+
+Runtime name constructors under TLC ordering use an explicit inline fallback
+(issue #122), even for a requested pool of one with chaos enabled. Actual width
+and reason are reported. Canonical default ordering remains parallel. This
+admission exception does not allow random operators, live counters or I/O.
+JSON `temporal_bounds` reports `successors_per_unit` and `max_expansion_units`
+separately from logical graph limits and the physical worker pool.

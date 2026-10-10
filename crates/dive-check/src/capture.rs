@@ -1,7 +1,7 @@
 //! Bounded behavior-graph capture through the safety engine.
 //!
 //! A complete graph is exploration evidence, not a temporal verdict. This
-//! first capture path runs the shared inline engine. It retains every accepted
+//! capture path uses the shared ordered safety engines. It retains every accepted
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
 use std::collections::BTreeMap;
@@ -14,6 +14,10 @@ use dive_model::{Model, UnsupportedKind};
 use crate::engine;
 use crate::{CheckOptions, CheckResult, Collision, Stats, Verdict, Workers};
 
+/// Maximum concurrently expanded source units during parallel capture.
+/// Fixed waves use this cap regardless of physical worker pool width.
+pub const MAX_EXPANSION_UNITS: usize = 8;
+
 /// Explicit entry-count bounds for retained graph data.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limits {
@@ -23,6 +27,12 @@ pub struct Limits {
     pub edges: usize,
     /// Maximum generated states, including duplicates and out-of-model states.
     pub generated: u64,
+    /// Maximum emitted successors of one expanded source. This separate scratch
+    /// admission bound applies before successor checks in either engine. Parallel
+    /// capture buffers at most eight sources at once, regardless of worker count.
+    /// TLC setting: no such capture bound; exceeding it is a resource refusal,
+    /// never a complete exploration or evidence of TLC agreement.
+    pub successors_per_unit: u64,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -30,6 +40,7 @@ impl Default for Limits {
             states: 1_000_000,
             edges: 8_000_000,
             generated: 32_000_000,
+            successors_per_unit: 65_536,
         }
     }
 }
@@ -70,7 +81,8 @@ pub struct Complete {
     pub stats: Stats,
     /// The safety engine's collision figures, absent for exact mode.
     pub collision: Option<Collision>,
-    /// Requested and actual execution widths. Capture currently runs inline.
+    /// Requested and actual execution pool widths. Fixed waves contain at most
+    /// eight source states; a smaller frontier can use fewer concurrent units.
     pub workers: Workers,
     /// Start-up, assumption and search output in order.
     pub output: Vec<String>,
@@ -106,6 +118,19 @@ impl<K: Ord> Collector<K> {
             },
             limits,
             count: 0,
+        }
+    }
+
+    pub(crate) fn limits(&self) -> Limits {
+        self.limits
+    }
+
+    pub(crate) fn allow_emitted(&self, n: u64, ordinal: Option<u64>) -> Result<(), Verdict> {
+        self.allow_generated(n)?;
+        if ordinal.is_some_and(|ordinal| ordinal >= self.limits.successors_per_unit) {
+            Err(limit("successors per source (scratch admission)"))
+        } else {
+            Ok(())
         }
     }
 
@@ -210,7 +235,7 @@ fn bug(s: &str) -> Verdict {
         message: format!("graph capture: {s}"),
     }
 }
-fn limit(s: &str) -> Verdict {
+pub(crate) fn limit(s: &str) -> Verdict {
     Verdict::ResourceLimit {
         message: format!("behavior graph capture {s}"),
     }
@@ -223,8 +248,9 @@ fn limit(s: &str) -> Verdict {
 ///
 /// Temporal property refusals are deferred explicitly; every other refusal
 /// is retained. VIEW, symmetry, randomness and stateful checker reads remain
-/// unsupported in this first capture path. Capture runs inline and reports
-/// that width; the ordinary parallel safety checker is unchanged.
+/// unsupported. Capture uses ordered, bounded source waves with the requested
+/// pool width, or the explicitly requested sequential mode. The ordinary
+/// safety checker is unchanged.
 ///
 /// ```
 /// use std::sync::Arc;
@@ -298,7 +324,9 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
     if engine::uses_random(&model.ir) {
         return refuse("graph capture with random operators".into());
     }
-    if let Some(s) = model.sequential.first() {
+    if !model.sequential_names_only
+        && let Some(s) = model.sequential.first()
+    {
         return refuse(format!("graph capture with stateful checking: {s}"));
     }
     if let Some(u) = model
@@ -341,6 +369,7 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
     result.workers = outcome.workers;
     result.output.extend(outcome.output);
     result.notes = outcome.notes;
+    crate::note_canonical_stop(opts, &result.verdict, &mut result.notes);
     if result.verdict != Verdict::Success {
         return Exploration::Stopped(Box::new(result));
     }
