@@ -1,0 +1,19 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.31s
+     Running tests/native_checkpoint_keys.rs (/Users/jeff/code/dive-checkpoint-keys-target/debug/deps/native_checkpoint_keys-add03f75fda96121)
+
+running 1 test
+test configured_key_recovery_matches_uninterrupted_and_keeps_concrete_witnesses has been running for over 60 seconds
+test configured_key_recovery_matches_uninterrupted_and_keeps_concrete_witnesses ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 158.82s
+
+     Running tests/checkpoint_keys.rs (/Users/jeff/code/dive-checkpoint-keys-target/debug/deps/checkpoint_keys-81d58eb75f966647)
+
+running 1 test
+test configured_view_key_failure_is_import_failure_not_a_model_verdict ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.53s
+

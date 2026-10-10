@@ -377,18 +377,12 @@ per-block storage, label and fairness ownership for disjoint literal domains.
 Overlapping IDs, namespace rewrites and cross-process local references remain
 explicit refusals in both profiles. Full translation families remain partial.
 
-### D-013 progress: ordered temporal execution
 
-The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
-source order, with initial consistency before initial invariants and immediate
-done-state re-enumeration. Fifteen completed pinned graph-field cases match at
-1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
-in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
-batch emissions and recursive enumeration work remain separate. Independent
-validation rejects altered words, closing edges and incomplete property claims.
-
-This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
-initial error replay and periodic checking are not certified. Ordinary strict
-liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
-remain partial/audit-required, F-023 missing and #140 open. Previous complete
-studies keep their original outcomes and receive no new corpus verdict credit.
+Pure supported VIEW and safety symmetry now compose with D-007 native recovery
+(ADR 0038). Saved visited keys are recomputed through the configured search
+path, while actual concrete discoveries/predecessors remain unchanged. The
+separate concrete witness validator rejects altered equivalent-key Init/Next
+states. Runtime/graph/liveness/spill/parallel recovery remain refused; no default
+or independent archive-certificate claim changes. Captures and the initial
+unused-standard-body refusal are preserved in
+`conformance/probes/native-checkpoint-keys/README.md`.

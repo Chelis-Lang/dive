@@ -466,18 +466,10 @@ and independently validated/corrupted witnesses cover the admitted storage/actio
 subset. F-034 and F-035 remain partial and audit-required; this does not certify
 full process renaming, procedures/macros, historical options or file rewriting.
 
-### D-013 progress: ordered temporal execution
 
-The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
-source order, with initial consistency before initial invariants and immediate
-done-state re-enumeration. Fifteen completed pinned graph-field cases match at
-1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
-in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
-batch emissions and recursive enumeration work remain separate. Independent
-validation rejects altered words, closing edges and incomplete property claims.
 
-This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
-initial error replay and periodic checking are not certified. Ordinary strict
-liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
-remain partial/audit-required, F-023 missing and #140 open. Previous complete
-studies keep their original outcomes and receive no new corpus verdict credit.
+F-032 additionally covers pure supported VIEW/safety-symmetry recovery (ADR 0038).
+The primary pinned minimal models and separate native recovery matrix preserve
+concrete witnesses while rebuilding configured reduced visited keys. Equivalent
+keys never substitute for independent Init/Next validation. This adds staged
+evidence only: F-032 remains partial/audit-required with broader recovery pending.

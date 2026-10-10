@@ -1,0 +1,7 @@
+{
+  "description": "Capture helper source inventory pointed at dive-check/prepare.rs; failed before running any binary. Corrected to dive-model/symmetry/prepare.rs.",
+  "sha256": {
+    "capture.log": "6de8c25acb09316b32da974c0483b1618ee0302df15137bdcc9afc3eb77ad9d8",
+    "capture_recovery.py": "2589e084f7e304f5fe85e2bcb2ea48d8de174560a6e3fb01d4d3d5f8d9b19b50"
+  }
+}

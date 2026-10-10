@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "baseline_commit": "217cebfa8bd35735bf14d38f28a4ae17628739aa",
   "denominator": "37 stable semantic feature families; overlapping source surfaces are counted separately, never added or weighted",
   "families": [
@@ -1002,6 +1001,165 @@
       "additional_evidence": [
         "crates/dive-api/tests/temporal_forwarding.rs"
       ]
+    },
+    {
+      "id": "F-020",
+      "name": "Temporal graph capture and phase-L timing",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
+      "rust_evidence": "crates/dive-check/src/capture.rs",
+      "conformance_evidence": "docs/temporal-study.md",
+      "issues": [
+        66,
+        108,
+        109,
+        117,
+        130,
+        136,
+        149,
+        140
+      ],
+      "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
+      "interactions": [
+        "F-011",
+        "F-013",
+        "F-016",
+        "F-023",
+        "F-031"
+      ],
+      "implementation_notes": "Ordered parallel capture retains accepted duplicate/seen edges, original labels/ordinals, concrete discovery IDs, roots and implicit stutters. Separate per-source scratch admission gives deterministic resource refusals, with unchanged logical defaults. Inline/1/4/8/chaos controls cover both profiles/stores and validated final/short witnesses. VIEW/SYM/random/effects, phase-L precedence and TLC-exact integrated liveness remain gaps.",
+      "additional_evidence": [
+        "conformance/probes/tlc-planning/README.md",
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/temporal-action-order/README.md",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
+      ],
+      "evidence_updates": [
+        "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
+    },
+    {
+      "id": "F-021",
+      "name": "WF/SF fairness and independent periodic validation",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/Liveness.java",
+      "rust_evidence": "crates/dive-trace/src/lib.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "issues": [
+        63,
+        127,
+        130,
+        136,
+        140
+      ],
+      "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
+      "interactions": [
+        "F-006",
+        "F-007",
+        "F-018",
+        "F-019"
+      ],
+      "additional_evidence": [
+        "conformance/probes/temporal-forwarding/README.md",
+        "crates/dive-api/tests/temporal_forwarding.rs",
+        "conformance/probes/tlc-planning/README.md",
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
+      ],
+      "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
+      "evidence_updates": [
+        "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
+    },
+    {
+      "id": "F-022",
+      "name": "SCC acceptance, TLC lasso selection and attribution",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/LiveWorker.java",
+      "rust_evidence": "crates/dive-liveness/src/analyze.rs",
+      "conformance_evidence": "crates/dive-liveness/tests/lassos.rs",
+      "issues": [
+        66,
+        136,
+        149,
+        140
+      ],
+      "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
+      "interactions": [
+        "F-019",
+        "F-020",
+        "F-021",
+        "F-029"
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140.",
+      "additional_evidence": [
+        "conformance/probes/temporal-action-order/README.md",
+        "conformance/probes/tlc-phase-l/README.md",
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
+      ]
+    },
+    {
+      "id": "F-032",
+      "name": "Native checkpoint and recovery",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 7,
+      "pinned_source": "tlc2/tool/ModelChecker.java",
+      "rust_evidence": "crates/dive-check/src/checkpoint.rs",
+      "conformance_evidence": "docs/native-checkpoint.md",
+      "issues": [
+        152,
+        164
+      ],
+      "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
+      "interactions": [
+        "F-020",
+        "F-024",
+        "F-031",
+        "F-033"
+      ],
+      "additional_evidence": [
+        "conformance/probes/native-checkpoint-keys/README.md",
+        "crates/dive-api/tests/native_checkpoint_keys.rs",
+        "crates/dive-check/tests/checkpoint_keys.rs",
+        "docs/decisions/0038-checkpoint-transformed-safety-keys.md"
+      ],
+      "evidence_updates": [
+        "Pure VIEW and safety symmetry snapshots recompute configured live-search keys while preserving concrete discoveries, parents and names; actual recovery equality and independent equivalent-key witness negatives cover both profiles/stores. Archive trust remains local; runtime/temporal/graph/spill/parallel recovery and full-family certification remain pending.",
+        "Before binding, configured context aliases resolve to actual definition IDs; effectful local replacements refuse without output/archive while pure aliases remain admitted. Preserved pre-repair and current raw matrices are distinct; issue #164 is a native admission defect, not reference behavior."
+      ]
     }
-  ]
+  ],
+  "schema_version": 1
 }

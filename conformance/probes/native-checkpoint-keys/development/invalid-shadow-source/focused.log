@@ -1,0 +1,23 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.62s
+     Running tests/checkpoint_keys.rs (/Users/jeff/code/dive-checkpoint-keys-target/debug/deps/checkpoint_keys-81d58eb75f966647)
+
+running 2 tests
+test native_override_authority_and_substitutions_preserve_pre_effect_refusals ... FAILED
+test configured_view_key_failure_is_import_failure_not_a_model_verdict ... ok
+
+failures:
+
+---- native_override_authority_and_substitutions_preserve_pre_effect_refusals stdout ----
+
+thread 'native_override_authority_and_substitutions_preserve_pre_effect_refusals' (106515625) panicked at crates/dive-check/tests/checkpoint_keys.rs:203:9:
+local-shadow-pure: [Diagnostic { code: Redefinition, severity: Error, message: "operator `PrintT` is already defined or declared", span: Some(Span { file: FileId(0), range: 92..106 }), help: Some("TLA+ does not allow redefining or shadowing a name; rename one of them"), related: [Related { span: Span { file: FileId(2), range: 1112..1131 }, message: "the earlier definition or declaration" }], sany: Some(4201) }, Diagnostic { code: MultipleDefinitions, severity: Warning, message: "multiple declarations or definitions of `PrintT`", span: Some(Span { file: FileId(0), range: 92..106 }), help: None, related: [Related { span: Span { file: FileId(2), range: 1112..1131 }, message: "the other declaration or definition" }], sany: Some(4801) }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    native_override_authority_and_substitutions_preserve_pre_effect_refusals
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.39s
+
+error: test failed, to rerun pass `-p dive-check --test checkpoint_keys`
