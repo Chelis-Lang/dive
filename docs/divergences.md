@@ -284,3 +284,19 @@ public admission rejects these in both profiles; generation is diagnostic-only,
 with no corrected-output option or naming default adopted. The minimal source
 and exact disposition are in the D-008 user log and process procedure `names`
 study, not credited as artifact matches.
+
+D-008's later shared-procedure increment (ADR 0045) admits multiple disjoint
+finite process blocks with individual owned frames. Procedure definitions and
+slots are generated once, with reference constant/procedure/member scheduling.
+No mathematical default changes: both profiles preserve reference generation
+and reject invalid enclosing artifacts. Scope rewriting, overlapping/unproved
+domains, process-declared fairness and strict #124 replay remain explicit
+limitations. See `docs/pluscal-multiple-procedures.md`; prior single-process
+limitations above describe that historical increment.
+
+The shared-procedure D-008 study also retains two constant-caller local `self`
+initialization artifacts: pinned translation exits 0 but SANY exits 4 because
+call actions leave `self` unbound. An empty P process similarly produces invalid
+zero-exit output. Native public admission rejects these without adopting a
+corrected-output default; all source/raw outputs and dispositions stay selected.
+See the minimal user log examples and shared procedure acceptance manifest.

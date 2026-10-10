@@ -325,3 +325,11 @@ The separate two-row algorithm-level fair study proves global WF_vars(Next)
 artifact generation with CST/SANY and four finite Init/Next controls; it does
 not certify liveness execution. F-034/F-035
 stay partial/audit-required; no family denominator or certification change.
+
+The [shared finite-process procedure increment](pluscal-multiple-procedures.md)
+retains a separate complete 166-row C/P selection. One procedure normalization
+feeds all owned process bodies; global quotas and constant/procedure/member
+scheduling are source-backed. Invalid primary outputs and named scope/fairness
+refusals remain visible. Artifact, finite execution, strict namespace-pending
+and qualified canonical witness evidence stay separate. F-034/F-035 remain
+partial and audit-required, with no family denominator change.

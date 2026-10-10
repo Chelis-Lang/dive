@@ -1,0 +1,1 @@
+Initial campaign before final CLI pending-label refresh. Raw strict namespace replay disagreements remain unchanged. These rows are historical evidence, not a second credited selection. The final campaign uses newly frozen executables.

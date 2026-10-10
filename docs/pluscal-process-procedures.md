@@ -155,3 +155,8 @@ Two canonical witnesses and eight invalid mutants are separate qualified
 evidence. This establishes formula generation, not liveness execution or
 process/procedure fairness. The aggregate delivery contains 132 source rows,
 82 artifacts and 134 model rows; the original 130-row study remains intact.
+
+A later [multiple-process procedure increment](pluscal-multiple-procedures.md)
+lifts this historical slice's one-block restriction for disjoint finite IDs and
+names. Its complete study and support boundaries are separate; none of the
+original source or witness dispositions above is retroactively changed.

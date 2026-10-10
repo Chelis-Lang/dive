@@ -5,6 +5,13 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Multiple disjoint finite PlusCal process blocks can call shared ordinary,
+  recursive and self-tail procedures in both syntaxes. Owned slots/stack
+  initialize over union ProcSet; procedure actions are generated once and
+  global quotas span every body. Scoped rewriting/process fairness and strict
+  namespace witnesses remain pending; invalid upstream artifacts are rejected.
+  See `docs/pluscal-multiple-procedures.md`.
+
 - Native PlusCal procedure calls from one finite process block: owned indexed
   parameter/local slots, stack/pc transitions, recursive and self-tail calls,
   both source syntaxes and explicit global limits. Algorithm-level fair syntax

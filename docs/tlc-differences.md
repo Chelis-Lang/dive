@@ -1247,3 +1247,38 @@ both profiles rejects the enclosing module and claims neither acceptance nor
 proof. These rows earn diagnostic credit only; no automatic rename, corrected
 output option or new default has been adopted. Status: measured upstream
 artifact-generation defect, with source/raw/SANY and CLI/API rejection controls.
+
+**Later shared process procedure status (D-008):** multiple disjoint finite
+process blocks can now call the same procedures without sharing their frames.
+Slots and stack initialize once over all IDs; procedure actions execute for the
+calling ID. This lifts the earlier single-block limitation, while scoped
+renaming, cross-process locals and process-declared fairness remain refused.
+Both profiles reject invalid upstream artifacts; canonical witness checks
+still do not certify strict namespace replay. See
+[shared procedure use](pluscal-multiple-procedures.md) for executable C/P and
+Rust examples and the exact supported/refused contract.
+
+### Procedure local self in a constant-ID caller (D-008 candidate)
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First(a = 0) variable u = self; { F: x := u; R: return; };
+  process (One = 1) { L: call First(1); E: skip; }
+  process (Two = 2) { M: call First(2); N: skip; }
+}
+```
+
+Pinned translation exits **0**. Its Init binds `self` when initializing the
+procedure slot, but the constant-ID call actions initialize `u` with a free
+`self` instead of the caller's literal ID. Clean SANY exits **4** with two
+unknown-operator errors. Both C/P source/raw artifacts remain retained as
+`MultipleProcedure_*_local_self` in the shared procedure study. Native public
+admission rejects the enclosing artifacts in both profiles. No corrected
+initialization default or strict artifact credit has been adopted.
+
+The P-syntax empty-process control also retains a zero-exit translation with
+an empty process operator and a `"null"` initial program-counter label; SANY
+rejects the generated module. Native normalization refuses the empty body by
+name. These observations explain why successful translation is not enough for
+an admitted usable module; they are not silently repaired.
