@@ -13,6 +13,8 @@ All notable changes to this project are documented here. The project will follow
 - Auditable TLC parity ledger and delivery plan covering native checking modes,
   distribution/recovery and PlusCal, with pinned source-surface inventories
   and separate accounting for strict and mixed-profile evidence.
+- Conformance harness resolves relative executable paths before model/parse
+  subprocesses change directory, preserving repository-relative provenance.
 
 - Expanded non-gating final/short temporal evidence accounts for all 53 selected
   Examples models: 26 truth/count matches, 22 named refusals and five timeouts,

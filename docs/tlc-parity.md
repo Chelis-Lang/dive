@@ -230,3 +230,7 @@ clean checkout revisions and expected census counts, and writes no timestamps.
 Source drift or unrecognized configuration syntax fails rather than silently
 shrinking the inventory. Review changes and their acceptance mapping before
 moving pins or changing expected counts.
+
+The harness resolves relative implementation executable paths before changing
+child model directories (F-036), with a regression control covering that launch
+path. This fixes execution plumbing; it does not certify a checking family.
