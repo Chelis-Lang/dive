@@ -26,3 +26,9 @@ models and ValidationTestSuite passes all 16 models, each at 1/4/8 workers.
 The release manifest records exact executable and raw-output hashes. These
 receipts add supported final-mode and safety evidence only; they do not promote
 refusals or certify unimplemented ordinary temporal schedules.
+
+The fresh integrated [full small selection](full-small-study/README.md) also
+retains every row: 140 named refusals and zero agreements, with 138 actual raw
+processes. Its real harness exit is 0 and its source/binary hashes are unchanged;
+the zero exit does not certify any model. The earlier census and its missing
+exit observation remain intact.
