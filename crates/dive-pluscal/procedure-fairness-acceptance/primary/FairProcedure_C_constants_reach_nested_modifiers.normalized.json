@@ -1,0 +1,2 @@
+pcal.exception.ParseAlgorithmException: Expected ":=" but found "call"
+    line 7, column 6

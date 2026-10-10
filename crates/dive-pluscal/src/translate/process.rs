@@ -56,44 +56,11 @@ pub(super) fn normalize(
     }
     normalize_one(parsed, &processes[0], options, false)
 }
-#[allow(
-    clippy::too_many_lines,
-    reason = "single-process admission checks binding, namespace and fairness before lowering"
-)]
-fn normalize_one(
+fn effective_process(
     parsed: &Parsed,
     process: &Process,
     options: &TranslationOptions,
-    force_pc: bool,
-) -> Result<lower::Model, TranslationError> {
-    admit_one(parsed, process, options)?;
-    // Names are admitted before concatenating the scalar storage declarations.
-    // Existing continuation/changed-variable rules then apply to this one body.
-    let mut sequential = parsed.clone();
-    sequential.algorithm.body = Body::Sequential(process.body.clone());
-    // The reference's --fair/options warning is emitted only by its sequential
-    // grammar branch. Global process fairness is assigned separately below.
-    sequential.algorithm.fairness = Fairness::Unfair;
-    sequential
-        .algorithm
-        .variables
-        .extend(process.variables.clone());
-    let mut model = if sequential.algorithm.procedures.is_empty() {
-        lower::normalize_with_pc(&sequential, options, force_pc)?
-    } else {
-        let mut model = super::procedures::normalize(&sequential, options)?;
-        // GenVars/GenInit put all procedure slots before process locals.
-        let names: BTreeSet<_> = process
-            .variables
-            .iter()
-            .map(|d| d.name.text.as_str())
-            .collect();
-        model
-            .variables
-            .retain(|d| !names.contains(d.name.text.as_str()));
-        model.variables.extend(process.variables.clone());
-        model
-    };
+) -> Result<Process, TranslationError> {
     let mut process = process.clone();
     process.fairness = if options.fairness == FairnessOption::None {
         Fairness::Unfair
@@ -115,6 +82,48 @@ fn normalize_one(
             ));
         }
     }
+    Ok(process)
+}
+
+#[allow(
+    clippy::too_many_lines,
+    reason = "single-process admission checks binding, namespace and fairness before lowering"
+)]
+fn normalize_one(
+    parsed: &Parsed,
+    process: &Process,
+    options: &TranslationOptions,
+    force_pc: bool,
+) -> Result<lower::Model, TranslationError> {
+    admit_one(parsed, process)?;
+    // Names are admitted before concatenating the scalar storage declarations.
+    // Existing continuation/changed-variable rules then apply to this one body.
+    let mut sequential = parsed.clone();
+    sequential.algorithm.body = Body::Sequential(process.body.clone());
+    // The reference's --fair/options warning is emitted only by its sequential
+    // grammar branch. Global process fairness is assigned separately below.
+    sequential.algorithm.fairness = Fairness::Unfair;
+    sequential
+        .algorithm
+        .variables
+        .extend(process.variables.clone());
+    let mut model = if sequential.algorithm.procedures.is_empty() {
+        lower::normalize_with_pc(&sequential, options, force_pc)?
+    } else {
+        let mut model = super::procedures::normalize_process(&sequential, options)?;
+        // GenVars/GenInit put all procedure slots before process locals.
+        let names: BTreeSet<_> = process
+            .variables
+            .iter()
+            .map(|d| d.name.text.as_str())
+            .collect();
+        model
+            .variables
+            .retain(|d| !names.contains(d.name.text.as_str()));
+        model.variables.extend(process.variables.clone());
+        model
+    };
+    let process = effective_process(parsed, process, options)?;
     model.fair = options.fairness != FairnessOption::None
         && (options.fairness == FairnessOption::Next
             || parsed.algorithm.fairness == Fairness::Weak);
@@ -126,11 +135,7 @@ fn normalize_one(
     clippy::too_many_lines,
     reason = "source-only single-owner admission is shared by one and multiple process procedure paths"
 )]
-fn admit_one(
-    parsed: &Parsed,
-    process: &Process,
-    options: &TranslationOptions,
-) -> Result<(), TranslationError> {
+fn admit_one(parsed: &Parsed, process: &Process) -> Result<(), TranslationError> {
     if !finite_id(parsed, process) {
         return Err(unsupported(
             process.id.expression.span,
@@ -232,12 +237,6 @@ fn admit_one(
         }
     }
     if !parsed.algorithm.procedures.is_empty() {
-        if process.fairness != Fairness::Unfair || options.fairness != FairnessOption::Declared {
-            return Err(unsupported(
-                process.span,
-                "process/procedure fairness ownership",
-            ));
-        }
         for procedure in &parsed.algorithm.procedures {
             if procedure.name.text == process.name.text
                 || procedure
@@ -502,7 +501,7 @@ fn normalize_multiple_procedures(
         .first()
         .ok_or_else(|| unsupported(parsed.algorithm.span, "empty process collection"))?;
     for process in processes {
-        admit_one(parsed, process, options)?;
+        admit_one(parsed, process)?;
     }
     // The sequential procedure normalizer proves disjoint global, parameter,
     // local and label names and lowers each procedure exactly once. Process
@@ -530,7 +529,7 @@ fn normalize_multiple_procedures(
     for process in processes {
         scoped.algorithm.variables.extend(process.variables.clone());
     }
-    let mut model = super::procedures::normalize(&scoped, options)?;
+    let mut model = super::procedures::normalize_process(&scoped, options)?;
     let locals: BTreeSet<_> = processes
         .iter()
         .flat_map(|p| &p.variables)
@@ -562,8 +561,13 @@ fn normalize_multiple_procedures(
         model.warnings.append(&mut part.warnings);
     }
     model.initial_pc = None;
-    model.processes = processes.to_vec();
-    model.fair = parsed.algorithm.fairness == Fairness::Weak;
+    model.processes = processes
+        .iter()
+        .map(|process| effective_process(parsed, process, options))
+        .collect::<Result<_, _>>()?;
+    model.fair = options.fairness != FairnessOption::None
+        && (options.fairness == FairnessOption::Next
+            || parsed.algorithm.fairness == Fairness::Weak);
     Ok(model)
 }
 

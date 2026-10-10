@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native process-owned procedure fairness for bounded finite callers: reachable
+  WF/SF clauses, process/procedure label modifiers and pinned option precedence,
+  with formula/closure quotas. Scoped renaming and strict namespace witnesses
+  remain separately pending. See `docs/pluscal-procedure-fairness.md`.
+
 - Multiple disjoint finite PlusCal process blocks can call shared ordinary,
   recursive and self-tail procedures in both syntaxes. Owned slots/stack
   initialize over union ProcSet; procedure actions are generated once and

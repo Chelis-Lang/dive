@@ -114,7 +114,7 @@ fn retained(
 }
 #[test]
 fn retained_multiple_process_procedure_artifacts_match() -> Result<(), Box<dyn std::error::Error>> {
-    retained("", 166, 94, 6)
+    retained("", 166, 106, 6)
 }
 #[test]
 fn shared_actions_and_storage_are_not_multiplied_by_process_count()
@@ -143,11 +143,9 @@ fn shared_actions_and_storage_are_not_multiplied_by_process_count()
     Ok(())
 }
 #[test]
-fn scopes_fairness_and_overlapping_domains_remain_explicit()
--> Result<(), Box<dyn std::error::Error>> {
+fn scopes_and_overlapping_domains_remain_explicit() -> Result<(), Box<dyn std::error::Error>> {
     for source in [
         "--algorithm A variable x=0; procedure P(a=0) begin F:x:=a; R:return; end procedure; process One=1 begin L:call P(1); E:skip; end process; process Two=1 begin M:call P(2); N:skip; end process; end algorithm",
-        "--algorithm A variable x=0; procedure P(a=0) begin F:x:=a; R:return; end procedure; fair process One=1 begin L:call P(1); E:skip; end process; process Two=2 begin M:call P(2); N:skip; end process; end algorithm",
         "--algorithm A variable x=0; procedure P(a=0) begin F:x:=y; R:return; end procedure; process One=1 variable y=0; begin L:call P(1); E:skip; end process; process Two=2 begin M:call P(2); N:skip; end process; end algorithm",
     ] {
         let error = translate(source, &TranslationOptions::default())

@@ -6,7 +6,7 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{Assignment, BindingKind, Expr, Fairness, Span},
+    ast::{Assignment, BindingKind, Expr, Span},
 };
 use std::collections::BTreeSet;
 
@@ -35,79 +35,6 @@ fn conjunction(clauses: &[String], force: bool) -> String {
         .join("\n")
 }
 impl Emitter<'_> {
-    fn process_fairness(&self) -> Option<String> {
-        let process = self.process?;
-        let xf = match process.fairness {
-            Fairness::Unfair => return None,
-            Fairness::Weak => "WF",
-            Fairness::Strong => "SF",
-        };
-        let mut labels: Vec<_> = self
-            .parsed
-            .statements
-            .iter()
-            .filter(|s| s.span.start >= process.span.start && s.span.end <= process.span.end)
-            .filter_map(|s| s.label.as_ref())
-            .collect();
-        labels.sort_by_key(|label| label.span.start);
-        let minus: Vec<_> = labels
-            .iter()
-            .filter(|l| l.modifier == Some('-'))
-            .map(|l| format!("\"{}\"", l.name.text))
-            .collect();
-        let plus: Vec<_> = labels
-            .iter()
-            .filter(|l| l.modifier == Some('+'))
-            .map(|l| format!("SF_vars({}{})", l.name.text, self.parameter()))
-            .collect();
-        let guard = match minus.as_slice() {
-            [] => String::new(),
-            [only] => format!("(pc[{}] # {only}) /\\ ", self.process_id()),
-            _ => format!(
-                "(pc[{}] \\notin {{{}}}) /\\ ",
-                self.process_id(),
-                minus.join(", ")
-            ),
-        };
-        let body = format!(
-            "{xf}_vars({guard}{}{})",
-            process.name.text,
-            self.parameter()
-        );
-        let extra =
-            (process.fairness == Fairness::Weak && !plus.is_empty()).then(|| plus.join(" /\\ "));
-        let prefix = if process.id.kind == BindingKind::Member {
-            // The pinned emitter retains the original single-line ID expression
-            // here. Its width affects conjunction grouping, not merely trivia.
-            let source = &self.parsed.source
-                [process.id.expression.span.start..process.id.expression.span.end];
-            format!("\\A self \\in {source} : ")
-        } else {
-            String::new()
-        };
-        let single = extra
-            .as_ref()
-            .map_or_else(|| body.clone(), |sf| format!("{body} /\\ {sf}"));
-        // ProcessFairness.singleLineWidth omits the sole prefix line and the
-        // conjunction separator. Preserve that measured grouping decision;
-        // equal significant tokens alone do not prove equal junction scopes.
-        let width =
-            body.encode_utf16().count() + extra.as_ref().map_or(0, |sf| sf.encode_utf16().count());
-        if extra.is_none() || 11 + width <= 78 {
-            Some(format!("{prefix}{single}"))
-        } else {
-            let col = 11 + prefix.encode_utf16().count();
-            if col + single.encode_utf16().count() + 3 <= 78 {
-                Some(format!("{prefix}/\\ {single}"))
-            } else {
-                Some(format!(
-                    "{prefix}/\\ {body}\n{}/\\ {}",
-                    " ".repeat(col),
-                    extra.unwrap_or_default()
-                ))
-            }
-        }
-    }
     fn procedure_slot(&self, name: &str) -> bool {
         !self.model.processes.is_empty()
             && !self.model.procedures.is_empty()
@@ -1245,30 +1172,35 @@ pub(super) fn generate(
         }
         append(format!("Next == {}\n\n", actions.join(" \\/ ")), span)?;
     }
-    let fairness: Vec<_> = model
-        .processes
-        .iter()
-        .filter_map(|process| {
-            Emitter {
-                process: Some(process),
-                ..emitter
-            }
-            .process_fairness()
-        })
-        .collect();
-    let spec = if model.fair || !fairness.is_empty() {
-        let mut spec = "/\\ Init /\\ [][Next]_vars".to_owned();
-        if model.fair {
-            spec.push_str("\n        /\\ WF_vars(Next)");
-        }
-        for formula in fairness {
-            spec.push_str("\n        /\\ ");
-            spec.push_str(&formula);
-        }
-        spec
+    let mut spec = if model.fair
+        || model
+            .processes
+            .iter()
+            .any(|p| p.fairness != crate::ast::Fairness::Unfair)
+    {
+        "/\\ Init /\\ [][Next]_vars".to_owned()
     } else {
         "Init /\\ [][Next]_vars".into()
     };
+    if model.fair {
+        spec.push_str("\n        /\\ WF_vars(Next)");
+    }
+    let mut fairness_work = 0;
+    for process in &model.processes {
+        if let Some(formula) =
+            super::fairness::formula(parsed, model, process, emitter.limit, &mut fairness_work)?
+        {
+            if 12 + formula.len() > emitter.limit.saturating_sub(spec.len()) {
+                return Err(failure(
+                    process.span,
+                    Code::Resource,
+                    "PlusCal generated-byte limit reached across fairness clauses",
+                ));
+            }
+            spec.push_str("\n        /\\ ");
+            spec.push_str(&formula);
+        }
+    }
     append(format!("Spec == {spec}\n\n"), span)?;
     if model.stutter {
         append(

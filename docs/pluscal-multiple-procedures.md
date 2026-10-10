@@ -106,8 +106,7 @@ not override this pinned scheduling order. Global `--fair algorithm` generates
 
 Overlapping or unproved domains, duplicate/disambiguated scopes, cross-process
 local reads and procedure references to process-local storage remain named
-refusals. Process-declared/option fairness, procedure modifiers, unproved macro
-bindings and historical options such as `-termination` are not admitted here.
+refusals. Unproved macro bindings and historical options such as `-termination` are not admitted here.
 The unimplemented command-line `-termination` option exits 3 with a named
 stderr refusal before loading the module, even with `--output json`; no artifact
 report is produced. Wrong arity, unknown callee and invalid label transfers are
@@ -145,3 +144,8 @@ requested 1/4/8 workers in both stores: 74 complete searches and 68 witnesses
 whose strict replay remains pending (66 invariant, two deadlock). The 68 valid
 canonical-profile replays and 272 rejected mutants are separate qualified
 evidence, never strict TLC witness credit or liveness certification.
+
+Process-declared/option fairness and process-owned procedure modifiers are
+extended by the [fair procedure increment](pluscal-procedure-fairness.md).
+The earlier unfair-only capture and its dispositions remain historical evidence;
+fairness generation alone does not certify liveness execution.

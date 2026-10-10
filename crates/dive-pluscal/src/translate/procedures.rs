@@ -17,13 +17,26 @@ fn refusal(span: Span, message: &str) -> TranslationError {
     )
 }
 
+pub(super) fn normalize(
+    parsed: &Expanded,
+    options: &TranslationOptions,
+) -> Result<lower::Model, TranslationError> {
+    normalize_context(parsed, options, false)
+}
+pub(super) fn normalize_process(
+    parsed: &Expanded,
+    options: &TranslationOptions,
+) -> Result<lower::Model, TranslationError> {
+    normalize_context(parsed, options, true)
+}
 #[allow(
     clippy::too_many_lines,
     reason = "one bounded admission pass proves every namespace before call lowering"
 )]
-pub(super) fn normalize(
+fn normalize_context(
     parsed: &Expanded,
     options: &TranslationOptions,
+    process: bool,
 ) -> Result<lower::Model, TranslationError> {
     let Body::Sequential(_) = &parsed.algorithm.body else {
         return Err(refusal(
@@ -98,7 +111,7 @@ pub(super) fn normalize(
     let mut labels = BTreeSet::new();
     for statement in &parsed.statements {
         if let Some(label) = &statement.label {
-            if label.modifier.is_some() {
+            if label.modifier.is_some() && !process {
                 return Err(refusal(label.span, "procedure label fairness modifiers"));
             }
             if !labels.insert(label.name.text.as_str())

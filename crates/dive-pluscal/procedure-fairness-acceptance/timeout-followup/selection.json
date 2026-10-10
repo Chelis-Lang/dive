@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "selected": 1,
+  "rows": [
+    {
+      "id": "FairProcedure_C_constant_option_wf",
+      "options": [
+        "-wf"
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 //! [`translate`] supports bounded sequential and disjoint finite-process paths, including reference labels;
 //! disjoint sequential procedures (including recursion), disjoint finite process-owned
 //! shared procedures and bounded macros are admitted. Unproved process/procedure scopes,
-//! combined fairness, names and branch-internal labels
+//! scoped names, sequential procedure modifiers and branch-internal labels
 //! remain separate pending stages. Expression slices retain counted nesting and are
 //! neither syntax-checked as TLA+ expressions nor evaluated.
 //! No Java runtime is used by this crate.

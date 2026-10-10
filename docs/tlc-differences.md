@@ -1282,3 +1282,15 @@ an empty process operator and a `"null"` initial program-counter label; SANY
 rejects the generated module. Native normalization refuses the empty body by
 name. These observations explain why successful translation is not enough for
 an admitted usable module; they are not silently repaired.
+
+**D-008 process-owned fairness update:** finite, disjoint process callers now
+receive WF/SF clauses for their reachable procedures in the pinned call order.
+`Entry: +` adds a strong-fairness clause under a weak caller; `Entry: -` guards
+that procedure's caller-owned pc location. Original `Entry+:` controls remain
+source grammar rejections; the corrected syntax was captured separately before
+implementation. `-nof` suppresses all fairness for process algorithms. Native
+formula construction and reachability have explicit bounds, returning a resource
+failure rather than silently dropping a clause. Generation does not prove
+liveness or remove strict #124 namespace replay restrictions. See
+[fair procedure use](pluscal-procedure-fairness.md) for runnable C/P and Rust
+examples and the complete supported/refused contract.

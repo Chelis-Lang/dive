@@ -300,3 +300,12 @@ call actions leave `self` unbound. An empty P process similarly produces invalid
 zero-exit output. Native public admission rejects these without adopting a
 corrected-output default; all source/raw outputs and dispositions stay selected.
 See the minimal user log examples and shared procedure acceptance manifest.
+
+**D-008 PlusCal procedure fairness status:** native bounded finite processes can
+now generate caller-owned weak/strong fairness for syntactically reachable
+procedures, including process/procedure label modifiers and pinned fairness
+options. The [fair procedure guide](pluscal-procedure-fairness.md) describes exact
+use and admission. Generation is nonproof; strict runtime-name witness replay,
+scoped renaming, unproved multiline fairness domains and sequential procedure
+modifiers remain separately refused or pending. Original malformed modifier
+controls and primary SANY-invalid artifacts remain uncredited historical evidence.

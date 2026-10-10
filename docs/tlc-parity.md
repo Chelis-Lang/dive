@@ -333,3 +333,14 @@ scheduling are source-backed. Invalid primary outputs and named scope/fairness
 refusals remain visible. Artifact, finite execution, strict namespace-pending
 and qualified canonical witness evidence stay separate. F-034/F-035 remain
 partial and audit-required, with no family denominator change.
+
+### Bounded process-owned procedure fairness
+
+The [fair procedure guide](pluscal-procedure-fairness.md) extends the native
+finite, disjoint caller path with per-caller transitive WF/SF and label modifiers.
+It preserves 328 original cases, 146 separately corrected modifier cases and six
+separate timeout follow-ups. These stages do not certify full F-034/F-035:
+SANY-invalid primary artifacts remain uncredited, fair Spec generation is
+nonproof, and strict #124 witness replay stays separate from qualified canonical
+replay. Scoped renaming, sequential procedure modifier interactions and full
+historical option/format/map contracts remain pending.

@@ -1,7 +1,8 @@
 # Procedures called by a finite PlusCal process
 
 `dive translate FILE.tla --output json` now admits procedure calls from one
-finite process block with an unfair process declaration in C or P syntax.
+finite process block in C or P syntax. Process/procedure fairness is extended
+by the [fair procedure guide](pluscal-procedure-fairness.md).
 Procedure parameters, locals,
 stack and program counter belong to a process ID. Ordinary and recursive calls,
 return, and adjacent self-tail call/return use that owner's slots. This bounded
@@ -101,11 +102,14 @@ implicit index. Internal generated transfers still index the owned stack.
 
 ## Supported limits and refusals
 
-This increment supports one finite process block and disjoint procedure names,
-parameter/local/global names and labels. Multiple process blocks with procedures,
-procedure references to process-local storage, process-declared or option-selected fairness,
-automatic procedure labels, label modifiers, scoped renaming and unproved
-macro/binder interactions remain named refusals. Wrong call arity, unknown
+The original captured increment covers one finite process block and disjoint
+procedure, parameter/local/global names and labels. Shared callers are extended
+by [multiple process procedures](pluscal-multiple-procedures.md); owned modifiers
+and declared/option fairness by [fair procedures](pluscal-procedure-fairness.md).
+Procedure references to process-local storage, unproved fairness domain layout,
+scoped renaming and unproved macro/binder interactions remain named refusals.
+Automatic-label interactions need their own proved admission; the examples here
+use explicit labels. Wrong call arity, unknown
 callee and missing-label transfers are source rejections. Falling off a
 procedure produces `pc[id]="Error"` as in the reference; no return is invented.
 

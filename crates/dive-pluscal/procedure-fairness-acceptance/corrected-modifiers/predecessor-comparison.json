@@ -1,0 +1,1197 @@
+{
+  "schema_version": 1,
+  "stage": "process-procedure-fairness-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "752b9f879ce7d5d0f5d73ccb2a1f8dd676a513c84f7dedf387857c28e57d306c",
+  "comparator_sha256": "c392c74f6c7c1e69e5ad8c36d05add32dc99de5329574a4c25b95800ff958b20",
+  "native_sha256": "a1cc1879e75e4abd131b732f750ae1b30151f81f1446f492d7ee9a077bba31eb",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "unproved-scoped-renaming",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 146,
+  "summary": {
+    "native-refusal": 145,
+    "oracle-error": 1
+  },
+  "rows": [
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constant_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_reach_nested_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_constants_reach_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_member_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_reach_nested_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_C_mixed_reach_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constant_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_reach_nested_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_constants_reach_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_member_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_F_rplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fminus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fminus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fminus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fplus_strong",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fplus_unfair",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure label fairness modifiers",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_Fplus_weak",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_mixed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_proc_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "timeout",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "timeout",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "timeout",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "timeout",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_nested_modifiers",
+      "primary": "timeout",
+      "primary_sany": null,
+      "outcome": "oracle-error",
+      "reason": "primary translator did not return an interpretable result",
+      "native_code": "DIVE-P0090"
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/procedure fairness ownership",
+      "code": "DIVE-P0090"
+    }
+  ]
+}
