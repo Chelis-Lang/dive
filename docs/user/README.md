@@ -14,7 +14,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |
 | Use iterative deepening | [DFID](dfid.md) | Bounded pure safety; inspect completion certificate |
-| Translate algorithms | [PlusCal](pluscal.md) | Admitted C/P sequential, finite processes and bounded macros |
+| Translate algorithms | [PlusCal](pluscal.md) | Admitted C/P sequential, finite processes and bounded macros and one sequential procedure |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |

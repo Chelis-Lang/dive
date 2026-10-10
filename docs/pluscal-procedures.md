@@ -116,3 +116,14 @@ quota is global across main/procedure output. Recursive calls, source renaming, 
 automatic labels and macro/procedure expansion remain pending. Historical
 options, pretty width, rewrite/checksum and mapping-format parity are pending.
 F-034/F-035 remain partial; see [ADR 0041](decisions/0041-pluscal-sequential-procedure-calls.md).
+
+Fresh integrated-source verification repeats all 84 rows, 48 admitted CST/SANY
+artifacts and 76 finite models (456 width/store controls). It retains 46 strict
+complete agreements and 30 strict witness refusals; separately, canonical replay
+validates those 30 witnesses and rejects 120 mutants. Eight public invalid-primary
+controls, seven main-admission controls and 39 document mutants pass. The
+833-test workspace gate, CM1's 21 models and ValidationTestSuite's 16 models
+pass at 1/4/8 workers. Both C/P CLI examples and both compiled Rust examples
+were executed on the recorded source. The
+[current verification receipt](../conformance/probes/native-parity-integration/current-controls/procedures-integration/verification.json)
+keeps these observations separate from the immutable original procedure study.
