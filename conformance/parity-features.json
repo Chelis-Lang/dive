@@ -403,7 +403,8 @@
         66,
         107,
         127,
-        130
+        130,
+        136
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -421,7 +422,12 @@
       "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
-      ]
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
     },
     {
       "id": "F-020",
@@ -437,7 +443,8 @@
         108,
         109,
         117,
-        130
+        130,
+        136
       ],
       "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
       "interactions": [
@@ -454,7 +461,12 @@
       ],
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
-      ]
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
     },
     {
       "id": "F-021",
@@ -468,7 +480,8 @@
       "issues": [
         63,
         127,
-        130
+        130,
+        136
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [
@@ -486,7 +499,12 @@
       "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
-      ]
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
     },
     {
       "id": "F-022",
@@ -498,7 +516,8 @@
       "rust_evidence": "crates/dive-liveness/src/analyze.rs",
       "conformance_evidence": "crates/dive-liveness/tests/lassos.rs",
       "issues": [
-        66
+        66,
+        136
       ],
       "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
       "interactions": [
@@ -506,7 +525,12 @@
         "F-020",
         "F-021",
         "F-029"
-      ]
+      ],
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-tableau/README.md",
+        "crates/dive-liveness/tests/tlc_tableau.rs"
+      ],
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
     },
     {
       "id": "F-023",
