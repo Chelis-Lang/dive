@@ -407,9 +407,12 @@
       ],
       "additional_evidence": [
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-021",
@@ -436,9 +439,12 @@
       ],
       "additional_evidence": [
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-022",
@@ -463,9 +469,12 @@
       ],
       "additional_evidence": [
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-023",
@@ -488,9 +497,12 @@
       ],
       "additional_evidence": [
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-024",

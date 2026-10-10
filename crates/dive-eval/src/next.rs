@@ -139,6 +139,16 @@ impl Action {
         self.expr
     }
 
+    /// The captured evaluation context, for conservative backend preflight.
+    /// Reading the context does not evaluate or force any captured value.
+    #[must_use]
+    pub fn scope(&self) -> Scope {
+        Scope {
+            env: self.env.clone(),
+            wrapper: None,
+        }
+    }
+
     /// What the action is named after.
     #[must_use]
     pub fn name(&self) -> ActionName {

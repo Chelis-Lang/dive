@@ -274,6 +274,34 @@ impl Evaluator {
         self.core.consts.get(constant.index()).cloned().flatten()
     }
 
+    /// Refuses a bound model whose IR or name table belongs to another evaluator.
+    /// This identity check reads metadata only and evaluates no captured value.
+    /// General scope/IR construction admission is a separate obligation.
+    ///
+    /// # Errors
+    /// Either supplied metadata arena is not this evaluator's arena.
+    ///
+    /// ```
+    /// use std::sync::Arc;
+    /// use dive_eval::{Evaluator, Model, Options};
+    /// let a = dive_sema::analyze_source("M.tla", "---- MODULE M ----\nX == TRUE\n====\n", &Default::default());
+    /// let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+    /// let model = Model::new(ir.clone());
+    /// let names = model.names.clone();
+    /// let ev = Evaluator::new(model, Options::tlc());
+    /// assert!(ev.validate_model_context(&ir, &names).is_ok());
+    /// let foreign = Arc::new(dive_value::Interner::new());
+    /// assert!(ev.validate_model_context(&ir, &foreign).is_err());
+    /// ```
+    pub fn validate_model_context(&self, ir: &Arc<Ir>, names: &Arc<Interner>) -> Result<()> {
+        if !Arc::ptr_eq(ir, &self.core.ir) || !Arc::ptr_eq(names, &self.core.names) {
+            return Err(EvalError::unsupported(
+                "model metadata belongs to another evaluator context",
+            ));
+        }
+        Ok(())
+    }
+
     /// The options.
     #[must_use]
     pub fn options(&self) -> &Options {

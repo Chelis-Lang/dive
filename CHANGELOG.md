@@ -5,6 +5,13 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded concrete temporal graph stage: retain original accepted successor values
+  through the actual deterministic worker pool, commit one null-tableau OOS in
+  TLC slot order and expose persisted bin/PEM graph inputs. All graph results
+  remain explicit non-verdict evidence; wider tableau/schedule/lasso work remains
+  refused. Scoped capture admission rejects opaque effects and malformed IDs
+  before workers execute; fixed structural bounds are unchanged.
+
 - Add bounded diagnostic concrete phase-L receipts: TLC successor slots, first
   representatives, logical capacity history and ordered null-tableau bins with
   partial error/work evidence. Initial particle consistency is separate. Wider

@@ -573,7 +573,7 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) generated: u64,
     pub(crate) depth: u64,
     pub(crate) initial_generated: u64,
-    capture: Option<Collector<S::Key>>,
+    pub(crate) capture: Option<Collector<S::Key>>,
 }
 
 impl<S: Keyed> Search<'_, S> {
@@ -1246,6 +1246,19 @@ pub(crate) fn search_graph(
     };
     outcome.workers.reason = Some("behavior graph capture currently uses the inline engine".into());
     outcome
+}
+
+/// Capture accepted concrete edges through the selected actual safety pool.
+pub(crate) fn search_graph_parallel(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    limits: crate::capture::Limits,
+) -> Outcome {
+    match opts.store {
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits)),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits)),
+    }
 }
 
 #[allow(

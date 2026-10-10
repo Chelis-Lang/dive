@@ -1,0 +1,6 @@
+{
+  "observation": "657 tests/full gate passed before final audit found compile planned before capture ownership guard; no model proof claimed",
+  "source_sha256": {
+    "completed-gate.log": "f4259b1b39dec24d43c8afc69667304ef29baeea8f079cdea00d6a76553a5c03"
+  }
+}

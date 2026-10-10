@@ -1,0 +1,3349 @@
+{
+  "schema_version": 1,
+  "tlc_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "community_commit": "78b98ae9939d2fe7a6615e9a4b21dd6c23ef8ff3",
+  "scope": "literal source/registry surfaces, not certified semantic features",
+  "tlc_cli": {
+    "source": {
+      "path": "tlatools/org.lamport.tlatools/src/tlc2/TLC.java",
+      "sha256": "efe84b43c7c2f4445da756b7d6fc89ddbc9cedb54546f87f074f15e6d23bdb92"
+    },
+    "rows": [
+      {
+        "name": "-aril",
+        "lines": [
+          947
+        ]
+      },
+      {
+        "name": "-checkpoint",
+        "lines": [
+          883
+        ]
+      },
+      {
+        "name": "-cleanup",
+        "lines": [
+          512
+        ]
+      },
+      {
+        "name": "-config",
+        "lines": [
+          684
+        ]
+      },
+      {
+        "name": "-continue",
+        "lines": [
+          569
+        ]
+      },
+      {
+        "name": "-coverage",
+        "lines": [
+          857
+        ]
+      },
+      {
+        "name": "-deadlock",
+        "lines": [
+          508
+        ]
+      },
+      {
+        "name": "-debug",
+        "lines": [
+          577
+        ]
+      },
+      {
+        "name": "-debugger",
+        "lines": [
+          616
+        ]
+      },
+      {
+        "name": "-depth",
+        "lines": [
+          908
+        ]
+      },
+      {
+        "name": "-dfid",
+        "lines": [
+          1061
+        ]
+      },
+      {
+        "name": "-difftrace",
+        "lines": [
+          504
+        ]
+      },
+      {
+        "name": "-dump",
+        "lines": [
+          700
+        ]
+      },
+      {
+        "name": "-dumpTrace",
+        "lines": [
+          766
+        ]
+      },
+      {
+        "name": "-fp",
+        "lines": [
+          1086
+        ]
+      },
+      {
+        "name": "-fpbits",
+        "lines": [
+          1157
+        ]
+      },
+      {
+        "name": "-fpmem",
+        "lines": [
+          1111
+        ]
+      },
+      {
+        "name": "-generate",
+        "lines": [
+          465,
+          467
+        ]
+      },
+      {
+        "name": "-generateSpecTE",
+        "lines": [
+          636
+        ]
+      },
+      {
+        "name": "-gzip",
+        "lines": [
+          561
+        ]
+      },
+      {
+        "name": "-h",
+        "lines": [
+          667
+        ]
+      },
+      {
+        "name": "-help",
+        "lines": [
+          667
+        ]
+      },
+      {
+        "name": "-inv",
+        "lines": [
+          581
+        ]
+      },
+      {
+        "name": "-invlevel",
+        "lines": [
+          599
+        ]
+      },
+      {
+        "name": "-lncheck",
+        "lines": [
+          672
+        ]
+      },
+      {
+        "name": "-loadTrace",
+        "lines": [
+          739
+        ]
+      },
+      {
+        "name": "-maxSetSize",
+        "lines": [
+          966
+        ]
+      },
+      {
+        "name": "-messagesAsErrors",
+        "lines": [
+          544
+        ]
+      },
+      {
+        "name": "-metadir",
+        "lines": [
+          1005
+        ]
+      },
+      {
+        "name": "-modelcheck",
+        "lines": [
+          502
+        ]
+      },
+      {
+        "name": "-noGenerateSpecTE",
+        "lines": [
+          642
+        ]
+      },
+      {
+        "name": "-noGenerateSpecTEBin",
+        "lines": [
+          646
+        ]
+      },
+      {
+        "name": "-noTE",
+        "lines": [
+          642
+        ]
+      },
+      {
+        "name": "-noTEBin",
+        "lines": [
+          646
+        ]
+      },
+      {
+        "name": "-nowarning",
+        "lines": [
+          516
+        ]
+      },
+      {
+        "name": "-postCondition",
+        "lines": [
+          817
+        ]
+      },
+      {
+        "name": "-recover",
+        "lines": [
+          994
+        ]
+      },
+      {
+        "name": "-seed",
+        "lines": [
+          927
+        ]
+      },
+      {
+        "name": "-simulate",
+        "lines": [
+          465
+        ]
+      },
+      {
+        "name": "-suppressMessages",
+        "lines": [
+          520
+        ]
+      },
+      {
+        "name": "-teSpecOutDir",
+        "lines": [
+          650
+        ]
+      },
+      {
+        "name": "-terse",
+        "lines": [
+          565
+        ]
+      },
+      {
+        "name": "-tool",
+        "lines": [
+          632
+        ]
+      },
+      {
+        "name": "-userFile",
+        "lines": [
+          1016
+        ]
+      },
+      {
+        "name": "-view",
+        "lines": [
+          573
+        ]
+      },
+      {
+        "name": "-workers",
+        "lines": [
+          1034
+        ]
+      }
+    ]
+  },
+  "pluscal_cli": {
+    "source": {
+      "path": "tlatools/org.lamport.tlatools/src/pcal/trans.java",
+      "sha256": "c7572145bf41b8e36a6a7295e6557d5c509ec36d43db8af96869b57a59b861e0"
+    },
+    "rows": [
+      {
+        "name": "-debug",
+        "lines": [
+          1589
+        ]
+      },
+      {
+        "name": "-help",
+        "lines": [
+          1517
+        ]
+      },
+      {
+        "name": "-label",
+        "lines": [
+          1656
+        ]
+      },
+      {
+        "name": "-labelRoot",
+        "lines": [
+          1663
+        ]
+      },
+      {
+        "name": "-lineWidth",
+        "lines": [
+          1694
+        ]
+      },
+      {
+        "name": "-myspec",
+        "lines": [
+          1547
+        ]
+      },
+      {
+        "name": "-myspec2",
+        "lines": [
+          1575
+        ]
+      },
+      {
+        "name": "-noDoneDisjunct",
+        "lines": [
+          1604
+        ]
+      },
+      {
+        "name": "-nocfg",
+        "lines": [
+          1601
+        ]
+      },
+      {
+        "name": "-nof",
+        "lines": [
+          1643
+        ]
+      },
+      {
+        "name": "-noold",
+        "lines": [
+          1598
+        ]
+      },
+      {
+        "name": "-reportLabels",
+        "lines": [
+          1659
+        ]
+      },
+      {
+        "name": "-sf",
+        "lines": [
+          1619
+        ]
+      },
+      {
+        "name": "-spec",
+        "lines": [
+          1533
+        ]
+      },
+      {
+        "name": "-spec2",
+        "lines": [
+          1561
+        ]
+      },
+      {
+        "name": "-termination",
+        "lines": [
+          1595
+        ]
+      },
+      {
+        "name": "-unixEOL",
+        "lines": [
+          1592
+        ]
+      },
+      {
+        "name": "-version",
+        "lines": [
+          1682
+        ]
+      },
+      {
+        "name": "-wf",
+        "lines": [
+          1607
+        ]
+      },
+      {
+        "name": "-wfNext",
+        "lines": [
+          1631
+        ]
+      },
+      {
+        "name": "-writeAST",
+        "lines": [
+          1526
+        ]
+      }
+    ]
+  },
+  "sany_cli": {
+    "source": {
+      "path": "tlatools/org.lamport.tlatools/src/tla2sany/drivers/SANY.java",
+      "sha256": "8d39bdc141555dfacba44f6b3aa30e4fa9d50d60f66c63decad3f568523c6707"
+    },
+    "rows": [
+      {
+        "name": "-D",
+        "lines": [
+          629
+        ]
+      },
+      {
+        "name": "-G",
+        "lines": [
+          627
+        ]
+      },
+      {
+        "name": "-L",
+        "lines": [
+          625
+        ]
+      },
+      {
+        "name": "-S",
+        "lines": [
+          623
+        ]
+      },
+      {
+        "name": "-STAT",
+        "lines": [
+          631
+        ]
+      },
+      {
+        "name": "-d",
+        "lines": [
+          629
+        ]
+      },
+      {
+        "name": "-error-codes",
+        "lines": [
+          635
+        ]
+      },
+      {
+        "name": "-g",
+        "lines": [
+          627
+        ]
+      },
+      {
+        "name": "-help",
+        "lines": [
+          683
+        ]
+      },
+      {
+        "name": "-l",
+        "lines": [
+          625
+        ]
+      },
+      {
+        "name": "-messagesaserrors",
+        "lines": [
+          662
+        ]
+      },
+      {
+        "name": "-s",
+        "lines": [
+          623
+        ]
+      },
+      {
+        "name": "-stat",
+        "lines": [
+          631
+        ]
+      },
+      {
+        "name": "-suppressmessages",
+        "lines": [
+          637
+        ]
+      }
+    ]
+  },
+  "configuration": {
+    "source": {
+      "path": "tlatools/org.lamport.tlatools/src/tlc2/tool/impl/ModelConfig.java",
+      "sha256": "80a69d092cd6b145cc4e6f81ec2d7cc5baba579dceb21d0006c5804aa47de250"
+    },
+    "rows": [
+      {
+        "name": "CONSTANT",
+        "symbol": "Constant"
+      },
+      {
+        "name": "CONSTANTS",
+        "symbol": "Constants"
+      },
+      {
+        "name": "CONSTRAINT",
+        "symbol": "Constraint"
+      },
+      {
+        "name": "CONSTRAINTS",
+        "symbol": "Constraints"
+      },
+      {
+        "name": "ACTION_CONSTRAINT",
+        "symbol": "ActionConstraint"
+      },
+      {
+        "name": "ACTION_CONSTRAINTS",
+        "symbol": "ActionConstraints"
+      },
+      {
+        "name": "INVARIANT",
+        "symbol": "Invariant"
+      },
+      {
+        "name": "INVARIANTS",
+        "symbol": "Invariants"
+      },
+      {
+        "name": "INIT",
+        "symbol": "Init"
+      },
+      {
+        "name": "NEXT",
+        "symbol": "Next"
+      },
+      {
+        "name": "VIEW",
+        "symbol": "View"
+      },
+      {
+        "name": "SYMMETRY",
+        "symbol": "Symmetry"
+      },
+      {
+        "name": "SPECIFICATION",
+        "symbol": "Spec"
+      },
+      {
+        "name": "PROPERTY",
+        "symbol": "Prop"
+      },
+      {
+        "name": "PROPERTIES",
+        "symbol": "Props"
+      },
+      {
+        "name": "ALIAS",
+        "symbol": "Alias"
+      },
+      {
+        "name": "POSTCONDITION",
+        "symbol": "PostCondition"
+      },
+      {
+        "name": "POSTCONDITIONS",
+        "symbol": "PostConditions"
+      },
+      {
+        "name": "_PERIODIC",
+        "symbol": "Periodic"
+      },
+      {
+        "name": "_RL_REWARD",
+        "symbol": "RLReward"
+      },
+      {
+        "name": "_POSSIBLE",
+        "symbol": "Possible"
+      },
+      {
+        "name": "CHECK_DEADLOCK",
+        "symbol": "CheckDeadlock"
+      }
+    ]
+  },
+  "builtins": {
+    "source": {
+      "path": "tlatools/org.lamport.tlatools/src/tla2sany/semantic/BuiltInOperators.java",
+      "sha256": "7950db2953bacf99e9846008c84ad23122bf9cee6d76988ff738215d7496fcee"
+    },
+    "rows": [
+      {
+        "name": "STRING",
+        "arity": 0,
+        "level": 0,
+        "line": 81
+      },
+      {
+        "name": "FALSE",
+        "arity": 0,
+        "level": 0,
+        "line": 82
+      },
+      {
+        "name": "TRUE",
+        "arity": 0,
+        "level": 0,
+        "line": 83
+      },
+      {
+        "name": "BOOLEAN",
+        "arity": 0,
+        "level": 0,
+        "line": 84
+      },
+      {
+        "name": "=",
+        "arity": 2,
+        "level": 0,
+        "line": 85
+      },
+      {
+        "name": "/=",
+        "arity": 2,
+        "level": 0,
+        "line": 86
+      },
+      {
+        "name": ".",
+        "arity": 2,
+        "level": 0,
+        "line": 88
+      },
+      {
+        "name": "'",
+        "arity": 1,
+        "level": 2,
+        "line": 89
+      },
+      {
+        "name": "\\lnot",
+        "arity": 1,
+        "level": 0,
+        "line": 90
+      },
+      {
+        "name": "\\neg",
+        "arity": 1,
+        "level": 0,
+        "line": 91
+      },
+      {
+        "name": "\\land",
+        "arity": 2,
+        "level": 0,
+        "line": 92
+      },
+      {
+        "name": "\\lor",
+        "arity": 2,
+        "level": 0,
+        "line": 93
+      },
+      {
+        "name": "\\equiv",
+        "arity": 2,
+        "level": 0,
+        "line": 94
+      },
+      {
+        "name": "=>",
+        "arity": 2,
+        "level": 0,
+        "line": 95
+      },
+      {
+        "name": "SUBSET",
+        "arity": 1,
+        "level": 0,
+        "line": 96
+      },
+      {
+        "name": "UNION",
+        "arity": 1,
+        "level": 0,
+        "line": 97
+      },
+      {
+        "name": "DOMAIN",
+        "arity": 1,
+        "level": 0,
+        "line": 98
+      },
+      {
+        "name": "\\subseteq",
+        "arity": 2,
+        "level": 0,
+        "line": 99
+      },
+      {
+        "name": "\\in",
+        "arity": 2,
+        "level": 0,
+        "line": 100
+      },
+      {
+        "name": "\\notin",
+        "arity": 2,
+        "level": 0,
+        "line": 101
+      },
+      {
+        "name": "\\",
+        "arity": 2,
+        "level": 0,
+        "line": 102
+      },
+      {
+        "name": "\\intersect",
+        "arity": 2,
+        "level": 0,
+        "line": 103
+      },
+      {
+        "name": "\\union",
+        "arity": 2,
+        "level": 0,
+        "line": 104
+      },
+      {
+        "name": "\\times",
+        "arity": 2,
+        "level": 0,
+        "line": 105
+      },
+      {
+        "name": "~>",
+        "arity": 2,
+        "level": 3,
+        "line": 106
+      },
+      {
+        "name": "[]",
+        "arity": 1,
+        "level": 3,
+        "line": 107
+      },
+      {
+        "name": "<>",
+        "arity": 1,
+        "level": 3,
+        "line": 108
+      },
+      {
+        "name": "ENABLED",
+        "arity": 1,
+        "level": 1,
+        "line": 109
+      },
+      {
+        "name": "UNCHANGED",
+        "arity": 1,
+        "level": 2,
+        "line": 110
+      },
+      {
+        "name": "\\cdot",
+        "arity": 2,
+        "level": 2,
+        "line": 111
+      },
+      {
+        "name": "-+->",
+        "arity": 2,
+        "level": 3,
+        "line": 112
+      },
+      {
+        "name": "$AngleAct",
+        "arity": 2,
+        "level": 2,
+        "line": 113
+      },
+      {
+        "name": "$BoundedChoose",
+        "arity": -1,
+        "level": 0,
+        "line": 114
+      },
+      {
+        "name": "$BoundedExists",
+        "arity": -1,
+        "level": 0,
+        "line": 115
+      },
+      {
+        "name": "$BoundedForall",
+        "arity": -1,
+        "level": 0,
+        "line": 116
+      },
+      {
+        "name": "$CartesianProd",
+        "arity": -1,
+        "level": 0,
+        "line": 117
+      },
+      {
+        "name": "$Case",
+        "arity": -1,
+        "level": 0,
+        "line": 118
+      },
+      {
+        "name": "$ConjList",
+        "arity": -1,
+        "level": 0,
+        "line": 119
+      },
+      {
+        "name": "$DisjList",
+        "arity": -1,
+        "level": 0,
+        "line": 120
+      },
+      {
+        "name": "$Except",
+        "arity": -1,
+        "level": 0,
+        "line": 121
+      },
+      {
+        "name": "$FcnApply",
+        "arity": 2,
+        "level": 0,
+        "line": 122
+      },
+      {
+        "name": "$FcnConstructor",
+        "arity": -1,
+        "level": 0,
+        "line": 123
+      },
+      {
+        "name": "$IfThenElse",
+        "arity": 3,
+        "level": 0,
+        "line": 124
+      },
+      {
+        "name": "$NonRecursiveFcnSpec",
+        "arity": 1,
+        "level": 0,
+        "line": 125
+      },
+      {
+        "name": "$Pair",
+        "arity": 2,
+        "level": 0,
+        "line": 126
+      },
+      {
+        "name": "$RcdConstructor",
+        "arity": -1,
+        "level": 0,
+        "line": 127
+      },
+      {
+        "name": "$RcdSelect",
+        "arity": 2,
+        "level": 0,
+        "line": 128
+      },
+      {
+        "name": "$RecursiveFcnSpec",
+        "arity": 1,
+        "level": 0,
+        "line": 129
+      },
+      {
+        "name": "$Seq",
+        "arity": -1,
+        "level": 0,
+        "line": 130
+      },
+      {
+        "name": "$SetEnumerate",
+        "arity": -1,
+        "level": 0,
+        "line": 131
+      },
+      {
+        "name": "$SetOfAll",
+        "arity": -1,
+        "level": 0,
+        "line": 132
+      },
+      {
+        "name": "$SetOfFcns",
+        "arity": -1,
+        "level": 0,
+        "line": 133
+      },
+      {
+        "name": "$SetOfRcds",
+        "arity": -1,
+        "level": 0,
+        "line": 134
+      },
+      {
+        "name": "$SF",
+        "arity": 2,
+        "level": 3,
+        "line": 135
+      },
+      {
+        "name": "$SquareAct",
+        "arity": 2,
+        "level": 2,
+        "line": 136
+      },
+      {
+        "name": "$SubsetOf",
+        "arity": 1,
+        "level": 0,
+        "line": 137
+      },
+      {
+        "name": "$TemporalExists",
+        "arity": 1,
+        "level": 3,
+        "line": 138
+      },
+      {
+        "name": "$TemporalForall",
+        "arity": 1,
+        "level": 3,
+        "line": 139
+      },
+      {
+        "name": "$TemporalWhile",
+        "arity": 2,
+        "level": 3,
+        "line": 140
+      },
+      {
+        "name": "$Tuple",
+        "arity": -1,
+        "level": 0,
+        "line": 141
+      },
+      {
+        "name": "$UnboundedChoose",
+        "arity": 1,
+        "level": 0,
+        "line": 142
+      },
+      {
+        "name": "$UnboundedExists",
+        "arity": 1,
+        "level": 0,
+        "line": 143
+      },
+      {
+        "name": "$UnboundedForall",
+        "arity": 1,
+        "level": 0,
+        "line": 144
+      },
+      {
+        "name": "$WF",
+        "arity": 2,
+        "level": 3,
+        "line": 145
+      },
+      {
+        "name": "$Nop",
+        "arity": 1,
+        "level": 0,
+        "line": 146
+      },
+      {
+        "name": "$Qed",
+        "arity": 0,
+        "level": 0,
+        "line": 147
+      },
+      {
+        "name": "$Pfcase",
+        "arity": 1,
+        "level": 0,
+        "line": 148
+      },
+      {
+        "name": "$Have",
+        "arity": 1,
+        "level": 0,
+        "line": 149
+      },
+      {
+        "name": "$Take",
+        "arity": 1,
+        "level": 0,
+        "line": 150
+      },
+      {
+        "name": "$Pick",
+        "arity": 1,
+        "level": 0,
+        "line": 151
+      },
+      {
+        "name": "$Witness",
+        "arity": -1,
+        "level": 0,
+        "line": 152
+      },
+      {
+        "name": "$Suffices",
+        "arity": 1,
+        "level": 0,
+        "line": 153
+      }
+    ]
+  },
+  "override_registry": {
+    "source": {
+      "path": "crates/dive-ir/src/std_op.rs",
+      "sha256": "24ff0d8f4809d964fb1c3335fb62f4603ef7bbace926bde29dd198d88adcfb29"
+    },
+    "rows": [
+      {
+        "variant": "AnySetANY",
+        "module": "AnySet",
+        "name": "ANY",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.module.AnySet.ANY",
+        "line": 166,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsEmptyBag",
+        "module": "Bags",
+        "name": "EmptyBag",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.EmptyBag",
+        "line": 167,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsIsABag",
+        "module": "Bags",
+        "name": "IsABag",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.IsABag",
+        "line": 168,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagCardinality",
+        "module": "Bags",
+        "name": "BagCardinality",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagCardinality",
+        "line": 169,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagIn",
+        "module": "Bags",
+        "name": "BagIn",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagIn",
+        "line": 170,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsCopiesIn",
+        "module": "Bags",
+        "name": "CopiesIn",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.CopiesIn",
+        "line": 171,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagCup",
+        "module": "Bags",
+        "name": "\\oplus",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagCup",
+        "line": 172,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagDiff",
+        "module": "Bags",
+        "name": "\\ominus",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagDiff",
+        "line": 173,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagUnion",
+        "module": "Bags",
+        "name": "BagUnion",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagUnion",
+        "line": 174,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsSqSubseteq",
+        "module": "Bags",
+        "name": "\\sqsubseteq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.SqSubseteq",
+        "line": 175,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagOfAll",
+        "module": "Bags",
+        "name": "BagOfAll",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagOfAll",
+        "line": 176,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsBagToSet",
+        "module": "Bags",
+        "name": "BagToSet",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.BagToSet",
+        "line": 177,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsSetToBag",
+        "module": "Bags",
+        "name": "SetToBag",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Bags.SetToBag",
+        "line": 178,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FiniteSetsIsFiniteSet",
+        "module": "FiniteSets",
+        "name": "IsFiniteSet",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.FiniteSets.IsFiniteSet",
+        "line": 179,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FiniteSetsCardinality",
+        "module": "FiniteSets",
+        "name": "Cardinality",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.FiniteSets.Cardinality",
+        "line": 180,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersInt",
+        "module": "Integers",
+        "name": "Int",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Int",
+        "line": 181,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersNat",
+        "module": "Integers",
+        "name": "Nat",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Nat",
+        "line": 182,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersPlus",
+        "module": "Integers",
+        "name": "+",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Plus",
+        "line": 183,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersMinus",
+        "module": "Integers",
+        "name": "-",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Minus",
+        "line": 184,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersTimes",
+        "module": "Integers",
+        "name": "*",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Times",
+        "line": 185,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersLt",
+        "module": "Integers",
+        "name": "<",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.LT",
+        "line": 186,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersLeq",
+        "module": "Integers",
+        "name": "\\leq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.LE",
+        "line": 187,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersGt",
+        "module": "Integers",
+        "name": ">",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.GT",
+        "line": 188,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersGeq",
+        "module": "Integers",
+        "name": "\\geq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.GEQ",
+        "line": 189,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersDotDot",
+        "module": "Integers",
+        "name": "..",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.DotDot",
+        "line": 190,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersNeg",
+        "module": "Integers",
+        "name": "-.",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Neg",
+        "line": 191,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersDiv",
+        "module": "Integers",
+        "name": "\\div",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Divide",
+        "line": 192,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersMod",
+        "module": "Integers",
+        "name": "%",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Mod",
+        "line": 193,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IntegersExpt",
+        "module": "Integers",
+        "name": "^",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Integers.Expt",
+        "line": 194,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonToJson",
+        "module": "Json",
+        "name": "ToJson",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Json.toJson, tlc2.overrides.Json.toJson",
+        "line": 195,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonToJsonArray",
+        "module": "Json",
+        "name": "ToJsonArray",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Json.toJsonArray, tlc2.overrides.Json.toJsonArray",
+        "line": 196,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonToJsonObject",
+        "module": "Json",
+        "name": "ToJsonObject",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Json.toJsonObject, tlc2.overrides.Json.toJsonObject",
+        "line": 197,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonNdJsonDeserialize",
+        "module": "Json",
+        "name": "ndJsonDeserialize",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module.Json.ndDeserialize, tlc2.overrides.Json.ndDeserialize",
+        "line": 198,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonJsonDeserialize",
+        "module": "Json",
+        "name": "JsonDeserialize",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module.Json.deserialize, tlc2.overrides.Json.deserialize",
+        "line": 199,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonNdJsonSerialize",
+        "module": "Json",
+        "name": "ndJsonSerialize",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module.Json.ndSerialize, tlc2.overrides.Json.ndSerialize",
+        "line": 200,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsSerialize",
+        "module": "IOUtils",
+        "name": "Serialize",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module.Json.textSerialize, tlc2.overrides.IOUtils.textSerialize",
+        "line": 201,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonJsonSerialize",
+        "module": "Json",
+        "name": "JsonSerialize",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module.Json.serialize, tlc2.overrides.Json.serialize",
+        "line": 202,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsNat",
+        "module": "Naturals",
+        "name": "Nat",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Nat",
+        "line": 203,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsPlus",
+        "module": "Naturals",
+        "name": "+",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Plus",
+        "line": 204,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsMinus",
+        "module": "Naturals",
+        "name": "-",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Minus",
+        "line": 205,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsTimes",
+        "module": "Naturals",
+        "name": "*",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Times",
+        "line": 206,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsLt",
+        "module": "Naturals",
+        "name": "<",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.LT",
+        "line": 207,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsLeq",
+        "module": "Naturals",
+        "name": "\\leq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.LE",
+        "line": 208,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsGt",
+        "module": "Naturals",
+        "name": ">",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.GT",
+        "line": 209,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsGeq",
+        "module": "Naturals",
+        "name": "\\geq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.GEQ",
+        "line": 210,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsDotDot",
+        "module": "Naturals",
+        "name": "..",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.DotDot",
+        "line": 211,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsDiv",
+        "module": "Naturals",
+        "name": "\\div",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Divide",
+        "line": 212,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsMod",
+        "module": "Naturals",
+        "name": "%",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Mod",
+        "line": 213,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "NaturalsExpt",
+        "module": "Naturals",
+        "name": "^",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Naturals.Expt",
+        "line": 214,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "RandomizationRandomSubset",
+        "module": "Randomization",
+        "name": "RandomSubset",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.Randomization.RandomSubset",
+        "line": 215,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "RandomizationRandomSetOfSubsets",
+        "module": "Randomization",
+        "name": "RandomSetOfSubsets",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.Randomization.RandomSetOfSubsets",
+        "line": 216,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "RandomizationRandomSubsetSet",
+        "module": "Randomization",
+        "name": "RandomSubsetSet",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.Randomization.RandomSubsetSet",
+        "line": 217,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesSeq",
+        "module": "Sequences",
+        "name": "Seq",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Seq",
+        "line": 218,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesLen",
+        "module": "Sequences",
+        "name": "Len",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Len",
+        "line": 219,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesHead",
+        "module": "Sequences",
+        "name": "Head",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Head",
+        "line": 220,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesTail",
+        "module": "Sequences",
+        "name": "Tail",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Tail",
+        "line": 221,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesCons",
+        "module": "Sequences",
+        "name": "Cons",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Cons",
+        "line": 222,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesAppend",
+        "module": "Sequences",
+        "name": "Append",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Append",
+        "line": 223,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesConcat",
+        "module": "Sequences",
+        "name": "\\o",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Concat",
+        "line": 224,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesSelectInSeq",
+        "module": "Sequences",
+        "name": "SelectInSeq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.SelectInSeq",
+        "line": 225,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesSubSeq",
+        "module": "Sequences",
+        "name": "SubSeq",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.SubSeq",
+        "line": 226,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesSelectSeq",
+        "module": "Sequences",
+        "name": "SelectSeq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.SelectSeq",
+        "line": 227,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesInsert",
+        "module": "Sequences",
+        "name": "Insert",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Sequences.Insert",
+        "line": 228,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "StringsSTRING",
+        "module": "Strings",
+        "name": "STRING",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.Strings.STRING",
+        "line": 229,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcPrint",
+        "module": "TLC",
+        "name": "Print",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLC.Print",
+        "line": 230,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcPrintT",
+        "module": "TLC",
+        "name": "PrintT",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLC.PrintT",
+        "line": 231,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcToString",
+        "module": "TLC",
+        "name": "ToString",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.ToString",
+        "line": 232,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcAssert",
+        "module": "TLC",
+        "name": "Assert",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.Assert",
+        "line": 233,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcJavaTime",
+        "module": "TLC",
+        "name": "JavaTime",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLC.JavaTime",
+        "line": 234,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcMakeFcn",
+        "module": "TLC",
+        "name": ":>",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.MakeFcn",
+        "line": 235,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcCombineFcn",
+        "module": "TLC",
+        "name": "@@",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.CombineFcn",
+        "line": 236,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcSortSeq",
+        "module": "TLC",
+        "name": "SortSeq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.SortSeq",
+        "line": 237,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcPermutations",
+        "module": "TLC",
+        "name": "Permutations",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.Permutations",
+        "line": 238,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcRandomElement",
+        "module": "TLC",
+        "name": "RandomElement",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLC.RandomElement",
+        "line": 239,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcAny",
+        "module": "TLC",
+        "name": "Any",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLC.Any",
+        "line": 240,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTLCEval",
+        "module": "TLC",
+        "name": "TLCEval",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCEval.tlcEval",
+        "line": 241,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtAssertError",
+        "module": "TLCExt",
+        "name": "AssertError",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.assertError",
+        "line": 242,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtPickSuccessor",
+        "module": "TLCExt",
+        "name": "PickSuccessor",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCExt.pickSuccessor",
+        "line": 243,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtToTrace",
+        "module": "TLCExt",
+        "name": "ToTrace",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCExt.lassoOrdinal",
+        "line": 244,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtCounterExample",
+        "module": "TLCExt",
+        "name": "CounterExample",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCExt.error",
+        "line": 245,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTrace",
+        "module": "TLCExt",
+        "name": "Trace",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCExt.getTrace",
+        "line": 246,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCDefer",
+        "module": "TLCExt",
+        "name": "TLCDefer",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCExt.tlcDefer",
+        "line": 247,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCNoOp",
+        "module": "TLCExt",
+        "name": "TLCNoOp",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcNoOp",
+        "line": 248,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCModelValue",
+        "module": "TLCExt",
+        "name": "TLCModelValue",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcModelValue",
+        "line": 249,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCCache",
+        "module": "TLCExt",
+        "name": "TLCCache",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcEval2",
+        "line": 250,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCFP",
+        "module": "TLCExt",
+        "name": "TLCFP",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcFingerprint",
+        "line": 251,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCEvalDefinition",
+        "module": "TLCExt",
+        "name": "TLCEvalDefinition",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcDefByName",
+        "line": 252,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcExtTLCGetOrDefault",
+        "module": "TLCExt",
+        "name": "TLCGetOrDefault",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.module.TLCExt.tlcGetOrDefault",
+        "line": 253,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTLCGet",
+        "module": "TLC",
+        "name": "TLCGet",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCGetSet.TLCGetEval",
+        "line": 254,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTLCSet",
+        "module": "TLC",
+        "name": "TLCSet",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": true,
+        "java_methods": "tlc2.module.TLCGetSet.TLCSet",
+        "line": 255,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TransitiveClosureWarshall",
+        "module": "TransitiveClosure",
+        "name": "Warshall",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "ModuleClass",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.module.TransitiveClosure.Warshall",
+        "line": 256,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "JsonTraceTLCState",
+        "module": "_JsonTrace",
+        "name": "_TLCState",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module._JsonTrace.tlcState",
+        "line": 257,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "PossibleCounts",
+        "module": "_Possible",
+        "name": "_Counts",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module._Possible.counts",
+        "line": 258,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTraceTLCTraceSerialize",
+        "module": "_TLCTrace",
+        "name": "_TLCTraceSerialize",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module._TLCTrace.ioSerialize",
+        "line": 259,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTraceTLCTraceDeserialize",
+        "module": "_TLCTrace",
+        "name": "_TLCTraceDeserialize",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.module._TLCTrace.ioDeserialize",
+        "line": 260,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "TlcTraceTLCState",
+        "module": "_TLCTrace",
+        "name": "_TLCState",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Introspection",
+        "impure": true,
+        "java_methods": "tlc2.module._TLCTrace.tlcState",
+        "line": 261,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BagsExtFoldBag",
+        "module": "BagsExt",
+        "name": "FoldBag",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.BagsExt.foldBag",
+        "line": 262,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BitwiseAnd",
+        "module": "Bitwise",
+        "name": "And",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Bitwise.And",
+        "line": 263,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BitwiseOr",
+        "module": "Bitwise",
+        "name": "Or",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Bitwise.Or",
+        "line": 264,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BitwiseXor",
+        "module": "Bitwise",
+        "name": "Xor",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Bitwise.Xor",
+        "line": 265,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BitwiseNot",
+        "module": "Bitwise",
+        "name": "Not",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Bitwise.NotR",
+        "line": 266,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "BitwiseShiftR",
+        "module": "Bitwise",
+        "name": "shiftR",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Bitwise.shiftR",
+        "line": 267,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CsvCSVWriteRecord",
+        "module": "CSV",
+        "name": "CSVWriteRecord",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.CSV.writeRecord",
+        "line": 268,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CsvCSVWrite",
+        "module": "CSV",
+        "name": "CSVWrite",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.CSV.write",
+        "line": 269,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CsvCSVRead",
+        "module": "CSV",
+        "name": "CSVRead",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.CSV.read",
+        "line": 270,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CsvCSVRecords",
+        "module": "CSV",
+        "name": "CSVRecords",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.CSV.records",
+        "line": 271,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CombinatoricsFactorial",
+        "module": "Combinatorics",
+        "name": "factorial",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Combinatorics.fact",
+        "line": 272,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "CombinatoricsChoose",
+        "module": "Combinatorics",
+        "name": "choose",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Combinatorics.chse",
+        "line": 273,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "DyadicRationalsReduce",
+        "module": "DyadicRationals",
+        "name": "Reduce",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.DyadicRationals.reduce",
+        "line": 274,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FiniteSetsExtQuantify",
+        "module": "FiniteSetsExt",
+        "name": "Quantify",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.FiniteSetsExt.quantify",
+        "line": 275,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FiniteSetsExtKSubset",
+        "module": "FiniteSetsExt",
+        "name": "kSubset",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.FiniteSetsExt.kSubset",
+        "line": 276,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FiniteSetsExtFoldSet",
+        "module": "FiniteSetsExt",
+        "name": "FoldSet",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.FiniteSetsExt.foldSet",
+        "line": 277,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FunctionsIsInjective",
+        "module": "Functions",
+        "name": "IsInjective",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Functions.IsInjective",
+        "line": 278,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FunctionsAntiFunction",
+        "module": "Functions",
+        "name": "AntiFunction",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Functions.antiFunction",
+        "line": 279,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FunctionsFoldFunction",
+        "module": "Functions",
+        "name": "FoldFunction",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Functions.foldFunction",
+        "line": 280,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "FunctionsFoldFunctionOnSet",
+        "module": "Functions",
+        "name": "FoldFunctionOnSet",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Functions.foldFunctionOnSet",
+        "line": 281,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "GraphVizDotDiGraph",
+        "module": "GraphViz",
+        "name": "DotDiGraph",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.GraphViz.dotDiGraph",
+        "line": 282,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "GraphsSimplePath",
+        "module": "Graphs",
+        "name": "SimplePath",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Graphs.simplePath",
+        "line": 283,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "GraphsAreConnectedIn",
+        "module": "Graphs",
+        "name": "AreConnectedIn",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Graphs.areConnectedIn",
+        "line": 284,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "GraphsIsStronglyConnected",
+        "module": "Graphs",
+        "name": "IsStronglyConnected",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Graphs.isStronglyConnected",
+        "line": 285,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIODeserialize",
+        "module": "IOUtils",
+        "name": "IODeserialize",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioDeserialize",
+        "line": 286,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOSerialize",
+        "module": "IOUtils",
+        "name": "IOSerialize",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioSerialize",
+        "line": 287,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsDeserialize",
+        "module": "IOUtils",
+        "name": "Deserialize",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.textDeserialize",
+        "line": 288,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsAtoi",
+        "module": "IOUtils",
+        "name": "atoi",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.IOUtils.atoi",
+        "line": 289,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOEnv",
+        "module": "IOUtils",
+        "name": "IOEnv",
+        "arity": 0,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioEnv",
+        "line": 290,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOExec",
+        "module": "IOUtils",
+        "name": "IOExec",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioExec",
+        "line": 291,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOEnvExec",
+        "module": "IOUtils",
+        "name": "IOEnvExec",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioEnvExec",
+        "line": 292,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOExecTemplate",
+        "module": "IOUtils",
+        "name": "IOExecTemplate",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioExecTemplate",
+        "line": 293,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "IoUtilsIOEnvExecTemplate",
+        "module": "IOUtils",
+        "name": "IOEnvExecTemplate",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Io",
+        "impure": true,
+        "java_methods": "tlc2.overrides.IOUtils.ioEnvExecTemplate",
+        "line": 294,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SvgSVGElemToString",
+        "module": "SVG",
+        "name": "SVGElemToString",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SVG.SVGElemToString",
+        "line": 295,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SvgNodeOfRingNetwork",
+        "module": "SVG",
+        "name": "NodeOfRingNetwork",
+        "arity": 5,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SVG.ringNetwork",
+        "line": 296,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SvgNodesOfDirectedMultiGraph",
+        "module": "SVG",
+        "name": "NodesOfDirectedMultiGraph",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SVG.directedMultiGraph",
+        "line": 297,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SvgPointOnLine",
+        "module": "SVG",
+        "name": "PointOnLine",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SVG.pointOnLine",
+        "line": 298,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSetToSeq",
+        "module": "SequencesExt",
+        "name": "SetToSeq",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.SetToSeq",
+        "line": 299,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSetToSeqs",
+        "module": "SequencesExt",
+        "name": "SetToSeqs",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.SetToSeqs",
+        "line": 300,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtContains",
+        "module": "SequencesExt",
+        "name": "Contains",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.Contains",
+        "line": 301,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtLongestCommonPrefix",
+        "module": "SequencesExt",
+        "name": "LongestCommonPrefix",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.longestCommonPrefix",
+        "line": 302,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtFoldSeq",
+        "module": "SequencesExt",
+        "name": "FoldSeq",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.foldSeq",
+        "line": 303,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtFoldLeft",
+        "module": "SequencesExt",
+        "name": "FoldLeft",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.foldLeft",
+        "line": 304,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtFoldRight",
+        "module": "SequencesExt",
+        "name": "FoldRight",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.foldRight",
+        "line": 305,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtFoldLeftDomain",
+        "module": "SequencesExt",
+        "name": "FoldLeftDomain",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.foldLeftDomain",
+        "line": 306,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtFoldRightDomain",
+        "module": "SequencesExt",
+        "name": "FoldRightDomain",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.foldRightDomain",
+        "line": 307,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtReplaceFirstSubSeq",
+        "module": "SequencesExt",
+        "name": "ReplaceFirstSubSeq",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.replaceFirstSubSeq",
+        "line": 308,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtReplaceAllSubSeqs",
+        "module": "SequencesExt",
+        "name": "ReplaceAllSubSeqs",
+        "arity": -1,
+        "kind": "Evaluating",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.replaceAllSubSeq",
+        "line": 309,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtIsPrefix",
+        "module": "SequencesExt",
+        "name": "IsPrefix",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.isPrefix",
+        "line": 310,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSelectInSeq",
+        "module": "SequencesExt",
+        "name": "SelectInSeq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.selectInSeq",
+        "line": 311,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSelectInSubSeq",
+        "module": "SequencesExt",
+        "name": "SelectInSubSeq",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.SelectInSubSeq",
+        "line": 312,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSelectLastInSeq",
+        "module": "SequencesExt",
+        "name": "SelectLastInSeq",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.selectLastInSeq",
+        "line": 313,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSelectLastInSubSeq",
+        "module": "SequencesExt",
+        "name": "SelectLastInSubSeq",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.SelectLastInSubSeq",
+        "line": 314,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtRemoveFirst",
+        "module": "SequencesExt",
+        "name": "RemoveFirst",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.removeFirst",
+        "line": 315,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtRemoveFirstMatch",
+        "module": "SequencesExt",
+        "name": "RemoveFirstMatch",
+        "arity": 2,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.removeFirstMatch",
+        "line": 316,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtSuffixes",
+        "module": "SequencesExt",
+        "name": "Suffixes",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.Suffixes",
+        "line": 317,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "SequencesExtAllSubSeqs",
+        "module": "SequencesExt",
+        "name": "AllSubSeqs",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.SequencesExt.AllSubSeqs",
+        "line": 318,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "StatisticsChiSquare",
+        "module": "Statistics",
+        "name": "ChiSquare",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.Statistics.chiSquare",
+        "line": 319,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "UndirectedGraphsSimplePath",
+        "module": "UndirectedGraphs",
+        "name": "SimplePath",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.UndirectedGraphs.simplePath",
+        "line": 320,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "UndirectedGraphsAreConnectedIn",
+        "module": "UndirectedGraphs",
+        "name": "AreConnectedIn",
+        "arity": 3,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.UndirectedGraphs.areConnectedIn",
+        "line": 321,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "UndirectedGraphsConnectedComponents",
+        "module": "UndirectedGraphs",
+        "name": "ConnectedComponents",
+        "arity": 1,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Core",
+        "impure": false,
+        "java_methods": "tlc2.overrides.UndirectedGraphs.connectedComponents",
+        "line": 322,
+        "certification": "audit-required"
+      },
+      {
+        "variant": "VectorClocksCausalOrder",
+        "module": "VectorClocks",
+        "name": "CausalOrder",
+        "arity": 4,
+        "kind": "Value",
+        "installation_phase": "Annotated",
+        "registry_support": "Extension",
+        "impure": false,
+        "java_methods": "tlc2.overrides.VectorClocks.causalOrder",
+        "line": 323,
+        "certification": "audit-required"
+      }
+    ]
+  },
+  "standard_modules": {
+    "rows": [
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Bags.tla",
+        "sha256": "a2b668a8cf375b9ef9f2c14fdba742137ab8722ade0f41f11965c67acba76c39"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/FiniteSets.tla",
+        "sha256": "d94cb545256539bf782fc1914842dfe8c19c1d3d4e48b8327dd0c47b74922e1e"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Integers.tla",
+        "sha256": "071da69e5eea383d361ef308ba12ecc931bf968fcea98175c3bca419bbd8cbf2"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Json.tla",
+        "sha256": "52e38eeed89c35ef9d65ac7f6e884a8ae761c7302a52c35c0f0658035ddca0b8"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Naturals.tla",
+        "sha256": "73f2a68412039aa86f37ad08f0d0fef50fa8327d0ad8806f515548c75e9d9d84"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Randomization.tla",
+        "sha256": "998209fcb33bac3c9b4d6851dc5df5ca83d33722201cc5280b51a1f58fffaebf"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/RealTime.tla",
+        "sha256": "9052ccc8a150c93ae13a4d136da7b83dc68d1d8e9a0eee6f787db02b755f6682"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Reals.tla",
+        "sha256": "33cc699c0139b39fcee903d4dde255b64a0b430291630aa4825c6dd32b2f2fa2"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Sequences.tla",
+        "sha256": "f613cffe14133769f0972b6f6e0139aaf0773004a51bac88ada382426e3eb7f4"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/TLC.tla",
+        "sha256": "944ece590eec81ace059881c2a62064c06041efa81539a788cd40fa7d1da41ce"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/TLCExt.tla",
+        "sha256": "6c3e7e54cf1b8a4d2d1c7a5fd088f06452edce68ec28d8be99392cc0037a5399"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Toolbox.tla",
+        "sha256": "9deac1facb0b71809714229dace116da75f80bf4c65b707ff40026f380c7804a"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_DotTrace.tla",
+        "sha256": "c2f4b13446298c026decf0b3867134d2a176355344db05af7270e31981f0c8bc"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_JsonTrace.tla",
+        "sha256": "4e93f1de053afb59cbeb5ae6f0d71685acf3530c840ac4811f54e86100195742"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_Possible.tla",
+        "sha256": "3c360af74043d85a0399376aa2b1553ca9d230d06a34bd46cbae1f1e02109a13"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLAPlusCounterExample.tla",
+        "sha256": "ebc408fd614b832d2f8eab1a4dae7ae67c6d5a7958e0233c7da702c1a0e29705"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCActionTrace.tla",
+        "sha256": "4cb2f1e02109cee0053f59e72bdfb59edab12a30cddf4bc1765927288db2d134"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTESpec.tla",
+        "sha256": "ee5b74e29dcd8d64f2a8840c293018a2007371aab14ea0eaa7c542de8f97b4aa"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTrace.tla",
+        "sha256": "864407a426e7e438af3652a5db92912bfdf682cf97912c6bdc91d87cb94a5007"
+      },
+      {
+        "path": "tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/_TLCTracePlain.tla",
+        "sha256": "4f05472f833eadec96a2ec8cb2f1331ce8902bf08c800b80407d2980809e6d09"
+      }
+    ]
+  },
+  "community_modules": {
+    "rows": [
+      {
+        "path": "modules/BagsExt.tla",
+        "sha256": "f33833f1c20ca97aee90129996180e179fd41cab4362b5a0333fcbb617b4b03c"
+      },
+      {
+        "path": "modules/Bitwise.tla",
+        "sha256": "35e2ba7cd18f83232f1f5b5c6e6b2030aa7927eef5abd64ffffddbde12b3d66a"
+      },
+      {
+        "path": "modules/CSV.tla",
+        "sha256": "ecb845154f558670d1e432fcb46ee013c6a64eedea8d8656ebbfbca06e63a7a3"
+      },
+      {
+        "path": "modules/Combinatorics.tla",
+        "sha256": "c07c9ab36bb543332573258d57b5e5a1be9d96c982319aa0b92cd218025afc35"
+      },
+      {
+        "path": "modules/DifferentialEquations.tla",
+        "sha256": "29d2de28dc7e8856d16ddf698aeef78a6191b053b0e6e7a74b85a1fae9d540fe"
+      },
+      {
+        "path": "modules/DyadicRationals.tla",
+        "sha256": "ba382ab4c561af6f575649a93e050d57d6395a8314925950d0285715763223af"
+      },
+      {
+        "path": "modules/FiniteSetsExt.tla",
+        "sha256": "dc5d6944395dd18e2f8acf696296808a9460cbbf1b9888f88c5ac4c83a5237f9"
+      },
+      {
+        "path": "modules/FiniteSetsExtTheorems.tla",
+        "sha256": "89e3578d8014645100c6b1ba0405c759c47f56ac2c793f2b97a86184b36b3635"
+      },
+      {
+        "path": "modules/FiniteSetsExtTheorems_proofs.tla",
+        "sha256": "2511f68881282f97914f7468fe879cceeadcef30e7f37488f1c15a38989dacde"
+      },
+      {
+        "path": "modules/Folds.tla",
+        "sha256": "aa59063fd600bb640b2ae24dc85ef770277ef5bf7955092b76b8b471790086da"
+      },
+      {
+        "path": "modules/FoldsTheorems.tla",
+        "sha256": "099de628fdd243f6f3b35c143b04e243e9fe817745948a9c9e83d367b88473e5"
+      },
+      {
+        "path": "modules/FoldsTheorems_proofs.tla",
+        "sha256": "61e4c97ba1bba2dd5b71af1846a0d473469fbc897911a2f87fe80d2d0394378e"
+      },
+      {
+        "path": "modules/FunctionTheorems.tla",
+        "sha256": "f89871fb5b35d2fc54f583b12adb489dd6660be7aced67ab295fba0d4999c116"
+      },
+      {
+        "path": "modules/FunctionTheorems_proofs.tla",
+        "sha256": "bf6c7b9f7bf4d7f7ca1f5ddf72ac8b230fbf3ca338e86cf70ea4f9c280191396"
+      },
+      {
+        "path": "modules/Functions.tla",
+        "sha256": "b54ff63b7c76c327525c17c188d5f9f5e53d92f3fd701f5e2ba54f0f54391063"
+      },
+      {
+        "path": "modules/GraphTheorems.tla",
+        "sha256": "bf34f1eda4f2f5daed418028f98de0228a19da4bf37ee9185c551d12a467e56f"
+      },
+      {
+        "path": "modules/GraphTheorems_proofs.tla",
+        "sha256": "aca4d832c2b9f6ceda08b99178fd23293c91abd098db6434f9d8efef94621e21"
+      },
+      {
+        "path": "modules/GraphViz.tla",
+        "sha256": "8a09439b36a7ae7820b587f5ca883b91af280d61c875e3d6596d91eeef12d03d"
+      },
+      {
+        "path": "modules/Graphs.tla",
+        "sha256": "df8e76bd5841dec1e578c68f7b41e65c88e30b2670b188c6f09bd1b534eba135"
+      },
+      {
+        "path": "modules/HTML.tla",
+        "sha256": "9f95c172147c19ff3795e3b47dbe80ecbb10237925c1757e79cd506c1dc2020f"
+      },
+      {
+        "path": "modules/IOUtils.tla",
+        "sha256": "c107b97b6fa302f0c84855eaa8b6b6cd536710302e7e2e5ebbbbbd47accad4ad"
+      },
+      {
+        "path": "modules/Json.tla",
+        "sha256": "2c148bc47f20e6d2585029dcbeb9cdfc75fd423c7ce13fee2933cee84154c6cb"
+      },
+      {
+        "path": "modules/Quorum.tla",
+        "sha256": "1ebfb8e2a58c9ed2b2074e1ac620d315ed96290bedb4267f9f7d822d86f96b11"
+      },
+      {
+        "path": "modules/QuorumTheorems.tla",
+        "sha256": "e01d0f6f5bf7950d03deb1d77e5089e8383ff91520b0355ecd25b33191720c13"
+      },
+      {
+        "path": "modules/QuorumTheorems_proofs.tla",
+        "sha256": "6edfd8170d23c8f4ec6c0710e68d9449bf862877240edddc1eacebeee617412b"
+      },
+      {
+        "path": "modules/Relation.tla",
+        "sha256": "89807adef4e91e63d1cb54bc91199063ec50c39106aa27373cf49e475dd828af"
+      },
+      {
+        "path": "modules/SVG.tla",
+        "sha256": "a4d127c92ebc756b9f5c4bee354fd474f83a612e188915989212d197ab17747a"
+      },
+      {
+        "path": "modules/SequencesExt.tla",
+        "sha256": "8b96d0ff74836cca2adfb7da3b32846ca64c4d466d543b55c8d05c32b64aa0f6"
+      },
+      {
+        "path": "modules/SequencesExtTheorems.tla",
+        "sha256": "165541b28e8fb7cee588bac97639b74df0f74c50a42e47529b13b9ea4ab7b042"
+      },
+      {
+        "path": "modules/SequencesExtTheorems_proofs.tla",
+        "sha256": "942aa61eb4384720430f74f81da6f09678c6c992c94c2a228e713ba226a88fc1"
+      },
+      {
+        "path": "modules/ShiViz.tla",
+        "sha256": "59b3af020731a856ab48d2e497e302f22f6059d5c18059358117fb32e3f63cf7"
+      },
+      {
+        "path": "modules/Statistics.tla",
+        "sha256": "0edfb2849a7ce326c49c668d88d6c123d693bfdd7271aa0e6f24f8f927f43005"
+      },
+      {
+        "path": "modules/UndirectedGraphs.tla",
+        "sha256": "396a93b959795f3057bed9ee88ffbb76e5f8364bc5c474e01f5a8ce3e1d73875"
+      },
+      {
+        "path": "modules/VectorClocks.tla",
+        "sha256": "69cc7f09a0b1048495843778ba34afd3e1cb11881cd8e1ce7b725b376aeb9a6a"
+      }
+    ]
+  },
+  "counts": {
+    "tlc_cli": 46,
+    "pluscal_cli": 21,
+    "sany_cli": 14,
+    "configuration": 22,
+    "builtins": 72,
+    "override_registry": 158,
+    "standard_modules": 20,
+    "community_modules": 34
+  }
+}

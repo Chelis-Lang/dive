@@ -1157,3 +1157,23 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+
+### D-013 implementation progress: actual graph commits
+
+The bounded graph stage now keeps original generated successor values even when
+an equal state was already stored, then writes concrete graph nodes with TLC's
+slot order, bin labels and one logical capacity history. Source expansion really
+uses 1, 3, 4 or 8 workers in the tested runs; ordered predicate/graph commits
+report their own single-worker execution. Twelve completed pinned graph
+projections match their defined fields. All fifteen selected models, errors,
+tableau refusal, clean TLC outcomes and original failed adapter attempts remain
+available in `conformance/probes/tlc-phase-l-graph/`.
+
+This does not enable strict liveness yet. Complete safety exploration currently
+precedes temporal evaluation, so its counts are not TLC's temporal stopping
+prefix. Multiple OOS, dynamic tableau revisitation and done-state re-enumeration,
+periodic checking and exact SCC/lasso selection are still required. Opaque
+captured providers are refused before execution; per-source speculative quotas
+can reject a skewed level conservatively. Independent validation still decides
+a concrete periodic word and its claims, rather than trusting graph metadata.
+No graph result or diagnostic receipt claims a model proof.
