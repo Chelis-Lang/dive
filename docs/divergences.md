@@ -260,3 +260,12 @@ admission rejects them in both profiles and never grants artifact/proof credit.
 Lexical macro substitution itself remains reference-compatible; general binders,
 procedure interactions and name rewrites remain explicit refusals. No new
 capture-avoidance or Unicode-string default is adopted.
+
+The recursive procedure selection adds a D-008 artifact-admission case: a
+zero-parameter same-procedure adjacent call/return produces a blank conjunction.
+Pinned `pcal.trans` reports success, but SANY rejects the generated module.
+`Recursive_C_self_tail_no_params` retains the raw source/output and rejection
+before native changes; the full P-syntax selection is retained too. This is
+candidate evidence, never an admitted artifact or finite-loop proof. Native
+public admission keeps invalid primary output rejected in both profiles; no
+silent repair/default is adopted.

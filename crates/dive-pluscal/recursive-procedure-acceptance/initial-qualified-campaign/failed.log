@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-recursive-work/crates/dive-pluscal/recursive-procedure-acceptance/qualified-replay.py", line 79, in <module>
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--native',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);main(parser.parse_args())
+  File "/Users/jeff/code/dive-pluscal-recursive-work/crates/dive-pluscal/recursive-procedure-acceptance/qualified-replay.py", line 66, in main
+    assert result['result']==expected and process.returncode==exit_code,(row['id'],kind,result)
+AssertionError: ('Recursive_C_missing_return.deadlock', 'original', {'command': 'validate-trace', 'length': 5, 'notes': [], 'result': 'valid', 'schema_version': 1})

@@ -412,9 +412,6 @@ impl Emitter<'_> {
             .procedures
             .get(to)
             .ok_or_else(|| failure(span, Code::Internal, "tail call target missing"))?;
-        if from == to {
-            return Err(failure(span, Code::Unsupported, "recursive tail call"));
-        }
         if changed.contains("stack") || changed.contains("pc") {
             return Err(failure(
                 span,
@@ -424,33 +421,39 @@ impl Emitter<'_> {
         }
         let before = changed.clone();
         let mut assignments = Vec::new();
-        for local in &owner.variables {
-            let name = &local.name.text;
-            if changed.contains(name) {
-                return Err(failure(
-                    span,
-                    Code::Label,
-                    "missing label before tail restoring local",
+        // ExplodeCallReturn preserves the existing frame for a self tail
+        // call. A cross-procedure tail call restores caller locals and
+        // replaces the frame head before binding the callee parameters.
+        if from != to {
+            for local in &owner.variables {
+                let name = &local.name.text;
+                if changed.contains(name) {
+                    return Err(failure(
+                        span,
+                        Code::Label,
+                        "missing label before tail restoring local",
+                    ));
+                }
+                assignments.push((name.clone(), format!("{name}' = Head(stack).{name}")));
+                changed.insert(name.clone());
+            }
+            let mut fields = vec![
+                format!("procedure |-> {}", serde_string(&target.name.text)),
+                "pc |-> Head(stack).pc".into(),
+            ];
+            for decl in target.variables.iter().chain(&target.parameters) {
+                let name = &decl.name.text;
+                fields.push(format!(
+                    "{name} |-> {name}{}",
+                    if before.contains(name) { "'" } else { "" }
                 ));
             }
-            assignments.push((name.clone(), format!("{name}' = Head(stack).{name}")));
-            changed.insert(name.clone());
-        }
-        let mut fields = vec![
-            format!("procedure |-> {}", serde_string(&target.name.text)),
-            "pc |-> Head(stack).pc".into(),
-        ];
-        for decl in target.variables.iter().chain(&target.parameters) {
-            let name = &decl.name.text;
-            fields.push(format!(
-                "{name} |-> {name}{}",
-                if before.contains(name) { "'" } else { "" }
+            assignments.push((
+                "stack".into(),
+                format!("stack' = << [ {} ] >> \\o Tail(stack)", fields.join(", ")),
             ));
+            changed.insert("stack".into());
         }
-        assignments.push((
-            "stack".into(),
-            format!("stack' = << [ {} ] >> \\o Tail(stack)", fields.join(", ")),
-        ));
         for (parameter, argument) in target.parameters.iter().zip(arguments) {
             let name = &parameter.name.text;
             if changed.contains(name) {
@@ -468,8 +471,15 @@ impl Emitter<'_> {
         }
         assignments.sort_by(|a, b| a.0.encode_utf16().cmp(b.0.encode_utf16()));
         let assignments: Vec<_> = assignments.into_iter().map(|(_, value)| value).collect();
-        let mut clauses = vec![conjunction(&assignments, assignments.len() > 1)];
-        changed.insert("stack".into());
+        // Pinned GenAssign emits an empty conjunction for a zero-argument
+        // self tail call. Retain the raw invalid reference artifact here;
+        // public module admission rejects it, rather than silently repairing
+        // a source-backed generation behavior into an admitted artifact.
+        let mut clauses = vec![if assignments.is_empty() {
+            String::new()
+        } else {
+            conjunction(&assignments, assignments.len() > 1)
+        }];
         for local in &target.variables {
             let name = &local.name.text;
             if changed.contains(name) {

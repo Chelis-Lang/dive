@@ -5,10 +5,17 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Native recursive sequential PlusCal procedures: self/mutual call stacks,
+  frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
+  retain pinned artifacts/errors without unrolling. Invalid upstream output is
+  rejected; finite/count, strict pending and canonical witness evidence remain
+  separate. Process-owned/scoped renaming and strict namespace provenance are
+  still pending. See `docs/pluscal-recursive-procedures.md`.
+
 - Native PlusCal translation supports multiple disjoint sequential procedures and
   nonrecursive nested calls, with procedure-owned frames and exact adjacent
   call/return normalization. Cycles, unproved name rewriting and process stacks
-  remain named refusals. Generated modules are validated artifacts, never proofs;
+  remained named refusals in that earlier graph increment. Generated modules are validated artifacts, never proofs;
   strict namespace/deadlock replay gaps remain explicit.
 
 - Native bounded sequential PlusCal procedure calls/returns: saved stack frames,

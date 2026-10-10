@@ -306,3 +306,12 @@ refusals and four diagnostic invalid-reference dispositions. All eight primary
 SANY-invalid outputs stay uncredited. Cycles, scopes/renaming, process stacks,
 options/maps and strict encounter-order/deadlock evidence remain pending.
 F-034/F-035 remain partial and audit-required; no denominator change.
+
+The native disjoint sequential recursive procedure increment (ADR 0043) retains
+all 116 C/P source cases: 86 artifact matches, 15 matching rejections, nine named
+refusals and six diagnostic invalid-reference dispositions. All ten SANY-invalid
+primary outputs remain uncredited. Enclosing SANY/CST, finite execution and
+strict pending versus qualified canonical witnesses are separate contracts.
+Unbounded-model primary timeouts and explicit native capture bounds never earn
+proof credit. F-034/F-035 remain partial/audit-required; see
+[recursive procedures](pluscal-recursive-procedures.md).

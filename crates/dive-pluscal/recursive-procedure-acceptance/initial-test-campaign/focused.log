@@ -1,0 +1,45 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-recursive-work/crates/dive-pluscal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.49s
+     Running tests/procedure_graph.rs (/Users/jeff/code/dive-pluscal-recursive-target/debug/deps/procedure_graph-649dd90085be0756)
+
+running 4 tests
+test cross_procedure_call_return_keeps_its_reference_frame_owner ... ok
+test graph_scope_actions_are_globally_bounded_and_source_is_unchanged ... ok
+test historical_cycles_now_match_the_retained_primary_artifacts ... ok
+test pinned_nonrecursive_graph_artifacts_and_invalid_output ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/procedures.rs (/Users/jeff/code/dive-pluscal-recursive-target/debug/deps/procedures-f31391149bf1a467)
+
+running 2 tests
+test call_and_return_do_not_mutate_the_source_ast_or_exceed_action_budget ... ok
+test pinned_procedure_artifacts_rejections_and_uncredited_invalid_output ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/recursive_procedures.rs (/Users/jeff/code/dive-pluscal-recursive-target/debug/deps/recursive_procedures-ebba2bbe89d80ea2)
+
+running 4 tests
+test self_tail_call_keeps_frame_and_uses_simultaneous_parameter_values ... ok
+test zero_parameter_self_tail_and_double_assignment_are_never_silent_repairs ... FAILED
+test recursive_translation_is_source_bounded_and_keeps_runtime_frames ... ok
+test all_recursive_source_artifacts_match_the_pin_without_crediting_invalid_output ... ok
+
+failures:
+
+---- zero_parameter_self_tail_and_double_assignment_are_never_silent_repairs stdout ----
+
+thread 'zero_parameter_self_tail_and_double_assignment_are_never_silent_repairs' (108894891) panicked at crates/dive-pluscal/tests/recursive_procedures.rs:143:5:
+assertion `left == right` failed
+  left: Expression
+ right: Syntax
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    zero_parameter_self_tail_and_double_assignment_are_never_silent_repairs
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+error: test failed, to rerun pass `-p dive-pluscal --test recursive_procedures`

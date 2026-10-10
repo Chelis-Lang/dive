@@ -660,7 +660,7 @@
       "phase": 8,
       "pinned_source": "pcal/ParseAlgorithm.java",
       "rust_evidence": "crates/dive-pluscal/src/lib.rs",
-      "conformance_evidence": "conformance/reports/pluscal-source-grammar.json",
+      "conformance_evidence": "docs/pluscal-recursive-procedures.md",
       "issues": [
         126,
         131,
@@ -671,7 +671,7 @@
         162,
         163
       ],
-      "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
+      "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently. Disjoint sequential recursive call/return and bounded normalized source evidence do not certify process-owned/scoped renaming, strict namespace witnesses or full translator parity.",
       "interactions": [
         "F-001",
         "F-002",
@@ -759,7 +759,7 @@
       "phase": 9,
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs",
-      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "conformance_evidence": "docs/pluscal-recursive-procedures.md",
       "issues": [
         124,
         131,
@@ -770,7 +770,7 @@
         162,
         163
       ],
-      "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
+      "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator. Disjoint sequential recursive call/return and bounded normalized source evidence do not certify process-owned/scoped renaming, strict namespace witnesses or full translator parity.",
       "interactions": [
         "F-024",
         "F-029",

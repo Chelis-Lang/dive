@@ -1,5 +1,10 @@
 # Native sequential PlusCal procedures
 
+This guide preserves the earlier bounded delivery and its original evidence.
+The current disjoint sequential path also admits recursion; see
+[recursive procedure use and limitations](pluscal-recursive-procedures.md).
+
+
 The original single-procedure increment below is retained as historical evidence.
 [Procedure graphs](pluscal-procedure-graphs.md) extend it to disjoint,
 nonrecursive nested calls.

@@ -1184,3 +1184,32 @@ rewriting, process-owned stacks and unproved procedure-label/macro interactions
 remain honest named refusals. Strict stack witness replay remains pending under
 #124; separately qualified canonical replay confers no TLC-profile certification.
 See [procedure graph use and limits](pluscal-procedure-graphs.md).
+
+### Recursive zero-parameter tail call: invalid output (D-008 candidate)
+
+The pinned translator reports success for this PlusCal source:
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First() { F: call First(); return; };
+  { L: call First(); E: skip; }
+}
+```
+
+Its generated `F` action contains a blank conjunction between `pc="F"` and
+`pc'="F"`. `pcal.trans` exits 0 and writes the module; SANY rejects the next
+`/\` with a parse error. The retained raw source and both stages are
+`crates/dive-pluscal/recursive-procedure-acceptance/fixtures/Recursive_C_self_tail_no_params.*`.
+The reference's same-procedure call/return path adds an empty assignment when
+there are no parameters; this is not a valid translated model or a termination
+proof. The native recursive increment retains this as diagnostic evidence
+and public admission rejects invalid modules in both profiles. A repaired-output
+option is not adopted silently. Full translation parity remains pending.
+
+The disjoint sequential procedure path now admits ordinary self/mutual recursion
+and reference same-procedure tail-call normalization without unrolling calls.
+See [recursive procedure use and limits](pluscal-recursive-procedures.md).
+Strict stack-witness namespace proof remains pending; bounded unbounded-model
+stops never claim exhaustive search or termination. Process/scoped name handling
+and full translator parity remain pending.
