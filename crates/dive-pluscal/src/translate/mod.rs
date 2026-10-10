@@ -2,6 +2,8 @@
 mod emit;
 mod labels;
 mod lower;
+mod macros;
+mod procedures;
 mod process;
 
 use crate::{Code, Diagnostic, Options, ast::Span};
@@ -110,6 +112,12 @@ pub struct InsertedLabel {
     pub source: Span,
     /// Original one-based reference statement position (C `with` uses its `(`).
     pub position: crate::ast::Position,
+    /// Macro definition statement extent, when the label arose from expansion.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub macro_definition: Option<Span>,
+    /// Definition position paired with the existing call-site `position`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub macro_definition_position: Option<crate::ast::Position>,
 }
 
 /// Admitted process storage context, never an evaluated process-domain claim.
@@ -166,7 +174,7 @@ fn error(
 }
 
 /// Translates a bounded sequential or disjoint finite-process current C/P algorithm.
-/// Unproved process domains, procedures/macros, historical modes and name
+/// Unproved process domains, procedure/macro interactions, historical modes and name
 /// disambiguation fail before an artifact is returned. Expression validation and
 /// complete module binding are separate stages.
 ///
@@ -195,18 +203,25 @@ pub fn translate_at(
             .name("dive-pluscal-translator".into())
             .stack_size(16 * 1024 * 1024)
             .spawn_scoped(scope, || {
-                let mut parsed =
+                let parsed =
                     crate::parse_at(source, region, &options.parser).map_err(|diagnostic| {
                         TranslationError {
                             stage: TranslationStage::Source,
                             diagnostic,
                         }
                     })?;
-                let inserted = labels::normalize(&mut parsed, options)?;
-                let model = lower::normalize(&parsed, options)?;
-                let mut artifact = emit::generate(&parsed, &model, options)?;
-                artifact.inserted_labels = inserted;
-                Ok(artifact)
+                let mut parsed = macros::expand(parsed, options)?;
+                let mut translate = || {
+                    let inserted = labels::normalize(&mut parsed, options)?;
+                    let model = lower::normalize(&parsed, options)?;
+                    let mut artifact = emit::generate(&parsed, &model, options)?;
+                    artifact.inserted_labels = inserted;
+                    Ok(artifact)
+                };
+                translate().map_err(|mut failure: TranslationError| {
+                    failure.diagnostic.span = parsed.origin(failure.diagnostic.span);
+                    failure
+                })
             })
             .map_err(|failure| {
                 error(

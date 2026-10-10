@@ -15,6 +15,10 @@ and PlusCal. The [feature ledger](tlc-parity.md) inventories 37 semantic
 families and their source surfaces. Its implemented/partial labels and current
 model counts do not certify complete families or establish an overall percent.
 
+Historical incremental notes retain the scope of their original sources.
+Use the [user manual](user/README.md) and the current guides for executable
+functionality; smaller studies do not replace the preserved standard baseline.
+
 ## Current delivered increments, 2026-10-10
 
 Since the preserved standard report below, the verified increments now include:
@@ -32,8 +36,10 @@ Since the preserved standard report below, the verified increments now include:
   Source parsing does not imply translation, rewrite or checksum parity. A
   separate bounded C/P translation slice compares generated operator trees and
   checks admitted enclosing modules, sequential algorithms and disjoint finite
-  processes with pinned fairness. Procedures, macros, general renaming,
-  rewriting and checksums remain pending.
+  processes with pinned fairness. Bounded macros now expand with checked source origins and enclosing-module
+  admission. Disjoint explicitly labelled sequential procedures support call graphs,
+  saved frames, mutual recursion and self-tail calls. Process-owned procedure
+  stacks, general renaming, rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;

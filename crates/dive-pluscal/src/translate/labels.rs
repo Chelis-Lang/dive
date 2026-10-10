@@ -1,7 +1,8 @@
 //! Bounded sequential `ParseAlgorithm.InnerAddLabels` normalization.
+use super::macros::Expanded as Parsed;
 use super::{InsertedLabel, TranslationError, TranslationOptions, TranslationStage, error};
 use crate::{
-    Code, Parsed,
+    Code,
     ast::{Block, Body, Label, Name, Span, StatementKind, StmtId},
 };
 use std::collections::{BTreeMap, BTreeSet};
@@ -185,10 +186,13 @@ impl Labels<'_> {
                     "inserted label has invalid original position",
                 )
             })?;
+        let macro_origin = self.parsed.macro_origin(id);
         self.added.push(InsertedLabel {
             name,
             source,
-            position,
+            position: macro_origin.map_or(position, |(_, _, call)| call),
+            macro_definition: macro_origin.map(|(source, _, _)| source),
+            macro_definition_position: macro_origin.map(|(_, definition, _)| definition),
         });
         Ok(())
     }

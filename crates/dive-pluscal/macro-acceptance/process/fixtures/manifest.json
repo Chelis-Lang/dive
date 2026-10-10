@@ -1,0 +1,1396 @@
+{
+  "schema_version": 1,
+  "reason": "Issue 162 corrected C process-local declarations and macro fairness scope controls; all original malformed rows retained",
+  "generated_at": "2026-10-10T18:16:48Z",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "capture_script_sha256": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+  "adapter_sha256": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "primary_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "pcal.trans",
+    "<selected-options>",
+    "<case.tla>"
+  ],
+  "validation_command": [
+    "java",
+    "-Xmx256m",
+    "-cp",
+    "<pinned-jar>",
+    "tla2sany.SANY",
+    "-error-codes",
+    "<case.tla>"
+  ],
+  "rows": [
+    {
+      "id": "MacroProcess_C_auto",
+      "input": "MacroProcess_C_auto.tla",
+      "input_sha256": "fa037fe8dbc3e3442f44a6cf5fc8d1cd20591246ad53cc0a5fca75798903b1b8",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_auto.translation.stdout.gz",
+        "stdout_sha256": "affe00906df66fd4c2697e910f3cace8c0769d05d2c2ac2d4afa589e06475899",
+        "stderr": "MacroProcess_C_auto.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_auto.normalized.stdout.gz",
+        "stdout_sha256": "4f9869057702e4c407fdbca02e6b249288c5e01482fdddd488be9a6223b6717c",
+        "stderr": "MacroProcess_C_auto.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_auto.normalized.json",
+          "sha256": "f869adda4c3600c4f42c96403bc4d03786bc6b0dcfbb3abaa254cf9774b83406"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_auto.translated.tla",
+        "sha256": "c56e6be6958f35ced25fee7c1a164ea5755190387b58cef9bc6d938182ed948e"
+      },
+      "config": {
+        "path": "MacroProcess_C_auto.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_auto.sany.stdout.gz",
+        "stdout_sha256": "3c54d2790767007d9655a249dd20f95d773350a5662858296419bfd0a23c6406",
+        "stderr": "MacroProcess_C_auto.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_fair",
+      "input": "MacroProcess_C_fair.tla",
+      "input_sha256": "f552eec8eeb5d41065e6fff45188fa49d046624801f5e681b137a0c15bd91739",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.translation.stdout.gz",
+        "stdout_sha256": "884ace59aedb72fa978f7f1d57e24c56edd06487b282083aa5a1e5aaa949e302",
+        "stderr": "MacroProcess_C_fair.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.normalized.stdout.gz",
+        "stdout_sha256": "05d31489c271b989e48f4b8368e30ff2d363d60e43ff0ab7512e8dcf4a9db2e7",
+        "stderr": "MacroProcess_C_fair.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_fair.normalized.json",
+          "sha256": "989fafb377ec9608f96705bc9ecc5146bb439e4d5886d8e05299ac25d7c529f3"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_fair.translated.tla",
+        "sha256": "559a972e921f055ff8a37da5aed4dfdca989a350b0ae9091e446b259637d3b45"
+      },
+      "config": {
+        "path": "MacroProcess_C_fair.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.sany.stdout.gz",
+        "stdout_sha256": "3eafd1f3b542507c988133108726bb887ea977361fd65313a9201f96ffbb81bc",
+        "stderr": "MacroProcess_C_fair.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_foreign",
+      "input": "MacroProcess_C_foreign.tla",
+      "input_sha256": "f8c056cc1a1d79d42616646c5f190aa852906a5075c7fd5bf96dfaeb8c579fe4",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_foreign.translation.stdout.gz",
+        "stdout_sha256": "a65c4ec875759898a4feaf5f2309b1d0360650df6fff0587fd3bff534fdb5525",
+        "stderr": "MacroProcess_C_foreign.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_foreign.normalized.stdout.gz",
+        "stdout_sha256": "36ccaaca89cefeb09c1b96b39c4e182d14f42ff14c9585765c2ed20e83429be1",
+        "stderr": "MacroProcess_C_foreign.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_foreign.normalized.json",
+          "sha256": "c3291c937cc0b7ff22b9cadb894dd89b1d04e0637e701ee5be9847d7ceac3adb"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_foreign.translated.tla",
+        "sha256": "e65828764b7e1ede80b96f129ca4466836263d4ad8cda2176af96f79d42ee0e5"
+      },
+      "config": {
+        "path": "MacroProcess_C_foreign.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_foreign.sany.stdout.gz",
+        "stdout_sha256": "bf63af875d3ba19a51b4482f04d79821807435cde09adb146df361c4bc1f8ef4",
+        "stderr": "MacroProcess_C_foreign.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_free_self",
+      "input": "MacroProcess_C_free_self.tla",
+      "input_sha256": "adfed8b8267f3f33174854e5057004c231525e6979c4e4f149518cf8e3d3e75e",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_free_self.translation.stdout.gz",
+        "stdout_sha256": "e95a5fbcdd1ef632397f78cc803bd6d69ae7d66f10cf454fe90e0d5ea481732f",
+        "stderr": "MacroProcess_C_free_self.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_free_self.normalized.stdout.gz",
+        "stdout_sha256": "6da537f2371a21fe01f88c29d8745dc00e1b0e0e619c0848bd23671c9fc328c2",
+        "stderr": "MacroProcess_C_free_self.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_free_self.normalized.json",
+          "sha256": "224cef3ccc7d78d4978dd8c341fb4a5b827bfeb5c35594d00f501c7592e2c5b8"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_free_self.translated.tla",
+        "sha256": "ab372af58e84432e0a8ea7e1030befb0ae3a31cd333ccfc59d714f9431f599d8"
+      },
+      "config": {
+        "path": "MacroProcess_C_free_self.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_C_free_self.sany.stdout.gz",
+        "stdout_sha256": "c97b755935f5ef8ec74f7474ca2a6a9ed70aad36c8e788ca9f1fa60815e0ed93",
+        "stderr": "MacroProcess_C_free_self.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_C_id",
+      "input": "MacroProcess_C_id.tla",
+      "input_sha256": "6993808ef8b03c19e39038de51f005c35dcc77a6459056540e9ab2cacc4f0817",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_id.translation.stdout.gz",
+        "stdout_sha256": "49f55fae917e6c759a5ebcf5262f3f9c1d26dc5616354cb097fdc3444a61cad7",
+        "stderr": "MacroProcess_C_id.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_id.normalized.stdout.gz",
+        "stdout_sha256": "43125461967930bd601adbe431faf381f87f0eaa9fecb667169cdcdf070fc602",
+        "stderr": "MacroProcess_C_id.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_id.normalized.json",
+          "sha256": "7f0b4c523f5347deb880642a4cedb361aad9a5549f928ef66a420d7e80438ab7"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_id.translated.tla",
+        "sha256": "bf777fcd0e4a7aca7d512252d0409f42ac347d10523bbb4498a0eb7e72519491"
+      },
+      "config": {
+        "path": "MacroProcess_C_id.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_C_id.sany.stdout.gz",
+        "stdout_sha256": "2a37281f56ff5dc28c5cb32bd35610da920f6b333b984a65b051d031d824f2f4",
+        "stderr": "MacroProcess_C_id.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_C_minus",
+      "input": "MacroProcess_C_minus.tla",
+      "input_sha256": "9c06a06da54cbbcacc19961cb2451828c2f656e0e8c6d828661bc76db39cf5c1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.translation.stdout.gz",
+        "stdout_sha256": "a8ff7b6c7c9688339a3ef814d8936bc4348d58eb917dc563c7bc3453c62c0ffb",
+        "stderr": "MacroProcess_C_minus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.normalized.stdout.gz",
+        "stdout_sha256": "dce709b3e4bcbc544f25d80e59be20d8cb3e3f14421ea6631227d4169116cdf5",
+        "stderr": "MacroProcess_C_minus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_minus.normalized.json",
+          "sha256": "cdbd6fe07be8d071b84c5d81224a0dd0a56c95ec384d23ed33dd7139baac0095"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_minus.translated.tla",
+        "sha256": "28821b63988e5f3ee0e72f4b1f8ba7cf8a352499ca23d95ff8d9202e7a18b270"
+      },
+      "config": {
+        "path": "MacroProcess_C_minus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.sany.stdout.gz",
+        "stdout_sha256": "104f8dc73e89a7c280c63fa9e4c3698d3166c5e7b979867dd924ecf527396391",
+        "stderr": "MacroProcess_C_minus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_mixed",
+      "input": "MacroProcess_C_mixed.tla",
+      "input_sha256": "38ef19bb0275f87979699ef6d5c65bbbb330929d8bf59551f66265fd3d68a717",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_mixed.translation.stdout.gz",
+        "stdout_sha256": "1ffbf7fe15de47a95025c0d578c82b1ca7c9e35f057352d6fdac5ed0295cc1bc",
+        "stderr": "MacroProcess_C_mixed.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_mixed.normalized.stdout.gz",
+        "stdout_sha256": "7133130ed29da8fe94b302d52ac4db47b6747b220c0d31481a0aaa23fd638eb1",
+        "stderr": "MacroProcess_C_mixed.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_mixed.normalized.json",
+          "sha256": "fff799c60459aa75273ca084d9d4d40ba7252d69a2c34c527ad529c3475ccb24"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_mixed.translated.tla",
+        "sha256": "3fea186b22b7b5c47cccfbac138fcda30240b173b8d896dcb0ccc7646b42d1b4"
+      },
+      "config": {
+        "path": "MacroProcess_C_mixed.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_C_mixed.sany.stdout.gz",
+        "stdout_sha256": "294328c072026a81dc87bf8285720b5d19375f77b48281fff077cfd4e58d134a",
+        "stderr": "MacroProcess_C_mixed.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_C_nof",
+      "input": "MacroProcess_C_nof.tla",
+      "input_sha256": "4ceccaafb5bc7e5cea8ad84de2d638ec1c078e0072f8a2ededb80615ca696ff8",
+      "options": [
+        "-nof"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.translation.stdout.gz",
+        "stdout_sha256": "ce605ac36eac7d807fb7af9abe760f0b89b809f225072cb190a0ef3a409eac5b",
+        "stderr": "MacroProcess_C_nof.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.normalized.stdout.gz",
+        "stdout_sha256": "b91376e822bcbb27b749cbd26fa085ee4da0d0b1e68be03904093d07c84a40dc",
+        "stderr": "MacroProcess_C_nof.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_nof.normalized.json",
+          "sha256": "9d71b2687c88d0c90404b22fb08efedc2bde18e6e2b55f27277888ea59a118d4"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_nof.translated.tla",
+        "sha256": "be879aa6ea9baf435e8590fb97f2c8dad66c21288a2fc458339ffabab80c4032"
+      },
+      "config": {
+        "path": "MacroProcess_C_nof.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.sany.stdout.gz",
+        "stdout_sha256": "683eca4f8be33d9638a15ca03af77f32f791af695ee72d73f9b451c2e68c8021",
+        "stderr": "MacroProcess_C_nof.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_plus",
+      "input": "MacroProcess_C_plus.tla",
+      "input_sha256": "5ddd4e82556060ec5aea7ca4a9413cba5d374b0957ef0fb73843ff4b4118146f",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.translation.stdout.gz",
+        "stdout_sha256": "4e214d8d75e679c2e8aef14943bbfffa777e405b85b464995b859934fabda880",
+        "stderr": "MacroProcess_C_plus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.normalized.stdout.gz",
+        "stdout_sha256": "9c1751c4089762edc210a906f989001bf9c5c90845eff08b870ed314fdc569bc",
+        "stderr": "MacroProcess_C_plus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_plus.normalized.json",
+          "sha256": "236148bef87759b11901e126587356712c338433e11b4d2bb79dd0a0577149c1"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_plus.translated.tla",
+        "sha256": "853a7de3d485ee7e8af743136e7915fb91b8cd6928632ab183084100361639ec"
+      },
+      "config": {
+        "path": "MacroProcess_C_plus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.sany.stdout.gz",
+        "stdout_sha256": "63b6430afcdbb57aa6c50bd8af6e4f06fb829c17bd48ff17d4f56759784ef2ca",
+        "stderr": "MacroProcess_C_plus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_set",
+      "input": "MacroProcess_C_set.tla",
+      "input_sha256": "b14e56e30e32e680e853b8efa92f8b1fd113dddd5f55fc598c618d76cc7b29c1",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.translation.stdout.gz",
+        "stdout_sha256": "c59adabae080ac0749a4dc5cfc2fe7617dd8a50d063e989db46edd86e90f0f3b",
+        "stderr": "MacroProcess_C_set.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.normalized.stdout.gz",
+        "stdout_sha256": "54373818e92ffe2c4900e134b76e1bcda118474807d29c6f2c81ff49ac393909",
+        "stderr": "MacroProcess_C_set.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_set.normalized.json",
+          "sha256": "9d71b2687c88d0c90404b22fb08efedc2bde18e6e2b55f27277888ea59a118d4"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_set.translated.tla",
+        "sha256": "82fddeca1e09042f8ab41f6e75c2079bf04c185ece9429d622741b81da7200e4"
+      },
+      "config": {
+        "path": "MacroProcess_C_set.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.sany.stdout.gz",
+        "stdout_sha256": "18af2100d34077193843e205201b132bb1cfb72816338da3a02c8d81baae7097",
+        "stderr": "MacroProcess_C_set.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_sf",
+      "input": "MacroProcess_C_sf.tla",
+      "input_sha256": "7ccc0377d4313ef75e0101381187d6375c7c0fac438c07bb86e79188d2d2176e",
+      "options": [
+        "-sf"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.translation.stdout.gz",
+        "stdout_sha256": "1b0d9869dc675932bedfe49c47d690da8d9eecd596ee48955b5fccdefff9e8d0",
+        "stderr": "MacroProcess_C_sf.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.normalized.stdout.gz",
+        "stdout_sha256": "0804099334ccdb00668ba755c2c77a7ed7e027e1053e4b15001820a0ebe6e48e",
+        "stderr": "MacroProcess_C_sf.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_sf.normalized.json",
+          "sha256": "eebf1ca3660f52f0f9b59f8bc131285f627e87770a1f160419290e25a37280f1"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_sf.translated.tla",
+        "sha256": "9c316248e1a48089ef993a2d06e7fe45c2dd10ec328ddb1f0a56fac3d05e9f07"
+      },
+      "config": {
+        "path": "MacroProcess_C_sf.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.sany.stdout.gz",
+        "stdout_sha256": "10cad6be6065100e5842d97060033b30c01e9ed5d8de8a614538250f1919d226",
+        "stderr": "MacroProcess_C_sf.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_strong",
+      "input": "MacroProcess_C_strong.tla",
+      "input_sha256": "d95ff6b6d55877cb164747c1df8ba2e9ba7899bf549ff17564b1678d7ab0c9f7",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.translation.stdout.gz",
+        "stdout_sha256": "0113bdcd264b9eabae59d7bb6ff603adf933ca3ac6447a017f18a71c4da2a486",
+        "stderr": "MacroProcess_C_strong.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.normalized.stdout.gz",
+        "stdout_sha256": "a67d68e2e97c5eb056565a0aae6c5429343581e03537f2be588cfb6035086a47",
+        "stderr": "MacroProcess_C_strong.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_strong.normalized.json",
+          "sha256": "3bbf4e4d40924aa9de553d7d6f0686c3048fb95f8803517bdc8da02c38270dc4"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_strong.translated.tla",
+        "sha256": "7d03b119c35a16c23b9c1d547ecf58a725d0d25872e2fb4d38dab915b5117657"
+      },
+      "config": {
+        "path": "MacroProcess_C_strong.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.sany.stdout.gz",
+        "stdout_sha256": "7731efcb74d5b72c864b37f37398cc3a429745d81285a6f7f055d6dc1d0988f0",
+        "stderr": "MacroProcess_C_strong.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign",
+      "input": "MacroProcess_C_unused_foreign.tla",
+      "input_sha256": "66656ce2e5d35c2d310df37c893c026a01ac44a1035e01e3b7d88baebd5379d4",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.translation.stdout.gz",
+        "stdout_sha256": "7e0caf735a805d9538d54d3d18306a99ff383703bff538529876206efeee1bfd",
+        "stderr": "MacroProcess_C_unused_foreign.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.normalized.stdout.gz",
+        "stdout_sha256": "662cf2fc9d59785899217cc2b9d6e386412446fcda3d26b3cac0c5afe043d444",
+        "stderr": "MacroProcess_C_unused_foreign.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_unused_foreign.normalized.json",
+          "sha256": "099c0d51836d1316ddd49254cecfe3ccca227f202428f5e15d40abada2e80fdd"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_unused_foreign.translated.tla",
+        "sha256": "8a8d4403825e69542e45134eb8fa73128ed1b3b09bb5b9fc12d37a56aff6b4d0"
+      },
+      "config": {
+        "path": "MacroProcess_C_unused_foreign.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.sany.stdout.gz",
+        "stdout_sha256": "8af03081ca96688841af01170d7415cfe49eba3ef7851d33278c96a65445bc89",
+        "stderr": "MacroProcess_C_unused_foreign.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_wf",
+      "input": "MacroProcess_C_wf.tla",
+      "input_sha256": "33c93b96da6c0b36bc619b1c27d9b56c5d7353ea2313a46dc0b7bee8972b4ed6",
+      "options": [
+        "-wf"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.translation.stdout.gz",
+        "stdout_sha256": "02cdf01fe6aa723323b6104b35829c0fa538accc5a1021aa09cde6335fe9b983",
+        "stderr": "MacroProcess_C_wf.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.normalized.stdout.gz",
+        "stdout_sha256": "1719450ebfb95a7b28a783af7e9c1d776386f7211f11268c9410e08338d4d022",
+        "stderr": "MacroProcess_C_wf.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_wf.normalized.json",
+          "sha256": "78078074fb824b4d2703e1c57dc38b3c62315fb4ad32c681e0bd49d11f5da017"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_wf.translated.tla",
+        "sha256": "60b3645ffba5a5ace4e7af8a1cd0765693b5c155939e075461b5e7e7a4aa370b"
+      },
+      "config": {
+        "path": "MacroProcess_C_wf.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.sany.stdout.gz",
+        "stdout_sha256": "ff2f24c39025ebad3d82f0ae47c2537b8838bd9e7384f703784114bc1be91f69",
+        "stderr": "MacroProcess_C_wf.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_wfnext",
+      "input": "MacroProcess_C_wfnext.tla",
+      "input_sha256": "a0af91c6fd187c516103c2ef28f7b95f82b550049014026bdea7c7b045528d48",
+      "options": [
+        "-wfNext"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.translation.stdout.gz",
+        "stdout_sha256": "d1d092df02940d8be3d38f103b86d6865c98306c34a2d81e8183c0f3d5665028",
+        "stderr": "MacroProcess_C_wfnext.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.normalized.stdout.gz",
+        "stdout_sha256": "e4a46082bd38dd78e211f5c4139ec4fa018e20540bb70032c674f1b54db7ab45",
+        "stderr": "MacroProcess_C_wfnext.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_wfnext.normalized.json",
+          "sha256": "9d71b2687c88d0c90404b22fb08efedc2bde18e6e2b55f27277888ea59a118d4"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_wfnext.translated.tla",
+        "sha256": "a0b2b5f827f1b767020751fe813ea60a572cd518c06dedd2430278aebea84826"
+      },
+      "config": {
+        "path": "MacroProcess_C_wfnext.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.sany.stdout.gz",
+        "stdout_sha256": "3f77f104d5dad18172895303e2260a75d8b770a7bb4d9c59fce3edc28d3fd0bb",
+        "stderr": "MacroProcess_C_wfnext.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_C_with",
+      "input": "MacroProcess_C_with.tla",
+      "input_sha256": "ab08095e029bf899f0ccd3e97eb8b80632d10f19bd53ef6b6ae9e3b32b6252eb",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.translation.stdout.gz",
+        "stdout_sha256": "3e3faf076f2a2fc0d39e0de7761beec3e0a315746413ce13c9c4d15eea050a56",
+        "stderr": "MacroProcess_C_with.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.normalized.stdout.gz",
+        "stdout_sha256": "310d5d6da0e8c527b6946539b322e86499a645fb5cf28d0f6dde7f854f5e1ea4",
+        "stderr": "MacroProcess_C_with.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_C_with.normalized.json",
+          "sha256": "187c5df36fb0dc8cbf485e74ad3d880373a32d0c4bfe3a4b583e026c7b36d3d0"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_C_with.translated.tla",
+        "sha256": "54db027f8e03aae48c4e5478486c0358dfc36acbd515bcd8faf87d6f45eadc2b"
+      },
+      "config": {
+        "path": "MacroProcess_C_with.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.sany.stdout.gz",
+        "stdout_sha256": "03838f87a5ada1f584bd1bbf69d74740409095539b2751bcfa4c15de18dce8dd",
+        "stderr": "MacroProcess_C_with.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_auto",
+      "input": "MacroProcess_P_auto.tla",
+      "input_sha256": "771c4371ec47abafbb2f024f19baf841f96aa63f25ee0f2e7017d3f983ab67c5",
+      "options": [
+        "-label"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_auto.translation.stdout.gz",
+        "stdout_sha256": "302599dca9ce551ef46e0be116a82c3b640cff3c39f823ae5d64fcfeb6c461a3",
+        "stderr": "MacroProcess_P_auto.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_auto.normalized.stdout.gz",
+        "stdout_sha256": "8d9a43653de01d92b96dce0406b7e0aee8f8b148a3c3bbe083368802f5334a1a",
+        "stderr": "MacroProcess_P_auto.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_auto.normalized.json",
+          "sha256": "c939f5e2eacce1e206318c632e2be224087b4d22b89c90d59a84c689827149a4"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_auto.translated.tla",
+        "sha256": "65af1022237324ffb9cdeb4166ab5c34322c26b5651ad75a12198834eb71faed"
+      },
+      "config": {
+        "path": "MacroProcess_P_auto.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_auto.sany.stdout.gz",
+        "stdout_sha256": "de8bf29d2b76cb1f63b164304c4d0c846ac23f56e6061f75461f1fd672cbc897",
+        "stderr": "MacroProcess_P_auto.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_fair",
+      "input": "MacroProcess_P_fair.tla",
+      "input_sha256": "1bdb9a5fcc3d708f5e3ded0dea63755a76d852c1b4bbaf0c8d8f69a4936a211c",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.translation.stdout.gz",
+        "stdout_sha256": "e954285964a1126fb00072fd9673507c8b9362194ca48b5e34a3f44683b47dde",
+        "stderr": "MacroProcess_P_fair.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.normalized.stdout.gz",
+        "stdout_sha256": "2a1c951462fefa645e9ada955e018cf5603a3dfcc4c3799e65ca94005f085261",
+        "stderr": "MacroProcess_P_fair.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_fair.normalized.json",
+          "sha256": "8b0b5bd46e321f11b46b5269fa055645b5fe348aeb73240b4d7532d5877246e6"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_fair.translated.tla",
+        "sha256": "a79fd5669eba34cf34a6cbb2fd552fe86b3fe6d61619ab2f6a9d0be762b23407"
+      },
+      "config": {
+        "path": "MacroProcess_P_fair.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.sany.stdout.gz",
+        "stdout_sha256": "ca9a28ffb5b53992115f5e354b0fa0c7386e744f1c1da9b211896ade6e558b97",
+        "stderr": "MacroProcess_P_fair.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_foreign",
+      "input": "MacroProcess_P_foreign.tla",
+      "input_sha256": "d09ec10e4555ee0ea7e9cb69303bada0a24ae235b674091e45cbcc6c12dd4d55",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_foreign.translation.stdout.gz",
+        "stdout_sha256": "3e49d8627b6493f5feca2efbaeb8ae619a46b1591c8b6a2b9e6f6a43d5c9ec6e",
+        "stderr": "MacroProcess_P_foreign.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_foreign.normalized.stdout.gz",
+        "stdout_sha256": "3922f515433b8c12fc213db235de90d1d7d67f2023f00b84be24eabdc50a780e",
+        "stderr": "MacroProcess_P_foreign.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_foreign.normalized.json",
+          "sha256": "b3c7e8b3fef1feb34b92d12df30314f6630ebc0dca925ce670507e00e01fc734"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_foreign.translated.tla",
+        "sha256": "46676ab7d240a8744ac41dddad597dcdea0fc80c5b9c08267bed19c0ab0f0df0"
+      },
+      "config": {
+        "path": "MacroProcess_P_foreign.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_foreign.sany.stdout.gz",
+        "stdout_sha256": "239b2d16dd71a8de8e5eb200099499a562924f49f84e39a0870f71800177fdd2",
+        "stderr": "MacroProcess_P_foreign.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_free_self",
+      "input": "MacroProcess_P_free_self.tla",
+      "input_sha256": "95b7b37109a0ce6510c3777492e4cae06688751e1ec639da2e24f27c29a67413",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_free_self.translation.stdout.gz",
+        "stdout_sha256": "e9f31a101ebc250e2ce800c027fd6c89efeffb6c55aed6283df81926a4a26e82",
+        "stderr": "MacroProcess_P_free_self.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_free_self.normalized.stdout.gz",
+        "stdout_sha256": "bc8603a3388d6cdb98d08d0fc8fd138fda49ca4f57f3ff34de8e57cc99fd395b",
+        "stderr": "MacroProcess_P_free_self.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_free_self.normalized.json",
+          "sha256": "413080200b05430339450f2361f24f35187b3d5a32fb5ebfc2ed962ac5e79710"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_free_self.translated.tla",
+        "sha256": "872c4aac8895926f632edc773561b760e5c478fdf44b07cedfab8d4af97aef11"
+      },
+      "config": {
+        "path": "MacroProcess_P_free_self.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_P_free_self.sany.stdout.gz",
+        "stdout_sha256": "d0d53a732dfea4d5ba31f74036c30b8ef0c207d8edcc93fef20d72aef188a650",
+        "stderr": "MacroProcess_P_free_self.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_P_id",
+      "input": "MacroProcess_P_id.tla",
+      "input_sha256": "bc6618255a5645d01eebc60e8e2149b9c48e6fa753a0f1009c9563ce3b5f0db5",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_id.translation.stdout.gz",
+        "stdout_sha256": "7bfd8eecc5d1512ffb0abf5895e3b0dd310e53d8e921807e35c8edbdc6b908b3",
+        "stderr": "MacroProcess_P_id.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_id.normalized.stdout.gz",
+        "stdout_sha256": "12d1438da8b19a61eba3e4a08e2643e8bf8b98a3565884e2fa0cd8b17295d1df",
+        "stderr": "MacroProcess_P_id.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_id.normalized.json",
+          "sha256": "117a679319cbb6f62b1b0c6510561a13c477548d9750d21adffd66e2e0357b65"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_id.translated.tla",
+        "sha256": "1474072f54d4ce0a0dbabe463a79492b100e1ba30b1fb4f1facd75ab0b4f6dcc"
+      },
+      "config": {
+        "path": "MacroProcess_P_id.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_P_id.sany.stdout.gz",
+        "stdout_sha256": "0d947ab668dadb8d7316d2e0ca7ec40c019c7038321225cdd8839ef6d1990a0b",
+        "stderr": "MacroProcess_P_id.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_P_minus",
+      "input": "MacroProcess_P_minus.tla",
+      "input_sha256": "ca84a68d5d5d793a77a7686e6aecb774ea85e0b53aac481367ab1163e66f6c1c",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.translation.stdout.gz",
+        "stdout_sha256": "daad53a4654faceda19cd04e264b5f1bf321257301807b087bb5a608768aa01e",
+        "stderr": "MacroProcess_P_minus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.normalized.stdout.gz",
+        "stdout_sha256": "a0f466c09532a11b2d2998509a642b2879c3180ff805af4e25caadf9eb9da104",
+        "stderr": "MacroProcess_P_minus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_minus.normalized.json",
+          "sha256": "48a8db74d762b8e677551987c5d291a81a12118e5611fdc0a25be2cc4047a2f1"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_minus.translated.tla",
+        "sha256": "b51790a03f93515780a138558631cc4c8a9451462fb8389c49174f552066c7a5"
+      },
+      "config": {
+        "path": "MacroProcess_P_minus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.sany.stdout.gz",
+        "stdout_sha256": "1796b6e5dd260019a1a58c02d067490887cfe731783de27cff4c0981de5c21aa",
+        "stderr": "MacroProcess_P_minus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_mixed",
+      "input": "MacroProcess_P_mixed.tla",
+      "input_sha256": "5c1021b3382e9bfcaf4d8ff112795396cda37d1c4b7dc91c70d93d6820327e3d",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_mixed.translation.stdout.gz",
+        "stdout_sha256": "f767f59ae6165fc738fec4fb2bd265d2ffe63785d5a2bf95198cd8ae3788672c",
+        "stderr": "MacroProcess_P_mixed.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_mixed.normalized.stdout.gz",
+        "stdout_sha256": "9f04e46b80ea9d1836f5f259b27cc8ede75a11607c93ac35d55fb33c2d4df240",
+        "stderr": "MacroProcess_P_mixed.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_mixed.normalized.json",
+          "sha256": "e0ea146f2f517fa143326e7428d1a03164c2faeff387fa389604fa798f7918f5"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_mixed.translated.tla",
+        "sha256": "27730b105f737f00fecc1e7e5a1f9b5801f97ff5e3559fca5d6a59e30a7709bf"
+      },
+      "config": {
+        "path": "MacroProcess_P_mixed.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 4,
+        "stdout": "MacroProcess_P_mixed.sany.stdout.gz",
+        "stdout_sha256": "492f431aa049c91b8ca8531919c03736e907e860fb6e85d8c21fe96329471fbe",
+        "stderr": "MacroProcess_P_mixed.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "rejected"
+      }
+    },
+    {
+      "id": "MacroProcess_P_nof",
+      "input": "MacroProcess_P_nof.tla",
+      "input_sha256": "e1ee2207eb689e5b40931d22ed7eb7f5d1ba9348f26ad014c3576e137051ea2f",
+      "options": [
+        "-nof"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.translation.stdout.gz",
+        "stdout_sha256": "f030430ccc7adb26275d36aea96b960cdaf4da1a874acf3012493298d1db26b7",
+        "stderr": "MacroProcess_P_nof.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.normalized.stdout.gz",
+        "stdout_sha256": "cd093346fbc37a762947567a88a3b99e761a2d67ee52adfd85b5eaf2889f5458",
+        "stderr": "MacroProcess_P_nof.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_nof.normalized.json",
+          "sha256": "267a5fc80d3033c571d95022faed50a5f9313049ca012fcae9b16e8ad7d2e2cb"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_nof.translated.tla",
+        "sha256": "e8745916aa9a4b2173ef4714306c3b1d088be2f5d846387ba1ab62fb8ffee7c7"
+      },
+      "config": {
+        "path": "MacroProcess_P_nof.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.sany.stdout.gz",
+        "stdout_sha256": "0505fd188f2c975a92c08b7204af2c087060530bd72c3f7e6362575b18b1f157",
+        "stderr": "MacroProcess_P_nof.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_plus",
+      "input": "MacroProcess_P_plus.tla",
+      "input_sha256": "c05bcc9e48e64383071f53517224466d439a69ffd0b7e8dc251f9cf94b1cd67e",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.translation.stdout.gz",
+        "stdout_sha256": "9db22ab647ceddfdc89fc1706b8dce1d2e206cad63849c7c4a05f2eae91fb15f",
+        "stderr": "MacroProcess_P_plus.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.normalized.stdout.gz",
+        "stdout_sha256": "24d949b8095dd85e450ba166b82cc050ff9e39e3eb3fcc6e43760cc78a99bc4f",
+        "stderr": "MacroProcess_P_plus.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_plus.normalized.json",
+          "sha256": "4beead197218467ab2a444b37e0e9d1893d09a4986d5e93c2b27175f5c929856"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_plus.translated.tla",
+        "sha256": "eaa79fb157dd14c7f1bac1b696e221e99e58b9f8d7fe2fb05834eefafc6854f0"
+      },
+      "config": {
+        "path": "MacroProcess_P_plus.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.sany.stdout.gz",
+        "stdout_sha256": "3504b2807f38739c50e8b6cb1e371e5a9362611026d99c0b46a0ec588bf2af36",
+        "stderr": "MacroProcess_P_plus.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_set",
+      "input": "MacroProcess_P_set.tla",
+      "input_sha256": "23308f1ad76029d5584c6d49339821a2c217554da77b777521be088c02db93ec",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.translation.stdout.gz",
+        "stdout_sha256": "261f9c733a2380bc96d1028943553f1b6dffd283fed771b7a98779212455f226",
+        "stderr": "MacroProcess_P_set.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.normalized.stdout.gz",
+        "stdout_sha256": "d14b20daafee588d4bc4480c94b7c47a2b87f71ddebdd17c65df6bdb64b88721",
+        "stderr": "MacroProcess_P_set.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_set.normalized.json",
+          "sha256": "267a5fc80d3033c571d95022faed50a5f9313049ca012fcae9b16e8ad7d2e2cb"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_set.translated.tla",
+        "sha256": "0e1cc0e2726a2870b5865e4e77a02bff53db0bd99e7d5a5bbd4b410f963b0ce8"
+      },
+      "config": {
+        "path": "MacroProcess_P_set.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.sany.stdout.gz",
+        "stdout_sha256": "1b4b44d2c94df54908d769fb91eb92b773e742f86caa20c20794cb34b7b5fa3f",
+        "stderr": "MacroProcess_P_set.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_sf",
+      "input": "MacroProcess_P_sf.tla",
+      "input_sha256": "41bb306e38e3b73405efd4f20b836a6b659d5bab35db3f980e6a929ea0de3f91",
+      "options": [
+        "-sf"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.translation.stdout.gz",
+        "stdout_sha256": "ca708e0118582d2c6f457249e718e904bcaa32ed5f839a6c160c80dfac161f87",
+        "stderr": "MacroProcess_P_sf.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.normalized.stdout.gz",
+        "stdout_sha256": "a2d5b217dc551b7067589f1eec6ac6b006f27b2404c5f4c51aaf9df7052f23a0",
+        "stderr": "MacroProcess_P_sf.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_sf.normalized.json",
+          "sha256": "ebc0951b06135b06d50b091bfc5e9fb36737628349ecd65222f0e4b5ca9df98f"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_sf.translated.tla",
+        "sha256": "3c5dab95ef4e041d83b85e670e5a8628e3e9c286ca298e7077362aa7bc332418"
+      },
+      "config": {
+        "path": "MacroProcess_P_sf.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.sany.stdout.gz",
+        "stdout_sha256": "1a59f8c43af73935f6932965440d1b34c07c44762362fe8b163102810bc655ab",
+        "stderr": "MacroProcess_P_sf.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_strong",
+      "input": "MacroProcess_P_strong.tla",
+      "input_sha256": "1c68b46a142e5e0293c941cad7f0b293dd21137124a41d7e0e68a0a62fbe12b7",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.translation.stdout.gz",
+        "stdout_sha256": "453232d2ab0ef6aafed8383d0d954a01142e0ee46aaa1932ef46b6d4d89d1e4f",
+        "stderr": "MacroProcess_P_strong.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.normalized.stdout.gz",
+        "stdout_sha256": "0d87ab7be90850f455d5d3c166a33f5bbb63c1feb07e31b7185c3ecbc930d7f6",
+        "stderr": "MacroProcess_P_strong.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_strong.normalized.json",
+          "sha256": "d237cd465a928c083653fa8a63e2c0ac45911eee25fd2360236270f212cecaae"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_strong.translated.tla",
+        "sha256": "8fae214b039c67b352acd88a79c6fd3858b2697678574ea2baf549dcba8163b0"
+      },
+      "config": {
+        "path": "MacroProcess_P_strong.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.sany.stdout.gz",
+        "stdout_sha256": "9f43375a64c283ed4059caebfb57acabef907cf7f01a1e7c32f8291710e3fde4",
+        "stderr": "MacroProcess_P_strong.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign",
+      "input": "MacroProcess_P_unused_foreign.tla",
+      "input_sha256": "6e9eed738a8daca6ea27c6489ec042a43fe94dfa9beabd5db0ea39331d08bea9",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.translation.stdout.gz",
+        "stdout_sha256": "dd7bdd1dcf1e5079ce33be09d9bf726979228e1a76e6eec601bd195e1f72b7b0",
+        "stderr": "MacroProcess_P_unused_foreign.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.normalized.stdout.gz",
+        "stdout_sha256": "eda08ab1b683cb73bba9ee63944531663478045c1a1cc3252638b481f133bc61",
+        "stderr": "MacroProcess_P_unused_foreign.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_unused_foreign.normalized.json",
+          "sha256": "cc25c147ee4c1d85c897324bef075bcc353ef9c6faf7fe519603387a8b08c998"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_unused_foreign.translated.tla",
+        "sha256": "cefac8d58811be9458be8c641f06a9053e6fd6ccfdb637bfeecb4f7a4e515665"
+      },
+      "config": {
+        "path": "MacroProcess_P_unused_foreign.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.sany.stdout.gz",
+        "stdout_sha256": "1a02704a8ebe02223eed11ddc1eddf4f9a04c0b57526916707a4aa1d783a9bfb",
+        "stderr": "MacroProcess_P_unused_foreign.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_wf",
+      "input": "MacroProcess_P_wf.tla",
+      "input_sha256": "37a864015bd149659fcce85be95783a736352ad806be58804ad9e2eca357ac66",
+      "options": [
+        "-wf"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.translation.stdout.gz",
+        "stdout_sha256": "3d3434bf4634d156d8a9cb1e03e1958581cca7b43fe147519d658217ee41035f",
+        "stderr": "MacroProcess_P_wf.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.normalized.stdout.gz",
+        "stdout_sha256": "0d251e4ad270354a3443ccf447e2942af067acc112a94744f4d61d0b35de0e38",
+        "stderr": "MacroProcess_P_wf.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_wf.normalized.json",
+          "sha256": "649b43d949cb904e8dc76cdeb401a1e51c4a93489a1208bd0c6353709084119e"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_wf.translated.tla",
+        "sha256": "db2620770dc58bca7f759cb8173f2569ddd87fd978266c6a9c7602f049f16ac0"
+      },
+      "config": {
+        "path": "MacroProcess_P_wf.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.sany.stdout.gz",
+        "stdout_sha256": "1d52feb1f139dfa44ded946512b26de924ff43f245d723d1e528c1a81e411c70",
+        "stderr": "MacroProcess_P_wf.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_wfnext",
+      "input": "MacroProcess_P_wfnext.tla",
+      "input_sha256": "ae953aca7a9e373a49147540cb24ff6586f80ca0e61e63031924de066f9573a5",
+      "options": [
+        "-wfNext"
+      ],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.translation.stdout.gz",
+        "stdout_sha256": "5ae22e5ed5089ccd15fe7cde773fd8191c4be93312f1f7abc20aa5991622ac45",
+        "stderr": "MacroProcess_P_wfnext.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.normalized.stdout.gz",
+        "stdout_sha256": "b7561169ed80b372e3c5f2320f10425f040f507ce95ad12d15abaf97aac463ba",
+        "stderr": "MacroProcess_P_wfnext.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_wfnext.normalized.json",
+          "sha256": "267a5fc80d3033c571d95022faed50a5f9313049ca012fcae9b16e8ad7d2e2cb"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_wfnext.translated.tla",
+        "sha256": "b59e40e4426895edfc5c7aaa11e14089e67dff3ec46bd62c4e500e2961c41d4f"
+      },
+      "config": {
+        "path": "MacroProcess_P_wfnext.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.sany.stdout.gz",
+        "stdout_sha256": "9fb46afadc96fa327d19cc36d1d508c2e0c96ffbbd0ea8608a3aae808cb94032",
+        "stderr": "MacroProcess_P_wfnext.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    },
+    {
+      "id": "MacroProcess_P_with",
+      "input": "MacroProcess_P_with.tla",
+      "input_sha256": "8d1b2a2e08c6fee1d69b3429375bbdbfd48df391b61db2c4161b25c944f34ff3",
+      "options": [],
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.translation.stdout.gz",
+        "stdout_sha256": "559acb73c59846b57c725f4b282c9f909171c56d3efd7865c2a5cefd0bea242b",
+        "stderr": "MacroProcess_P_with.translation.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "translated"
+      },
+      "normalized_reference_adapter": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.normalized.stdout.gz",
+        "stdout_sha256": "a76008bdbb0a47cbbebb73091fb6bea5903d371a4d9ab48b11e3a110043b62b5",
+        "stderr": "MacroProcess_P_with.normalized.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted",
+        "document": {
+          "path": "MacroProcess_P_with.normalized.json",
+          "sha256": "52caeaa08d99226db2ea4d4c7793cd81b0c7338aea64240cdd3b742d64bb2f72"
+        }
+      },
+      "translated": {
+        "path": "MacroProcess_P_with.translated.tla",
+        "sha256": "c45e6958835db69dfd233f2d1f753c2b1d048062150e61a3637046759c2f8da8"
+      },
+      "config": {
+        "path": "MacroProcess_P_with.translated.cfg",
+        "sha256": "27a283f21b8eb068857a71564e661704690c0c5fd147ef19ce375667a73ea11d"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.sany.stdout.gz",
+        "stdout_sha256": "ab5b9def5db43f15c9a20a4333778bfa40b9bd285dedead0ce8203fa71dded3f",
+        "stderr": "MacroProcess_P_with.sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "accepted"
+      }
+    }
+  ]
+}

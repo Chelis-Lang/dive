@@ -25,7 +25,7 @@ program-counter omission for the eligible infinite loop and sequential
 read-after-write priming follow the pinned translator. Assertion locations point
 to the keyword, including when a label precedes it.
 
-Named refusals cover processes, procedures/calls/returns, macros, `define`,
+Named refusals cover unproved procedure scopes/calls and `define`,
 unproved branch-internal label placement,
 name disambiguation/generated-name collisions and shadowing binders. TLA lexical
 binding constructs (including Unicode quantifiers/function binders) and multiline
@@ -83,4 +83,18 @@ and [ADR 0026](decisions/0026-pluscal-sequential-translation.md).
 
 One unfair literal-ID or finite-membership process block is now a separate bounded
 native path; see [process storage/action admission](pluscal-processes.md). Multiple
-blocks, fairness and unproved process renaming remain named refusals.
+blocks and fairness now have their own [admission contract](pluscal-multiple-processes.md);
+unproved process renaming remains refused. [Bounded macros](pluscal-macros.md)
+expand before these actions; procedure interactions and unproved substitution
+remain named refusals.
+
+[Sequential procedures](pluscal-procedures.md) now admit one explicitly labelled
+procedure with saved parameter/local frames. Multiple/recursive/process-owned
+procedure scopes and macro interactions remain named refusals. Strict independent
+validation of generated stack witnesses remains pending under the encounter-order
+guard; separate default-profile replay does not earn TLC validation credit.
+
+[Nonrecursive procedure graphs](pluscal-procedure-graphs.md) extend the sequential
+path to multiple disjoint procedures, nested calls and exact adjacent call/return
+head replacement. Explicit cycle/scope/process refusals, global limits and strict
+namespace/deadlock witness qualification remain active; full parity is pending.

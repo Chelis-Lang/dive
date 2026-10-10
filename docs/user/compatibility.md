@@ -19,7 +19,9 @@ Named opt-ins can produce `tlc+overrides`. For example, final/short temporal
 checking and retained checkpoint counters must not claim pure TLC semantics.
 Check the resolved profile and options rather than inferring compatibility from
 one command-line flag. Host-access grants remain the approved exception: compat
-never silently authorizes host I/O; unsupported operators refuse.
+never silently authorizes host I/O; unsupported operators refuse. The planned
+category-grant CLI is not exposed in this checkout; host environment reads,
+file operations and process execution remain named refusals.
 
 Always record the reported seed and fingerprint settings for replay. A seeded
 mode still has to prove its draw order; the independent validator refuses random

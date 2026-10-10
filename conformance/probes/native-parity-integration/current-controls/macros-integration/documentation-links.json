@@ -1,0 +1,25 @@
+{
+  "documents": [
+    "docs/README.md",
+    "docs/user/rust-api.md",
+    "docs/user/front-end.md",
+    "docs/user/storage-recovery.md",
+    "docs/user/pluscal.md",
+    "docs/user/modules.md",
+    "docs/user/traces.md",
+    "docs/user/getting-started.md",
+    "docs/user/README.md",
+    "docs/user/simulation.md",
+    "docs/user/temporal.md",
+    "docs/user/compatibility.md",
+    "docs/user/reports-and-errors.md",
+    "docs/user/dfid.md",
+    "docs/user/checking.md",
+    "docs/developer/documentation-policy.md",
+    "docs/developer/README.md",
+    "docs/user/examples/README.md",
+    "docs/pluscal-macros.md"
+  ],
+  "relative_links": 82,
+  "passed": true
+}

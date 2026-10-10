@@ -1,0 +1,3607 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "cd4485c474cf7bbaa60616690fd9f25d61aa48a48fe24d9ccb2cc660fb2a98ce",
+  "script_sha256": "503e7ad01d7f925e3a81171ed00b33c1609e13d5c0141886521cc448d453f9dd",
+  "native_sha256": "f554476fb66f24a910480ebfa9586839c2905cc4c22d6cc58edb1e580f10cbe6",
+  "cst_dumper_sha256": "56bb3bc5488d072d1b7fcee42a6f24d068b71ff04da49a4e4237e6e16b20b143",
+  "selected_artifacts": 24,
+  "artifact_summary": {
+    "native-sany-match": 24
+  },
+  "model_summary": {
+    "finite-model-match": 26
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "MacroProcess_C_auto",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "99dd496f5cf7fe98ca613d55c7b7a4babef87c8cbac2edae1cd86c89b84cc210",
+      "artifact": "MacroProcess_C_auto.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_auto.native.stdout.gz",
+        "stdout_sha256": "325c1b499d69af2f4b3bb61baba01725831d8e6b87013d562fa21281600318b2",
+        "stderr": "MacroProcess_C_auto.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_auto.native-sany.stdout.gz",
+        "stdout_sha256": "896453c5afaea17bfd5db41da7a883d22cea35967a57ea3e35ba0d2fe7dcdc82",
+        "stderr": "MacroProcess_C_auto.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "3978b810d036437aff74595d5ec35ca045d6ad5860c2cf58c791ce3985e488df"
+    },
+    {
+      "id": "MacroProcess_C_fair",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "baf41ce8bdd15ee64448f8efe8e71e8fe4dacfa0475577bc7f7072a089a1bb68",
+      "artifact": "MacroProcess_C_fair.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.native.stdout.gz",
+        "stdout_sha256": "da7900a5630a017d760e33c72373f19a2e93e123d01b913391b1c34b7142cfa1",
+        "stderr": "MacroProcess_C_fair.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.native-sany.stdout.gz",
+        "stdout_sha256": "a6b79cd285f21123cfc78455fa40750e7cd41c7408943ff1de2c741548edf21a",
+        "stderr": "MacroProcess_C_fair.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "5566d027f43b3f7d2a542a9bcd6aa391876cc3fc868d4204524c9c7367f161b3"
+    },
+    {
+      "id": "MacroProcess_C_minus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "30da5dac54840937017486184c3938ba3ccab87c816bed4f2d73cf53fe25427d",
+      "artifact": "MacroProcess_C_minus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.native.stdout.gz",
+        "stdout_sha256": "0f72397972799d8a3e3eaadacd48b647fdaec30db4467acd9e374f3d20098a41",
+        "stderr": "MacroProcess_C_minus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.native-sany.stdout.gz",
+        "stdout_sha256": "75f80bcefbe9b5b585f0a78c2caee3f7b7ca60819b82dfead7163fa100a01e9d",
+        "stderr": "MacroProcess_C_minus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "00fcce4ce5bbc3bf49ea4e6d129b2fbb4ff483fd0538b6a1aa12d8ebab8448e4"
+    },
+    {
+      "id": "MacroProcess_C_nof",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "456aca9e4c111c4b453600f2cc9b46c1bba2b4a35ac547ab2f42ed9134020b2b",
+      "artifact": "MacroProcess_C_nof.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.native.stdout.gz",
+        "stdout_sha256": "e5bc3c155752db15178ca91103c334f679db43e536ddeddc81db8c9982d5b2c4",
+        "stderr": "MacroProcess_C_nof.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.native-sany.stdout.gz",
+        "stdout_sha256": "d4ad90aa6f2f87d017c0df203dc5e889ffc3f613c8ec4250ca4d6d442d2f82c4",
+        "stderr": "MacroProcess_C_nof.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "54a522e90f2431c8d8df32e2fe2d0598cf11883ee353146fa466123c3a35ff43"
+    },
+    {
+      "id": "MacroProcess_C_plus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "cc27c0469f2f8d07cf632e28e5f791d1b3c5fbaa95b9d170987efb18db5fee76",
+      "artifact": "MacroProcess_C_plus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.native.stdout.gz",
+        "stdout_sha256": "391f5a466250f0f6aa3fe82f7f8b7b1969f2daa70b6d90cc3bb9416a87a2029b",
+        "stderr": "MacroProcess_C_plus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.native-sany.stdout.gz",
+        "stdout_sha256": "40b6ee1afca6699919c4083d38e6c146c03034843d860b2f40ddaba8881bf5a0",
+        "stderr": "MacroProcess_C_plus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "237291ebfea4b4d0e7580823220a63278a72a8507c8a2996adef67f09c7da568"
+    },
+    {
+      "id": "MacroProcess_C_set",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "08e60bd0394cd65b8cfea081a3dfd74b3edd85a1c5c7474f6aaa32ed36e3f1ce",
+      "artifact": "MacroProcess_C_set.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.native.stdout.gz",
+        "stdout_sha256": "6e9c7169cbb06fb2dcc0a83b659e2b906fbd55a4a973ccd35686fd679ec2dd0b",
+        "stderr": "MacroProcess_C_set.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.native-sany.stdout.gz",
+        "stdout_sha256": "eff6fb2d39e77cf892c42f2d8827e29fcae8a38df3380c023d532f93eba95aa0",
+        "stderr": "MacroProcess_C_set.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "693e53f740e046b69441396e811e4d3a29a1c6b08c926794b2405d9afdb77be3"
+    },
+    {
+      "id": "MacroProcess_C_sf",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "3586c841ac192522dcae2974ef9466957112d0c751ad92ef7d254557cf45baf3",
+      "artifact": "MacroProcess_C_sf.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.native.stdout.gz",
+        "stdout_sha256": "e2e25066a7efe5076d0773f86e4f764d1311380f54c540bcb10f3338294f4fb6",
+        "stderr": "MacroProcess_C_sf.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.native-sany.stdout.gz",
+        "stdout_sha256": "0fe28d9c132224e293ffd3c65eb003849d177b28ef8a658901497940da11f5fd",
+        "stderr": "MacroProcess_C_sf.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "a62dfecfa40d9c913737319c4e49a46000535f0c802c851513f222fd350818ca"
+    },
+    {
+      "id": "MacroProcess_C_strong",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "7a017b52d3b264c90b03cb913f66985bf6f3fa164d08e520d8b242b2cca50741",
+      "artifact": "MacroProcess_C_strong.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.native.stdout.gz",
+        "stdout_sha256": "ed779604132f85fa67c2b804fb97139689db7e37cda3024afd32d974abfdfbcb",
+        "stderr": "MacroProcess_C_strong.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.native-sany.stdout.gz",
+        "stdout_sha256": "13049adb5da17366cc2025b8c96cc20e3a98117f5b0bec8d0f77128d9a33a779",
+        "stderr": "MacroProcess_C_strong.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "9906f2964cf67a80ed05b27ae85b535b4fe720a568c4203fa980eeb9497ddedd"
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "f7946f29df239fd8a72b0d4b9d44ce2060af9c14271e5efe1706ccdc83847131",
+      "artifact": "MacroProcess_C_unused_foreign.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.native.stdout.gz",
+        "stdout_sha256": "2eb8758af6f561c520755e7b5decb398d7803f0efd92a4e54ba1811b677226b2",
+        "stderr": "MacroProcess_C_unused_foreign.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.native-sany.stdout.gz",
+        "stdout_sha256": "ca30c1671e50d5b139aefcd7de3d6f59a907a9b65ce8ac9dc26b8d96219140dc",
+        "stderr": "MacroProcess_C_unused_foreign.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "6a59e0dcf64d92d9badcc9e68f79a9cd6e8fabf7498f1c579895766ad458078f"
+    },
+    {
+      "id": "MacroProcess_C_wf",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "dc7fba00710baff977a3d6aaba7b8f1bb7dc0370b87a86fcb378ca8bed48433f",
+      "artifact": "MacroProcess_C_wf.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.native.stdout.gz",
+        "stdout_sha256": "8582ccc991fa129260ad46352a3716602bb4363a7d2b67a9223934edb85ece27",
+        "stderr": "MacroProcess_C_wf.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.native-sany.stdout.gz",
+        "stdout_sha256": "d7622a8cdcd00b38156e26fd758f29048a47c8c726750f30485e38a996ac04ec",
+        "stderr": "MacroProcess_C_wf.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "6e000477dd0ed590c2fd642c6fb617351bda94767080fec0f2a85fe19b234832"
+    },
+    {
+      "id": "MacroProcess_C_wfnext",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "918631d956972de66c5a3c256213ef2afe12de6e33c2042c6d2c341e6638353c",
+      "artifact": "MacroProcess_C_wfnext.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.native.stdout.gz",
+        "stdout_sha256": "f5a1544a7d7e6381bd777df972cc23dd4cfaf73b7d86bb2df3b0567e841291c7",
+        "stderr": "MacroProcess_C_wfnext.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.native-sany.stdout.gz",
+        "stdout_sha256": "57ceffeab6ae7c6416c74744e6875290c02e9b0282ac688d331b9b08221c8ba2",
+        "stderr": "MacroProcess_C_wfnext.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "af7d688b002f3a6e073592a8dbf229a0925f3b0daacea5850e0ed1066fd07363"
+    },
+    {
+      "id": "MacroProcess_C_with",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "43837443566ca50bde0e3c8f3f5373edce8f2aa8748ea59dfc50d03ac15c79ae",
+      "artifact": "MacroProcess_C_with.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.native.stdout.gz",
+        "stdout_sha256": "f1923ae48e2c352b1f3fb06f1c85169c616d9503dee814a7acc934f901970953",
+        "stderr": "MacroProcess_C_with.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.native-sany.stdout.gz",
+        "stdout_sha256": "73686005355ddbe20b804ac28eef3d9235c8d1e4929fad659fb1e64a16d12893",
+        "stderr": "MacroProcess_C_with.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "3edc151179b063987b04202a7e59151de90595462d48399b29b15f5cc2bb177c"
+    },
+    {
+      "id": "MacroProcess_P_auto",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "63c0a46d467695785750d124d972ff5bd9decad5a5a11ec1f2387880d2c7d484",
+      "artifact": "MacroProcess_P_auto.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_auto.native.stdout.gz",
+        "stdout_sha256": "411768af00937eebd8c299e857e7c0429f4cf5630e77683d2a8f090b79027f16",
+        "stderr": "MacroProcess_P_auto.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_auto.native-sany.stdout.gz",
+        "stdout_sha256": "3f07a841214817ab6b57fefeec5f5b6da3a80dfd7e37e8fc42dd297a9fabeaee",
+        "stderr": "MacroProcess_P_auto.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "5cd375a0d04df29272aafa14b32d5128f3cd662e1aa66145825343bb7c305fb6"
+    },
+    {
+      "id": "MacroProcess_P_fair",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "32daddb10fb1b47d77d4c81c79896c9275efbf3546657509a335944802c3aacd",
+      "artifact": "MacroProcess_P_fair.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.native.stdout.gz",
+        "stdout_sha256": "9988574dfda7d8535a759c49ea1b4c4f709edcd18ffef0c5b53777619ea2f92a",
+        "stderr": "MacroProcess_P_fair.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.native-sany.stdout.gz",
+        "stdout_sha256": "a60ec021f22f511fcd32454d1c9d095707fd3140ceb34a5bb9238806553879e2",
+        "stderr": "MacroProcess_P_fair.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "753adea85de2c031a1efa7d31aeeed9030d766451ea8bbaaa04d714791320f16"
+    },
+    {
+      "id": "MacroProcess_P_minus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "c89bed9e0a37d9e55dad64274a879f5d9116b1e8346e406c3a8f3c99875c0350",
+      "artifact": "MacroProcess_P_minus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.native.stdout.gz",
+        "stdout_sha256": "47843e8c04fff009642f821a885e60dd1efdf18d707800e10190f1ea220a2fa0",
+        "stderr": "MacroProcess_P_minus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.native-sany.stdout.gz",
+        "stdout_sha256": "7cd2b77083fa77778292c4d7693707747f46ea8e601b22d469302b4707275107",
+        "stderr": "MacroProcess_P_minus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "5017a3fac2166b26e305b392b439f87b47651691e59b70a204064afc4e159e9a"
+    },
+    {
+      "id": "MacroProcess_P_nof",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "70f9c3b9617fad54cfbef7012e8838e360c52f7b8a23147916def522dd62add3",
+      "artifact": "MacroProcess_P_nof.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.native.stdout.gz",
+        "stdout_sha256": "82d49931454e33379c665eee7fc39af1b08a04a7d3f2f4c3b0374f6a50b04afb",
+        "stderr": "MacroProcess_P_nof.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.native-sany.stdout.gz",
+        "stdout_sha256": "59e2b48a987ea7eadcc7e8bce07bf73227a8eac56558e90ab79ba372a81bc238",
+        "stderr": "MacroProcess_P_nof.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "a62bec1e0439e81339fb191e18166a743667e245d69baed5a1aceefebdb8e26f"
+    },
+    {
+      "id": "MacroProcess_P_plus",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "3ce38ae02acb4658b961d5a222fa2d1fdd4df72d927d52b0c59de547cab9558a",
+      "artifact": "MacroProcess_P_plus.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.native.stdout.gz",
+        "stdout_sha256": "19e7dc9b41c823e6a141997a51be63d2f027eb72590ed4f6887f3b3cdcae46fd",
+        "stderr": "MacroProcess_P_plus.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.native-sany.stdout.gz",
+        "stdout_sha256": "9b991629f7140318678b4cbb058d79d1f19331b6144f1a781d2222522fee3a9a",
+        "stderr": "MacroProcess_P_plus.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "fe5ac4243039fe6f4e8a1b4041dc9716e2cefdd10c91bcbb2b0e8d80613f868e"
+    },
+    {
+      "id": "MacroProcess_P_set",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "13d8444b3e07266ad866a761bd0a408b83b708c3195e1f2feb1d5f45dc86c0eb",
+      "artifact": "MacroProcess_P_set.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.native.stdout.gz",
+        "stdout_sha256": "2ae394c49b20fd3c363ccc87bfce1c7f45abdc608cabfd7397006d7b2b759abd",
+        "stderr": "MacroProcess_P_set.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.native-sany.stdout.gz",
+        "stdout_sha256": "d666842f6c5eb2063feec0df1b8e53458395e539933cfd0e3ddac9d6382923a5",
+        "stderr": "MacroProcess_P_set.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "ca025d4e503f50ef081fcc96f2ec08e3dd4ddca5c535cbfc925877b390b66a1f"
+    },
+    {
+      "id": "MacroProcess_P_sf",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "81e8fe12115845e690ae9ff8dbf2f4df2208419736ce3430774bcb47d130b753",
+      "artifact": "MacroProcess_P_sf.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.native.stdout.gz",
+        "stdout_sha256": "ccfc9ee4b30a38c042402cd4a6d7ef702994e14bd8475f7e1d798b6cd074707d",
+        "stderr": "MacroProcess_P_sf.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.native-sany.stdout.gz",
+        "stdout_sha256": "85384e240916b4c9368d61feb02819efe83c638f744c6db36604bf900e047fa8",
+        "stderr": "MacroProcess_P_sf.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "6a588e8b3ee63a67e667325d92b8fb6bd350ecc97f9643cfb9536930c74d7609"
+    },
+    {
+      "id": "MacroProcess_P_strong",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "8199052ca3e477bdc1797d2285de0f3c46449934cf85d1848eae53ef6292121f",
+      "artifact": "MacroProcess_P_strong.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.native.stdout.gz",
+        "stdout_sha256": "1fa288301c39a2d1b7456232675155905072a864bffdf587628acfbe9d10e57b",
+        "stderr": "MacroProcess_P_strong.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.native-sany.stdout.gz",
+        "stdout_sha256": "c59ff12dc6d642f7356b2a1f10bd6510609335aa5acbca2211c8dc5b555dd85a",
+        "stderr": "MacroProcess_P_strong.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f9829a950d95dd0cb2fb54cb023cee832e582ad49b87795c39c61d4b7f447859"
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "4d20439a7fd733b0768ea33a8a8527131512891ec715aa604aa0c70f671166f5",
+      "artifact": "MacroProcess_P_unused_foreign.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.native.stdout.gz",
+        "stdout_sha256": "12751c63cf16add975b9bc0a0fc040f96c2f47d07893b0101a79642e5f4a8047",
+        "stderr": "MacroProcess_P_unused_foreign.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.native-sany.stdout.gz",
+        "stdout_sha256": "92444cce63abd125e3325c094d210a07d4a785fb8699bedd3acf921d3bdd10b8",
+        "stderr": "MacroProcess_P_unused_foreign.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "1360a3772b62e468a0f25e9fbbf07f6b33d23c99bd1a6fe596cf55be19e49663"
+    },
+    {
+      "id": "MacroProcess_P_wf",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "d0faf02ac1bdbbda9ce99ddf3fa805531c373a9ed5177450a0414c588259e46e",
+      "artifact": "MacroProcess_P_wf.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.native.stdout.gz",
+        "stdout_sha256": "d8be91cc039e371ab6f2cc35517592f96b370546d7cca21184920312ff65c44c",
+        "stderr": "MacroProcess_P_wf.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.native-sany.stdout.gz",
+        "stdout_sha256": "af6f5847b1b248f52cc374448c9eaa67b0e863a8070e0900b885a632b1438f6d",
+        "stderr": "MacroProcess_P_wf.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "12d3bc6065296bae37fbea86d2979bb5a33a9e51a7d4c6126154ad337499e818"
+    },
+    {
+      "id": "MacroProcess_P_wfnext",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "48910eb699290ee3c0c24fd4ae2b4951ffc5befbe93fa004befa026fc7614438",
+      "artifact": "MacroProcess_P_wfnext.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.native.stdout.gz",
+        "stdout_sha256": "c22fefac46f47e07183e3032aea941a7a6fe4b669c2da877e1292e6d50a4702d",
+        "stderr": "MacroProcess_P_wfnext.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.native-sany.stdout.gz",
+        "stdout_sha256": "665f3d1cdf936658afd7746fc317b4e1dbe3de2991d292fb71d3af6bd28673e7",
+        "stderr": "MacroProcess_P_wfnext.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "e7eb1df7c086fb76d7a4bb84aee4d856f967fd89702dab1feb8ef93ff766a101"
+    },
+    {
+      "id": "MacroProcess_P_with",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "99ea98bc3c147f43c90f1efa6a79cf9e6ae542d12e546d6092fab5ea6dd78cbd",
+      "artifact": "MacroProcess_P_with.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.native.stdout.gz",
+        "stdout_sha256": "52b48c5077c9f3736a2f70b30c9f8e7214e986a64335261642f090cbaee123ee",
+        "stderr": "MacroProcess_P_with.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.native-sany.stdout.gz",
+        "stdout_sha256": "5c9ba80d2a5e0324183fba762a92af1da466582f4f5d96c9c7e43638b8106d9a",
+        "stderr": "MacroProcess_P_with.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "c91e4c89159ea97edb8399b6e9afecf4be4bc4df64d7c3238873045718deb97d"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "MacroProcess_C_fair.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.complete.tlc.stdout.gz",
+        "stdout_sha256": "ed4cae2a773146f90c3faafb8e1f042a8f88bad635795273b4218b6ea4b00217",
+        "stderr": "MacroProcess_C_fair.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_fair.complete.check.stdout.gz",
+        "stdout_sha256": "3272f1d84669596d9067b15e1c9bc5765af1636845f24cc055b799701870554b",
+        "stderr": "MacroProcess_C_fair.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "f706a92757b1d75d45220246a4cf6dfb82848b5aaa00bcbc3006fb754943a389",
+            "stderr": "MacroProcess_C_fair.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5fa820bcbb5112361a5e7a8b31e04c770084cacfe1a81be82c4596151987c20d",
+            "stderr": "MacroProcess_C_fair.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "9b027c1c821dcd8647f4b406f6e42d3ee1bfded93a7dc4cd1dbf5078e966a0cd",
+            "stderr": "MacroProcess_C_fair.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "6d631d14ba1015429b4ee92c0f9b3b6ad68e6ecfd291079b0cf3fbb10bbacb3f",
+            "stderr": "MacroProcess_C_fair.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "c3f9c900e4feae35c79cb97e809f820edbd87c79dca90bf6dece8c4b08dd956b",
+            "stderr": "MacroProcess_C_fair.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_fair.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "4e17c5fdac9c10f8c6b57b18a96cba299656330ae19f4de8cf494e866b2799dc",
+            "stderr": "MacroProcess_C_fair.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_fair.complete.model.tla",
+      "source_sha256": "baf41ce8bdd15ee64448f8efe8e71e8fe4dacfa0475577bc7f7072a089a1bb68",
+      "config": "MacroProcess_C_fair.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_minus.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.complete.tlc.stdout.gz",
+        "stdout_sha256": "364d30a038ae589bb2df8a38462f47894fdb7b91226b4f9cb66e1d079028c928",
+        "stderr": "MacroProcess_C_minus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_minus.complete.check.stdout.gz",
+        "stdout_sha256": "210cab8887851bb864793af8d76d72de4e59bf50be351a3db0334f2858a3cf60",
+        "stderr": "MacroProcess_C_minus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "9b229fbd7c1799411fa0a3070b529b034aecb7fbfb6de23225c308dfa7b89358",
+            "stderr": "MacroProcess_C_minus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "cf96b29dc4d97edb3e06ad217404e4c259fdb9e60a113d707c3c0093a8d20186",
+            "stderr": "MacroProcess_C_minus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "c19fc94d22db39015e4cd71ab7bc98b95ad15e4c13384bdc1a0d0a2bd42ff39a",
+            "stderr": "MacroProcess_C_minus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "a9b79c12dc7dd5e70fed475677c4dea00a0189f3b9b4e45b41dfba85f9edf875",
+            "stderr": "MacroProcess_C_minus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "db4132b9a01345b4378c82425887e6ce92e1ca665efea2b5ad09bb9401f88324",
+            "stderr": "MacroProcess_C_minus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_minus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "51d2a80d559f7803e6c7cd76ba49465956ecc536f60d13a9152cd20a51bef340",
+            "stderr": "MacroProcess_C_minus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_minus.complete.model.tla",
+      "source_sha256": "30da5dac54840937017486184c3938ba3ccab87c816bed4f2d73cf53fe25427d",
+      "config": "MacroProcess_C_minus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_nof.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.complete.tlc.stdout.gz",
+        "stdout_sha256": "c883db2bb76a95fc897f11016f020eaed7beabde2ec5d064a9901cf6c50cf7cc",
+        "stderr": "MacroProcess_C_nof.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_nof.complete.check.stdout.gz",
+        "stdout_sha256": "a81f71b50ed033b571df88365c74e8769d9f45c41dd75cdb42f30d86b4f28cd6",
+        "stderr": "MacroProcess_C_nof.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "0e7559b94feb52b822969edecbe143e44268ec34ca5d589f0822f4272b6cc637",
+            "stderr": "MacroProcess_C_nof.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "507340bca4681bd0293f4b132c3e01540db52cf8ae81457b98b22a240336bb86",
+            "stderr": "MacroProcess_C_nof.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "46a1c683c77313bd48b8b232d7cde23baad5f959a98bb503141afca7c5f8c209",
+            "stderr": "MacroProcess_C_nof.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "69779b5027c764770c5c80ef0d64bfd10d5ef9b7d89998f505965fde651bfd19",
+            "stderr": "MacroProcess_C_nof.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "a9ed4943e2a118e363e114cbe3e73f5721bdbc92d1df25cc5e1181e128b55a6b",
+            "stderr": "MacroProcess_C_nof.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_nof.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "6073eb55479eaaca5d3fc5c5850764b89ae9da2c76455c72150ff23b7f911dd9",
+            "stderr": "MacroProcess_C_nof.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_nof.complete.model.tla",
+      "source_sha256": "456aca9e4c111c4b453600f2cc9b46c1bba2b4a35ac547ab2f42ed9134020b2b",
+      "config": "MacroProcess_C_nof.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_plus.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.complete.tlc.stdout.gz",
+        "stdout_sha256": "468730faff3cf508fa6d44e579f46513edfa65f5c2882e6ac5dd5ca07c11724e",
+        "stderr": "MacroProcess_C_plus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_plus.complete.check.stdout.gz",
+        "stdout_sha256": "31eb05321cf01d63414b32c3d9ecf299cee67200eb445f175a54d17b8bb6bc2f",
+        "stderr": "MacroProcess_C_plus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "a620dd3616924cc4003cb7c9dd3fd133279fa0144335d7180bde39c25d719020",
+            "stderr": "MacroProcess_C_plus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "ebe717312aaabc09cfbb5fa47150971679eb7feb81a9680d12dd473524ce940b",
+            "stderr": "MacroProcess_C_plus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "82179ee7dd22de04963d7842cae3e8ae3e39816aefde8240a7a08c709c5dda6b",
+            "stderr": "MacroProcess_C_plus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "3d33e60c8cd1098748f969b2872076496378da8442b36fd7618a30e9a04dd1c8",
+            "stderr": "MacroProcess_C_plus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "18cc4f8e2d60a7a0a96931fcbded2ef6c5856d0336eeb761db7dc67110de73c5",
+            "stderr": "MacroProcess_C_plus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_plus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "fd39dd0be2ec64bd62ab510e0b1b1aa6ebf12f0525ad1bb3036beb5a97ceeec6",
+            "stderr": "MacroProcess_C_plus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_plus.complete.model.tla",
+      "source_sha256": "cc27c0469f2f8d07cf632e28e5f791d1b3c5fbaa95b9d170987efb18db5fee76",
+      "config": "MacroProcess_C_plus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_set.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.complete.tlc.stdout.gz",
+        "stdout_sha256": "aafd499b6a1ad9e085635004c05093e46e47591d7d6b998c1e9731abf809df2d",
+        "stderr": "MacroProcess_C_set.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_set.complete.check.stdout.gz",
+        "stdout_sha256": "1c5adab2c8e39967ed3772668d3d7fe38e2fe7a3714f078c73c6b98a2d4e1908",
+        "stderr": "MacroProcess_C_set.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "9ea5486c8cd74d0bd3e63ca542b7015a05ae9cf1511d552d92dfb605f2869195",
+            "stderr": "MacroProcess_C_set.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "9cbaedf2528e1099f971d42ef9fd7c19af419a850307601e92952021bd86b705",
+            "stderr": "MacroProcess_C_set.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "3f60923b81e430aa7b8466c7f586c5ea9b4b4f89dce0f196ce9baf2fcfb804ae",
+            "stderr": "MacroProcess_C_set.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "79e9920a6a7cc38b24d6a93b8cd88ad648659ed865def19995eaf6f6ee4f05a7",
+            "stderr": "MacroProcess_C_set.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "54fc39c11e54df640417a71fe5a3568862a0c609444243785f1527218a65c22d",
+            "stderr": "MacroProcess_C_set.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "2f7f7a9263538563e26702573120801fa721c50e9a4463f2d2d61caf4aef6856",
+            "stderr": "MacroProcess_C_set.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_set.complete.model.tla",
+      "source_sha256": "08e60bd0394cd65b8cfea081a3dfd74b3edd85a1c5c7474f6aaa32ed36e3f1ce",
+      "config": "MacroProcess_C_set.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_set.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_C_set.violation.tlc.stdout.gz",
+        "stdout_sha256": "4f7536f831f3c1bb47ac4d5d2d113a98fb086d115a98773297c2aa5ecd467f83",
+        "stderr": "MacroProcess_C_set.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_C_set.violation.check.stdout.gz",
+        "stdout_sha256": "6c3d7f60e83532c0bf4b764bd74c4c6729dff104ded72910e348c3ff77510ac5",
+        "stderr": "MacroProcess_C_set.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_set.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "MacroProcess_C_set.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_set.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroProcess_C_set.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_set.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroProcess_C_set.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_set.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroProcess_C_set.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_set.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroProcess_C_set.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "a8a0899c959e2e296053f1e55e1a23784ceb524919e81f11e7320c1acd7db91f",
+            "stderr": "MacroProcess_C_set.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "9c2cf3697355fe109edfd5b80bbd48bf3bc9dabd19e81a81e08ba2246631f1e3",
+            "stderr": "MacroProcess_C_set.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "d55181e4410af65486b8d8fd2951e994521e05a6db52c7bb43cef40740ff47d3",
+            "stderr": "MacroProcess_C_set.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "78744fdb0587133cdab4842d715da35515bdf3ff02569917f8410d869564c0a3",
+            "stderr": "MacroProcess_C_set.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "e1dfeadf3690813d84d0cb721572601475e4fecc90c45d1c23bb9c929eba814b",
+            "stderr": "MacroProcess_C_set.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_set.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "bfe9ce47787e37d56593f249c3b74528b231e7ab603ef5840a477e586bd08535",
+            "stderr": "MacroProcess_C_set.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_set.violation.model.tla",
+      "source_sha256": "61439417058b0dead3457e2bb043a3ebed7bf71e9ee9060614f7d4fb83ea561b",
+      "config": "MacroProcess_C_set.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroProcess_C_sf.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.complete.tlc.stdout.gz",
+        "stdout_sha256": "ccdd5ffb607db39fc61200b38544202fa314d42ee0d710335e8fcdabd6192914",
+        "stderr": "MacroProcess_C_sf.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_sf.complete.check.stdout.gz",
+        "stdout_sha256": "87c72ff768ec1fcec4db8e0917d2215bb5eca592af2398118ad24f6ebebe113a",
+        "stderr": "MacroProcess_C_sf.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "44878a85e59ea129e4a78159481b7ff4e6559e18471dbb3d4d7149aaa0bdf1d2",
+            "stderr": "MacroProcess_C_sf.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "586784942632f25b4d90eb7a4093488ab542f48130325e658d43e515ea672a6b",
+            "stderr": "MacroProcess_C_sf.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "a1b574ec2d62c499d4e5dfc59d855b236a9e24a5d7edc4037c1b51d73fccabba",
+            "stderr": "MacroProcess_C_sf.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "5a3cc52d68e2d3ede5f99065b3d808c1650aed04ddd89d8f38d69e2147e53c36",
+            "stderr": "MacroProcess_C_sf.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "90ee2bb9e2e07a595eb3545108044c03a1a2a2a1282e8098dda1880393aee574",
+            "stderr": "MacroProcess_C_sf.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_sf.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "b7b6c36c99f9b18501aefaea4d7abb9d678c61d9d110710c52eced60df121091",
+            "stderr": "MacroProcess_C_sf.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_sf.complete.model.tla",
+      "source_sha256": "3586c841ac192522dcae2974ef9466957112d0c751ad92ef7d254557cf45baf3",
+      "config": "MacroProcess_C_sf.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_strong.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.complete.tlc.stdout.gz",
+        "stdout_sha256": "db5c3c242061d8ddadcc34b6c60051173859ef0ed4c09115548e61c655d70465",
+        "stderr": "MacroProcess_C_strong.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_strong.complete.check.stdout.gz",
+        "stdout_sha256": "9a6a1835924a211762d7dd69dcdf96adcffc6298174c09bb68eda9fe51f85b9f",
+        "stderr": "MacroProcess_C_strong.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "1b3608efd8064bb1da2ba0ee527ab2e4727e7f0b35e0516e52611f63ac0ae6e6",
+            "stderr": "MacroProcess_C_strong.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "749f04ef8b3d289eecf21ff0571ee91e2594bfdf10fd9100cc6dff500b68dc62",
+            "stderr": "MacroProcess_C_strong.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "4f6eef196d4355c9dcf2228956e257fe50f01069221e719732c58ae5b529a855",
+            "stderr": "MacroProcess_C_strong.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "ff5b67aaed3a2608e8d1cd5836cee5c9a5abf9ce726271c4030a25559296f3dc",
+            "stderr": "MacroProcess_C_strong.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "e96bd2ef439168a8209c27e4af15379f3f2ac4472ca959955716896af51983c2",
+            "stderr": "MacroProcess_C_strong.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_strong.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "80c33de48797e759f51fa547911c84f7642f536d869030551b546fdb69c1acf5",
+            "stderr": "MacroProcess_C_strong.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_strong.complete.model.tla",
+      "source_sha256": "7a017b52d3b264c90b03cb913f66985bf6f3fa164d08e520d8b242b2cca50741",
+      "config": "MacroProcess_C_strong.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.complete.tlc.stdout.gz",
+        "stdout_sha256": "3c08d6b98ad44901498ce6964b4750626c7331c91d40278f0c192dbda4fcf695",
+        "stderr": "MacroProcess_C_unused_foreign.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_unused_foreign.complete.check.stdout.gz",
+        "stdout_sha256": "8fda146b4a64eeb88cfbbaa12a3caad06cc9f31523714fe79968d07fd2d121e8",
+        "stderr": "MacroProcess_C_unused_foreign.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 218,
+        "distinct": 81,
+        "left_on_queue": 0,
+        "depth": 9
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "ed9170b560ec7b0b83eaddf2614b1d0c219b2c2d84548f09c9970b6ab8cd3fb2",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "9632e884def3a5bf58681d1a909d8ee02ddf2caef897ebd30813d7ad28f1d7be",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "a03dfa18dba568728fe7f9c747d3287f05733d0d7315d2c86a8022839b0c0d3a",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "3088afb163907f83c04712db1a0841f9ed7d213ddcd6982689621627aafa4f0d",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "8b565cf90cac89683163b1a852ed18e40c82d9c4e1801d5e5cbe700cc3de795a",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_unused_foreign.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "b83e423fe7c86de87e1236a73c8ede5f98659de525818833c7e0fded387c52eb",
+            "stderr": "MacroProcess_C_unused_foreign.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_unused_foreign.complete.model.tla",
+      "source_sha256": "f7946f29df239fd8a72b0d4b9d44ce2060af9c14271e5efe1706ccdc83847131",
+      "config": "MacroProcess_C_unused_foreign.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_wf.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.complete.tlc.stdout.gz",
+        "stdout_sha256": "794c431e58c956854a2c1bc84974c1481f43f76f9def175d28ac4259793c8faf",
+        "stderr": "MacroProcess_C_wf.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wf.complete.check.stdout.gz",
+        "stdout_sha256": "e1772fd4fd9dc2c9a0b9ccf3447df92d4beb5097f4742462ded1169797a94cad",
+        "stderr": "MacroProcess_C_wf.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "c0bb4616f7a2baf8dac7804fcf6c7b07b14df43a21729f497305b0b419e4e7c9",
+            "stderr": "MacroProcess_C_wf.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "a564cee692b4b28b4e32cf4c03b96722d6203839bf6952a5d90b435688ba8918",
+            "stderr": "MacroProcess_C_wf.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "2532a88d899f52586f8068443207fdcdfbd63ddff14c6fe04c6d758dd89076ea",
+            "stderr": "MacroProcess_C_wf.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "16dd8493db9f1961cf15268220e40137c1ac8223e73db30e86016ba26b654dda",
+            "stderr": "MacroProcess_C_wf.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b3e4d2d8469a8151406a07143540e5922be5a78ce8e336810c839c76e16f0d61",
+            "stderr": "MacroProcess_C_wf.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wf.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "5ef4923ac311c56a9328637912b2c5943841441a33089acf65101a90beae9b1b",
+            "stderr": "MacroProcess_C_wf.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_wf.complete.model.tla",
+      "source_sha256": "dc7fba00710baff977a3d6aaba7b8f1bb7dc0370b87a86fcb378ca8bed48433f",
+      "config": "MacroProcess_C_wf.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_wfnext.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.complete.tlc.stdout.gz",
+        "stdout_sha256": "eb685aa31285173ed2a6c0b20b8beeb055b28427b11224f80eab79209a6fc971",
+        "stderr": "MacroProcess_C_wfnext.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_wfnext.complete.check.stdout.gz",
+        "stdout_sha256": "771a76f1c1844ebf3c6ea7b86ac2fc7effa85e3683b31516b160e0c2c97fb8ea",
+        "stderr": "MacroProcess_C_wfnext.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "e36b05a1251cfef06e2bcc0a8b9adba8c591df809163d7cae1f92654b6b02521",
+            "stderr": "MacroProcess_C_wfnext.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "451bfdfbe7888c976fb324d5e4f4d9a4582e82bddc43e09fcf0e8bcfde0ed069",
+            "stderr": "MacroProcess_C_wfnext.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "c0c778130c681edb6753950958ccc450ffd52ed1a62223018d3897fff0588374",
+            "stderr": "MacroProcess_C_wfnext.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "12ad8a9ed9945c9afb399549dd76e154bbce24bcf1fc1269bb914707469010de",
+            "stderr": "MacroProcess_C_wfnext.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "bd94ad612def520b8d69a20aceb4f9305bf227aefc6a8baa1c3b9a78a270b3cc",
+            "stderr": "MacroProcess_C_wfnext.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_wfnext.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "6005628400431fb77277f6369fdc73856b92334306c5e7639f64f02a112282e7",
+            "stderr": "MacroProcess_C_wfnext.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_wfnext.complete.model.tla",
+      "source_sha256": "918631d956972de66c5a3c256213ef2afe12de6e33c2042c6d2c341e6638353c",
+      "config": "MacroProcess_C_wfnext.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_with.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.complete.tlc.stdout.gz",
+        "stdout_sha256": "bf7eb5f2aa8df0659abee1708b6002cf4eb694c04e9f30ca4a84d2b3706e2ca8",
+        "stderr": "MacroProcess_C_with.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_C_with.complete.check.stdout.gz",
+        "stdout_sha256": "fe2efd161817f1bb32aa0cb5fa27e5d75c48829f16d1a5196e62c4b6a8a9969e",
+        "stderr": "MacroProcess_C_with.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "da6de3cadfdabb9deae1af56aa31b7b17f58b5d22379c92d1cb9dcef3fc1db59",
+            "stderr": "MacroProcess_C_with.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "f8c8a7013d3fef904274629151f78060a1f31ca525460796d02f43bed0dd8e7a",
+            "stderr": "MacroProcess_C_with.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "7251221092dd1f1e863edcd801dd68057167a01170919c41d113c3a78816edc1",
+            "stderr": "MacroProcess_C_with.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "289a64d55e2e8039ea74e4411dba29a6a21a2eb3381f98b95253d53d2e34270c",
+            "stderr": "MacroProcess_C_with.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b39340076bf74cc562bd59ad01e0fc327303a61c3fbcd0e965c283206614dab7",
+            "stderr": "MacroProcess_C_with.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "1d9642007cd541743326116288ec08fb4596f640f3cbcfdbbe5b3fd05b35878c",
+            "stderr": "MacroProcess_C_with.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_with.complete.model.tla",
+      "source_sha256": "43837443566ca50bde0e3c8f3f5373edce8f2aa8748ea59dfc50d03ac15c79ae",
+      "config": "MacroProcess_C_with.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_C_with.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_C_with.violation.tlc.stdout.gz",
+        "stdout_sha256": "f75dd618f9f492c7dea2bbd593efa3de632e6b05249df16cb2331846d48b0d53",
+        "stderr": "MacroProcess_C_with.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_C_with.violation.check.stdout.gz",
+        "stdout_sha256": "34dee2cd734ff210c09d60457833cc6290993a085b5c42d4720ad49eede1d211",
+        "stderr": "MacroProcess_C_with.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_C_with.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "MacroProcess_C_with.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_with.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroProcess_C_with.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_with.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroProcess_C_with.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_with.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroProcess_C_with.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_C_with.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroProcess_C_with.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "06204136ea6cc035b67c7488bbcc62e638feabbaa33789a114d41837368254f4",
+            "stderr": "MacroProcess_C_with.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "5be3a0a13e1c6a42785a457826c965c47d3780029f2a835c1d2c9535ba614b9b",
+            "stderr": "MacroProcess_C_with.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "7e5b06b20caa818bab89ef8fd60b0556e7c472dea1c392d968f65ca0cac489ba",
+            "stderr": "MacroProcess_C_with.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "309af8b13563ae7a742a25bc9e1b7b2b500e39a1bb0c5d96c37fbd820be2a89a",
+            "stderr": "MacroProcess_C_with.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "f88284cfdc0aa3a5e99a1aa61af8978d7b1e17bf6506abd7edae60cee7527666",
+            "stderr": "MacroProcess_C_with.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_C_with.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "81f90d8fa4243843410a9f9558cdeb2a32ffa50fa66b1c4d8471dec7df4b58ab",
+            "stderr": "MacroProcess_C_with.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_C_with.violation.model.tla",
+      "source_sha256": "e7cf79ab15a04fbe9b858059d405b88f725724c2950e8d19022162eb18312fb3",
+      "config": "MacroProcess_C_with.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroProcess_P_fair.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.complete.tlc.stdout.gz",
+        "stdout_sha256": "3768a7cd080bdab071587b43e46aeffa6fb3e582629d15a0a10c68a4f3ef8f52",
+        "stderr": "MacroProcess_P_fair.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_fair.complete.check.stdout.gz",
+        "stdout_sha256": "9134154b02486a12892a91d4c03f7958da7cc6c453ec9cda1f21e200d01f42a7",
+        "stderr": "MacroProcess_P_fair.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "35ba52f74552e939d68401b7355332f9b802438ec91641e010ef7ae8b8a02528",
+            "stderr": "MacroProcess_P_fair.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "5249c05402ba39668e04622b11b98e88925bb090b96050a313d62afb10fbc2ff",
+            "stderr": "MacroProcess_P_fair.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "736b449af6f5cc6c53d0c9420896691e767971b9ffe6778d96bae910330499a8",
+            "stderr": "MacroProcess_P_fair.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "91cea38f1bc5c76c32a574d08f9cf20d073bd7b72c975064eb98fe337d233aa1",
+            "stderr": "MacroProcess_P_fair.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "1722b4b3f86414724f1020c25f9b03de2a9be2bcfa6fc541836c1b774a7ff554",
+            "stderr": "MacroProcess_P_fair.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_fair.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "055556bb5057c32d63f8a1a3ba7e639c492d6ea0e6151b47a20e05011be01ad4",
+            "stderr": "MacroProcess_P_fair.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_fair.complete.model.tla",
+      "source_sha256": "32daddb10fb1b47d77d4c81c79896c9275efbf3546657509a335944802c3aacd",
+      "config": "MacroProcess_P_fair.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_minus.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.complete.tlc.stdout.gz",
+        "stdout_sha256": "b5738a2e29c0ba0596a1d34f7390963ce8b2153c789d811687cd461c80b754f2",
+        "stderr": "MacroProcess_P_minus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_minus.complete.check.stdout.gz",
+        "stdout_sha256": "64f3c4d0316a38be71a9e08fb78623c83ded7ba395ea1bf4544da6871e57f7b3",
+        "stderr": "MacroProcess_P_minus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "977acc03c40fc983cde2ff4d226c59ac4413d09cec297c42d972479079b2066e",
+            "stderr": "MacroProcess_P_minus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "756f6ea1694144274cec192e6e9604ef3af5bc9f7956883aa00a6d4880c47b76",
+            "stderr": "MacroProcess_P_minus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "073dbcbd1f901f8fdc578e899a8d335ce67199f2ad890e506c920ae4313f13a3",
+            "stderr": "MacroProcess_P_minus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "2f6b682635682683ca1571ecc88368ff92e13b8787e4c28b2cc25bccbc08bb49",
+            "stderr": "MacroProcess_P_minus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b3e8d23ef8a4f9d26e987e5138cd23c2235c13ca377107535291b0efaca5f32d",
+            "stderr": "MacroProcess_P_minus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_minus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "710f57061dcd0c0defc91d540c4c238a873c1abc0314b4a83a6dad5913a75919",
+            "stderr": "MacroProcess_P_minus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_minus.complete.model.tla",
+      "source_sha256": "c89bed9e0a37d9e55dad64274a879f5d9116b1e8346e406c3a8f3c99875c0350",
+      "config": "MacroProcess_P_minus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_nof.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.complete.tlc.stdout.gz",
+        "stdout_sha256": "e263e305a10b0cb70f8774ed4832cc100c1c48d1d45b0fb702e3f123ceebc899",
+        "stderr": "MacroProcess_P_nof.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_nof.complete.check.stdout.gz",
+        "stdout_sha256": "87a44df7c98f783d36b278728672291ce0c35671c86c8829ded865628e229df5",
+        "stderr": "MacroProcess_P_nof.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "88c500f3cb615eb4c0606db6dde74bf3ca9035e5a8d4c373eb19c39798df9d0c",
+            "stderr": "MacroProcess_P_nof.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "35ca2febada1a30b778832bfe49c6e4785a3bb29875742e9fe05d8150488831a",
+            "stderr": "MacroProcess_P_nof.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "0b3581ad8d52a0d2f75c094e14d526a996821ccbddf824ce462a6f5da14a25af",
+            "stderr": "MacroProcess_P_nof.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "091f130cb31d73e3f731f460ab8bc3be39000aa1a88faeaaa20720432d451526",
+            "stderr": "MacroProcess_P_nof.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "26a5962a8eebdbe3c2f2c02f82e9b4b1f6530fc96929e56ac2f6dad5136a21c1",
+            "stderr": "MacroProcess_P_nof.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_nof.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "6f3203910da1a4458d06b858f8886a1e0f8f932c8ed9cec8165bbb324d716822",
+            "stderr": "MacroProcess_P_nof.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_nof.complete.model.tla",
+      "source_sha256": "70f9c3b9617fad54cfbef7012e8838e360c52f7b8a23147916def522dd62add3",
+      "config": "MacroProcess_P_nof.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_plus.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.complete.tlc.stdout.gz",
+        "stdout_sha256": "2c36fa431deb67ba3cbf0f00e5778faae92e5771d225d728c21f0f6a1479df54",
+        "stderr": "MacroProcess_P_plus.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_plus.complete.check.stdout.gz",
+        "stdout_sha256": "3592ba3878afadb9ad009178888818222dbfb42087a6d99ecca9c5bf2c83b331",
+        "stderr": "MacroProcess_P_plus.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "6dc728c1b8f46374a56e2545b9e51babf7c080ed897e674ce698b14117cc8713",
+            "stderr": "MacroProcess_P_plus.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "8f72d843f347f66d8c98844637fabaa4d4cf297433280464d02c1908f4fccf6f",
+            "stderr": "MacroProcess_P_plus.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "934ca03ebefcbe13602dca95ded2f178fad38e22ef1dd2145e083944bdae5b6b",
+            "stderr": "MacroProcess_P_plus.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "44e69ffc276cb140eeebba5ec61eb1c92483d6c540d3a13924ef78ead90f3ae7",
+            "stderr": "MacroProcess_P_plus.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "50d072bb7a492fcacf5adc82f77f0a2ee5a9fc05f0b23c5947cef3db62b77c89",
+            "stderr": "MacroProcess_P_plus.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_plus.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "16bdbf14fbace34a0a58ddb9a72f6434350922c2da3dfff16b8b499242f50219",
+            "stderr": "MacroProcess_P_plus.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_plus.complete.model.tla",
+      "source_sha256": "3ce38ae02acb4658b961d5a222fa2d1fdd4df72d927d52b0c59de547cab9558a",
+      "config": "MacroProcess_P_plus.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_set.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.complete.tlc.stdout.gz",
+        "stdout_sha256": "d142a6a2b42a0c8ccfc3ec9e860bd104a4c8a4b955682b50774b22b32837d0f2",
+        "stderr": "MacroProcess_P_set.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_set.complete.check.stdout.gz",
+        "stdout_sha256": "4f727507a0316128359a8f3c0fd7f3d430e6e68faeeb54a6a8baf91eff72ed65",
+        "stderr": "MacroProcess_P_set.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "f5c50a387d3a5638490c5a5f11fa878ef1f904157cb682c05a4f34ad44734bb5",
+            "stderr": "MacroProcess_P_set.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "85c7cbb0bf188fc214047f41f3e52d44841a666f6854ebad359df15908b45f3e",
+            "stderr": "MacroProcess_P_set.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "afd67ad90d9f05fd8a9e84adae1435dd191abff549e1b7f21a2b753f7de19ec7",
+            "stderr": "MacroProcess_P_set.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "e520cb6fefb6d3320a554defec0a1bb261f30c9b95684455ea1215132f18cfbf",
+            "stderr": "MacroProcess_P_set.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "308496f8fbef8d36c83743e05ac21387fcb2fb1122e2001f9160d70f4d53dd25",
+            "stderr": "MacroProcess_P_set.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "7d5f0e871ae9583047a0dfa34879b2a051f64a23e8db5a122d39e33a76beaed0",
+            "stderr": "MacroProcess_P_set.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_set.complete.model.tla",
+      "source_sha256": "13d8444b3e07266ad866a761bd0a408b83b708c3195e1f2feb1d5f45dc86c0eb",
+      "config": "MacroProcess_P_set.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_set.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_P_set.violation.tlc.stdout.gz",
+        "stdout_sha256": "e31c39db7239beb504a0eed6353757140c3960cfc979c609d90d38407b18cccc",
+        "stderr": "MacroProcess_P_set.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_P_set.violation.check.stdout.gz",
+        "stdout_sha256": "615b11d8ad154b56fff4d91aefe5fd4d045b968dc61275a00c2bd98b5fb64842",
+        "stderr": "MacroProcess_P_set.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_set.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "MacroProcess_P_set.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_set.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroProcess_P_set.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_set.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroProcess_P_set.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_set.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroProcess_P_set.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_set.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroProcess_P_set.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "7c0da1f727275f08960f6079b1977ddaa0fe4dfeb989e09ae94371f7ebe10aed",
+            "stderr": "MacroProcess_P_set.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "5a62910cbbf5590ccd029dc2de48f52004b812a0a9409f96003b08f4df5732c7",
+            "stderr": "MacroProcess_P_set.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "82e32744bec1b3e002d325d5ba9ad45caa56ae0ee68cf5a45fd6b01dc92643a5",
+            "stderr": "MacroProcess_P_set.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "e2fd14059b2d00f4107d130d52f7be09ce0b8bc0228626778b3ee0fae18fb87c",
+            "stderr": "MacroProcess_P_set.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "d9746cc4e074e5a517314bb87c73bed423eadcdb087a229d3de34327cc62910c",
+            "stderr": "MacroProcess_P_set.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_set.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "98bdaeea5f4bf7adc88955599cf6067b4c3037a900d13eba6071ba8b49ed5cd6",
+            "stderr": "MacroProcess_P_set.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_set.violation.model.tla",
+      "source_sha256": "41566080da245d7b178fe143e37ad6d1db95538a40593bf8375f6c9eb9bb65d9",
+      "config": "MacroProcess_P_set.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "MacroProcess_P_sf.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.complete.tlc.stdout.gz",
+        "stdout_sha256": "57a82d37b4e50abca5840d71fb88a35cf9a27ecb53ffe7712739a14f6dd0bc9f",
+        "stderr": "MacroProcess_P_sf.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_sf.complete.check.stdout.gz",
+        "stdout_sha256": "6616ef08767f2cd76366b43d1dfb7482a10feff122019a3a3bd742d3925d87be",
+        "stderr": "MacroProcess_P_sf.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "a1360fdfa394c8d59f7dab70916c25ae8fe2d6adfbf8484e3a0f63f2fca4c8c5",
+            "stderr": "MacroProcess_P_sf.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "ff507ab179710ef1b53d915cd4f04806d2c1dcd7e5f5c0d485b8bad0af78f173",
+            "stderr": "MacroProcess_P_sf.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "8df323fc6cfbc20b399bf14f7f6e72df67de9a4d9ee7178b3558722f21ffb21a",
+            "stderr": "MacroProcess_P_sf.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "060903a4899b57ce9dd9cd75c89795179f526a840f4270e44bb75ae10de2c14d",
+            "stderr": "MacroProcess_P_sf.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "b40f9fd1491b83391b21e7d8e02f519e13a1e49382ad56b17f98493d5c671d3f",
+            "stderr": "MacroProcess_P_sf.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_sf.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "9ff4e42935b33b5ba4f5af4dd3b40e59c8fcf10f5d8a720c5b6f4db120691591",
+            "stderr": "MacroProcess_P_sf.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_sf.complete.model.tla",
+      "source_sha256": "81e8fe12115845e690ae9ff8dbf2f4df2208419736ce3430774bcb47d130b753",
+      "config": "MacroProcess_P_sf.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_strong.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.complete.tlc.stdout.gz",
+        "stdout_sha256": "5f61816ad31b37b1f0e99e1f10863e10a2f7fdd9de4ea92329bc789e332f71e1",
+        "stderr": "MacroProcess_P_strong.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_strong.complete.check.stdout.gz",
+        "stdout_sha256": "74ddf17c8fcf01e8a757edf6e8adf94f66e117f8be60ee84a824119c6490fb7a",
+        "stderr": "MacroProcess_P_strong.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "c75ebc81db6d805c7959d18fc0b4f2fece21f7995060aeb17117f0bd7ea5ef27",
+            "stderr": "MacroProcess_P_strong.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "3f7c6f60f2f4703911cf246b85b0ed67f9d882f67943ca44df9e21e215e7f150",
+            "stderr": "MacroProcess_P_strong.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "0c8b2ce187948dc0377752f839461e5bd10a42a4852178b03af0d324ee876d95",
+            "stderr": "MacroProcess_P_strong.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "f7fbcb0c3d1dced21ee1a748a1bf6e7a390f977db68ee1dc317a6cd13a5acee8",
+            "stderr": "MacroProcess_P_strong.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "45b6e17782c2cce632025a6f2a43e9a4dbc8f6352841e22bf362cafd6fa4bd4d",
+            "stderr": "MacroProcess_P_strong.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_strong.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "6fdba20b3bb8990d5c986202e9fc84f5ac243825606b81fab6f6a752bc18ceff",
+            "stderr": "MacroProcess_P_strong.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_strong.complete.model.tla",
+      "source_sha256": "8199052ca3e477bdc1797d2285de0f3c46449934cf85d1848eae53ef6292121f",
+      "config": "MacroProcess_P_strong.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.complete.tlc.stdout.gz",
+        "stdout_sha256": "7e16f56748a69cae825c3db9a84478c6f7b75fc3adbe2b4cd306ec158b844f96",
+        "stderr": "MacroProcess_P_unused_foreign.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_unused_foreign.complete.check.stdout.gz",
+        "stdout_sha256": "8cd36749e3ced1f55b327c418eab83d01dcc5b41fdf6888d59e95b282f8fe22b",
+        "stderr": "MacroProcess_P_unused_foreign.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 218,
+        "distinct": 81,
+        "left_on_queue": 0,
+        "depth": 9
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "eca984b1b6506c4e9071875d9d4b0a276463758296a95275ed3c959b181034e1",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "ef9f7a4caa9f5d11c45dec6abd4aa26da68a2913e6ff165e8dc9a76ded373dce",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "62c7120142379677a9bfafd464aef66a979db344b050d2eb7d81f3bf8550a7a3",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "c8bced2eab2d0243a51278899e453d2d884ac8ef5084bc6af635c556a96f838b",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "a633fa0a699491a272a9de840c6813562362ca7ae71b977cc4aa820d1dc649d6",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_unused_foreign.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "b031403391eb23074ed44d7d7caecb940053fa2c960daed8ed9d63f65f24611b",
+            "stderr": "MacroProcess_P_unused_foreign.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_unused_foreign.complete.model.tla",
+      "source_sha256": "4d20439a7fd733b0768ea33a8a8527131512891ec715aa604aa0c70f671166f5",
+      "config": "MacroProcess_P_unused_foreign.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_wf.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.complete.tlc.stdout.gz",
+        "stdout_sha256": "fd0f1162f1de365cfae39b470a28e5ac05acd6e32377ed5de13a9aee6ef1e71a",
+        "stderr": "MacroProcess_P_wf.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wf.complete.check.stdout.gz",
+        "stdout_sha256": "0fe3415cbcf30f7ed24a4f556b289aa320847022a1203dfe8096fa9bfa6ac5b4",
+        "stderr": "MacroProcess_P_wf.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "1419b7b1448560d52ce138539f8a644d186bdef8e67d60d4281dbda9fde471eb",
+            "stderr": "MacroProcess_P_wf.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "df45a2a497f977b1ad0416703c74ef2b9ddc3bac481e03eff8b8dc482e1c31a3",
+            "stderr": "MacroProcess_P_wf.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "904f493862274f559b8fe31941b728909144b4875e30c5aff668ff1da1114ac2",
+            "stderr": "MacroProcess_P_wf.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "cac9380c2f742800a8147b059c55ebcb76658a9743d030272d012c1b70078087",
+            "stderr": "MacroProcess_P_wf.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "45ad887b9f1bc94347c9b6f9978b4a9788fd1a1a19a0dddeba0e3d435ecb4cb1",
+            "stderr": "MacroProcess_P_wf.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wf.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "b0cf793511d703f7a999f929ceb9e8756bbce52f6a72447907bafd151cf7a7b6",
+            "stderr": "MacroProcess_P_wf.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_wf.complete.model.tla",
+      "source_sha256": "d0faf02ac1bdbbda9ce99ddf3fa805531c373a9ed5177450a0414c588259e46e",
+      "config": "MacroProcess_P_wf.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_wfnext.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.complete.tlc.stdout.gz",
+        "stdout_sha256": "f44f857b0f88534a135c2e5311d4c02755a7a92d8b9d614b621d023855db9766",
+        "stderr": "MacroProcess_P_wfnext.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_wfnext.complete.check.stdout.gz",
+        "stdout_sha256": "9600e2406130eedfa8332c355d3bc982f4bd85862b9c12fb5dfb0e381e8b2432",
+        "stderr": "MacroProcess_P_wfnext.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "bca71eaf2cc0416616194dc0a6abbd923ba5137362537f80c746befae68c1d21",
+            "stderr": "MacroProcess_P_wfnext.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "cb26912efbc9193d4672c1e870374bd406fd3a2d7439bc897cc579c196866af0",
+            "stderr": "MacroProcess_P_wfnext.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "d6a6d244258ba9b49d997377c2aef15f536723acbc56e58e51072b7865048f88",
+            "stderr": "MacroProcess_P_wfnext.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "855b472f721ef4477aebd8ee4f9c28327446bc3eb7b556cf29d974333a422d81",
+            "stderr": "MacroProcess_P_wfnext.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "dbc0f2596852b4bb3fc71de42dd599b59cafaf771def42d14fb1a261db7b382c",
+            "stderr": "MacroProcess_P_wfnext.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_wfnext.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "43b0dd83b3339fa5f8bb6df37581bed55f739d6f33c7b688be4e186e19ef100c",
+            "stderr": "MacroProcess_P_wfnext.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_wfnext.complete.model.tla",
+      "source_sha256": "48910eb699290ee3c0c24fd4ae2b4951ffc5befbe93fa004befa026fc7614438",
+      "config": "MacroProcess_P_wfnext.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_with.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.complete.tlc.stdout.gz",
+        "stdout_sha256": "df011cc02b31e9ccf580efcb623062141ff8966df8b508099cc274626bbd5fa9",
+        "stderr": "MacroProcess_P_with.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "MacroProcess_P_with.complete.check.stdout.gz",
+        "stdout_sha256": "8ae542b05dc0ca94431bdb9712977ea6c8fd7db3c7937bee903ac8754f717de0",
+        "stderr": "MacroProcess_P_with.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "42b72980863a1611110d657edf40975620be5be963c35bb46c423bf5bc341275",
+            "stderr": "MacroProcess_P_with.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "a71d22f245a538dcb186acce6f84b086f8605912c37e4df1e5f73cb0a9549497",
+            "stderr": "MacroProcess_P_with.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "13d3d6ee5ec01db13ba61d37b55d495dea91b4893decf66a739d2b428b6f679a",
+            "stderr": "MacroProcess_P_with.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "7941793389c9e03620211e13d5d86e7c8c3e2eb59fb03d001723e0b833e9e241",
+            "stderr": "MacroProcess_P_with.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "a8073bf4feb73c755da9abe89b90165e02717e4714bf1210ce180700f94f7ef6",
+            "stderr": "MacroProcess_P_with.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "0eabb8877ceef187399ba7a7cdb631824bf64f3825b32180070276d77a3f58fd",
+            "stderr": "MacroProcess_P_with.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_with.complete.model.tla",
+      "source_sha256": "99ea98bc3c147f43c90f1efa6a79cf9e6ae542d12e546d6092fab5ea6dd78cbd",
+      "config": "MacroProcess_P_with.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "MacroProcess_P_with.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_P_with.violation.tlc.stdout.gz",
+        "stdout_sha256": "2d308dbbef953bc1342603816311cec3f3a58fc6fb3d78cf0700db153b36126d",
+        "stderr": "MacroProcess_P_with.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "MacroProcess_P_with.violation.check.stdout.gz",
+        "stdout_sha256": "2eaad93566dc41831b93fce02672eb59e195bb9902d4b6ef1c1d917654b5fe80",
+        "stderr": "MacroProcess_P_with.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "MacroProcess_P_with.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "MacroProcess_P_with.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_with.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "MacroProcess_P_with.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_with.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "MacroProcess_P_with.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_with.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "MacroProcess_P_with.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "MacroProcess_P_with.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "MacroProcess_P_with.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "2eaad93566dc41831b93fce02672eb59e195bb9902d4b6ef1c1d917654b5fe80",
+            "stderr": "MacroProcess_P_with.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "978d20354cbac553b752cb55e3415084eed6a4e0d95b33991c96b105d3ac0bd4",
+            "stderr": "MacroProcess_P_with.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "c77fa0b227f4b8b93948c92fd3a5f5a6f3e599740bb087cf2f08a7f8dbd97999",
+            "stderr": "MacroProcess_P_with.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "e3e07ccc47afa01e238493be0b09634467b8c88f916e7933ab0852b48286b252",
+            "stderr": "MacroProcess_P_with.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "bc647c38d2bdc1649330167da68c38501deae1b14043cfbc9f676c8828570fcc",
+            "stderr": "MacroProcess_P_with.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "MacroProcess_P_with.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "51ff1fe3f277fef8a39e4f6e70ac76645ee5c9376a9f1f450a49b533dbb99efd",
+            "stderr": "MacroProcess_P_with.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "MacroProcess_P_with.violation.model.tla",
+      "source_sha256": "1df3a26bf3bddbc755e48457a563c983a9d54d0850a65dfd6dc5ee59e6d8e28f",
+      "config": "MacroProcess_P_with.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    }
+  ]
+}

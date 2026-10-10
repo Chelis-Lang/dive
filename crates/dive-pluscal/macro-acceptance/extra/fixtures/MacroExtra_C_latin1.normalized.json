@@ -1,0 +1,2 @@
+pcal.exception.ParseAlgorithmException: Illegal character in string `é' found at
+    line 3, column 65

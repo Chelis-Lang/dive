@@ -1,0 +1,20 @@
+{
+  "source_commit": "80c5160f24edde2c7c0c0b29adadf03278b6f356",
+  "source_tree": "c5c8481dd6bf9fd2fe701cb1f4efc0902665a2c6",
+  "native_sha256": "5a4a308b94b4a7504841e32dd4ef9d667259f6f78da6a6c0a975348de5ca2c23",
+  "example_sha256": "ca8cd87daafd1398b11ba4aea94f1cbad18bf781cd32f02b10fc4dba8c785586",
+  "reports_sha256": {
+    "comparison.json": "6f2125b0ca8fd9460457568f86ab5cd02a9efa4c2e3871afd396b7d7f3e455b3",
+    "validation/report.json": "054803b2cdc1a06972e9d62b5f21476a3832f4a9b82993b63a751c7993c30df6",
+    "qualified-replay/report.json": "a6bf833d16dcc55ee1970c743865433937eaf2b17fd22bfc01ffd41556c36884",
+    "admission/report.json": "bb5b4be66c662ac3bb224566b8e4d537fadf0a350da9b62ddb81e68fb7be5c62",
+    "api-admission/report.json": "01b5ee372539ca9a42317dc2dde669688c2d59a19caac0dcf591ac0414c1414f",
+    "budgets/report.json": "c30e11a2219e2c3978b6c30c64f8b074aa9cc9e5fb003eccd49239cf7a8ce347",
+    "guide-api/report.json": "e12c01533dfcc8bc009150ef0672559e24feab40ffe85d8124138d73197f211a",
+    "guide-cli/report.json": "c42541ca517da7598aedca3b8a68191d53fed1d143f1f6c628bbc03b1c8d295b",
+    "mutation-controls.json": "32d44aa875bf6cd51881e5de54c7e50cb01c5e1c934315e803f2b397b350a0e1"
+  },
+  "family_certified": false,
+  "tlc_violation_certified": false,
+  "scope": "Full recursive selection and raw controls on current integrated source; earlier complete source selections re-enumerated, earlier model-runtime receipts retain their original sources."
+}

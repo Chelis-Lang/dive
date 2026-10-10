@@ -1,7 +1,8 @@
 //! Bounded finite-process admission before existing label/control normalization.
+use super::macros::Expanded as Parsed;
 use super::{FairnessOption, TranslationError, TranslationOptions, TranslationStage, error, lower};
 use crate::{
-    Code, Parsed,
+    Code,
     ast::{BindingKind, Body, Fairness, Process, Span},
 };
 use std::collections::BTreeSet;
@@ -146,9 +147,8 @@ fn normalize_one(
     }
     if process.id.kind == BindingKind::Equal
         && parsed
-            .tokens
-            .iter()
-            .filter(|t| t.span.start >= process.span.start && t.span.end <= process.span.end)
+            .semantic_tokens(process.span)
+            .into_iter()
             .any(|t| t.text == "self")
     {
         return Err(unsupported(
@@ -361,11 +361,7 @@ fn normalize_multiple(
             .iter()
             .map(|v| v.name.text.as_str())
             .collect();
-        for token in parsed
-            .tokens
-            .iter()
-            .filter(|t| t.span.start >= process.span.start && t.span.end <= process.span.end)
-        {
+        for token in parsed.semantic_tokens(process.span) {
             if all_locals.contains(token.text.as_str()) && !locals.contains(token.text.as_str()) {
                 return Err(unsupported(
                     token.span,
