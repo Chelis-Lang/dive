@@ -1470,7 +1470,7 @@ conservative. This is a native limitation repair, not family certification.
 
 The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
 declarations, label guards and explicit pinned fairness options. Translation
-artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
 and unproved domain normalization are still named refusals; full-family
 certification remains pending.
 
@@ -1500,3 +1500,8 @@ model effects. Error reports omit an invalid variable mapping instead of
 panicking while reporting another refusal. Original panic source/hash evidence
 and native controls are retained in `conformance/probes/public-ir-admission/`.
 This is a native API safety repair, not new TLC semantic certification.
+
+The [multiple finite-process increment](pluscal-multiple-processes.md) now binds
+each admitted block to its own storage, labels and fairness context. Overlapping
+IDs, name rewrites and cross-process local references remain explicit refusals;
+translation artifacts still make no model-proof claim.

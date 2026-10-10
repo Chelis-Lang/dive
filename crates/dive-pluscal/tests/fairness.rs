@@ -114,8 +114,8 @@ fn retained_selection(
 }
 #[test]
 fn retained_fairness_artifacts_and_errors() -> Result<(), Box<dyn std::error::Error>> {
-    retained_selection("", 150, 18)?;
-    retained_selection("positive", 150, 146)?;
+    retained_selection("", 150, 20)?;
+    retained_selection("positive", 150, 148)?;
     retained_selection("interactions", 8, 2)?;
     retained_selection("sequential", 32, 16)?;
     retained_selection("sequential-positive", 16, 16)

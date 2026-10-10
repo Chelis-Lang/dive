@@ -818,7 +818,8 @@
         131,
         143,
         150,
-        155
+        155,
+        160
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
@@ -885,7 +886,8 @@
         149,
         150,
         155,
-        157
+        157,
+        160
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -896,7 +898,7 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required.",
         "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required.",

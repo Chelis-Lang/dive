@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "stage": "multiple-process-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "6538356d27cb3eaaa97c045e173340b8574e452e943f400e8639fbe0194e38c9",
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "native_sha256": "6b1b64cdfc27ca4ab4c8a32f21543273b122398b3af0edc2c7b4702fda0d59fd",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 12,
+  "summary": {
+    "native-refusal": 4,
+    "token-artifact-match": 8
+  },
+  "rows": [
+    {
+      "id": "MultiBound_C_escaped_overlap",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process ID disjointness outside bounded integers/unescaped strings",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MultiBound_C_member",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1379e38062ca4a3df2343d3cb3568765108160e846fc4dc1440596bc5e0d40c1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_C_reversed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "549588617be101569be214906c7fc84b0ffb20a77b92ee27aff5522d4218a343",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_C_reversed_both",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "af031f2f5e62067861e08b95e0ff48b99adf0685dcbfb9edeb1074b750bef363",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_C_same_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MultiBound_C_zeros",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4c644d9bb84808d3122c51ce07e1f31e89faea71158af05beab9f8c3f733c7f6",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_P_escaped_overlap",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple-process ID disjointness outside bounded integers/unescaped strings",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MultiBound_P_member",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1379e38062ca4a3df2343d3cb3568765108160e846fc4dc1440596bc5e0d40c1",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_P_reversed",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "549588617be101569be214906c7fc84b0ffb20a77b92ee27aff5522d4218a343",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_P_reversed_both",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "af031f2f5e62067861e08b95e0ff48b99adf0685dcbfb9edeb1074b750bef363",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "MultiBound_P_same_id",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: overlapping process ID domains",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "MultiBound_P_zeros",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4c644d9bb84808d3122c51ce07e1f31e89faea71158af05beab9f8c3f733c7f6",
+      "action_count": 4,
+      "program_counter": true
+    }
+  ]
+}

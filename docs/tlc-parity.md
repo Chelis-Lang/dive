@@ -458,3 +458,10 @@ Foreign/malformed predicate/action contexts refuse before assumptions; valid
 metadata and exploration controls remain unchanged. The original panic and
 native controls are retained in `conformance/probes/public-ir-admission/`.
 This is additional F-035 evidence, not a status/certification upgrade.
+
+Bounded [multiple finite-process translation](pluscal-multiple-processes.md) retains
+264 C/P rows: 206 artifacts with enclosing-module operator CST/SANY agreement,
+10 matching rejections and 48 named refusals. Sixty finite generated-model controls
+and independently validated/corrupted witnesses cover the admitted storage/action
+subset. F-034 and F-035 remain partial and audit-required; this does not certify
+full process renaming, procedures/macros, historical options or file rewriting.

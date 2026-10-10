@@ -14,6 +14,7 @@ struct Emitter<'a> {
     parsed: &'a Parsed,
     model: &'a Model,
     limit: usize,
+    process: Option<&'a crate::ast::Process>,
 }
 fn failure(span: Span, code: Code, message: impl Into<String>) -> TranslationError {
     error(TranslationStage::Generation, code, span, message)
@@ -33,7 +34,7 @@ fn conjunction(clauses: &[String], force: bool) -> String {
 }
 impl Emitter<'_> {
     fn process_fairness(&self) -> Option<String> {
-        let process = self.model.process.as_ref()?;
+        let process = self.process?;
         let xf = match process.fairness {
             Fairness::Unfair => return None,
             Fairness::Weak => "WF",
@@ -43,6 +44,7 @@ impl Emitter<'_> {
             .parsed
             .statements
             .iter()
+            .filter(|s| s.span.start >= process.span.start && s.span.end <= process.span.end)
             .filter_map(|s| s.label.as_ref())
             .collect();
         labels.sort_by_key(|label| label.span.start);
@@ -105,12 +107,12 @@ impl Emitter<'_> {
         }
     }
     fn local(&self, name: &str) -> bool {
-        self.model.process.as_ref().is_some_and(|p| {
+        self.process.is_some_and(|p| {
             p.id.kind == BindingKind::Member && p.variables.iter().any(|v| v.name.text == name)
         })
     }
     fn process_id(&self) -> String {
-        self.model.process.as_ref().map_or_else(String::new, |p| {
+        self.process.map_or_else(String::new, |p| {
             if p.id.kind == BindingKind::Member {
                 "self".into()
             } else {
@@ -123,7 +125,7 @@ impl Emitter<'_> {
         })
     }
     fn domain(&self) -> String {
-        self.model.process.as_ref().map_or_else(String::new, |p| {
+        self.process.map_or_else(String::new, |p| {
             tokens(self.parsed, p.id.expression)
                 .iter()
                 .map(|t| t.text.as_str())
@@ -133,9 +135,7 @@ impl Emitter<'_> {
     }
     fn parameter(&self) -> &'static str {
         if self
-            .model
             .process
-            .as_ref()
             .is_some_and(|p| p.id.kind == BindingKind::Member)
         {
             "(self)"
@@ -431,7 +431,7 @@ impl Emitter<'_> {
                             "multiple program-counter updates in one action",
                         ));
                     }
-                    clauses.push(if self.model.process.is_some() {
+                    clauses.push(if self.process.is_some() {
                         format!(
                             "pc' = [pc EXCEPT ![{}] = {}]",
                             self.process_id(),
@@ -563,6 +563,7 @@ pub(super) fn generate(
         parsed,
         model,
         limit: options.max_output_bytes.min(4_194_304),
+        process: model.processes.first(),
     };
     let span = parsed.algorithm.span;
     let names = emitter.variables();
@@ -603,21 +604,36 @@ pub(super) fn generate(
         ),
         span,
     )?;
-    if let Some(process) = &model.process {
-        let domain = emitter.domain();
-        let value = if process.id.kind == BindingKind::Equal {
-            format!("{{{domain}}}")
-        } else {
-            format!("({domain})")
-        };
-        append(
-            format!("ProcSet == {value}\n\n"),
-            process.id.expression.span,
-        )?;
+    if !model.processes.is_empty() {
+        let domains: Vec<_> = model
+            .processes
+            .iter()
+            .map(|process| {
+                let owner = Emitter {
+                    process: Some(process),
+                    ..emitter
+                };
+                let domain = owner.domain();
+                if process.id.kind == BindingKind::Equal {
+                    format!("{{{domain}}}")
+                } else {
+                    format!("({domain})")
+                }
+            })
+            .collect();
+        append(format!("ProcSet == {}\n\n", domains.join(" \\cup ")), span)?;
     }
     let default_init = model.variables.iter().any(|var| var.initial.is_none());
     let mut init = Vec::new();
     for variable in &model.variables {
+        let emitter = Emitter {
+            process: model.processes.iter().find(|p| {
+                p.variables
+                    .iter()
+                    .any(|v| v.name.text == variable.name.text)
+            }),
+            ..emitter
+        };
         if let Some(binding) = &variable.initial {
             let op = if binding.kind == BindingKind::Equal {
                 "="
@@ -646,10 +662,35 @@ pub(super) fn generate(
     }
     if model.use_pc {
         let value = serde_string(&model.actions[0].name);
-        init.push(if model.process.is_some() {
-            format!("pc = [self \\in ProcSet |-> {value}]")
-        } else {
+        init.push(if model.processes.len() > 1 {
+            let arms: Vec<_> = model
+                .processes
+                .iter()
+                .map(|process| {
+                    let owner = Emitter {
+                        process: Some(process),
+                        ..emitter
+                    };
+                    let first = model
+                        .actions
+                        .iter()
+                        .find(|a| {
+                            a.span.start >= process.span.start && a.span.end <= process.span.end
+                        })
+                        .map_or("", |a| a.name.as_str());
+                    let op = if process.id.kind == BindingKind::Equal {
+                        "="
+                    } else {
+                        "\\in"
+                    };
+                    format!("self {op} {} -> {}", owner.domain(), serde_string(first))
+                })
+                .collect();
+            format!("pc = [self \\in ProcSet |-> CASE {}]", arms.join(" [] "))
+        } else if model.processes.is_empty() {
             format!("pc = {value}")
+        } else {
+            format!("pc = [self \\in ProcSet |-> {value}]")
         });
     }
     append(
@@ -659,18 +700,25 @@ pub(super) fn generate(
         ),
         span,
     )?;
-    for action in &model.actions {
+    for (index, action) in model.actions.iter().enumerate() {
+        let emitter = Emitter {
+            process: model
+                .processes
+                .iter()
+                .find(|p| action.span.start >= p.span.start && action.span.end <= p.span.end),
+            ..emitter
+        };
         let mut changed = Changed::new();
         let mut body = Vec::new();
         if model.use_pc {
-            body.push(if model.process.is_some() {
+            body.push(if model.processes.is_empty() {
+                format!("pc = {}", serde_string(&action.name))
+            } else {
                 format!(
                     "pc[{}] = {}",
                     emitter.process_id(),
                     serde_string(&action.name)
                 )
-            } else {
-                format!("pc = {}", serde_string(&action.name))
             });
         }
         body.extend(emitter.sequence(&action.body, &mut changed)?);
@@ -684,7 +732,7 @@ pub(super) fn generate(
         }
         let name = if model.use_pc {
             format!("{}{}", action.name, emitter.parameter())
-        } else if let Some(process) = &model.process {
+        } else if let Some(process) = emitter.process {
             format!("{}{}", process.name.text, emitter.parameter())
         } else {
             "Next".into()
@@ -697,55 +745,78 @@ pub(super) fn generate(
             ),
             action.span,
         )?;
-    }
-    if let Some(process) = &model.process
-        && model.use_pc
-    {
-        append(
-            format!(
-                "{}{} == {}\n\n",
-                process.name.text,
-                emitter.parameter(),
-                model
-                    .actions
-                    .iter()
-                    .map(|a| format!("{}{}", a.name, emitter.parameter()))
-                    .collect::<Vec<_>>()
-                    .join(" \\/ ")
-            ),
-            process.span,
-        )?;
+        if model.use_pc
+            && let Some(process) = emitter.process
+            && model
+                .actions
+                .get(index + 1)
+                .is_none_or(|next| next.span.start >= process.span.end)
+        {
+            append(
+                format!(
+                    "{}{} == {}\n\n",
+                    process.name.text,
+                    emitter.parameter(),
+                    model
+                        .actions
+                        .iter()
+                        .filter(|a| a.span.start >= process.span.start
+                            && a.span.end <= process.span.end)
+                        .map(|a| format!("{}{}", a.name, emitter.parameter()))
+                        .collect::<Vec<_>>()
+                        .join(" \\/ ")
+                ),
+                process.span,
+            )?;
+        }
     }
     if model.stutter {
         append(
-            if model.process.is_some() {
-                "Terminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\n".into()
-            } else {
+            if model.processes.is_empty() {
                 "Terminating == pc = \"Done\" /\\ UNCHANGED vars\n\n".into()
+            } else {
+                "Terminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\n".into()
             },
             span,
         )?;
     }
-    if let Some(process) = &model.process {
-        let action = if process.id.kind == BindingKind::Equal {
-            process.name.text.clone()
-        } else {
-            format!(
-                "(\\E self \\in {}: {}(self))",
-                emitter.domain(),
-                process.name.text
+    if !model.processes.is_empty() {
+        // GenNext emits constant-ID wrappers before quantified process sets,
+        // even when the source interleaves the two kinds of declarations.
+        let actions: Vec<_> = model
+            .processes
+            .iter()
+            .filter(|p| p.id.kind == BindingKind::Equal)
+            .map(|p| p.name.text.clone())
+            .chain(
+                model
+                    .processes
+                    .iter()
+                    .filter(|p| p.id.kind == BindingKind::Member)
+                    .map(|process| {
+                        let owner = Emitter {
+                            process: Some(process),
+                            ..emitter
+                        };
+                        format!(
+                            "(\\E self \\in {}: {}(self))",
+                            owner.domain(),
+                            process.name.text
+                        )
+                    }),
             )
-        };
+            .collect();
         append(
             format!(
-                "Next == {action}{}\n\n",
+                "Next == {}{}\n\n",
+                actions.join(" \\/ "),
                 if model.stutter {
                     " \\/ Terminating"
                 } else {
                     ""
                 }
             ),
-            process.span,
+            span,
         )?;
     } else if model.use_pc {
         let mut actions: Vec<_> = model
@@ -758,13 +829,23 @@ pub(super) fn generate(
         }
         append(format!("Next == {}\n\n", actions.join(" \\/ ")), span)?;
     }
-    let fairness = emitter.process_fairness();
-    let spec = if model.fair || fairness.is_some() {
+    let fairness: Vec<_> = model
+        .processes
+        .iter()
+        .filter_map(|process| {
+            Emitter {
+                process: Some(process),
+                ..emitter
+            }
+            .process_fairness()
+        })
+        .collect();
+    let spec = if model.fair || !fairness.is_empty() {
         let mut spec = "/\\ Init /\\ [][Next]_vars".to_owned();
         if model.fair {
             spec.push_str("\n        /\\ WF_vars(Next)");
         }
-        if let Some(formula) = fairness {
+        for formula in fairness {
             spec.push_str("\n        /\\ ");
             spec.push_str(&formula);
         }
@@ -775,10 +856,10 @@ pub(super) fn generate(
     append(format!("Spec == {spec}\n\n"), span)?;
     if model.stutter {
         append(
-            if model.process.is_some() {
-                "Termination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n".into()
-            } else {
+            if model.processes.is_empty() {
                 "Termination == <>(pc = \"Done\")\n".into()
+            } else {
+                "Termination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n".into()
             },
             span,
         )?;
@@ -811,7 +892,7 @@ pub(super) fn generate(
             String::new()
         },
         processes: model
-            .process
+            .processes
             .iter()
             .map(|process| super::ProcessTranslation {
                 name: process.name.text.clone(),

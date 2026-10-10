@@ -75,10 +75,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .to_owned()
                 })
                 .collect();
-            serde_json::json!({"stage":"artifact", "artifact":artifact,"tokens":tokens, "model_proved":false})
+            serde_json::json!({"stage":"artifact", "artifact":artifact,"tokens":tokens, "model_proved":false,"exhaustive":false,"accepted":true,"exit_code":0})
         }
         Err(error) => {
-            serde_json::json!({"stage":error.stage,"error":error.diagnostic,"code":error.diagnostic.code.as_str(),"model_proved":false})
+            serde_json::json!({"stage":error.stage,"error":error.diagnostic,"code":error.diagnostic.code.as_str(),"model_proved":false,"exhaustive":false})
         }
     };
     writeln!(std::io::stdout(), "{document}")?;

@@ -1,8 +1,8 @@
 //! Native source-mapped PlusCal grammar parsing (ADR 0022).
 //!
 //! [`parse`] produces a source AST, not a translated TLA+ specification.
-//! [`translate`] supports bounded sequential and single-process paths, including reference labels;
-//! multiple process blocks, fairness, procedures, macros and branch-internal labels remain
+//! [`translate`] supports bounded sequential and disjoint finite-process paths, including reference labels;
+//! unproved process domains, procedures, macros and branch-internal labels remain
 //! separate pending stages. Expression slices retain counted nesting and are
 //! neither syntax-checked as TLA+ expressions nor evaluated.
 //! No Java runtime is used by this crate.

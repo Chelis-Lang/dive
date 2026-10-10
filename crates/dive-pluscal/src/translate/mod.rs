@@ -1,4 +1,4 @@
-//! Native sequential/single-process translation; normalization is bounded and explicit.
+//! Native sequential/finite-process translation; normalization is bounded and explicit.
 mod emit;
 mod labels;
 mod lower;
@@ -165,8 +165,8 @@ fn error(
     }
 }
 
-/// Translates a bounded sequential or single-process current C/P algorithm.
-/// Multiple processes, procedures/macros, historical modes and name
+/// Translates a bounded sequential or disjoint finite-process current C/P algorithm.
+/// Unproved process domains, procedures/macros, historical modes and name
 /// disambiguation fail before an artifact is returned. Expression validation and
 /// complete module binding are separate stages.
 ///

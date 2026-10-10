@@ -1,0 +1,1279 @@
+{
+  "schema_version": 1,
+  "selected": 208,
+  "manifest_sha256": "bbecb00d6b81fd346d8ad2a90448f50de1fa4ba9da597c1cbb0a07bbe98a374d",
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "native_sha256": "343e0d12ae38080e1278fbd3bebb9338e1a45281ba9cfb83a9d2f2a8caab3ca6",
+  "script_sha256": "cbecc61749ebf5c01fc175caa8e2b05dc3dfab63dd92a0c72c344696354780e1",
+  "model_proved": false,
+  "family_certified": false,
+  "summary": {
+    "token-artifact-match": 96,
+    "native-refusal": 30,
+    "rejection-match": 82
+  },
+  "rows": [
+    {
+      "id": "Proc_C_duplicate_ids",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ea3a0ca3b7ef013ff7e5607b69dfa480768769a774095b9e5bf99070a021ba49",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_empty",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "47a844c1a5df84d3f1451899e9fe4a4b64bde36daac1e0cb3f790f8f3d0dc8c9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_expression_id",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fair_strong",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2f8c2c23964027bd36ec1ce347692c7f8f28ae6631d74a96c5b5026d04fd3b31",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fair_weak",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "867d206a50959603efe532de0b359cc46a7f5a16b32b7af3bd5411c2f7567cab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_assert_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e7f15b123f2d013783b43583492f19f13cd1a85986681e77f7bf7eab3dc22e63",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_await_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f83786fdeb0f8c4c0e4d7f2fda08a229faff012974b2d211574eea5b9773169c",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_binder_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: with-binder name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_default_global_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bada022b9f983f47142d4881dba157f02e7a6d2c214fdde2d32864341e6438d0",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_default_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bdd3788d980fe93e34a5e62c2ad7131574f31e3bb7e611f979e28d3f61129a1e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_fixed_id_either_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "29702c3df709fde6157f8efd3907cca4569e479b53497cc2dc327f151297fb2d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_goto_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_if_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a293b27e99003125f18530f35c63086b0be9c9bd57a23d0102347fa90d4f74d5",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_fixed_id_implicit_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b3e55b6e037ab7fd52e05080e2fea78849a3821d5a9ef232981b388983f50dc",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_infinite_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "399c86dfb742fa1b98fa4ca867256b9fe91cae634eece0dd43b19f7ae92531b5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Proc_C_fixed_id_label_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd8ad4983eeb7359eb3a0f7cf83f3c179af8caf6e253956192f3324f66929926",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_local_dependency_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4fd3be74c7d7eb525416623435aa30fd4d64fcb5772b5d976e903c30c1bea3a9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_local_member_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "17b035bcf226c2e0b4604caa83e89725dc9f0f9aebb005f97840a8926c11eabd",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_loop_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "20fa802148bb6cedbab01c4000474f20a6a4fb4c8de6d3fb9e0aad545c3aebca",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_no_globals_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "02a2d704b2fa9e3d0fe4d75e9a94c1ab5bad78234439ff5a279dead245189b7c",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_parallel_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c1fc3e3ebfb62e92d1c82233b6d495eb05d41e58b25d77c82afd081e6fbe6f9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_fixed_id_partial_labels_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "afb591987aa6ba31ef06da049d010df4a62d71a0bf1949a29b66002b5d0c1c69",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_process_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/generated-operator name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_record_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_reserved_pc_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_reserved_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_fixed_id_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_sequential_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f83a00a0b28321738520a489bed2c187abdc489c74c9e764ecceebe73ba67ee7",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_id_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_id_with_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b4b583eae064db4cce06f524654d531f5e3c1c7b59c3a929974f0b654a53c48",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_assert_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "6138cb10c3cf3376a5f0415d1dec988edf03fba1f7cfbeec3681ac04525308d1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_await_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a182f60bea71b59a14dd4314262f96620fd812512d4e2816ca27184538d73844",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_binder_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: with-binder name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_default_global_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "84ae36f48eaaa952b5c92b64cb242f4e6c66a98e4e32571c6ab34af4f2f9e2f4",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_default_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "54f05a9e18129739d0c765210f301b7e7af79d62fb3ab7c709ee5f5cbad8d55d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_fixed_set_either_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "737a6cfdc5bd62062eb51e4431dc28890f521380995fae66d1037fbdca4704fb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_goto_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_if_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fb3cb99bdc7eee3e05c6b12718c3d40866a4ae38f57308bd43cccbe8852e0f62",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_fixed_set_implicit_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "516ef7d14f63dba1e7b8c14509ee886e115981e9bc7351bbbecd24ef46240d0b",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_infinite_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Proc_C_fixed_set_label_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22a4b25f11b922829e65278e6b2f11fb38c2e73ab9e1a424956cd6e9bbd3d48a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_local_dependency_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f6ff46dbc30690988bbc259668ad92f08c454e0237fcbcbb2cd8e986f4d2b4cc",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_local_member_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ea9ad4e8a8cc64eb545ca515e3b623640e800e3d5f75888208df157ce6e32127",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_loop_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "86d783ede4fb1090c4eaebd53d76853c931fc7ca8524502f5d972a0d11ced480",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_no_globals_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "600d763320b33f7b275240d7d56a146889dfde8e83d52371f22e8a0d2ee88ca8",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_parallel_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5ceeaa3746dc92f439b4e363d2a9da091455dd20696cb2807961fa8c00f126d9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_fixed_set_partial_labels_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4a90d7ee873d23b8331c309722d55492573667dfcd970198eae9f8efe9416939",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_process_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/generated-operator name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_record_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3112b30ecec907fb3fdedc073bebbe135b604cad80a41bba22f28b32f5bf5f61",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_reserved_pc_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_reserved_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_fixed_set_self_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5c9ad5014831b1f8d39405bc8c6b78d867cb7f999e0927f7b5c7c4d848ceb0ee",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_sequential_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d45f65a620aefa504790185cadc16cb47c7f5359dc16a5819061d3519256145c",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_fixed_set_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_C_fixed_set_with_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9610326bc43ea16ea11da7064205ca8ab5480dc6e8734b694a23809daa1d1e46",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_id_assert_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_await_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_binder_shadow_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_default_global_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_default_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_either_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_if_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_implicit_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_infinite_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_invalid_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_id_label_name_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_local_dependency_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_local_member_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_loop_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_no_globals_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_no_variables_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5348ab03343ff9bcfbc3bd4d0f16575b23e9fdd4cda8de73ab670ad08e3e9ab9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_id_parallel_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_partial_labels_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_process_name_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_record_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_reserved_pc_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_reserved_self_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_self_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_sequential_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_shadow_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_id_simple_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "be9cebb88d4da4dac3311f5ce77a46c705e3d723ac001bee4b99dc921fe21816",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_id_with_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_interval",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1617859ba7f1a2f68ecd55cac145b3902329e506b249750006988fd1f6ab24bf",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_set_assert_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_await_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_binder_shadow_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_default_global_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_default_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_either_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_if_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_implicit_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_infinite_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_invalid_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_C_set_label_name_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_local_dependency_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_local_member_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_loop_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_no_globals_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_no_variables_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f52a8471f8938369d3a7f4f0497c1300f3657bfd13db249fe72cfaf695a1278d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_set_parallel_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_partial_labels_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_process_name_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_record_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_reserved_pc_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_reserved_self_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_self_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_sequential_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_shadow_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_set_simple_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "eeb321f97000d0bd146ef4ceb9a2f76c6861513ec347c8145e8926df3a94e46d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_set_with_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_C_string",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6f817e397463f7f5e91209187245484d12de8cf649f3d2a93149d71f1e243a6",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_C_tuple_id",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_P_duplicate_ids",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ea3a0ca3b7ef013ff7e5607b69dfa480768769a774095b9e5bf99070a021ba49",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_empty",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "47a844c1a5df84d3f1451899e9fe4a4b64bde36daac1e0cb3f790f8f3d0dc8c9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_expression_id",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nonliteral or unproved finite process IDs",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_fair_strong",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2f8c2c23964027bd36ec1ce347692c7f8f28ae6631d74a96c5b5026d04fd3b31",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_fair_weak",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "867d206a50959603efe532de0b359cc46a7f5a16b32b7af3bd5411c2f7567cab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_assert_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "60fe24d691fc5ab6c4657ceb66c81518aa990dce33df7991852d869bba409252",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_await_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8433d9d6061cd6dc89bfd78c657193b5988e30b4c13fa777416f1b40f547728e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_binder_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: with-binder name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_default_global_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bada022b9f983f47142d4881dba157f02e7a6d2c214fdde2d32864341e6438d0",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_default_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bdd3788d980fe93e34a5e62c2ad7131574f31e3bb7e611f979e28d3f61129a1e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_P_id_either_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "29702c3df709fde6157f8efd3907cca4569e479b53497cc2dc327f151297fb2d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_goto_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_if_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a293b27e99003125f18530f35c63086b0be9c9bd57a23d0102347fa90d4f74d5",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_id_implicit_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b3e55b6e037ab7fd52e05080e2fea78849a3821d5a9ef232981b388983f50dc",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_infinite_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "399c86dfb742fa1b98fa4ca867256b9fe91cae634eece0dd43b19f7ae92531b5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Proc_P_id_invalid_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_id_label_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "dd8ad4983eeb7359eb3a0f7cf83f3c179af8caf6e253956192f3324f66929926",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_local_dependency_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4fd3be74c7d7eb525416623435aa30fd4d64fcb5772b5d976e903c30c1bea3a9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_local_member_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "17b035bcf226c2e0b4604caa83e89725dc9f0f9aebb005f97840a8926c11eabd",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_loop_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "20fa802148bb6cedbab01c4000474f20a6a4fb4c8de6d3fb9e0aad545c3aebca",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_no_globals_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "02a2d704b2fa9e3d0fe4d75e9a94c1ab5bad78234439ff5a279dead245189b7c",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_no_variables_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5348ab03343ff9bcfbc3bd4d0f16575b23e9fdd4cda8de73ab670ad08e3e9ab9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_parallel_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c1fc3e3ebfb62e92d1c82233b6d495eb05d41e58b25d77c82afd081e6fbe6f9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_id_partial_labels_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "afb591987aa6ba31ef06da049d010df4a62d71a0bf1949a29b66002b5d0c1c69",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_process_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/generated-operator name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_record_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_reserved_pc_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_reserved_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_P_id_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: unbound self in a constant-ID process",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_sequential_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f83a00a0b28321738520a489bed2c187abdc489c74c9e764ecceebe73ba67ee7",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_id_simple_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "be9cebb88d4da4dac3311f5ce77a46c705e3d723ac001bee4b99dc921fe21816",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_id_with_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9b4b583eae064db4cce06f524654d531f5e3c1c7b59c3a929974f0b654a53c48",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_interval",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "1617859ba7f1a2f68ecd55cac145b3902329e506b249750006988fd1f6ab24bf",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_assert_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a75aea546ee6b36b04aed0d289f813934bdef5e9ece48e019ac64e03656aace7",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_await_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "26fe517c5ade4959a4d35f0d7a694fc93367a8887b0a8057307ceb7ea51e8097",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_binder_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: with-binder name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_default_global_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "84ae36f48eaaa952b5c92b64cb242f4e6c66a98e4e32571c6ab34af4f2f9e2f4",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_default_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "54f05a9e18129739d0c765210f301b7e7af79d62fb3ab7c709ee5f5cbad8d55d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_duplicate_local_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_P_set_either_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "737a6cfdc5bd62062eb51e4431dc28890f521380995fae66d1037fbdca4704fb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_goto_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_if_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fb3cb99bdc7eee3e05c6b12718c3d40866a4ae38f57308bd43cccbe8852e0f62",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_implicit_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_set_implicit_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "516ef7d14f63dba1e7b8c14509ee886e115981e9bc7351bbbecd24ef46240d0b",
+      "action_count": 1,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_infinite_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Proc_P_set_invalid_goto_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_set_label_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/label/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_local_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "22a4b25f11b922829e65278e6b2f11fb38c2e73ab9e1a424956cd6e9bbd3d48a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_local_dependency_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f6ff46dbc30690988bbc259668ad92f08c454e0237fcbcbb2cd8e986f4d2b4cc",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_local_member_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ea9ad4e8a8cc64eb545ca515e3b623640e800e3d5f75888208df157ce6e32127",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_loop_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "86d783ede4fb1090c4eaebd53d76853c931fc7ca8524502f5d972a0d11ced480",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_no_globals_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "600d763320b33f7b275240d7d56a146889dfde8e83d52371f22e8a0d2ee88ca8",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_no_variables_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f52a8471f8938369d3a7f4f0497c1300f3657bfd13db249fe72cfaf695a1278d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_parallel_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5ceeaa3746dc92f439b4e363d2a9da091455dd20696cb2807961fa8c00f126d9",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_partial_labels_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Proc_P_set_partial_labels_label",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4a90d7ee873d23b8331c309722d55492573667dfcd970198eae9f8efe9416939",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_process_name_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process/generated-operator name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_record_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3112b30ecec907fb3fdedc073bebbe135b604cad80a41bba22f28b32f5bf5f61",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_reserved_pc_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_reserved_self_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_select_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Proc_P_set_self_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5c9ad5014831b1f8d39405bc8c6b78d867cb7f999e0927f7b5c7c4d848ceb0ee",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_sequential_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d45f65a620aefa504790185cadc16cb47c7f5359dc16a5819061d3519256145c",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_shadow_default",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: process local/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Proc_P_set_simple_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "eeb321f97000d0bd146ef4ceb9a2f76c6861513ec347c8145e8926df3a94e46d",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_set_with_default",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9610326bc43ea16ea11da7064205ca8ab5480dc6e8734b694a23809daa1d1e46",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_string",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d6f817e397463f7f5e91209187245484d12de8cf649f3d2a93149d71f1e243a6",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Proc_P_tuple_id",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    }
+  ]
+}

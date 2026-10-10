@@ -1,7 +1,7 @@
 # PlusCal process fairness
 
 The native translator supports weak and strong fairness for its admitted
-single-process subset:
+finite-process subset (including [multiple blocks](pluscal-multiple-processes.md)):
 
 ```tla
 --algorithm A

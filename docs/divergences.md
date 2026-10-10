@@ -336,7 +336,8 @@ conservative. This is a native limitation repair, not family certification.
 
 The [single-process increment](pluscal-processes.md) matches unfair constant-ID
 and finite-membership process storage/action semantics and the distinct process
-`-label` default. Multiple blocks/fairness/unproved names remain named refusals.
+`-label` default. Subsequent bounded fairness and multiple-block support is
+described below; unproved names remain named refusals.
 Constant-ID `self` references that leave the primary output SANY-invalid are
 retained without artifact credit; no alternate mathematical default is adopted.
 
@@ -356,7 +357,7 @@ An incomplete native pause must never report a complete model-checking verdict.
 
 The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
 declarations, label guards and explicit pinned fairness options. Translation
-artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
 and unproved domain normalization are still named refusals; full-family
 certification remains pending.
 
@@ -370,3 +371,8 @@ bound graph capture (#157): malformed arena IDs and foreign predicate/action
 contexts refuse before effects; error-report metadata cannot index an invalid
 variable declaration. Stable context codes and original panic evidence are
 retained in `conformance/probes/public-ir-admission/`; F-035 stays partial.
+
+The [multiple finite-process increment](pluscal-multiple-processes.md) proves
+per-block storage, label and fairness ownership for disjoint literal domains.
+Overlapping IDs, namespace rewrites and cross-process local references remain
+explicit refusals in both profiles. Full translation families remain partial.
