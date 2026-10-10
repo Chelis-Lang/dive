@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "217cebfa8bd35735bf14d38f28a4ae17628739aa",
+  "denominator": "37 stable semantic feature families; overlapping source surfaces are counted separately, never added or weighted",
+  "families": [
+    {
+      "id": "F-001",
+      "name": "TLA+ grammar and lossless parsing",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 1,
+      "pinned_source": "tla2sany/parser/TLAplusParser.java",
+      "rust_evidence": "crates/dive-syntax/src/lib.rs",
+      "conformance_evidence": "docs/frontend-campaign.md",
+      "issues": [],
+      "acceptance": "Pinned grammar acceptance/rejection, spans, malformed input and full syntax corpus; retain the distinction between grammar and module loading.",
+      "interactions": [
+        "F-002",
+        "F-034"
+      ]
+    },
+    {
+      "id": "F-002",
+      "name": "Semantic resolution, levels and module/proof syntax",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 1,
+      "pinned_source": "tla2sany/semantic/Generator.java",
+      "rust_evidence": "crates/dive-sema/src/lib.rs",
+      "conformance_evidence": "docs/frontend-campaign.md",
+      "issues": [],
+      "acceptance": "Full pinned SANY acceptance and error-code cases, nested/local INSTANCE, recursive and higher-order scopes; matching oracle crashes remain classified separately.",
+      "interactions": [
+        "F-006",
+        "F-019"
+      ]
+    },
+    {
+      "id": "F-003",
+      "name": "Configuration parsing",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 1,
+      "pinned_source": "tlc2/tool/impl/ModelConfig.java",
+      "rust_evidence": "crates/dive-config/src/lib.rs",
+      "conformance_evidence": "crates/dive-config/tests/tlc_oracle.rs",
+      "issues": [],
+      "acceptance": "Field-level agreement for all 22 keyword spellings, values, substitutions, duplicates and malformed files. Parsing a keyword does not certify its backend.",
+      "interactions": [
+        "F-004",
+        "F-027",
+        "F-029"
+      ]
+    },
+    {
+      "id": "F-004",
+      "name": "Model/configuration binding and startup",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/tool/impl/SpecProcessor.java",
+      "rust_evidence": "crates/dive-model/src/lib.rs",
+      "conformance_evidence": "crates/dive-model/tests/startup.rs",
+      "issues": [
+        61,
+        104
+      ],
+      "acceptance": "Match constant replacement, property splitting, startup effects and deciding error order for all configuration services.",
+      "interactions": [
+        "F-008",
+        "F-017",
+        "F-019",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-005",
+      "name": "Values, equality, order, laziness and representation",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/value/impl/Value.java",
+      "rust_evidence": "crates/dive-value/src/value.rs",
+      "conformance_evidence": "crates/dive-value/tests/tlc_differential.rs",
+      "issues": [
+        28,
+        61
+      ],
+      "acceptance": "All value classes and constructor-sensitive equality, normalization, enumeration, print and errors; both profiles including integer overflow and canonical ordering.",
+      "interactions": [
+        "F-007",
+        "F-011",
+        "F-014",
+        "F-018"
+      ]
+    },
+    {
+      "id": "F-006",
+      "name": "Evaluation scopes, recursion and higher-order operators",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 3,
+      "pinned_source": "tlc2/tool/impl/Tool.java",
+      "rust_evidence": "crates/dive-eval/src/eval.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "issues": [
+        63,
+        66
+      ],
+      "acceptance": "Lazy scalar/action/temporal/operator parameters, LET, nested INSTANCE and substitutions retain levels and caller scope through evaluation and validation.",
+      "interactions": [
+        "F-002",
+        "F-007",
+        "F-019",
+        "F-021"
+      ]
+    },
+    {
+      "id": "F-007",
+      "name": "Finite domains, successor enumeration and independent ENABLED",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 3,
+      "pinned_source": "tlc2/tool/impl/Tool.java",
+      "rust_evidence": "crates/dive-eval/src/scope.rs",
+      "conformance_evidence": "crates/dive-api/tests/constructor_covers.rs",
+      "issues": [
+        107,
+        63
+      ],
+      "acceptance": "Explicit and finite lazy domains preserve TLC successor order and duplicates; independent finite covers decide ENABLED/deadlock, including scope and closing edges.",
+      "interactions": [
+        "F-005",
+        "F-006",
+        "F-012",
+        "F-021"
+      ]
+    },
+    {
+      "id": "F-008",
+      "name": "Native override discovery and installation",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/tool/impl/SpecProcessor.java",
+      "rust_evidence": "crates/dive-ir/src/std_op.rs",
+      "conformance_evidence": "crates/dive-ir/tests/lower.rs",
+      "issues": [
+        16
+      ],
+      "acceptance": "Audit all 158 registered bindings and installation order, annotation calling modes, inheritance and substitution; provide native custom registration. Registry metadata is not implementation evidence.",
+      "interactions": [
+        "F-004",
+        "F-009",
+        "F-010",
+        "F-026",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-009",
+      "name": "Standard-module operators",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/module/TLCBuiltInOverrides.java",
+      "rust_evidence": "crates/dive-eval/src/std.rs",
+      "conformance_evidence": "crates/dive-eval/tests/tlc_fixtures.rs",
+      "issues": [
+        61
+      ],
+      "acceptance": "All executable definitions in the 20 standard modules, their active overrides and supported/error cases; unsupported Reals or other non-executable expressions match TLC rejection instead of fabricating values.",
+      "interactions": [
+        "F-005",
+        "F-008",
+        "F-011",
+        "F-024"
+      ]
+    },
+    {
+      "id": "F-010",
+      "name": "CommunityModules operators and TLA+ fallback definitions",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "CommunityModules:modules/tlc2/overrides/TLCOverrides.java",
+      "rust_evidence": "crates/dive-eval/src/community.rs",
+      "conformance_evidence": "crates/dive-eval/tests/fixtures/examples/README.md",
+      "issues": [],
+      "acceptance": "Census and differential controls for all 34 pinned source modules, every active override and evaluation fallback; no completion claim from 651/767 ASSUMEs.",
+      "interactions": [
+        "F-006",
+        "F-008",
+        "F-026"
+      ]
+    },
+    {
+      "id": "F-011",
+      "name": "Error classes, construction provenance and precedence",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/output/EC.java",
+      "rust_evidence": "crates/dive-eval/src/error.rs",
+      "conformance_evidence": "crates/dive-check/tests/errors.rs",
+      "issues": [
+        61
+      ],
+      "acceptance": "Resolve all ten unverified construction-dependent contexts; positive, invalid argument and simultaneous-error controls verify deciding code, class, phase and text.",
+      "interactions": [
+        "F-004",
+        "F-005",
+        "F-020",
+        "F-028"
+      ]
+    },
+    {
+      "id": "F-012",
+      "name": "Sequential BFS safety, invariants and deadlock",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 2,
+      "pinned_source": "tlc2/tool/ModelChecker.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "crates/dive-check/tests/probes.rs",
+      "issues": [],
+      "acceptance": "Complete and mid-level stops match generated/distinct counts, depth, violated property and independently validated traces, including empty Init/Next and duplicates.",
+      "interactions": [
+        "F-007",
+        "F-013",
+        "F-015",
+        "F-018"
+      ]
+    },
+    {
+      "id": "F-013",
+      "name": "Deterministic parallel checking and runtime-sensitive fallbacks",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/Worker.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "crates/dive-check/tests/invariance.rs",
+      "issues": [],
+      "acceptance": "Worker/chaos equivalence extends from safety to temporal/symmetry; runtime-sensitive sequential fallback and requested/actual worker information remain truthful.",
+      "interactions": [
+        "F-012",
+        "F-020",
+        "F-027",
+        "F-033"
+      ]
+    },
+    {
+      "id": "F-014",
+      "name": "Fingerprint/exact stores and collision accounting",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 7,
+      "pinned_source": "tlc2/util/FP64.java",
+      "rust_evidence": "crates/dive-store/src/lib.rs",
+      "conformance_evidence": "crates/dive-store/tests/tlc_state_fingerprints.rs",
+      "issues": [
+        28
+      ],
+      "acceptance": "Bit-exact TLC stream, safe default mixing, exact identity and probabilities; forced collisions, symmetry/VIEW keys, spill and replay produce no silent state loss.",
+      "interactions": [
+        "F-005",
+        "F-016",
+        "F-018",
+        "F-031"
+      ]
+    },
+    {
+      "id": "F-015",
+      "name": "State/action constraints and action-property split",
+      "implementation_status": "implemented",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/ModelChecker.java",
+      "rust_evidence": "crates/dive-model/src/lib.rs",
+      "conformance_evidence": "crates/dive-check/tests/probes.rs",
+      "issues": [],
+      "acceptance": "Filtering/check timing and stop counts match all constraint combinations, including safety versus phase-L graph edges and continuation.",
+      "interactions": [
+        "F-004",
+        "F-012",
+        "F-020"
+      ]
+    },
+    {
+      "id": "F-016",
+      "name": "VIEW identity and temporal lifting",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/TLCStateMutExt.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "docs/design/m6-plan.md",
+      "issues": [
+        66
+      ],
+      "acceptance": "Match VIEW identity, representative order and printed views; prove closing transitions or retain sufficient concrete lifting evidence. Do not construct a false temporal word from quotient representatives.",
+      "interactions": [
+        "F-014",
+        "F-018",
+        "F-020",
+        "F-029"
+      ]
+    },
+    {
+      "id": "F-017",
+      "name": "Symmetry declaration binding, warnings and closure",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 2,
+      "pinned_source": "tlc2/tool/impl/Tool.java",
+      "rust_evidence": "crates/dive-model/src/symmetry.rs",
+      "conformance_evidence": "crates/dive-model/tests/symmetry_declaration.rs",
+      "issues": [
+        104
+      ],
+      "acceptance": "Match lookup snapshot, source-aware warning images, disabled-group heuristics, error order and closure; malformed maps reject by default and follow TLC under compat.",
+      "interactions": [
+        "F-004",
+        "F-005",
+        "F-018"
+      ]
+    },
+    {
+      "id": "F-018",
+      "name": "Symmetry reduction, concrete traces and audit",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 2,
+      "pinned_source": "tlc2/tool/TLCStateMut.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "docs/design/m6-plan.md",
+      "issues": [
+        104
+      ],
+      "acceptance": "All 11 selected symmetry models agree in both stores/widths; canonical keys, symmetry-before-VIEW, retained concrete paths and optional audit. Default liveness is wholly unreduced; compat reproduces labeled TLC quotient behavior.",
+      "interactions": [
+        "F-005",
+        "F-012",
+        "F-016",
+        "F-021",
+        "F-022"
+      ]
+    },
+    {
+      "id": "F-019",
+      "name": "Temporal language, simplification and exact tableaux",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 3,
+      "pinned_source": "tlc2/tool/liveness/Liveness.java",
+      "rust_evidence": "crates/dive-liveness/src/plan.rs",
+      "conformance_evidence": "crates/dive-liveness/tests/planning.rs",
+      "issues": [
+        63,
+        66,
+        107
+      ],
+      "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
+      "interactions": [
+        "F-006",
+        "F-007",
+        "F-021",
+        "F-022"
+      ]
+    },
+    {
+      "id": "F-020",
+      "name": "Temporal graph capture and phase-L timing",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
+      "rust_evidence": "crates/dive-eval/src/capture.rs",
+      "conformance_evidence": "docs/temporal-study.md",
+      "issues": [
+        66,
+        108,
+        109
+      ],
+      "acceptance": "Actual parallel graph retention, duplicate/stutter edges, constraints, atom evaluation and stopping/error precedence match pinned probes; post-capture failures retain truthful stage and work evidence.",
+      "interactions": [
+        "F-011",
+        "F-013",
+        "F-016",
+        "F-023",
+        "F-031"
+      ]
+    },
+    {
+      "id": "F-021",
+      "name": "WF/SF fairness and independent periodic validation",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/Liveness.java",
+      "rust_evidence": "crates/dive-trace/src/lib.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "issues": [
+        63
+      ],
+      "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
+      "interactions": [
+        "F-006",
+        "F-007",
+        "F-018",
+        "F-019"
+      ]
+    },
+    {
+      "id": "F-022",
+      "name": "SCC acceptance, TLC lasso selection and attribution",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/LiveWorker.java",
+      "rust_evidence": "crates/dive-liveness/src/analyze.rs",
+      "conformance_evidence": "crates/dive-liveness/tests/lassos.rs",
+      "issues": [
+        66
+      ],
+      "acceptance": "Ordinary strict checking reproduces fixed-polynomial TLC SCC/hash/order and lasso/ending selection; default short witnesses retain independent validation and registered attribution differences.",
+      "interactions": [
+        "F-019",
+        "F-020",
+        "F-021",
+        "F-029"
+      ]
+    },
+    {
+      "id": "F-023",
+      "name": "Periodic/final/off/sequential liveness schedules",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 4,
+      "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
+      "rust_evidence": "crates/dive-api/src/check.rs",
+      "conformance_evidence": "docs/design/m6-plan.md",
+      "issues": [
+        66
+      ],
+      "acceptance": "Every accepted lncheck variant has matching enable/stop behavior; test TLC wall-clock decisions separately from deterministic level-boundary defaults, recording volatile fields.",
+      "interactions": [
+        "F-020",
+        "F-022",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-024",
+      "name": "Simulation, generation, scheduling and random replay",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 5,
+      "pinned_source": "tlc2/tool/Simulator.java",
+      "rust_evidence": "crates/dive-sim/src/lib.rs",
+      "conformance_evidence": "crates/dive-stdlib/src/random/mod.rs",
+      "issues": [],
+      "acceptance": "Initial/action choice, trace count/depth, seeded/aril draws, all simulation schedulers, constraints/properties and termination match mode-specific controls; stable default replay survives worker changes.",
+      "interactions": [
+        "F-009",
+        "F-021",
+        "F-026",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-025",
+      "name": "DFID checking",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 5,
+      "pinned_source": "tlc2/tool/DFIDModelChecker.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "docs/design/tlc-parity-plan.md",
+      "issues": [],
+      "acceptance": "Depth iterations, visited-state status, stop/deadlock/continuation and counts match finite and infinite bounded controls; reports distinguish DFID from BFS.",
+      "interactions": [
+        "F-007",
+        "F-012",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-026",
+      "name": "Granted environment, file and process effects",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "CommunityModules:modules/tlc2/overrides/IOUtils.java",
+      "rust_evidence": "crates/dive-stdlib/src/host.rs",
+      "conformance_evidence": "docs/tlc-differences.md",
+      "issues": [],
+      "acceptance": "Off without explicit category grants even in compat; granted behavior, serialization/CSV/JSON and process errors match oracle, with external inputs captured for replay.",
+      "interactions": [
+        "F-008",
+        "F-010",
+        "F-024",
+        "F-033"
+      ]
+    },
+    {
+      "id": "F-027",
+      "name": "Runtime introspection and configuration services",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/module/TLCGetSet.java",
+      "rust_evidence": "crates/dive-eval/src/host.rs",
+      "conformance_evidence": "crates/dive-check/tests/tlc_module.rs",
+      "issues": [
+        109
+      ],
+      "acceptance": "Complete TLCGet/Set, traces, PickSuccessor, deferred calls, periodic hooks, possible counts, RL reward and postconditions at their correct phases. Errors never invent worker use or success.",
+      "interactions": [
+        "F-004",
+        "F-020",
+        "F-024",
+        "F-025",
+        "F-029"
+      ]
+    },
+    {
+      "id": "F-028",
+      "name": "CLI/output conventions and message controls",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/TLC.java",
+      "rust_evidence": "crates/dive-cli/src/main.rs",
+      "conformance_evidence": "docs/sprint-status.md",
+      "issues": [
+        61
+      ],
+      "acceptance": "All 46 flag spellings, aliases, nested arguments and invalid combinations are mapped/tested; reproduce tool/human codes, exits, suppression/escalation, terse/diff output and startup ordering.",
+      "interactions": [
+        "F-003",
+        "F-011",
+        "F-023",
+        "F-029"
+      ]
+    },
+    {
+      "id": "F-029",
+      "name": "Trace/state dumps, ALIAS and trace exploration",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/TLC.java",
+      "rust_evidence": "crates/dive-api/src/check.rs",
+      "conformance_evidence": "crates/dive-api/tests/trace_controls.rs",
+      "issues": [],
+      "acceptance": "TLC trace loading, generated trace specs, binary/JSON/state/DOT dumps, ALIAS and exploration preserve evaluation side effects; retain clean oracle run when dumpTrace perturbs overrides.",
+      "interactions": [
+        "F-016",
+        "F-022",
+        "F-026",
+        "F-027"
+      ]
+    },
+    {
+      "id": "F-030",
+      "name": "Coverage and debugger services",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 6,
+      "pinned_source": "tlc2/debug/TLCDebugger.java",
+      "rust_evidence": "crates/dive-cli/src/main.rs",
+      "conformance_evidence": "docs/design/tlc-parity-plan.md",
+      "issues": [],
+      "acceptance": "Native coverage reports and debugger stepping/breakpoints/stack/inspection preserve evaluation results; match all relevant coverage and debugger controls.",
+      "interactions": [
+        "F-006",
+        "F-011",
+        "F-028"
+      ]
+    },
+    {
+      "id": "F-031",
+      "name": "Bounded-memory stores, frontiers, graphs and SCC spill",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 7,
+      "pinned_source": "tlc2/tool/queue/DiskStateQueue.java",
+      "rust_evidence": "crates/dive-store/src/lib.rs",
+      "conformance_evidence": "docs/design/m5-plan.md",
+      "issues": [
+        28,
+        53,
+        108
+      ],
+      "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence.",
+      "interactions": [
+        "F-014",
+        "F-020",
+        "F-022",
+        "F-032"
+      ]
+    },
+    {
+      "id": "F-032",
+      "name": "Native checkpoint and recovery",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 7,
+      "pinned_source": "tlc2/tool/ModelChecker.java",
+      "rust_evidence": "crates/dive-store/src/lib.rs",
+      "conformance_evidence": "docs/design/tlc-parity-plan.md",
+      "issues": [],
+      "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
+      "interactions": [
+        "F-020",
+        "F-024",
+        "F-031",
+        "F-033"
+      ]
+    },
+    {
+      "id": "F-033",
+      "name": "Native distributed checking and recovery",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 7,
+      "pinned_source": "tlc2/tool/distributed/TLCServer.java",
+      "rust_evidence": "crates/dive-check/src/lib.rs",
+      "conformance_evidence": "docs/design/tlc-parity-plan.md",
+      "issues": [],
+      "acceptance": "Native coordinator/workers reproduce local ordered results under task retries, lost workers and reassignment, without duplicate counts/effects. Java RMI interoperability is excluded.",
+      "interactions": [
+        "F-013",
+        "F-026",
+        "F-031",
+        "F-032"
+      ]
+    },
+    {
+      "id": "F-034",
+      "name": "PlusCal translation and translation validation",
+      "implementation_status": "missing",
+      "certification": "audit-required",
+      "phase": 8,
+      "pinned_source": "pcal/trans.java",
+      "rust_evidence": "crates/dive-pluscal/src/lib.rs",
+      "conformance_evidence": "docs/frontend-campaign.md",
+      "issues": [],
+      "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
+      "interactions": [
+        "F-001",
+        "F-002",
+        "F-019",
+        "F-024"
+      ]
+    },
+    {
+      "id": "F-035",
+      "name": "Public Rust APIs and cargo-test integration",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 9,
+      "pinned_source": "tlc2/TLC.java",
+      "rust_evidence": "crates/dive-api/src/lib.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "issues": [],
+      "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
+      "interactions": [
+        "F-024",
+        "F-029",
+        "F-032",
+        "F-033",
+        "F-034",
+        "F-037"
+      ]
+    },
+    {
+      "id": "F-036",
+      "name": "Complete corpus, harness and release certification",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 1,
+      "pinned_source": "tlc2/output/EC.java",
+      "rust_evidence": "crates/dive-conformance/src/lib.rs",
+      "conformance_evidence": "docs/conformance-corpora.md",
+      "issues": [
+        2,
+        16
+      ],
+      "acceptance": "Complete selected-case census and generated goldens for model/feature interactions; no unknown, timeout, malformed report, feature refusal or pending validation is disguised as agreement.",
+      "interactions": [
+        "F-011",
+        "F-019",
+        "F-028",
+        "F-034"
+      ]
+    },
+    {
+      "id": "F-037",
+      "name": "Global TLC profile and approved better defaults",
+      "implementation_status": "partial",
+      "certification": "audit-required",
+      "phase": 9,
+      "pinned_source": "tlc2/TLC.java",
+      "rust_evidence": "crates/dive-eval/src/options.rs",
+      "conformance_evidence": "docs/tlc-differences.md",
+      "issues": [],
+      "acceptance": "Every implemented option declares/testing its TLC counterpart; mixed runs are labeled and expected divergences cannot excuse wrong verdicts. Category host grants remain the approved exception.",
+      "interactions": [
+        "F-005",
+        "F-013",
+        "F-018",
+        "F-022",
+        "F-026",
+        "F-035"
+      ]
+    }
+  ]
+}

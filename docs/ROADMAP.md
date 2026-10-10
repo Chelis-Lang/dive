@@ -9,6 +9,9 @@ The charter's soundness contract applies throughout.
 
 See [the current sprint status](sprint-status.md) for shipped work, the latest
 conformance evidence and the remaining M1, M5 and M6 packages.
+The [TLC parity delivery plan](design/tlc-parity-plan.md) is the approved path
+through the complete pinned feature set. The [parity ledger](tlc-parity.md)
+separates semantic certification from literal source surfaces and model counts.
 
 ## M0: Foundation
 
@@ -76,7 +79,7 @@ This is not a build-or-buy gate: `dive` is built regardless.
 - **Trace validation:** the `dive-trace` validator replays every counterexample.
 - **Conformance gate:** the standard conformance tier becomes a PR gate on a small subset.
 
-The design is in ADRs 0013–0016 (proposed). The sequenced plan, with work packages, conformance milestones, the gate subset and benchmark targets, is `docs/design/m5-plan.md`.
+The design is in ADRs 0013–0016. The sequenced plan, with work packages, conformance milestones, the gate subset and benchmark targets, is `docs/design/m5-plan.md`. The safety checker and parallel engine are implemented; storage, errors, performance and corpus follow-ups remain open.
 
 ## M6: Liveness, fairness and symmetry
 
@@ -85,11 +88,28 @@ The design is in ADRs 0013–0016 (proposed). The sequenced plan, with work pack
 
 The design is in ADRs 0017–0019 (proposed). The plan, with work packages, conformance milestones, gate additions and benchmark targets, is `docs/design/m6-plan.md`.
 
-## Later
+## Through full TLC parity
 
-- **Checking features:** simulation and PlusCal.
-- **Integration:** the library API with `cargo test` integration, and the LSP.
-- **Compilation:** specification compilation and the Verus export path.
+The approved nine-phase delivery plan includes complete symmetry, temporal
+language, strict integrated liveness, simulation/generation and DFID, remaining
+operators/configuration/output/debugger services, bounded-memory spill, native
+checkpoint/recovery, native distributed checking, PlusCal and release
+certification. Independent tracks can implement modes and corpus coverage while
+exact liveness selection is completed. Each phase has explicit acceptance
+criteria in [the plan](design/tlc-parity-plan.md); current capabilities and
+remaining interactions are in [the ledger](tlc-parity.md).
+
+Native protocols/checkpoints satisfy the approved scope; interoperability with
+Java workers/checkpoints and arbitrary JVM plugin loading are excluded. Host
+access still requires explicit category grants even under `--compat=tlc`.
+
+## After parity
+
+- **Integration:** LSP on the certified front end/checker.
+- **Compilation:** native specification compilation and the Verus export path.
+
+Public checking, simulation, translation, checkpoint and distributed library
+APIs with `cargo test` integration are part of parity, not postponed here.
 
 M6 finite-predicate increment: final/short checking and independent validation
 support constant-domain forall/exists inside state/action predicates. Six pinned
