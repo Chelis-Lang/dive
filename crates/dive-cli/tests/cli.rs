@@ -642,6 +642,6 @@ fn frontier_spill_flags_and_directory_dependency() {
     ] {
         let refused = dive(&args);
         assert_eq!(refused.status.code(), Some(3));
-        assert!(refused.stdout.is_empty());
+        assert_eq!(refused.stdout, [] as [u8; 0]);
     }
 }
