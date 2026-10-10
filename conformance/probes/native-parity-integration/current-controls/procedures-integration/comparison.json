@@ -1,0 +1,739 @@
+{
+  "schema_version": 1,
+  "stage": "procedure-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "f42a31d45bddedcfeff8f55da0a66c8a7d72333635dc99bff04012934d709b45",
+  "comparator_sha256": "22007e428237c8c6dc70987698f4fbaa1d3e3259dc84e966a9d506980ad508c0",
+  "native_sha256": "e504ea935b2d7ee4e7e3bebd530e54a9644761de2e45112d07f6a8de9ccd3c44",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 84,
+  "summary": {
+    "rejection-match": 14,
+    "native-refusal": 20,
+    "token-artifact-match": 48,
+    "invalid-reference-artifact": 2
+  },
+  "rows": [
+    {
+      "id": "Procedure_C_arity_high",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_C_arity_low",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_C_auto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_branch",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "95446b936e665afec96e9a8f52e10e65fb0303fdf0076f535cb2cc44ba175615",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_call_follows_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b74f3579bbd0221429bd95192d731cffb788c2738c5ce64037612d0b275501f3",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a7e5fef1d5fa86719b2a1fb22b8e4d4ce2746e85292fb890ff46edd8758e86b1",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_call_missing_follow_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_C_call_to_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8f7f52b3f61b6f8c1c2d2eed21dfe1f62d011d5b1adcf4e900773584ba55470e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_cross_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_C_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "91954358644fb1923a941f4eaafe42f58b80724eae4f06f240cc80013d0ca04d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_default_param",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3f122eb0655bcb8869bfb85b85a0aa2bd94709faf6785bbd9d6e0bc8f5672574",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_duplicate_param",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_either",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5ae18fdec1501e41c1f61b0247358a55019c7bb37e0592cc584490d5462ea377",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_global_param_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_implicit_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d708ae513c6256ce7dcb29435d0bfcb24af5490280da90a1c55ec1ea5e953e9e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_initial_expr",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "752c8b0c5a6d7703bee93918f43fcc5601118d1cec02447531090fafe66bc104",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d23d9b3a6729f500f735e8f85169c0a18d15725d72ab6027f95c72d35b876bc4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_local_from_param",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "93f8564d0964a1325b4d30e741bac3306b603ea19c0c374f265f34917e460f75",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_local_read_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9461a93eff310c05c4a358940fb1eea66cc906bd19322eee46ef059811cf2e85",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_local_update",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_C_loop",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a51baedb39901e4f7bb7952556d8e694b6656f1dd14d94c8f65b016ae514acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "86b0dd2980f1cb0434a915854d698f02ab03c33148c118de4ee75ab62df874ed",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_operator_names",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "101ed524ae6235d5d223976a0641755897e3f5089cda42bb764df77cd05a1e6d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_param_local_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_param_read_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fc713eb0b43c0f652f3a5164f1aae6f95a93dc7e3da4168861f67916866a5211",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_proc_label_collision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global label disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nested/recursive procedure calls",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_repeat",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f39ba63d462056bdf7b5d2df5578411907c14ae2c85d48bceea19ff505d73e63",
+      "action_count": 5,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_reserved_pc",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_reserved_stack",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_return_main",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_C_return_only",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "83b744c8d75e84928e3af10f1d07d6ee0e05cc3f67302d9128600db8545844c3",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_return_same_label",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a7e5fef1d5fa86719b2a1fb22b8e4d4ce2746e85292fb890ff46edd8758e86b1",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_simple",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "77fa2fe8cefbb6074671640a922edcd6d75fb9dadaadfdb3a3bc8abfaa1cfd3a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_source_assert",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c361e40aa32cf79c6b5763f13f16e5bce43a9e65b31866224f265ed4215e7f9e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_tail_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nested/recursive procedure calls",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_C_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "0e6a75a62f294bacc9c08cf0418e7a0c4ac06b3de1090059d2750f7e6363e658",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_unknown",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_C_unused",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cddf71ddf6e5503036777592df1985e73863f180fc5fb6624be9caf8d23334ab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_C_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "Procedure_C_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ff711f898d6a0bb89ea282629ea4c3e3fa79e4c8f384ae4f45002e756024dc08",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_arity_high",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_P_arity_low",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_P_auto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: automatic label insertion",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_branch",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "95446b936e665afec96e9a8f52e10e65fb0303fdf0076f535cb2cc44ba175615",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_call_follows_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b74f3579bbd0221429bd95192d731cffb788c2738c5ce64037612d0b275501f3",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a7e5fef1d5fa86719b2a1fb22b8e4d4ce2746e85292fb890ff46edd8758e86b1",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_call_missing_follow_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_P_call_to_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "8f7f52b3f61b6f8c1c2d2eed21dfe1f62d011d5b1adcf4e900773584ba55470e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_cross_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_P_default_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "91954358644fb1923a941f4eaafe42f58b80724eae4f06f240cc80013d0ca04d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_default_param",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3f122eb0655bcb8869bfb85b85a0aa2bd94709faf6785bbd9d6e0bc8f5672574",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_duplicate_param",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_either",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5ae18fdec1501e41c1f61b0247358a55019c7bb37e0592cc584490d5462ea377",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_global_param_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_implicit_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d708ae513c6256ce7dcb29435d0bfcb24af5490280da90a1c55ec1ea5e953e9e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_initial_expr",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "752c8b0c5a6d7703bee93918f43fcc5601118d1cec02447531090fafe66bc104",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "d23d9b3a6729f500f735e8f85169c0a18d15725d72ab6027f95c72d35b876bc4",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_local_from_param",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "93f8564d0964a1325b4d30e741bac3306b603ea19c0c374f265f34917e460f75",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_local_read_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "9461a93eff310c05c4a358940fb1eea66cc906bd19322eee46ef059811cf2e85",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_local_update",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Procedure_P_loop",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "7a51baedb39901e4f7bb7952556d8e694b6656f1dd14d94c8f65b016ae514acb",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "86b0dd2980f1cb0434a915854d698f02ab03c33148c118de4ee75ab62df874ed",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_operator_names",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_parallel",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "101ed524ae6235d5d223976a0641755897e3f5089cda42bb764df77cd05a1e6d",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_param_local_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_param_read_main",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "fc713eb0b43c0f652f3a5164f1aae6f95a93dc7e3da4168861f67916866a5211",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_proc_label_collision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global label disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nested/recursive procedure calls",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_repeat",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f39ba63d462056bdf7b5d2df5578411907c14ae2c85d48bceea19ff505d73e63",
+      "action_count": 5,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_reserved_pc",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_reserved_stack",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: procedure/global/generated-name disambiguation",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_return_main",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_P_return_only",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "83b744c8d75e84928e3af10f1d07d6ee0e05cc3f67302d9128600db8545844c3",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_return_same_label",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "a7e5fef1d5fa86719b2a1fb22b8e4d4ce2746e85292fb890ff46edd8758e86b1",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_simple",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "77fa2fe8cefbb6074671640a922edcd6d75fb9dadaadfdb3a3bc8abfaa1cfd3a",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_source_assert",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c361e40aa32cf79c6b5763f13f16e5bce43a9e65b31866224f265ed4215e7f9e",
+      "action_count": 3,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_tail_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: nested/recursive procedure calls",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Procedure_P_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "0e6a75a62f294bacc9c08cf0418e7a0c4ac06b3de1090059d2750f7e6363e658",
+      "action_count": 4,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_unknown",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Procedure_P_unused",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "cddf71ddf6e5503036777592df1985e73863f180fc5fb6624be9caf8d23334ab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Procedure_P_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "invalid-reference-artifact",
+      "diagnostic_only": true,
+      "admitted_artifact": false,
+      "raw_tokens_equal": true
+    },
+    {
+      "id": "Procedure_P_with",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ff711f898d6a0bb89ea282629ea4c3e3fa79e4c8f384ae4f45002e756024dc08",
+      "action_count": 3,
+      "program_counter": true
+    }
+  ]
+}

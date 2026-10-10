@@ -33,3 +33,8 @@ and [compiled Rust observations](../../../conformance/probes/native-parity-integ
 The original observations above remain immutable and identify their original
 runtime. The repaired source rechecks all eight commands plus the pure
 checkpoint pause/recovery and original named refusal.
+
+`ProcedureExample.tla` and `ProcedureExampleC.tla` are the runnable C/P modules
+from the [procedure guide](../../pluscal-procedures.md). Four CLI translations
+and two compiled Rust calls passed in the separate current procedure receipt.
+Translation acceptance remains an artifact claim, not a model proof.

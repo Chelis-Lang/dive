@@ -1,0 +1,3291 @@
+{
+  "schema_version": 1,
+  "script_sha256": "475b26264d5781ecb1a7a44c4c1b41da10a0362bbd64e41b6f8d21ae43a1166a",
+  "original_report_sha256": "8f0f812fc97d7af49a74250632085399f4585ed4a32ee2dec8138321f8a04401",
+  "native_sha256": "a9db689b438fd81a23ac3e6d64ae708dc991b783782fe992f73587310d873afe",
+  "family_certified": false,
+  "tlc_violation_certified": false,
+  "scope": "Default/canonical replay is qualified separate evidence; no #124 guard relaxation or strict validation credit. Original strict disagreement campaign remains unchanged.",
+  "summary": {
+    "strict-complete-model-match": 46,
+    "strict-witness-pending": 30
+  },
+  "rows": [
+    {
+      "id": "Procedure_C_branch.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_branch.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_call_goto.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_call_to_done.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_default_local.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_default_param.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_either.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_initial_expr.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_local.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_local_from_param.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_local_read_main.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_loop.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 7,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_no_params.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_parallel.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_param_read_main.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_repeat.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_return_only.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_return_same_label.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_simple.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_source_assert.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_two_params.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_C_unused.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_with.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_branch.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_call_goto.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_call_to_done.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_default_local.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_default_param.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_either.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_initial_expr.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_local.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_local_from_param.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_local_read_main.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_loop.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 7,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_no_params.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_parallel.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_param_read_main.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_repeat.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_return_only.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_return_same_label.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_simple.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_source_assert.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_two_params.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "Procedure_P_unused.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_with.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 3,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    }
+  ],
+  "controls": [
+    {
+      "id": "Procedure_C_branch.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_branch.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_branch.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_branch.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_branch.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_branch.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_branch.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_branch.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_branch.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_branch.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_branch.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_branch.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_branch.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_branch.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_branch.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_follows_assign.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_follows_assign.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_follows_assign.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_follows_assign.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_follows_assign.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_follows_assign.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_goto.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_goto.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_goto.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_goto.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_goto.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_goto.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_goto.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_goto.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_call_goto.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_call_goto.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_call_goto.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_either.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_either.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_either.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_either.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_either.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_either.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_either.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_either.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_either.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_either.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_either.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_initial_expr.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_initial_expr.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_initial_expr.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_initial_expr.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_initial_expr.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_initial_expr.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_initial_expr.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_initial_expr.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_initial_expr.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_initial_expr.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_initial_expr.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_local.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_local.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_local.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_local.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_local.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local_from_param.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_local_from_param.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local_from_param.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_local_from_param.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local_from_param.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_local_from_param.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local_from_param.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_local_from_param.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_local_from_param.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_local_from_param.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_local_from_param.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_loop.violation.original.stdout.gz",
+          "sha256": "8b09656476bb25e83588afad02031434ed7bb7f697609a5f0b0452c9f966bd69"
+        },
+        "stderr": {
+          "path": "Procedure_C_loop.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_loop.violation.invalid-init.stdout.gz",
+          "sha256": "c579365e8226079435924ad34a99bd4e2e4856a74f387124472dcea920e3f686"
+        },
+        "stderr": {
+          "path": "Procedure_C_loop.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_loop.violation.invalid-next.stdout.gz",
+          "sha256": "77b8c7457e65f983e7e9ca8c5be315b97e9079846010b9c6662470efdc64e11f"
+        },
+        "stderr": {
+          "path": "Procedure_C_loop.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_loop.violation.missing-final-variable.stdout.gz",
+          "sha256": "0461222b197806387b79b2360af225e7f8dc5b95ccfd0ff0b41bac59e4c4549f"
+        },
+        "stderr": {
+          "path": "Procedure_C_loop.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_loop.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_loop.violation.invalid-closing.stdout.gz",
+          "sha256": "437d60332324090e1a9601b4bb81779cb4980f65daeeeae283a3d1ec73725a35"
+        },
+        "stderr": {
+          "path": "Procedure_C_loop.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_parallel.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_parallel.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_parallel.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_parallel.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_parallel.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_parallel.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_parallel.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_parallel.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_parallel.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_parallel.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_parallel.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_repeat.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_repeat.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_repeat.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_repeat.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_repeat.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_repeat.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_repeat.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_repeat.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_repeat.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_repeat.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_repeat.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_return_same_label.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_return_same_label.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_return_same_label.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_return_same_label.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_return_same_label.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_return_same_label.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_return_same_label.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_return_same_label.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_return_same_label.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_return_same_label.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_return_same_label.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_simple.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_simple.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_simple.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_simple.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_simple.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_simple.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_simple.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_simple.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_simple.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_simple.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_simple.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_source_assert.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_source_assert.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_source_assert.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_source_assert.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_source_assert.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_source_assert.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_source_assert.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_source_assert.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_source_assert.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_source_assert.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_source_assert.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_two_params.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_C_two_params.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_two_params.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_C_two_params.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_two_params.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_C_two_params.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_two_params.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_C_two_params.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_two_params.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_two_params.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_C_two_params.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_with.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_C_with.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_with.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_C_with.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_with.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_C_with.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_with.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_C_with.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_C_with.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_C_with.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_C_with.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_branch.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_branch.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_branch.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_branch.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_branch.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_branch.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_branch.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_branch.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_branch.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_branch.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_branch.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_follows_assign.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_follows_assign.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_follows_assign.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_follows_assign.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_follows_assign.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_follows_assign.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_goto.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_goto.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_goto.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_goto.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_goto.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_goto.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_goto.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_goto.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_call_goto.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_call_goto.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_call_goto.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_either.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_either.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_either.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_either.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_either.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_either.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_either.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_either.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_either.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_either.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_either.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_initial_expr.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_initial_expr.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_initial_expr.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_initial_expr.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_initial_expr.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_initial_expr.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_initial_expr.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_initial_expr.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_initial_expr.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_initial_expr.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_initial_expr.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_local.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_local.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_local.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_local.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_local.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local_from_param.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_local_from_param.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local_from_param.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_local_from_param.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local_from_param.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_local_from_param.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local_from_param.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_local_from_param.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_local_from_param.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_local_from_param.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_local_from_param.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_loop.violation.original.stdout.gz",
+          "sha256": "8b09656476bb25e83588afad02031434ed7bb7f697609a5f0b0452c9f966bd69"
+        },
+        "stderr": {
+          "path": "Procedure_P_loop.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_loop.violation.invalid-init.stdout.gz",
+          "sha256": "c579365e8226079435924ad34a99bd4e2e4856a74f387124472dcea920e3f686"
+        },
+        "stderr": {
+          "path": "Procedure_P_loop.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_loop.violation.invalid-next.stdout.gz",
+          "sha256": "77b8c7457e65f983e7e9ca8c5be315b97e9079846010b9c6662470efdc64e11f"
+        },
+        "stderr": {
+          "path": "Procedure_P_loop.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_loop.violation.missing-final-variable.stdout.gz",
+          "sha256": "0461222b197806387b79b2360af225e7f8dc5b95ccfd0ff0b41bac59e4c4549f"
+        },
+        "stderr": {
+          "path": "Procedure_P_loop.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_loop.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_loop.violation.invalid-closing.stdout.gz",
+          "sha256": "437d60332324090e1a9601b4bb81779cb4980f65daeeeae283a3d1ec73725a35"
+        },
+        "stderr": {
+          "path": "Procedure_P_loop.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_parallel.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_parallel.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_parallel.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_parallel.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_parallel.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_parallel.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_parallel.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_parallel.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_parallel.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_parallel.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_parallel.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_repeat.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_repeat.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_repeat.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_repeat.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_repeat.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_repeat.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_repeat.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_repeat.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_repeat.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_repeat.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_repeat.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_return_same_label.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_return_same_label.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_return_same_label.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_return_same_label.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_return_same_label.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_return_same_label.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_return_same_label.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_return_same_label.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_return_same_label.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_return_same_label.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_return_same_label.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_simple.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_simple.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_simple.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_simple.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_simple.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_simple.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_simple.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_simple.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_simple.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_simple.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_simple.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_source_assert.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_source_assert.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_source_assert.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_source_assert.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_source_assert.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_source_assert.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_source_assert.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_source_assert.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_source_assert.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_source_assert.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_source_assert.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_two_params.violation.original.stdout.gz",
+          "sha256": "d234cf5552d2eca60cccc6a817c4122116c1e243f1cad46861d1d36c29ca478f"
+        },
+        "stderr": {
+          "path": "Procedure_P_two_params.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_two_params.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "Procedure_P_two_params.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_two_params.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "Procedure_P_two_params.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_two_params.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "Procedure_P_two_params.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_two_params.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_two_params.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "Procedure_P_two_params.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_with.violation.original.stdout.gz",
+          "sha256": "5489a0986b2b189186bce1351aaed0deee1b99074f9c2b92452fe5fd79a8f0ec"
+        },
+        "stderr": {
+          "path": "Procedure_P_with.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_with.violation.invalid-init.stdout.gz",
+          "sha256": "36ccfacf32ba9648ad1d85b1aadcd7dcc0eecbaaee241384beafa575c7ba4e44"
+        },
+        "stderr": {
+          "path": "Procedure_P_with.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_with.violation.invalid-next.stdout.gz",
+          "sha256": "f2553fcadb9161dcc07d88dd81ed9f996f057f792b5ecbae889a7be558fbfba7"
+        },
+        "stderr": {
+          "path": "Procedure_P_with.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_with.violation.missing-final-variable.stdout.gz",
+          "sha256": "ecd918928dbbb241a0bdc54fa44e1d6599ec45c8b3367ab51f4a2d9baf7ace0a"
+        },
+        "stderr": {
+          "path": "Procedure_P_with.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Procedure_P_with.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "Procedure_P_with.violation.invalid-closing.stdout.gz",
+          "sha256": "43c2a4858288cef1483eb06b12b440ea2da39d6f81c9db418f34ebc5a0993f8d"
+        },
+        "stderr": {
+          "path": "Procedure_P_with.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}
