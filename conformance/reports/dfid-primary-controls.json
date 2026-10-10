@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "command": "dfid-primary-controls",
-  "created_at": "2026-10-10T12:38:41.476578+00:00",
+  "created_at": "2026-10-10T13:23:06.599096+00:00",
   "reference": "clean unmodified pinned TLC; worker-selection ambiguity kept explicit",
   "reference_manifest_sha256": "d57569eac4fa376ead67c9e3def8165f102f27720351cce55d067d2c7d41e4ce",
-  "implementation_sha256": "46a482eb61fb2b4bbd33caeac29580ee010e9dd3bb4680ecc662a64fb4e6a219",
+  "implementation_sha256": "b489a97f006da4a5e0e066c635fadec3a55be5a977fbcd29cddad6ba7d085ac8",
   "selected": 159,
   "summary": {
     "unsupported": 24,
@@ -465,7 +465,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -2208757669609934279
+            -4145084391680759873
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -518,7 +518,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            9193798960399483325
+            8394210203553787642
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -571,7 +571,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            4097508346109488525
+            -7022034844189331697
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -624,7 +624,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            2140159493309136667
+            -581564923462213600
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -779,7 +779,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            646239532688936729
+            -5866385610900909768
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -832,8 +832,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8190525522347518704,
-            -6734791934621239100
+            -9015616963061968065,
+            -8391232319070632231
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -886,9 +886,9 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -8741040205302393017,
-            -2419111583702855790,
-            1625899577315485080
+            -4795373540450892523,
+            -4840786758326744647,
+            8072298201858791225
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -941,11 +941,11 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8849089536276609128,
-            -1726131910519236190,
-            -4742670370891823626,
-            4585134340029101995,
-            1734359480237061808
+            3964369941681216211,
+            -6638041527715202535,
+            3778207881563294657,
+            5995274427974199618,
+            -4494653324999078647
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1100,7 +1100,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1604670740609271554
+            -6724645537817034976
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1192,8 +1192,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -730412939365728376,
-            -7842337488472376239
+            -6536521384068382095,
+            284367411318359201
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1242,13 +1242,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 2
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 4
                 }
               }
             ],
@@ -1285,8 +1285,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            3885429710427003511,
-            -2334546051373847703
+            -6207512889734955750,
+            6216500083507786067
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1378,8 +1378,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8874241148246318769,
-            6603681521421859890
+            -671361204851338935,
+            2196542114097032333
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1534,7 +1534,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7301598870096975883
+            -5387793563546774122
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1587,8 +1587,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -3089779557121789035,
-            3725405351074565696
+            70326851679563027,
+            -8397994950053884994
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1641,8 +1641,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1654635768672913669,
-            6333721642075416073
+            -5818081968296155151,
+            801005919795344265
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1695,8 +1695,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -4636599289953120458,
-            8406479393750116379
+            -2151597268864848289,
+            3390662267643743140
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1851,7 +1851,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8756046511880406386
+            -3568255541313730007
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1904,8 +1904,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            1073478298174699203,
-            5246609522688960784
+            -5383265247506026066,
+            -263352171034122947
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -1958,9 +1958,9 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -6232531267380994049,
-            2709369101525081223,
-            -8458057145094091443
+            4723777312714761540,
+            859951076295040951,
+            -3216635532763579387
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2013,9 +2013,9 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            3120276249154469243,
-            -1449967784384681675,
-            -6235508233338737674
+            -5578117520439626382,
+            -3426877799948529622,
+            -1953218295641808121
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2196,7 +2196,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            5316895378540350893
+            -8485080772438476319
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2275,7 +2275,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -2264155173565774568
+            -8106144933822571150
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2354,7 +2354,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -3451976589211739880
+            -290030817830936408
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2433,7 +2433,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -4452590261035361893
+            6085501532799424741
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2588,7 +2588,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            1189368291134564123
+            4810122404228099246
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2641,7 +2641,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -3881825635918513968
+            880606029960458888
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2694,7 +2694,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -8474517375365596953
+            -1743423645229911919
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2747,7 +2747,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            4400275212908502694
+            4707730317988358547
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2902,7 +2902,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -766556915802204310
+            -1196354719860437844
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -2955,7 +2955,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7333728617635635372
+            7235204253430745425
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -3008,7 +3008,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            6825822062697651734
+            2886369145097728998
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -3061,7 +3061,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -336044153171174023
+            8717051958137089616
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -4746,7 +4746,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -154307485083638768
+            2657958225010990894
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -4799,7 +4799,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -4642510636009489159
+            935260422615985273
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -4852,7 +4852,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -265522589004188909
+            -2145056880743441412
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -4905,7 +4905,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1611408536510741252
+            -5660991426851704258
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -5330,7 +5330,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            2710725313861612106
+            7849578619854740243
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -5383,7 +5383,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8514391919744902447
+            -4168998599741485799
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -5436,7 +5436,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1825019369725784790
+            5113287083906565336
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -5489,7 +5489,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            7562156728627292413
+            -6945591566364544550
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -5940,13 +5940,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 0
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 2
                 }
               }
             ],
@@ -5983,7 +5983,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            3185602980334169623
+            3390028279366263283
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6069,7 +6069,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -8155326211618003032
+            -3457520418395163844
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6155,7 +6155,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8562832859170857684
+            3574049432918551195
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6241,7 +6241,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8393208233565025146
+            -1837390009576574414
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6429,7 +6429,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7521575037487476183
+            3137559860294632305
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6441,7 +6441,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 4,
+          "generated": 3,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -6515,7 +6515,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -4193136251684710849
+            3470320229805869367
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6527,7 +6527,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 4,
+          "generated": 3,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -6601,7 +6601,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -3085509473619529716
+            -2364804650257493344
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6613,7 +6613,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 4,
+          "generated": 3,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -6687,7 +6687,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -6914332419824437292
+            -1784298557771340184
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -6699,7 +6699,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -7402,8 +7402,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -5120983982531594856,
-            6090687218221525322
+            894697204060861266,
+            8776977390776941940
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -7429,6 +7429,99 @@
     },
     {
       "control": "DfidBranch.depth6.workers1.seed7.aril3.repeat2",
+      "outcome": "reference-ambiguous",
+      "mismatches": [],
+      "native": {
+        "command": "dfid",
+        "compatibility_claim": "documented pure safety search fields only; raw display and collision probabilities pending",
+        "config": "crates/dive-check/tests/fixtures/dfid/DfidBranch.cfg",
+        "counterexample": {
+          "trace": {
+            "ending": {
+              "kind": "invariant",
+              "name": "Inv"
+            },
+            "format": "dive-trace",
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "x": 0
+                }
+              },
+              {
+                "action": null,
+                "values": {
+                  "x": 1
+                }
+              },
+              {
+                "action": null,
+                "values": {
+                  "x": 3
+                }
+              }
+            ],
+            "variables": [
+              "x"
+            ],
+            "version": 1
+          },
+          "validation": {
+            "command": "validate-trace",
+            "length": 3,
+            "notes": [],
+            "result": "valid",
+            "schema_version": 1
+          }
+        },
+        "exhaustive": false,
+        "exit_code": 12,
+        "file": "crates/dive-check/tests/fixtures/dfid/DfidBranch.tla",
+        "message": null,
+        "model_proved": false,
+        "observed_deciding": "Violation { kind: \"invariant\", name: Some(\"Inv\"), code: 2110 }",
+        "observed_result": "violation",
+        "observed_tlc_code": 2110,
+        "options": {
+          "cli_seed_controls_workers": false,
+          "execution_scope": "native-dfid",
+          "execution_stage": "exploration",
+          "fp": 0,
+          "max_level": 6,
+          "seed": 7,
+          "seed_given": true,
+          "store": "fingerprint+exact-collision-guard",
+          "witness_policy": "actual-concrete-path (D-019)",
+          "worker_seed_override": null,
+          "worker_seeds": [
+            7995903175916854510,
+            8085385270541779567
+          ],
+          "workers_requested": 1,
+          "workers_used": 1,
+          "wrapper_threads_used": 1
+        },
+        "profile": "tlc",
+        "result": "violation",
+        "schema_version": 1,
+        "startup_output": [],
+        "statistics": {
+          "distinct": 5,
+          "generated": 7,
+          "initial_candidates": 1,
+          "level": 3,
+          "scope": "completed-prefix"
+        },
+        "termination": "exploration",
+        "tlc_code": 2110,
+        "tlc_completion_message": false,
+        "violation_validated": true
+      },
+      "process_exit": 12
+    },
+    {
+      "control": "DfidBranch.depth6.workers1.seed7.aril3.repeat3",
       "outcome": "reference-ambiguous",
       "mismatches": [],
       "native": {
@@ -7495,101 +7588,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7454201257405158825,
-            -3153768556731933509
-          ],
-          "workers_requested": 1,
-          "workers_used": 1,
-          "wrapper_threads_used": 1
-        },
-        "profile": "tlc",
-        "result": "violation",
-        "schema_version": 1,
-        "startup_output": [],
-        "statistics": {
-          "distinct": 5,
-          "generated": 7,
-          "initial_candidates": 1,
-          "level": 3,
-          "scope": "completed-prefix"
-        },
-        "termination": "exploration",
-        "tlc_code": 2110,
-        "tlc_completion_message": false,
-        "violation_validated": true
-      },
-      "process_exit": 12
-    },
-    {
-      "control": "DfidBranch.depth6.workers1.seed7.aril3.repeat3",
-      "outcome": "reference-ambiguous",
-      "mismatches": [],
-      "native": {
-        "command": "dfid",
-        "compatibility_claim": "documented pure safety search fields only; raw display and collision probabilities pending",
-        "config": "crates/dive-check/tests/fixtures/dfid/DfidBranch.cfg",
-        "counterexample": {
-          "trace": {
-            "ending": {
-              "kind": "invariant",
-              "name": "Inv"
-            },
-            "format": "dive-trace",
-            "states": [
-              {
-                "action": null,
-                "values": {
-                  "x": 0
-                }
-              },
-              {
-                "action": null,
-                "values": {
-                  "x": 1
-                }
-              },
-              {
-                "action": null,
-                "values": {
-                  "x": 3
-                }
-              }
-            ],
-            "variables": [
-              "x"
-            ],
-            "version": 1
-          },
-          "validation": {
-            "command": "validate-trace",
-            "length": 3,
-            "notes": [],
-            "result": "valid",
-            "schema_version": 1
-          }
-        },
-        "exhaustive": false,
-        "exit_code": 12,
-        "file": "crates/dive-check/tests/fixtures/dfid/DfidBranch.tla",
-        "message": null,
-        "model_proved": false,
-        "observed_deciding": "Violation { kind: \"invariant\", name: Some(\"Inv\"), code: 2110 }",
-        "observed_result": "violation",
-        "observed_tlc_code": 2110,
-        "options": {
-          "cli_seed_controls_workers": false,
-          "execution_scope": "native-dfid",
-          "execution_stage": "exploration",
-          "fp": 0,
-          "max_level": 6,
-          "seed": 7,
-          "seed_given": true,
-          "store": "fingerprint+exact-collision-guard",
-          "witness_policy": "actual-concrete-path (D-019)",
-          "worker_seed_override": null,
-          "worker_seeds": [
-            -960272238506988458,
-            1520021449794124359
+            4861299660576429805,
+            4690801689134822625
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -7638,13 +7638,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 2
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 4
                 }
               }
             ],
@@ -7681,8 +7681,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            4313676131330320772,
-            -4292214760319867637
+            8783114474064097432,
+            -8220376300684529515
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -7731,13 +7731,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 2
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 4
                 }
               }
             ],
@@ -7774,8 +7774,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            4567060439285235566,
-            -5164237199146647559
+            -6325019460366616453,
+            -3385308727077785869
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -7867,8 +7867,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            3401360735729243187,
-            6931576827254364420
+            6039475502522937287,
+            -539654252058224439
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -7960,8 +7960,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -559827925991017997,
-            9002371297060201601
+            -4178203537263058353,
+            6493497799403539576
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8053,8 +8053,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1700156131804874138,
-            -6707839550495743055
+            -7520091961780086612,
+            -3204306546756377436
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8103,13 +8103,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 2
+                  "x": 1
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 4
+                  "x": 3
                 }
               }
             ],
@@ -8146,8 +8146,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8762234417660131063,
-            4215281566176393240
+            5812140226980404129,
+            -8388144962509517118
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8239,8 +8239,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8336927071586222192,
-            -169025067536675389
+            1632166363846620674,
+            -7333402626809814912
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8289,13 +8289,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 2
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 4
                 }
               }
             ],
@@ -8332,8 +8332,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -4657022427156481687,
-            -8646774404025623135
+            -8629018733821929568,
+            3413624303999281163
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8425,8 +8425,8 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -8573546131973731755,
-            -5071969904756218805
+            -6896480758253718496,
+            -9005739294324258490
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8469,13 +8469,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 0
+                  "x": 1
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 2
+                  "x": 3
                 }
               }
             ],
@@ -8512,7 +8512,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            7579316451946666326
+            3696226232692796945
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8598,7 +8598,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            307703567000650591
+            -3639191849316829353
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8684,7 +8684,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            7535920776788143193
+            -2920340461910887121
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8770,7 +8770,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7955786964254702988
+            6627061433274040672
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8813,13 +8813,13 @@
               {
                 "action": null,
                 "values": {
-                  "x": 1
+                  "x": 0
                 }
               },
               {
                 "action": null,
                 "values": {
-                  "x": 3
+                  "x": 2
                 }
               }
             ],
@@ -8856,7 +8856,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            5099876516350359048
+            -7330726356954535400
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -8942,7 +8942,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            3779594431672087780
+            -867651836718724733
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9028,7 +9028,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            7103060310815583926
+            8210772376043947921
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9040,7 +9040,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9114,7 +9114,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -3190219816545720049
+            4792433498869459272
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9200,7 +9200,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -2383868162659761356
+            -3524876710516944753
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9212,7 +9212,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9286,7 +9286,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -5733269096247490966
+            4877148013895396175
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9372,7 +9372,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -6137690335877785218
+            1845277565579432524
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9458,7 +9458,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8343224209958821603
+            8276512955828999255
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9470,7 +9470,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9544,7 +9544,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -1430902725094682683
+            -4846373203081489635
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9630,7 +9630,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -6649415873289567732
+            -3031889544288122538
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9642,7 +9642,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9716,7 +9716,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -887590598970158126
+            -5230991240597339114
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9802,7 +9802,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7274496102362384806
+            -7008210792452705584
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9814,7 +9814,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9888,7 +9888,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            -7981592234565490399
+            -7633627707094391358
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9900,7 +9900,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 3,
+          "generated": 4,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
@@ -9974,7 +9974,7 @@
           "witness_policy": "actual-concrete-path (D-019)",
           "worker_seed_override": null,
           "worker_seeds": [
-            8217510516040385445
+            -997857345023719741
           ],
           "workers_requested": 1,
           "workers_used": 1,
@@ -9986,7 +9986,7 @@
         "startup_output": [],
         "statistics": {
           "distinct": 3,
-          "generated": 4,
+          "generated": 3,
           "initial_candidates": 2,
           "level": 2,
           "scope": "completed-prefix"
