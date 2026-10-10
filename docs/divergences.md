@@ -236,3 +236,14 @@ and finite-membership process storage/action semantics and the distinct process
 `-label` default. Multiple blocks/fairness/unproved names remain named refusals.
 Constant-ID `self` references that leave the primary output SANY-invalid are
 retained without artifact credit; no alternate mathematical default is adopted.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+D-008 also records a pinned PlusCal fairness line of 87 columns under the
+default 78-column setting. Native generation currently preserves the measured
+reference junction grouping in both profiles; a width/layout improvement remains
+pending. The minimal source and raw output are retained in the fairness corpus.

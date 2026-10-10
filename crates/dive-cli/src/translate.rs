@@ -28,6 +28,10 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 };
                 request.limits.label_root.clone_from(root);
             }
+            "-nof" => request.limits.fairness = dive_api::TranslationFairness::None,
+            "-wf" => request.limits.fairness = dive_api::TranslationFairness::Weak,
+            "-sf" => request.limits.fairness = dive_api::TranslationFairness::Strong,
+            "-wfNext" => request.limits.fairness = dive_api::TranslationFairness::Next,
             "--output" => match arguments.next().map(String::as_str) {
                 Some("json") => json = true,
                 Some("human") => json = false,
@@ -48,8 +52,7 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
                 };
                 paths.push(value.into());
             }
-            "--fair" | "-wf" | "-sf" | "-termination" | "-nocfg" | "-version" | "-width"
-            | "--write" => {
+            "--fair" | "-termination" | "-nocfg" | "-version" | "-width" | "--write" => {
                 let _ = writeln!(
                     err,
                     "unsupported PlusCal translation option {argument}; no artifact produced"

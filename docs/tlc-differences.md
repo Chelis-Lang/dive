@@ -1130,3 +1130,28 @@ shadowing before returning an artifact. The API also performs enclosing-module
 syntax/name/level admission. This is a documented current limitation in both
 profiles, not an approved alternative name-disambiguation algorithm. Precise
 TLC-equivalent disambiguation and rewrite/checksum parity remain pending.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+**D-008 PlusCal fairness formatter observation:** the pinned translator prints
+an **87-column** fairness line with its default **78-column** setting for:
+
+```tla
+--algorithm A {
+  variables g=0;
+  fair process (P \in{1,2}) variables x=0;
+  { L: + x:=1; E: - g:=x; }
+}
+```
+
+`ProcessFairness.singleLineWidth` omits the sole quantifier-prefix line and
+conjunction separator. The retained `FairPositive_C_set_weak_both` primary output
+shows the 87-column line. Current native translation preserves its measured
+junction grouping in both profiles; full width/layout improvement is pending.
+No alternate formatting default is silently adopted. Long-label controls also
+compare full operator CST, since moving TLA junction indentation can change
+expression structure. See [the fairness evidence](pluscal-fairness.md).
