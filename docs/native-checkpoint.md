@@ -65,3 +65,10 @@ Native generated/initial counters are bounded by the largest positive TLC `long`
 (9,223,372,036,854,775,807). Imported larger values refuse before binding;
 continuation uses checked increments and stops explicitly before exceeding that
 schema bound. Wrapped counts can never become a completed-search report.
+
+Public arenas also receive a conservative builtin-effect scan before binding.
+A structurally valid LET definition exposed through a configuration alias cannot
+bypass purity by marking its module standard. The original printing/paused-file
+reproducer and source remain in `conformance/probes/native-checkpoint/before-context-alias-admission`;
+the current control requires zero output/workers and no archive in both profiles
+at 1/4/8 requested workers. This fixes dive issue #164; it is not a TLC defect.
