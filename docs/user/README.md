@@ -9,6 +9,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | --- | --- | --- |
 | Build and run a first model | [Getting started](getting-started.md) | Native binary; source checkout |
 | Parse, analyze and resolve modules | [Front end](front-end.md) | Source/config acceptance is not model checking |
+| Use modules and library operators | [Modules](modules.md) | Resolution and executable support are separate |
 | Explore safety properties | [Checking](checking.md) | Supported explicit BFS and pure safety symmetry |
 | Match TLC behavior | [Compatibility](compatibility.md) | Proven supported counterparts; explicit mixed modes |
 | Sample executions | [Simulation](simulation.md) | Finite seeded sampling; never exhaustive proof |

@@ -5,7 +5,7 @@
   "historical_slices_sha256": "5ad01432260abe855e3f526a498a04e57ea1fb10ea58e9c655724601ad72585f",
   "source_sha256": {
     "CHANGELOG.md": "3b49123a9bca063f92b4a2c61d0db43ac35527aa777bb9b7e28d3527a77e7449",
-    "conformance/parity-features.json": "bbb9b7bde4dea8302239793bddc83b35a7b2b5b6dcce51ee5d85fd152cc9c52a",
+    "conformance/parity-features.json": "48834ffe645f8f00f634212aeda27524b756014b2ac9b17ee3deceba88f83820",
     "conformance/probes/native-checkpoint/current-integration-source.json": "9b02e7884da8f724b4c3dd377da1e79a48ba95fbd34ce08507b89221b0c2c3c7",
     "conformance/probes/predecessor-spill/current-integration-source.json": "ed68e6e25c18d96d1ae52a5401feff5c3dcf7648b30200cf330e216eefef9999",
     "conformance/probes/public-ir-admission/before-fixture-repair.rs": "632d30dc753522550713cef2f21a2c938ad898e9fb4ebea39dbf855335bb03ac",
@@ -124,7 +124,7 @@
     "docs/decisions/0039-pluscal-macro-substitution.md": "132b3bdd4349c88e2759cf23757e031dbeebe0afd457559a4675fb32f25ab416",
     "docs/divergences.md": "56c9c02e0cc8e120997fa1985e449517e234667aa9e9729887bc91de4011725a",
     "docs/pluscal-fairness.md": "74e841756e5bf84641376253c28b0ac958d7197e36315c012e82542190683b69",
-    "docs/pluscal-macros.md": "f8ac7d58e9770309465df8e8ff534ac1d5a5e598e6d07ceadcdd27c1bfbba357",
+    "docs/pluscal-macros.md": "268944ba0ccafd10ef8492f120b1b520db8a31ffd3c5ff219d2aea1520cdce71",
     "docs/pluscal-multiple-processes.md": "8e7897a8578e84af926f0cb2514f16133af9cfa27a6642a461ec51b3f730d994",
     "docs/pluscal-normalization.md": "7aedcc7ec465e008b2cb6b118501f42124ae6f713d21ddfc24f2d0525838e433",
     "docs/pluscal-processes.md": "5bfefde9fa31fba821f1fc2fb78dd686e28341a0a941cdca196e58020950e960",

@@ -27,3 +27,6 @@ Diagnostics carry stable codes and source locations. Source acceptance and
 semantic acceptance are independently compared with the pinned SANY in the
 [front-end campaign](../frontend-campaign.md). The syntax/analysis crates are
 available independently of the model checker.
+
+Read [modules and evaluated operators](modules.md) for the distinction between
+resolved module sources and executable native overrides.
