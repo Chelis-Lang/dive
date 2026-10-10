@@ -39,7 +39,11 @@ or independently checked model certificates. Source/configuration/profile/model
 identity and structural bounds are checked. Pure supported VIEW and safety symmetry
 are admitted: recovery recomputes the configured reduced keys while preserving
 original concrete discoveries and witnesses. Liveness, runtime effects/names or
-checker reads, unsupported deferred values, transient storage budgets remain explicit refusals. Filesystem/recovery failures never report success.
+checker reads and unsupported deferred values remain explicit refusals. Frontier and
+predecessor budgets can be used independently or together for pause/recovery;
+recovery may change budgets or worker width. Native archive work remains outside
+both transient budgets. The [runnable spill recovery example](../native-checkpoint.md#recovery-with-transient-disk-storage)
+includes CLI/Rust requests and cleanup/failure evidence. Filesystem/recovery failures never report success.
 
 See [native checkpoint details](../native-checkpoint.md) for exact limits,
 no-overwrite commits, default recovery settings, API requests and evidence.

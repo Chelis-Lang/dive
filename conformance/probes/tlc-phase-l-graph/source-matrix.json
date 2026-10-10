@@ -6,8 +6,13 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
+<<<<<<< HEAD
     "crates/dive-check/src/engine.rs": "ed137de9c94db445c1e6e2543ed6a838077ffc82c25a4c32956027b4341cd888",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
+=======
+    "crates/dive-check/src/parallel.rs": "1fcc2bddf8756fb5c79273a40adc613e1731fdde62a68ab2cbf60c28fafaa612",
+    "crates/dive-check/src/engine.rs": "cbc42d60ec115a45b6801589eea94c174b3dd760700a7c0b8e529f2c6e96303a",
+>>>>>>> f7143b643 (feat: compose native recovery with transient search storage)
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
@@ -16,6 +21,14 @@
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
     "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
+<<<<<<< HEAD
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7"
   }
+=======
+    "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
+    "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758"
+  },
+  "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit",
+  "current_integration_scope": "current combined pure finite safety recovery with configured VIEW/symmetry, deterministic worker pool and independent frontier/predecessor transient budgets; original frozen histories unchanged; no full-family certification"
+>>>>>>> f7143b643 (feat: compose native recovery with transient search storage)
 }

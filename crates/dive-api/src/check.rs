@@ -188,7 +188,9 @@ pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
 }
 
 /// Runs the first native pure-safety checkpoint/recovery slice. It refuses
-/// temporal and transient-spill combinations before loading files. Recovery uses
+/// temporal combinations before loading files. Existing frontier/predecessor
+/// budgets configure transient storage; native archive work is separately bounded
+/// and excluded from both budgets. Recovery uses
 /// saved seed/fingerprint defaults when not explicitly supplied; profile/store
 /// and all semantic options must match. Actual workers are reported separately.
 ///
@@ -212,16 +214,9 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_check::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
-    if req.temporal != TemporalMode::Ordinary
-        || req.frontier_memory_bytes.is_some()
-        || req.frontier_directory.is_some()
-        || req.predecessor_memory_bytes.is_some()
-        || req.predecessor_directory.is_some()
-    {
+    if req.temporal != TemporalMode::Ordinary {
         return Err(crate::ApiError::Unsupported {
-            feature:
-                "native checkpoint with temporal or transient frontier/predecessor spill is not implemented"
-                    .into(),
+            feature: "native checkpoint with temporal checking is not implemented".into(),
         });
     }
     check_file_in(req, Some(checkpoint))
@@ -837,7 +832,7 @@ impl CheckReport {
             Phase::Checked(r) => {
                 doc["frontier_storage"] = json!({
                     "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
-                    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+                    "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",
                     "memory_bytes_per_queue": r.frontier.memory_bytes_per_queue,
                     "max_record_bytes": r.frontier.max_record_bytes,
                     "max_codec_nodes_per_value": r.frontier.memory_bytes_per_queue.map(|_| dive_value::codec::FRONTIER_MAX_NODES),
@@ -864,7 +859,7 @@ impl CheckReport {
                         "cleanup_completed": p.cleanup_completed,
                         "failures": p.failures,
                         "deciding_event_before_failure": p.deciding_event_before_failure,
-                        "excludes": ["seen-set", "frontiers", "candidate-vectors", "graphs", "reconstructed-paths", "decoded-states", "allocator-workspace"]
+                        "excludes": ["seen-set", "frontiers", "candidate-vectors", "graphs", "reconstructed-paths", "decoded-states", "allocator-workspace", "native-archive-work"]
                     });
                 }
                 let ctx = self.opts.eval.ctx;

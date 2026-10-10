@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Pure safety native checkpoint/recovery now composes with opt-in frontier and
+  predecessor disk budgets, including deterministic parallel VIEW/symmetry
+  recovery and explicit finalized transient cleanup evidence.
+
 - Native pure safety checkpoints pause and resume through the deterministic worker
   pool, including supported VIEW/safety symmetry, cross-width recovery and
   ordered counter-limit stops. Boundary-zero pauses report one actual worker

@@ -63,3 +63,13 @@ bounded-total-memory checker. Frontier spill with temporal graph capture is
 currently refused; graph/SCC spill and source-candidate spill need separate
 work. Physical I/O failures are explicit, so they do not claim TLC-equivalent
 completed verdicts. Defaults and semantic search limits remain unchanged.
+
+## Native recovery composition (2026-10-10)
+
+The pure safety checkpoint slice now reconstructs this transient store from the
+saved ordered discoveries/frontier instead of reopening temporary files. Storage
+budgets may change on recovery. ADR 0038's dated continuation preserves concrete
+keys/parents/ordinals, counter policies, actual workers and cleanup evidence.
+Native archive discovery metadata and encode/decode work are separately bounded
+and excluded from this store's capacity budget. Full runtime/temporal checkpoint
+state and Java archive import remain deferred.

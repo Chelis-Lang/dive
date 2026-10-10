@@ -401,6 +401,7 @@ symmetry witnesses across memory/disk, stores, profiles and worker widths.
 
 | `dive-pluscal` multiple-process normalization/emission (`translate/process.rs`, `lower.rs`, `emit.rs`) | tlaplus `pcal/ParseAlgorithm.java` process-wide omission checks; `PcalTLAGen.java` `GenProcSet`, `GenInit`, `GenProcess`, `GenNext`, `GenSpec` and `PcalSymTab` source contexts; commit `94d0c50` | MIT | Source-owned body normalization, shared storage and CASE initialization, constant-before-quantified scheduling and separate fairness formulas matched through retained clean primary output; bounded domain-disjointness admission is native design, broader renaming remains refused |
 
+<<<<<<< HEAD
 | `dive-pluscal` native macro expansion (`translate/macros.rs`) | pinned `pcal/ParseAlgorithm.java` `GetMacro`, `ExpandMacrosInStmtSeq`, `ExpandMacroCall`, `SubstituteInStmtSeq`, `SubstituteInStmt`, `SubstituteInSingleAssign`; `pcal/TLAExpr.java` `substituteForAll`, `substituteAt`, `findNextInstanceIn`; `pcal/AST.java` `location`, `PcalTLAGen.GenAssert`; commit `94d0c50` | MIT | Source-order expansion, simultaneous lexical/selector substitution, field exclusions and composite source locations; bounded owned expression resolver. Private source AST is not rewritten; unproved binding/hygiene/procedure cases explicitly refused. |
 | `dive-pluscal` source string admission (`lexer.rs`) | pinned `pcal/PcalBuiltInSymbols.java` `buildStringCharTable` and `pcal/Tokenize.java` `STRING`; commit `94d0c50` | MIT | Printable-ASCII/escape source boundary, with original illegal Unicode/control inputs and failed native overaccept retained. |
 
@@ -433,3 +434,14 @@ Pre-bind source admission also resolves configuration names through every
 `Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
 The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
 before binding, zero used workers and no graph evidence.
+=======
+## Native checkpoint composition with transient storage
+
+The recovery engine streams saved frontier suffix states into the existing native
+indexed Queue and reconstructs TraceLog parent/ordinal records through the existing
+fallible predecessor store. No Java I/O/checkpoint format or new algorithm is
+ported. The configured TLC live-search key path, discovery IDs and replay ordinals
+remain those matched against `ModelChecker`/`Worker`/`TLCTrace` at revision
+`94d0c50` (MIT), as recorded above. ADR 0038 and the native spill recovery study
+keep original parallel source/raw evidence separate from current storage controls.
+>>>>>>> f7143b643 (feat: compose native recovery with transient search storage)

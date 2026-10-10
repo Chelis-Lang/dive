@@ -4,8 +4,7 @@
 its saved frontier. Pure, concrete INIT/NEXT models can pause and resume
 through the deterministic worker pool, including supported pure VIEW and safety
 symmetry. It refuses liveness, runtime
-names/effects/checker reads, evaluator-driven deferred state values and transient storage
-budgets. These restrictions apply in both profiles and are reported explicitly.
+names/effects/checker reads and evaluator-driven deferred state values. These restrictions apply in both profiles and are reported explicitly.
 
 ```sh
 dive check Counter.tla --config Counter.cfg --compat=tlc --seed 7 --fp 0 \
@@ -56,11 +55,13 @@ or completeness. A resumed violation still needs independent trace validation.
 
 The format bounds its payload to 64 MiB, discoveries/names to 65,536, each native
 state/key/name to 1 MiB, variables to 1,024 and depth to 65,536. Concrete discovery
-records, frontiers, visited sets and encode/decode/reconstruction workspaces are
-retained in memory. Parallel candidates, resolved winner keys and worker scratch
+records, visited sets and archive encode/decode/reconstruction workspaces are
+retained in memory. Transient frontier/predecessor budgets can separately move
+the active queue and replay log to disk. Parallel candidates, resolved winner keys and worker scratch
 are also outside the archive payload limit. These are archive admission bounds, not a total RAM budget.
-The first slice refuses both frontier and predecessor transient storage settings,
-including directory settings without budgets.
+Both transient budgets are opt-in and may change on recovery; directory settings
+without their matching budgets refuse before file access. Native discovery
+records and imported/serialized snapshots remain outside those budgets.
 
 Writers use a private same-directory staging file, sync it, atomically commit a
 complete immutable archive without replacing an existing file, remove staging,
@@ -180,14 +181,15 @@ worker reaches a local limit first. Any retained trace at a resource stop is
 partial path evidence, not an invariant violation or a completed-search proof.
 
 This supports pure finite safety only. Temporal graphs, runtime effects or name
-construction, checker reads, evaluator-driven deferred values, and either
-transient spill family remain refused before effects in both profiles. The
+construction, checker reads and evaluator-driven deferred values remain refused
+before effects in both profiles. The
 worker field reports pool width, not speedup or simultaneous useful work.
 The [parallel recovery study](../conformance/probes/native-checkpoint-parallel/README.md)
 keeps the previous inline-only captures separate from new width, cross-width,
 counter-prefix and independent witness controls. The trusted-local archive
 contract and all existing byte/state/depth/identity bounds remain unchanged.
 
+<<<<<<< HEAD
 
 ## Current integrated verification
 
@@ -202,3 +204,80 @@ This receipt identifies its frozen runtime source and binary. Earlier inline
 receipts remain historical; their smaller source scope is not relabelled as
 parallel evidence. These controls do not certify temporal checkpointing, spill
 composition or the complete recovery feature family.
+=======
+## Recovery with transient disk storage
+
+The existing budgets work with pause and recovery, independently or together:
+
+```sh
+dive check conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla \
+  --config conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg \
+  --compat=tlc --seed 7 --fp 0 --workers 4 \
+  --frontier-memory-bytes 0 --predecessor-memory-bytes 0 \
+  --checkpoint cp-spill.cp --checkpoint-after-levels 1 --output json
+dive check conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla \
+  --config conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg \
+  --compat=tlc --workers 8 --frontier-memory-bytes 0 --predecessor-memory-bytes 0 \
+  --recover cp-spill.cp --checkpoint-counters retain --output json
+```
+
+These commands retain the same incomplete pause and concrete invariant violation
+counts described above: final Retain is 5 generated/3 distinct/depth 3; omitting
+Retain gives the default TLC reset, 3 generated and 2 initial states. VIEW and
+symmetry affect stored keys, not returned concrete witness values. A pause's
+transient files are cleaned before return; recovery reconstructs fresh queues/logs
+from the native archive. It does not require or reopen the previous transient
+files. You can recover with different budgets, omit them, or select inline mode.
+
+Zero forces the selected transient family to disk immediately. The frontier
+budget covers encoded queue data/index capacities separately per current/next
+queue; the predecessor budget covers replay parent/ordinal record capacity.
+Neither covers native discovery records (which also contain parent/ordinal
+metadata), archive payload/JSON work, visited keys, decoded states, candidates,
+worker scratch or reconstructed traces. Restoration feeds each decoded saved
+frontier state directly into the configured queue; it does not retain a second
+complete decoded frontier. The archive's separate 64 MiB/65,536 bounds remain.
+No setting here is an aggregate process-memory limit.
+
+Optional `--frontier-directory DIR` / `--predecessor-directory DIR` require their
+respective budgets and an existing parent directory; omitted directories use
+private auto-cleaned temporary storage. Read [frontier accounting](frontier-storage.md)
+and [predecessor accounting](predecessor-storage.md). JSON `frontier_storage`
+and `predecessor_storage` expose confirmed writes, retained capacity and failures;
+`checkpoint.transient_storage_cleanup_completed` reports whether both families
+closed without failure. A later close failure can leave an already committed
+archive and its actual-byte receipt, but the check is a resource failure, with
+storage/deciding-event evidence and no completed-search certificate. The archive
+checksum remains a corruption check, not authentication or proof.
+
+In Rust, set the same fields before calling the native entry point:
+
+```rust,no_run
+use dive_api::{CheckRequest, check_file_checkpoint, checkpoint};
+let model = CheckRequest {
+    file: "conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.tla".into(),
+    config: Some("conformance/probes/native-checkpoint-keys/specs/CpSymView/CpSymView.cfg".into()),
+    compat_tlc: true, seed: Some(7), fp: Some(0), workers: Some(4),
+    frontier_memory_bytes: Some(0), predecessor_memory_bytes: Some(0),
+    ..CheckRequest::default()
+};
+let native = checkpoint::Request {
+    path: "cp-spill.cp".into(), action: checkpoint::Action::PauseAfterLevels(1),
+    counters: checkpoint::Counters::Tlc, config_source_sha256: None,
+};
+let paused = check_file_checkpoint(&model, &native)?;
+assert_eq!(paused.to_json()["checkpoint"]["status"], "paused-incomplete");
+let resumed = check_file_checkpoint(
+    &CheckRequest { workers: Some(8), ..model },
+    &checkpoint::Request { action: checkpoint::Action::Recover, counters: checkpoint::Counters::Retain, ..native },
+)?;
+assert_eq!(resumed.to_json()["verdict"], "invariant-violation");
+# Ok::<(), dive_api::ApiError>(())
+```
+
+[The spill recovery study](../conformance/probes/native-checkpoint-spill/README.md)
+keeps original admission refusals/source bytes separate from actual recovered
+searches, independent original/altered witnesses and failure controls. Effects,
+runtime names/checker reads, evaluator-driven deferred values, temporal graphs
+and Java checkpoint byte interoperability remain excluded in both profiles.
+>>>>>>> f7143b643 (feat: compose native recovery with transient search storage)

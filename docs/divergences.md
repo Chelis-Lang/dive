@@ -382,7 +382,7 @@ Pure supported VIEW and safety symmetry now compose with D-007 native recovery
 (ADR 0038). Saved visited keys are recomputed through the configured search
 path, while actual concrete discoveries/predecessors remain unchanged. The
 separate concrete witness validator rejects altered equivalent-key Init/Next
-states. Runtime/graph/liveness/spill recovery remain refused; no default
+states. Runtime/graph/liveness recovery remain refused; no default
 or independent archive-certificate claim changes. Captures and the initial
 unused-standard-body refusal are preserved in
 `conformance/probes/native-checkpoint-keys/README.md`.
@@ -474,3 +474,13 @@ stop evidence (ADR 0038 addendum). Boundary-zero pauses remain actual 1 before t
 pool starts. TLC-reset/explicit-retain policies, archive trust/bounds and remaining
 runtime/graph/liveness/spill refusals are unchanged. See
 `conformance/probes/native-checkpoint-parallel/README.md`; no full F-032 claim.
+
+D-007 native recovery additionally composes with the existing opt-in frontier
+and predecessor budgets, independently or together. This removes a native
+limitation; it is not a new TLC defect or result-changing default. Saved concrete
+frontiers/parents are reconstructed into fresh transient stores in reference
+order. Archive/discovery workspace is excluded from both budgets; no total RAM,
+Java byte-interop or archive certificate claim. Counter reset/Retain and pure
+VIEW/symmetry witnesses retain their existing semantics. See
+[the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
+and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).

@@ -213,19 +213,15 @@ fn unsupported_mode_combinations_refuse_before_file_access() {
         Err(dive_api::ApiError::Unsupported { .. })
     ));
     req.temporal = TemporalMode::Ordinary;
-    for budget in [None, Some(0)] {
-        req.frontier_directory = Some("orphan-frontier".into());
-        req.frontier_memory_bytes = budget;
-        assert!(matches!(
-            check_file_checkpoint(&req, &cp),
-            Err(dive_api::ApiError::Unsupported { .. })
-        ));
-    }
+    req.frontier_directory = Some("orphan-frontier".into());
+    assert!(matches!(
+        check_file_checkpoint(&req, &cp),
+        Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0100")
+    ));
     req.frontier_directory = None;
-    req.frontier_memory_bytes = None;
     req.predecessor_directory = Some("orphan-directory".into());
     assert!(matches!(
         check_file_checkpoint(&req, &cp),
-        Err(dive_api::ApiError::Unsupported { .. })
+        Err(dive_api::ApiError::Rejected { message }) if message.contains("DIVE-A0101")
     ));
 }
