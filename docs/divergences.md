@@ -387,6 +387,68 @@ or independent archive-certificate claim changes. Captures and the initial
 unused-standard-body refusal are preserved in
 `conformance/probes/native-checkpoint-keys/README.md`.
 
+### D-013 historical increment: ordered temporal execution
+
+The earlier staged source records this scope; the later explicit final CLI
+contract is described in [the current user guide](tlc-final-api.md).
+
+The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
+source order, with initial consistency before initial invariants and immediate
+done-state re-enumeration. Fifteen completed pinned graph-field cases match at
+1/3/4/8 workers; all 26 cases and eight clean TLC stopping controls are retained
+in `conformance/probes/tlc-phase-execution/`. Logical prefix counters, speculative
+batch emissions and recursive enumeration work remain separate. Independent
+validation rejects altered words, closing edges and incomplete property claims.
+
+This remains intermediate: accepting-sink witnesses, exact TLC SCC/lasso choice,
+initial error replay and periodic checking are not certified. Ordinary strict
+liveness stays refused; no defaults or fixed budgets increase. F-020/F-021/F-022
+remain partial/audit-required, F-023 missing and #140 open. Previous complete
+studies keep their original outcomes and receive no new corpus verdict credit.
+
+### D-013 historical library increment: pinned final-only SCC and witness selection
+
+This section preserves the first library producer and its selected controls.
+The later CLI exposure does not retroactively change that receipt.
+
+The bounded `dive_api::tlc_temporal` Rust mode now constructs its own ordered
+graph and reproduces TLC's deciding component, greedy postfix and fingerprint-
+bucket closure. It retains configured claims separately from derived role names.
+At 1/3/4/8 workers, 19 completed pinned controls match their SCC/witness fields;
+all 30 controls, including 11 uncredited failures, remain available in
+`conformance/probes/tlc-final-check/`. Fresh independent validation accepts the
+supported original words and rejects changed Init, Next/closing edges, loop
+targets and incomplete claims. A 4,096-graph independent census checks acceptance
+and selected path labels.
+
+This is an explicit final-only TLC/fingerprint library mode, not ordinary strict
+CLI parity or periodic-schedule support. Exact-store temporal proof is refused:
+a fingerprint graph must not silently merge concrete states while claiming exact
+identity. Accepting-sink reconstruction, initial error replay, symmetry/VIEW/ALIAS,
+periodic hooks, unsupported scopes/effects and fixed resource bounds remain named
+limitations. Holds results retain collision qualifications; backend candidates
+never carry their own validation certificate. F-019 through F-022 remain partial/
+audit-required, F-023 missing and #140 open. Old broad studies retain their original
+outcomes; no default or ordinary strict conformance credit changes.
+
+See [final-only Rust API guide](tlc-final-api.md) for examples, resolved schedule,
+actual evidence and refusal boundaries. The API admits startup sources before
+binding creates a host; effectful ASSUMEs, unused top-level constants, config
+replacement candidates and hooks return named refusal with zero used workers.
+Standard-module classification does not bypass this admission. Explicit sequential
+requests/fallback execution remain refused until their observer path is certified.
+
+
+**Explicit final/TLC integration update:** `dive check --compat=tlc --lncheck final
+--lasso tlc` now exposes the independently certified bounded final-only path.
+Actual counts/worker/stage metadata and original property identities are retained,
+including TLC's stuttering marker. This does not enable periodic checking or lift
+exact-store, accepting-sink, recovery, effect or resource refusals. The separate
+`dive-final-tlc` harness mode requires a final-schedule golden and fresh independent
+replay; ordinary schema-1 results and earlier studies are unchanged. Configuration
+alias targets are admitted through actual module contexts before any startup
+binding effect. See [the user guide](tlc-final-api.md).
+
 D-007 native pure safety recovery now uses the deterministic worker pool at the
 requested width, with cross-width saved-level continuation and ordered counter-limit
 stop evidence (ADR 0038 addendum). Boundary-zero pauses remain actual 1 before the

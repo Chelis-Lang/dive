@@ -153,6 +153,12 @@ admission escape in dive; the [preserved before-and-after controls](../conforman
 include the original effect and incomplete archive. Structurally valid public IR
 and an archive checksum do not authorize effects or independently prove safety.
 
+The configured-key path has a separate
+[earlier ordered-execution integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-keys-ordered-integration/verification.json):
+847 Rust tests, 144 recovery groups and 1,008 fresh CLI/witness runs, plus
+CM1/ValidationTestSuite at 1/4/8 requested workers. That frozen producer executes
+recovery inline; current parallel verification is recorded below. The earlier 831-test and original 738-test studies retain their
+original source and observations; none are retagged as current execution.
 
 ## Deterministic parallel recovery
 
@@ -181,3 +187,18 @@ The [parallel recovery study](../conformance/probes/native-checkpoint-parallel/R
 keeps the previous inline-only captures separate from new width, cross-width,
 counter-prefix and independent witness controls. The trusted-local archive
 contract and all existing byte/state/depth/identity bounds remain unchanged.
+
+
+## Current integrated verification
+
+The fresh source-bound [integration receipt](../conformance/probes/native-parity-integration/current-controls/checkpoint-parallel-final-integration/verification.json)
+records 873 passing workspace tests, 144 recovery groups, 1,008 CLI runs,
+176 counter-limit controls and 36 record-codec controls. CM1's 21 models and
+ValidationTestSuite's 16 smoke models fully agree at 1/4/8 workers. The
+configured-key and parallel campaigns preserve concrete independently checked
+witnesses, stopping prefixes and original inline comparison executables.
+
+This receipt identifies its frozen runtime source and binary. Earlier inline
+receipts remain historical; their smaller source scope is not relabelled as
+parallel evidence. These controls do not certify temporal checkpointing, spill
+composition or the complete recovery feature family.

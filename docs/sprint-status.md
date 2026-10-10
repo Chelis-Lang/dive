@@ -96,8 +96,11 @@ it supplies cross-platform evidence, not a substitute for their validation.
 - **M5 storage/IR:** bounded predecessor spill and pure safety native checkpoints
   are implemented as explicit options. General visited/candidate/value/graph
   spill, temporal/runtime checkpoint recovery and distribution remain pending.
-  Current checkpoints recover saved discoveries/frontiers, run inline, and
-  explicitly refuse unproved interactions.
+  Current checkpoints recover saved discoveries/frontiers through the deterministic
+  worker pool, including configured pure VIEW and safety symmetry. Temporal,
+  runtime-effect and transient-spill interactions remain explicit refusals.
+  [Current integrated verification](native-checkpoint.md#current-integrated-verification)
+  retains the frozen source, comparison executables and complete selected controls.
 - **M5 performance:** the benchmark runner is implemented; the recorded
   smoke timings come from a busy machine and establish correctness and
   reproducibility of measurement, not achievement of the performance
