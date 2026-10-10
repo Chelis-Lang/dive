@@ -27,12 +27,13 @@ Bounded macros now expand simultaneously before label/process normalization.
 See [the macro guide](../pluscal-macros.md) for selectors, declaration order,
 source origins, lexical/binder restrictions, budgets and checked C/P examples.
 
-One explicitly labelled sequential procedure now supports saved call/return
-frames, simultaneous actuals and local initialization. Read the
-[procedure guide](../pluscal-procedures.md) for executable C/P and Rust examples
-and the pending strict trace-replay qualification.
+Disjoint explicitly labelled sequential procedures now support saved frames,
+simultaneous actuals, local initialization and an acyclic nested call graph.
+Read the [single-procedure contract](../pluscal-procedures.md) and
+[procedure-graph guide](../pluscal-procedure-graphs.md) for executable C/P and
+Rust examples, adjacent call/return behavior, budgets and pending strict replay.
 
-Nested/multiple procedures, process-local stacks, general renaming, historical translator flags,
+Recursive calls, process-local stacks, general renaming, historical translator flags,
 format-width, file rewriting/checksums and TLC mapping-file parity are unfinished
 in this guide's source. Reference-produced but SANY-invalid text cannot become
 an admitted public artifact. The lower-level source parser/raw translator is a

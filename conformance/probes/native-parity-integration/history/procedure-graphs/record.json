@@ -1,0 +1,39 @@
+{
+  "slice": "procedure-graphs",
+  "source_commit": "cb4b51ff84487ab459bb3af00c99cd3eded5e0c1",
+  "source_tree": "4e4eeac110a2d501929992a4d2a2902f5a5e2580",
+  "matrices_sha256": {
+    "history/procedure-graphs/matrices/crates/dive-pluscal/procedure-graph-acceptance/delivery.json": "31d299c88ce50ed5bcaf173492b5325f6706181a60bd32b0db6d296dc749804a"
+  },
+  "source_sha256": {
+    "CHANGELOG.md": "f1f327eede0d024a040ef0dd6958e6fd55d74dc210fa632fbb29108318421198",
+    "conformance/parity-features.json": "68bbe7dd65945d130e431fe50e6cfeae7d3150e8e2faf2a5b5bdfaaae5e65f86",
+    "crates/dive-api/src/translate.rs": "e18523a09310be43c0a7f3b3921574ca0ff4bd0d7dae5bdf22675163e5a1742e",
+    "crates/dive-api/tests/translation.rs": "8b723731cc303ef022ed85e4a4dc4a3583d055695ee3d39afdd2dc1c8eb42b82",
+    "crates/dive-pluscal/src/translate/emit.rs": "42a08ba0bececcdea27212fd9847af3be0e7378f9c90ae39c4ef10c7e71c48ee",
+    "crates/dive-pluscal/src/translate/lower.rs": "2643a186db3902d367009e06a3e48506425796623f53a044ded311a2861ffb6e",
+    "crates/dive-pluscal/src/translate/procedures.rs": "34ff37827c7e27211d9a719f80b07a7fc498a217d8fdc24f40c85b9a5b5dc8ba",
+    "crates/dive-pluscal/tests/procedure_graph.rs": "3c7d5218df7b84ae5e17dba1424fe60e1b5ca11a094bf532b9200b018feb936c",
+    "docs/decisions/0042-pluscal-nonrecursive-procedure-graphs.md": "f90d3625fcb6146b73e6f2d9941c6564140042b0ce133e80ca535d721fbe378c",
+    "docs/pluscal-procedure-graphs.md": "b52a5ac0eeaf9dede96dbff158d6d48d1069a7b2627fc8fcb4c522f12c40907c",
+    "docs/pluscal-procedures.md": "f29a7d05744d1ab56dbcabe6af6e05f22fd393d7c0cd56949573780cbd939153",
+    "docs/pluscal-translation.md": "a90f4ca73e04d7b077f0f7a627f3591bfc30a2598a296c92e6edd9332ef05ab9",
+    "docs/provenance.md": "ff201c4e4685134c850d2dc85e6b8003380ee0b32cd05dd146c59708574a9f62",
+    "docs/tlc-differences.md": "c234b44ac3be803f2296d038b7aa3ee578c1866164c4c884ee8a9d63a1ff275a",
+    "docs/tlc-parity.md": "dc92d35b680998912d223bbbea8dd3886be7f27fb30da2bd574e3b8ddbabec11",
+    "crates/dive-pluscal/procedure-graph-acceptance/check-admission.py": "a430cb448f1b91aa4dc9b77ffd4fd8e1ca2b5604563754afb5218d06d3a3a4d1",
+    "crates/dive-pluscal/procedure-graph-acceptance/test-comparison.py": "a5d42c0134848f2fe54c45c95584a28efddfe3574f01649adcbd91c3519a2b95",
+    "crates/dive-pluscal/procedure-graph-acceptance/check-guide-api.py": "44699574f18d036648bd70ba0cb6669cabeb79aa98c4461231505cd18bb8c526",
+    "crates/dive-pluscal/procedure-graph-acceptance/validate.py": "5fa44b9dd2925c45eb41109b507af1d39d0373a73aafa4cd1b085b63c638ee95",
+    "crates/dive-pluscal/procedure-graph-acceptance/qualified-replay.py": "5b10d287a5ea3ed1d65648ba2eb3473f20f83fc60f7554ef40cbfb3b4df5e9bf",
+    "crates/dive-pluscal/procedure-graph-acceptance/capture.py": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+    "crates/dive-pluscal/procedure-graph-acceptance/check-guide-cli.py": "648899c38d869c6b8eddebeaf38501888540df75d9cf5ff8a3db5394ecac8320",
+    "crates/dive-pluscal/procedure-graph-acceptance/initial-comparator.py": "22007e428237c8c6dc70987698f4fbaa1d3e3259dc84e966a9d506980ad508c0",
+    "crates/dive-pluscal/procedure-graph-acceptance/verify.py": "162328a11bcfc080798149af672db381c41b701d86360f05da64ea206c82f4bd",
+    "crates/dive-pluscal/procedure-graph-acceptance/make_cases.py": "01ee4317e1f0d63c20bddf78002b7621752d38730a587b91c8b2ea35d7cbf796",
+    "crates/dive-pluscal/procedure-graph-acceptance/compare.py": "24fbcf783ee351b613c33d289931e1097651f60ea62c4803277e373b0200ff3d",
+    "crates/dive-pluscal/procedure-graph-acceptance/NormalizationProbe.java": "de949ef751b0bb2c08466f6612410870618b46f3adaf22427d46d5f575dbfea9",
+    "crates/dive-pluscal/procedure-graph-acceptance/README.md": "6f07273d048fee115f27b8437a018336194285ea9ae84955e7d45a77c71c1733"
+  },
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}
