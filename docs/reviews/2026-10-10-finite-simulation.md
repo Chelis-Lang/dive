@@ -38,3 +38,20 @@ in `crates/dive-sim/README.md`.
 No further blocker was found within this slice. Liveness, runtime effects,
 parallel execution, compound initial normalization and alternate schedulers
 remain explicit limits, not tested parity claims.
+
+Integration review found that the original comparator accepted forged exhaustive
+proof flags and inconsistent document/process exit metadata. Three full CLI
+wrappers retained every selected case while mutating those fields; the original
+comparator reported 22 agreements and one refusal for each. The repaired
+comparator rejects all 23 exhaustive/exit mutations and all 13 error/refusal proof
+mutations; the ten unmutated selection rows remain agreeing. It also checks
+exact violation disposition, independent validation and the reported ending
+states. Five negative-control groups run through the workspace test gate.
+`conformance/reports/simulation-comparison-mutations.json` retains binary and
+comparator identities and all selected totals. The earlier delivery report is
+preserved as `simulation-controls-original-delivery.json`; the current report
+still accounts 22 agreements and one named refusal. No oracle evidence changed.
+
+TLC-order runtime name constructors remain an explicit preflight refusal for
+this mode until its startup prefix and independent witness history can be
+proven. Canonical default sampling has a decisive positive control.

@@ -228,7 +228,7 @@ fn tlc_runtime_name_sampling_refuses_before_uncertifiable_traces() {
         report["options"]["execution_stage"], "preflight",
         "{report}"
     );
-    assert!(report["traces"].as_array().unwrap().is_empty());
+    assert_eq!(report["traces"].as_array().unwrap().len(), 0);
     let sampled = simulate_file(&SimulateRequest {
         compat_tlc: false,
         ..request

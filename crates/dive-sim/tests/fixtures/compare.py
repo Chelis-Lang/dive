@@ -7,6 +7,57 @@ from pathlib import Path
 import subprocess
 
 
+def metadata_mismatches(report, process_exit):
+    """Sampling and refusals must never hide a proof or inconsistent evidence."""
+    mismatches = []
+    if report.get('exhaustive') is not False or report.get('model_proved') is not False:
+        mismatches.append('proof-scope')
+    if type(report.get('exit_code')) is not int or report['exit_code'] != process_exit:
+        mismatches.append('process-exit')
+    if report.get('command') != 'simulate' or report.get('profile') != 'tlc':
+        mismatches.append('mode-profile')
+    validated = report.get('result') == 'violation'
+    if report.get('violation_validated') is not validated:
+        mismatches.append('independent-validation')
+    if report.get('result') == 'internal-error':
+        mismatches.append('internal-error')
+    return mismatches
+
+
+def selection_mismatches(row, report, process_exit):
+    mismatches = metadata_mismatches(report, process_exit)
+    states = [[state['x'] for state in trace['tlc_states']] for trace in report['traces']]
+    if (process_exit != row['exit'] or process_exit != 0
+            or report.get('result') != 'sampled'
+            or report['statistics']['generated'] != row['generated']
+            or states != row['traces']):
+        mismatches.append('selection')
+    if any(trace['validation']['result'] != 'valid' for trace in report['traces']):
+        mismatches.append('sample-validation')
+    return mismatches, states
+
+
+def error_comparison(row, report, process_exit):
+    mismatches = metadata_mismatches(report, process_exit)
+    if row['native_scope'] == 'unsupported':
+        if (process_exit != 3 or report.get('result') != 'unsupported'
+                or not isinstance(report.get('message'), str) or not report['message'].strip()):
+            mismatches.append('named-refusal')
+        return ('disagree' if mismatches else 'unsupported'), mismatches
+    expected = 'violation' if row['codes'][0] in (2107, 2110, 2112, 2114) else 'evaluation-error'
+    if (process_exit != row['exit'] or report.get('tlc_code') != row['codes'][0]
+            or report.get('result') != expected
+            or (row['generated'] is not None
+                and report['statistics']['generated'] != row['generated'])):
+        mismatches.append('deciding-fields')
+    if expected == 'violation':
+        traces = report.get('traces', [])
+        states = [state['x'] for state in traces[-1]['tlc_states']] if traces else []
+        if states != row['states'] or not traces or traces[-1]['validation']['result'] != 'valid':
+            mismatches.append('violation-witness')
+    return ('disagree' if mismatches else 'agree'), mismatches
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dive', type=Path, required=True)
@@ -29,28 +80,16 @@ def main():
 
     for row in json.loads((fixtures / 'choice-oracle.json').read_text()):
         exit_code, report = run('SimChoice', row['seed'], row['aril'], 5, 3)
-        states = [[state['x'] for state in trace['tlc_states']] for trace in report['traces']]
-        agree = (exit_code == row['exit'] == 0 and report['result'] == 'sampled'
-                 and report['statistics']['generated'] == row['generated']
-                 and states == row['traces'] and not report['model_proved']
-                 and all(trace['validation']['result'] == 'valid' for trace in report['traces']))
+        mismatches, states = selection_mismatches(row, report, exit_code)
         observations.append(dict(control='selection', seed=row['seed'], aril=row['aril'],
-                                 outcome='agree' if agree else 'disagree',
+                                 outcome='disagree' if mismatches else 'agree', mismatches=mismatches,
                                  statistics=report['statistics'], states=states))
     for row in json.loads((fixtures / 'error-oracle.json').read_text()):
         exit_code, report = run(row['model'], 0, 0, 4, 1)
-        if row['native_scope'] == 'unsupported':
-            if exit_code != 3 or report['result'] != 'unsupported':
-                raise SystemExit('constrained action-property slice boundary was not refused')
-            observations.append(dict(control=row['model'], outcome='unsupported',
-                                     result=report['result'], oracle_code=row['codes'][0],
-                                     message=report['message'], statistics=report['statistics']))
-            continue
-        agree = (exit_code == row['exit'] and report['tlc_code'] == row['codes'][0]
-                 and (row['generated'] is None or report['statistics']['generated'] == row['generated'])
-                 and (report['result'] != 'violation' or report['violation_validated']))
-        observations.append(dict(control=row['model'], outcome='agree' if agree else 'disagree',
+        outcome, mismatches = error_comparison(row, report, exit_code)
+        observations.append(dict(control=row['model'], outcome=outcome, mismatches=mismatches,
                                  result=report['result'], exit=exit_code, tlc_code=report['tlc_code'],
+                                 oracle_code=row['codes'][0], message=report.get('message'),
                                  statistics=report['statistics'], violation_validated=report['violation_validated']))
     result = dict(schema_version=1, scope='curated pure finite single-worker simulation; not family certification',
                   oracle=provenance['oracle'], oracle_sha256=provenance['jar_sha256'],

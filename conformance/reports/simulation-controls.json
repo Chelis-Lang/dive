@@ -3,7 +3,7 @@
   "scope": "curated pure finite single-worker simulation; not family certification",
   "oracle": "tlc-2026.10.06.014338",
   "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
-  "binary_sha256": "820a3eac8995b0405a891d6595daee7301f7423bd0370a0faaa17cb41175d1b0",
+  "binary_sha256": "00eac41dbce54d10853ca658b3e085c85ea48b8401540d34c20973b915157385",
   "selected": 23,
   "agree": 22,
   "unsupported": 1,
@@ -13,6 +13,7 @@
       "seed": 0,
       "aril": 0,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 29,
         "initial_candidates": 2,
@@ -50,6 +51,7 @@
       "seed": 0,
       "aril": 3,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 31,
         "initial_candidates": 2,
@@ -88,6 +90,7 @@
       "seed": 1,
       "aril": 0,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 39,
         "initial_candidates": 2,
@@ -124,6 +127,7 @@
       "seed": 1,
       "aril": 3,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 31,
         "initial_candidates": 2,
@@ -161,6 +165,7 @@
       "seed": 7,
       "aril": 0,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 35,
         "initial_candidates": 2,
@@ -199,6 +204,7 @@
       "seed": 7,
       "aril": 3,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 23,
         "initial_candidates": 2,
@@ -237,6 +243,7 @@
       "seed": 2147483647,
       "aril": 0,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 23,
         "initial_candidates": 2,
@@ -273,6 +280,7 @@
       "seed": 2147483647,
       "aril": 3,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 33,
         "initial_candidates": 2,
@@ -310,6 +318,7 @@
       "seed": -1,
       "aril": 0,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 33,
         "initial_candidates": 2,
@@ -347,6 +356,7 @@
       "seed": -1,
       "aril": 3,
       "outcome": "agree",
+      "mismatches": [],
       "statistics": {
         "generated": 27,
         "initial_candidates": 2,
@@ -383,9 +393,12 @@
     {
       "control": "SimActionProperty",
       "outcome": "agree",
+      "mismatches": [],
       "result": "violation",
       "exit": 13,
       "tlc_code": 2112,
+      "oracle_code": 2112,
+      "message": null,
       "statistics": {
         "generated": 3,
         "initial_candidates": 1,
@@ -397,9 +410,12 @@
     {
       "control": "SimAssumeFalse",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 10,
       "tlc_code": 2104,
+      "oracle_code": 2104,
+      "message": "Assumption line 4, col 8 to line 4, col 12 of module SimAssumeFalse is false.",
       "statistics": {
         "generated": 0,
         "initial_candidates": 0,
@@ -411,7 +427,10 @@
     {
       "control": "SimConstrainedAction",
       "outcome": "unsupported",
+      "mismatches": [],
       "result": "unsupported",
+      "exit": 3,
+      "tlc_code": null,
       "oracle_code": 2112,
       "message": "simulation implied action properties with state/action constraints require a separate validation contract",
       "statistics": {
@@ -419,14 +438,18 @@
         "initial_candidates": 0,
         "scope": "completed-prefix",
         "traces_started": 0
-      }
+      },
+      "violation_validated": false
     },
     {
       "control": "SimConstrainedInvariant",
       "outcome": "agree",
+      "mismatches": [],
       "result": "violation",
       "exit": 12,
       "tlc_code": 2110,
+      "oracle_code": 2110,
+      "message": null,
       "statistics": {
         "generated": 3,
         "initial_candidates": 1,
@@ -438,9 +461,12 @@
     {
       "control": "SimDeadlock",
       "outcome": "agree",
+      "mismatches": [],
       "result": "violation",
       "exit": 11,
       "tlc_code": 2114,
+      "oracle_code": 2114,
+      "message": null,
       "statistics": {
         "generated": 1,
         "initial_candidates": 1,
@@ -452,9 +478,12 @@
     {
       "control": "SimEmpty",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 255,
       "tlc_code": 2118,
+      "oracle_code": 2118,
+      "message": "no initial state satisfies the specification and constraints",
       "statistics": {
         "generated": 0,
         "initial_candidates": 0,
@@ -466,9 +495,12 @@
     {
       "control": "SimExcludedInitial",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 255,
       "tlc_code": 2256,
+      "oracle_code": 2256,
+      "message": "no initial state satisfies the specification and constraints",
       "statistics": {
         "generated": 1,
         "initial_candidates": 1,
@@ -480,9 +512,12 @@
     {
       "control": "SimIncomplete",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 75,
       "tlc_code": 2109,
+      "oracle_code": 2109,
+      "message": "incomplete successor state",
       "statistics": {
         "generated": 1,
         "initial_candidates": 1,
@@ -494,9 +529,12 @@
     {
       "control": "SimInitialIncomplete",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 255,
       "tlc_code": 2106,
+      "oracle_code": 2106,
+      "message": "incomplete initial state",
       "statistics": {
         "generated": 2,
         "initial_candidates": 2,
@@ -508,9 +546,12 @@
     {
       "control": "SimInitialInvariant",
       "outcome": "agree",
+      "mismatches": [],
       "result": "violation",
       "exit": 12,
       "tlc_code": 2107,
+      "oracle_code": 2107,
+      "message": null,
       "statistics": {
         "generated": 2,
         "initial_candidates": 2,
@@ -522,9 +563,12 @@
     {
       "control": "SimInitialPrecedence",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 255,
       "tlc_code": 1000,
+      "oracle_code": 1000,
+      "message": "@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
       "statistics": {
         "generated": 0,
         "initial_candidates": 1,
@@ -536,9 +580,12 @@
     {
       "control": "SimInvariant",
       "outcome": "agree",
+      "mismatches": [],
       "result": "violation",
       "exit": 12,
       "tlc_code": 2110,
+      "oracle_code": 2110,
+      "message": null,
       "statistics": {
         "generated": 3,
         "initial_candidates": 1,
@@ -550,9 +597,12 @@
     {
       "control": "SimInvariantError",
       "outcome": "agree",
+      "mismatches": [],
       "result": "evaluation-error",
       "exit": 76,
       "tlc_code": 2111,
+      "oracle_code": 2111,
+      "message": "The second argument of \\div is 0.",
       "statistics": {
         "generated": 2,
         "initial_candidates": 1,
