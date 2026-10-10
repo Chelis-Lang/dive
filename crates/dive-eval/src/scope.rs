@@ -471,9 +471,11 @@ impl Evaluator {
 
     /// Enumerates finite bindings of a quantifier, set filter/map or function
     /// constructor with entry-count bounds.
-    /// Only explicit sets and intervals are supported. Domain entries and
+    /// Explicit sets, intervals and structurally finite lazy constructors are
+    /// supported. Domain entries, materialized component/value slots and
     /// Cartesian bindings are each bounded by `limit`, before retaining
-    /// them. Order is the profile's exploration order, first variable fastest.
+    /// them. Infinite and deferred domains remain explicit refusals. Order is
+    /// the profile's exploration order, first variable fastest.
     /// This is expression binding, not successor generation.
     ///
     /// # Errors
@@ -496,6 +498,7 @@ impl Evaluator {
         };
         let mut columns = Vec::new();
         let mut entries = 0_usize;
+        let mut budget = crate::bounded_domain::Budget::new(limit, core.opts.max_depth, core.ctx);
         for b in bounds {
             let dom = b
                 .domain
@@ -503,22 +506,7 @@ impl Evaluator {
             let Value::Set(set) = self.eval_scoped(scope, dom, st)? else {
                 return Err(EvalError::unsupported("quantifier domain is not a set"));
             };
-            if !matches!(
-                set.kind(),
-                dive_value::SetKind::Enum
-                    | dive_value::SetKind::Raw
-                    | dive_value::SetKind::Interval
-            ) {
-                return Err(EvalError::unsupported(
-                    "bounded bindings require an explicit set or interval",
-                ));
-            }
-            if set
-                .raw_elements()
-                .is_some_and(|r| r.len() > limit.saturating_sub(entries))
-            {
-                return Err(EvalError::resource_limit("quantifier domain entries"));
-            }
+            budget.set(&set, 0)?;
             let size = usize::try_from(set.size(core.ctx)?)
                 .map_err(|_| EvalError::resource_limit("quantifier domain entries"))?;
             entries = entries
