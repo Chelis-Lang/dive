@@ -12,7 +12,7 @@
     "crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
     "crates/dive-liveness/src/phase_l.rs": "c6c4321cad2fadc3f061f1496206ac16f237ec5dd8b3f642c4af27b28f065158",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/tests/phase_graph.rs": "e4bc9229aaf69c4e3e0a6e83f772caad70126e19cc3f36114d1054c0f2630211",
+    "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758"
   },

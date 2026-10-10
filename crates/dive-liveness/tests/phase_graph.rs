@@ -507,9 +507,8 @@ fn deciding_conditional_planning_error_precedes_graph_capture() {
             "INIT Init\nNEXT Next\nPROPERTY Prop\nCHECK_DEADLOCK FALSE\n",
             &opts,
         );
-        let failure = phase_graph::compile(&m, &opts, Limits::default())
-            .err()
-            .expect("pinned deciding error");
+        let failure =
+            phase_graph::compile(&m, &opts, Limits::default()).expect_err("pinned deciding error");
         let Error::Phase(phase) = &failure.error else {
             panic!("planning must decide before capture");
         };
@@ -535,8 +534,8 @@ fn deciding_conditional_planning_error_precedes_graph_capture() {
             failure.phase_work,
             dive_liveness::phase_l::Progress::default()
         );
-        assert!(failure.nodes.is_empty());
+        assert_eq!(failure.nodes, Vec::<phase_graph::Node>::new());
         assert!(failure.commits.is_empty());
-        assert!(m.take_output().is_empty());
+        assert_eq!(m.take_output(), Vec::<String>::new());
     }
 }
