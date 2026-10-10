@@ -361,6 +361,16 @@ fn atom(atom: &Atom, names: &Interner) -> CResult<()> {
     }
 }
 
+fn admission_room<T>(work: &[T], count: usize, remaining: usize) -> CResult<()> {
+    if work.len().checked_add(count).is_none_or(|n| n > remaining) {
+        return Err(ContextError::new(
+            ContextErrorKind::ResourceLimit,
+            "admission work budget",
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn validate_value(
     value: &Value,
     ir: &Arc<dive_ir::Ir>,
@@ -378,6 +388,7 @@ pub(crate) fn validate_value(
         match v {
             Value::Str(a) | Value::Model(a) => atom(&a, names)?,
             Value::Fcn(f) => {
+                admission_room(&work, f.len().saturating_mul(2), remaining)?;
                 for (key, val) in f.iter() {
                     work.push(key);
                     work.push(val.clone());
@@ -387,9 +398,11 @@ pub(crate) fn validate_value(
                 if let Some(d) = s.as_deferred() {
                     let any: &dyn std::any::Any = d.as_ref();
                     let core = if let Some(f) = any.downcast_ref::<crate::lazy::Filter>() {
+                        admission_room(&work, 1, remaining)?;
                         work.push(f.in_val.clone());
                         &f.core
                     } else if let Some(op) = any.downcast_ref::<crate::lazy::SetOp>() {
+                        admission_room(&work, 2, remaining)?;
                         work.push(op.a.clone());
                         work.push(op.b.clone());
                         &op.core
@@ -407,8 +420,10 @@ pub(crate) fn validate_value(
                     }
                 }
                 if let Some(elems) = s.stored_elements() {
+                    admission_room(&work, elems.len(), remaining)?;
                     work.extend(elems.iter().cloned());
                 }
+                admission_room(&work, s.component_count(), remaining)?;
                 for (key, val) in s.components() {
                     if let Some(key) = key {
                         atom(&key, names)?;
@@ -771,10 +786,12 @@ fn admit_captures(
     ];
     let mut seen = HashSet::new();
     let mut remaining = 65_536_usize;
-    let states = |st: &StateRef, work: &mut Vec<Work>| {
+    let states = |st: &StateRef, work: &mut Vec<Work>, remaining: usize| -> CResult<()> {
         if let StateRef::Vals(values) = st {
+            admission_room(work, values.len(), remaining)?;
             work.extend(values.iter().flatten().cloned().map(Work::Value));
         }
+        Ok(())
     };
     let ev = |v: &Ev| match v {
         Ev::V(v) => Work::Value(v.clone()),
@@ -790,6 +807,13 @@ fn admit_captures(
         match item {
             Work::Frame(f) => {
                 if seen.insert(Arc::as_ptr(&f) as usize) {
+                    admission_room(
+                        &work,
+                        f.slots
+                            .len()
+                            .saturating_add(usize::from(f.parent.is_some())),
+                        remaining,
+                    )?;
                     work.extend(f.slots.iter().cloned().map(Work::Slot));
                     if let Some(parent) = &f.parent {
                         work.push(Work::Frame(parent.clone()));
@@ -798,6 +822,7 @@ fn admit_captures(
             }
             Work::Dynamic(d) => {
                 if let Some(v) = d.at {
+                    admission_room(&work, 1, remaining)?;
                     work.push(Work::Value(v));
                 }
                 let mut link = d.subst;
@@ -805,6 +830,7 @@ fn admit_captures(
                     if !seen.insert(Arc::as_ptr(&l) as usize) {
                         break;
                     }
+                    admission_room(&work, 1, remaining)?;
                     work.push(Work::Slot(l.val.clone()));
                     link.clone_from(&l.next);
                     if work.len() > remaining {
@@ -830,6 +856,7 @@ fn admit_captures(
                 Sv::Fcn(f) => work.push(Work::Function(f)),
                 Sv::Thunk(t) => {
                     if seen.insert(Arc::as_ptr(&t) as usize) {
+                        admission_room(&work, 2, remaining)?;
                         work.push(Work::Frame(t.env.frame.clone()));
                         work.push(Work::Dynamic(t.env.dynamic.clone()));
                         let cache = t
@@ -843,15 +870,21 @@ fn admit_captures(
                                     "cached lazy value captures another evaluator binding context",
                                 ));
                             }
+                            admission_room(&work, 1, remaining)?;
                             work.push(ev(&c.val));
-                            states(&c.s0, &mut work);
-                            states(&c.s1, &mut work);
+                            states(&c.s0, &mut work, remaining)?;
+                            states(&c.s1, &mut work, remaining)?;
                         }
                     }
                 }
                 Sv::Op(OpVal::Def {
                     parent, dynamic, ..
                 }) => {
+                    admission_room(
+                        &work,
+                        usize::from(parent.is_some()) + usize::from(dynamic.is_some()),
+                        remaining,
+                    )?;
                     if let Some(p) = parent {
                         work.push(Work::Frame(p));
                     }

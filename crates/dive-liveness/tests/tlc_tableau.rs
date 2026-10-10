@@ -764,7 +764,7 @@ LiveProperty == []<>(TLCGet("level") = 0)
                 "badroot" => pred.expr = dive_ir::ExprId(u32::MAX),
                 "badcapture" => {
                     let d = ir.root_def("Identity").expect("Identity");
-                    let scope = model
+                    let failure = model
                         .evaluator
                         .scope_apply(
                             &pred.scope,
@@ -774,8 +774,11 @@ LiveProperty == []<>(TLCGet("level") = 0)
                                 pass: dive_ir::Pass::Lazy,
                             }],
                         )
-                        .expect("unchecked capture");
-                    pred = dive_model::Pred::new(ir.def(d).body, scope);
+                        .expect_err("missing lazy expression must fail before capture");
+                    assert_eq!(failure.class(), dive_eval::ErrorClass::Unsupported);
+                    assert!(failure.to_string().contains("DIVE-EVAL-C001"));
+                    assert!(model.take_output().is_empty(), "{case} ran a callback");
+                    continue;
                 }
                 "baddef" => {
                     let mut json = serde_json::to_value(ir.as_ref()).expect("IR serialization");

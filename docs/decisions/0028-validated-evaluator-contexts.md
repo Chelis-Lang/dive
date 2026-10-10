@@ -43,7 +43,10 @@ are checked before a strict argument can execute.
 A native deferred set is inspected through Rust's `Any` trait upcast, never a
 caller-provided `as_any`, `key`, `member`, `elements` or formatting callback.
 Opaque deferred values are refused. Structural value and scope admission each
-have a 65,536-item work budget. This limits admission work, not total retained
+have a 65,536-item work budget. Bulk function, stored-set, lazy-component,
+frame and state-value work lists check room before cloning or enqueueing their
+contents; resource refusal does not first allocate an input-sized expansion.
+This limits admission work, not total retained
 memory. Ordinary value constructors retain their existing behavior: constructing
 or hashing a tuple/record may call a deferred key. Admission itself must add
 zero calls above the already-created value's captured baseline.

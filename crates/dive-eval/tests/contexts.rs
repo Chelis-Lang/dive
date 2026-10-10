@@ -377,17 +377,32 @@ fn cached_lazy_atoms_cannot_cross_name_tables() {
 
 #[test]
 fn admission_budget_refuses_without_evaluating_large_values() {
+    let singleton = Value::interval(1.into(), 1.into(), Ctx::tlc());
+    for value in [
+        Value::tuple(vec![Value::TRUE; 65_537]),
+        Value::product(vec![singleton.clone(); 65_537], Ctx::tlc()),
+        Value::set_raw(vec![Value::TRUE; 65_537], Ctx::tlc()),
+    ] {
+        let mut model = Model::new(ir());
+        model.constants[0] = Some(ConstBinding::Value(value));
+        let names = model.names.clone();
+        let before = names.len();
+        assert_eq!(
+            Evaluator::new(model, Options::tlc())
+                .expect_err("bounded admission")
+                .kind(),
+            ContextErrorKind::ResourceLimit
+        );
+        assert_eq!(names.len(), before);
+    }
+    // The root plus these constant-space factors exactly fills the existing
+    // admission budget. No cartesian enumeration is needed to admit the value.
     let mut model = Model::new(ir());
-    model.constants[0] = Some(ConstBinding::Value(Value::tuple(vec![Value::TRUE; 65_537])));
-    let names = model.names.clone();
-    let before = names.len();
-    assert_eq!(
-        Evaluator::new(model, Options::tlc())
-            .expect_err("bounded admission")
-            .kind(),
-        ContextErrorKind::ResourceLimit
-    );
-    assert_eq!(names.len(), before);
+    model.constants[0] = Some(ConstBinding::Value(Value::product(
+        vec![singleton; 65_535],
+        Ctx::tlc(),
+    )));
+    Evaluator::new(model, Options::tlc()).expect("exact budget stays admitted");
 }
 
 #[test]

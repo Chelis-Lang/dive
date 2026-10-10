@@ -82,7 +82,7 @@ def main():
     assert combined['historical_pre_context_planning_matrix_sha256'] == sha(PROBE / 'source-matrix.json')
     tableau = ROOT / 'conformance/probes/tlc-tableau/source-matrix.json'
     assert combined['historical_tableau_matrix_sha256'] == sha(tableau)
-    assert set(combined['source_sha256']) == set(current['source_sha256']) | set(json.loads(tableau.read_text())['source_sha256'])
+    assert set(combined['source_sha256']) == set(current['source_sha256']) | set(json.loads(tableau.read_text())['source_sha256']) | set(combined['integration_extra_sources'])
     for path, digest in combined['source_sha256'].items():
         assert sha(ROOT / path) == digest, path
     print('verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models')
