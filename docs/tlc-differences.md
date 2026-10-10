@@ -1506,6 +1506,59 @@ each admitted block to its own storage, labels and fairness context. Overlapping
 IDs, name rewrites and cross-process local references remain explicit refusals;
 translation artifacts still make no model-proof claim.
 
+The [bounded native macro increment](pluscal-macros.md) reproduces lexical
+substitution rather than inventing capture avoidance. The pinned translator can
+return zero while producing TLA+ that SANY rejects (including `Set(b, 3)` whose
+actual `b` is undeclared). Native raw generation retains those comparisons only
+as diagnostic evidence; public translation rejects the invalid enclosing module
+in both profiles and makes no proof claim (D-008). General binder/procedure/name
+rewrites remain named refusals. Source PlusCal strings deliberately preserve the
+pinned printable-ASCII boundary; no wider Unicode-string default is adopted.
+
+
+The bounded sequential PlusCal procedure path now generates saved parameter/local
+frames and call/return continuations. Its 84-row selection keeps four primary
+SANY-invalid modules uncredited. Thirty generated invariant witnesses reproduce
+TLC exploration but strict independent replay refuses runtime string encounter
+order (#124); default/canonical replay is separately qualified evidence, not
+TLC-profile certification. See [the procedure guide](pluscal-procedures.md).
+
+The earlier nonrecursive PlusCal graph study admitted multiple disjoint procedures
+and nonrecursive nested calls. Procedure fallthrough still generates `pc="Error"`
+and may deadlock, matching the reference. That study refused cycles (including unused ones), name
+rewriting, process-owned stacks and unproved procedure-label/macro interactions.
+The current recursive path is described below; its original study is unchanged. Strict stack witness replay remains pending under
+#124; separately qualified canonical replay confers no TLC-profile certification.
+See [procedure graph use and limits](pluscal-procedure-graphs.md).
+
+### Recursive zero-parameter tail call: invalid output (D-008 candidate)
+
+The pinned translator reports success for this PlusCal source:
+
+```tla
+--algorithm A {
+  variable x = 0;
+  procedure First() { F: call First(); return; };
+  { L: call First(); E: skip; }
+}
+```
+
+Its generated `F` action contains a blank conjunction between `pc="F"` and
+`pc'="F"`. `pcal.trans` exits 0 and writes the module; SANY rejects the next
+`/\` with a parse error. The retained raw source and both stages are
+`crates/dive-pluscal/recursive-procedure-acceptance/fixtures/Recursive_C_self_tail_no_params.*`.
+The reference's same-procedure call/return path adds an empty assignment when
+there are no parameters; this is not a valid translated model or a termination
+proof. The native recursive increment retains this as diagnostic evidence
+and public admission rejects invalid modules in both profiles. A repaired-output
+option is not adopted silently. Full translation parity remains pending.
+
+The disjoint sequential procedure path now admits ordinary self/mutual recursion
+and reference same-procedure tail-call normalization without unrolling calls.
+See [recursive procedure use and limits](pluscal-recursive-procedures.md).
+Strict stack-witness namespace proof remains pending; bounded unbounded-model
+stops never claim exhaustive search or termination. Process/scoped name handling
+and full translator parity remain pending.
 
 ### D-013 progress: ordered temporal execution
 

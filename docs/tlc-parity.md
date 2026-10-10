@@ -467,6 +467,38 @@ subset. F-034 and F-035 remain partial and audit-required; this does not certify
 full process renaming, procedures/macros, historical options or file rewriting.
 
 
+The [bounded native macro increment](pluscal-macros.md) adds simultaneous lexical
+substitution, selector tails, earlier nested declarations and original definition/
+call locations. Source/parser/normalization/raw generation/module admission
+remain separate: invalid primary artifacts never count as admitted matches.
+Unproved binders/procedures/name rewrites/options/maps remain pending; F-034/F-035
+stay partial and audit-required and the certification denominator is unchanged.
+
+
+The [sequential procedure study](pluscal-procedures.md) retains 84 C/P rows:
+48 admitted artifacts, 14 matching rejections, 20 named refusals and two diagnostic
+invalid-reference dispositions. All four primary SANY-invalid outputs stay
+uncredited. Forty-six complete generated models match TLC; thirty invariant
+witnesses have matched exploration but pending strict encounter-order validation.
+Separately qualified default replay validates them and rejects 120 mutants without
+conferring TLC certification. F-034/F-035 remain partial and audit-required.
+
+The [nonrecursive procedure graph increment](pluscal-procedure-graphs.md) retains
+120 capture-first C/P rows: 68 admitted artifacts, 19 source rejections, 29 named
+refusals and four diagnostic invalid-reference dispositions. All eight primary
+SANY-invalid outputs stay uncredited. Cycles, scopes/renaming, process stacks,
+options/maps and strict encounter-order/deadlock evidence remain pending.
+F-034/F-035 remain partial and audit-required; no denominator change.
+
+The native disjoint sequential recursive procedure increment (ADR 0043) retains
+all 116 C/P source cases: 86 artifact matches, 15 matching rejections, nine named
+refusals and six diagnostic invalid-reference dispositions. All ten SANY-invalid
+primary outputs remain uncredited. Enclosing SANY/CST, finite execution and
+strict pending versus qualified canonical witnesses are separate contracts.
+Unbounded-model primary timeouts and explicit native capture bounds never earn
+proof credit. F-034/F-035 remain partial/audit-required; see
+[recursive procedures](pluscal-recursive-procedures.md).
+
 ### D-013 progress: ordered temporal execution
 
 The bounded Rust execution path now commits real multiple-OOS/tableau graphs in
