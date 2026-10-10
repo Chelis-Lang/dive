@@ -1,0 +1,22 @@
+{
+  "slice": "fairness",
+  "source_commit": "2528d4151ebcd43ddd2aebfd1caf32f69490ae03",
+  "source_tree": "1b2c5c74e8a6b918c9089875641a157e6382a3d2",
+  "matrices_sha256": {},
+  "source_sha256": {
+    "crates/dive-api/src/lib.rs": "be7bebe4dd3b5f49e4121207a973f77b42cc48482f4309cf81b600450149c1d6",
+    "crates/dive-api/src/translate.rs": "5f568c0186b512f92db216323d14df6ea43ffc0ceb3477d1bc678e61e34a98e6",
+    "crates/dive-api/tests/translation.rs": "c446bfdd2824ae085aa7e7b1496a8cbc42f759ee2af9b45761fd81d2ef4a80c3",
+    "crates/dive-cli/src/translate.rs": "01264da1304e8c65ba9f6764dd6263298b42b3ea1c513a55059a1e118f0a511e",
+    "crates/dive-cli/tests/cli.rs": "870d85403e496ea746b0e5b9cc7c440fe0c968bdd94fbba2cf2d4401478b0d32",
+    "crates/dive-pluscal/examples/translate.rs": "f60c6d429e173ee98256fad172f467c166603623ef4cbb05867d38b60e0a23b7",
+    "crates/dive-pluscal/src/lib.rs": "ea4827125bcc1fa0afd1c0b75068ff9d5775d97e775a414a3d3127b47ef146bf",
+    "crates/dive-pluscal/src/translate/emit.rs": "4ac28f087c082f9f0cda4d6fe6de7cdbe27e52c20113f7e20b57329302ca2393",
+    "crates/dive-pluscal/src/translate/lower.rs": "df77971603f0ee844f0b170a8013c5471e5667b86cace1bb461bf311bc54f3b8",
+    "crates/dive-pluscal/src/translate/mod.rs": "19159e061b17b9e84a28bdc418e6e3ab8c12bb93997a64c91552d976cb664e25",
+    "crates/dive-pluscal/src/translate/process.rs": "b46adbae525db041e555780f97beb54007229b735e29029d7c68e994811d0047",
+    "crates/dive-pluscal/tests/fairness.rs": "248658c340687021e6bfec83140ab14906a736edfd7d57d5eaa82ee6fce621e6",
+    "crates/dive-pluscal/tests/processes.rs": "07ad22a7e6cc4c0fe5363ea4dc5b91152c89566a04510c190c0ff1ad291f62b2"
+  },
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}

@@ -1,0 +1,1120 @@
+{
+  "schema_version": 1,
+  "stage": "bounded-process-fairness-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "55b4a89b71d6087dd9306eded2a74058abaaf2636d916fcef593616ef3588319",
+  "comparator_sha256": "a91e23a415b6d073166531b12ea1bd1d42b57872ebd0328261cc5d27a228efec",
+  "native_sha256": "88f5252c990ca8f37d00ff46cf889aa1d070d6ffabd6857ca15dad8a9eca4119",
+  "model_proved": false,
+  "pending": [
+    "multiple-process-blocks",
+    "procedure-fairness",
+    "fairness-domain-normalization",
+    "name-renaming",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 150,
+  "summary": {
+    "rejection-match": 130,
+    "token-artifact-match": 18,
+    "native-refusal": 2
+  },
+  "rows": [
+    {
+      "id": "Fair_C_empty_domain",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "651bcd5b4a03b42b5fe399abfdca510a4bacfd91580cd4b90788c9c77014fd55",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b3f3bcca28e35e18038050505dbefd492673f30d8143aeab67ee77b308279afb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_infinite_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bee6143436932df74b8ecf02b5c1e7062f55674eff8f22d6a3ba24020bb4abe5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c2e16fecb977bad30a809192c7bc1787c833cb455ef791bbb3ab9a80ba98124a",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_label_action_keyword",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_missing_default",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_missing_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_set_strong_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "087c3e78abf584984a3ed8c65867e4c73c8976ae0c3e3d4ef4ff38bb4863afab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "468601f1f6268ce27e1e46f732d2802f2664e1200126ca054a3838a1cfde8c9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_string_id",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_two_blocks",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "Fair_P_empty_domain",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "651bcd5b4a03b42b5fe399abfdca510a4bacfd91580cd4b90788c9c77014fd55",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b3f3bcca28e35e18038050505dbefd492673f30d8143aeab67ee77b308279afb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_infinite_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bee6143436932df74b8ecf02b5c1e7062f55674eff8f22d6a3ba24020bb4abe5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c2e16fecb977bad30a809192c7bc1787c833cb455ef791bbb3ab9a80ba98124a",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_label_action_keyword",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_missing_default",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_missing_label",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_set_strong_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "087c3e78abf584984a3ed8c65867e4c73c8976ae0c3e3d4ef4ff38bb4863afab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_strong_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_unfair_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_both",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_fair_algorithm",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_minus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_minus_pair",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_plain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "468601f1f6268ce27e1e46f732d2802f2664e1200126ca054a3838a1cfde8c9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_weak_plus",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_string_id",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_two_blocks",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple process blocks",
+      "code": "DIVE-P0090"
+    }
+  ]
+}

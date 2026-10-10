@@ -71,3 +71,25 @@ successful bin projection is a model proof. Strict integrated liveness remains
 refused; F-020/F-021/F-022 stay partial/audit-required and F-023 missing. #140
 remains open. The next increment must attach concrete ordered receipts to graph/
 product insertion and actual pool commits before SCC/lasso/scheduling work.
+
+## Concrete graph increment
+
+`phase_graph` connects a completed pure safety capture to actual persisted native
+nodes for one null-tableau OOS. Capture now has a separate actual-pool entry with
+bounded original concrete rows; the legacy inline capture is preserved. Source
+commits retain one logical SetOfStates capacity history independent of requested
+pool width. The graph projection retains original configured properties and
+separate derived role names; it does not substitute one field for another.
+
+Capture completes before temporal predicates run. Its statistics represent
+observed capture work and are not an integrated TLC temporal stopping prefix.
+Graph, bin and PEM-input bounds are checked before allocation/predicate execution;
+per-level speculative per-source quotas are named conservative structural bounds.
+Entry/work limits do not claim aggregate byte accounting. A graph result always
+has `model_proof=false`; receipt and commit insertion flags remain distinct.
+
+The complete fifteen-model pinned selection, synthetic collision control and
+fifteen clean TLC outcomes are retained in `conformance/probes/tlc-phase-l-graph/`.
+Multiple-OOS/tableau revisit ordering and strict SCC/lasso/schedule integration
+must follow this increment. #140 remains open and F-020/F-021/F-022 partial,
+F-023 missing. No default or integrated-liveness refusal is changed.

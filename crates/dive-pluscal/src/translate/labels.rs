@@ -40,17 +40,15 @@ pub(super) fn normalize(
             "label root must start with an ASCII letter and contain only ASCII letters, digits or underscore (maximum 256 bytes)",
         ));
     }
-    let block = match &parsed.algorithm.body {
-        Body::Sequential(block) => block,
-        Body::Processes(processes) if processes.len() == 1 => &processes[0].body,
-        Body::Processes(_) => return Ok(Vec::new()),
+    let blocks = match &parsed.algorithm.body {
+        Body::Sequential(block) => vec![block.clone()],
+        Body::Processes(processes) => processes.iter().map(|p| p.body.clone()).collect(),
     };
     // These families have separate expansion/normalization and stay refused by
     // the existing admission pass rather than assigning invented labels.
     if !parsed.algorithm.procedures.is_empty() || !parsed.algorithm.macros.is_empty() {
         return Ok(Vec::new());
     }
-    let block = block.clone();
     let typed: BTreeSet<_> = parsed
         .statements
         .iter()
@@ -68,7 +66,9 @@ pub(super) fn normalize(
         added: Vec::new(),
         positions,
     };
-    labels.sequence(&block, true, false, &BTreeSet::new(), 0)?;
+    for block in &blocks {
+        labels.sequence(block, true, false, &BTreeSet::new(), 0)?;
+    }
     if has_typed && !options.insert_missing_labels && !labels.added.is_empty() {
         return Err(failure(
             labels.added[0].source,

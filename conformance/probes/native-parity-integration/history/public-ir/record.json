@@ -1,0 +1,41 @@
+{
+  "slice": "public-ir",
+  "source_commit": "d311b8cbb364b6e2954e8608a992119951990f6b",
+  "source_tree": "d75c2f0ee2a060df3bc959a5381421751ae5f709",
+  "matrices_sha256": {
+    "history/public-ir/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "0b8bb554ac320a0edf35f2ebef5b3e2628ea1eb586c52a52811d33449ab67c42"
+  },
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "crates/dive-liveness/src/plan.rs": "0c861ab9f7ea72998207a91df4cb5a557d2aa3bb67d9183b6d845120f335b30b",
+    "crates/dive-liveness/src/lib.rs": "febb1bd0d2361ff4545fcc7017835d18ade48e5be645d87a4e9a144a21161d89",
+    "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+    "scripts/check-tlc-planning.py": "c52e67ff583abc238b2c905879ebdb31c069ae229363584f44d229694c5156ae",
+    "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
+    "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290",
+    "crates/dive-eval/src/context.rs": "6e66a6f85e6553f36862d611c84fb89615a51b866a8ac05ec471cf88287d4032",
+    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
+    "crates/dive-eval/tests/contexts.rs": "222536ed297b090e97c16cb1225a492ed13cab9f9dd9ec317fe3af1f88a1ae3e",
+    "conformance/probes/public-ir-admission/before-fixture-repair.rs": "632d30dc753522550713cef2f21a2c938ad898e9fb4ebea39dbf855335bb03ac",
+    "conformance/probes/public-ir-admission/fixed-reproducer.rs": "e770333da408048c536423e1d5e699237f3d20b134d7f4c3b9d92fb2dcf316a0",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-eval/src/context.rs": "408950cb75dd5c85271a015ff12b7274531920511188af287755b772ae7f5c08",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-eval/tests/contexts.rs": "222536ed297b090e97c16cb1225a492ed13cab9f9dd9ec317fe3af1f88a1ae3e",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-liveness/src/lib.rs": "febb1bd0d2361ff4545fcc7017835d18ade48e5be645d87a4e9a144a21161d89",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-liveness/src/plan.rs": "0c861ab9f7ea72998207a91df4cb5a557d2aa3bb67d9183b6d845120f335b30b",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-liveness/src/tlc_plan.rs": "67e7bd6f85bc9bac10d7d3ce7265b1360a0fb5f3ab5fea76be3d06a7b933793d",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
+    "conformance/probes/tlc-planning/native-source-context-admission/crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
+    "crates/dive-check/src/capture.rs": "2e1df23369f353f9f8e5c75326ab90da14bf56c68aab2182b2f650440cd527be",
+    "crates/dive-check/src/checkpoint.rs": "7c80ee860966ccfd052a5a4cd4fafc73575bb57ef7990e8deb8ac847434a2428",
+    "crates/dive-check/src/lib.rs": "3e6e8412a46fb45a5d3ffbaa1d2d70bfe183206ad2d8846821660a87c6e74e0d",
+    "crates/dive-check/tests/public_ir.rs": "c4e400491551f7047c51ae5061629aa1b6a1417901b4b41e93965592dc51e90a",
+    "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
+    "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
+    "crates/dive-model/src/model.rs": "73f0aece393b2eb8022c066399eeba9bfddee0992733c0bc081eb76405c40526"
+  },
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}

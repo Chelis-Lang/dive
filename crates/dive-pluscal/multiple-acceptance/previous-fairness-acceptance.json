@@ -1,0 +1,806 @@
+{
+  "schema_version": 1,
+  "selected": 150,
+  "manifest_sha256": "55b4a89b71d6087dd9306eded2a74058abaaf2636d916fcef593616ef3588319",
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "native_sha256": "343e0d12ae38080e1278fbd3bebb9338e1a45281ba9cfb83a9d2f2a8caab3ca6",
+  "script_sha256": "cbecc61749ebf5c01fc175caa8e2b05dc3dfab63dd92a0c72c344696354780e1",
+  "model_proved": false,
+  "family_certified": false,
+  "summary": {
+    "rejection-match": 130,
+    "token-artifact-match": 20
+  },
+  "rows": [
+    {
+      "id": "Fair_C_empty_domain",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "651bcd5b4a03b42b5fe399abfdca510a4bacfd91580cd4b90788c9c77014fd55",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_id_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b3f3bcca28e35e18038050505dbefd492673f30d8143aeab67ee77b308279afb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_id_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_infinite_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bee6143436932df74b8ecf02b5c1e7062f55674eff8f22d6a3ba24020bb4abe5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_infinite_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c2e16fecb977bad30a809192c7bc1787c833cb455ef791bbb3ab9a80ba98124a",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_C_infinite_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_label_action_keyword",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_missing_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_missing_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_C_set_strong_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "087c3e78abf584984a3ed8c65867e4c73c8976ae0c3e3d4ef4ff38bb4863afab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_set_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "468601f1f6268ce27e1e46f732d2802f2664e1200126ca054a3838a1cfde8c9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_C_set_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_string_id",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_C_two_blocks",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4c6b7d4290810e853bc618472ed48d3433161f461d701405d13a18fa53ffe738",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_empty_domain",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "651bcd5b4a03b42b5fe399abfdca510a4bacfd91580cd4b90788c9c77014fd55",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f791160b2bc1563141a768bb8ec52d9f65e0deb22d3db2a2fd367e0b5a5cace1",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_id_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "b3f3bcca28e35e18038050505dbefd492673f30d8143aeab67ee77b308279afb",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_id_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_infinite_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "bee6143436932df74b8ecf02b5c1e7062f55674eff8f22d6a3ba24020bb4abe5",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e83f3be5a40571990ac0b6e0400394fa9ee89017fa8c1fad8f7b25acbd61e73d",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_infinite_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "c2e16fecb977bad30a809192c7bc1787c833cb455ef791bbb3ab9a80ba98124a",
+      "action_count": 1,
+      "program_counter": false
+    },
+    {
+      "id": "Fair_P_infinite_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_label_action_keyword",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_missing_default",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_missing_label",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "Fair_P_set_strong_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_strong_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "087c3e78abf584984a3ed8c65867e4c73c8976ae0c3e3d4ef4ff38bb4863afab",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_strong_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_unfair_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "2154cb29a5329d371aa2a69f7b1c8e7b3afc718c157e8e864af8eab9faeee87a",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_unfair_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_both",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_fair_algorithm",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_minus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_minus_pair",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_nof",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_sf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_wf",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_option_wfNext",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_set_weak_plain",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "468601f1f6268ce27e1e46f732d2802f2664e1200126ca054a3838a1cfde8c9e",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "Fair_P_set_weak_plus",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_string_id",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0004"
+    },
+    {
+      "id": "Fair_P_two_blocks",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "4c6b7d4290810e853bc618472ed48d3433161f461d701405d13a18fa53ffe738",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}

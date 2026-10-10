@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "stage": "sequential-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "ee700e9e64e0d31d80f20622a4e89d72c408e0148b5017bb148b4876b4d5ded6",
+  "comparator_sha256": "3587329ac25fbcfe6c59239bccedc90b9bda371b48256d94cdb51c74aa6eb35b",
+  "native_sha256": "9cb84c59351b696dd5323252091827da6fa4eb6528d4ebfb0c147aac739d6c40",
+  "model_proved": false,
+  "pending": [
+    "processes",
+    "procedures",
+    "macros",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 32,
+  "summary": {
+    "rejection-match": 16,
+    "token-artifact-match": 16
+  },
+  "rows": [
+    {
+      "id": "FairSequential_C_fair_modifiers_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_modifiers_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_modifiers_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_modifiers_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_plain_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_plain_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_plain_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_fair_plain_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_modifiers_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_modifiers_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_modifiers_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_modifiers_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_plain_nof",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_plain_sf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_plain_wf",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_C_plain_plain_wfNext",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "FairSequential_P_fair_modifiers_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_modifiers_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_modifiers_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_modifiers_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_plain_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_plain_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_plain_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_fair_plain_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_modifiers_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3dd9d8b552351dabf98ef5755f848875664746ed9be212feec822c6a3be6584",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_modifiers_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_modifiers_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_modifiers_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_plain_nof",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "f3dd9d8b552351dabf98ef5755f848875664746ed9be212feec822c6a3be6584",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_plain_sf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_plain_wf",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    },
+    {
+      "id": "FairSequential_P_plain_plain_wfNext",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "ef3b217e9e98a4a1a3271588e9be753e5586f8af144e881910bdc516e2c8a079",
+      "action_count": 2,
+      "program_counter": true
+    }
+  ]
+}

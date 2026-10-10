@@ -1,0 +1,21 @@
+action_names	Live
+role_names	Live
+configured_names	Live
+groups	1
+state_bins	0
+action_bins	1
+initial.log	
+source.0.fp	6481851652007346054
+source.0.incoming	0:6481851652007346054
+source.0.capacity	16
+source.0.count	1
+source.0.slots	6:6481851652007346054
+source.0.target_written_before	6481851652007346054:false
+source.0.states	
+source.0.transitions	6481851652007346054:-1:1
+source.0.log	g0.a0:true
+source.0.next_multiplier	1
+roots	6481851652007346054:-1
+generated	2
+distinct	1
+completion	graph-inserted-no-scc-proof

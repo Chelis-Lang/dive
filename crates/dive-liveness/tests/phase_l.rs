@@ -638,3 +638,23 @@ fn caller_edited_fingerprint_permutation_returns_typed_input_refusal() {
         assert_eq!(m.take_output(), Vec::<String>::new());
     }
 }
+
+#[test]
+fn state_if_planning_error_precedes_fingerprints_and_predicate_work() {
+    let m = model("PhaseStateError").expect("bound model");
+    let failure = Session::new(&m, 0, 1, Limits::default())
+        .err()
+        .expect("pinned early planning failure");
+    let Error::Planning(dive_liveness::tlc_plan::ModelPlanningError::Bound(
+        dive_liveness::plan::PlanningError::Evaluation { error, .. },
+    )) = failure.error
+    else {
+        panic!("expected original typed constant conversion error");
+    };
+    assert_eq!(error.ec().code(), 2179);
+    assert_eq!(failure.progress.actual_workers, 0);
+    assert_eq!(failure.progress.predicates, 0);
+    assert_eq!(failure.progress.sources, 0);
+    assert!(failure.partial.is_none());
+    assert_eq!(m.take_output(), Vec::<String>::new());
+}

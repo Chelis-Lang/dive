@@ -11,7 +11,7 @@ evidence without converting partial implementations into completed features.
 ## What the denominator means
 
 The maintained [semantic ledger](../conformance/parity-features.json) has **37
-stable feature families**: 7 have an implemented core, 25 are partial, and 5 are missing. Those implementation labels do not certify full parity.
+stable feature families**: 7 have an implemented core, 26 are partial, and 4 are missing. Those implementation labels do not certify full parity.
 A broad family may contain both passing cases and unresolved interactions.
 **No family-level certification record has yet been completed.** Existing
 model and differential evidence remains valid; this initial audit must not be
@@ -101,7 +101,7 @@ and a corresponding certification schema before the label can change.
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
-| F-032 | Native checkpoint and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
+| F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending |
 | F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
@@ -161,7 +161,7 @@ harness when it launches Java are not thereby implemented by the Rust CLI.
 | `-seed`, `-aril`, `-fp` | F-014/F-024; Java random kernel and fingerprint pin exist, all modes/aril CLI coverage still required |
 | `-lncheck` | F-019–F-023; only explicit final/short mixed path currently checks temporal models |
 | `-simulate`, `-generate`, `-depth`, `-dfid` | F-024/F-025; pure finite single-worker simulation and bounded pure-safety DFID are partial; generation and the full scheduler/mode matrix remain pending |
-| `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; native persistence/recovery missing |
+| `-checkpoint`, `-recover`, `-metadir`, `-cleanup` | F-031/F-032; bounded native completed-level safety recovery; broader persistence interactions pending |
 | `-maxSetSize`, `-fpmem`, `-fpbits`, `-gzip` | F-005/F-014/F-031; TLC limit and storage policy behavior must be mapped and tested |
 | `-continue`, `-postCondition` | F-012/F-027; continuation, terminal effects and their error order need implementation/audit |
 | `-dump`, `-dumpTrace`, `-loadTrace`, `-view` | F-016/F-029; structured validated traces exist, full TLC formats/loading/view interactions pending |
@@ -425,7 +425,43 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+
+### Conditional planning error precedence (#147)
+
+The TLC-shaped planner now preserves eager IF/boolean conversion errors and
+nonrecursive-call fallback, with typed TLC errors and original source context.
+All24 selected cases include two pre-planning SANY rejections. The original18
+and every development failure remain visible. Actual state-space counts and
+strict integrated temporal results receive no new credit; F-019 stays partial
+and audit-required. See ADR0036 and the owned state-if-planning probes.
+
 PlusCal process evidence now includes [a bounded single-process increment](pluscal-processes.md):
 242 retained rows and 26 finite model controls with independent witnesses. This
 does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and
 full option/map contracts remain pending.
+Native F-032 evidence is a bounded pure safety snapshot/resume slice, with actual
+saved frontier recovery, concrete predecessor identity, ordered names and strict
+archive admission. It has no Java-byte interoperability or independent snapshot
+certificate. Graph/liveness/runtime/spill/parallel recovery remain pending; see
+[native-checkpoint.md](native-checkpoint.md). No family certification is added.
+
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+Public backend admission (#157) adds checked no-work metadata and shared
+pre-effect IR admission for ordinary/native checking plus bound graph capture.
+Foreign/malformed predicate/action contexts refuse before assumptions; valid
+metadata and exploration controls remain unchanged. The original panic and
+native controls are retained in `conformance/probes/public-ir-admission/`.
+This is additional F-035 evidence, not a status/certification upgrade.
+
+Bounded [multiple finite-process translation](pluscal-multiple-processes.md) retains
+264 C/P rows: 206 artifacts with enclosing-module operator CST/SANY agreement,
+10 matching rejections and 48 named refusals. Sixty finite generated-model controls
+and independently validated/corrupted witnesses cover the admitted storage/action
+subset. F-034 and F-035 remain partial and audit-required; this does not certify
+full process renaming, procedures/macros, historical options or file rewriting.

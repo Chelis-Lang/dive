@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "selected": 6,
+  "manifest_sha256": "13c8410b7d0e4e546becac99cddb046e1517deea040a69bd3cb405d34de16b1c",
+  "comparator_sha256": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+  "native_sha256": "343e0d12ae38080e1278fbd3bebb9338e1a45281ba9cfb83a9d2f2a8caab3ca6",
+  "script_sha256": "cbecc61749ebf5c01fc175caa8e2b05dc3dfab63dd92a0c72c344696354780e1",
+  "model_proved": false,
+  "family_certified": false,
+  "summary": {
+    "rejection-match": 6
+  },
+  "rows": [
+    {
+      "id": "ProcNames_C_process_finite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_C_process_infinite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_C_sequential_infinite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_P_process_finite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_P_process_infinite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcNames_P_sequential_infinite",
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    }
+  ]
+}

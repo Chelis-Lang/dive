@@ -1,0 +1,8 @@
+Parsing file /Users/jeff/code/dive-state-if-planning-work/conformance/probes/state-if-planning/models/LetState/LetState.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-13158509597715039468/Integers.tla (jar:file:/Users/jeff/code/dive-shipping-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-13158509597715039468/Naturals.tla (jar:file:/Users/jeff/code/dive-shipping-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module LetState
+Linting of module LetState
+Starting... (2026-10-10 17:23:38)

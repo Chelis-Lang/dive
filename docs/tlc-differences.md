@@ -320,6 +320,20 @@ independent-witness controls in `crates/dive-api/tests/predecessor_spill.rs`.
 
 ---
 
+**Checkpoint evidence (2026-10-10, staged).** The finite grid in
+`conformance/probes/native-checkpoint/` finishes uninterrupted at 5,123,201
+states generated and 2,563,201 distinct. Pinned TLC recovery resets generated
+and initial counters to its saved distinct count; the captured resumed run reports
+3,703,060 generated. Its developer timed stop also reports success while 1,511
+states remain queued. Native checkpoint pauses explicitly report an
+incomplete search. The bounded pure safety slice resumes the actual saved
+frontier without Init regeneration; [native checkpoint documentation](native-checkpoint.md)
+lists its named exclusions and trusted-local, non-certificate contract. Recovery keeps the TLC counter-reset counterpart; retaining
+original totals is the named, opt-in `--checkpoint-counters retain` behavior,
+with no new default approved. Raw successful and failed recovery controls,
+source hashes and the minimal grid precede implementation. Java/native byte
+interoperability, broader runtime state and parallel recovery remain deferred.
+
 ## D-008: Results are data, and diagnostics are built for people and agents
 
 | | |
@@ -1423,3 +1437,71 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+
+### D-013 implementation progress: actual graph commits
+
+The bounded graph stage now keeps original generated successor values even when
+an equal state was already stored, then writes concrete graph nodes with TLC's
+slot order, bin labels and one logical capacity history. Source expansion really
+uses 1, 3, 4 or 8 workers in the tested runs; ordered predicate/graph commits
+report their own single-worker execution. Twelve completed pinned graph
+projections match their defined fields. All fifteen selected models, errors,
+tableau refusal, clean TLC outcomes and original failed adapter attempts remain
+available in `conformance/probes/tlc-phase-l-graph/`.
+
+This does not enable strict liveness yet. Complete safety exploration currently
+precedes temporal evaluation, so its counts are not TLC's temporal stopping
+prefix. Multiple OOS, dynamic tableau revisitation and done-state re-enumeration,
+periodic checking and exact SCC/lasso selection are still required. Opaque
+captured providers are refused before execution; per-source speculative quotas
+can reject a skewed level conservatively. Independent validation still decides
+a concrete periodic word and its claims, rather than trusting graph metadata.
+No graph result or diagnostic receipt claims a model proof.
+
+D-013 planning/error-order update (#147): `[]<>(IF x = 1 THEN 1 \div 0 = 0
+ELSE x = 2)` raises TLC code2179 before any exploration, even if a reachable
+state would not select the erroneous branch. The TLC-shaped native planner now
+preserves that error and the reference's distinct user-call/boolean fallbacks.
+No alternate default is adopted: independent formula evaluation keeps its
+existing semantics, and strict integrated liveness remains unsupported. Complete
+24 current controls, original18 and the native false completion are retained in
+`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
+conservative. This is a native limitation repair, not family certification.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+**D-008 PlusCal fairness formatter observation:** the pinned translator prints
+an **87-column** fairness line with its default **78-column** setting for:
+
+```tla
+--algorithm A {
+  variables g=0;
+  fair process (P \in{1,2}) variables x=0;
+  { L: + x:=1; E: - g:=x; }
+}
+```
+
+`ProcessFairness.singleLineWidth` omits the sole quantifier-prefix line and
+conjunction separator. The retained `FairPositive_C_set_weak_both` primary output
+shows the 87-column line. Current native translation preserves its measured
+junction grouping in both profiles; full width/layout improvement is pending.
+No alternate formatting default is silently adopted. Long-label controls also
+compare full operator CST, since moving TLA junction indentation can change
+expression structure. See [the fairness evidence](pluscal-fairness.md).
+
+**D-008 public backend admission update (#157):** malformed public Rust IR
+metadata now refuses before ordinary checking or checkpoint request handling.
+Graph capture likewise checks arena/name and predicate/action ownership before
+model effects. Error reports omit an invalid variable mapping instead of
+panicking while reporting another refusal. Original panic source/hash evidence
+and native controls are retained in `conformance/probes/public-ir-admission/`.
+This is a native API safety repair, not new TLC semantic certification.
+
+The [multiple finite-process increment](pluscal-multiple-processes.md) now binds
+each admitted block to its own storage, labels and fairness context. Overlapping
+IDs, name rewrites and cross-process local references remain explicit refusals;
+translation artifacts still make no model-proof claim.

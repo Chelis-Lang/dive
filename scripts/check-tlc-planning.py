@@ -78,6 +78,12 @@ def main():
     assert current['historical_matrix_sha256'] == sha(PROBE / 'context-delivery-planning-source-matrix.json')
     for path, digest in current['source_sha256'].items():
         assert sha(PROBE / 'historical-context-source' / path) == digest
+        assert sha(PROBE / 'native-source-context-admission' / path) == digest
+    repaired = load('public-ir-admission-source-matrix.json')
+    assert repaired['base_commit'] == 'fb11b981'
+    assert repaired['historical_context_matrix_sha256'] == sha(PROBE / 'context-admission-source-matrix.json')
+    for path, digest in repaired['source_sha256'].items():
+        assert sha(ROOT / path) == digest
     combined = load('combined-context-tableau-source-matrix.json')
     assert combined['historical_context_matrix_sha256'] == sha(PROBE / 'context-admission-source-matrix.json')
     assert combined['historical_pre_context_planning_matrix_sha256'] == sha(PROBE / 'source-matrix.json')

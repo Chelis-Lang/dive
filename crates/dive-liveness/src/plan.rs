@@ -6,7 +6,7 @@
 //! source expression; callers must not remove a model's liveness refusal merely
 //! because an individual predicate lowers successfully.
 
-use dive_eval::{ConstBinding, EvalError, Scope, SlotView, St, StateRef};
+use dive_eval::{ConstBinding, Ec, ErrorClass, EvalError, Scope, SlotView, St, StateRef};
 use dive_ir::{
     Arg, DefId, Effects, Expr, ExprId, JunctionKind, Level, OpRef, Origin, QuantKind, StdOp,
 };
@@ -158,6 +158,14 @@ pub struct Refusal {
 pub enum PlanningError {
     /// A named feature or evaluation that cannot be planned exactly yet.
     Unsupported(Box<Refusal>),
+    /// An actual constant evaluation failure during TLC source conversion.
+    /// The original typed error is retained; this is never a model verdict.
+    Evaluation {
+        /// TLC error class, code, text and expression origin.
+        error: EvalError,
+        /// Source operand evaluated during conversion.
+        source: Box<Source>,
+    },
     /// Formula construction or resource limit.
     Formula {
         /// The construction failure.
@@ -174,6 +182,7 @@ impl PlanningError {
     pub fn code(&self) -> &'static str {
         match self {
             Self::Unsupported(_) => "DIVE-L0020",
+            Self::Evaluation { .. } => "DIVE-L0023",
             Self::Formula {
                 error: FormulaError::Limit(_),
                 ..
@@ -202,6 +211,9 @@ impl std::fmt::Display for PlanningError {
                 r.detail,
                 r.cause.location
             ),
+            Self::Evaluation { error, source } => {
+                write!(f, "{} at {}: {error}", self.code(), source.location)
+            }
             Self::Formula { error, source } => {
                 write!(f, "{} at {}: {error}", self.code(), source.location)
             }
@@ -272,6 +284,22 @@ impl Lower<'_> {
             .eval_scoped(scope, expr, &St::constant())
         {
             Ok(Value::Bool(b)) => Ok(b),
+            Ok(_)
+                if self.tlc_shape
+                    && matches!(&self.model.ir.nodes()[expr.index()].expr, Expr::Num(_)) =>
+            {
+                let Expr::Num(text) = &self.model.ir.nodes()[expr.index()].expr else {
+                    return Err(self.refused(expr, "constant expression shape changed"));
+                };
+                Err(PlanningError::Evaluation {
+                    error: EvalError::coded(
+                        Ec::ExpectedValue,
+                        format!("TLC expected a boolean value, but did not find one.\n{text}"),
+                    )
+                    .at(expr),
+                    source: Box::new(Source::new(self.model, expr)),
+                })
+            }
             Ok(v) => Err(self.refused(
                 expr,
                 format!(
@@ -279,6 +307,12 @@ impl Lower<'_> {
                     v.kind_name()
                 ),
             )),
+            Err(error) if self.tlc_shape && error.class() == ErrorClass::Eval => {
+                Err(PlanningError::Evaluation {
+                    error,
+                    source: Box::new(Source::new(self.model, expr)),
+                })
+            }
             Err(e) => Err(self.refused(expr, format!("constant temporal operand: {e}"))),
         }
     }
@@ -897,10 +931,67 @@ impl Lower<'_> {
             let d = self.checked_definition(expr, *d)?;
             if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                 let sc = self.scoped_call(expr, scope, d, args, depth + 1)?;
-                return self.expr(ir.def(d).body, &sc, depth + 1);
+                let saved = (self.nodes.len(), self.atoms.len());
+                match self.expr(ir.def(d).body, &sc, depth + 1) {
+                    // TLC catches actual nonrecursive operator conversion errors,
+                    // then retains the original state/action call. Unsupported
+                    // features and resource refusals must never use that fallback.
+                    Err(PlanningError::Evaluation { .. })
+                        if self.tlc_shape
+                            && self.scoped_level(expr, scope, depth)? <= Level::Action =>
+                    {
+                        self.nodes.truncate(saved.0);
+                        self.atoms.truncate(saved.1);
+                    }
+                    result => return result,
+                }
             }
         }
         let level = self.scoped_level(expr, scope, depth)?;
+        if self.tlc_shape
+            && let Expr::If { cond, then, other } = &node.expr
+        {
+            // Liveness.astToLive attempts the guard at the empty state, then
+            // converts guard/then/else in source order before level fallback.
+            if self.scoped_level(*cond, scope, depth)? <= Level::Action {
+                self.pure_atom(*cond, scope)?;
+                match ev.eval_scoped(scope, *cond, &St::constant()) {
+                    Ok(Value::Bool(chosen)) => {
+                        return self.expr(if chosen { *then } else { *other }, scope, depth + 1);
+                    }
+                    Err(error) if error.class() != ErrorClass::Eval => {
+                        return Err(self.refused(*cond, format!("conditional guard: {error}")));
+                    }
+                    _ => {}
+                }
+            }
+            if level <= Level::Action {
+                let saved = (self.nodes.len(), self.atoms.len());
+                self.expr(*cond, scope, depth + 1)?;
+                self.expr(*then, scope, depth + 1)?;
+                self.expr(*other, scope, depth + 1)?;
+                // Only the whole state/action IF is retained by TLC's final
+                // level fallback. Temporary branch atoms cannot enter tagging.
+                self.nodes.truncate(saved.0);
+                self.atoms.truncate(saved.1);
+            }
+        }
+        if self.tlc_shape && level <= Level::Action {
+            let children = match &node.expr {
+                Expr::Junction { items, .. } => items.to_vec(),
+                Expr::Not(child) => vec![*child],
+                Expr::Implies(left, right) => vec![*left, *right],
+                _ => Vec::new(),
+            };
+            if !children.is_empty() {
+                let saved = (self.nodes.len(), self.atoms.len());
+                for child in children {
+                    self.expr(child, scope, depth + 1)?;
+                }
+                self.nodes.truncate(saved.0);
+                self.atoms.truncate(saved.1);
+            }
+        }
         if level <= Level::Action
             && !node
                 .effects

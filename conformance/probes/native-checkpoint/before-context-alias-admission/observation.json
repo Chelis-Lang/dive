@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "issue": 164,
+  "family_certified": false,
+  "affected_delivery_commit": "a7d7bcfb28e192ce2365eb5fd3636adccb125d4f",
+  "observation": "structurally valid public arena: original preflight allowed config alias to local Std PrintT, printed TRUE and committed paused archive",
+  "fixed_control": "conservative builtin impure scan beforebinding; genuine lexical scope remains structurally admitted, then refused with no output/workers/archive in both profiles at requested widths1/4/8",
+  "retained_sha256": {
+    "checkpoint.rs.gz": "c48a5f3cb12de52a2c3a79c6992703e16154065e6a661fb752d2bb1f6ecfc7aa",
+    "first-control-compile.log.gz": "c2c9dec436cfad47dcdca8749bd155dbf9ff0f2de608abff929deaa852b11e71",
+    "reproducer.rs.gz": "5b53fe86234660cc16cd3fba821401305fecf4fd872d3a1c1187ab9033605a37",
+    "observed.log.gz": "634f542979c1e9d25f02bc6c5355fface60e26ffc7096f54e12e5c5a6d1fc77c"
+  }
+}

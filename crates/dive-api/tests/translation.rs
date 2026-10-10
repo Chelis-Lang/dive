@@ -143,3 +143,80 @@ fn default_model_value_binding_and_label_options_are_data() {
         serde_json::json!(["Step1", "E"])
     );
 }
+
+#[test]
+fn process_fairness_options_remain_validated_nonproof_artifacts() {
+    let source = module(
+        "variable g=0; process P \\in{1,2} variable x=0; begin L: + x:=1; E: - g:=x; end process; end algorithm;",
+    );
+    for (option, present, absent) in [
+        (
+            dive_api::TranslationFairness::Weak,
+            "WF_vars((pc[self] #",
+            "WF_vars(Next)",
+        ),
+        (
+            dive_api::TranslationFairness::Strong,
+            "SF_vars((pc[self] #",
+            "SF_vars(L(self))",
+        ),
+        (
+            dive_api::TranslationFairness::Next,
+            "WF_vars(Next)",
+            "SF_vars(L(self))",
+        ),
+        (
+            dive_api::TranslationFairness::None,
+            "Spec == Init",
+            "WF_vars(",
+        ),
+    ] {
+        for compat in [false, true] {
+            let mut request = TranslationRequest {
+                compat_tlc: compat,
+                ..TranslationRequest::default()
+            };
+            request.limits.fairness = option;
+            let report = translate_source("TranslationTest.tla", &source, &request);
+            let doc = report.to_json();
+            assert!(report.accepted(), "{doc}");
+            let artifact = doc["artifact"]["tla"].as_str().unwrap_or_default();
+            assert!(artifact.contains(present), "{artifact}");
+            assert!(!artifact.contains(absent), "{artifact}");
+            assert_eq!(doc["analysis"]["accepted"], true);
+            assert_eq!(doc["model_proved"], false);
+            assert_eq!(doc["exhaustive"], false);
+        }
+    }
+}
+
+#[test]
+fn multiple_process_storage_and_refusals_remain_nonproof() {
+    let source = module(
+        "variable g=0; process P=1 variable x=0; begin L: x:=1; E: g:=x; end process; fair process Q \\in{2,3} variable y=0; begin M: + y:=2; F: - g:=y; end process; end algorithm;",
+    );
+    for compat_tlc in [false, true] {
+        let request = TranslationRequest {
+            compat_tlc,
+            ..TranslationRequest::default()
+        };
+        let doc = translate_source("TranslationTest.tla", &source, &request).to_json();
+        assert_eq!(doc["accepted"], true, "{doc}");
+        assert_eq!(doc["analysis"]["accepted"], true);
+        assert_eq!(doc["model_proved"], false);
+        assert_eq!(doc["exhaustive"], false);
+        assert_eq!(
+            doc["artifact"]["processes"].as_array().map(Vec::len),
+            Some(2)
+        );
+        for changed in [
+            source.replace("\\in{2,3}", "\\in{1,2}"),
+            source.replace("y:=2", "y:=x"),
+        ] {
+            let refusal = translate_source("TranslationTest.tla", &changed, &request).to_json();
+            assert_eq!(refusal["result"], "unsupported", "{refusal}");
+            assert_eq!(refusal["model_proved"], false);
+            assert!(refusal.get("artifact").is_none());
+        }
+    }
+}

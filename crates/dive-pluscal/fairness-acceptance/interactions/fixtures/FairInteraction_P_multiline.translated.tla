@@ -1,0 +1,48 @@
+---- MODULE FairInteraction_P_multiline ----
+EXTENDS Naturals,TLC
+(* --algorithm A variable g=0; fair process P \in{1,
+2} variable x=0; begin L: + x:=1; E: - g:=x; end process; end algorithm; *)
+\* BEGIN TRANSLATION (chksum(pcal) = "66dde136" /\ chksum(tla) = "b4580a68")
+VARIABLES pc, g, x
+
+vars == << pc, g, x >>
+
+ProcSet == (                                                 {1,
+            2})
+
+Init == (* Global variables *)
+        /\ g = 0
+        (* Process P *)
+        /\ x = [self \in                                                  {1,
+                         2} |-> 0]
+        /\ pc = [self \in ProcSet |-> "L"]
+
+L(self) == /\ pc[self] = "L"
+           /\ x' = [x EXCEPT ![self] = 1]
+           /\ pc' = [pc EXCEPT ![self] = "E"]
+           /\ g' = g
+
+E(self) == /\ pc[self] = "E"
+           /\ g' = x[self]
+           /\ pc' = [pc EXCEPT ![self] = "Done"]
+           /\ x' = x
+
+P(self) == L(self) \/ E(self)
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
+               /\ UNCHANGED vars
+
+Next == (\E self \in                                                  {1,
+                     2}: P(self))
+           \/ Terminating
+
+Spec == /\ Init /\ [][Next]_vars
+        /\ \A self \in                                                  {1,
+                       2} : /\ WF_vars((pc[self] # "E") /\ P(self))
+                            /\ SF_vars(L(self))
+
+Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+
+\* END TRANSLATION 
+====

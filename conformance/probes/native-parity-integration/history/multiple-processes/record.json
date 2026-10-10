@@ -1,0 +1,41 @@
+{
+  "slice": "multiple-processes",
+  "source_commit": "e5bf8e485acc0d3009886e013bebc9dd15de5e20",
+  "source_tree": "0e6a0e805dca2cf2d6842fa59f753517cd1f675b",
+  "matrices_sha256": {
+    "history/multiple-processes/matrices/crates/dive-pluscal/multiple-acceptance/delivery.json": "f81a2222f2c6c898500c6714b2b428a6e11390a1b0f717f3149c14c6370cb6cf"
+  },
+  "source_sha256": {
+    "conformance/parity-features.json": "829b46ec46b4dab7911975eb8d08b1ad53e55cc6726622530be223c5b0a46ae5",
+    "crates/dive-api/src/translate.rs": "9b3b1516ca207dbe682dac07606a98b5e1bad6e750d52fb22fa625954b7778b0",
+    "crates/dive-api/tests/translation.rs": "f351be1e3554a04a238aa411efb867de651ec3c09f04ca46fff3f46d64dc02bb",
+    "crates/dive-pluscal/examples/translate.rs": "17f74e6ed812115ce58ecd1c97dbb230a3d89e32f2a3d26284a525a6be896a3a",
+    "crates/dive-pluscal/multiple-acceptance/capture.py": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+    "crates/dive-pluscal/multiple-acceptance/compare.py": "5e514ea40785a0495ca0175af3634e8d38b4a0b21eeb6048b6ec3c89198ea0d0",
+    "crates/dive-pluscal/multiple-acceptance/initial-adapter-errors/capture.py": "18fd5c359af808b39b091121531bae9b8dd7be440943a421ade64ca8ae61860b",
+    "crates/dive-pluscal/multiple-acceptance/make_cases.py": "ecc8ed479bb19e674be9adea210dfb59f3ba7d04ec1c16d86ddd6153a376db3e",
+    "crates/dive-pluscal/multiple-acceptance/make_extra.py": "f8149ef5748b11795d421b0c865f21adba4daaeca5f6c60ccbb62012dda23270",
+    "crates/dive-pluscal/multiple-acceptance/recheck-history.py": "cbecc61749ebf5c01fc175caa8e2b05dc3dfab63dd92a0c72c344696354780e1",
+    "crates/dive-pluscal/multiple-acceptance/test-comparison.py": "9df9dfa98b0965f81c9ba98a5ffd4aea237e041a86c1de8dd5fce365215f1ee9",
+    "crates/dive-pluscal/multiple-acceptance/validate.py": "05b42f0608bceceba309c5c148d6f8c209ce7e92734188e9184e29012e500f17",
+    "crates/dive-pluscal/multiple-acceptance/verify.py": "49d439f50c43296a26bee6f416027743c7dcebeb817e0c59bf2d6f61f66f2e50",
+    "crates/dive-pluscal/src/lib.rs": "73f2ef1a2f52c24149f11e3068e971a355e975e26b859b5516bd2a19e50ddd9f",
+    "crates/dive-pluscal/src/translate/emit.rs": "5e628e588034e86514dfd23195cca9a3730dc0a6ebbe3e59b440177fc2a050d7",
+    "crates/dive-pluscal/src/translate/labels.rs": "e9cb4a39be25e383b6e7a43a0bc40759f6e71d1c878386841fbcf5a2735ff8cf",
+    "crates/dive-pluscal/src/translate/lower.rs": "21223e987607980adc300cee60a9fed95c5ca0ec2f010095c3937080173404ba",
+    "crates/dive-pluscal/src/translate/mod.rs": "4e4ea18cf15f26dd17be3f29d0859a4934f9903b5d9ec2e0f8b72d38adfa7db5",
+    "crates/dive-pluscal/src/translate/process.rs": "c7982b88211dcdcf301c9861816c7c0eff678012fff54895263abd927d8ecff2",
+    "crates/dive-pluscal/tests/fairness.rs": "4c777115ef4b3bc85dece08b74e35677b6a78cfb4597e69d69d144b669abfbee",
+    "crates/dive-pluscal/tests/multiple.rs": "46d5f592734f81a5c3ecfab5e562e31edd83465e1ed7dcff4df34e0c9a475f83",
+    "crates/dive-pluscal/tests/processes.rs": "2ef21b2992c79bd7f29e9e35978b83f18f3d61b2df5d270a630f5b2f63203a75",
+    "docs/decisions/0037-pluscal-multiple-finite-processes.md": "f40a405947eaa98e4525da7cff99703671bc9f144c47e35e4b3656ce5d823fe7",
+    "docs/divergences.md": "39d1af0ec297ade7ebf88ec3889e2e9f191fae9a8700496b6bf607187a16d76e",
+    "docs/pluscal-fairness.md": "ec23973a1b4be4a04849693493ab2a9732e4ba96a18707b05b5da751fd406180",
+    "docs/pluscal-multiple-processes.md": "774c74454f39ab79236561ceb80b7b7967a9f9967e0db0bfe2ab931fde9428e8",
+    "docs/pluscal-processes.md": "e273cdf5585cdc5420392fc16bdca1c24a03fbdfe6595f1b46b2c3642c272582",
+    "docs/provenance.md": "e27b32f8ac0716a7c798994205606c1fef1d83df22ecfa29b22dc426a183651a",
+    "docs/tlc-differences.md": "15f1d29c990ea1dd75ed81d83c70eec5710ef3778be57bd4b9992f0d3919de9a",
+    "docs/tlc-parity.md": "81fbf89d4bc3bc2a7d67a2d16059c235ff4d9e6d6dd5b12925e4aeb9957c7a7f"
+  },
+  "scope": "immutable separately verified slice; no combined-source or full family certification"
+}
