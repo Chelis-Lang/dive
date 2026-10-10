@@ -159,3 +159,20 @@ Worker widths in this study are requested widths. TLC encounter-order paths may
 run inline with the actual execution mode and reason recorded in each checker
 document. These controls prove result agreement, not physical parallel scaling.
 No performance claim follows from this artifact/execution campaign.
+
+## Current integrated-source validation
+
+The [integration receipt](../conformance/probes/native-parity-integration/current-controls/recursive-final-integration/verification.json)
+records 879 passing workspace tests and the unchanged full 116-row selection:
+86 token/SANY/operator-CST artifacts, 15 matching source rejections, nine named
+refusals and six invalid-reference dispositions. All ten SANY-invalid primary
+outputs remain uncredited. Of 146 finite models, 72 match completely and 74
+retain strict witness refusals under #124. Separate canonical replay validates
+74 witnesses and rejects 296 mutants; it supplies no TLC-profile certification.
+Four CLI and two compiled Rust guide calls pass on this source. The older
+679-test producer study remains independently bound to its original source.
+
+The current bounded control explicitly defaults the additive per-unit successor
+limit. Its prior compile failure, original probe and coherent dependency-build
+receipt are retained. All 192 bounded native controls and 12 primary timeouts
+remain incomplete observations rather than termination proofs.

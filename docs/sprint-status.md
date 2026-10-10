@@ -33,8 +33,9 @@ Since the preserved standard report below, the verified increments now include:
   separate bounded C/P translation slice compares generated operator trees and
   checks admitted enclosing modules, sequential algorithms and disjoint finite
   processes with pinned fairness. Bounded macros now expand with checked source origins and enclosing-module
-  admission; procedures, general renaming,
-  rewriting and checksums remain pending.
+  admission. Disjoint explicitly labelled sequential procedures support call graphs,
+  saved frames, mutual recursion and self-tail calls. Process-owned procedure
+  stacks, general renaming, rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;
