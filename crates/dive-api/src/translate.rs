@@ -58,7 +58,7 @@ fn report(
     let mut document = json!({"schema_version":TRANSLATE_SCHEMA_VERSION,"command":"translate","file":file,
         "profile":if request.compat_tlc {"tlc"} else {"dive"},"result":result,"stage":stage,"accepted":status==0,
         "exit_code":status,"model_proved":false,"exhaustive":false,"limits":request.limits,
-        "pending":["unproved-overlapping-process-domains","procedure-fairness","name-renaming","unproved-procedure-calls-and-storage","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-rewriting","checksums","mapping-format"]});
+        "pending":["unproved-overlapping-process-domains","procedure-fairness","name-renaming","recursive-procedures-process-stacks-and-renaming","unproved-macro-substitution","labels-inside-branches","historical-options","pretty-width","file-rewriting","checksums","mapping-format"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }

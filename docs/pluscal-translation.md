@@ -93,3 +93,8 @@ procedure with saved parameter/local frames. Multiple/recursive/process-owned
 procedure scopes and macro interactions remain named refusals. Strict independent
 validation of generated stack witnesses remains pending under the encounter-order
 guard; separate default-profile replay does not earn TLC validation credit.
+
+[Nonrecursive procedure graphs](pluscal-procedure-graphs.md) extend the sequential
+path to multiple disjoint procedures, nested calls and exact adjacent call/return
+head replacement. Explicit cycle/scope/process refusals, global limits and strict
+namespace/deadlock witness qualification remain active; full parity is pending.

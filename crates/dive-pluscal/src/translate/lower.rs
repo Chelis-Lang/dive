@@ -32,6 +32,11 @@ pub(super) enum Kind {
         next: String,
     },
     Return(usize),
+    CallReturn {
+        from: usize,
+        to: usize,
+        arguments: Vec<Expr>,
+    },
     If {
         test: Expr,
         yes: Vec<Node>,
@@ -143,6 +148,7 @@ pub(super) fn normalize_context(
     if let Some(definition) = algorithm.definitions {
         return Err(unsupported(definition.span, "define-block name binding"));
     }
+    let block = procedure.map_or(block, |p| &p.body);
     let mut lower = Lower {
         parsed,
         options,
@@ -306,7 +312,7 @@ pub(super) fn normalize_context(
     let inner_labels = labels.len() > 1;
     lower.use_pc = force_pc || !(infinite && !goto && !any_modifier && !inner_labels);
     lower.compile_groups(&groups, if procedure.is_some() { "Error" } else { "Done" })?;
-    Ok(Model { actions: lower.actions, variables: algorithm.variables.clone(), use_pc: lower.use_pc,
+    Ok(Model { actions: lower.actions, variables: if procedure.is_none() { algorithm.variables.clone() } else { Vec::new() }, use_pc: lower.use_pc,
         stutter: !infinite || parsed.statements.iter().any(|statement| matches!(&statement.kind, StatementKind::Goto(target) if ["Done", "\"Done\""].contains(&target.text.as_str()))),
         fair: algorithm.fairness == Fairness::Weak || matches!(options.fairness, FairnessOption::Weak | FairnessOption::Strong | FairnessOption::Next), warnings: lower.warnings, processes: Vec::new(), procedures: Vec::new(), initial_pc: None })
 }
@@ -476,7 +482,10 @@ impl Lower<'_> {
             let statement = &self.parsed.statements[id.0];
             let last = index + 1 == ids.len();
             if index > 0
-                && matches!(statement.kind, StatementKind::Goto(_))
+                && matches!(
+                    statement.kind,
+                    StatementKind::Goto(_) | StatementKind::Return
+                )
                 && matches!(
                     self.parsed.statements[ids[index - 1].0].kind,
                     StatementKind::Call { .. }
@@ -517,6 +526,11 @@ impl Lower<'_> {
                             &self.parsed.statements[ids[index + 1].0].kind
                         {
                             target.text.trim_matches('"').to_owned()
+                        } else if matches!(
+                            self.parsed.statements[ids[index + 1].0].kind,
+                            StatementKind::Return
+                        ) {
+                            String::new()
                         } else {
                             return Err(failure(
                                 Code::Label,
@@ -531,18 +545,12 @@ impl Lower<'_> {
                             "missing label after procedure call",
                         ));
                     };
-                    if self.procedure.is_some() {
-                        return Err(unsupported(
-                            statement.span,
-                            "nested/recursive procedure calls",
-                        ));
-                    }
-                    let procedure = self
+                    let target = self
                         .parsed
                         .algorithm
                         .procedures
                         .iter()
-                        .find(|p| p.name.text == name.text)
+                        .position(|p| p.name.text == name.text)
                         .ok_or_else(|| {
                             failure(
                                 Code::Syntax,
@@ -550,6 +558,7 @@ impl Lower<'_> {
                                 format!("call of non-existent procedure {}", name.text),
                             )
                         })?;
+                    let procedure = &self.parsed.algorithm.procedures[target];
                     if procedure.parameters.len() != arguments.len() {
                         return Err(failure(
                             Code::Syntax,
@@ -558,10 +567,39 @@ impl Lower<'_> {
                         ));
                     }
                     needs_goto = false;
-                    Kind::Call {
-                        procedure: 0,
-                        arguments: arguments.clone(),
-                        next: continuation,
+                    if !last
+                        && matches!(
+                            self.parsed.statements[ids[index + 1].0].kind,
+                            StatementKind::Return
+                        )
+                    {
+                        let from = self.procedure.ok_or_else(|| {
+                            failure(
+                                Code::Syntax,
+                                statement.span,
+                                "return statement following call not in a procedure",
+                            )
+                        })?;
+                        let owner = self
+                            .parsed
+                            .algorithm
+                            .procedures
+                            .iter()
+                            .position(|p| p.name.text == from.name.text)
+                            .ok_or_else(|| {
+                                failure(Code::Internal, statement.span, "return owner missing")
+                            })?;
+                        Kind::CallReturn {
+                            from: owner,
+                            to: target,
+                            arguments: arguments.clone(),
+                        }
+                    } else {
+                        Kind::Call {
+                            procedure: target,
+                            arguments: arguments.clone(),
+                            next: continuation,
+                        }
                     }
                 }
                 StatementKind::Return => {
@@ -572,7 +610,7 @@ impl Lower<'_> {
                             "missing label after return",
                         ));
                     }
-                    self.procedure.ok_or_else(|| {
+                    let owner = self.procedure.ok_or_else(|| {
                         failure(
                             Code::Syntax,
                             statement.span,
@@ -580,7 +618,16 @@ impl Lower<'_> {
                         )
                     })?;
                     needs_goto = false;
-                    Kind::Return(0)
+                    Kind::Return(
+                        self.parsed
+                            .algorithm
+                            .procedures
+                            .iter()
+                            .position(|p| p.name.text == owner.name.text)
+                            .ok_or_else(|| {
+                                failure(Code::Internal, statement.span, "return owner missing")
+                            })?,
+                    )
                 }
                 StatementKind::While { .. } => {
                     return Err(failure(

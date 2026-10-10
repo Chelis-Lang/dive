@@ -1,6 +1,10 @@
 # Native sequential PlusCal procedures
 
-`dive translate FILE.tla --output json` now admits one explicitly labelled
+The original single-procedure increment below is retained as historical evidence.
+[Procedure graphs](pluscal-procedure-graphs.md) extend it to disjoint,
+nonrecursive nested calls.
+
+`dive translate FILE.tla --output json` admits an explicitly labelled
 sequential procedure with disjoint global/parameter/local names. Save this
 Pascal-style module as `ProcedureExample.tla`:
 
@@ -73,7 +77,7 @@ matching the reference. It does not acquire an implicit return. Such an artifact
 can deadlock when checked; translation success never claims a successful model.
 
 Change `call Put(2)` to `call Missing(2)` for a source/generation rejection with
-exit 1 and no artifact. A nested/recursive call, multiple procedures, renaming
+exit 1 and no artifact. A recursive call, renaming
 collision, procedure/process ownership or procedure/macro interaction returns
 named `unsupported` with exit 3. Undefined TLA names in a generated module are
 rejected at enclosing artifact analysis. An unused invalid procedure still
@@ -108,8 +112,7 @@ that stopped campaign and its original captures are retained. The corrected
 study uses it only as a complete finite model. It earns no violation credit.
 
 Source, depth, action and generated-byte limits are bounded. The normalized-node
-quota is global across main/procedure output. Recursive/nested calls, multiple
-procedure scopes, source renaming, process-local stacks, procedure fairness,
+quota is global across main/procedure output. Recursive calls, source renaming, process-local stacks, procedure fairness,
 automatic labels and macro/procedure expansion remain pending. Historical
 options, pretty width, rewrite/checksum and mapping-format parity are pending.
 F-034/F-035 remain partial; see [ADR 0041](decisions/0041-pluscal-sequential-procedure-calls.md).

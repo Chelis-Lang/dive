@@ -1,0 +1,986 @@
+{
+  "schema_version": 1,
+  "stage": "procedure-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "84d2d82acf2e7baccf41524e7bcc77918158b6facdd66be3d2e34caf6011242d",
+  "comparator_sha256": "22007e428237c8c6dc70987698f4fbaa1d3e3259dc84e966a9d506980ad508c0",
+  "native_sha256": "82213e33340eee6a0795cf9a1267c88dd95a42cfa589eb29d43347506d9ef12f",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "procedures",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 120,
+  "summary": {
+    "native-refusal": 117,
+    "rejection-match": 3
+  },
+  "rows": [
+    {
+      "id": "ProcedureGraph_C_arity_high",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_arity_low",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_auto_labels",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_branch_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_return_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_return_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_call_return_main",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_callee_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_callee_name_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_conditional_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_cross_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_cross_param_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_default_decls",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_duplicate_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_duplicate_param_scopes",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_duplicate_proc",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_either_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_fair_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_foreign_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_four_chain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_global_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_implicit_callee",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_implicit_caller",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_label_collision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_local_restore",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_main_both",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_main_empty",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcedureGraph_C_main_proc_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_mutual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_nested_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_nested_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcedureGraph_C_nested_nonlast",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_nested_return_only",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_order_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_parallel_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_parameter_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_read_stack",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_repeat_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_reserved_parameter",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_reserved_wrapper",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_restore_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_return_transfer_assign",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_self_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_separate_local_init",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_strong_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_three_chain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_three_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_two_unused",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_unknown_nested",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_unused_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_while_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_C_with_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_arity_high",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_arity_low",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_auto_labels",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_branch_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_done",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_goto",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_return",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_return_assign",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_return_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_call_return_main",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_callee_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_callee_name_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_conditional_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_cross_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_cross_param_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_default_decls",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_duplicate_locals",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_duplicate_param_scopes",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_duplicate_proc",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_either_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_fair_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_foreign_read",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_four_chain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_global_collision",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_implicit_callee",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_implicit_caller",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_label_collision",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_local_restore",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_main_both",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_main_empty",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_main_proc_goto",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_mutual",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_nested_local",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_nested_modifier",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "rejection-match",
+      "code": "DIVE-P0002"
+    },
+    {
+      "id": "ProcedureGraph_P_nested_nonlast",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_nested_return_only",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_no_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_order_reverse",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_parallel_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_parameter_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_read_stack",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_repeat_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_reserved_parameter",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_reserved_wrapper",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_restore_order",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_return_transfer_assign",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_self_recursive",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_self_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_separate_local_init",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_strong_algorithm",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_three_chain",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_three_tail",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_two_params",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_two_unused",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_unknown_nested",
+      "primary": "rejected",
+      "primary_sany": null,
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_unused_cycle",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_unused_invalid",
+      "primary": "translated",
+      "primary_sany": "rejected",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_while_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    },
+    {
+      "id": "ProcedureGraph_P_with_nested",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "native-refusal",
+      "reason": "unsupported PlusCal translation: multiple procedure namespace/call graph",
+      "code": "DIVE-P0090"
+    }
+  ]
+}
