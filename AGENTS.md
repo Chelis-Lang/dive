@@ -167,6 +167,7 @@ python3 -I scripts/check-phase-l-graph.py
 
 python3 -I scripts/check-state-if-planning.py
 python3 -I scripts/check-predecessor-spill.py
+python3 -I scripts/check-native-checkpoint.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked

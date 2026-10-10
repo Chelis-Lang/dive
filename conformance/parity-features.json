@@ -769,13 +769,15 @@
     {
       "id": "F-032",
       "name": "Native checkpoint and recovery",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 7,
       "pinned_source": "tlc2/tool/ModelChecker.java",
-      "rust_evidence": "crates/dive-store/src/lib.rs",
-      "conformance_evidence": "docs/design/tlc-parity-plan.md",
-      "issues": [],
+      "rust_evidence": "crates/dive-check/src/checkpoint.rs",
+      "conformance_evidence": "docs/native-checkpoint.md",
+      "issues": [
+        152
+      ],
       "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
       "interactions": [
         "F-020",

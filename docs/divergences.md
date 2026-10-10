@@ -348,3 +348,8 @@ match fields at widths 1/3/4/8; all fifteen selected rows and clean TLC outcomes
 are preserved in `conformance/probes/tlc-phase-l-graph/`. Resource and opaque-scope
 refusals are explicit. This is graph evidence, not strict temporal verdict or
 TLC stopping/SCC/lasso/scheduling credit; #140 remains open.
+
+Checkpoint evidence for D-007 is preserved in
+`conformance/probes/native-checkpoint/README.md`. TLC recovery resets counters;
+original totals are an opt-in proposed native capability, not an approved default.
+An incomplete native pause must never report a complete model-checking verdict.

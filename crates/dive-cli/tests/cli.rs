@@ -758,3 +758,53 @@ fn translate_process_storage_and_label_default_are_explicit()
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
+
+#[test]
+fn native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes() {
+    for flags in [
+        vec!["--checkpoint", "unused.cp"],
+        vec!["--checkpoint-after-levels", "0"],
+        vec!["--recover", "unused.cp", "--checkpoint-after-levels", "0"],
+        vec![
+            "--checkpoint",
+            "unused.cp",
+            "--checkpoint-after-levels",
+            "0",
+            "--recover",
+            "other.cp",
+        ],
+        vec!["--checkpoint-counters", "retain"],
+        vec!["--recover", "unused.cp", "--checkpoint-counters", "wrong"],
+    ] {
+        let mut args = vec!["check", "missing-native-spec.tla"];
+        args.extend(flags);
+        let output = dive(&args);
+        assert_eq!(output.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("checkpoint"));
+    }
+    for flags in [
+        vec!["--lncheck", "final", "--lasso", "short"],
+        vec!["--frontier-memory-bytes", "0"],
+        vec!["--frontier-directory", "unused"],
+        vec!["--predecessor-memory-bytes", "0"],
+        vec!["--predecessor-directory", "unused"],
+    ] {
+        let mut args = vec![
+            "check",
+            "missing-native-spec.tla",
+            "--checkpoint",
+            "unused.cp",
+            "--checkpoint-after-levels",
+            "0",
+        ];
+        args.extend(flags);
+        let output = dive(&args);
+        assert!(!output.status.success());
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("checkpoint")
+                || String::from_utf8_lossy(&output.stderr).contains("predecessor")
+                || String::from_utf8_lossy(&output.stderr).contains("frontier")
+        );
+        assert!(!std::path::Path::new("unused.cp").exists());
+    }
+}

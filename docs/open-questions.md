@@ -49,3 +49,12 @@ Each question is open until it is answered here or recorded in an ADR.
 16. ~~**Non-bijective symmetry functions.**~~ **Answered 2026-10-09:** reject them by default with a diagnostic naming the function; preserve TLC's permissive behavior under `--compat=tlc`. D-015.
 17. ~~**Symmetry audit.**~~ **Answered 2026-10-09:** implement `--check-symmetry` as an opt-in audit of the model's declared symmetry. D-016.
 18. ~~**Periodic liveness scheduling.**~~ **Answered 2026-10-09:** use deterministic level-boundary checks by default; preserve TLC's wall-clock schedule under `--compat=tlc`. Goldens continue to use final checking. A level-boundary run is not labelled precisely TLC-equivalent merely because TLC could stop at that boundary. D-014.
+
+## Native recovery counter default (issue152)
+
+Pinned TLC recovery resets generated and initial counts to recovered distinct
+states. The native snapshot can retain the original totals as explicit
+`--checkpoint-counters retain`; the default remains `tlc` until approved.
+Recommendation: make retained totals the default for the default profile once
+resume controls prove uninterrupted counts/trace equivalence, and keep TLC reset
+under `--compat=tlc`. Evidence: `conformance/probes/native-checkpoint/README.md`.

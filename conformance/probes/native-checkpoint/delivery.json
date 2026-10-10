@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "parent_commit": "69c672ac11085dea75bc2eedca086cdf7d28d2f7",
+  "date": "2026-10-10",
+  "workspace_tests": 727,
+  "workspace_tests_passed": 727,
+  "python_controls": 20,
+  "required_conformance": {
+    "cm1_models": 21,
+    "validation_smoke_models": 16,
+    "workers": [
+      1,
+      4,
+      8
+    ],
+    "all_agree": true
+  },
+  "native_controls": {
+    "groups": 144,
+    "raw_runs": 576,
+    "all_agree": true,
+    "profiles": [
+      "dive",
+      "tlc"
+    ],
+    "stores": [
+      "fp",
+      "exact"
+    ],
+    "requested_workers": [
+      1,
+      4,
+      8
+    ],
+    "actual_recovery_workers": 1,
+    "chaos": [
+      null,
+      13
+    ],
+    "retained_observables_equal": true,
+    "default_recovered_generated_formula": "full_generated - paused_generated + paused_distinct",
+    "archive_independent_certificate": false
+  },
+  "scope": "completed-level pure finite safety; transient storage, VIEW, SYMMETRY, runtime effects/names and parallel/graph/liveness recovery refused",
+  "source_sha256": {
+    "crates/dive-api/src/check.rs": "d612300a7cfae67599f9b7f247cd49ce4b94bf07e7bd7d8ee8fb3b91f9f292ec",
+    "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
+    "crates/dive-check/src/checkpoint.rs": "6127d767471af5c066477877c18ed02c5ca08731e16a9e0bdffd17611c089c84",
+    "crates/dive-check/src/engine.rs": "b0c8dc5bed1ce4433917d48f5cf3d125b45fd5d3ad28ab70c37ecea98d8a2f45",
+    "crates/dive-check/src/lib.rs": "9f77802a262ff89a7371c208e885de79ca149c71911a959c39697636a7707dcf",
+    "crates/dive-cli/src/main.rs": "15288181f0f3ba017ffd0cbd07c1f9f1d784c05ef990b14762071051bc40eef0",
+    "crates/dive-model/src/lib.rs": "60bfb78a4b4dad9234d6dec5ad143c2d8be6086ceedcd65256d85ef90666cdf9",
+    "crates/dive-value/src/codec.rs": "a1623281e5195d39e5cca2e6233fc3c77dc2c7fdf8868735722c15a32c874b7c"
+  },
+  "binary_sha256": {
+    "dive": "cff2418beb145e046ec43a4d40454b569fafa7dc34a3eb8621b24e136764bec8",
+    "dive-conformance": "de1e2d3d48a6247214b8171cad32dac0cbc7a04770a1716bda9346cef4752aab"
+  },
+  "evidence_sha256": {
+    "conformance/probes/native-checkpoint/workspace-gate.log": "17f2e24c20f2cfbc82cfd14f25e8535966f6b4ab9066ddfc0520b88905bd9fe6",
+    "conformance/probes/native-checkpoint/cm1-gate.log": "31f3ab17374b3ccfb928212a5148d22c4348bac5cff5d1bae29eaa4c3a8070ff",
+    "conformance/probes/native-checkpoint/validation-smoke-gate.log": "32003b30d5593cbb3e14a15eee43cf0d744bae3dbdda11db83d65fd35f7506a1",
+    "conformance/probes/native-checkpoint/native-controls.log": "37b8c78edc5967a35744612adc6b0b4a99d71c213d24a711872dfc164d11ea59",
+    "conformance/probes/native-checkpoint/native/index.json": "b61f3dff39d39de537fa397f83d483b747c0edb39bb23e643e59294ba3a83a53"
+  }
+}

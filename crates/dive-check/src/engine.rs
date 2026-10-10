@@ -70,6 +70,9 @@ where
     /// What computes keys.
     type Keyer: Sync;
 
+    /// Native immutable key bytes for checkpoint identity.
+    fn checkpoint_key(key: &Self::Key) -> Vec<u8>;
+
     /// The keyer for a run with `opts`, given TLC's variable order.
     fn keyer(opts: &CheckOptions, tlc_order: &[usize]) -> Result<Self::Keyer, String>;
 
@@ -94,6 +97,10 @@ where
 
 impl Keyed for FpSet {
     type Keyer = FpKeyer;
+
+    fn checkpoint_key(key: &u64) -> Vec<u8> {
+        key.to_le_bytes().to_vec()
+    }
 
     fn keyer(opts: &CheckOptions, tlc_order: &[usize]) -> Result<FpKeyer, String> {
         let bad = || {
@@ -144,6 +151,10 @@ impl Keyed for FpSet {
 
 impl Keyed for ExactSet {
     type Keyer = ();
+
+    fn checkpoint_key(key: &Box<[u8]>) -> Vec<u8> {
+        key.to_vec()
+    }
 
     fn keyer(_: &CheckOptions, _: &[usize]) -> Result<(), String> {
         Ok(())
@@ -622,6 +633,7 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) depth: u64,
     pub(crate) initial_generated: u64,
     pub(crate) capture: Option<Collector<S::Key>>,
+    checkpoint: Option<&'a mut crate::checkpoint::Session>,
 }
 
 impl<S: Keyed> Search<'_, S> {
@@ -643,6 +655,10 @@ impl<S: Keyed> Search<'_, S> {
         r
     }
 
+    #[allow(
+        clippy::too_many_lines,
+        reason = "preserves TLC ordered deciding-event checks, including native capture admission"
+    )]
     fn on_state_checks(
         &mut self,
         parent: Option<(&StateVals, StateId)>,
@@ -650,7 +666,25 @@ impl<S: Keyed> Search<'_, S> {
         new_level: u64,
         next: &mut crate::frontier::Queue,
     ) -> Option<(Verdict, bool, bool)> {
-        self.generated += 1;
+        let Some(generated) = self.generated.checked_add(1) else {
+            return Some((
+                Verdict::ResourceLimit {
+                    message: "DIVE-S0401: generated counter overflow".into(),
+                },
+                false,
+                false,
+            ));
+        };
+        if self.checkpoint.is_some() && generated > crate::checkpoint::MAX_COUNTER {
+            return Some((
+                crate::checkpoint::failure(
+                    "generated counter exceeds native positive TLC-long bound",
+                ),
+                false,
+                false,
+            ));
+        }
+        self.generated = generated;
         if let Some(capture) = &self.capture
             && let Err(v) = capture.allow_emitted(self.generated, parent.map(|_| succ.ordinal))
         {
@@ -689,6 +723,7 @@ impl<S: Keyed> Search<'_, S> {
                 Err(v) => return Some((v, false, false)),
             };
             let graph_key = self.capture.as_ref().map(|_| S::duplicate_key(&key));
+            let checkpoint_key = self.checkpoint.as_ref().map(|_| S::duplicate_key(&key));
             if self.set.insert(key) {
                 let Ok(ordinal) = u32::try_from(succ.ordinal) else {
                     return Some((
@@ -704,7 +739,20 @@ impl<S: Keyed> Search<'_, S> {
                     Some((_, p)) => self.log.push(p, ordinal),
                 };
                 match id {
-                    Ok(id) => new_id = Some(id),
+                    Ok(id) => {
+                        new_id = Some(id);
+                        if let (Some(session), Some(key)) = (&mut self.checkpoint, &checkpoint_key)
+                            && let Err(verdict) = session.record::<S>(
+                                key,
+                                &t,
+                                parent.map(|(_, p)| p),
+                                ordinal,
+                                self.ctx,
+                            )
+                        {
+                            return Some((verdict, false, false));
+                        }
+                    }
                     Err(e) => return Some((store_verdict(&e), false, false)),
                 }
                 self.depth = self.depth.max(new_level);
@@ -851,14 +899,46 @@ impl<S: Keyed> Search<'_, S> {
     )]
     pub(crate) fn inline_levels(
         &mut self,
+        next: crate::frontier::Queue,
+        check_deadlock: bool,
+    ) -> (Option<Stop>, Stats) {
+        self.inline_from(next, check_deadlock, 1)
+    }
+
+    #[allow(
+        clippy::too_many_lines,
+        reason = "single ordered level loop for ordinary and recovered inline BFS"
+    )]
+    pub(crate) fn inline_from(
+        &mut self,
         mut next: crate::frontier::Queue,
         check_deadlock: bool,
+        mut level: u64,
     ) -> (Option<Stop>, Stats) {
         let ev: &Evaluator = &self.m.evaluator;
         let m = self.m;
         let mut stop: Option<Stop> = None;
-        let mut level = 1u64;
         while !next.is_empty() {
+            if let Some(session) = self.checkpoint.take() {
+                if session.pause_due(level) {
+                    let verdict = match session.pause::<S>(self, &next, level) {
+                        Ok(()) => crate::checkpoint::failure(
+                            "paused at a committed completed-level boundary; incomplete search, no model verdict",
+                        ),
+                        Err(verdict) => verdict,
+                    };
+                    return (
+                        Some(Stop {
+                            verdict,
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        self.stats(next.len() as u64),
+                    );
+                }
+                self.checkpoint = Some(session);
+            }
             let empty = next.empty_like();
             let current = std::mem::replace(&mut next, empty);
             let count = current.len();
@@ -1298,8 +1378,21 @@ pub(crate) fn plan_workers(m: &Model, opts: &CheckOptions) -> Workers {
 /// Runs the search over `m` (assumptions already checked).
 pub(crate) fn search(m: &Model, opts: &CheckOptions, host: &RunHost) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, None),
+    }
+}
+
+/// Restores or pauses the actual inline search at an ordered level boundary.
+pub(crate) fn search_checkpoint(
+    m: &Model,
+    opts: &CheckOptions,
+    host: &RunHost,
+    session: &mut crate::checkpoint::Session,
+) -> Outcome {
+    match opts.store {
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, None, false, Some(session)),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, None, false, Some(session)),
     }
 }
 
@@ -1311,8 +1404,8 @@ pub(crate) fn search_graph(
     limits: crate::capture::Limits,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), false),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), false, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), false, None),
     }
 }
 
@@ -1324,8 +1417,8 @@ pub(crate) fn search_graph_parallel(
     limits: crate::capture::Limits,
 ) -> Outcome {
     match opts.store {
-        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true),
-        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true),
+        StoreMode::Fingerprint => search_in::<FpSet>(m, opts, host, Some(limits), true, None),
+        StoreMode::Exact => search_in::<ExactSet>(m, opts, host, Some(limits), true, None),
     }
 }
 
@@ -1339,9 +1432,18 @@ fn search_in<S: Keyed>(
     host: &RunHost,
     capture: Option<crate::capture::Limits>,
     concrete_pool: bool,
+    checkpoint: Option<&mut crate::checkpoint::Session>,
 ) -> Outcome {
     let mut notes = Vec::new();
     let mut workers = plan_workers(m, opts);
+    if checkpoint.is_some() {
+        workers.used = 1;
+        workers.sequential = true;
+        workers.reason = Some(
+            "native checkpoint first slice runs inline; parallel recovery is not implemented"
+                .into(),
+        );
+    }
     let tlc_order: Vec<usize> = m.ir.tlc_var_order().iter().map(|v| v.index()).collect();
     let keyer = match S::keyer(opts, &tlc_order) {
         Ok(k) => k,
@@ -1397,25 +1499,67 @@ fn search_in<S: Keyed>(
         depth: 0,
         initial_generated: 0,
         capture: capture.map(|limits| Collector::new(limits).with_concrete_pool(concrete_pool)),
+        checkpoint,
     };
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
-    let (stop, stats) = match s.initial_states(&mut next) {
-        Some((stop, stats)) => {
-            drop(next);
-            if !workers.sequential {
-                workers.used = 1;
-                workers.sequential = true;
-                workers.reason = Some("search stopped during inline initial-state enumeration before the worker pool started".into());
+    let recovered = if let Some(session) = s.checkpoint.take() {
+        let restored = session.restore::<S>(&mut s);
+        s.checkpoint = Some(session);
+        restored
+    } else {
+        Ok(None)
+    };
+    let (stop, stats) = match recovered {
+        Ok(Some((restored, level))) => {
+            let mut queue = crate::frontier::Queue::new(opts, accounting.clone());
+            let mut failure = None;
+            for (values, id) in restored {
+                if let Err(verdict) = queue.push(values, id) {
+                    failure = Some(verdict);
+                    break;
+                }
             }
-            (Some(stop), stats)
+            if let Some(verdict) = failure {
+                (
+                    Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    }),
+                    s.stats(0),
+                )
+            } else {
+                s.inline_from(queue, m.settings.check_deadlock, level)
+            }
         }
-        None if workers.sequential => s.inline_levels(next, m.settings.check_deadlock),
-        None => {
-            let (stop, stats, used) = crate::parallel::levels(&mut s, next, opts, workers.used);
-            workers.used = used;
-            (stop, stats)
-        }
+        Err(verdict) => (
+            Some(Stop {
+                verdict,
+                in_init: false,
+                path: None,
+                then: None,
+            }),
+            s.stats(0),
+        ),
+        Ok(None) => match s.initial_states(&mut next) {
+            Some((stop, stats)) => {
+                drop(next);
+                if !workers.sequential {
+                    workers.used = 1;
+                    workers.sequential = true;
+                    workers.reason = Some("search stopped during inline initial-state enumeration before the worker pool started".into());
+                }
+                (Some(stop), stats)
+            }
+            None if workers.sequential => s.inline_levels(next, m.settings.check_deadlock),
+            None => {
+                let (stop, stats, used) = crate::parallel::levels(&mut s, next, opts, workers.used);
+                workers.used = used;
+                (stop, stats)
+            }
+        },
     };
     let mut frontier = crate::frontier::evidence(&accounting);
     let stop = if frontier.failures.is_empty() {

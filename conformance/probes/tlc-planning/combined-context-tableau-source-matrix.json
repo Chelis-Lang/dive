@@ -81,6 +81,12 @@
       "matrix_path": "conformance/probes/tlc-planning/historical-before-state-if/matrix.json",
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
       "source_archive": "conformance/probes/tlc-planning/historical-before-state-if/sources"
+    },
+    {
+      "matrix_path": "conformance/probes/tlc-planning/historical-before-checkpoint/matrix.json",
+      "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
+      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources",
+      "scope": "current source before native checkpoint integration"
     }
   ]
 }
