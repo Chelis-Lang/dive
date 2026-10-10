@@ -287,7 +287,6 @@ constructor gap is tracked separately as #129 and is not silently certified.
 
 | Increment | Reference | License | Matched behavior |
 |---|---|---|---|
-
 | Bounded TLC planning projection (`dive-liveness/src/tlc_plan.rs`) | `tlc2/tool/liveness/Liveness.java` `parseLiveness`, `processLiveness`, `classifyExpr`, `addToBin`; `LNConj`/`LNDisj` `pushNeg`, `simplify`, `toDNF`, `flattenSingleJunctions`, `equals`; `LNAll`/`LNEven`/`LNNeg`/`LNBool` normalization; `LNState`/`LNAction` `tagExpr`; pinned commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Matched transformation/grouping semantics with original occurrence order; original bounded arena and work preflight. Raw supplied-formula and actual FastTool projections in `conformance/probes/tlc-planning`. Binary tableau/promise numbering is not ported or certified. ADR 0025 |
 
 The private strict-shape lowering selector matches `Liveness.astToLive`'s WF
