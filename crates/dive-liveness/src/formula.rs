@@ -76,7 +76,19 @@ impl std::fmt::Display for FormulaError {
 impl std::error::Error for FormulaError {}
 
 impl Formula {
-    fn terms(&self) -> usize {
+    /// Returns the checked arena in construction order.
+    #[must_use]
+    pub fn nodes(&self) -> &[Node] {
+        &self.nodes
+    }
+
+    /// Returns the root index in the checked arena.
+    #[must_use]
+    pub fn root(&self) -> usize {
+        self.root
+    }
+
+    pub(crate) fn terms(&self) -> usize {
         self.nodes.iter().fold(self.nodes.len(), |count, n| {
             let children = match n {
                 Node::Bool(_) | Node::Atom(_) => 0,

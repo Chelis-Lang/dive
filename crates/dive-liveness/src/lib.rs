@@ -24,3 +24,6 @@ pub mod plan;
 pub mod product;
 
 pub mod analyze;
+
+/// Bounded projections of TLC normalization and ordered liveness grouping.
+pub mod tlc_plan;

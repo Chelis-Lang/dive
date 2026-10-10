@@ -547,6 +547,25 @@ and the oracle parser correction remain tracked in issue #77.
 
 **Example and measurement.** `LvNoFair` and `LvTwoLoopsRev` in the liveness probe corpus have several violating loops. Changing only TLC's fingerprint polynomial changed the counterexample on 6 of 21 measured models; `MCDistributedReplicatedLog` gave five choices, of 4, 5 or 6 states and with different named properties. Those implementation-dependent choices make diagnosis harder. Every dive lasso will be independently checked, including fairness and its claimed properties. Evidence: ADR 0017 §10 and ADR 0018 §5–§6.
 
+**Planning progress, 2026-10-10.** A separate bounded diagnostic planner now
+reproduces TLC's negation, simplification, DNF and pre-tableau grouping order.
+For example, `TpMultiple` combines weak fairness with three properties; pinned
+TLC produces two order-of-solution groups and three possible-error models.
+The new projection reproduces their predicate-bin order and index arrays,
+while retaining the original property names for independent checking.
+The twelve real-model controls retain eleven completed transformation/grouping
+projections and one SANY rejection. TLC's separate configured/action name
+`Live` and derived temporal name `Identity` are recorded field by field; dive
+keeps the configured table separately and matches the derived role vector.
+Future action attribution remains tracked separately (#134). A further 84 supplied-formula controls include four named
+shape refusals and TLC's integer-overflow bound on DNF expansion.
+
+This supports the future TLC-compatible path; it does not change which
+counterexample ordinary `dive check` returns. Strict integrated liveness,
+tableau/promise identities, timing and selection remain refused. The existing
+final/short path and its reported restrictions are unchanged. Evidence:
+`conformance/probes/tlc-planning/README.md` and ADR 0025.
+
 ## D-014: Periodic liveness checking has a replayable schedule
 
 **Status:** planned, owner-approved default. `--lncheck=deterministic` checks at the documented level boundaries in ADR 0018. `--compat=tlc` retains TLC's wall-clock scheduling for `--lncheck=default`; `--lncheck=final` checks the complete graph and remains the golden setting.
