@@ -177,3 +177,11 @@ nonconstant definitions refuse by name; evaluator bugs stay internal errors.
 The API is called explicitly and does not activate symmetry reduction. Warning
 construction, model-value validation, group attachment, canonical state keys and
 concrete trace reconstruction remain open in #104.
+
+Unverified declaration-evaluation and normalization startup errors refuse by
+name rather than reuse an evaluator diagnostic as an exact startup message.
+A division-by-zero control verifies that no TLC code is claimed for that refusal.
+
+The raw SyDivZero and SyMixedElements captures prove outer GENERAL, exit 255,
+including the former's nested 2179 message. API controls require explicit
+refusals for both; startup wrapping must not be inferred from evaluator codes.

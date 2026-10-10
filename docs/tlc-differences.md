@@ -534,7 +534,11 @@ with implicitly fixed model values. Its TLC setting preserves malformed-map
 closure and exact insertion order. All 1,329 direct pinned-kernel inputs match;
 valid cases match in both settings. Pure declaration preparation now preserves
 configuration substitutions and pre-constant lookup; its four early errors
-match normal pinned TLC transcripts. This is a library foundation: full binding,
+match normal pinned TLC transcripts. Unverified evaluation/normalization
+startup errors refuse by name. For example, `Sym == 1 \div 0` is outer
+GENERAL (1000), exit 255, with a nested 2179 message; `Sym == {1, TRUE}` wraps
+its normalization error in GENERAL. The raw SyDivZero and SyMixedElements
+captures preserve those contexts. This is a library foundation: full binding,
 startup warnings and state reduction remain open, so model checking with
 `SYMMETRY` still refuses by name. Evidence and reproduction:
 `crates/dive-model/tests/fixtures/symmetry-group/README.md`.

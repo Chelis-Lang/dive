@@ -128,3 +128,25 @@ fn effectful_or_state_dependent_declarations_are_named_refusals() {
     );
     assert!(no_symmetry.symmetry_declaration().unwrap().is_none());
 }
+
+#[test]
+fn unverified_startup_errors_are_refusals_not_tlc_claims() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/symmetry-group/tlc-2026.10.06.014338");
+    for (name, detail) in [("SyDivZero", "2179"), ("SyMixedElements", "normalization")] {
+        let model = fixture(name);
+        let error = model.symmetry_declaration().unwrap_err();
+        assert!(matches!(error.kind, ErrorKind::Unsupported { .. }));
+        assert_eq!(error.code(), None);
+        assert!(error.message.contains("SYMMETRY Sym"));
+        assert!(error.message.contains(detail));
+        let raw = std::fs::read_to_string(root.join(format!("{name}.stdout"))).unwrap();
+        assert!(raw.contains("STARTMSG 1000:1"));
+        assert_eq!(
+            std::fs::read_to_string(root.join(format!("{name}.exit")))
+                .unwrap()
+                .trim(),
+            "255"
+        );
+    }
+}

@@ -104,3 +104,15 @@ Reproduce with the same dev-capture command and these two names. The declaration
 controls also cover unchanged identities, missing symmetry, and explicit pure-
 stage refusals for effects, state-dependent and parameterized definitions.
 Full binding, warnings, group attachment and canonical keys remain in #104.
+
+Unverified declaration-evaluation and normalization startup errors refuse by
+name rather than reuse an evaluator diagnostic as an exact startup message.
+A division-by-zero control verifies that no TLC code is claimed for that refusal.
+
+
+SyDivZero and SyMixedElements capture the deferred startup sites. Both exit 255
+with outer GENERAL (1000). SyDivZero embeds a division-by-zero 2179 message in
+an `EvalException`; SyMixedElements wraps the boolean/integer comparison in a
+runtime exception. Reproduce with the same dev-capture command and these two
+names. Both declaration API controls require named refusals with no claimed
+TLC error code until the startup wrapping is ported.

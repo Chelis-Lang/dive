@@ -14,7 +14,7 @@ use dive_ir::{Effects, Level};
 use dive_value::{SetKind, Value};
 
 use crate::tables::Look;
-use crate::{BindError, Ec, ErrorKind, Model, Pred};
+use crate::{BindError, Ec, Model, Pred};
 
 /// A pure symmetry declaration before warning, model-value and closure checks.
 ///
@@ -55,8 +55,9 @@ impl Model {
     /// ```
     ///
     /// # Errors
-    /// TLC's name/type diagnostics; evaluation errors; or an explicit refusal
-    /// for effectful, nonconstant or parameterized declarations. Domain/range
+    /// TLC's proved name/type diagnostics; explicit refusals for unverified
+    /// evaluation/normalization startup errors, or effectful, nonconstant and
+    /// parameterized declarations. Domain/range
     /// validation, warning construction and kernel exceptions are later stages.
     pub fn symmetry_declaration(&self) -> Result<Option<Declaration>, BindError> {
         let Some(name) = self.symmetry.as_ref() else {
@@ -97,12 +98,11 @@ impl Model {
                     ErrorClass::Bug => {
                         BindError::bug(format!("SYMMETRY {name}: {}", error.message()))
                     }
-                    ErrorClass::Eval => BindError {
-                        kind: ErrorKind::Eval {
-                            code: error.ec().code(),
-                        },
-                        message: error.message().to_owned(),
-                    },
+                    ErrorClass::Eval => BindError::unsupported(format!(
+                        "SYMMETRY {name} declaration evaluation error ({}): {}",
+                        error.ec().code(),
+                        error.message()
+                    )),
                 })?;
         let Value::Set(set) = value else {
             return Err(symmetry_runtime_error(
@@ -117,20 +117,14 @@ impl Model {
         let functions = set
             .elements(self.evaluator.options().ctx)
             .map_err(|error| match error.kind() {
-                dive_value::ErrorKind::DiveLimit => BindError::unsupported(format!(
-                    "SYMMETRY {name} set normalization: {}",
-                    error.message()
-                )),
                 dive_value::ErrorKind::Codec => BindError::bug(format!(
                     "SYMMETRY {name} set normalization: {}",
                     error.message()
                 )),
-                kind => BindError {
-                    kind: ErrorKind::Eval {
-                        code: kind.tlc_code(),
-                    },
-                    message: error.message().to_owned(),
-                },
+                _ => BindError::unsupported(format!(
+                    "SYMMETRY {name} set normalization: {}",
+                    error.message()
+                )),
             })?;
         if functions.iter().any(|value| match value {
             Value::Fcn(function) => function.is_tuple_literal() || function.is_record_literal(),

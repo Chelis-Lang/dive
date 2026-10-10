@@ -193,3 +193,7 @@ enum-set normalization and function-record checks at tlaplus `94d0c50` (MIT).
 Four early errors are checked against the existing clean raw symmetry captures;
 configuration replacement and pure/effectful controls supplement them. Warning,
 model-value and group checks are separate pending stages; no reduction is enabled.
+
+Unverified declaration-evaluation and normalization startup errors refuse by
+name rather than reuse an evaluator diagnostic as an exact startup message.
+A division-by-zero control verifies that no TLC code is claimed for that refusal.
