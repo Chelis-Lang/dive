@@ -23,7 +23,19 @@ process blocks, process-local state and pinned fairness options. `--label` /
 normalization/fairness settings. Resource limits and explicit name/scope
 restrictions remain in both profiles.
 
-Macros and procedures, general renaming, historical translator flags,
+Bounded macros now expand simultaneously before label/process normalization.
+See [the macro guide](../pluscal-macros.md) for selectors, declaration order,
+source origins, lexical/binder restrictions, budgets and checked C/P examples.
+
+Disjoint explicitly labelled sequential procedures now support saved frames,
+simultaneous actuals, local initialization, nested calls and recursive self/mutual
+calls.
+Read the [single-procedure contract](../pluscal-procedures.md) and
+[procedure-graph guide](../pluscal-procedure-graphs.md) and
+[recursive-procedure guide](../pluscal-recursive-procedures.md) for executable C/P and
+Rust examples, adjacent call/return behavior, budgets and pending strict replay.
+
+Process-owned procedure stacks, general renaming, historical translator flags,
 format-width, file rewriting/checksums and TLC mapping-file parity are unfinished
 in this guide's source. Reference-produced but SANY-invalid text cannot become
 an admitted public artifact. The lower-level source parser/raw translator is a

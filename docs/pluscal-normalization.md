@@ -43,17 +43,20 @@ In sequential algorithms, label modifiers are spelled **`L:+` / `L:-`**. The
 pinned translator retains the program counter when either is present, including
 an otherwise eligible `while TRUE` loop. It does not generate process-label
 strong/weak fairness formulas for these sequential labels. A fair algorithm
-retains `WF_vars(Next)`. Processes and their label-level fairness are pending.
+retains `WF_vars(Next)`. Process-label fairness is now covered by the separate
+[process fairness contract](pluscal-fairness.md).
 
 ## Boundaries and evidence
 
 This increment covers admitted sequential controls and preserves the original
 [translation boundary](pluscal-translation.md). Labels inserted inside `if`,
 `either` or `with` still receive a named refusal: that control-flow expansion
-has not been independently proved. Processes, procedures, macros, `define`,
+has not been independently proved. Procedures, `define`,
 name disambiguation, binder/multiline substitution, global fairness options,
 historical modes, file rewriting/checksums and upstream map formatting remain
-pending. Neither profile silently expands these families.
+pending. Neither profile silently expands these families. Bounded [multiple finite
+processes](pluscal-multiple-processes.md) and [macros](pluscal-macros.md) now have
+separate admission contracts; this matrix records the original sequential scope.
 
 Source/node/depth/action/output limits remain active. Label roots have a
 256-byte native resource bound; syntactically invalid roots are rejected. An
