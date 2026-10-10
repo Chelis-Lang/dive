@@ -28,8 +28,8 @@
     "crates/dive-liveness/tests/planning.rs": "75a989d09237f12fc9c3c2743a1e2630038636840c5ea4d0757bd025dd660193",
     "crates/dive-trace/tests/temporal.rs": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16",
     "crates/dive-liveness/src/phase_l.rs": "e96101367a0f3b79b0476c3cdc35d14b7c1afd4c0d5535bad61b4f6b6e326abe",
-    "crates/dive-liveness/tests/phase_l.rs": "ba375c4ccf64e0e02ee8447eda51a36ba39c13da5afabc8413ee2fac0ea70630",
-    "scripts/check-phase-l.py": "f50aab69f2227734c0d3540dfd6d7f198e35e16cc576cda138e875e97d383083"
+    "crates/dive-liveness/tests/phase_l.rs": "26b5867aa5bb83a054538c68f65939e336db03a17456c68d4cda4c43d9ad9945",
+    "scripts/check-phase-l.py": "933c32efa560bad71e7dceaac1b93a33f7d47b6f851b70b9c8a3dae94fdc2be3"
   },
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_pre_context_planning_matrix_sha256": "daac985ec3ffe01e1e1f7e70b35430e9f211dbb12642351b67aaee0859bd604d",

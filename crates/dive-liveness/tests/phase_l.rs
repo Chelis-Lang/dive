@@ -615,14 +615,26 @@ fn caller_edited_fingerprint_permutation_returns_typed_input_refusal() {
         let mut m = model("PhaseState").expect("model");
         let mut ir = serde_json::to_value(m.ir.as_ref()).expect("IR");
         ir["tlc_vars"] = permutation;
-        m.ir = Arc::new(serde_json::from_value(ir).expect("caller IR"));
-        let mut session =
-            Session::new(&m, 0, 1, Limits::default()).expect("unmodified predicate plan");
-        assert!(matches!(
-            session.initial(&state(0)).expect_err("bad order").error,
-            Error::Input(_)
-        ));
-        assert_eq!(session.progress().predicates, 0);
+        let edited: Arc<dive_ir::Ir> = Arc::new(serde_json::from_value(ir).expect("caller IR"));
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../conformance/probes/tlc-phase-l/models/PhaseState/PhaseState.cfg");
+        let cfg = dive_config::parse(&std::fs::read_to_string(root).expect("cfg"))
+            .into_config()
+            .expect("config");
+        // A malformed permutation is now refused during evaluator admission,
+        // before binding can evaluate a predicate or create a receipt session.
+        let refusal = dive_model::bind(edited.clone(), &cfg, &dive_model::BindOptions::tlc())
+            .expect_err("malformed variable order must be refused before effects");
+        assert!(refusal.error.to_string().contains("DIVE-EVAL-C005"));
+        assert_eq!(refusal.output, [] as [dive_model::Message; 0]);
+        // Swapping an already-bound model's IR independently violates context
+        // provenance, including when the caller retains its old predicate IDs.
+        m.ir = edited;
+        let Err(refusal) = Session::new(&m, 0, 1, Limits::default()) else {
+            panic!("foreign model metadata must be refused before predicates");
+        };
+        assert!(matches!(refusal.error, Error::Planning(_)));
+        assert_eq!(refusal.progress.predicates, 0);
         assert_eq!(m.take_output(), Vec::<String>::new());
     }
 }

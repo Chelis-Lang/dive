@@ -1,0 +1,11 @@
+{
+  "scope": "historical integration failures and corrected admission control; no model verdict credit",
+  "reason": "bound metadata swapping now refuses C004; malformed permutations refuse C005 before binding or predicate work",
+  "logs_sha256": {
+    "dive-phase-l-receipts-current-full-gate.log.gz": "94e198728897e999a008df473ed4843c3101b82bd8e71c6ab5dbd6a9b1468102",
+    "dive-phase-l-receipts-current-gate-2.log.gz": "147afb569f74bd98867bae708168dfd43583f3d91fdb869870f492fc0fd241aa",
+    "dive-phase-l-admitted-permutation-test.log.gz": "ae69c826f3c5bf723b6526e8240345596c2b51da620664be2fbc69954492d173",
+    "dive-phase-l-admitted-permutation-test-v2.log.gz": "8a1d58783338516be42e55a3d9bfc9b9f783c6d19d04ab796ffe55f3b5b860a6",
+    "dive-phase-l-admitted-permutation-test-v3.log.gz": "903e53f3677d8c0624e113b7ca9e274e531760c9d030b035b57413b417d27feb"
+  }
+}

@@ -57,5 +57,8 @@ def main():
  for path,digest in matrix['source_sha256'].items():assert hashlib.sha256(gzip.decompress((PROBE/'historical-delivery-source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
  combined=load(ROOT/'conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json')
  for path,digest in combined['source_sha256'].items():assert sha(ROOT/path)==digest,path
+ history=PROBE/'historical-context-admission-integration'
+ for path,digest in load(history/'manifest.json')['logs_sha256'].items():
+  assert hashlib.sha256(gzip.decompress((history/path).read_bytes())).hexdigest()==digest,path
  print('verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source')
 if __name__=='__main__':main()
