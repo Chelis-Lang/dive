@@ -4,6 +4,27 @@ use dive_api::trace::{SpecModel, TraceDoc, TraceOptions, Validation};
 use dive_api::{CheckRequest, Store, check_file};
 
 #[test]
+fn a_frontier_directory_without_a_budget_rejects_before_file_access() {
+    for compat_tlc in [false, true] {
+        for temporal in [
+            dive_api::TemporalMode::Ordinary,
+            dive_api::TemporalMode::FinalShort,
+        ] {
+            let error = check_file(&CheckRequest {
+                file: std::path::PathBuf::from("missing-model-for-invalid-frontier-request.tla"),
+                frontier_directory: Some(std::path::PathBuf::from("unused-frontier-directory")),
+                compat_tlc,
+                temporal,
+                ..CheckRequest::default()
+            })
+            .expect_err("the directory must not be silently ignored");
+            assert!(matches!(error, dive_api::ApiError::Rejected { message }
+                if message == "DIVE-A0100: frontier_directory requires frontier_memory_bytes"));
+        }
+    }
+}
+
+#[test]
 fn spilled_counterexamples_validate_and_corruptions_are_rejected() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../dive-liveness/tests/fixtures/tlc-probes/specs");

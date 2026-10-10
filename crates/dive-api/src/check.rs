@@ -74,7 +74,8 @@ pub struct CheckRequest {
     /// Opt-in encoded frontier budget per current/next queue, in bytes. This
     /// does not bound seen sets, candidates, traces, graphs or process memory.
     pub frontier_memory_bytes: Option<usize>,
-    /// Parent directory for private transient frontier spill files.
+    /// Parent directory for private transient frontier spill files. Requires
+    /// [`Self::frontier_memory_bytes`]; a directory alone is rejected.
     pub frontier_directory: Option<PathBuf>,
     /// The root module file.
     pub file: PathBuf,
@@ -143,8 +144,14 @@ pub struct CheckReport {
 /// Loads, binds and checks the request.
 ///
 /// # Errors
-/// [`crate::ApiError`] if the root file or the configuration cannot be read.
+/// [`crate::ApiError`] if the request is inconsistent or the root file or
+/// configuration cannot be read. Request admission precedes file access.
 pub fn check_file(req: &CheckRequest) -> Result<CheckReport, crate::ApiError> {
+    if req.frontier_directory.is_some() && req.frontier_memory_bytes.is_none() {
+        return Err(crate::ApiError::Rejected {
+            message: "DIVE-A0100: frontier_directory requires frontier_memory_bytes".into(),
+        });
+    }
     let profile = if req.compat_tlc {
         Profile::Tlc
     } else {
