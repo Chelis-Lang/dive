@@ -39,8 +39,9 @@ use std::fmt::Write as _;
 use dive_eval::next::{Action, Flow, StateVals, Successor};
 use dive_eval::{Ec, EvalError, Evaluator, St};
 use dive_ir::actions::ActionName;
+use dive_store::predecessor::PredecessorLog;
 use dive_store::state::{StateFingerprinter, state_key};
-use dive_store::trace::{StateId, TraceLog};
+use dive_store::trace::StateId;
 use dive_store::{ExactSet, FpSet, StateSet, StoreError, StoreMode, collision};
 use dive_value::{Ctx, Value};
 
@@ -342,6 +343,9 @@ pub(crate) fn error_verdict(e: &EvalError, site: ErrorSite) -> Verdict {
 
 pub(crate) fn store_verdict(e: &StoreError) -> Verdict {
     match e {
+        StoreError::Predecessor { .. } => Verdict::ResourceLimit {
+            message: e.to_string(),
+        },
         StoreError::Value(v) => error_verdict(&EvalError::from(v.clone()), ErrorSite::Fingerprint),
         other => Verdict::InternalError {
             message: other.to_string(),
@@ -613,7 +617,7 @@ pub(crate) struct Search<'a, S: Keyed> {
     pub(crate) ctx: Ctx,
     pub(crate) keyer: &'a S::Keyer,
     pub(crate) set: S,
-    pub(crate) log: TraceLog,
+    pub(crate) log: PredecessorLog,
     pub(crate) generated: u64,
     pub(crate) depth: u64,
     pub(crate) initial_generated: u64,
@@ -696,7 +700,7 @@ impl<S: Keyed> Search<'_, S> {
                     ));
                 };
                 let id = match parent {
-                    None => Ok(self.log.push_initial(ordinal)),
+                    None => self.log.push_initial(ordinal),
                     Some((_, p)) => self.log.push(p, ordinal),
                 };
                 match id {
@@ -1186,6 +1190,7 @@ impl<S: Keyed> Search<'_, S> {
 pub(crate) struct Outcome {
     pub graph: Option<BehaviorGraph>,
     pub frontier: crate::FrontierUsage,
+    pub predecessor: crate::result::PredecessorUsage,
     pub verdict: Verdict,
     pub stats: Option<Stats>,
     pub tlc_prints_stats: bool,
@@ -1328,6 +1333,7 @@ fn search_in<S: Keyed>(
         Ok(k) => k,
         Err(message) => {
             return Outcome {
+                predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
                 verdict: Verdict::InternalError { message },
@@ -1343,6 +1349,7 @@ fn search_in<S: Keyed>(
     };
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
+            predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
             verdict: Verdict::InternalError {
@@ -1368,7 +1375,10 @@ fn search_in<S: Keyed>(
         ctx: opts.eval.ctx,
         keyer: &keyer,
         set: S::fresh(dive_store::shard_bits_for(workers.used)),
-        log: TraceLog::new(),
+        log: PredecessorLog::new(
+            opts.predecessor_memory_bytes,
+            opts.predecessor_directory.as_deref(),
+        ),
         generated: 0,
         depth: 0,
         initial_generated: 0,
@@ -1426,22 +1436,26 @@ fn search_in<S: Keyed>(
         }
         let verdict = postconditions(m).unwrap_or(Verdict::Success);
         output.extend(m.take_output());
-        return Outcome {
-            graph: s.capture.take().map(Collector::finish),
-            frontier,
-            collision: if verdict == Verdict::Success {
-                collision
-            } else {
-                None
+        return finalize_predecessor(
+            &mut s.log,
+            Outcome {
+                predecessor: crate::result::PredecessorUsage::default(),
+                graph: s.capture.take().map(Collector::finish),
+                frontier,
+                collision: if verdict == Verdict::Success {
+                    collision
+                } else {
+                    None
+                },
+                verdict,
+                stats: Some(stats),
+                tlc_prints_stats: true,
+                counterexample: None,
+                output,
+                notes,
+                workers,
             },
-            verdict,
-            stats: Some(stats),
-            tlc_prints_stats: true,
-            counterexample: None,
-            output,
-            notes,
-            workers,
-        };
+        );
     };
     // The replay re-evaluates `Init` and `Next`; their output is not
     // repeated, and neither is a warning they raise.
@@ -1450,9 +1464,10 @@ fn search_in<S: Keyed>(
         s.counterexample(&stop)
     };
     let _ = m.take_output();
+    let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
         Ok(c) => (stop.verdict, c),
-        Err(message) if s.random => {
+        Err(message) if s.random && s.log.failure().is_none() => {
             // TLC rebuilds the trace the same way, from a fresh start-up
             // stream, and loses it too when draws made before `Init`
             // (constant definitions, `ASSUME`s, constant-level invariants)
@@ -1469,18 +1484,145 @@ fn search_in<S: Keyed>(
             "POSTCONDITION is not evaluated after a violation (TLC evaluates it with the counterexample; its result does not change the verdict).".to_owned(),
         );
     }
-    Outcome {
-        graph: None,
-        frontier,
-        // TLC prints statistics after an error in the initial states, not
-        // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
-        tlc_prints_stats: !stop.in_init || matches!(verdict, Verdict::EvaluationError { .. }),
-        verdict,
-        stats: Some(stats),
-        counterexample,
-        collision: None,
-        output,
-        notes,
-        workers,
+    let mut final_outcome = finalize_predecessor(
+        &mut s.log,
+        Outcome {
+            predecessor: crate::result::PredecessorUsage::default(),
+            graph: None,
+            frontier,
+            // TLC prints statistics after an error in the initial states, not
+            // after a violation there (probe `InitViolation`, fixtures `ErInit*`).
+            tlc_prints_stats: !stop.in_init || matches!(verdict, Verdict::EvaluationError { .. }),
+            verdict,
+            stats: Some(stats),
+            counterexample,
+            collision: None,
+            output,
+            notes,
+            workers,
+        },
+    );
+    if !final_outcome.predecessor.failures.is_empty() {
+        final_outcome.predecessor.deciding_event_before_failure = Some(deciding_event);
+    }
+    final_outcome
+}
+
+/// Close storage only after replay, retaining the deciding event on failure.
+fn finalize_predecessor(log: &mut PredecessorLog, mut outcome: Outcome) -> Outcome {
+    let mut evidence = crate::result::PredecessorUsage {
+        storage: log.usage(),
+        ..crate::result::PredecessorUsage::default()
+    };
+    if let Some(failure) = log.failure() {
+        evidence.failures.push(failure.to_string());
+    }
+    match log.close() {
+        Ok(()) => evidence.cleanup_completed = true,
+        Err(error) => evidence.failures.push(error.to_string()),
+    }
+    if !evidence.failures.is_empty() {
+        evidence.deciding_event_before_failure = Some(format!("{:?}", outcome.verdict));
+        outcome.verdict = Verdict::ResourceLimit {
+            message: format!(
+                "predecessor storage failed: {}",
+                evidence.failures.join("; ")
+            ),
+        };
+        outcome.collision = None;
+        outcome.counterexample = None;
+        outcome.graph = None;
+    }
+    outcome.predecessor = evidence;
+    outcome
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, reason = "storage-failure regression controls")]
+mod predecessor_tests {
+    use super::*;
+    #[test]
+    fn diagnostic_text_never_creates_storage_failure_evidence() {
+        let mut log = PredecessorLog::new(None, None);
+        log.push_initial(0).unwrap();
+        let verdict = Verdict::InternalError {
+            message: "caller message contains DIVE-S0300".into(),
+        };
+        let outcome = finalize_predecessor(
+            &mut log,
+            Outcome {
+                predecessor: crate::result::PredecessorUsage::default(),
+                graph: None,
+                frontier: crate::FrontierUsage::default(),
+                verdict: verdict.clone(),
+                stats: None,
+                tlc_prints_stats: false,
+                counterexample: None,
+                collision: None,
+                output: Vec::new(),
+                notes: Vec::new(),
+                workers: Workers::one(),
+            },
+        );
+        assert_eq!(outcome.verdict, verdict);
+        assert_eq!(outcome.predecessor.failures, [] as [String; 0]);
+        assert_eq!(outcome.predecessor.deciding_event_before_failure, None);
+        assert!(outcome.predecessor.cleanup_completed);
+    }
+
+    #[test]
+    fn cleanup_failure_preserves_decision_counts_and_actual_workers() {
+        let parent =
+            std::env::temp_dir().join(format!("dive-predecessor-engine-{}", std::process::id()));
+        std::fs::create_dir(&parent).unwrap();
+        let mut log = PredecessorLog::new(Some(0), Some(&parent));
+        log.push_initial(5).unwrap();
+        log.push(0, 7).unwrap();
+        let stats = Stats {
+            generated: 11,
+            distinct: 2,
+            depth: 2,
+            left_on_queue: 1,
+            initial_generated: 1,
+        };
+        // Delete the backing files before close. Neither a violation nor a
+        // successful search may be certified after this cleanup/read failure.
+        std::fs::remove_dir_all(&parent).unwrap();
+        let verdict = Verdict::InvariantViolated {
+            property: "Inv".into(),
+            initial: false,
+        };
+        let outcome = finalize_predecessor(
+            &mut log,
+            Outcome {
+                predecessor: crate::result::PredecessorUsage::default(),
+                graph: None,
+                frontier: crate::FrontierUsage::default(),
+                verdict: verdict.clone(),
+                stats: Some(stats),
+                tlc_prints_stats: true,
+                counterexample: Some(Counterexample::default()),
+                collision: None,
+                output: vec!["observed".into()],
+                notes: Vec::new(),
+                workers: Workers {
+                    requested: 8,
+                    used: 4,
+                    sequential: false,
+                    reason: Some("pool limit".into()),
+                },
+            },
+        );
+        assert!(matches!(outcome.verdict, Verdict::ResourceLimit { .. }));
+        assert_eq!(outcome.stats, Some(stats));
+        assert_eq!(outcome.workers.used, 4);
+        assert_eq!(outcome.output, ["observed"]);
+        assert!(outcome.counterexample.is_none());
+        assert_eq!(
+            outcome.predecessor.deciding_event_before_failure,
+            Some(format!("{verdict:?}"))
+        );
+        assert!(!outcome.predecessor.cleanup_completed);
+        assert_eq!(outcome.predecessor.storage.records, 2);
     }
 }

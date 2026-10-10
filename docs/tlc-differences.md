@@ -300,12 +300,23 @@ The same order decides how TLC *prints* values, in `Print`, error messages and c
 | **Default** | Fingerprint mode, as in TLC, always reporting its collision bound |
 | **Better option** | `--store exact`: full states, with an unconditional claim that every state was checked |
 | **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Ordered safety-frontier spill is available with `--frontier-memory-bytes N` (zero forces disk), under both profiles/stores. It preserves concrete traces and ordered counts, and reports explicit I/O/cleanup failures. Visited stores, candidates, traces and graphs remain outside the frontier-only budget; their spill is still planned. See [frontier storage](frontier-storage.md) and ADR 0024. |
+| **Status** | implemented: `dive check --store exact` runs the same search over canonical state encodings. It gives the same results as fingerprint mode on the TLC probes and harness fixtures (`crates/dive-check/tests/probes.rs`). Separate predecessor spill is available; seen/graph spill is planned. |
 
 **What TLC does.** TLC stores 64-bit fingerprints of states, not the states themselves. A collision between two distinct states would silently skip part of the state space. TLC prints a probabilistic estimate of this at the end of a run, but the "no error found" verdict itself is probabilistic.
 
 **What dive does.** dive offers an exact mode that stores full states and makes an unconditional exhaustiveness claim. Every result says which mode produced it.
 
-**Evidence.** Charter, soundness contract rule 4.
+**Separate disk predecessor option.** Safety BFS accepts
+`--predecessor-memory-bytes N` (zero goes straight to disk). This moves the
+parent/ordinal records used to rebuild concrete counterexamples, with separate
+capacity/write/cleanup evidence. It does not bound the seen set, frontier,
+candidate or reconstructed-path memory. Omit the setting for the existing memory
+counterpart in either profile. Storage and cleanup failures never certify
+completion. Simulation, DFID and graph capture refuse this staged setting.
+See [predecessor storage](predecessor-storage.md) and ADR 0031.
+
+**Evidence.** Charter, soundness contract rule 4; zero/tiny-budget ordered and
+independent-witness controls in `crates/dive-api/tests/predecessor_spill.rs`.
 
 ---
 

@@ -353,11 +353,26 @@ pub struct Collision {
     pub actual: Option<String>,
 }
 
+/// Evidence for the separately budgeted transient predecessor log.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct PredecessorUsage {
+    /// Retained capacity/confirmed complete disk writes before cleanup.
+    pub storage: dive_store::predecessor::Usage,
+    /// Explicit storage/reconstruction/cleanup failures.
+    pub failures: Vec<String>,
+    /// Search event reached before storage prevented certification.
+    pub deciding_event_before_failure: Option<String>,
+    /// Explicit cleanup completed. False for an unstarted or failed close.
+    pub cleanup_completed: bool,
+}
+
 /// The result of a check.
 #[derive(Clone, Debug)]
 pub struct CheckResult {
     /// Frontier-only encoded/disk retention and cleanup evidence.
     pub frontier: crate::FrontierUsage,
+    /// Predecessor storage evidence; not a bound on total search memory.
+    pub predecessor: PredecessorUsage,
     /// The verdict.
     pub verdict: Verdict,
     /// Statistics at the stop, when the search started.

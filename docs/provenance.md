@@ -375,3 +375,11 @@ conversion and nonrecursive-call exception fallback (MIT, revision `94d0c50`).
 The complete 24-row actual processLiveness capture, historical selections and
 native failures are in `conformance/probes/state-if-planning/`; ADR 0036 records
 remaining rendering, admission and strict execution limits.
+## Native predecessor spill (ADR 0031)
+
+`dive-store::predecessor` is a native fixed-record transient storage design.
+It preserves `TraceLog` discovery IDs, strictly earlier parents and successor
+ordinals (the TLC `TLCTrace`/`ModelChecker` replay semantics matched in ADR 0015),
+without importing Java disk/checkpoint formats or porting an I/O algorithm.
+`crates/dive-api/tests/predecessor_spill.rs` checks ordered replay and independent
+symmetry witnesses across memory/disk, stores, profiles and worker widths.
