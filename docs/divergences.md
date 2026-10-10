@@ -364,3 +364,9 @@ D-008 also records a pinned PlusCal fairness line of 87 columns under the
 default 78-column setting. Native generation currently preserves the measured
 reference junction grouping in both profiles; a width/layout improvement remains
 pending. The minimal source and raw output are retained in the fairness corpus.
+
+D-008 public Rust admission also covers ordinary/native checker startup and
+bound graph capture (#157): malformed arena IDs and foreign predicate/action
+contexts refuse before effects; error-report metadata cannot index an invalid
+variable declaration. Stable context codes and original panic evidence are
+retained in `conformance/probes/public-ir-admission/`; F-035 stays partial.

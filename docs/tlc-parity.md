@@ -451,3 +451,10 @@ declarations, label guards and explicit pinned fairness options. Translation
 artifacts remain nonproof results. Multiple blocks, procedure fairness, renaming
 and unproved domain normalization are still named refusals; full-family
 certification remains pending.
+
+Public backend admission (#157) adds checked no-work metadata and shared
+pre-effect IR admission for ordinary/native checking plus bound graph capture.
+Foreign/malformed predicate/action contexts refuse before assumptions; valid
+metadata and exploration controls remain unchanged. The original panic and
+native controls are retained in `conformance/probes/public-ir-admission/`.
+This is additional F-035 evidence, not a status/certification upgrade.

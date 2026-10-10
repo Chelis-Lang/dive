@@ -1,0 +1,48 @@
+    Blocking waiting for file lock on package cache
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-config)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-eval)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-store)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-ir-admission-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 34.73s
+     Running tests/public_ir.rs (/Users/jeff/code/dive-ir-admission-target/debug/deps/public_ir-3df463c4c4a33461)
+
+running 3 tests
+test foreign_capture_metadata_and_actions_refuse_before_assumptions ... FAILED
+test malformed_arena_check_checkpoint_and_binding_admit_before_effects ... FAILED
+test valid_controls_preserve_metadata_and_capture_evidence ... FAILED
+
+failures:
+
+---- foreign_capture_metadata_and_actions_refuse_before_assumptions stdout ----
+
+thread 'foreign_capture_metadata_and_actions_refuse_before_assumptions' (105144905) panicked at crates/dive-check/tests/public_ir.rs:71:64:
+index out of bounds: the len is 0 but the index is 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- malformed_arena_check_checkpoint_and_binding_admit_before_effects stdout ----
+
+thread 'malformed_arena_check_checkpoint_and_binding_admit_before_effects' (105144906) panicked at crates/dive-check/tests/public_ir.rs:42:50:
+typed refusal: ()
+
+---- valid_controls_preserve_metadata_and_capture_evidence stdout ----
+
+thread 'valid_controls_preserve_metadata_and_capture_evidence' (105144938) panicked at crates/dive-check/tests/public_ir.rs:95:5:
+assertion `left == right` failed
+  left: ["\"should not run\"  TRUE"]
+ right: ["\"should not run\""]
+
+
+failures:
+    foreign_capture_metadata_and_actions_refuse_before_assumptions
+    malformed_arena_check_checkpoint_and_binding_admit_before_effects
+    valid_controls_preserve_metadata_and_capture_evidence
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p dive-check --test public_ir`

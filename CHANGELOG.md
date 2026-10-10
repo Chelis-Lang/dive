@@ -761,3 +761,5 @@ All notable changes to this project are documented here. The project will follow
 - `dive-eval`: constant definitions that read a configured constant are computed once, as
   TLC precomputes them, when every `<-` binding is constant-level and pure. TLC warnings
   are printed once each, and not at all with warnings off.
+
+- Public checker, native checkpoint and graph-capture entry points refuse malformed/foreign IR contexts before effects, with checked no-work error metadata (#157).

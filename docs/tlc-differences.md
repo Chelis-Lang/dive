@@ -1492,3 +1492,11 @@ junction grouping in both profiles; full width/layout improvement is pending.
 No alternate formatting default is silently adopted. Long-label controls also
 compare full operator CST, since moving TLA junction indentation can change
 expression structure. See [the fairness evidence](pluscal-fairness.md).
+
+**D-008 public backend admission update (#157):** malformed public Rust IR
+metadata now refuses before ordinary checking or checkpoint request handling.
+Graph capture likewise checks arena/name and predicate/action ownership before
+model effects. Error reports omit an invalid variable mapping instead of
+panicking while reporting another refusal. Original panic source/hash evidence
+and native controls are retained in `conformance/probes/public-ir-admission/`.
+This is a native API safety repair, not new TLC semantic certification.

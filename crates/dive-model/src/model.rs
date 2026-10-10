@@ -164,6 +164,70 @@ pub struct Model {
 }
 
 impl Model {
+    /// Admits public bound-model metadata before backend startup or host effects.
+    /// Checks evaluator ownership and every predicate/action scope without
+    /// evaluating expressions or forcing captured values.
+    ///
+    /// # Errors
+    /// A named malformed/foreign context or bounded admission refusal.
+    pub fn validate_context(&self) -> dive_eval::Result<()> {
+        self.evaluator
+            .validate_model_context(&self.ir, &self.names)?;
+        let check = |pred: &Pred| {
+            if self.ir.nodes().get(pred.location.index()).is_none() {
+                return Err(dive_eval::EvalError::unsupported(
+                    "invalid model predicate location (DIVE-EVAL-C001)",
+                ));
+            }
+            self.evaluator.validate_predicate(&pred.scope, pred.expr)
+        };
+        for init in &self.init {
+            if init
+                .def
+                .is_some_and(|d| self.ir.defs().get(d.index()).is_none())
+            {
+                return Err(dive_eval::EvalError::unsupported(
+                    "invalid initial definition (DIVE-EVAL-C001)",
+                ));
+            }
+            check(&init.pred)?;
+        }
+        if let Some(next) = &self.next {
+            check(next)?;
+        }
+        for named in self
+            .invariants
+            .iter()
+            .chain(&self.implied_inits)
+            .chain(&self.implied_actions)
+            .chain(&self.temporals)
+            .chain(&self.implied_temporals)
+            .chain(&self.configured_properties)
+            .chain(&self.constraints)
+            .chain(&self.action_constraints)
+            .chain(self.view.iter())
+            .chain(self.alias.as_ref().and_then(|a| a.as_ref().ok()))
+            .chain(self.postconditions.as_ref().into_iter().flatten())
+        {
+            check(&named.pred)?;
+        }
+        if self
+            .assumptions
+            .iter()
+            .any(|d| self.ir.defs().get(d.index()).is_none())
+        {
+            return Err(dive_eval::EvalError::unsupported(
+                "invalid assumption definition (DIVE-EVAL-C001)",
+            ));
+        }
+        #[cfg(feature = "enumerate")]
+        for action in self.init_actions.iter().chain(&self.actions) {
+            self.evaluator
+                .validate_predicate(&action.scope(), action.expr())?;
+        }
+        Ok(())
+    }
+
     /// Original configured property claims, or the temporal roles for a model
     /// without retained originals. A quantified conjunction must be attributed
     /// as one configured property, not as ambiguous identically named roles.

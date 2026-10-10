@@ -69,3 +69,14 @@ and native-capture provenance, not provenance of bare numbers. This increment
 also does not certify arbitrary caller-modified semantic annotations, arbitrary
 state values, the mathematical correctness of supplied action-split projections,
 or general evaluation resource safety. F-035 remains partial/audit-required.
+
+## Public backend arena admission (#157)
+
+`dive_eval::validate_ir` exposes the same callback-free structural authority
+without constructing a Core or interning literals. Checker, binding and native
+checkpoint startup use it before metadata/request processing. Bound graph
+capture checks evaluator ownership and all supplied predicate/action contexts
+before host setup or assumptions. Early-refusal and panic-report metadata use
+checked declaration/order access and omit an invalid variable mapping entirely.
+Stable ContextError codes are preserved as named unsupported/resource stops;
+there is no new semantic default or full caller-annotation certificate.

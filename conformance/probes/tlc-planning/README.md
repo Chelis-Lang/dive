@@ -95,3 +95,8 @@ against archived native source bytes. The separate
 hashes the current union of planning, context and particle/tableau controls.
 Both historical and current controls are verified; no pinned selection, raw
 transcript or earlier observation is replaced.
+
+Public checker admission (#157) preserves the context-migration matrix and
+its twelve exact source files under `native-source-context-admission/`.
+`public-ir-admission-source-matrix.json` separately checks current source
+against the same unmodified pinned oracle selection and raw captures.

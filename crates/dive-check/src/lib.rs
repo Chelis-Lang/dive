@@ -97,6 +97,9 @@ pub use result::{
 /// Runs on its own thread with the evaluator's recommended stack.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, opts: &CheckOptions) -> CheckResult {
+    if let Err(error) = dive_eval::validate_ir(ir) {
+        return bare(context_verdict(&error), opts, ir);
+    }
     if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
         return bare(
             Verdict::Unsupported {
@@ -175,7 +178,46 @@ pub(crate) fn eval_code_name(code: u32) -> &'static str {
     }
 }
 
+pub(crate) fn context_verdict(error: &dive_eval::ContextError) -> Verdict {
+    if error.kind() == dive_eval::ContextErrorKind::ResourceLimit {
+        Verdict::ResourceLimit {
+            message: error.to_string(),
+        }
+    } else {
+        Verdict::Unsupported {
+            feature: error.to_string(),
+        }
+    }
+}
+
 fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
+    // Refusal/panic reporting also receives untrusted public arenas. Preserve
+    // valid concrete metadata, but never index an invalid declaration/order or
+    // create a partial variable mapping that could be mistaken for a valid one.
+    let names: Option<Vec<_>> = ir
+        .vars()
+        .iter()
+        .enumerate()
+        .map(|(i, d)| {
+            ir.decls()
+                .get(d.index())
+                .filter(|decl| decl.var.is_some_and(|v| v.index() == i))
+                .map(|decl| decl.name.clone())
+        })
+        .collect();
+    let order: Vec<_> = ir.tlc_var_order().iter().map(|v| v.index()).collect();
+    let valid_order = order.len() == ir.vars().len()
+        && order.iter().all(|&i| i < ir.vars().len())
+        && order
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeSet<_>>()
+            .len()
+            == order.len();
+    let (var_names, tlc_var_order) = match names {
+        Some(names) if valid_order => (names, order),
+        _ => (Vec::new(), Vec::new()),
+    };
     CheckResult {
         frontier: crate::FrontierUsage {
             memory_bytes_per_queue: opts.frontier_memory_bytes,
@@ -193,8 +235,8 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
         store: opts.store,
         fp_index: (opts.store == dive_store::StoreMode::Fingerprint).then_some(opts.fp_index),
         tlc_fingerprints: opts.tlc_fingerprints,
-        var_names: ir.vars().iter().map(|&d| ir.decl(d).name.clone()).collect(),
-        tlc_var_order: ir.tlc_var_order().iter().map(|v| v.index()).collect(),
+        var_names,
+        tlc_var_order,
         output: Vec::new(),
         warnings: Vec::new(),
         notes: Vec::new(),
@@ -353,5 +395,43 @@ fn note_canonical_stop(opts: &CheckOptions, verdict: &Verdict, notes: &mut Vec<S
         notes.push(
             "The default profile explores sets in canonical order (D-010). When several violations are reachable at the same depth, which one is reported, and the counts at the stop, may differ under --compat=tlc; dive does not yet detect whether the order mattered in this run.".to_owned(),
         );
+    }
+}
+
+#[cfg(test)]
+#[allow(
+    clippy::expect_used,
+    reason = "malformed public metadata regression controls"
+)]
+mod metadata_controls {
+    use super::*;
+
+    #[test]
+    fn panic_and_early_refusal_metadata_do_not_index_invalid_public_ids() {
+        let a = dive_sema::analyze_source(
+            "M.tla",
+            "---- MODULE M ----\nVARIABLE x\nInit == x = TRUE\n====\n",
+            &dive_sema::Options::default(),
+        );
+        let ir = dive_ir::lower(&a).expect("IR");
+        for field in ["vars", "tlc_vars"] {
+            let mut json = serde_json::to_value(&ir).expect("serialize");
+            json[field] = serde_json::json!([u32::MAX]);
+            let bad: Ir = serde_json::from_value(json).expect("deserialize");
+            for verdict in [
+                Verdict::InternalError {
+                    message: "original panic".into(),
+                },
+                Verdict::Unsupported {
+                    feature: "original option refusal".into(),
+                },
+            ] {
+                let result = bare(verdict.clone(), &CheckOptions::tlc(0, 7), &bad);
+                assert_eq!(result.verdict, verdict);
+                assert!(result.var_names.is_empty() && result.tlc_var_order.is_empty());
+                assert_eq!(result.workers.used, 0);
+                assert!(result.stats.is_none() && result.output.is_empty());
+            }
+        }
     }
 }

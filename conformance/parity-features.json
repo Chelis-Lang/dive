@@ -884,7 +884,8 @@
         143,
         149,
         150,
-        155
+        155,
+        157
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -898,7 +899,8 @@
       "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required.",
-        "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required."
+        "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required.",
+        "Shared callback-free IR admission before ordinary/native checker and binding startup; checked error metadata plus foreign/malformed bound-capture context controls. Family remains partial/audit-required."
       ],
       "additional_evidence": [
         "crates/dive-api/tests/simulate.rs",
@@ -934,7 +936,9 @@
         "crates/dive-pluscal/fairness-acceptance/mutation-controls.json",
         "crates/dive-pluscal/fairness-acceptance/combined/comparison.json",
         "crates/dive-pluscal/fairness-acceptance/combined/validation/report.json",
-        "crates/dive-pluscal/fairness-acceptance/combined/warning-control.json"
+        "crates/dive-pluscal/fairness-acceptance/combined/warning-control.json",
+        "crates/dive-check/tests/public_ir.rs",
+        "conformance/probes/public-ir-admission/README.md"
       ],
       "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence."
     },

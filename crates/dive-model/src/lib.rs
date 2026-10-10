@@ -134,6 +134,12 @@ fn bind_in(
     opts: &BindOptions,
     restored: Option<&[String]>,
 ) -> Result<Model, Box<Failure>> {
+    dive_eval::validate_ir(&ir).map_err(|error| {
+        Box::new(Failure {
+            error: BindError::unsupported(error.to_string()),
+            output: Vec::new(),
+        })
+    })?;
     let walk = {
         let t = tables::Tables::new(ir.clone()).map_err(|error| {
             Box::new(Failure {

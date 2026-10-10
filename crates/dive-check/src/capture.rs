@@ -366,6 +366,9 @@ pub fn explore_with_evidence(
     limits: Limits,
 ) -> Result<Exploration, String> {
     let started = std::time::Instant::now();
+    if let Some(stopped) = context_stop(model, opts) {
+        return Ok(stopped);
+    }
     let run = || explore_inner(model, opts, limits, false);
     let mut result = run_on_thread(run)?;
     if let Exploration::Stopped(stop) = &mut result {
@@ -410,6 +413,9 @@ pub fn explore_concrete_parallel_with_evidence(
     opts: &CheckOptions,
     limits: Limits,
 ) -> Result<Exploration, String> {
+    if let Some(stopped) = context_stop(model, opts) {
+        return Ok(stopped);
+    }
     if opts.workers > 64 {
         let mut result = crate::bare(
             limit("concrete pool worker width exceeds 64"),
@@ -450,6 +456,34 @@ fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration
             Err(e) => Err(format!("cannot start exploration thread: {e}")),
         }
     })
+}
+
+fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
+    if let Err(error) = model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+    {
+        // No binding output belongs to a foreign arena/name table. Return a
+        // checked no-work report before reading any model roles or starting host effects.
+        return Some(Exploration::Stopped(Box::new(crate::bare(
+            crate::context_verdict(&error),
+            opts,
+            &model.ir,
+        ))));
+    }
+    if let Err(error) = model.validate_context() {
+        let verdict = if error.class() == dive_eval::ErrorClass::ResourceLimit {
+            Verdict::ResourceLimit {
+                message: error.to_string(),
+            }
+        } else {
+            Verdict::Unsupported {
+                feature: error.to_string(),
+            }
+        };
+        return Some(Exploration::Stopped(Box::new(crate::bare(verdict, opts, &model.ir))));
+    }
+    None
 }
 
 fn explore_inner(

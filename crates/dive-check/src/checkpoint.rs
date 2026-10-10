@@ -127,6 +127,12 @@ type Fallible<T> = std::result::Result<T, String>;
 /// the search from Init. Ordinary concrete witness replay remains unchanged.
 #[must_use]
 pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, options: &CheckOptions, request: &Request) -> Result {
+    if let Err(error) = dive_eval::validate_ir(ir) {
+        return Result {
+            check: crate::bare(crate::context_verdict(&error), options, ir),
+            receipt: None,
+        };
+    }
     let started = std::time::Instant::now();
     let run = || {
         let mut session = match Session::prepare(ir, cfg, options, request) {
