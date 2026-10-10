@@ -28,7 +28,7 @@
     "crates/dive-liveness/tests/planning.rs": "75a989d09237f12fc9c3c2743a1e2630038636840c5ea4d0757bd025dd660193",
     "crates/dive-trace/tests/temporal.rs": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16",
     "crates/dive-liveness/src/phase_l.rs": "9c971421da124651d25d864dfcd4c18f7e86112aa092d06d2f3ebf9996617ae0",
-    "crates/dive-liveness/tests/phase_l.rs": "a6294a9efe41607be5da082c4d6c303683be1c63cf1d0019a00f1efeeb06d085",
+    "crates/dive-liveness/tests/phase_l.rs": "b333f4afd393931661befbd22724cb3716848901a4a256e9f5e62b3d9da9f1ea",
     "scripts/check-phase-l.py": "933c32efa560bad71e7dceaac1b93a33f7d47b6f851b70b9c8a3dae94fdc2be3",
     "crates/dive-check/src/capture.rs": "25fe73ffcea4eece18ff8a40337a0656225fc757cda726d121d929641f5e3b07",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",

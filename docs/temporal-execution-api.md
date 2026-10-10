@@ -53,3 +53,10 @@ See [the complete evidence contract](../conformance/probes/tlc-phase-execution/R
 [exposed temporal checking](user/temporal.md) and the
 [coverage ledger](tlc-parity.md). Exact SCC/lasso choice, periodic scheduling and
 ordinary strict temporal verdicts require separate implementation and controls.
+
+Malformed already-bound predicate IDs fail input admission with `DIVE-EVAL-C001`;
+a foreign IR replacement fails with `DIVE-EVAL-C004`, before the planner runs.
+Original tests expecting a later planning-stage refusal are retained beside the
+failed gate. Their current counterparts require the earlier exact input code,
+zero predicates/sources/workers, no partial graph and no output; opaque-provider
+callback traps remain unchanged.
