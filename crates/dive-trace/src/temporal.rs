@@ -90,7 +90,9 @@ pub fn evaluate_lasso(
 /// Preflight for finite predicates used to certify a periodic behavior.
 /// Refuse search-dependent or opaque reads before evaluating anything.
 pub(crate) fn check_periodic_context(model: &Model, pred: &Pred) -> Result<(), TemporalError> {
-    let node = model.ir.node(pred.expr);
+    let node = model.ir.nodes().get(pred.expr.index()).ok_or_else(|| {
+        TemporalError::Unsupported("missing periodic predicate expression".into())
+    })?;
     if node
         .effects
         .intersects(Effects::IMPURE | Effects::USES_ENABLED)
@@ -134,7 +136,12 @@ impl Word<'_> {
             ));
         }
         let ev = &self.model.evaluator;
-        let node = self.model.ir.node(expr);
+        let node = self
+            .model
+            .ir
+            .nodes()
+            .get(expr.index())
+            .ok_or_else(|| TemporalError::Unsupported("missing temporal expression".into()))?;
         if node.effects.intersects(Effects::IMPURE) || ev.scope_shares_side_effects(scope) {
             return Err(TemporalError::Unsupported(
                 "side effects or dynamically bound constants in temporal validation".into(),
@@ -170,13 +177,13 @@ impl Word<'_> {
             args,
         } = &node.expr
         {
-            let d = ev.redirected(*d);
+            let d = self.checked_definition(*d)?;
             if self.model.ir.def(d).std.is_none() && !ev.is_value_override(d) {
                 let sc = self.scoped_call(scope, d, args, depth + 1, &mut 0)?;
                 return self.eval(self.model.ir.def(d).body, &sc, depth + 1);
             }
         }
-        if node.level <= Level::Action
+        if self.scoped_level(expr, scope, depth, &mut 0)? <= Level::Action
             && !node
                 .effects
                 .intersects(Effects::TEMPORAL | Effects::USES_ENABLED)
@@ -265,12 +272,12 @@ impl Word<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(*d)?;
                 let scope = self.scoped_call(scope, d, args, child, &mut 0)?;
                 self.eval(self.model.ir.def(d).body, &scope, child)
             }
             Expr::Def(d) => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(*d)?;
                 if ev.is_value_override(d) || self.model.ir.def(d).recursive {
                     return Err(TemporalError::Unsupported(
                         "overridden or recursive temporal definition".into(),
@@ -395,6 +402,21 @@ impl Word<'_> {
         Ok(out)
     }
 
+    fn checked_definition(&self, def: DefId) -> Result<DefId, TemporalError> {
+        if self.model.ir.defs().get(def.index()).is_none() {
+            return Err(TemporalError::Unsupported(
+                "missing scoped temporal definition".into(),
+            ));
+        }
+        let target = self.model.evaluator.redirected(def);
+        if self.model.ir.defs().get(target.index()).is_none() {
+            return Err(TemporalError::Unsupported(
+                "missing redirected temporal definition".into(),
+            ));
+        }
+        Ok(target)
+    }
+
     fn scoped_call(
         &self,
         scope: &Scope,
@@ -404,6 +426,7 @@ impl Word<'_> {
         steps: &mut usize,
     ) -> Result<Scope, TemporalError> {
         let ev = &self.model.evaluator;
+        let def = self.checked_definition(def)?;
         let d = self.model.ir.def(def);
         if depth > 256
             || args.len() > 4096
@@ -429,13 +452,22 @@ impl Word<'_> {
             } else {
                 Level::Action
             };
-            if level > maximum {
-                return Err(TemporalError::Unsupported(
-                    "action/temporal operator argument".into(),
-                ));
+            if level == Level::Temporal {
+                if scope.has_substitutions() {
+                    return Err(TemporalError::Unsupported(
+                        "temporal argument inside INSTANCE context".into(),
+                    ));
+                }
+                self.forwarded_context(*expr, scope, depth + 1, steps)?;
+            } else {
+                if level > maximum {
+                    return Err(TemporalError::Unsupported(
+                        "action/temporal operator argument".into(),
+                    ));
+                }
+                self.check_scoped_context(*expr, scope, depth + 1, steps)?;
             }
             constant &= level == Level::Constant;
-            self.check_scoped_context(*expr, scope, depth + 1, steps)?;
         }
         if constant {
             let values = args
@@ -459,6 +491,161 @@ impl Word<'_> {
         }
     }
 
+    // Admission proof for a temporal expression argument. Keep its lexical
+    // scope; do not force it as a constant or trust a formal's static level.
+    // This walk does not interpret temporal truth or materialize binders.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit retained temporal context admission and refusal paths"
+    )]
+    fn forwarded_context(
+        &self,
+        expr: ExprId,
+        scope: &Scope,
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<(), TemporalError> {
+        let mut todo = vec![(expr, scope.clone(), depth)];
+        while let Some((e, sc, depth)) = todo.pop() {
+            *steps = steps.saturating_add(1);
+            if depth > 256 || *steps > 100_000 {
+                return Err(TemporalError::Unsupported(
+                    "forwarded temporal context resource bound".into(),
+                ));
+            }
+            let ir = &self.model.ir;
+            let ev = &self.model.evaluator;
+            let n = ir.nodes().get(e.index()).ok_or_else(|| {
+                TemporalError::Unsupported("missing forwarded temporal expression".into())
+            })?;
+            if n.effects.intersects(Effects::IMPURE | Effects::LIVE_TLCGET)
+                || ev.scope_shares_side_effects(&sc)
+            {
+                return Err(TemporalError::Unsupported(
+                    "effectful forwarded temporal context".into(),
+                ));
+            }
+            match &n.expr {
+                Expr::Local(r) => match ev.scope_slot(&sc, *r) {
+                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Lazy(body, inner) => {
+                        todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    _ => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque forwarded temporal local".into(),
+                        ));
+                    }
+                },
+                Expr::SubstRef { decl, .. } => match ev.scope_subst_slot(&sc, *decl) {
+                    SlotView::Value(_) | SlotView::AnalysisBound => continue,
+                    SlotView::Lazy(body, inner) => {
+                        todo.push((body, inner, depth + 1));
+                        continue;
+                    }
+                    _ => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque forwarded temporal substitution".into(),
+                        ));
+                    }
+                },
+                Expr::Let { body, .. } => {
+                    todo.push((
+                        *body,
+                        ev.scope_let(&sc, e)
+                            .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                        depth + 1,
+                    ));
+                    continue;
+                }
+                Expr::Subst { body, .. } => {
+                    todo.push((
+                        *body,
+                        ev.scope_subst(&sc, e)
+                            .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                        depth + 1,
+                    ));
+                    continue;
+                }
+                Expr::Quant { body, .. }
+                | Expr::FcnCons { body, .. }
+                | Expr::SetMap { expr: body, .. }
+                | Expr::SetFilter { pred: body, .. } => {
+                    let inner = ev
+                        .scope_binder_analysis(&sc, e)
+                        .map_err(|err| TemporalError::Unsupported(err.to_string()))?;
+                    for c in n.expr.children() {
+                        todo.push((
+                            c,
+                            if c == *body {
+                                inner.clone()
+                            } else {
+                                sc.clone()
+                            },
+                            depth + 1,
+                        ));
+                    }
+                    continue;
+                }
+                _ => {}
+            }
+            let call = match &n.expr {
+                Expr::Def(d) => Some((OpRef::Def(*d), &[][..])),
+                Expr::Apply { callee, args } => Some((callee.clone(), args.as_ref())),
+                _ => None,
+            };
+            if let Some((op, args)) = call {
+                if args.iter().any(|a| matches!(a, Arg::Op { .. })) {
+                    return Err(TemporalError::Unsupported(
+                        "higher-order forwarded temporal argument".into(),
+                    ));
+                }
+                match op {
+                    OpRef::Def(d) => {
+                        let d = self.checked_definition(d)?;
+                        let def = ir.def(d);
+                        if def.recursive || ev.is_value_override(d) {
+                            return Err(TemporalError::Unsupported(
+                                "recursive/overridden forwarded temporal call".into(),
+                            ));
+                        }
+                        if def.std.is_none() {
+                            todo.push((
+                                def.body,
+                                ev.scope_apply(&sc, d, args)
+                                    .map_err(|err| TemporalError::Unsupported(err.to_string()))?,
+                                depth + 1,
+                            ));
+                            continue;
+                        }
+                        if def.std == Some(StdOp::TlcTLCGet) {
+                            return Err(TemporalError::Unsupported(
+                                "checker introspection in temporal argument".into(),
+                            ));
+                        }
+                    }
+                    OpRef::Std(StdOp::TlcTLCGet)
+                    | OpRef::Param(_)
+                    | OpRef::Const(_)
+                    | OpRef::Subst(_) => {
+                        return Err(TemporalError::Unsupported(
+                            "opaque/checker forwarded temporal operator".into(),
+                        ));
+                    }
+                    _ => {}
+                }
+            }
+            todo.extend(
+                n.expr
+                    .children()
+                    .into_iter()
+                    .map(|c| (c, sc.clone(), depth + 1)),
+            );
+        }
+        Ok(())
+    }
+
     // Check actual argument contexts independently of planner annotations.
     fn scoped_level(
         &self,
@@ -475,7 +662,9 @@ impl Word<'_> {
         }
         let ev = &self.model.evaluator;
         let ir = &self.model.ir;
-        let node = ir.node(expr);
+        let node = ir.nodes().get(expr.index()).ok_or_else(|| {
+            TemporalError::Unsupported("missing scoped temporal expression".into())
+        })?;
         match &node.expr {
             Expr::Subst { body, .. } => {
                 let sc = ev
@@ -520,14 +709,14 @@ impl Word<'_> {
                 callee: OpRef::Def(d),
                 args,
             } => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(*d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, args, depth + 1, steps)?;
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
                 }
             }
             Expr::Def(d) => {
-                let d = ev.redirected(*d);
+                let d = self.checked_definition(*d)?;
                 if ir.def(d).std.is_none() && !ev.is_value_override(d) {
                     let sc = self.scoped_call(scope, d, &[], depth + 1, steps)?;
                     return self.scoped_level(ir.def(d).body, &sc, depth + 1, steps);
@@ -673,7 +862,9 @@ impl Word<'_> {
             }
             let ev = &self.model.evaluator;
             let ir = &self.model.ir;
-            let meta = ir.node(e);
+            let meta = ir.nodes().get(e.index()).ok_or_else(|| {
+                TemporalError::Unsupported("missing scoped periodic expression".into())
+            })?;
             if meta
                 .effects
                 .intersects(Effects::IMPURE | Effects::TEMPORAL | Effects::USES_ENABLED)
@@ -737,7 +928,7 @@ impl Word<'_> {
                 Expr::Const(c) => match ev.constant_binding(*c) {
                     Some(ConstBinding::Value(_)) => {}
                     Some(ConstBinding::Def(d)) => {
-                        let d = ev.redirected(d);
+                        let d = self.checked_definition(d)?;
                         let def = ir.def(d);
                         if def.level != Level::Constant || def.recursive || !def.params.is_empty() {
                             return Err(TemporalError::Unsupported(
@@ -766,7 +957,7 @@ impl Word<'_> {
                 let standard = match op {
                     OpRef::Std(s) => Some(s),
                     OpRef::Def(d) => {
-                        let d = ev.redirected(d);
+                        let d = self.checked_definition(d)?;
                         let def = ir.def(d);
                         if !ev.is_value_override(d) && def.std.is_none() {
                             let sc = self.scoped_call(&scope, d, args, depth + 1, steps)?;

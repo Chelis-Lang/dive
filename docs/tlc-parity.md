@@ -263,3 +263,39 @@ regression document this F-006 limit without changing family statuses.
 Missing captured-expression metadata supplied through the Rust scope API is
 also unknown, not a purity proof. Its no-panic refusal control retains this
 limit without changing the shared-side-effect helper or family accounting.
+
+
+### Retained temporal expression arguments (P3-scopes, #127)
+
+ADR 0023 adds pure temporal expression forwarding through direct/local calls and
+caller expressions holding nested INSTANCE bodies. Both planner and independent
+periodic interpreter retain the actual scope; static formal levels do not
+classify a forwarded temporal argument as a value atom. Supported ENABLED/WF
+word controls preserve the independent finite cover's existing limits.
+
+The fourteen clean raw probes retain ten temporal executions, two exported
+INSTANCE reference refusals and two state-only safety classifications. Native
+checks cover 120 final/short profile/store/requested-width combinations, 24
+INSTANCE refusals, four safety classifications, and 1,960 Boolean word/closing
+edge/profile/property controls. Fresh whole-trace negatives reject bad Init,
+unknown claims and invalid loop indices. Capture still uses one worker.
+
+F-006/F-007/F-019/F-021 remain partial/audit-required. Recursive local-function
+self-binding and branch-sensitive finite preflight, higher-order/operator
+arguments and wider substituted ENABLED covers still need proof. These controls
+are not strict TLC tableau, timing, error-class or lasso conformance.
+
+`conformance/studies/temporal-scopes-53-map.json` preserves all 53 original rows
+with source-report/binary hashes and exact old outcomes/details: 26 final/short
+matches, 22 refusals and five timeouts. It is a read-only blocker map, not a new
+run. Neither that report nor the ten-model domain report gained match credit.
+
+
+Unchecked Rust expression references and retained lazy expression IDs now
+produce typed refusals at the planner/periodic endpoints, including missing
+scoped definitions. Missing references have no invented source span. The raw
+native `native-unchecked-context-before.*` repro in the probe directory records
+the prior panics; it is not an oracle result. Constructing an evaluator with an
+invalid redirect target can still panic before these endpoints run (#129).
+General caller-created IR/context validation remains a separate partial API
+obligation; this increment does not redesign the evaluator constructor.

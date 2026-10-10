@@ -239,3 +239,10 @@ The filter-only proof treats missing captured-expression metadata as unknown
 while preserving the original shared-side-effect helper's missing-node behaviour.
 The companion unchecked-`ExprId` repro and both-profile no-panic refusal control
 provide evidence; this does not validate every Rust caller-created IR identifier.
+
+| Retained temporal expression arguments (`dive-liveness::plan`, independent `dive-trace::temporal`) | `tlc2/tool/liveness/Liveness.java` `astToLiveAppl`, `astToLive`; `tlc2/tool/impl/Tool.java` `getVal`/operator context; `tlc2/value/impl/LazyValue.java`; pinned commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Semantics matched for scoped lazy expression forwarding; separate bounded purity walks and periodic truth evaluation are dive designs. Fourteen clean paired raw controls include both reference-refused exported INSTANCE calls; no exact tableau/phase-L claim. ADR 0023 |
+
+Retained temporal endpoint ID admission is dive's own boundary check. The native
+unchecked-context repro records expression/root/capture panics and a constructor
+redirect panic; endpoint controls now refuse the former without output. The
+constructor gap is tracked separately as #129 and is not silently certified.

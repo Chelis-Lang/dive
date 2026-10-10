@@ -102,10 +102,11 @@
       "phase": 3,
       "pinned_source": "tlc2/tool/impl/Tool.java",
       "rust_evidence": "crates/dive-eval/src/eval.rs",
-      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "issues": [
         63,
-        66
+        66,
+        127
       ],
       "acceptance": "Lazy scalar/action/temporal/operator parameters, LET, nested INSTANCE and substitutions retain levels and caller scope through evaluation and validation.",
       "interactions": [
@@ -123,10 +124,11 @@
       "phase": 3,
       "pinned_source": "tlc2/tool/impl/Tool.java",
       "rust_evidence": "crates/dive-eval/src/scope.rs",
-      "conformance_evidence": "crates/dive-api/tests/constructor_covers.rs",
+      "conformance_evidence": "crates/dive-api/tests/constructor_covers.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "issues": [
         107,
-        63
+        63,
+        127
       ],
       "acceptance": "Explicit and finite lazy domains preserve TLC successor order and duplicates; independent finite covers decide ENABLED/deadlock, including scope and closing edges.",
       "interactions": [
@@ -361,11 +363,12 @@
       "phase": 3,
       "pinned_source": "tlc2/tool/liveness/Liveness.java",
       "rust_evidence": "crates/dive-liveness/src/plan.rs",
-      "conformance_evidence": "crates/dive-liveness/tests/planning.rs",
+      "conformance_evidence": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "issues": [
         63,
         66,
-        107
+        107,
+        127
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -406,9 +409,10 @@
       "phase": 4,
       "pinned_source": "tlc2/tool/liveness/Liveness.java",
       "rust_evidence": "crates/dive-trace/src/lib.rs",
-      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "issues": [
-        63
+        63,
+        127
       ],
       "acceptance": "Complete WF/SF, temporal operators and scoped ENABLED cases; validate every claimed property, fair cycle and closing edge independently, rejecting altered predicates/claims.",
       "interactions": [
@@ -670,8 +674,10 @@
       "phase": 9,
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs",
-      "conformance_evidence": "crates/dive-api/tests/temporal.rs",
-      "issues": [],
+      "conformance_evidence": "crates/dive-api/tests/temporal.rs; crates/dive-api/tests/temporal_forwarding.rs (unchecked scoped-expression/definition endpoint refusal; constructor context gap #129 remains)",
+      "issues": [
+        129
+      ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
         "F-024",
