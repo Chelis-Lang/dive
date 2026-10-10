@@ -62,3 +62,9 @@ is symmetric. Effectful configuration aliases are refused before binding output
 or archive creation, including public Rust IR; pure aliases remain supported.
 The [source and raw study](../../conformance/probes/native-checkpoint-keys/README.md)
 separates historical evidence from the current integrated implementation.
+
+The [current integrated verification](../native-checkpoint.md#current-integrated-verification)
+records worker-width, counter-prefix and independently checked concrete-witness
+controls on the shipped feature combination. These controls certify their
+declared fields; they do not certify temporal recovery or a complete archive
+feature family.

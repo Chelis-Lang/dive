@@ -1,0 +1,5 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-conformance)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-checkpoint-keys-shipping-work/crates/dive-cli)
+    Finished `release` profile [optimized + debuginfo] target(s) in 4m 08s
