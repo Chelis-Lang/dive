@@ -425,3 +425,7 @@ reports are immutable and receive no new verdict credit.
 F-020/F-021/F-022 remain partial/audit-required and F-023 missing. #140 stays
 open: graph/product insertion, actual parallel commits, additional consistency/
 error ordering, SCC/lasso selection and scheduling must still be implemented.
+PlusCal process evidence now includes [a bounded single-process increment](pluscal-processes.md):
+242 retained rows and 26 finite model controls with independent witnesses. This
+does not certify F-034 or F-035; multiple blocks, fairness, procedures/macros and
+full option/map contracts remain pending.

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "control_count": 17,
+  "comparator_sha256": "d4f5eddf8f9cff6a3451135789af06fe87973c92527a542f10f0a94eeba43fbf",
+  "manifest_sha256": "bbecb00d6b81fd346d8ad2a90448f50de1fa4ba9da597c1cbb0a07bbe98a374d",
+  "native_sha256": "83ddb5f5e35fc7e3c2738e294b4f2d3c8d04497e8d1e878105493e7b8d8a95b9",
+  "family_certified": false,
+  "rows": [
+    {
+      "control": "false-proof",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "translation must never claim model proof"
+      }
+    },
+    {
+      "control": "wrong-tokens",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "changed-body",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "native token metadata does not describe artifact body"
+      }
+    },
+    {
+      "control": "missing-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "wrong-pc",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "program-counter metadata differs from primary artifact"
+      }
+    },
+    {
+      "control": "missing-actions",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "empty native artifact/evidence"
+      }
+    },
+    {
+      "control": "internal-error",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "internal/unknown native failure"
+      }
+    },
+    {
+      "control": "invalid-map",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "source-map extent invalid"
+      }
+    },
+    {
+      "control": "missing-labels",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "normalized inserted label/name/source position/default binding mismatch"
+      }
+    },
+    {
+      "control": "wrong-label-name",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "inserted label metadata invalid"
+      }
+    },
+    {
+      "control": "wrong-label-position",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "normalized inserted label/name/source position/default binding mismatch"
+      }
+    },
+    {
+      "control": "wrong-configuration",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "required default model-value configuration differs"
+      }
+    },
+    {
+      "control": "wrong-process-name",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "wrong-storage-kind",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "missing-local",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process normalization/storage metadata differs"
+      }
+    },
+    {
+      "control": "wrong-domain-span",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process original source extent invalid"
+      }
+    },
+    {
+      "control": "wrong-valid-domain-span",
+      "outcome": {
+        "outcome": "disagree",
+        "reason": "process ID/domain source association differs"
+      }
+    }
+  ]
+}

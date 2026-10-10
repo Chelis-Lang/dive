@@ -1,0 +1,1729 @@
+{
+  "schema_version": 1,
+  "stage": "native-generated-artifact-controls",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection_report_sha256": "a125570004c4f4bafc049ba7b09de90cef09529b505b259a212c0ac251c1815d",
+  "script_sha256": "33199381f37d6a870211dd8efd4b0f14d02d3ded6e786e6748cee5b4d6f6ccb0",
+  "native_sha256": "09732d6ab05f0349ec2c763f3a5d41d82563374ca8edb0d290ed3d731af6daaa",
+  "cst_dumper_sha256": "83ddb5f5e35fc7e3c2738e294b4f2d3c8d04497e8d1e878105493e7b8d8a95b9",
+  "selected_artifacts": 8,
+  "artifact_summary": {
+    "native-sany-match": 8
+  },
+  "model_summary": {
+    "finite-model-match": 12
+  },
+  "family_certified": false,
+  "artifact_rows": [
+    {
+      "id": "ProcExtra_C_id_parallel_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "3b11d630ca6107cb278db38fbc66b905c7e0a44cfedb70f0894b49bce33600b2",
+      "artifact": "ProcExtra_C_id_parallel_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_parallel_subscript.native.stdout.gz",
+        "stdout_sha256": "124fbd7813dd58a0b97bc6cc8fe53d61e71d84e3e193bb98af451bfa04038365",
+        "stderr": "ProcExtra_C_id_parallel_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_parallel_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "ae7edb20ac3278dab712a7c63ce0edeebb3da6f12fec9e04da5f44325812b79e",
+        "stderr": "ProcExtra_C_id_parallel_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "d349b901010c0600269f35f18bc509085761969ce4e5ef8e881c904e06975676"
+    },
+    {
+      "id": "ProcExtra_C_id_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "62b57194ad2658dfca4ec0345f957ffd42cafa255392797af77ba542ff1a7bb9",
+      "artifact": "ProcExtra_C_id_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_subscript.native.stdout.gz",
+        "stdout_sha256": "3b2e80d11eabe840d0bf31682e26d4cd56bcb129766b9ba77297a0dafc4016b4",
+        "stderr": "ProcExtra_C_id_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "198167ad75822bdbcbee8c458200621af973e32172f98003c421f0264a57fc1b",
+        "stderr": "ProcExtra_C_id_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "05a072e95a8d6774bb68eb5331560cd17efcc51a236afafde4ed38434889956d"
+    },
+    {
+      "id": "ProcExtra_C_set_parallel_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "491b229e91d837f9d6b9380ca3315d51b5d8057f4607847b322e3cc1f8974fc5",
+      "artifact": "ProcExtra_C_set_parallel_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_parallel_subscript.native.stdout.gz",
+        "stdout_sha256": "c4c8793e1a0ad45fe4f207cb5cf43f5242ae2f7e9e3a6938616a5d01a342b953",
+        "stderr": "ProcExtra_C_set_parallel_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_parallel_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "7f67bf5f647ae1c9ad5cf8cf94928885c2e4c6c1d1358651b0f9857643842a38",
+        "stderr": "ProcExtra_C_set_parallel_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "f63b6b610f957cb68c7aafc43c45f248d1963bb4078bc1bd31e94c46bfc93758"
+    },
+    {
+      "id": "ProcExtra_C_set_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "0de90aad3cfcecb358d86ca9822bd35d57ef2904c45f9a4375ff262d577243a1",
+      "artifact": "ProcExtra_C_set_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_subscript.native.stdout.gz",
+        "stdout_sha256": "a7fe39084ad52030bfc7884e85701bec0243fb5961ad82e723db2cd7124a2569",
+        "stderr": "ProcExtra_C_set_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "70b25ae71d9ccb01a2a620543f73490b0ff8ced729ad4c754a5194cff31b30f5",
+        "stderr": "ProcExtra_C_set_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "55141b3798420ba5e5034ff2a97d805353a2a0764cf0bc7419e70e3394f1c7f8"
+    },
+    {
+      "id": "ProcExtra_P_id_parallel_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "ae7ce61266085f2fa48e1c2676e58a4f20845ea721278e095015bf2d3ac6922a",
+      "artifact": "ProcExtra_P_id_parallel_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_parallel_subscript.native.stdout.gz",
+        "stdout_sha256": "999a88da663c4d1ccd3ece429c1803812014f7ea44425d272f5ccb0b0725a291",
+        "stderr": "ProcExtra_P_id_parallel_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_parallel_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "9e5e89b80a95574765be9edc5d6ca62b3ea57f761f52ca49b97ff109fa091eeb",
+        "stderr": "ProcExtra_P_id_parallel_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "82b201556a3b7d380dbdbea20fe31e322ca31a7940bf2647a000c375f016356e"
+    },
+    {
+      "id": "ProcExtra_P_id_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "810c400b8b92f05d10203a815cbc63bcf26025d854bf2657d48ac45b4ba2dce7",
+      "artifact": "ProcExtra_P_id_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_subscript.native.stdout.gz",
+        "stdout_sha256": "c78b9e6d3ae294feb5e15e3e44365ee74d59edb132180bd753b523c168e4054c",
+        "stderr": "ProcExtra_P_id_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "879947f85f7da8c500803e5c1d97cb01aba3a4ac85b8492cf01e0bbb0c7d6e60",
+        "stderr": "ProcExtra_P_id_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "37670a2203e9a7e1fe478d27ad8d649b1f2b3578716c74ab246a72047666b138"
+    },
+    {
+      "id": "ProcExtra_P_set_parallel_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "2ed7542a0bf42275e8376b5ffd40411d38631bf3186c35bd10bf01e2be270ab1",
+      "artifact": "ProcExtra_P_set_parallel_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_parallel_subscript.native.stdout.gz",
+        "stdout_sha256": "333e42800288b5733b5645506d02052a7b534509250e962960fbb52d14424c23",
+        "stderr": "ProcExtra_P_set_parallel_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_parallel_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "3391902e843ecf34bf59b997404d9bad56ae34a7fb2ebda26cd281614b88d8a1",
+        "stderr": "ProcExtra_P_set_parallel_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "8df57ee0d225e2717493a058091b33cee5334c13853cb3081d55006bb04fa54a"
+    },
+    {
+      "id": "ProcExtra_P_set_subscript",
+      "outcome": "native-sany-match",
+      "artifact_sha256": "fa5028b5b3376cb90e7d014381ce45392e374a8f24dc970473b3ac69fb6f744c",
+      "artifact": "ProcExtra_P_set_subscript.native.tla",
+      "api": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_subscript.native.stdout.gz",
+        "stdout_sha256": "350211862053eb6973ec74173c65ccf0fb6b393969ae9781bf1500826e4dc8c3",
+        "stderr": "ProcExtra_P_set_subscript.native.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_subscript.native-sany.stdout.gz",
+        "stdout_sha256": "940b9810505958bb37ea51739f8a33de3d07c79aac9bf3627a68e66475154d12",
+        "stderr": "ProcExtra_P_set_subscript.native-sany.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "operator_structure_equal": true,
+      "operator_structure_sha256": "1416a8484d99210854eaa2d46870b1e14f68cc1514c130f6edfad498fcacc278"
+    }
+  ],
+  "model_rows": [
+    {
+      "id": "ProcExtra_C_id_parallel_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_parallel_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "9bdd0d19b9b8d3361b64dc808ee4882ab534d06bf5e684bd2d7a8253cdfb1805",
+        "stderr": "ProcExtra_C_id_parallel_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_parallel_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "400c77c415659cfe18d6b5b0dbfeba4cb8ba14486fbb8690e87c76852767da36",
+        "stderr": "ProcExtra_C_id_parallel_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "2369aeb8034285a315411636bddfab5b4ab979caec81f6b70613ebf3ecf716c8",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "65ddbe22dd39b670f0a3309179d086f8d55b28ad97bd50d95019ea3efb177598",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "c4bcdb8811b13bf08b3ff3e742619ec44d3b306da524938ebb1517d9c5b52c21",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "8b325add7616ca0999d35bf833e98d853457934d66d36191f68342427deea961",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "3d89f5f751fc825b6473e6873c39159e87a9a70cc899f6793344eb6489a31465",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_parallel_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "be19e09f79ca6ff4164e0660f1d292dc9027964ee6d091c716bffd1cbc204b90",
+            "stderr": "ProcExtra_C_id_parallel_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_id_parallel_subscript.complete.model.tla",
+      "source_sha256": "3b11d630ca6107cb278db38fbc66b905c7e0a44cfedb70f0894b49bce33600b2",
+      "config": "ProcExtra_C_id_parallel_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_C_id_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "32cdc4b15443c5eda4407de5e16ba6ac4be061677a930cda32b6595d5cce3d59",
+        "stderr": "ProcExtra_C_id_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_id_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "920e3c2cb005c623a489c440a2bcbba805a094ee606b1c884975c04ad2d3be36",
+        "stderr": "ProcExtra_C_id_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "c92fa4922d811ffc0ae443d83a7eb684cbf0b6d841bf3777d362fc797e6413a5",
+            "stderr": "ProcExtra_C_id_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "366933732ac37375966dd28f91f8280a169af8f4ba63a106e01cb683469fa5e3",
+            "stderr": "ProcExtra_C_id_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "bdce58bdf6b5f6ab29b8a35c644a7e28e9ee7587f5733247697762a4caedec4e",
+            "stderr": "ProcExtra_C_id_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "5851c7ac7e20e2d46b5e4064b9d49a1a0b047390863d2cb25c16b51bf8f8922f",
+            "stderr": "ProcExtra_C_id_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "e332557959bb1eca8d72490a131d1a6b74ce517dbdede49138d009a8400c3b34",
+            "stderr": "ProcExtra_C_id_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "2bd30816475fa259c8467465175bbe9141881e5895ef0bbc44223876532f92f2",
+            "stderr": "ProcExtra_C_id_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_id_subscript.complete.model.tla",
+      "source_sha256": "62b57194ad2658dfca4ec0345f957ffd42cafa255392797af77ba542ff1a7bb9",
+      "config": "ProcExtra_C_id_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_C_id_subscript.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_C_id_subscript.violation.tlc.stdout.gz",
+        "stdout_sha256": "c5679e1bde34e551ae078e2900d85b14ee944c9dc909dfc496215c9963d55783",
+        "stderr": "ProcExtra_C_id_subscript.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_C_id_subscript.violation.check.stdout.gz",
+        "stdout_sha256": "3f583d4e9a57d147302758175820cfde4f094bf1ae64dd9d67b1eb38f6e6ba25",
+        "stderr": "ProcExtra_C_id_subscript.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_id_subscript.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "ProcExtra_C_id_subscript.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_id_subscript.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "ProcExtra_C_id_subscript.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_id_subscript.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "ProcExtra_C_id_subscript.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_id_subscript.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "ProcExtra_C_id_subscript.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_id_subscript.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "ProcExtra_C_id_subscript.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "3ae31704dc56140fd321066a02bbbb009f4fd51d001fae0dc3b27264d4899277",
+            "stderr": "ProcExtra_C_id_subscript.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "a0621d9e7ef6f926fd5a12bbb50f22225ebdffa6ec4939cc50d4d1a3bd32d125",
+            "stderr": "ProcExtra_C_id_subscript.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "5906f80dc370a193fc082ace374d4660b31e048157c9cf2e16a31ce744ca9ea0",
+            "stderr": "ProcExtra_C_id_subscript.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "c36947eae45a25978ad5823706f5a91bdcd11876b1a0b9b97b7e0ee7165455a4",
+            "stderr": "ProcExtra_C_id_subscript.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "1fa7ac96e600ad69fbbec469f99794b96a53f644ea3a7e709a7f7f8cc94ecf9a",
+            "stderr": "ProcExtra_C_id_subscript.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_id_subscript.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "adb3efa381ed51fd1c4ab17f42ab1d63884092dca1d398b5d110b457c7ac3420",
+            "stderr": "ProcExtra_C_id_subscript.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_id_subscript.violation.model.tla",
+      "source_sha256": "94d0552c5f53719776e846e88c9771b9bdfb709697d63b29fb0822e5dbc1a4fb",
+      "config": "ProcExtra_C_id_subscript.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "ProcExtra_C_set_parallel_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_parallel_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "aefa4f4ae671dc83280dfba04403e76b2ae16f3308806ccf540d06b60e017c0c",
+        "stderr": "ProcExtra_C_set_parallel_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_parallel_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "8f423e6938edd2f1b0117d06821eda3569c83f8b57d06f5e8f4087d8034c3a9d",
+        "stderr": "ProcExtra_C_set_parallel_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "0b1a694894b8fe0ea08809b29f7b20f6ffe8a87bb1d485979db046c908fa268a",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "da97bea07d66d379c6afb0c24910abaffaf102399362c3916508c7ce66f3b1af",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "5df57c1cfc3ed3daa49e206010e98697ad96bcb5890b383b8eea0cb3b0185600",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "9fe8597af86658a3839eccedd62cad2da98ffc109eb4001ac154c3ca418867a6",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "ee998d7f45bbfb399e8ca7381b59227b7e27cc27542d22a64f13b4ed30945a27",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_parallel_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "ea1ba51a08261c785a1110e1ead73e53d2be9c28a35f0c051801d7ead5765300",
+            "stderr": "ProcExtra_C_set_parallel_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_set_parallel_subscript.complete.model.tla",
+      "source_sha256": "491b229e91d837f9d6b9380ca3315d51b5d8057f4607847b322e3cc1f8974fc5",
+      "config": "ProcExtra_C_set_parallel_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_C_set_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "a68b5f3242e5bafe028add47f02567c50970fb99c8bbe71f55da8e8bcce31bf8",
+        "stderr": "ProcExtra_C_set_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_C_set_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "880111a1dc5de414420d04a306c3112d98d7e7701c7a4b8d9ef6964e3fe85e76",
+        "stderr": "ProcExtra_C_set_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "c94dd90a394d16ff50712a38893668a494a4f3ad28637e3a6a4d0b986701dba0",
+            "stderr": "ProcExtra_C_set_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "c0884dd2c67841a9c060c53f06d0faf73d84a513cbb01b49695d8de2bda36ab3",
+            "stderr": "ProcExtra_C_set_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "21db511f7ea2f84807ebe8c4e13feb879fb08c5b40ce8095209c16584087235f",
+            "stderr": "ProcExtra_C_set_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "dc5d3a392ef9ab35af5b55bc0e5d2942e634940b310d7ad02cfab3b64bd904c5",
+            "stderr": "ProcExtra_C_set_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "cd7030db8cb3e56e68b8b405f4066813b8efb3ee46a5990510d91e455a563710",
+            "stderr": "ProcExtra_C_set_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "5f89721badee4cee73d0b20551093429ebe2f65c088fbd238eef2f8824c0955d",
+            "stderr": "ProcExtra_C_set_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_set_subscript.complete.model.tla",
+      "source_sha256": "0de90aad3cfcecb358d86ca9822bd35d57ef2904c45f9a4375ff262d577243a1",
+      "config": "ProcExtra_C_set_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_C_set_subscript.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_C_set_subscript.violation.tlc.stdout.gz",
+        "stdout_sha256": "fc3a03419f05b718f1e3380ae0a9bd41e6c9affc44adb22c96b79afabb946e9b",
+        "stderr": "ProcExtra_C_set_subscript.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_C_set_subscript.violation.check.stdout.gz",
+        "stdout_sha256": "a2f1b85bc9332e18a603c3f1cc601a6f3e4230b59f1bee8298bf444d04289bf1",
+        "stderr": "ProcExtra_C_set_subscript.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_C_set_subscript.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "ProcExtra_C_set_subscript.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_set_subscript.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "ProcExtra_C_set_subscript.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_set_subscript.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "ProcExtra_C_set_subscript.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_set_subscript.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "ProcExtra_C_set_subscript.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_C_set_subscript.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "ProcExtra_C_set_subscript.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "a2f1b85bc9332e18a603c3f1cc601a6f3e4230b59f1bee8298bf444d04289bf1",
+            "stderr": "ProcExtra_C_set_subscript.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "af1e01f03f62e20681ca95cd162e01376bd8fd9c1aa82026a4f0146647ed52f7",
+            "stderr": "ProcExtra_C_set_subscript.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "01517ae96ee3329445163697a867f0dae194032214cff59b74508cee927910f9",
+            "stderr": "ProcExtra_C_set_subscript.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "b50044934b211c239647a022b3b00a7be13a95b69ac63bcf494841895326d71c",
+            "stderr": "ProcExtra_C_set_subscript.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "a658238d562f0b0c722513a444f832106a19ce472a687a4bfd58475b2ca7b30f",
+            "stderr": "ProcExtra_C_set_subscript.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_C_set_subscript.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "c96fd14fbb9cf8252116fb075d14369f2603801aac68e17c7e344264e13848db",
+            "stderr": "ProcExtra_C_set_subscript.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_C_set_subscript.violation.model.tla",
+      "source_sha256": "edd7f2fc9ead106ac40ee7b97359827137150c1dfab221d50735a1703254bbd5",
+      "config": "ProcExtra_C_set_subscript.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "ProcExtra_P_id_parallel_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_parallel_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "37eaed4388a0487de4c16cb5776134c39596b512049c6227954b9b4393e66e18",
+        "stderr": "ProcExtra_P_id_parallel_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_parallel_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "bff167fdfbbadb852203039394ce580aa6aa245398fbd68df633d57f9c06a958",
+        "stderr": "ProcExtra_P_id_parallel_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "58a0d3abdd92f3b0e0ab18e5dd94ae37346931e50ded68a5793ad98b3984bbd9",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "3d381ec97a3f7ce5e6f8ffd3ec7e9588d7ed57b3597167e8e032e4c992f63cbd",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "961312c1513b62c1c91497d967d7169b0e2dd6787c772e69eac7e8165107ecbd",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "f9d0468e0f525369e88fd205540f36f257cc9b6780b7eaa2248288bce839375d",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "4b123675dbca7fa5e119f5be3a99cc680332d1edf1ff599e94b6512d617d0e50",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_parallel_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "d907b00a5e7a5edd015cef2b623e46a19feb12973927ee3c7c2de2ef94260b39",
+            "stderr": "ProcExtra_P_id_parallel_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_id_parallel_subscript.complete.model.tla",
+      "source_sha256": "ae7ce61266085f2fa48e1c2676e58a4f20845ea721278e095015bf2d3ac6922a",
+      "config": "ProcExtra_P_id_parallel_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_P_id_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "431130cc9a230bb8e0bef6f16a4eed2683623ca4f98227ba319d963baaa827c8",
+        "stderr": "ProcExtra_P_id_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_id_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "ecb5762a5779d78acb72ce45c4a7edcac2f0665d4932804f91821a8101ff453d",
+        "stderr": "ProcExtra_P_id_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0,
+        "depth": 3
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "eb7051bf8e99d3699bf1a35572cbdf55fbe64848a372abfd1306703c7431ad73",
+            "stderr": "ProcExtra_P_id_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "057386e7b0d5c00d29ecb6ea14c449c304491c558597ba46f72312b386cfa2d6",
+            "stderr": "ProcExtra_P_id_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "23ee1aa8c5c8a0216ce4bcdb123657e681c61f24a7e9894437264025d623515d",
+            "stderr": "ProcExtra_P_id_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "1367034cb682d07126f48c6ecbee9a65d01d194aae5e826918616453d3ac60ec",
+            "stderr": "ProcExtra_P_id_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "3266038bcc96a3e57e20969559af529a396e06b1e258339dced9a70e63df5fe5",
+            "stderr": "ProcExtra_P_id_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "4bfe4eb468a8ff012dacc3a694015b38ca97e64794345def256b90700935bbfb",
+            "stderr": "ProcExtra_P_id_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_id_subscript.complete.model.tla",
+      "source_sha256": "810c400b8b92f05d10203a815cbc63bcf26025d854bf2657d48ac45b4ba2dce7",
+      "config": "ProcExtra_P_id_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_P_id_subscript.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_P_id_subscript.violation.tlc.stdout.gz",
+        "stdout_sha256": "c758d26ff00126d05fe0f61286cb16d9efee0f764eab520dccffcd7f1c6741d3",
+        "stderr": "ProcExtra_P_id_subscript.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_P_id_subscript.violation.check.stdout.gz",
+        "stdout_sha256": "732151c6d9640dd9a1eb0eb05ec56a746d073f79888fbe99fb7a53e776b63af6",
+        "stderr": "ProcExtra_P_id_subscript.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_id_subscript.violation.original.stdout.gz",
+            "stdout_sha256": "7169f6e46e19107333a3fa830c8787d9ae5be020488c0430305e583f10df24b6",
+            "stderr": "ProcExtra_P_id_subscript.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_id_subscript.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "ProcExtra_P_id_subscript.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_id_subscript.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "ProcExtra_P_id_subscript.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_id_subscript.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "ProcExtra_P_id_subscript.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_id_subscript.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "ProcExtra_P_id_subscript.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "3b37ba425bf8490edfa2df71db13bb6e60c814ce8658ab09360026237ed62819",
+            "stderr": "ProcExtra_P_id_subscript.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "d677f166baf2e311dbe0a730d6d4e9aa8c61a62ea26a508f59149b4facd49e8b",
+            "stderr": "ProcExtra_P_id_subscript.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "e0baed2fd26446862fc0743fa7a0db42686623203ffcaaab5da250eb9e9f0f83",
+            "stderr": "ProcExtra_P_id_subscript.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "fbd22a9f6c72d0f4edd68671e69b17307464b641fe1e40059d1c66b2f845cd95",
+            "stderr": "ProcExtra_P_id_subscript.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "ef2c14c8f012731f61a47975b400abd24edd86a0ae47c5c38828697652bace84",
+            "stderr": "ProcExtra_P_id_subscript.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_id_subscript.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "6e3819c8fe991eedcbe37e124dbe42c059a2c165978ff7b47701a6c07a4a951d",
+            "stderr": "ProcExtra_P_id_subscript.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_id_subscript.violation.model.tla",
+      "source_sha256": "9429a0bf2f30f00bc76b3e66c930a456c09b5174db86f5620eb4643648cf9fca",
+      "config": "ProcExtra_P_id_subscript.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    },
+    {
+      "id": "ProcExtra_P_set_parallel_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_parallel_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "69b829a26a2db2d853b9120635dd23ea463d4b2f4cc56283daadcb2695db15dc",
+        "stderr": "ProcExtra_P_set_parallel_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_parallel_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "5eff81835702b8c6fed9f3723504f7421fc931a7ebb56659b22603a5efbcb90d",
+        "stderr": "ProcExtra_P_set_parallel_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "1a9e6e4858a638bd5df8a6df461ede004ea6b5ac1ac4945956797110dd8fac38",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "b6aad158c0d77ce6c49f67a60f5e3f6c00f11890264c72b8610d3f44ce6d1d6e",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "81028095b7843f179ff68609a39b1ef963dbcc8384398e055c14aa540c073b81",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "d11ebdb7233da46b9d2bb437be808a1b1717e2e62ace5f13616ad6f342839332",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "4661e662f32ee5528f9865ace56c02a9b6ce178ac6a634b6ecfa13147f0160e7",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_parallel_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "47dd7c38bc7af92dde63d715c427150e634e4cc5174a98fdb61c25ccfec5b2c3",
+            "stderr": "ProcExtra_P_set_parallel_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_set_parallel_subscript.complete.model.tla",
+      "source_sha256": "2ed7542a0bf42275e8376b5ffd40411d38631bf3186c35bd10bf01e2be270ab1",
+      "config": "ProcExtra_P_set_parallel_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_P_set_subscript.complete",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_subscript.complete.tlc.stdout.gz",
+        "stdout_sha256": "5c417478a8feda07be6bdbbe9969a334eaa0b1190d5ea7ab5a450aac9e8cf36c",
+        "stderr": "ProcExtra_P_set_subscript.complete.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 0,
+        "stdout": "ProcExtra_P_set_subscript.complete.check.stdout.gz",
+        "stdout_sha256": "47ed8a849ace86eec2cbb9570562faf6e6ad3e1e3a184a3f9ad95b3552902b2b",
+        "stderr": "ProcExtra_P_set_subscript.complete.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 14,
+        "distinct": 9,
+        "left_on_queue": 0,
+        "depth": 5
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w1.fp.stdout.gz",
+            "stdout_sha256": "47ed8a849ace86eec2cbb9570562faf6e6ad3e1e3a184a3f9ad95b3552902b2b",
+            "stderr": "ProcExtra_P_set_subscript.complete.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w1.exact.stdout.gz",
+            "stdout_sha256": "ff668980c359546d7e181c071305a359eeffcabdff2df1feb1adca73d989069d",
+            "stderr": "ProcExtra_P_set_subscript.complete.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w4.fp.stdout.gz",
+            "stdout_sha256": "4b65ebeecf6e620f0d7c0bed5318dd83890842123cbd2e58c62a507d8ef6f72c",
+            "stderr": "ProcExtra_P_set_subscript.complete.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w4.exact.stdout.gz",
+            "stdout_sha256": "bb2c4f8c5cdf6edeadd0bc24dab4a9a032c3155e6c2dc4ceb724cf7a34849e98",
+            "stderr": "ProcExtra_P_set_subscript.complete.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w8.fp.stdout.gz",
+            "stdout_sha256": "15adf1471091427a32d9377b33b97451d7cf708d63b11fbff05861bb6225887a",
+            "stderr": "ProcExtra_P_set_subscript.complete.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.complete.w8.exact.stdout.gz",
+            "stdout_sha256": "22acefda86baf4c48008a74f5a13a255eb721d8146e9669f91a421d5565a60d6",
+            "stderr": "ProcExtra_P_set_subscript.complete.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_set_subscript.complete.model.tla",
+      "source_sha256": "fa5028b5b3376cb90e7d014381ce45392e374a8f24dc970473b3ac69fb6f744c",
+      "config": "ProcExtra_P_set_subscript.complete.model.cfg",
+      "config_sha256": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f"
+    },
+    {
+      "id": "ProcExtra_P_set_subscript.violation",
+      "outcome": "finite-model-match",
+      "primary": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_P_set_subscript.violation.tlc.stdout.gz",
+        "stdout_sha256": "c9cebb5fc02464e76b1e1798ba2045562975761f5d9a98993a0fb4995da34c36",
+        "stderr": "ProcExtra_P_set_subscript.violation.tlc.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "native": {
+        "exit_code": 12,
+        "stdout": "ProcExtra_P_set_subscript.violation.check.stdout.gz",
+        "stdout_sha256": "4cdef1fcc177081c7f32cbb2f6969c2d81452def58658cd498db8544934bc598",
+        "stderr": "ProcExtra_P_set_subscript.violation.check.stderr.gz",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "primary_counts": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0,
+        "depth": 2
+      },
+      "compared": [
+        "generated",
+        "distinct",
+        "left_on_queue",
+        "depth"
+      ],
+      "independent_validation": [
+        {
+          "control": "original",
+          "passed": true,
+          "capture": {
+            "exit_code": 0,
+            "stdout": "ProcExtra_P_set_subscript.violation.original.stdout.gz",
+            "stdout_sha256": "cb6eac30d4e7e46bc43244928e2933e3b026ebca707d4d55e587dbd23579cac6",
+            "stderr": "ProcExtra_P_set_subscript.violation.original.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-init",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_set_subscript.violation.invalid-init.stdout.gz",
+            "stdout_sha256": "1f96c524cbd3d8066dfd84b6217a0b2754d65ddb66ea06a1a677538ede2d1188",
+            "stderr": "ProcExtra_P_set_subscript.violation.invalid-init.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-next",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_set_subscript.violation.invalid-next.stdout.gz",
+            "stdout_sha256": "6bf90f9ee95a23e22a7e640af63226612896df9fabe3e2e5455c75453d7595e1",
+            "stderr": "ProcExtra_P_set_subscript.violation.invalid-next.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "missing-final-variable",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_set_subscript.violation.missing-final-variable.stdout.gz",
+            "stdout_sha256": "4609c8c3e1726923c354094f5558716a02fd8e3ed7b95fb536b23b6190a40be8",
+            "stderr": "ProcExtra_P_set_subscript.violation.missing-final-variable.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "control": "invalid-closing",
+          "passed": true,
+          "capture": {
+            "exit_code": 1,
+            "stdout": "ProcExtra_P_set_subscript.violation.invalid-closing.stdout.gz",
+            "stdout_sha256": "fde3c60c545a7ac1c432e5f64c617ab20f0271f9172914d40396401d9c85fddd",
+            "stderr": "ProcExtra_P_set_subscript.violation.invalid-closing.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "workers_stores": [
+        {
+          "workers": 1,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w1.fp.stdout.gz",
+            "stdout_sha256": "4cdef1fcc177081c7f32cbb2f6969c2d81452def58658cd498db8544934bc598",
+            "stderr": "ProcExtra_P_set_subscript.violation.w1.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 1,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w1.exact.stdout.gz",
+            "stdout_sha256": "ae3d493f201511b78d3b2f7b0caca1887e56b145029389a1c6b599c48b84092b",
+            "stderr": "ProcExtra_P_set_subscript.violation.w1.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w4.fp.stdout.gz",
+            "stdout_sha256": "93c99c3e8da7ce67c4fc64647ded6acc1dbc865d99d84f3af818bc24a017155d",
+            "stderr": "ProcExtra_P_set_subscript.violation.w4.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 4,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w4.exact.stdout.gz",
+            "stdout_sha256": "40e9170813317ca2858f2345890530643272d3322310137cc4c9726af77d2f0c",
+            "stderr": "ProcExtra_P_set_subscript.violation.w4.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "fp",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w8.fp.stdout.gz",
+            "stdout_sha256": "8c7c0747434ac171966dce6bfdb58505cd82b7d1524edbd69218ad53e6d00eae",
+            "stderr": "ProcExtra_P_set_subscript.violation.w8.fp.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "workers": 8,
+          "store": "exact",
+          "outcome": "match",
+          "capture": {
+            "exit_code": 12,
+            "stdout": "ProcExtra_P_set_subscript.violation.w8.exact.stdout.gz",
+            "stdout_sha256": "4d00a34422fcc2870a64c4aa3ad2509695ce07ebdc2cde68b08399d6d56d2dc5",
+            "stderr": "ProcExtra_P_set_subscript.violation.w8.exact.stderr.gz",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "source": "ProcExtra_P_set_subscript.violation.model.tla",
+      "source_sha256": "485f9259fdba99f004bfdbdf5957d5be822bc1316cddad92b6968e07286b4691",
+      "config": "ProcExtra_P_set_subscript.violation.model.cfg",
+      "config_sha256": "0412be92dcec338d1714944940aa0b23f17927e897cae407cd529c84f33fafe6"
+    }
+  ]
+}
