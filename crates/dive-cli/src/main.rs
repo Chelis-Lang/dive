@@ -13,6 +13,7 @@ use std::process::ExitCode;
 /// Core commands named by the charter.
 const COMMANDS: &[&str] = &[
     "check",
+    "dfid",
     "simulate",
     "parse",
     "analyze",
@@ -32,7 +33,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--output human|json]
-               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
+               [--lncheck final --lasso short] [--library-path DIR]... [--module-path DIR]...\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
         env!("CARGO_PKG_VERSION"),
         COMMANDS.join("\n    ")
     )
@@ -613,6 +614,125 @@ fn validate_trace_command(
     }
 }
 
+/// Runs the native bounded iterative mode; unknown mode flags refuse by name.
+#[allow(
+    clippy::too_many_lines,
+    reason = "explicit CLI options and typed validation"
+)]
+fn dfid_command(
+    args: &[String],
+    out: &mut impl std::io::Write,
+    err: &mut impl std::io::Write,
+) -> ExitCode {
+    let mut req = dive_api::DfidRequest {
+        compat_tlc: std::env::var("DIVE_COMPAT").is_ok_and(|v| v == "tlc"),
+        ..dive_api::DfidRequest::default()
+    };
+    let mut json = false;
+    let mut has_depth = false;
+    let mut file = None;
+    let mut it = args.iter();
+    let usage_error = |err: &mut dyn std::io::Write, text: &str| {
+        let _ = writeln!(err, "error: {text}");
+        ExitCode::from(EXIT_USAGE)
+    };
+    while let Some(arg) = it.next() {
+        let (flag, inline) = match arg.split_once('=') {
+            Some((f, v)) if f.starts_with('-') => (f, Some(v.to_owned())),
+            _ => (arg.as_str(), None),
+        };
+        let mut value = || inline.clone().or_else(|| it.next().cloned());
+        match flag {
+            "--output" => match value().as_deref() {
+                Some("json") => json = true,
+                Some("human") => json = false,
+                _ => return usage_error(err, "--output expects human or json"),
+            },
+            "--compat" => match value().as_deref() {
+                Some("tlc") => req.compat_tlc = true,
+                Some("dive" | "none") => req.compat_tlc = false,
+                _ => return usage_error(err, "--compat expects tlc or dive"),
+            },
+            "--config" | "-config" => match value() {
+                Some(v) => req.config = Some(v.into()),
+                None => return usage_error(err, "--config expects a cfg file"),
+            },
+            "--max-level" | "--dfid" | "-dfid" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => {
+                    req.max_level = n;
+                    has_depth = true;
+                }
+                None => return usage_error(err, "--max-level expects an unsigned integer"),
+            },
+            "--seed" | "-seed" => match value().as_deref().and_then(dive_api::parse_seed) {
+                Some(seed) => req.seed = Some(seed),
+                None => return usage_error(err, "--seed expects a 64-bit seed"),
+            },
+            "--worker-seeds" => match value().map(|v| {
+                v.split(',')
+                    .map(dive_api::parse_seed)
+                    .collect::<Option<Vec<_>>>()
+            }) {
+                Some(Some(seeds)) if !seeds.is_empty() => req.worker_seeds = Some(seeds),
+                _ => {
+                    return usage_error(err, "--worker-seeds expects comma separated 64-bit seeds");
+                }
+            },
+            "--workers" | "-workers" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => req.workers = Some(n),
+                None => return usage_error(err, "--workers expects an unsigned integer"),
+            },
+            "--fp" | "-fp" => match value().and_then(|v| v.parse::<usize>().ok()) {
+                Some(n) if n < 131 => req.fp = n,
+                _ => return usage_error(err, "--fp expects 0..130"),
+            },
+            "--store" => match value().as_deref() {
+                Some("exact") => req.exact = true,
+                Some("fp" | "fingerprint") => req.exact = false,
+                _ => return usage_error(err, "--store expects fp or exact"),
+            },
+            "--library-path" => match value() {
+                Some(v) => req.library_paths.push(v.into()),
+                None => return usage_error(err, "--library-path expects a directory"),
+            },
+            "--module-path" => match value() {
+                Some(v) => req.module_paths.push(v.into()),
+                None => return usage_error(err, "--module-path expects a directory"),
+            },
+            "-deadlock" | "--no-deadlock" => req.no_deadlock = true,
+            s if s.starts_with('-') => {
+                let _ = writeln!(err, "unsupported DFID option: {s}; no checking performed");
+                return ExitCode::from(EXIT_UNSUPPORTED);
+            }
+            s => {
+                if file.replace(s).is_some() {
+                    return usage_error(err, "dfid takes one specification file");
+                }
+            }
+        }
+    }
+    let Some(file) = file else {
+        return usage_error(err, "dfid requires a specification and --max-level N");
+    };
+    if !has_depth {
+        return usage_error(err, "dfid requires explicit --max-level N");
+    }
+    req.file = file.into();
+    let report = match dive_api::dfid_file(&req) {
+        Ok(r) => r,
+        Err(e) => {
+            let _ = writeln!(err, "{e}");
+            return ExitCode::from(EXIT_USAGE);
+        }
+    };
+    if json {
+        let _ = writeln!(out, "{}", report.to_json());
+    } else {
+        let _ = write!(out, "{}", report.render_human());
+    }
+    ExitCode::from(report.exit_status())
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut stdout = std::io::stdout().lock();
@@ -629,6 +749,7 @@ fn main() -> ExitCode {
         }
         Some("parse") => parse_command(&args[1..], &mut stdout, &mut stderr),
         Some("analyze") => analyze_command(&args[1..], &mut stdout, &mut stderr),
+        Some("dfid") => dfid_command(&args[1..], &mut stdout, &mut stderr),
         Some("check") => check_command(&args[1..], &mut stdout, &mut stderr),
         Some("validate-trace") => validate_trace_command(&args[1..], &mut stdout, &mut stderr),
         Some(cmd) if COMMANDS.contains(&cmd) => {

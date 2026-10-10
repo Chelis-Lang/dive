@@ -1,6 +1,6 @@
 # Divergences and enhancements
 
-`dive --compat=tlc` matches the pinned TLC exactly and is proven against the full corpus. dive's default profile is TLC-compatible except where the owner has approved a better default. Wherever TLC's behaviour is a handcuff, dive builds a named option that does better. See [ADR 0010](decisions/0010-tlc-compatible-defaults-dive-enhancements.md) for the rule. This file is the terse registry. Its user-facing narrative companion, [`tlc-differences.md`](tlc-differences.md), explains each entry with an example; every row here has a `D-NNN` entry there, kept in sync in the same PR. Every TLC handcuff found gets a row here, *before or with* its implementation.
+`dive --compat=tlc` selects pinned TLC behavior on supported paths, with named refusals for unfinished features; complete toolchain parity remains in progress. dive's default profile is TLC-compatible except where the owner has approved a better default. Wherever TLC's behaviour is a handcuff, dive builds a named option that does better. See [ADR 0010](decisions/0010-tlc-compatible-defaults-dive-enhancements.md) for the rule. This file is the terse registry. Its user-facing narrative companion, [`tlc-differences.md`](tlc-differences.md), explains each entry with an example; every row here has a `D-NNN` entry there, kept in sync in the same PR. Every TLC handcuff found gets a row here, *before or with* its implementation.
 
 **Kinds:**
 - **preserving**: a result-preserving enhancement. It changes how dive gets the answer, never the answer. It may default to on once the harness shows equality with the TLC golden at every setting.
@@ -213,3 +213,30 @@ models match final truth/counts in both profiles/stores at requested workers
 normalization order and bounds component and generated value slots. Deferred,
 infinite, oversized and excessive-work domains remain named failures. This does
 not change the strict temporal compatibility refusal.
+## D-018: DFID depth exhaustion is incomplete
+
+The pinned `-dfid N` is a maximum level, despite the CLI describing an initial
+depth. `DfidBound` (`Init == x = 0`, `Next == x' = x + 1`) exits zero at
+`-dfid 2` after 2 generated/2 distinct and at `-dfid 4` after 7/4, without
+completion message 2193. Native DFID reports a depth-bound stop as
+incomplete with no exhaustive-proof claim. `--compat=tlc` retains the measured
+TLC exit status while exposing the incomplete termination; the default uses an
+explicit incomplete disposition. ADR 0021; clean controls under
+`crates/dive-check/tests/fixtures/dfid/`.
+
+**D-002 DFID replay finding:** the same seed 7/aril 3/fingerprint 0 yields
+both `0,1,3` and `0,2,4` on `DfidBranch`. `DFIDWorker` self-seeds its Java
+generator instead of using the CLI seed. Native default replay is implemented;
+TLC mode reports all actual worker seeds and distinguishes replay overrides.
+
+## D-019: DFID cross-root witness prefix
+
+Pinned `DFIDWorker.run` leaves `curLevel` from the previous initial root when
+`doNext` checks the next root; `printInvariantTrace` walks that stale stack.
+`DfidRootsMixed` clean controls emit both the valid `1,2` and truncated `1`
+witness for the same invariant violation. The truncated word does not exhibit
+the violated invariant. Native DFID keeps the actual concrete root/path and
+certifies it independently. TLC printed-witness reproduction is a named
+unsupported display mode, never a validated witness. Raw primary observations
+are retained; structured native trace selection does not claim equality in this
+case. See ADR 0021 and [D-019](tlc-differences.md#d-019-dfid-can-truncate-a-counterexample-after-switching-initial-roots).

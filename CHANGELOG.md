@@ -25,6 +25,12 @@ All notable changes to this project are documented here. The project will follow
   scratch admission bound returns an explicit resource refusal. VIEW, symmetry,
   randomness, stateful graph effects and strict TLC temporal timing still refuse.
 
+- Native bounded `dive dfid` and `dfid_file` implement pure safety iterative
+  visitation with TLC's discovery/status bits, eager vector counting and actual
+  worker selection seeds. Depth-bound stops never claim model safety, and every
+  claimed violation is independently certified. Remaining mode/output contracts
+  refuse by name; TLC's stale cross-root witness is retained as reference evidence.
+
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown
   thread execution is reported as unknown rather than zero. Existing library
