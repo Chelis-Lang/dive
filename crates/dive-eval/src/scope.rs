@@ -474,8 +474,9 @@ impl Evaluator {
     /// Explicit sets, intervals and structurally finite lazy constructors are
     /// supported. Domain entries, materialized component/value slots and
     /// Cartesian bindings are each bounded by `limit`, before retaining
-    /// them. Infinite and deferred domains remain explicit refusals. Order is
-    /// the profile's exploration order, first variable fastest.
+    /// them. Pure captured filters over bounded structural inputs are admitted;
+    /// infinite, opaque and unresolved-effect domains remain explicit refusals.
+    /// Order is the profile's exploration order, first variable fastest.
     /// This is expression binding, not successor generation.
     ///
     /// # Errors

@@ -240,3 +240,14 @@ certifies it independently. TLC printed-witness reproduction is a named
 unsupported display mode, never a validated witness. Raw primary observations
 are retained; structured native trace selection does not claim equality in this
 case. See ADR 0021 and [D-019](tlc-differences.md#d-019-dfid-can-truncate-a-counterexample-after-switching-initial-roots).
+
+
+D-013 bounded deferred-domain support admits closed pure captured filters over
+finite structural inputs and maps over those filters. Six clean `finite-deferred-audit`
+probes match final truth/counts in both profiles/stores with independent periodic
+validation. Preflight bounds input and conservative output work before predicates
+run; cached results do not bypass the original input bound. Infinite/opaque/
+effectful domains and recursive scoped functions still refuse. This is staged
+F-007 evidence, not strict temporal certification; F-006 recursive scope support
+remains open. The original full ten-row study retains its nine refusals/bounds
+and one timeout until a new immutable whole-selection report is completed.
