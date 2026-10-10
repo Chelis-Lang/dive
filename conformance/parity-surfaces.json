@@ -1053,7 +1053,7 @@
   "override_registry": {
     "source": {
       "path": "crates/dive-ir/src/std_op.rs",
-      "sha256": "24ff0d8f4809d964fb1c3335fb62f4603ef7bbace926bde29dd198d88adcfb29"
+      "sha256": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8"
     },
     "rows": [
       {

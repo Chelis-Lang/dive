@@ -33,3 +33,6 @@ pub mod tlc_tableau;
 
 /// Bounded concrete successor receipts and ordered diagnostic phase-L checks.
 pub mod phase_l;
+
+/// Bounded concrete worker capture and actual null-tableau graph commits.
+pub mod phase_graph;

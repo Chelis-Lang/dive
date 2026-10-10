@@ -323,8 +323,56 @@ consistency (ADR 0029). All receipts say graph_insertion=false. Tableau graph
 revisitation, wider diagnostic execution and unproved state-kind IF planning
 remain explicit refusals; strict integrated liveness remains unsupported. The
 original native error-order gaps (#147/#149) are retained and receive no match credit.
+
+D-013 planning/error-order update (#147): `[]<>(IF x = 1 THEN 1 \div 0 = 0
+ELSE x = 2)` raises TLC code2179 before any exploration, even if a reachable
+state would not select the erroneous branch. The TLC-shaped native planner now
+preserves that error and the reference's distinct user-call/boolean fallbacks.
+No alternate default is adopted: independent formula evaluation keeps its
+existing semantics, and strict integrated liveness remains unsupported. Complete
+24 current controls, original18 and the native false completion are retained in
+`conformance/probes/state-if-planning/`; valid state-IF phase-L admission remains
+conservative. This is a native limitation repair, not family certification.
+
 The [single-process increment](pluscal-processes.md) matches unfair constant-ID
 and finite-membership process storage/action semantics and the distinct process
-`-label` default. Multiple blocks/fairness/unproved names remain named refusals.
+`-label` default. Subsequent bounded fairness and multiple-block support is
+described below; unproved names remain named refusals.
 Constant-ID `self` references that leave the primary output SANY-invalid are
 retained without artifact credit; no alternate mathematical default is adopted.
+
+D-013's next staged graph path now consumes concrete source receipts into actual
+native graph nodes for one null-tableau OOS. The safety pool retains original
+successor values and reports its true execution width; graph/predicate commits
+run inline in logical source order. Twelve complete pinned graph projections
+match fields at widths 1/3/4/8; all fifteen selected rows and clean TLC outcomes
+are preserved in `conformance/probes/tlc-phase-l-graph/`. Resource and opaque-scope
+refusals are explicit. This is graph evidence, not strict temporal verdict or
+TLC stopping/SCC/lasso/scheduling credit; #140 remains open.
+
+Checkpoint evidence for D-007 is preserved in
+`conformance/probes/native-checkpoint/README.md`. TLC recovery resets counters;
+original totals are an opt-in proposed native capability, not an approved default.
+An incomplete native pause must never report a complete model-checking verdict.
+
+The [bounded process-fairness increment](pluscal-fairness.md) adds weak/strong
+declarations, label guards and explicit pinned fairness options. Translation
+artifacts remain nonproof results. Unproved/overlapping process domains, procedure fairness, renaming
+and unproved domain normalization are still named refusals; full-family
+certification remains pending.
+
+D-008 also records a pinned PlusCal fairness line of 87 columns under the
+default 78-column setting. Native generation currently preserves the measured
+reference junction grouping in both profiles; a width/layout improvement remains
+pending. The minimal source and raw output are retained in the fairness corpus.
+
+D-008 public Rust admission also covers ordinary/native checker startup and
+bound graph capture (#157): malformed arena IDs and foreign predicate/action
+contexts refuse before effects; error-report metadata cannot index an invalid
+variable declaration. Stable context codes and original panic evidence are
+retained in `conformance/probes/public-ir-admission/`; F-035 stays partial.
+
+The [multiple finite-process increment](pluscal-multiple-processes.md) proves
+per-block storage, label and fairness ownership for disjoint literal domains.
+Overlapping IDs, namespace rewrites and cross-process local references remain
+explicit refusals in both profiles. Full translation families remain partial.

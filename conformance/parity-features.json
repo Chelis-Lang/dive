@@ -405,7 +405,8 @@
         107,
         127,
         130,
-        136
+        136,
+        147
       ],
       "acceptance": "All 53 selected temporal models plan without feature refusal; exact DNF, EA/AE classification, branch grouping and tableau numbering match Java controls.",
       "interactions": [
@@ -418,7 +419,8 @@
         "conformance/probes/temporal-forwarding/README.md",
         "crates/dive-api/tests/temporal_forwarding.rs",
         "conformance/probes/tlc-planning/README.md",
-        "crates/dive-liveness/tests/tlc_planning.rs"
+        "crates/dive-liveness/tests/tlc_planning.rs",
+        "conformance/probes/state-if-planning/README.md"
       ],
       "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -428,7 +430,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Conditional conversion now preserves deciding2179/2215 and call fallback on24 pinned controls. Successful phase-L IF admission and full source conversion remain partial; no strict verdict credit."
     },
     {
       "id": "F-020",
@@ -463,7 +465,10 @@
         "crates/dive-liveness/tests/tlc_planning.rs",
         "conformance/probes/temporal-action-order/README.md",
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
@@ -472,7 +477,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-021",
@@ -503,7 +508,10 @@
         "conformance/probes/tlc-planning/README.md",
         "crates/dive-liveness/tests/tlc_planning.rs",
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
       "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -513,7 +521,7 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-022",
@@ -541,11 +549,14 @@
         "conformance/probes/tlc-tableau/README.md",
         "crates/dive-liveness/tests/tlc_tableau.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained.",
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140.",
       "additional_evidence": [
         "conformance/probes/temporal-action-order/README.md",
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ]
     },
     {
@@ -569,9 +580,12 @@
       ],
       "additional_evidence": [
         "conformance/probes/tlc-phase-l/README.md",
-        "crates/dive-liveness/tests/phase_l.rs"
+        "crates/dive-liveness/tests/phase_l.rs",
+        "conformance/probes/tlc-phase-l-graph/README.md",
+        "crates/dive-liveness/tests/phase_graph.rs",
+        "crates/dive-check/tests/capture.rs"
       ],
-      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained."
+      "notes": " Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140."
     },
     {
       "id": "F-024",
@@ -755,13 +769,15 @@
     {
       "id": "F-032",
       "name": "Native checkpoint and recovery",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 7,
       "pinned_source": "tlc2/tool/ModelChecker.java",
-      "rust_evidence": "crates/dive-store/src/lib.rs",
-      "conformance_evidence": "docs/design/tlc-parity-plan.md",
-      "issues": [],
+      "rust_evidence": "crates/dive-check/src/checkpoint.rs",
+      "conformance_evidence": "docs/native-checkpoint.md",
+      "issues": [
+        152
+      ],
       "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
       "interactions": [
         "F-020",
@@ -801,7 +817,9 @@
         126,
         131,
         143,
-        150
+        150,
+        155,
+        160
       ],
       "acceptance": "Both syntaxes, all 21 option spellings, process/procedure/label/atomic/fairness semantics, translations/checksums/source maps and diagnostics match pinned translator cases; translated models check equivalently.",
       "interactions": [
@@ -810,7 +828,7 @@
         "F-019",
         "F-024"
       ],
-      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
+      "coverage_note": "Native bounded C/P source AST study retains 200 field-level matches, 13 grammar rejection matches, four macro-body normalization-stage pending, one oracle timeout and four non-standalone marker selection errors across 222 accounted inputs/markers. Separate explicitly labelled sequential C/P normalization/generation retains 160 translation inputs (46 token-artifact matches, 55 rejection matches, 59 named refusals), enclosing-module CST/SANY checks and 16 finite generated-model controls with independent positive/corrupted witnesses. Full process/procedure/macro/automatic-label/name/options/rewrite/checksum/map parity remains pending; family not certified. Sequential normalization follow-up retains all 110 option rows: 82 artifact/normalized-label/operator matches, 22 rejection matches and six named refusals, plus 16 finite generated-model controls and independent positive/corrupted witnesses. Automatic-label option defaults, defaultInitValue and sequential modifiers are bounded native paths; branch-internal labels/processes/procedures/macros/full options remain pending. Sixteen supplemental C/P control-flow and UTF8/tab/grouping interactions retain 11 matching artifacts and five rejections; initial failed secondary-tab setup is preserved separately. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence.",
       "additional_evidence": [
         "docs/pluscal-parser.md",
         "docs/decisions/0022-pluscal-source-parser.md",
@@ -834,7 +852,20 @@
         "crates/dive-pluscal/process-acceptance/validation/report.json",
         "crates/dive-pluscal/process-acceptance/interactions/comparison.json",
         "crates/dive-pluscal/process-acceptance/subscripts/comparison.json",
-        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json"
+        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json",
+        "docs/pluscal-fairness.md",
+        "docs/decisions/0035-pluscal-process-fairness.md",
+        "crates/dive-pluscal/tests/fairness.rs",
+        "crates/dive-pluscal/fairness-acceptance/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/positive/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/interactions/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/sequential/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/sequential-positive/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/positive/validation/report.json",
+        "crates/dive-pluscal/fairness-acceptance/mutation-controls.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/validation/report.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/warning-control.json"
       ]
     },
     {
@@ -853,7 +884,10 @@
         131,
         143,
         149,
-        150
+        150,
+        155,
+        157,
+        160
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
       "interactions": [
@@ -864,10 +898,11 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required.",
       "evidence_updates": [
         "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required.",
-        "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required."
+        "Fallible public evaluator/context admission checks malformed IDs, override signatures/cycles and foreign captures before callbacks/interning; independent certificate entries check model ownership. Native controls and original panic evidence retained; bare numeric ID and semantic-annotation provenance remain unproved. Family stays partial/audit-required.",
+        "Shared callback-free IR admission before ordinary/native checker and binding startup; checked error metadata plus foreign/malformed bound-capture context controls. Family remains partial/audit-required."
       ],
       "additional_evidence": [
         "crates/dive-api/tests/simulate.rs",
@@ -890,8 +925,24 @@
         "crates/dive-pluscal/process-acceptance/validation/report.json",
         "crates/dive-pluscal/process-acceptance/interactions/comparison.json",
         "crates/dive-pluscal/process-acceptance/subscripts/comparison.json",
-        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json"
-      ]
+        "crates/dive-pluscal/process-acceptance/subscripts/validation/report.json",
+        "docs/pluscal-fairness.md",
+        "docs/decisions/0035-pluscal-process-fairness.md",
+        "crates/dive-pluscal/tests/fairness.rs",
+        "crates/dive-pluscal/fairness-acceptance/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/positive/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/interactions/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/sequential/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/sequential-positive/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/positive/validation/report.json",
+        "crates/dive-pluscal/fairness-acceptance/mutation-controls.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/comparison.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/validation/report.json",
+        "crates/dive-pluscal/fairness-acceptance/combined/warning-control.json",
+        "crates/dive-check/tests/public_ir.rs",
+        "conformance/probes/public-ir-admission/README.md"
+      ],
+      "coverage_note": " Bounded single-process fairness and label modifier generation retains complete declared/default/option precedence and junction-wrapping controls; source, normalization, token artifact, full-module CST and SANY stages are separate. Generated artifacts remain nonproof. Full process/procedure/options/maps and API integration coverage still require certification. The active fairness/options study has 404 rows: 246 artifacts, 148 matching rejections and 10 named refusals, plus 16 finite Init/Next controls, 4 independently valid witnesses and 16 rejected mutants. Structured sequential override warnings are matched; liveness execution is not certified by translation evidence."
     },
     {
       "id": "F-036",

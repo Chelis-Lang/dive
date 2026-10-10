@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "runtime_source_commit": "9699950299f6b7ea5f87b3e44a81872530c511a0",
+  "runtime_source_tree": "5c1887f12f9dae2cd76d931c1a237d79d78cac3a",
+  "binary_sha256": "9025f6d1873609d890c5745dce488c486fd4ea49f9d33d223165a5d6972779aa",
+  "runtime_evidence": "conformance/probes/native-parity-integration/current-controls/delivery.json",
+  "source_sha256": {
+    "docs/user/examples/Algorithm.tla": "c763c9420db114069434216357c916db3a6dc3863f280d831f6137bdb10da8ef",
+    "docs/user/examples/Counter.cfg": "44172996b3ad4e8ef0abd9e67d63fdac17745603a57b4589e6fca45d9345b2a1",
+    "docs/user/examples/Counter.tla": "993ff9cbcecda46e977b81d8e53ba67bcebf462c8cfbeb840b8e3c232e65c482",
+    "docs/user/examples/CounterTemporal.cfg": "e1fb6c52847dd8882a5f6f36a204ada97dda42f800025459cd4fbc2ef980eb1b",
+    "docs/user/examples/CounterViolation.cfg": "d9f07b03a1c8a766cae0c457e93799f96dacf7af5fd2a4389cb6f39a741258b1",
+    "docs/user/examples/CheckpointCounter.cfg": "44172996b3ad4e8ef0abd9e67d63fdac17745603a57b4589e6fca45d9345b2a1",
+    "docs/user/examples/CheckpointCounter.tla": "90fda533321706a0bf65cdc0d2023423f9f445c2222da2d607568d0a4d26031a"
+  },
+  "rows": [
+    {
+      "args": [
+        "parse",
+        "docs/user/examples/Counter.tla",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": true,
+      "keys": [
+        "accepted",
+        "command",
+        "diagnostics",
+        "file",
+        "module",
+        "modules",
+        "schema_version"
+      ]
+    },
+    {
+      "args": [
+        "analyze",
+        "docs/user/examples/Counter.tla",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": true,
+      "keys": [
+        "accepted",
+        "command",
+        "definitions",
+        "diagnostics",
+        "file",
+        "files",
+        "module",
+        "modules",
+        "schema_version"
+      ]
+    },
+    {
+      "args": [
+        "check",
+        "docs/user/examples/Counter.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "4",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": "success",
+      "keys": [
+        "collision",
+        "command",
+        "config",
+        "counterexample",
+        "diagnostics",
+        "elapsed_ms",
+        "error_site",
+        "file",
+        "frontier_storage",
+        "message",
+        "notes",
+        "options",
+        "output",
+        "property",
+        "schema_version",
+        "statistics",
+        "tlc",
+        "verdict",
+        "warnings"
+      ]
+    },
+    {
+      "args": [
+        "check",
+        "docs/user/examples/Counter.tla",
+        "--config",
+        "docs/user/examples/CounterViolation.cfg",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json"
+      ],
+      "exit": 12,
+      "result": "invariant-violation",
+      "keys": [
+        "collision",
+        "command",
+        "config",
+        "counterexample",
+        "diagnostics",
+        "elapsed_ms",
+        "error_site",
+        "file",
+        "frontier_storage",
+        "message",
+        "notes",
+        "options",
+        "output",
+        "property",
+        "schema_version",
+        "statistics",
+        "tlc",
+        "verdict",
+        "warnings"
+      ]
+    },
+    {
+      "args": [
+        "simulate",
+        "docs/user/examples/Counter.tla",
+        "--traces",
+        "3",
+        "--depth",
+        "8",
+        "--seed",
+        "7",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": "sampled",
+      "keys": [
+        "command",
+        "config",
+        "exhaustive",
+        "exit_code",
+        "file",
+        "message",
+        "model_proved",
+        "observed_result",
+        "observed_tlc_code",
+        "observed_violation",
+        "options",
+        "pending_violation",
+        "profile",
+        "result",
+        "schema_version",
+        "startup_output",
+        "statistics",
+        "tlc_code",
+        "traces",
+        "violation_validated"
+      ]
+    },
+    {
+      "args": [
+        "dfid",
+        "docs/user/examples/Counter.tla",
+        "--max-level",
+        "8",
+        "--seed",
+        "7",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": "complete",
+      "keys": [
+        "command",
+        "compatibility_claim",
+        "config",
+        "counterexample",
+        "exhaustive",
+        "exit_code",
+        "file",
+        "message",
+        "model_proved",
+        "observed_deciding",
+        "observed_result",
+        "observed_tlc_code",
+        "options",
+        "profile",
+        "result",
+        "schema_version",
+        "startup_output",
+        "statistics",
+        "termination",
+        "tlc_code",
+        "tlc_completion_message",
+        "violation_validated"
+      ]
+    },
+    {
+      "args": [
+        "translate",
+        "docs/user/examples/Algorithm.tla",
+        "--output",
+        "json"
+      ],
+      "exit": 0,
+      "result": "artifact",
+      "keys": [
+        "accepted",
+        "analysis",
+        "artifact",
+        "command",
+        "exhaustive",
+        "exit_code",
+        "file",
+        "limits",
+        "model_proved",
+        "module_source",
+        "pending",
+        "profile",
+        "result",
+        "schema_version",
+        "stage"
+      ]
+    },
+    {
+      "args": [
+        "check",
+        "docs/user/examples/Counter.tla",
+        "--config",
+        "docs/user/examples/CounterTemporal.cfg",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "7",
+        "--output",
+        "json"
+      ],
+      "exit": 10,
+      "result": "liveness-violation",
+      "keys": [
+        "collision",
+        "command",
+        "config",
+        "counterexample",
+        "diagnostics",
+        "elapsed_ms",
+        "error_site",
+        "execution",
+        "file",
+        "frontier_storage",
+        "message",
+        "notes",
+        "options",
+        "output",
+        "properties",
+        "property",
+        "schema_version",
+        "statistics",
+        "tlc",
+        "verdict",
+        "warnings"
+      ]
+    }
+  ],
+  "additional_observations": "command-observations",
+  "checkpoint_original": {
+    "source": "docs/user/examples/Counter.tla",
+    "exit": 3,
+    "verdict": "unsupported",
+    "message": "native checkpoint runtime/temporal effects in EventuallyFour",
+    "stdout_sha256": "705e363b6958c109a320a82b0956aba2c0d13cfafe31573a5244509fa76bf338"
+  }
+}

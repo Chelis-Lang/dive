@@ -5,12 +5,27 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- TLC-shaped temporal planning preserves eager state-conditional conversion
+  failures, typed TLC errors and source-order fallback before graph work.
+
+- Native PlusCal translation admits multiple disjoint finite process blocks, with
+  source-owned scalar/indexed storage, shared CASE `pc` initialization, actions
+  and fairness formulas. Aggregate bounds and named scope/domain refusals remain
+  active; artifacts report no exhaustive search or model proof.
+
+- Bounded single-process PlusCal translation supports weak/strong declarations,
+  post-colon `+`/`-` label modifiers and pinned `-nof`/`-wf`/`-sf`/`-wfNext`
+  option precedence. Full operator CST checks preserve fairness quantifier and
+  junction grouping. API/CLI artifacts remain validated modules, never model
+  proofs; multiple blocks, procedure fairness and unproved domain normalization
+  remain named refusals (#155).
+
 - Native PlusCal translation now admits one unfair constant-ID or finite-set
   process in current C/P syntax, matching scalar/indexed local storage, indexed
   program counters, process action scheduling and terminating stutter. Missing
   process labels require explicit `--label`, matching the pinned process default.
   JSON returns process source/storage metadata and local default-init `.cfg`
-  bindings. Multiple blocks, fairness and unproved renaming remain named refusals;
+  bindings. Multiple blocks and unproved renaming remain named refusals;
   artifacts are validated modules, never model proofs (#150). Global `pc` is now
   rejected even when generated pc storage is omitted, matching its unconditional
   reserved symbol and correcting an inherited false translator acceptance.
@@ -22,6 +37,12 @@ All notable changes to this project are documented here. The project will follow
 
 - Rust safety-check requests reject a frontier directory without an encoded
   frontier budget before loading a model, matching CLI option admission.
+- Bounded concrete temporal graph stage: retain original accepted successor values
+  through the actual deterministic worker pool, commit one null-tableau OOS in
+  TLC slot order and expose persisted bin/PEM graph inputs. All graph results
+  remain explicit non-verdict evidence; wider tableau/schedule/lasso work remains
+  refused. Scoped capture admission rejects opaque effects and malformed IDs
+  before workers execute; fixed structural bounds are unchanged.
 
 - Add bounded diagnostic concrete phase-L receipts: TLC successor slots, first
   representatives, logical capacity history and ordered null-tableau bins with
@@ -34,6 +55,15 @@ All notable changes to this project are documented here. The project will follow
   Complete pinned projections and independent periodic/closing-witness controls
   preserve explicit resource, structural and scope refusals. Strict integrated
   liveness, checker behavior and defaults remain unchanged.
+- Pure finite safety checking can pause at a completed BFS level and recover
+  the actual saved concrete frontier with `--checkpoint` / `--recover`.
+  Native archives validate model/config/profile/executable identity, ordered
+  names, keys and predecessors before recovery. Pauses are explicitly incomplete;
+  malformed or interrupted archives refuse. Both profiles preserve TLC's counter
+  reset by default; `--checkpoint-counters retain` preserves original totals.
+  The first slice runs inline with one actual worker and refuses temporal,
+  runtime-effect, VIEW/SYMMETRY and transient-spill interactions (ADR 0033).
+
 - Ordinary safety BFS can spill predecessor/ordinal records with a separate
   `--predecessor-memory-bytes` budget and optional `--predecessor-directory`.
   Zero spills immediately; both stores and profiles preserve concrete replay.
@@ -736,3 +766,9 @@ All notable changes to this project are documented here. The project will follow
 - `dive-eval`: constant definitions that read a configured constant are computed once, as
   TLC precomputes them, when every `<-` binding is constant-level and pure. TLC warnings
   are printed once each, and not at all with warnings off.
+
+- Public checker, native checkpoint and graph-capture entry points refuse malformed/foreign IR contexts before effects, with checked no-work error metadata (#157).
+
+- User manual covering exposed CLI/API features, runnable guide examples, report
+  interpretation and current limits; developer documentation map and maintenance
+  requirements applied throughout feature delivery.

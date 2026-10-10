@@ -10,6 +10,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
+| `dive-check` native checkpoint/resume (`checkpoint.rs`, inline completed-level engine) | tlaplus `tlc2/tool/ModelChecker.java` (`checkpoint`, `recover`, `doInit`), `AbstractChecker.java`, `Worker.java`, `TLCTrace.java`, `queue/DiskStateQueue.java`, `fp/MemFPSet.java`, `util/InternTable.java`, commit `94d0c50` | MIT | Recovery resumes queue without Init, preserves concrete trace/order and restores intern names before evaluation; TLC generated/initial counter reset matched. Native bounded single-file format and completed-level pausing are dive designs, not Java byte interoperability. Source hashes/raw counts in `conformance/probes/native-checkpoint/` |
 | `dive-eval` `Evaluator::intern_bfs_config` and `dive-check` startup | tlaplus `tlc2/tool/AbstractChecker.java` constructor and `createConfig`, commit `94d0c50` | MIT | Eagerly intern bfs, seed, fingerprint polynomial and install strings in source order; clean seed 0/7/14 captures in `crates/dive-check/tests/fixtures/runtime-names/` reproduce counts and chosen violation |
 | `dive-syntax` lexer (`crates/dive-syntax/src/lexer.rs`) | tlaplus `tlatools/org.lamport.tlatools/javacc/tla+.jj`: token definitions and the `DEFAULT`, `PRAGMA`, `SPEC` and comment lexical states; `tla2sany/parser/SimpleCharStream.java` `UpdateLineColumn` (column counting); commit `94d0c50` | MIT | Semantics matched: same tokens, longest-match and tie-break order, same columns |
 | `dive-syntax` parser (`crates/dive-syntax/src/parser/`) | tlaplus `tla+.jj` productions `CompilationUnit` to `OpenStart`, including `belchDEF`, `matchFcnConst`, `isMinusOpStart`, `isFieldNameToken`, `isLabel`, `labelDoesNotChangeParse`, `checkIndentation`, `caseSep`, `beginsProof`, `correctLevel`, and `tla2sany/parser/JunctionListContext.java`; commit `94d0c50` | MIT | Semantics matched; structure is idiomatic Rust, one function per production |
@@ -366,6 +367,15 @@ development-only reference evidence; runtime translation remains native.
 `dive-liveness::plan::PredicateAtom::evaluate` matches `tlc2/tool/liveness/LNAction.java::eval` at revision `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT). The independent periodic interpreter in `dive-trace/src/temporal.rs` implements the temporal subscript-first rule without depending on the checker, liveness or successor enumerator. Direct pinned `LNAction.eval` and `Tool.eval` controls, retained native failures and scope limits are documented in `conformance/probes/temporal-action-order/README.md`. Ordinary runtime action evaluation continues to match `Tool.eval`; this increment is not strict integrated liveness certification.
 
 | `dive-liveness` phase-L diagnostic receipts (`phase_l.rs`) | tlaplus `tlc2/util/SetOfStates.java` put/grow/iteration; `tlc2/tool/Worker.java` createSetOfStates/doNextCheckLiveness; `tlc2/tool/TLCStateMut.java` equality; `tlc2/tool/liveness/LiveCheck.java` addInitState/addNextState, `OrderOfSolution` checkState/checkAction, `LNAction` eval and `TBGraphNode` isConsistent; commit `94d0c50` | MIT | Bounded material-state collection, concrete first representatives, slot/grow order, logical multiplier history, null-tableau bin order and initial consistency matched. No native graph insertion/SCC/scheduling/lasso claim; forced-key and real bound evidence remain separate. |
+
+## Conditional temporal planning conversion
+
+`dive-liveness::plan` matches pinned `tlc2/tool/liveness/Liveness.java`
+`astToLive`/`astToLiveAppl`: conditional guard probes, ordered branch/boolean
+conversion and nonrecursive-call exception fallback (MIT, revision `94d0c50`).
+The complete 24-row actual processLiveness capture, historical selections and
+native failures are in `conformance/probes/state-if-planning/`; ADR 0036 records
+remaining rendering, admission and strict execution limits.
 ## Native predecessor spill (ADR 0031)
 
 `dive-store::predecessor` is a native fixed-record transient storage design.
@@ -380,3 +390,13 @@ symmetry witnesses across memory/disk, stores, profiles and worker widths.
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
 | Single-process PlusCal storage/actions (`dive-pluscal/translate/process.rs`, `emit.rs`, `labels.rs`) | `pcal/ParseAlgorithm.getAlgorithm` process LabelFlag check, `checkBody`; `pcal/PcalSymTab` unconditional reserved pc symbol; `pcal/PcalTLAGen.GenProcess`, `GenVarsAndDefs`, `GenProcSet`, `GenInit`, `GenLabeledStmt`, `GenNext`, `GenSpec`, `GenTermination`, `AddSubscriptsToExpr`, `GenAssign` at `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded single unfair constant-ID/finite-membership process, indexed pc, scalar/indexed locals and assignment/expression substitutions. Primary translation/SANY and normalized secondary AST stages kept separate; no Java runtime delegation. |
+| `dive-check` concrete pool graph capture and `dive-liveness::phase_graph` | Existing deterministic safety pool; `tlc2/tool/Worker.java` `doNextCheckLiveness`; `tlc2/tool/liveness/LiveCheck.java` null-tableau `LiveChecker.addNextState`, `DiskGraph`/`GraphNode` transition insertion and bin persistence; pin `94d0c50` | MIT semantics / own bounded retention and scoped admission | Accepted original concrete rows are retained before representative substitution. One logical source order matches twelve completed actual Java graph projections at widths 1/3/4/8; synthetic written/unwritten collisions tested separately. Completed capture precedes bin evaluation; no integrated stopping/SCC/lasso proof. |
+
+
+## Single-process fairness generation
+
+| Rust implementation | Pinned source matched | License | Evidence and boundary |
+| --- | --- | --- | --- |
+| `dive-pluscal` fairness options, process normalization and `Emitter::process_fairness` | `pcal.ParseAlgorithm.getAlgorithm` explicit/default fairness precedence; `pcal.PcalTLAGen.GenSpec`, `ProcessFairness.singleLineWidth`/`format`, `FormulaPair.multiLine`; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Complete source/option and wrapped-junction controls in `crates/dive-pluscal/fairness-acceptance/`; token, full-module CST and separate SANY checks. Preserve the sole-prefix/separator width omission because junction grouping is observable. Domain multiline/comment/tab normalization and procedure/multiple-block generation remain named refusals. |
+
+| `dive-pluscal` multiple-process normalization/emission (`translate/process.rs`, `lower.rs`, `emit.rs`) | tlaplus `pcal/ParseAlgorithm.java` process-wide omission checks; `PcalTLAGen.java` `GenProcSet`, `GenInit`, `GenProcess`, `GenNext`, `GenSpec` and `PcalSymTab` source contexts; commit `94d0c50` | MIT | Source-owned body normalization, shared storage and CASE initialization, constant-before-quantified scheduling and separate fairness formulas matched through retained clean primary output; bounded domain-disjointness admission is native design, broader renaming remains refused |

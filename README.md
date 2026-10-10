@@ -17,6 +17,11 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 
 ## Documentation
 
+Start with the [user manual](docs/user/README.md) and its
+[runnable examples](docs/user/examples/README.md). The
+[developer documentation map](docs/developer/README.md) connects design, known
+issues, provenance and conformance evidence.
+
 - [`docs/CHARTER.md`](docs/CHARTER.md): mission, scope, soundness contract and architecture.
 - [`AGENTS.md`](AGENTS.md): how to work in this repo, for humans and agents.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): milestones.

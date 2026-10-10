@@ -68,6 +68,10 @@ impl ConfigReport {
         &self.parse
     }
 
+    pub(crate) fn source_bytes(&self) -> &[u8] {
+        self.source.as_bytes()
+    }
+
     /// The configuration, if accepted.
     #[must_use]
     pub fn config(&self) -> Option<&ModelConfig> {

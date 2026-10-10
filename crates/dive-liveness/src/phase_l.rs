@@ -497,6 +497,17 @@ impl<'a> Session<'a> {
             progress,
         })
     }
+    pub(super) fn orders(&self) -> &[crate::tlc_plan::OrderOfSolution] {
+        &self.plan.projection.orders
+    }
+    pub(super) fn has_tableau(&self) -> bool {
+        self.tableaux.iter().any(Option::is_some)
+    }
+    pub(super) fn concrete_fingerprint(&mut self, state: &State) -> Result<u64, Box<Failure>> {
+        self.progress.actual_workers = 1;
+        self.fingerprint(state)
+            .map_err(|error| failure(error, &self.progress, None))
+    }
     /// Actual cumulative diagnostic work; no checking verdict is implied.
     #[must_use]
     pub fn progress(&self) -> &Progress {
