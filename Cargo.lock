@@ -144,6 +144,7 @@ dependencies = [
  "dive-liveness",
  "dive-model",
  "dive-sema",
+ "dive-sim",
  "dive-stdlib",
  "dive-store",
  "dive-syntax",
@@ -279,6 +280,15 @@ dependencies = [
 [[package]]
 name = "dive-sim"
 version = "0.0.0"
+dependencies = [
+ "dive-config",
+ "dive-eval",
+ "dive-ir",
+ "dive-model",
+ "dive-sema",
+ "dive-stdlib",
+ "dive-value",
+]
 
 [[package]]
 name = "dive-stdlib"

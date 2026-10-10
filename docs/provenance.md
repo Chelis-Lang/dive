@@ -214,27 +214,8 @@ both-profile enumeration/error-order controls and independent periodic-word chec
 provide evidence. The validator shares expression binding but retains its separate
 word/ENABLED algorithms and no successor enumeration feature.
 
-## Symmetry safety
+## Finite safety simulation
 
 | Increment | Reference | License | Matched behavior |
 |---|---|---|---|
-| Symmetry preparation (`dive-model/src/symmetry/prepare.rs`) | `tlc2/tool/impl/Tool.java` `getSymmetryPerms`, `addToSubTwoSizedSymmetrySetList`, `getSetEnumValueFromArgumentNode`; `ModelConfig.getOverridenSpecNameForConfigName`; `tla2sany/parser/SyntaxTreeNode.getHumanReadableImage`; pinned `94d0c50` | MIT | Pure startup ordering, supported argument shapes, source-backed warning text and cfg aliases. Unverified errors remain refusals. |
-| Symmetry canonical keys and normalization | `tlc2/tool/TLCStateMut.fingerPrint`; `SetEnumValue`, `FcnRcdValue`, `TupleValue`, `RecordValue` `permute` / `deepNormalize`; pinned `94d0c50` | MIT | Minimum image in run order, VIEW after symmetry, concrete state normalization side effects; independent concrete predecessors retained. Deferred/lazy permutations remain refused. |
-
-Runtime namespace startup matches pinned `AbstractChecker.createConfig`
-(`tlc2/tool/AbstractChecker.java`, revision `94d0c50`): mode, seed, fingerprint
-and installation strings are interned before assumptions. The independent
-validator's runtime-name refusal is dive's own admission rule (#124), supported
-by the clean pinned capture and prior false-positive trace in
-`crates/dive-trace/tests/fixtures/runtime-names/`.
-## Native DFID (ADR 0021)
-
-| Rust surface | Pinned Java behavior | License | Scope/evidence |
-|---|---|---|---|
-| `dive-check/src/dfid.rs`: initialization/expansion | `DFIDModelChecker.modelCheckImpl`, `doInit`, `doNext`; `AbstractChecker.createConfig`; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Eager per-action vectors, constraints/newness/property ordering, counts and inner-DFS draining after a first failure; clean primary controls and separately labelled seeded reference |
-| `dive-check/src/dfid.rs`: iteration/status/selection | `DFIDWorker.run`, `getInit`, `getNext`; `FPIntSet.incLevel`, `isCompleted`, `isLeaf`, `MemFPIntSet.setStatus`, `setLeveled`; same pin | MIT | Birth iteration, permanent done and alternating completed bits; Java nextDouble selection and swap removal; no BFS scheduler reuse |
-| DFID concrete witness/collision guard/replay default | Dive design under ADR 0010 and 0021 | n/a | Independent certification corrects D-019 stale root witness; exact canonical guard refuses fingerprint collisions; recorded per-iteration seeds can replay native runs |
-
-`SeededDfid.java` is a secondary test adapter: only the worker's selection seed
-is injected after construction and before start. It is never presented as an
-unmodified oracle or used to certify the complete DFID feature family.
+| `dive-sim` finite safety selection and callback ordering | tlaplus `tlc2/tool/Simulator.java` `simulate`, constructor worker seeding; `tlc2/tool/SimulationWorker.java` `simulateRandomTrace`, `randomState`, `getNextActionIndex`, `getNextActionAltIndex`, `addElement`, `getTrace`; `tlc2/util/RandomGenerator.java` `nextPrime`; commit `94d0c50` | MIT | Semantics matched for ordinary single-worker pure finite safety simulation; default per-trace seeding is dive's approved D-003 design; independent trace validation uses existing separate predicates |

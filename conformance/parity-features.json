@@ -471,19 +471,27 @@
     {
       "id": "F-024",
       "name": "Simulation, generation, scheduling and random replay",
-      "implementation_status": "missing",
+      "implementation_status": "partial",
       "certification": "audit-required",
       "phase": 5,
       "pinned_source": "tlc2/tool/Simulator.java",
       "rust_evidence": "crates/dive-sim/src/lib.rs",
-      "conformance_evidence": "crates/dive-stdlib/src/random/mod.rs",
-      "issues": [],
+      "conformance_evidence": "crates/dive-api/tests/simulate.rs",
+      "issues": [
+        111
+      ],
       "acceptance": "Initial/action choice, trace count/depth, seeded/aril draws, all simulation schedulers, constraints/properties and termination match mode-specific controls; stable default replay survives worker changes.",
       "interactions": [
         "F-009",
         "F-021",
         "F-026",
         "F-027"
+      ],
+      "additional_evidence": [
+        "crates/dive-sim/tests/fixtures/capture-provenance.json",
+        "crates/dive-sim/tests/bounds.rs",
+        "conformance/reports/simulation-controls.json",
+        "docs/reviews/2026-10-10-finite-simulation.md"
       ]
     },
     {
@@ -694,6 +702,7 @@
       "rust_evidence": "crates/dive-api/src/lib.rs",
       "conformance_evidence": "crates/dive-api/tests/temporal.rs",
       "issues": [
+        111,
         124
       ],
       "acceptance": "Resolved options, checking/simulation/translation/checkpoint/distribution APIs and versioned reports share one implementation; standalone validator cannot enable the enumerator.",
@@ -705,57 +714,5 @@
         "F-034",
         "F-037"
       ],
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required.",
-      "evidence_updates": [
-        "Native DfidRequest/dfid_file API, actual per-iteration seeds, independent witness certification and partial/unknown execution evidence. Family remains partial/audit-required."
-      ]
-    },
-    {
-      "id": "F-036",
-      "name": "Complete corpus, harness and release certification",
-      "implementation_status": "partial",
-      "certification": "audit-required",
-      "phase": 1,
-      "pinned_source": "tlc2/output/EC.java",
-      "rust_evidence": "crates/dive-conformance/src/lib.rs",
-      "conformance_evidence": "docs/conformance-corpora.md",
-      "issues": [
-        2,
-        16
-      ],
-      "acceptance": "Complete selected-case census and generated goldens for model/feature interactions; no unknown, timeout, malformed report, feature refusal or pending validation is disguised as agreement.",
-      "interactions": [
-        "F-011",
-        "F-019",
-        "F-028",
-        "F-034"
-      ],
-      "additional_evidence": [
-        "crates/dive-conformance/src/dive.rs",
-        "scripts/check-parity-ledger.py",
-        "scripts/test-parity-ledger.py"
-      ],
-      "notes": "Relative implementation executable paths resolve before child model directories change; launch-path regression is covered. Corpus and release certification remain partial. Offline structural controls enforce evidence and census integrity without certifying semantics."
-    },
-    {
-      "id": "F-037",
-      "name": "Global TLC profile and approved better defaults",
-      "implementation_status": "partial",
-      "certification": "audit-required",
-      "phase": 9,
-      "pinned_source": "tlc2/TLC.java",
-      "rust_evidence": "crates/dive-eval/src/options.rs",
-      "conformance_evidence": "docs/tlc-differences.md",
-      "issues": [],
-      "acceptance": "Every implemented option declares/testing its TLC counterpart; mixed runs are labeled and expected divergences cannot excuse wrong verdicts. Category host grants remain the approved exception.",
-      "interactions": [
-        "F-005",
-        "F-013",
-        "F-018",
-        "F-022",
-        "F-026",
-        "F-035"
-      ]
-    }
-  ]
-}
+,
+      "additional_evidence": ["crates/dive-api/tests/simulate.rs"]
