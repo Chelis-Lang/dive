@@ -1,0 +1,1456 @@
+{
+  "schema_version": 1,
+  "scope": "actual bound model FP/SetOfStates/LiveCheck calls; no SCC verdict claim",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Issue 140 preserve complete48-row predecessor and add configured/Action Live versus derived Identity local role control",
+  "timestamp": "2026-10-10T15:03:32.811055+00:00",
+  "source_sha256": {
+    "SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
+    "ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
+    "capture-model.py": "137d73d8dcffbeb35dba3c313ed7f09119279d1f3f2593f584c29de119ac71be"
+  },
+  "selection_sha256": "ad69d758b52ea950eb0c91c51dba8662a6c01168db5b5ef473cc540cdc2dab65",
+  "compiler": {
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "c4c8a6c517be0cd05726f2e1ed3b6ad8ed6e25b31e1d90ff3e099f2cefae189a"
+  },
+  "rows": [
+    {
+      "name": "PhaseState-i0",
+      "model_source_sha256": {
+        "models/PhaseState/PhaseState.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseState/PhaseState.tla": "39cc2a18612b9fd4143ddd147aa5033084500c1824e057b049cc04afebb5273b"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "4cc0706e5cdaaea9aa2a9fff40912dc01abe40d1311dd6549fcf1ef3ed048208",
+      "stderr_sha256": "7bebfb795086324e06ca64844ae46d32b0d41b2d24f6f222f5451d0487b14ac4"
+    },
+    {
+      "name": "PhaseState-i1",
+      "model_source_sha256": {
+        "models/PhaseState/PhaseState.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseState/PhaseState.tla": "39cc2a18612b9fd4143ddd147aa5033084500c1824e057b049cc04afebb5273b"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "3102fbe46c1037e2c1992cd4aeb71f0083ffd5cf09f9e540d9308c82b9f7e554",
+      "stderr_sha256": "0b01e0e672d3d2226584648bc355c6100e4f93be5b6ec1df2a774b5bf8742f60"
+    },
+    {
+      "name": "PhaseState-i2",
+      "model_source_sha256": {
+        "models/PhaseState/PhaseState.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseState/PhaseState.tla": "39cc2a18612b9fd4143ddd147aa5033084500c1824e057b049cc04afebb5273b"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "1a62a48daca5747f17b7d56346c565d2e44a584d3666aef20a4c18052c38cfa6",
+      "stderr_sha256": "a9215bc5869e01ba73f5798714df48b997c27f7a03c61d2dbafeccf631a45fbc"
+    },
+    {
+      "name": "PhaseAction-i0",
+      "model_source_sha256": {
+        "models/PhaseAction/PhaseAction.tla": "dd27ce23fa1c64b0c22f665f605094965466355ea11a1cb2fff610aa7a05d532",
+        "models/PhaseAction/PhaseAction.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "626e13bf2bc08c3a40d081cbeb59866b219c92ae4e02ee0f1df4a30efa0e268b"
+    },
+    {
+      "name": "PhaseAction-i1",
+      "model_source_sha256": {
+        "models/PhaseAction/PhaseAction.tla": "dd27ce23fa1c64b0c22f665f605094965466355ea11a1cb2fff610aa7a05d532",
+        "models/PhaseAction/PhaseAction.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "314cf51a67f04016ba8415e430d53d78786b74c419530898e362a3dcc0655450"
+    },
+    {
+      "name": "PhaseAction-i2",
+      "model_source_sha256": {
+        "models/PhaseAction/PhaseAction.tla": "dd27ce23fa1c64b0c22f665f605094965466355ea11a1cb2fff610aa7a05d532",
+        "models/PhaseAction/PhaseAction.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a6b1271dcb6c29482f9aefb4e85787c07edbc53abcd15837d5376eb0c0f5d051"
+    },
+    {
+      "name": "PhaseBoth-i0",
+      "model_source_sha256": {
+        "models/PhaseBoth/PhaseBoth.tla": "374e945db80983984a05be843835165bd9cf5b51f937a905ac3fa3af394895f6",
+        "models/PhaseBoth/PhaseBoth.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "57629c5cb6f1310d1444c4289b1deb6bafe97ce15f8017e7f22eae1b012cbe17"
+    },
+    {
+      "name": "PhaseBoth-i1",
+      "model_source_sha256": {
+        "models/PhaseBoth/PhaseBoth.tla": "374e945db80983984a05be843835165bd9cf5b51f937a905ac3fa3af394895f6",
+        "models/PhaseBoth/PhaseBoth.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "de8cdedb238a748717396399ed05819fb5fe391096d55a08e9676988db70bd05"
+    },
+    {
+      "name": "PhaseBoth-i2",
+      "model_source_sha256": {
+        "models/PhaseBoth/PhaseBoth.tla": "374e945db80983984a05be843835165bd9cf5b51f937a905ac3fa3af394895f6",
+        "models/PhaseBoth/PhaseBoth.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "be2bcfaccd557010894821e8fe2602fdb2d1a0b0f56f227cd894fbaa988a0bfd"
+    },
+    {
+      "name": "PhaseTableau-i0",
+      "model_source_sha256": {
+        "models/PhaseTableau/PhaseTableau.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseTableau/PhaseTableau.tla": "a4944057a4e9951e1cf9e69b0dacd07f8ccbc781787b7d7cfb2a323180e815b7"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "true",
+        "g0.initial": "2",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "g0.n0.c0:true;g0.n0.c1:true",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.n0.c0:false;g0.n0.c0:false;g0.n0.c0:true;g0.n0.c1:true;g0.n2.c0:false;g0.n2.c0:true;g0.n2.c0:true;g0.n2.c0:true;g0.n2.c0:true;g0.n2.c0:true;g0.n2.c0:false"
+      },
+      "stdout_sha256": "ee3ab89d3d2b7f29f981448b678a0557243ce2e3ef464333ad87d8d70a6dc393",
+      "stderr_sha256": "1235d6c5f99936b33012a7567c95225a4e7a179756db687309b8fd6baf9fbbe9"
+    },
+    {
+      "name": "PhaseTableau-i1",
+      "model_source_sha256": {
+        "models/PhaseTableau/PhaseTableau.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseTableau/PhaseTableau.tla": "a4944057a4e9951e1cf9e69b0dacd07f8ccbc781787b7d7cfb2a323180e815b7"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "true",
+        "g0.initial": "2",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "g0.n0.c0:false",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.n0.c0:false;g0.n0.c0:false;g0.n0.c0:true;g0.n0.c1:true;g0.n2.c0:false;g0.n2.c0:true;g0.n2.c0:true"
+      },
+      "stdout_sha256": "0fab09c915ade2f23246afab863ac50591bdc8e62b0a7023be1c406e72e7777b",
+      "stderr_sha256": "1b57ce6b0483fbf868e71deec5e0a25c67c2c2e40a4feb2564d9dfee9ff24985"
+    },
+    {
+      "name": "PhaseTableau-i2",
+      "model_source_sha256": {
+        "models/PhaseTableau/PhaseTableau.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseTableau/PhaseTableau.tla": "a4944057a4e9951e1cf9e69b0dacd07f8ccbc781787b7d7cfb2a323180e815b7"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "true",
+        "g0.initial": "2",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "g0.n0.c0:false",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.n0.c0:false;g0.n0.c0:false;g0.n0.c0:true;g0.n0.c1:true;g0.n2.c0:false;g0.n2.c0:true;g0.n2.c0:true"
+      },
+      "stdout_sha256": "c80c756d20c3f767fd716789fea9661f3e968f2661a1d8d83db798b657238733",
+      "stderr_sha256": "b091125afd5299667b570dc5c2d782d65ac7c7dd6905d75e7e68d8dd7f5f8197"
+    },
+    {
+      "name": "PhaseStateError-i0",
+      "model_source_sha256": {
+        "models/PhaseStateError/PhaseStateError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseStateError/PhaseStateError.tla": "b27ea658c253e0bcf73c59e4027d4080750ffc98a4fbadb116e6ee699fe10147"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {
+        "failure_code": "2179",
+        "failure_phase": "planning"
+      },
+      "stdout_sha256": "b8bfce7c82e2fdddcd8a46295d8fdaa08213298052bafc9e84f4c0f640323acf",
+      "stderr_sha256": "f5d17c6af2e07db097b5c5e3be3889334022dc18af3891636add5d2eaa53e6ff"
+    },
+    {
+      "name": "PhaseStateError-i1",
+      "model_source_sha256": {
+        "models/PhaseStateError/PhaseStateError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseStateError/PhaseStateError.tla": "b27ea658c253e0bcf73c59e4027d4080750ffc98a4fbadb116e6ee699fe10147"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {
+        "failure_code": "2179",
+        "failure_phase": "planning"
+      },
+      "stdout_sha256": "b8bfce7c82e2fdddcd8a46295d8fdaa08213298052bafc9e84f4c0f640323acf",
+      "stderr_sha256": "ea55938cc67fbe89174076763ea6b1e0c2f557f9615afdd124d7f95d32484a06"
+    },
+    {
+      "name": "PhaseStateError-i2",
+      "model_source_sha256": {
+        "models/PhaseStateError/PhaseStateError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseStateError/PhaseStateError.tla": "b27ea658c253e0bcf73c59e4027d4080750ffc98a4fbadb116e6ee699fe10147"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {
+        "failure_code": "2179",
+        "failure_phase": "planning"
+      },
+      "stdout_sha256": "b8bfce7c82e2fdddcd8a46295d8fdaa08213298052bafc9e84f4c0f640323acf",
+      "stderr_sha256": "fef5a1cd2fa68f7f063a056282cb4184bc5a993efec3de96f23d82b5601f3c60"
+    },
+    {
+      "name": "PhaseActionError-i0",
+      "model_source_sha256": {
+        "models/PhaseActionError/PhaseActionError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionError/PhaseActionError.tla": "2ca002487341eb6fde6323c2bf61b485476452a48c483572048509ad75d9b343"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "10af44178abfc0bb5084300426aacb9f0f10fafba9765834dcc6386fb15c8caf"
+    },
+    {
+      "name": "PhaseActionError-i1",
+      "model_source_sha256": {
+        "models/PhaseActionError/PhaseActionError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionError/PhaseActionError.tla": "2ca002487341eb6fde6323c2bf61b485476452a48c483572048509ad75d9b343"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9452953dc8190927671f51d8cba5c6fc16b9f2d68b66e1090d880386f33bc900"
+    },
+    {
+      "name": "PhaseActionError-i2",
+      "model_source_sha256": {
+        "models/PhaseActionError/PhaseActionError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionError/PhaseActionError.tla": "2ca002487341eb6fde6323c2bf61b485476452a48c483572048509ad75d9b343"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "289481ad6b50279f3ee1e0821a0eed6c92c6480ab459824cc505f6b30c35393f"
+    },
+    {
+      "name": "PhaseIdentity-i0",
+      "model_source_sha256": {
+        "models/PhaseIdentity/PhaseIdentity.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseIdentity/PhaseIdentity.tla": "2c48fa0911ca37171cbef5496030c7e376d8a7dae7fc2831ee8bf4a1c23844a5"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "1140d35a53446da0e1d6c38feb1d6f5dfb00635afd299f1ab5408bc398787156",
+      "stderr_sha256": "2f7e3cd05a8ad7196db72fdd88cc428c608301542b055769493b98bd1507154e"
+    },
+    {
+      "name": "PhaseIdentity-i1",
+      "model_source_sha256": {
+        "models/PhaseIdentity/PhaseIdentity.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseIdentity/PhaseIdentity.tla": "2c48fa0911ca37171cbef5496030c7e376d8a7dae7fc2831ee8bf4a1c23844a5"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "0f2164e19cde9aa2e18236a551a1cac6919ed049171591abc64be8a3c15ded77",
+      "stderr_sha256": "01f479d3ac5c05989b3b1826dc4848a34cb5cee8e452e08b6da4abd90c57840e"
+    },
+    {
+      "name": "PhaseIdentity-i2",
+      "model_source_sha256": {
+        "models/PhaseIdentity/PhaseIdentity.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseIdentity/PhaseIdentity.tla": "2c48fa0911ca37171cbef5496030c7e376d8a7dae7fc2831ee8bf4a1c23844a5"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "bd4f84cd223b79c614015fca3962f4997ec90eb75a9568171cf8e27f11606a31",
+      "stderr_sha256": "c625d436b16656801de191a2cd1e900ffabdbf2b1f7a9ac06a25298ba927c3cd"
+    },
+    {
+      "name": "PhaseEffect-i0",
+      "model_source_sha256": {
+        "models/PhaseEffect/PhaseEffect.tla": "7528eafec0d52a4d72773cc598d2087e1733f65454e88491229bf31a05a3f135",
+        "models/PhaseEffect/PhaseEffect.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "685b0c7b1dd1b55b6478ffe69f1a1a23e0ad2249f7c3bf3dc2226e2ae5174f68",
+      "stderr_sha256": "4b258def351b93a0f46dbf9e7e5e657d57626e6da02b421fc8d94c5906d5d538"
+    },
+    {
+      "name": "PhaseEffect-i1",
+      "model_source_sha256": {
+        "models/PhaseEffect/PhaseEffect.tla": "7528eafec0d52a4d72773cc598d2087e1733f65454e88491229bf31a05a3f135",
+        "models/PhaseEffect/PhaseEffect.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "f3a6c25d2c58b2d55eb58cf41ed73bbd0d6a3ef7309c08d9659ac7a47b27bfa1",
+      "stderr_sha256": "4bd137625294ab8d3c3a5d876a4b698d452ff2a8815184857e8a8e459737f4ed"
+    },
+    {
+      "name": "PhaseEffect-i2",
+      "model_source_sha256": {
+        "models/PhaseEffect/PhaseEffect.tla": "7528eafec0d52a4d72773cc598d2087e1733f65454e88491229bf31a05a3f135",
+        "models/PhaseEffect/PhaseEffect.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "1a62a48daca5747f17b7d56346c565d2e44a584d3666aef20a4c18052c38cfa6",
+      "stderr_sha256": "7cc89cc84e32c856fb0317b2f62eaf4f740c5914f805c46cb5f497481787cb91"
+    },
+    {
+      "name": "PhaseLiveGet-i0",
+      "model_source_sha256": {
+        "models/PhaseLiveGet/PhaseLiveGet.tla": "3a7cf0aa5d5305d4c8135195cb19a80984ab32f76ed205ec626330281f334cf7",
+        "models/PhaseLiveGet/PhaseLiveGet.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "685b0c7b1dd1b55b6478ffe69f1a1a23e0ad2249f7c3bf3dc2226e2ae5174f68",
+      "stderr_sha256": "e8f0b2b5e9ad4019511542e8af8c4c358589d3c452684eb5a915bc20b7e61b0f"
+    },
+    {
+      "name": "PhaseLiveGet-i1",
+      "model_source_sha256": {
+        "models/PhaseLiveGet/PhaseLiveGet.tla": "3a7cf0aa5d5305d4c8135195cb19a80984ab32f76ed205ec626330281f334cf7",
+        "models/PhaseLiveGet/PhaseLiveGet.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "f3a6c25d2c58b2d55eb58cf41ed73bbd0d6a3ef7309c08d9659ac7a47b27bfa1",
+      "stderr_sha256": "dc98a40e1db0bcf75f6b3556b670f998e58520e607b7e3c3f4af1e7e23ae3a72"
+    },
+    {
+      "name": "PhaseLiveGet-i2",
+      "model_source_sha256": {
+        "models/PhaseLiveGet/PhaseLiveGet.tla": "3a7cf0aa5d5305d4c8135195cb19a80984ab32f76ed205ec626330281f334cf7",
+        "models/PhaseLiveGet/PhaseLiveGet.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "1a62a48daca5747f17b7d56346c565d2e44a584d3666aef20a4c18052c38cfa6",
+      "stderr_sha256": "facbbd25292037eaef5c3f17195dcc333aad3a4a2b5e391afb07aa9a3c5d21dd"
+    },
+    {
+      "name": "PhaseActionValid-i0",
+      "model_source_sha256": {
+        "models/PhaseActionValid/PhaseActionValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionValid/PhaseActionValid.tla": "8ffcba25112f53db4935d6f81b53d7baf3d9ef3e08d91b2d0c5e4124bacc9199"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "e62e25314701df9fce262a0c65943c97638e25b3ce567bdab65bbe5428d19d2c",
+      "stderr_sha256": "418e1f15e5f9724e999a0272d39b1c31a8145791e6686e069cb7ba0022778cf5"
+    },
+    {
+      "name": "PhaseActionValid-i1",
+      "model_source_sha256": {
+        "models/PhaseActionValid/PhaseActionValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionValid/PhaseActionValid.tla": "8ffcba25112f53db4935d6f81b53d7baf3d9ef3e08d91b2d0c5e4124bacc9199"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "9001f536b1fa549b00d0888b8a10f33f02bb3415c7578dfcd0b6a5e2d0915cb8",
+      "stderr_sha256": "12e45c269de161caca8ae92376a1c3a9661b30bd8b21fec487d37346ff4d79e1"
+    },
+    {
+      "name": "PhaseActionValid-i2",
+      "model_source_sha256": {
+        "models/PhaseActionValid/PhaseActionValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionValid/PhaseActionValid.tla": "8ffcba25112f53db4935d6f81b53d7baf3d9ef3e08d91b2d0c5e4124bacc9199"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "f7c9705ee86f7273283d7779ee08c13ebe0cef9dedc045f65962f420770ebd3b",
+      "stderr_sha256": "098d2246553ebcaf49273137ab25237b1ca7a4d7e9446c9b928aaf554581b500"
+    },
+    {
+      "name": "PhaseBothValid-i0",
+      "model_source_sha256": {
+        "models/PhaseBothValid/PhaseBothValid.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27",
+        "models/PhaseBothValid/PhaseBothValid.tla": "73eeb1aac66a5af0b52202b4db331d5915302714cd6e897338921ebf0595eebb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live;Edge",
+        "role_names": "Live;Edge",
+        "configured_names": "Live;Edge",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a1:true;g0.a0:true;g0.a1:false;g0.a0:true;g0.a1:true"
+      },
+      "stdout_sha256": "26526146996b32863a98ae745a30a559148275c43b6f033058f032a7694025c3",
+      "stderr_sha256": "11278f459987abcef0584d6018107013f5371a6de8682df35b590d403c625789"
+    },
+    {
+      "name": "PhaseBothValid-i1",
+      "model_source_sha256": {
+        "models/PhaseBothValid/PhaseBothValid.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27",
+        "models/PhaseBothValid/PhaseBothValid.tla": "73eeb1aac66a5af0b52202b4db331d5915302714cd6e897338921ebf0595eebb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live;Edge",
+        "role_names": "Live;Edge",
+        "configured_names": "Live;Edge",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a1:true;g0.a0:true;g0.a1:true;g0.a0:true;g0.a1:true"
+      },
+      "stdout_sha256": "71963879cec8f1d6eaa951d0bfe758a2b512aafdb29294fba838a74ee5ab815b",
+      "stderr_sha256": "77756c8619457ed99320476dcada0757f52e6864c54ffb248ff628aec9d6fdf1"
+    },
+    {
+      "name": "PhaseBothValid-i2",
+      "model_source_sha256": {
+        "models/PhaseBothValid/PhaseBothValid.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27",
+        "models/PhaseBothValid/PhaseBothValid.tla": "73eeb1aac66a5af0b52202b4db331d5915302714cd6e897338921ebf0595eebb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live;Edge",
+        "role_names": "Live;Edge",
+        "configured_names": "Live;Edge",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a1:true;g0.a0:false;g0.a1:false;g0.a0:false;g0.a1:true"
+      },
+      "stdout_sha256": "0ffbd201cc0e427e22f4a525752991f27e0d75b4b0c549e92950a8f0254a3ad9",
+      "stderr_sha256": "50e1612efcb07e371b419522af8186fe16898770add439e4c5ac9615750ac02c"
+    },
+    {
+      "name": "PhaseActionErrorValid-i0",
+      "model_source_sha256": {
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.tla": "4f7d552c4259816b5d36f3fa716ba3d76f3acd3c026de8be25024644764bba55",
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:false;g0.a0:error"
+      },
+      "stdout_sha256": "828704ad3bb72eb8249ff4d3c508fcacd9f59d6b3040201f58a64b09372d9b42",
+      "stderr_sha256": "cae356fbc91c7abcc9a0049a0761ea04df04c0ddeb87a6493ad415bf896c224b"
+    },
+    {
+      "name": "PhaseActionErrorValid-i1",
+      "model_source_sha256": {
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.tla": "4f7d552c4259816b5d36f3fa716ba3d76f3acd3c026de8be25024644764bba55",
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "9001f536b1fa549b00d0888b8a10f33f02bb3415c7578dfcd0b6a5e2d0915cb8",
+      "stderr_sha256": "f34ddf78eeafcbc4fe2b4f7b7b8bfb093cb345be20534ef72d40662ca5162f6f"
+    },
+    {
+      "name": "PhaseActionErrorValid-i2",
+      "model_source_sha256": {
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.tla": "4f7d552c4259816b5d36f3fa716ba3d76f3acd3c026de8be25024644764bba55",
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:true;g0.a0:error"
+      },
+      "stdout_sha256": "88f6de264e6906e337d972d259be63a421b0fe7771d06acf7826ca5f04cd6bb8",
+      "stderr_sha256": "d60ccb5a01ae36b2277e112f4ad472263ceded71a86ff24083a8a7da94235c4a"
+    },
+    {
+      "name": "PhaseSubscriptTrue-i0",
+      "model_source_sha256": {
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.tla": "78a6f098a374955bf7ecb85faf9efd43c243254ad172c5a83f48dd4e7bdd7f3f"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:error"
+      },
+      "stdout_sha256": "d98b03850613373cd3e91c840ae9abd684e7850fd0236bf5b961dbf5bec0a278",
+      "stderr_sha256": "81a5de1668a51eb67339e051e1102c3bdab40ca96c253987a7cf343418db2fed"
+    },
+    {
+      "name": "PhaseSubscriptTrue-i1",
+      "model_source_sha256": {
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.tla": "78a6f098a374955bf7ecb85faf9efd43c243254ad172c5a83f48dd4e7bdd7f3f"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:false;g0.a0:true;g0.a0:error"
+      },
+      "stdout_sha256": "002a48a2ad3dd5d20be12b9b3a2505828b1232281c9327d0f5bd0695942aea55",
+      "stderr_sha256": "706607e8ea31b7839e5c7ba575255ccddf558e1270d999ee33f14aabf2a05abe"
+    },
+    {
+      "name": "PhaseSubscriptTrue-i2",
+      "model_source_sha256": {
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.tla": "78a6f098a374955bf7ecb85faf9efd43c243254ad172c5a83f48dd4e7bdd7f3f"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:true;g0.a0:false;g0.a0:error"
+      },
+      "stdout_sha256": "18645af0148d4efd3ace2d10a1c1a8822803d7025dc4e7e7cc816f22838a5148",
+      "stderr_sha256": "b1fd23c6a83a0a7cc6e5717bb750249eca060965203b8ae74f88f77a466b9f7f"
+    },
+    {
+      "name": "PhaseSubscriptFalse-i0",
+      "model_source_sha256": {
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.tla": "973188c1a22c06fe98df731d5e6b45195337b9c1c4257a7ba58e4a4d45d510c1"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:error"
+      },
+      "stdout_sha256": "d98b03850613373cd3e91c840ae9abd684e7850fd0236bf5b961dbf5bec0a278",
+      "stderr_sha256": "6c3322b9a7d42042aa9e5eab1aa703f2f4f5cebc99c9942f17b7f8112bd88941"
+    },
+    {
+      "name": "PhaseSubscriptFalse-i1",
+      "model_source_sha256": {
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.tla": "973188c1a22c06fe98df731d5e6b45195337b9c1c4257a7ba58e4a4d45d510c1"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:error"
+      },
+      "stdout_sha256": "e2416b54b7ef268d264608b287f55e16afe74f437330266f253d7e8526d43f7d",
+      "stderr_sha256": "77bd33d75e9794820e2549582e357daf681faf965e38fc1e11a232ac8caa179e"
+    },
+    {
+      "name": "PhaseSubscriptFalse-i2",
+      "model_source_sha256": {
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.tla": "973188c1a22c06fe98df731d5e6b45195337b9c1c4257a7ba58e4a4d45d510c1"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:error"
+      },
+      "stdout_sha256": "a333b9261d244cae08cda73d527a2297ebf4e57f7ed83e2303a9be7947b3ae2e",
+      "stderr_sha256": "b99cb62ee19004bea5bd94bbb5bb4aaaf67aeebade437fd32b3610ec7487d59f"
+    },
+    {
+      "name": "PhaseDualError-i0",
+      "model_source_sha256": {
+        "models/PhaseDualError/PhaseDualError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseDualError/PhaseDualError.tla": "39db3bc88a8fbf9c8101338242931dd8f8d4a130b7504b0d326cbf4a11d4d1fc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ae367b28dc839c38a4b442d5a826e8a2768e621cd37f3e7c7aa9186a06f98c6e"
+    },
+    {
+      "name": "PhaseDualError-i1",
+      "model_source_sha256": {
+        "models/PhaseDualError/PhaseDualError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseDualError/PhaseDualError.tla": "39db3bc88a8fbf9c8101338242931dd8f8d4a130b7504b0d326cbf4a11d4d1fc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5d54585cb77ab4d3f768e9c2e28905eb094b34de97e52f66c8e59a296e11cabe"
+    },
+    {
+      "name": "PhaseDualError-i2",
+      "model_source_sha256": {
+        "models/PhaseDualError/PhaseDualError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseDualError/PhaseDualError.tla": "39db3bc88a8fbf9c8101338242931dd8f8d4a130b7504b0d326cbf4a11d4d1fc"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "05c59f5e340c40de6896c41216cef4993c5a115a2b13da777b503373b06d442a"
+    },
+    {
+      "name": "PhaseDualErrorValid-i0",
+      "model_source_sha256": {
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.tla": "f881666fcc948660eb755b0a20030c7bfa9bc3967d46e477d9c5fa04413949da",
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2179",
+        "failure_message": "The second argument of \\div is 0.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:error"
+      },
+      "stdout_sha256": "d98b03850613373cd3e91c840ae9abd684e7850fd0236bf5b961dbf5bec0a278",
+      "stderr_sha256": "11e59bd6580495fcc54fa2b5349370340631ce92935860c90176a498ea6a1f37"
+    },
+    {
+      "name": "PhaseDualErrorValid-i1",
+      "model_source_sha256": {
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.tla": "f881666fcc948660eb755b0a20030c7bfa9bc3967d46e477d9c5fa04413949da",
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2184",
+        "failure_message": "Attempted to apply Head to the empty sequence.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:error"
+      },
+      "stdout_sha256": "0d56c7974b1cc7b0c5366da5847f2ef3add5a5bba41d5289ed4a8a1fc6cea6d5",
+      "stderr_sha256": "3b839687384af36c56269e3bc219aa6713db4c340f6d8383721119b60c444a2e"
+    },
+    {
+      "name": "PhaseDualErrorValid-i2",
+      "model_source_sha256": {
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.tla": "f881666fcc948660eb755b0a20030c7bfa9bc3967d46e477d9c5fa04413949da",
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Live",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "failure_code": "2184",
+        "failure_message": "Attempted to apply Head to the empty sequence.",
+        "failure_phase": "bin-evaluation",
+        "log": "g0.a0:true;g0.a0:error"
+      },
+      "stdout_sha256": "2b8c7b6b3d5acbf1680a3cc32f4d1d55443fd7757b56f6dfdfa4c42c977f4e78",
+      "stderr_sha256": "9230f2675382b09226ebcdf43563516f7913865b6dc704444106cd428f5cea7e"
+    },
+    {
+      "name": "PhaseLocalRole-i0",
+      "model_source_sha256": {
+        "models/PhaseLocalRole/PhaseLocalRole.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/PhaseLocalRole/PhaseLocalRole.tla": "07aa3534c4a0d2f4e0ceb2fce06e575a494d4c8749bfc8e825ec09ca34a7cdbb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "15040402659625261443",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "1140d35a53446da0e1d6c38feb1d6f5dfb00635afd299f1ab5408bc398787156",
+      "stderr_sha256": "0e13daf12b1c327afde88725986cb19afebf9d07148b00656916dc5eda33dab7"
+    },
+    {
+      "name": "PhaseLocalRole-i1",
+      "model_source_sha256": {
+        "models/PhaseLocalRole/PhaseLocalRole.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/PhaseLocalRole/PhaseLocalRole.tla": "07aa3534c4a0d2f4e0ceb2fce06e575a494d4c8749bfc8e825ec09ca34a7cdbb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "17760107650593637555",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:true;g0.a0:true;g0.a0:true"
+      },
+      "stdout_sha256": "0f2164e19cde9aa2e18236a551a1cac6919ed049171591abc64be8a3c15ded77",
+      "stderr_sha256": "3b68cb939022d7060b3e72a273ad9bef3d09bb03f98f5d273f9bc323fe1110bc"
+    },
+    {
+      "name": "PhaseLocalRole-i2",
+      "model_source_sha256": {
+        "models/PhaseLocalRole/PhaseLocalRole.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/PhaseLocalRole/PhaseLocalRole.tla": "07aa3534c4a0d2f4e0ceb2fce06e575a494d4c8749bfc8e825ec09ca34a7cdbb"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "action_names": "Live",
+        "role_names": "Identity",
+        "configured_names": "Live",
+        "g0.tableau": "false",
+        "g0.initial": "0",
+        "source.fp": "11330885170241725411",
+        "incoming.0.fp": "11330885170241725411",
+        "incoming.0.duplicate": "false",
+        "incoming.1.fp": "17760107650593637555",
+        "incoming.1.duplicate": "false",
+        "incoming.2.fp": "15040402659625261443",
+        "incoming.2.duplicate": "false",
+        "incoming.3.fp": "11330885170241725411",
+        "incoming.3.duplicate": "true",
+        "stutter.duplicate": "true",
+        "capacity": "16",
+        "count": "3",
+        "slots": "3:11330885170241725411;4:17760107650593637555;5:15040402659625261443",
+        "initial.log": "",
+        "completion": "bin-and-disk-insertion",
+        "log": "g0.a0:false;g0.a0:false;g0.a0:false"
+      },
+      "stdout_sha256": "bd4f84cd223b79c614015fca3962f4997ec90eb75a9568171cf8e27f11606a31",
+      "stderr_sha256": "2b716a2262dfcc7dade35afb0dc2a4c0a935468e4b70b6d8a56f72e2f773b2d0"
+    }
+  ]
+}

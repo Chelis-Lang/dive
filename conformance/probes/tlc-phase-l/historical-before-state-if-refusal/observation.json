@@ -1,0 +1,16 @@
+{
+  "issue": 140,
+  "scope": "native observed planning discrepancy; not oracle or agreement credit",
+  "model": "PhaseStateError",
+  "pinned_phase": "Liveness.processLiveness -> astToLive constant branch evaluation",
+  "pinned_error_code": 2179,
+  "pinned_result": "throws before source fingerprints / bin checks",
+  "native_phase": "tlc_plan::lower_model",
+  "native_result": "completed with one retained state-kind IF predicate",
+  "native_atom": "If { cond: ExprId(672), then: ExprId(677), other: ExprId(680) }",
+  "source_sha256": {
+    "crates/dive-liveness/src/phase_l.rs": "a9500c6159a548c5886260b50c1d97228a8558e0dc5ed2a72f1aa1fb9ee248ab",
+    "crates/dive-liveness/tests/phase_l.rs": "600377912481c06fd1a4b3686db038867ff6849f503810acbaba60514311298b"
+  },
+  "raw_reference": "historical-before-error-codes/raw/PhaseStateError-i1/stderr"
+}

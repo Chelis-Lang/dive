@@ -1,0 +1,16 @@
+{
+  "issue": 140,
+  "scope": "observed wrong native error, no conformance credit",
+  "model": "PhaseActionErrorValid",
+  "source": "x=1",
+  "successor": "x=1",
+  "pinned_phase": "LiveCheck.addNextState -> LNAction.eval",
+  "pinned_result": "subscript equal => nonstuttering FALSE without body; full source bins complete",
+  "native_phase": "PredicateAtom.evaluate body-first through original phase-L dispatch",
+  "native_result": "throws2179 on second slot body division despite equal subscript",
+  "source_sha256": {
+    "crates/dive-liveness/src/phase_l.rs": "82d2179a7ae0ca174588e39f6dd254e65487e652f9c86f4ef7f4341d8e4d98b5",
+    "crates/dive-liveness/tests/phase_l.rs": "4083ce073e6d411ad31618ad5b96ec33f38102c02d147f311def95f899b91b85"
+  },
+  "raw_reference": "raw-model/PhaseActionErrorValid-i1/stdout"
+}

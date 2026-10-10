@@ -1,0 +1,9 @@
+{
+  "scope": "constructor gap only; no phase-L execution or refusal claim",
+  "issue": 129,
+  "source_sha256": {
+    "phase_l.rs": "426827879fe502520810d5f5d274b8bbd855481e37852a7c055964f0c7b1e6a0",
+    "before.log": "fa3cba946bc38c5c81fadcc574e6ccabc33e54bf5ba5aa03d9e7fa2c9a799d64"
+  },
+  "observation": "Value::tuple hashes its deferred child and invokes elements before Session input preflight"
+}

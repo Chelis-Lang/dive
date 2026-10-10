@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "scope": "clean pinned TLC end-to-end controls, no native integrated verdict claim",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Issue 140 add minimal local role control while retaining complete original19-model clean run",
+  "timestamp": "2026-10-10T15:03:47.291837+00:00",
+  "source_sha256": {
+    "capture-tlc.py": "4d6b26709c42e66855adf43c2930e92e92e69b9db6a07074f5dfde33e25f3ca7"
+  },
+  "selection_sha256": "6c725507f36d2954157a20f16ed1ef1d0df68a3a2cb8c99c12f43b65b9949a98",
+  "command": [
+    "java",
+    "-cp",
+    "<pinned jar>",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "0",
+    "-fp",
+    "0",
+    "-lncheck",
+    "final",
+    "-cleanup",
+    "-metadir",
+    "<private temp>",
+    "-config",
+    "<model>",
+    "<model>"
+  ],
+  "rows": [
+    {
+      "name": "PhaseAction",
+      "exit": 150,
+      "timeout": false,
+      "stdout_sha256": "15b3c6b940afee91d0241c6353f869c83fa1851866cc320fef7b77b18cf50cc7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseAction/PhaseAction.tla": "dd27ce23fa1c64b0c22f665f605094965466355ea11a1cb2fff610aa7a05d532",
+        "models/PhaseAction/PhaseAction.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      }
+    },
+    {
+      "name": "PhaseActionConstraint",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "2326fab1398faa2cbf890c1a0ba6303e98445b5a604b13d9f7546e6ad082fac3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseActionConstraint/PhaseActionConstraint.cfg": "afc260a83f33ccc5804a5566a5498cae11686b955f1eb2f235c0adc904d1a78d",
+        "models/PhaseActionConstraint/PhaseActionConstraint.tla": "edfc4e9ead8945ce9626690e3cb848100aed4596ff736097060aef356eab8671"
+      }
+    },
+    {
+      "name": "PhaseActionError",
+      "exit": 150,
+      "timeout": false,
+      "stdout_sha256": "b6deff140748014f5eda3c447a175553c5a98d9448c0dd93356e160ea30f4523",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseActionError/PhaseActionError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionError/PhaseActionError.tla": "2ca002487341eb6fde6323c2bf61b485476452a48c483572048509ad75d9b343"
+      }
+    },
+    {
+      "name": "PhaseActionErrorValid",
+      "exit": 255,
+      "timeout": false,
+      "stdout_sha256": "7b09eba095896fed58970a9e0d681015b24fad289f9c78b96cf68a2b05a5efd5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.tla": "4f7d552c4259816b5d36f3fa716ba3d76f3acd3c026de8be25024644764bba55",
+        "models/PhaseActionErrorValid/PhaseActionErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      }
+    },
+    {
+      "name": "PhaseActionValid",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "b77fec1d571ccf0528c556fa007e3fa86ee9858b094c4f098ddd57f349f2cb8b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseActionValid/PhaseActionValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseActionValid/PhaseActionValid.tla": "8ffcba25112f53db4935d6f81b53d7baf3d9ef3e08d91b2d0c5e4124bacc9199"
+      }
+    },
+    {
+      "name": "PhaseBoth",
+      "exit": 150,
+      "timeout": false,
+      "stdout_sha256": "0ff6f130518c0b372091359ca9cfecdc6a3af8155d4afa256afbe38fde46292a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseBoth/PhaseBoth.tla": "374e945db80983984a05be843835165bd9cf5b51f937a905ac3fa3af394895f6",
+        "models/PhaseBoth/PhaseBoth.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27"
+      }
+    },
+    {
+      "name": "PhaseBothValid",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "0d8b0066d39524522279fde1ebbbaecc6ec8b1de3ae967ef3a91574e7942ed03",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseBothValid/PhaseBothValid.cfg": "fe408e15ad69e0e0d239166473e3052981533e1988a8c106980b5ffbc5cd9c27",
+        "models/PhaseBothValid/PhaseBothValid.tla": "73eeb1aac66a5af0b52202b4db331d5915302714cd6e897338921ebf0595eebb"
+      }
+    },
+    {
+      "name": "PhaseConstraint",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "d63a95205004c73e34ce6d02caea41e1b540344d23afb27803d36d7d5e47c11a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseConstraint/PhaseConstraint.cfg": "e82a888e087c6ee6b1549c7ad2f5aa1323d3fc9a8ee8b71ef4e62f57ca19645c",
+        "models/PhaseConstraint/PhaseConstraint.tla": "6c70f013c61de565c9e53b6026abeac7bb0ccf7adaa99ee621a743503195943a"
+      }
+    },
+    {
+      "name": "PhaseDualError",
+      "exit": 150,
+      "timeout": false,
+      "stdout_sha256": "533e4aaa4fec1d182f2ca8c15bdf2be196278ef7ed36c0e9056c24c945c88569",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseDualError/PhaseDualError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseDualError/PhaseDualError.tla": "39db3bc88a8fbf9c8101338242931dd8f8d4a130b7504b0d326cbf4a11d4d1fc"
+      }
+    },
+    {
+      "name": "PhaseDualErrorValid",
+      "exit": 255,
+      "timeout": false,
+      "stdout_sha256": "c2618ddb98223164d922a4e49bfb805628993e91c20739fa07ece94ec6f8f06e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.tla": "f881666fcc948660eb755b0a20030c7bfa9bc3967d46e477d9c5fa04413949da",
+        "models/PhaseDualErrorValid/PhaseDualErrorValid.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      }
+    },
+    {
+      "name": "PhaseEffect",
+      "exit": 0,
+      "timeout": false,
+      "stdout_sha256": "5f31bfd1e29a69adfed30d32661a6c01dba539da7c47ba06cae4797e4e2f5c53",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseEffect/PhaseEffect.tla": "7528eafec0d52a4d72773cc598d2087e1733f65454e88491229bf31a05a3f135",
+        "models/PhaseEffect/PhaseEffect.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      }
+    },
+    {
+      "name": "PhaseIdentity",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "b653f04c5c9449577fbcb009c9029cd09e26a65f0366e4347dcc13b0d1a7f59c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseIdentity/PhaseIdentity.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseIdentity/PhaseIdentity.tla": "2c48fa0911ca37171cbef5496030c7e376d8a7dae7fc2831ee8bf4a1c23844a5"
+      }
+    },
+    {
+      "name": "PhaseLiveGet",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "c334cae54279978771e0cd25ebf28fe7322b6f9edc644288fee36151ba80d524",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseLiveGet/PhaseLiveGet.tla": "3a7cf0aa5d5305d4c8135195cb19a80984ab32f76ed205ec626330281f334cf7",
+        "models/PhaseLiveGet/PhaseLiveGet.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc"
+      }
+    },
+    {
+      "name": "PhaseLocalRole",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "3497b941f9480ad407d9488cdb9a70297183ae07af30089c56639ec54e95af25",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseLocalRole/PhaseLocalRole.cfg": "be2d7b46f23585dbddb930a6cb0a2906e8c296d638c5563e887a7204c44535dd",
+        "models/PhaseLocalRole/PhaseLocalRole.tla": "07aa3534c4a0d2f4e0ceb2fce06e575a494d4c8749bfc8e825ec09ca34a7cdbb"
+      }
+    },
+    {
+      "name": "PhaseSafetyStop",
+      "exit": 12,
+      "timeout": false,
+      "stdout_sha256": "616dc1dbdc9b1bb67eb2c1cbe14363a3dd9d7c49719d94855ae4d9597236eabb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseSafetyStop/PhaseSafetyStop.tla": "81bb6ecb64c779da36531de087d73150b3745400d2802f3ab6875889426f3bc6",
+        "models/PhaseSafetyStop/PhaseSafetyStop.cfg": "7008b8a3be63a86b0cd2a61f1d9561eb05c4c3f4c4a0dedff0c6a7e982f12262"
+      }
+    },
+    {
+      "name": "PhaseState",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "cf8314bed73f5369076f02be9268637135941d975a949582fc03e6cbe35d2a6d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseState/PhaseState.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseState/PhaseState.tla": "39cc2a18612b9fd4143ddd147aa5033084500c1824e057b049cc04afebb5273b"
+      }
+    },
+    {
+      "name": "PhaseStateError",
+      "exit": 255,
+      "timeout": false,
+      "stdout_sha256": "3c104e28c8a1cd2a01c526dafcf58e43d716fffd67bb5f9784545da5dac3a489",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseStateError/PhaseStateError.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseStateError/PhaseStateError.tla": "b27ea658c253e0bcf73c59e4027d4080750ffc98a4fbadb116e6ee699fe10147"
+      }
+    },
+    {
+      "name": "PhaseSubscriptFalse",
+      "exit": 255,
+      "timeout": false,
+      "stdout_sha256": "8c191ed9e6819933d5d70242bbce614269579154efcd89ed15b57d0d50971034",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptFalse/PhaseSubscriptFalse.tla": "973188c1a22c06fe98df731d5e6b45195337b9c1c4257a7ba58e4a4d45d510c1"
+      }
+    },
+    {
+      "name": "PhaseSubscriptTrue",
+      "exit": 255,
+      "timeout": false,
+      "stdout_sha256": "73bf96ecc9205fed3919883ddacf438f8d079e5352ed670d5b8853c864eb9cc8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseSubscriptTrue/PhaseSubscriptTrue.tla": "78a6f098a374955bf7ecb85faf9efd43c243254ad172c5a83f48dd4e7bdd7f3f"
+      }
+    },
+    {
+      "name": "PhaseTableau",
+      "exit": 13,
+      "timeout": false,
+      "stdout_sha256": "8bd2615343b41ad3eabfc6d7f4887fe6302c3c17564f1aa18e45bfa59c635e28",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/PhaseTableau/PhaseTableau.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "models/PhaseTableau/PhaseTableau.tla": "a4944057a4e9951e1cf9e69b0dacd07f8ccbc781787b7d7cfb2a323180e815b7"
+      }
+    }
+  ]
+}
