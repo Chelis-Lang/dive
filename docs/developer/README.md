@@ -12,6 +12,7 @@
 | Reference source/license provenance | [Provenance](../provenance.md) |
 | Reproduction, pins and reports | [Corpus guide](../conformance-corpora.md), [harness README](../../crates/dive-conformance/README.md) |
 | Bugs and unanswered scope | GitHub issues, [owner questions](../open-questions.md) |
+| CI scheduling and complete test partitions | [CI scheduling](ci.md) |
 | Documentation acceptance | [Documentation policy](documentation-policy.md) |
 
 Keep user contracts separate from experiment history. Historical probe READMEs,
