@@ -125,6 +125,18 @@ pub fn module_search_path(
     Ok(module_path)
 }
 
+// Resolve once, before model/parse subprocesses change their working directory.
+// The caller's path is retained separately for repository-relative provenance.
+fn resolve_binary(bin: &Path) -> Result<PathBuf> {
+    if !bin.is_file() {
+        return Err(Error::Config(format!(
+            "the dive binary {} does not exist; build it with `cargo build --release -p dive-cli` or pass --dive-bin",
+            bin.display()
+        )));
+    }
+    bin.canonicalize().map_err(|e| Error::io(bin, &e))
+}
+
 impl DiveImplementation {
     /// Resolves the `dive` binary and the module search path equivalent to
     /// the classpath that `golden_oracle`'s SANY goldens were generated
@@ -140,13 +152,8 @@ impl DiveImplementation {
         bin: &Path,
     ) -> Result<Self> {
         let module_path = module_search_path(config, cache, golden_oracle)?;
-        if !bin.is_file() {
-            return Err(Error::Config(format!(
-                "the dive binary {} does not exist; build it with `cargo build --release -p dive-cli` or pass --dive-bin",
-                bin.display()
-            )));
-        }
-        let version = capture(Command::new(bin).arg("--version"))?
+        let executable = resolve_binary(bin)?;
+        let version = capture(Command::new(&executable).arg("--version"))?
             .trim()
             .to_owned();
         let shown = bin
@@ -162,14 +169,14 @@ impl DiveImplementation {
             .map_or_else(|| bin.display().to_string(), |p| p.display().to_string());
         let provenance = DiveProvenance {
             binary: shown,
-            sha256: sha256_file(bin)?,
+            sha256: sha256_file(&executable)?,
             version,
             module_path: module_path.clone(),
         };
         Ok(Self {
             options: Vec::new(),
             profile: Profile::default(),
-            bin: bin.to_path_buf(),
+            bin: executable,
             module_path,
             provenance: Some(provenance),
             tmp_root: cache.tmp_dir(),
@@ -856,6 +863,41 @@ impl Implementation for DiveImplementation {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[cfg(unix)]
+    fn relative_binary_survives_a_different_child_directory() -> Result<()> {
+        use std::os::unix::fs::PermissionsExt;
+
+        let cwd = std::env::current_dir().map_err(|e| Error::Io(e.to_string()))?;
+        let source = TempDir::new_in(&cwd, "relative-binary")?;
+        let child = TempDir::new("relative-binary-child")?;
+        let file = source.path().join("run");
+        std::fs::write(&file, "#!/bin/sh\nprintf 'resolved-executable\\n'\n")
+            .map_err(|e| Error::io(&file, &e))?;
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o700))
+            .map_err(|e| Error::io(&file, &e))?;
+        let relative = Path::new(".").join(
+            file.strip_prefix(&cwd)
+                .map_err(|e| Error::Config(e.to_string()))?,
+        );
+        // This is the original failure: the child resolves the executable
+        // relative to its model directory rather than the harness directory.
+        assert!(
+            Command::new(&relative)
+                .current_dir(child.path())
+                .output()
+                .is_err()
+        );
+        let executable = resolve_binary(&relative)?;
+        let output = Command::new(executable)
+            .current_dir(child.path())
+            .output()
+            .map_err(|e| Error::Io(e.to_string()))?;
+        assert!(output.status.success());
+        assert_eq!(output.stdout, b"resolved-executable\n");
+        Ok(())
+    }
 
     fn outcome(exit: i32, stdout: &str) -> ProcessOutcome {
         ProcessOutcome {
