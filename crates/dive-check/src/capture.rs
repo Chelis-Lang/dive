@@ -313,10 +313,9 @@ fn explore_inner(model: &Model, opts: &CheckOptions, limits: Limits) -> Explorat
         .evaluator
         .set_host(Arc::new(crate::host::EngineHost::new(host.clone())));
     model.evaluator.intern_checker_names();
-    host.set_config(Some(engine::run_config(
-        opts,
-        model.settings.check_deadlock,
-    )));
+    let config = engine::run_config(opts, model.settings.check_deadlock);
+    model.evaluator.intern_bfs_config(&config);
+    host.set_config(Some(config));
     engine::startup_counters(&host);
     let mut result = crate::bare(Verdict::Success, opts, &model.ir);
     crate::messages(&model.output, &mut result);

@@ -152,6 +152,13 @@ pub struct Model {
     /// worker evaluating in TLC's order (ADR 0015 §6); empty when a parallel
     /// search gives the same results. Each entry names the feature.
     pub sequential: Vec<String>,
+    /// The only sequential restriction is preserving runtime name encounter
+    /// order. This is not an I/O, random-stream or live-checker-state effect.
+    pub sequential_names_only: bool,
+    /// Checking may create runtime names whose encounter order is observable
+    /// under the selected value or exploration order. Remains true when other
+    /// sequential effects are also reachable.
+    pub runtime_name_order: bool,
 }
 
 impl Model {

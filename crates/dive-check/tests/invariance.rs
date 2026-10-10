@@ -300,3 +300,137 @@ fn sequential_mode_is_detected_and_reported() {
     });
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
+
+/// Runtime strings must be created in inline TLC encounter order. A pool
+/// of one is still speculative under chaos scheduling, so width alone is
+/// not the admission condition (issue #122).
+#[test]
+fn runtime_names_preserve_inline_safety() {
+    on_big_stack(|| {
+        for name in ["DynamicStringOrder"] {
+            let tla = crate_dir().join(format!("tests/fixtures/runtime-names/{name}.tla"));
+            let cfg = std::fs::read_to_string(tla.with_extension("cfg")).expect("fixture");
+            for mut base in profiles() {
+                base.seed = 7;
+                let reference = invariant(name, &tla, &cfg, &base, 8).expect("ordered result");
+                assert!(matches!(
+                    reference.verdict,
+                    Verdict::InvariantViolated { .. }
+                ));
+                let stats = reference.stats.as_ref().expect("counts");
+                if base.profile == dive_eval::Profile::Tlc {
+                    assert_eq!((stats.generated, stats.distinct, stats.depth), (23, 23, 2));
+                    assert!(reference.workers.sequential);
+                    assert_eq!(reference.workers.used, 1);
+                    assert!(
+                        reference
+                            .workers
+                            .reason
+                            .as_ref()
+                            .expect("reason")
+                            .contains("runtime names")
+                    );
+                } else {
+                    assert!(
+                        !reference.workers.sequential,
+                        "canonical order remains parallel"
+                    );
+                    assert_eq!(reference.workers.used, 4);
+                }
+            }
+        }
+    });
+}
+
+#[test]
+fn runtime_name_wrappers_aliases_and_operator_arguments_are_reachable() {
+    on_big_stack(|| {
+        for (defs, expression, extra_cfg) in [
+            ("", "ToString(x)", ""),
+            ("Wrap(v) == ToString(v)\n", "Wrap(x)", ""),
+            ("Wrap(v) == v\n", "Wrap(x)", "CONSTANT Wrap <- ToString\n"),
+            ("Call(F(_),v) == F(v)\n", "Call(ToString,x)", ""),
+            (
+                "Wrap(v) == ToString(v)\nCall(F(_),v) == F(v)\n",
+                "Call(Wrap,x)",
+                "",
+            ),
+            ("", "Tail(ToString(x))", ""),
+            ("", "SubSeq(ToString(x),1,1)", ""),
+            ("", "ToString(x) \\o \"suffix\"", ""),
+        ] {
+            let source = format!(
+                "---- MODULE RuntimeNames ----\nEXTENDS Naturals, TLC, Sequences\nVARIABLE x\n{defs}Init == x = 0\nNext == x' = x /\\ ({expression} = {expression})\n====\n"
+            );
+            let analysis = dive_sema::analyze_source(
+                "RuntimeNames.tla",
+                &source,
+                &dive_sema::Options::default(),
+            );
+            assert!(
+                analysis.accepted(),
+                "{source}: {:?}",
+                analysis.diagnostics()
+            );
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("lowers"));
+            let cfg = dive_config::parse(&format!("INIT Init\nNEXT Next\n{extra_cfg}"))
+                .into_config()
+                .expect("cfg");
+            let m = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("bind");
+            assert!(m.sequential_names_only, "{source}: {:?}", m.sequential);
+            assert!(m.sequential.iter().any(|s| s.contains("runtime names")));
+        }
+    });
+}
+
+#[test]
+fn runtime_choice_matches_clean_pinned_tlc_at_fixed_seeds() {
+    on_big_stack(|| {
+        let tla = crate_dir().join("tests/fixtures/runtime-names/DynamicStringOrder.tla");
+        let cfg = std::fs::read_to_string(tla.with_extension("cfg")).expect("cfg");
+        let (ir, cfg) = load(&tla, &cfg);
+        for (seed, count, x) in [(0, 30, 13), (7, 23, 6), (14, 30, 13)] {
+            let transcript = std::fs::read_to_string(
+                tla.parent()
+                    .expect("parent")
+                    .join(format!("tlc-2026.10.06.014338/seed-{seed}.stdout")),
+            )
+            .expect("raw pinned TLC");
+            assert!(transcript.contains(&format!(
+                "{count} states generated, {count} distinct states found, 15 states left on queue."
+            )));
+            assert!(transcript.contains(&format!("x = {x}")));
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                for workers in [1, 4, 8] {
+                    for chaos in [None, Some(0), Some(91)] {
+                        let mut opts = CheckOptions::tlc(0, seed);
+                        opts.store = store;
+                        opts.workers = workers;
+                        opts.chaos = chaos;
+                        let r = check(&ir, &cfg, &opts);
+                        assert!(matches!(r.verdict, Verdict::InvariantViolated { .. }));
+                        let stats = r.stats.as_ref().expect("stats");
+                        assert_eq!(
+                            (
+                                stats.generated,
+                                stats.distinct,
+                                stats.left_on_queue,
+                                stats.depth
+                            ),
+                            (count, count, 15, 2)
+                        );
+                        let trace = r.counterexample.as_ref().expect("trace");
+                        assert_eq!(trace.states.len(), 2);
+                        assert_eq!(trace.states[0].values[0], dive_value::Value::Int(x));
+                        assert_eq!(trace.states[1].values[0], dive_value::Value::Int(x));
+                        assert_eq!(
+                            format!("{:?}", trace.states[1].values[1]),
+                            format!("\"{}\"", x + 1)
+                        );
+                        assert_eq!((r.workers.used, r.workers.sequential), (1, true));
+                    }
+                }
+            }
+        }
+    });
+}

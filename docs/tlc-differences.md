@@ -1018,3 +1018,22 @@ minimal specs and clean pinned oracle captures; `tests/lazy_domains.rs` checks
 truth, counts and independent validation. `dive-eval` binder tests verify order
 against ordinary enumeration, empty-domain functions, comparison-error order,
 raw normalization state and giant-domain preallocation refusals.
+
+### Current limitation: runtime names in TLC order (#122)
+
+A model such as `s' = (CHOOSE t \in {ToString(x), ToString(x+1)} : TRUE)`
+observes the order in which runtime strings are created. Speculative evaluation
+can change that order even with one requested worker. TLC additionally creates
+its configuration strings before assumptions: with `x \in 0..15` and the
+invariant in `crates/dive-check/tests/fixtures/runtime-names/DynamicStringOrder.tla`,
+seed 7 stops at 23 generated/distinct states; seeds 0 and 14 stop at 30.
+The raw pinned captures preserve this evidence.
+
+In TLC value or exploration order, reachable string constructors now force
+inline checking, with the reason and one actual worker reported. The default
+canonical order remains parallel. This is a temporary admission restriction,
+not a different answer: an ordered parallel runtime interner is still needed
+for those TLC-mode models to scale. The conservative analysis includes tuple
+uses of operators that can also construct strings, record-name constructors,
+and wrappers or native overrides. Strict graph capture currently refuses these
+models until it can admit the same inline fallback explicitly.

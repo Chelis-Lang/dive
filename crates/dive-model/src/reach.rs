@@ -169,6 +169,37 @@ fn role_preds(model: &Model) -> Vec<&Pred> {
     preds
 }
 
+/// Operators that may allocate interned string values or record field names
+/// during checking. Tuple-only uses are conservatively included until a
+/// type-sensitive proof can exclude them (issue #122).
+fn creates_names(op: StdOp) -> bool {
+    matches!(
+        op,
+        StdOp::TlcToString
+            | StdOp::SequencesTail
+            | StdOp::SequencesConcat
+            | StdOp::SequencesSubSeq
+            | StdOp::SequencesExtLongestCommonPrefix
+            | StdOp::SequencesExtReplaceFirstSubSeq
+            | StdOp::SequencesExtReplaceAllSubSeqs
+            | StdOp::DyadicRationalsReduce
+    )
+}
+
+pub(crate) struct Sequential {
+    pub reasons: Vec<String>,
+    pub names_only: bool,
+    pub runtime_names: bool,
+}
+
+fn native_op(ir: &dive_ir::Ir, op: &OpRef) -> Option<StdOp> {
+    match op {
+        OpRef::Std(op) => Some(*op),
+        OpRef::Def(id) => ir.def(*id).std,
+        _ => None,
+    }
+}
+
 /// What a use of the Java override `op` (applied to a first argument `key`,
 /// when known) on the checking path forces sequential mode for, if anything.
 fn sequential_op(op: StdOp, key: Option<&Expr>) -> Option<String> {
@@ -211,6 +242,7 @@ fn sequential_op(op: StdOp, key: Option<&Expr>) -> Option<String> {
 /// - `TLCGet` of a live counter or a register, or of a key computed at run
 ///   time;
 /// - an operator that performs I/O or reads the checker's internal state;
+/// - runtime name constructors under TLC value or exploration order;
 /// - randomness, drawn in TLC from one stream per expanded state that the
 ///   next-state relation and the checks of its successors share;
 /// - side effects (`Print`, ...) inside a lazily evaluated set filter or
@@ -219,13 +251,25 @@ fn sequential_op(op: StdOp, key: Option<&Expr>) -> Option<String> {
 ///
 /// `Print` elsewhere does not force sequential mode: the checker buffers its
 /// output and releases it in TLC's order.
-pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Vec<String> {
+pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Sequential {
     let ir = &*model.ir;
     let (roots, mut exprs) = checking_path(b, model);
     let reach = ir.reachable_defs(&roots);
+    let ordered_names = b.opts.eval.ctx.order == dive_value::ValueOrder::Tlc
+        || b.opts.eval.exploration == dive_eval::ExplorationOrder::Tlc;
+    let mut names: BTreeSet<String> = BTreeSet::new();
     for (i, d) in ir.defs().iter().enumerate() {
-        if reach.get(i).copied().unwrap_or(false) && d.std.is_none() {
-            exprs.push(d.body);
+        if reach.get(i).copied().unwrap_or(false) {
+            if let Some(op) = d.std {
+                if ordered_names && creates_names(op) {
+                    names.insert(format!(
+                        "{} (runtime names require TLC encounter order)",
+                        op.qualified_name()
+                    ));
+                }
+            } else {
+                exprs.push(d.body);
+            }
         }
     }
     let impure = |e: ExprId| ir.node(e).effects.intersects(Effects::IMPURE);
@@ -239,19 +283,34 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Vec<String> {
         let expr = ir.expr(e);
         match expr {
             Expr::Apply { callee, args } => {
-                if let OpRef::Std(op) = callee {
+                if let Some(op) = native_op(ir, callee) {
                     let key = args.first().and_then(|a| match a {
                         Arg::Expr { expr, .. } => Some(ir.expr(*expr)),
                         Arg::Op { .. } => None,
                     });
-                    out.extend(sequential_op(*op, key));
+                    if ordered_names
+                        && (creates_names(op)
+                            || (op == StdOp::TlcTLCGet
+                                && matches!(key, Some(Expr::Str(k)) if k.as_ref() == "config")))
+                    {
+                        names.insert(format!(
+                            "{} (runtime names require TLC encounter order)",
+                            op.qualified_name()
+                        ));
+                    }
+                    out.extend(sequential_op(op, key));
                 }
                 for a in args {
-                    if let Arg::Op {
-                        op: OpRef::Std(op), ..
-                    } = a
+                    if let Arg::Op { op, .. } = a
+                        && let Some(op) = native_op(ir, op)
                     {
-                        out.extend(sequential_op(*op, None));
+                        if ordered_names && creates_names(op) {
+                            names.insert(format!(
+                                "{} (runtime names require TLC encounter order)",
+                                op.qualified_name()
+                            ));
+                        }
+                        out.extend(sequential_op(op, None));
                     }
                 }
             }
@@ -281,5 +340,12 @@ pub(crate) fn sequential(b: &Binder<'_>, model: &Model) -> Vec<String> {
             "side effects inside a lazily evaluated value bound with the model, which TLC caches (a LET or an operator argument)".to_owned(),
         );
     }
-    out.into_iter().collect()
+    let runtime_names = !names.is_empty();
+    let names_only = out.is_empty() && runtime_names;
+    out.extend(names);
+    Sequential {
+        reasons: out.into_iter().collect(),
+        names_only,
+        runtime_names,
+    }
 }

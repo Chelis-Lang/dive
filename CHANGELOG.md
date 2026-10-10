@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Preserve TLC runtime string encounter order by using reported inline checking
+  for reachable string/name constructors. Eagerly intern checker configuration
+  values before assumptions, including the seed and fingerprint (issue #122).
+
+
 - Final/short temporal failures retain their execution stage, actual capture
   workers, completed statistics, output and collision qualifications. Unknown
   thread execution is reported as unknown rather than zero. Existing library
