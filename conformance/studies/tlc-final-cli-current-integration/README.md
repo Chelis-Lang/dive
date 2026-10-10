@@ -18,3 +18,11 @@ This local gate is implementation evidence, not a claim of complete TLC parity.
 The original complete [140-model census](../tlc-final-cli-first/README.md) remains
 140 explicit refusals, including its honestly unretained shell exit status.
 Release controls and fresh corpus outcomes use separate manifests.
+
+The frozen integrated release source is `5008b7c2`. All 32 selected final-mode
+positive controls pass at 1/3/4/8 workers, including property identity and actual
+periodic trace endings. The required ordinary CM1 gate passes all 21 selected
+models and ValidationTestSuite passes all 16 models, each at 1/4/8 workers.
+The release manifest records exact executable and raw-output hashes. These
+receipts add supported final-mode and safety evidence only; they do not promote
+refusals or certify unimplemented ordinary temporal schedules.
