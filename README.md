@@ -8,8 +8,9 @@ The standard is an **unimpeachably sound port**. Every result is verified contin
 > parsing, safety `dive check` and `dive validate-trace` are implemented.
 > The protected conformance gate compares safety results with pinned TLC
 > goldens. Rust callers can use bounded final temporal checking with
-> independently validated counterexamples; ordinary `dive check` still
-> refuses temporal and symmetry models. See [`docs/sprint-status.md`](docs/sprint-status.md)
+> independently validated counterexamples. Pure safety symmetry now retains
+> concrete validated traces; unsupported symmetry interactions and ordinary
+> temporal checking still refuse. See [`docs/sprint-status.md`](docs/sprint-status.md)
 > for measured coverage and the remaining roadmap.
 
 

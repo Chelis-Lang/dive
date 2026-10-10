@@ -140,6 +140,8 @@ pub struct Model {
     pub postconditions: Result<Vec<Named>, BindError>,
     /// `SYMMETRY`, by name.
     pub symmetry: Option<String>,
+    /// Prepared safety reduction. Concrete states remain unmodified.
+    pub symmetry_reduction: Option<Arc<crate::symmetry::Reduction>>,
     /// Pre-constant-evaluation lookup, retained only for the configured declaration.
     pub(crate) symmetry_definition: Option<crate::tables::Look>,
     /// Run settings.

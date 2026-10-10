@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "run_id": "20261010T103029258-dive-all",
+  "generated_at": "2026-10-10T10:30:29Z",
+  "generator": "dive-conformance 0.0.0",
+  "implementation": "dive",
+  "implementation_oracle": null,
+  "golden_oracle": "tlc-2026.10.06.014338",
+  "golden_oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "golden_oracle_role": "gating",
+  "implementation_oracle_role": null,
+  "reference": false,
+  "implementation_dive": {
+    "binary": "target/release/dive",
+    "sha256": "514eff9fd7eb3a9c0076a5d9166fc7be1480d860b4d7ada2a6743e31f0fa568b",
+    "version": "dive 0.0.0",
+    "module_path": [
+      {
+        "id": "community-modules-202610040242",
+        "pin": "b7fcd727fc5135a628e56d5015651c74ba70681bbaf88df1cd59e9afa64215ad"
+      },
+      {
+        "id": "community-modules-deps-202610040242",
+        "pin": "dddb19c3d7596913d92c43073b60d1408ac8f6d86716af4d19dd6861a95bfb7d"
+      },
+      {
+        "id": "apalache-modules-v0.62.3",
+        "pin": "3eb15b253482005222fabbf50bb7aae501eb9f8d"
+      },
+      {
+        "id": "tlapm-library-d8b9747",
+        "pin": "d8b9747a1dce9b4816bcc1ff130ccf7a3af2ce37"
+      }
+    ]
+  },
+  "corpora": [
+    {
+      "id": "examples",
+      "commit": "6a7b26a31c1a6aeec789b455e9bbfa3b3ad2728f",
+      "unfetched_submodules": [
+        "specifications/BlockingQueue",
+        "specifications/CCF",
+        "specifications/azure-cosmos-tla",
+        "specifications/microwave"
+      ],
+      "uncovered": [
+        "specifications/CASPaxos/ (no manifest.json)",
+        "specifications/Caesar/ (no manifest.json)",
+        "specifications/DataPort/ (no manifest.json)",
+        "specifications/HLC/ (no manifest.json)",
+        "specifications/L1/ (no manifest.json)",
+        "specifications/MultiPaxos/ (no manifest.json)",
+        "specifications/ParalleRaft/ (no manifest.json)",
+        "specifications/SnapshotIsolation/ (no manifest.json)",
+        "specifications/SyncConsensus/ (no manifest.json)",
+        "specifications/TencentPaxos/ (no manifest.json)",
+        "specifications/Termination/ (no manifest.json)",
+        "specifications/Tla-tortoise-hare/ (no manifest.json)",
+        "specifications/VoldemortKV/ (no manifest.json)",
+        "specifications/async-comm/ (no manifest.json)",
+        "specifications/egalitarian-paxos/ (no manifest.json)",
+        "specifications/fastpaxos/ (no manifest.json)",
+        "specifications/fpaxos/ (no manifest.json)",
+        "specifications/leaderless/ (no manifest.json)",
+        "specifications/losa_ap/ (no manifest.json)",
+        "specifications/losa_rda/ (no manifest.json)",
+        "specifications/m2paxos/ (no manifest.json)",
+        "specifications/mongo-repl-tla/ (no manifest.json)",
+        "specifications/naiad/ (no manifest.json)",
+        "specifications/nfc04/ (no manifest.json)",
+        "specifications/raft/ (no manifest.json)"
+      ]
+    }
+  ],
+  "host": {
+    "os": "macos",
+    "arch": "aarch64",
+    "kernel": "Darwin 25.5.0",
+    "cpus": 8,
+    "memory_bytes": 25769803776
+  },
+  "settings": {
+    "tier": "all",
+    "filters": [
+      "**/MCCheckpointCoordinationFailure.cfg",
+      "**/MCFlashWithMutex.cfg",
+      "**/MCGermanCMPWithMutex.cfg",
+      "**/MCGermanControl.cfg",
+      "**/MCGermanData.cfg",
+      "**/MultiPaxos_MC_small.cfg",
+      "**/MCPaxos.cfg",
+      "**/MCVoting.cfg",
+      "**/FastPaxos.cfg",
+      "**/Paxos.cfg",
+      "**/BufferedRandomAccessFile.cfg"
+    ],
+    "workers": [
+      4
+    ],
+    "jobs": 1,
+    "xmx": "3g",
+    "timeout_policy": "fixed 600 s",
+    "crosscheck_manifest": false,
+    "sany_phase": "full",
+    "impl_options": [],
+    "impl_profile": "tlc",
+    "strict_tier": true
+  },
+  "summary": {
+    "models_selected": 12,
+    "modules_selected": 0,
+    "models": {
+      "agree": 12,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "modules": {
+      "agree": 0,
+      "disagree": 0,
+      "unsupported": 0,
+      "oracle-error": 0,
+      "timeout": 0,
+      "out-of-scope": 0,
+      "divergence-mode": 0,
+      "expected-divergence": 0,
+      "agree-pending-trace-validation": 0,
+      "known-upstream-change": 0
+    },
+    "models_with_oracle_drift": 0,
+    "oracle_drift_findings": 0,
+    "informational_drift_findings": 0,
+    "worker_verdict_variant": 0,
+    "worker_counts_variant": 0,
+    "worker_depth_variant": 0,
+    "worker_introspecting": 0,
+    "worker_property_variant": 0,
+    "by_corpus": {
+      "examples": {
+        "models": {
+          "agree": 12,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        },
+        "modules": {
+          "agree": 0,
+          "disagree": 0,
+          "unsupported": 0,
+          "oracle-error": 0,
+          "timeout": 0,
+          "out-of-scope": 0,
+          "divergence-mode": 0,
+          "expected-divergence": 0,
+          "agree-pending-trace-validation": 0,
+          "known-upstream-change": 0
+        }
+      }
+    }
+  },
+  "models": [
+    {
+      "corpus": "examples",
+      "model": "specifications/CheckpointCoordination/MCCheckpointCoordinationFailure.cfg",
+      "module": "specifications/CheckpointCoordination/MCCheckpointCoordination.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "safety-violation",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "safety-violation",
+          "verdict_code": 2110,
+          "exit_code": 12,
+          "distinct_states": 88152,
+          "states_generated": 1302999,
+          "depth": 12,
+          "trace_length": 12,
+          "diffs": [],
+          "elapsed_ms": 70892,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/FlashProtocol/MCFlashWithMutex.cfg",
+      "module": "specifications/FlashProtocol/MCFlashWithMutex.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 2024,
+          "states_generated": 7552,
+          "depth": 21,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 339,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/GermanProtocol/MCGermanCMPWithMutex.cfg",
+      "module": "specifications/GermanProtocol/MCGermanCMPWithMutex.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 1107,
+          "states_generated": 3281,
+          "depth": 19,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 147,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/GermanProtocol/MCGermanControl.cfg",
+      "module": "specifications/GermanProtocol/MCGermanControl.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 735,
+          "states_generated": 1946,
+          "depth": 19,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 193,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/GermanProtocol/MCGermanData.cfg",
+      "module": "specifications/GermanProtocol/MCGermanData.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 852,
+          "states_generated": 2493,
+          "depth": 19,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 225,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/MultiPaxos-SMR/MultiPaxos_MC_small.cfg",
+      "module": "specifications/MultiPaxos-SMR/MultiPaxos_MC.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 343796,
+          "states_generated": 736012,
+          "depth": 28,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 62644,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/Paxos/MCPaxos.cfg",
+      "module": "specifications/Paxos/MCPaxos.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 25,
+          "states_generated": 82,
+          "depth": 9,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 37,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/Paxos/MCVoting.cfg",
+      "module": "specifications/Paxos/MCVoting.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 77,
+          "states_generated": 451,
+          "depth": 11,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 93,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/PaxosHowToWinATuringAward/MCVoting.cfg",
+      "module": "specifications/PaxosHowToWinATuringAward/MCVoting.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 6752,
+          "states_generated": 41017,
+          "depth": 16,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 4984,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/SimplifiedFastPaxos/FastPaxos.cfg",
+      "module": "specifications/SimplifiedFastPaxos/FastPaxos.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 25617,
+          "states_generated": 320053,
+          "depth": 22,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 195058,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/SimplifiedFastPaxos/Paxos.cfg",
+      "module": "specifications/SimplifiedFastPaxos/Paxos.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 1207,
+          "states_generated": 13290,
+          "depth": 22,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 12489,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    },
+    {
+      "corpus": "examples",
+      "model": "specifications/braf/BufferedRandomAccessFile.cfg",
+      "module": "specifications/braf/BufferedRandomAccessFile.tla",
+      "tier": "small",
+      "outcome": "agree",
+      "detail": null,
+      "golden_verdict": "success",
+      "runs": [
+        {
+          "workers": 4,
+          "outcome": "agree",
+          "verdict": "success",
+          "verdict_code": 2193,
+          "exit_code": 0,
+          "distinct_states": 3316,
+          "states_generated": 128581,
+          "depth": 10,
+          "trace_length": null,
+          "diffs": [],
+          "elapsed_ms": 188290,
+          "detail": null
+        }
+      ],
+      "worker_invariance": null,
+      "manifest_drift": [],
+      "worker_introspecting": false
+    }
+  ],
+  "modules": []
+}

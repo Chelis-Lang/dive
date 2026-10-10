@@ -14,6 +14,8 @@ use serde::{Deserialize, Serialize};
 /// A source file of the specification.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FileInfo {
+    /// Original module text, retained for source-aware TLC diagnostics.
+    pub source: Box<str>,
     /// The name shown in diagnostics.
     pub display: String,
     /// The name of the file-level module it holds. SANY's locations, and so

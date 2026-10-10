@@ -1,11 +1,13 @@
-# Sprint status, 2026-10-09
+# Sprint status, 2026-10-10
 
 M0 and M2–M4 are complete. The safety checker, independent trace validator
 and deterministic parallel search are implemented and protected by the CM1
 PR gate at 1, 4 and 8 workers. M1 and M5 remain open for the work below.
 M6 has independent temporal-word evaluation and graph-search foundations.
 Explicit final/short temporal checking is available; ordinary strict
-`dive check` still refuses temporal model checking and symmetry by name.
+`dive check` still refuses temporal model checking by name. Pure safety
+symmetry now canonicalizes keys and retains concrete validated traces;
+unsupported symmetry startup, value and temporal interactions still refuse.
 
 The approved [full TLC parity plan](design/tlc-parity-plan.md) now covers the
 remaining checker features, all checking modes, native recovery/distribution
@@ -13,7 +15,7 @@ and PlusCal. The [feature ledger](tlc-parity.md) inventories 37 semantic
 families and their source surfaces. Its implemented/partial labels and current
 model counts do not certify complete families or establish an overall percent.
 
-## Latest strict model evidence
+## Preserved standard strict model evidence
 
 Built from main `7ceb59f`, with binary SHA-256
 `715ddf1bc54f7c85d2aa0c7d4926751e8fa93c1900f2761d2ec3552b94a10366`,
@@ -62,8 +64,8 @@ it supplies cross-platform evidence, not a substitute for their validation.
   reproducibility of measurement, not achievement of the performance
   targets. Profiling and paired baseline work remain (#28, #53).
 - **M5 coverage:** unsupported library operators and deadlocks lacking finite
-  independent covers remain honest limitations. M6 covers temporal and symmetry
-  refusals; they must not be removed merely to raise the agreement count.
+  independent covers remain honest limitations. M6 covers temporal and remaining
+  symmetry interactions; refusals must not disappear merely to raise coverage.
 
 ## M6 critical path
 
@@ -75,7 +77,7 @@ Pure bound predicates lower to that kernel with retained scopes and source
 diagnostics and WF/SF enabledness expansion; dynamic contexts and TLC-exact
 planning remain pending.
 Independent fairness and successor-existence checking
-(#63), exact TLC lasso choice, symmetry, scheduling, spill and performance
+(#63), exact TLC lasso choice, remaining symmetry interactions, scheduling, spill and performance
 remain outstanding. The independent truth-vector and graph APIs are
 foundations. The graph/tableau product preserves per-edge atom truth and
 projects accepting witnesses without discarding repeated obligations;
@@ -191,21 +193,36 @@ DiningPhilosophers matches 336 generated states, 67 distinct states and depth 29
 MCDistributedReplicatedLog now reaches the explicit VIEW graph-capture restriction.
 Actual capture remains width 1; strict TLC temporal conformance is still pending.
 
-## Symmetry closure foundation
+## Symmetry safety increment and remaining contracts
 
 The bounded model-value permutation kernel matches all 1,329 direct pinned
 Java inputs in order, including malformed maps under TLC behavior. Checked
-mode rejects non-bijections, with omitted identities included. Model binding,
-startup warnings, canonical state keys and symmetry trace validation are
-still open; SYMMETRY checking remains an explicit refusal.
+mode rejects non-bijections, with omitted identities included. The following
+declaration and safety stages build on this kernel.
 
 
 The S1 declaration stage now preserves the configured definition before constant
 evaluation and validates pure enum-set/function-record representations. Four
 early errors match pinned TLC messages; substitutions, assignments, identities,
 effectful/state-dependent refusals and absent declarations have regression
-controls. Full warnings, model-value checks, canonical keys and trace handling
-remain open; normal `SYMMETRY` checking is still refused.
+controls. Supported pure source-backed warnings, model-value checks, canonical
+keys and concrete trace handling now run through the checker.
+
+The staged [safety study](../conformance/reports/studies/symmetry-safety.md)
+fully agrees on all eleven intended symmetry targets and the additional Voting
+selection at four workers. The original single-worker FastPaxos timeout remains
+in its raw report. These 12/12 results are separate from the historical standard
+83/71 totals above; neither report is rewritten or arithmetically combined.
+The additional default-profile CheckpointCoordination and Voting study records
+2/2 agreements. Both stores and profiles have pinned key/warning/trace controls
+at 1/4/8 workers. CM1 now requires the original Paxos Voting symmetry case,
+without removing any of its previous models: 21/21 agree at those widths.
+
+Unverified startup exceptions, unsupported declaration shapes, deferred/lazy
+or infinite permutations, randomness under symmetry and symmetry with liveness
+remain named refusals. The optional symmetry audit is unimplemented. #104 and
+ledger families F-017/F-018 remain partial; no complete-family certification
+or throughput claim follows from these selected passing models.
 
 
 The expanded [53-model final/short study](temporal-study.md) records 26 matching

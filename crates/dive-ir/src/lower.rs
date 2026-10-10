@@ -137,6 +137,7 @@ impl<'a> Lowerer<'a> {
             .iter()
             .map(|f| FileInfo {
                 display: f.display.clone(),
+                source: f.text.clone().into_boxed_str(),
                 module: String::new(),
                 standard: f.origin == dive_sema::Origin::Standard,
             })
