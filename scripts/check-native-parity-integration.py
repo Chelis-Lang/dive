@@ -13,7 +13,7 @@ history = json.loads((BASE / "historical-slices.json").read_text())
 assert history["schema_version"] == 1
 slices = history["slices"]
 assert len(slices) == len({row["slice"] for row in slices})
-assert {"graph", "conditional", "checkpoint", "fairness"} <= {row["slice"] for row in slices}
+assert {"graph", "conditional", "checkpoint", "fairness", "public-ir", "multiple-processes"} <= {row["slice"] for row in slices}
 for row in slices:
     directory = BASE / "history" / row["slice"]
     assert json.loads((directory / "record.json").read_text()) == row
@@ -22,7 +22,7 @@ for row in slices:
     for name, digest in row["matrices_sha256"].items():
         matrix = BASE / name
         assert sha(matrix.read_bytes()) == digest, name
-        for source, expected in json.loads(matrix.read_text())["source_sha256"].items():
+        for source, expected in json.loads(matrix.read_text()).get("source_sha256", json.loads(matrix.read_text()).get("checked_sources", {})).items():
             assert row["source_sha256"][source] == expected, source
     for name, digest in row["source_sha256"].items():
         assert sha(gzip.decompress((directory / "sources" / (name + ".gz")).read_bytes())) == digest, name

@@ -3,15 +3,15 @@
   "source_sha256": {
     "crates/dive-api/src/check.rs": "b1dd8564ad5ea95f2284618040d81cbbb29f83ffc25116ab70fe5712dea7124a",
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
-    "crates/dive-check/src/checkpoint.rs": "3d3a2b3f4e5da5802de48475e4f0426adbd590f9f677e1bc615b952baa80d493",
+    "crates/dive-check/src/checkpoint.rs": "0c9ab9ae40e5992e20f477545a307089f8bd58ada207b53df73583c3b355d3a5",
     "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
-    "crates/dive-check/src/lib.rs": "719c8e8077e5c8c0b35da2037da906e534d68215e45f5b136cad88310b60d8c5",
+    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
     "crates/dive-cli/src/main.rs": "0d04f84cb4e7658676ee4ffebcebcdc175240a9c43684c32c8f891dabd422d33",
-    "crates/dive-model/src/lib.rs": "60bfb78a4b4dad9234d6dec5ad143c2d8be6086ceedcd65256d85ef90666cdf9",
+    "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
     "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
     "crates/dive-api/tests/native_checkpoint.rs": "a2d2b781a522c9419647fc61cece56ea10a296a92ccece7796b26dfbb87ac1d1",
     "scripts/check-native-checkpoint.py": "1dc7e25decea6795de0534ce01eb9c6b15f6ba14d9b6d34a002a5551df72a4e6",
     "crates/dive-cli/tests/cli.rs": "46f1b028780bd7589f79600564dec41e08697bcbac929d249d6c4aae92f87103"
   },
-  "current_integration_scope": "combined conditional planning, concrete null-tableau graph, pure safety recovery and single-process fairness; no full family certification"
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification"
 }

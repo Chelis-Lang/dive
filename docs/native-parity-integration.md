@@ -1,6 +1,6 @@
 # Native parity integration increment
 
-This increment combines four bounded implementation slices and their shared
+This increment combines six bounded implementation slices and their shared
 admission, capture and recovery boundaries. They remain incomplete TLC families.
 
 - Conditional temporal planning preserves the deciding reference error before
@@ -11,8 +11,12 @@ admission, capture and recovery boundaries. They remain incomplete TLC families.
 - Native pure safety checkpoints recover saved discoveries and ordered frontiers.
   A paused checkpoint is incomplete. Both profiles reset counters like TLC;
   explicit `retain` preserves uninterrupted totals and is labelled an override.
-- One-block PlusCal process translation supports pinned weak/strong fairness,
-  label modifiers and option precedence. Validated modules are not model proofs.
+- PlusCal process translation supports bounded disjoint finite blocks, local
+  state, pinned weak/strong fairness, label modifiers and option precedence.
+  Validated modules are not model proofs.
+- Malformed public IR and foreign bound-model metadata stop before assumptions,
+  host effects, workers or checkpoint reads. This also applies to concrete graph
+  capture at invalid worker widths.
 
 The original separately verified source trees and their exact compressed bytes
 remain in `conformance/probes/native-parity-integration/history`. Their reports
@@ -29,4 +33,4 @@ Strict temporal execution, exact SCC/lasso/scheduling, full process translation,
 and general checkpoint/runtime/distributed recovery remain pending. Every parity
 family still requires its full-selection audit before certification. See
 [the parity ledger](tlc-parity.md), [checkpoint details](native-checkpoint.md),
-[PlusCal fairness](pluscal-fairness.md) and ADRs 0029, 0033, 0035 and 0036.
+[PlusCal fairness](pluscal-fairness.md) and ADRs 0028, 0029, 0033, 0035, 0036 and 0037.

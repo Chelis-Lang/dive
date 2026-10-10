@@ -10,7 +10,7 @@
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
     "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
-    "crates/dive-eval/src/context.rs": "e3c6704dcf4bda4464a5acf27a1c9f7e4df638f9b98855f6b336a657dfddafe9",
+    "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
@@ -21,7 +21,7 @@
     "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
     "crates/dive-liveness/tests/tlc_tableau.rs": "26bfdee43c9abe5c769b1d5bbad76e71e9c8241b2dcea293532a58f0d038cdd2",
     "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
-    "scripts/check-tlc-planning.py": "2f51cdd41df8b260aa61517b5dcd4e602283f1f1197e4b32e24d09f04aac55d5",
+    "scripts/check-tlc-planning.py": "dd97a1643191b7367498764f154cd981125febf57599f92bf1357be1f8729f9b",
     "scripts/check-tlc-tableau.py": "20f4901fc85e0b0a88bff61150b5813fde1453faa2e97db2d4953d6a38722897",
     "crates/dive-value/src/value.rs": "59428e7acb957b8c17a00472297e516492eca9d9f4f0305f287b21df40848d0a",
     "crates/dive-trace/src/temporal.rs": "7fc135838c764142c6213ce42efac4d913da5a44f1efe8eca6a070cef776baf5",
@@ -30,12 +30,12 @@
     "crates/dive-liveness/src/phase_l.rs": "c6c4321cad2fadc3f061f1496206ac16f237ec5dd8b3f642c4af27b28f065158",
     "crates/dive-liveness/tests/phase_l.rs": "a6294a9efe41607be5da082c4d6c303683be1c63cf1d0019a00f1efeeb06d085",
     "scripts/check-phase-l.py": "933c32efa560bad71e7dceaac1b93a33f7d47b6f851b70b9c8a3dae94fdc2be3",
-    "crates/dive-check/src/capture.rs": "44a61900f1a395d3353b7b2bc47b37880a7bc320dfc465c00f9fd6367171d6b0",
+    "crates/dive-check/src/capture.rs": "f8465383ce22c90bab87d30e87c2753989ea641cf8747f49df70113d4eb190fb",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
     "crates/dive-check/src/parallel.rs": "a2b37348b78da8cdf9545ee51a20f8e0e585952bc77b1e082b15634f5eac19f9",
     "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/tests/phase_graph.rs": "19c7555ddcccccce86907012b6f89a598aadbbf925ef467fe44cd16b0350b6b9",
+    "crates/dive-liveness/tests/phase_graph.rs": "e4bc9229aaf69c4e3e0a6e83f772caad70126e19cc3f36114d1054c0f2630211",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
     "crates/dive-liveness/tests/state_if_planning.rs": "55ad0d33538327413106c5c1ec9144f0f64e24e38e2041c3af0b0067ee811418",
     "scripts/check-state-if-planning.py": "b0784fa99a951eefbd39cc2584cfc73888606ecb010864d1354d17e7dfff7b6e"
@@ -107,5 +107,5 @@
       "scope": "immutable independently verified checkpoint source before final native integration"
     }
   ],
-  "current_integration_scope": "combined conditional planning, concrete null-tableau graph, pure safety recovery and single-process fairness; no full family certification"
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification"
 }

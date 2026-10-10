@@ -2,7 +2,7 @@
   "schema_version": 1,
   "base_commit": "1cf68fda3f614534bbd39202149bfbdf255d443c",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "44a61900f1a395d3353b7b2bc47b37880a7bc320dfc465c00f9fd6367171d6b0",
+    "crates/dive-check/src/capture.rs": "f8465383ce22c90bab87d30e87c2753989ea641cf8747f49df70113d4eb190fb",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
     "crates/dive-check/src/parallel.rs": "a2b37348b78da8cdf9545ee51a20f8e0e585952bc77b1e082b15634f5eac19f9",
     "crates/dive-check/src/engine.rs": "b6e575d0306623846042a7a79555f10697c271aac341f6eac2543bcef2d9e319",
@@ -12,10 +12,10 @@
     "crates/dive-liveness/src/lib.rs": "67918e1ed6371f53baad0ef5778ce5bbc73ce3b3b160609d53d4c13a1954cc20",
     "crates/dive-liveness/src/phase_l.rs": "c6c4321cad2fadc3f061f1496206ac16f237ec5dd8b3f642c4af27b28f065158",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/tests/phase_graph.rs": "19c7555ddcccccce86907012b6f89a598aadbbf925ef467fe44cd16b0350b6b9",
+    "crates/dive-liveness/tests/phase_graph.rs": "e4bc9229aaf69c4e3e0a6e83f772caad70126e19cc3f36114d1054c0f2630211",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7",
-    "crates/dive-eval/src/lib.rs": "98cbda43728637c2eb7bae4f1e3bcb49ad0a679620426ebba0c4185bddcddf17"
+    "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758"
   },
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit",
-  "current_integration_scope": "combined conditional planning, concrete null-tableau graph, pure safety recovery and single-process fairness; no full family certification"
+  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification"
 }
