@@ -188,6 +188,7 @@ python3 -I scripts/check-periodic-snapshot.py
 python3 -I scripts/check-trace-representation.py
 
 python3 -I scripts/check-progress-queue.py
+python3 -I conformance/probes/storage-tuple-function/verify.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

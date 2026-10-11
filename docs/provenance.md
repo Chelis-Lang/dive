@@ -703,9 +703,12 @@ using the existing `Value::set`, `Value::fcn`, record and tuple constructors.
 Pinned `SetEnumValue.normalize`, `ValueVec.sort`, `TupleValue` and `FcnRcdValue`
 representation are semantic references at `94d0c50`, under MIT; JSON, admission
 budgets and construction witnesses are dive's own design. The storage codec's
-native format is not exposed to untrusted words. Its tuple tag loses the
-nonliteral tuple distinction; the separate preserved spill/recovery study
-records that remaining storage limitation without changing its format here.
+native format is not exposed to untrusted words. The frozen version2 transport
+producer used the older native codec whose tuple tag lost the nonliteral tuple
+distinction; its preserved spill/recovery study records that historical defect.
+The separate [structural storage repair](../conformance/probes/storage-tuple-function/README.md)
+retains the distinction in the current native codec. Neither producer's archived
+observations are retagged as execution of the composed receiving source.
 Encoder witness probes use the existing Quiet marker authority solely to keep
 shared operand normalization markers unchanged. Provider/opaque representation
 is refused before probing. `dive-trace` retains its standalone generator-free

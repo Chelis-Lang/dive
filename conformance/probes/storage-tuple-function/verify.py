@@ -27,9 +27,26 @@ source = load(CURRENT / "gate/source/index.json")
 assert len(source["inputs"]) == 445
 assert source["producer_commit"] == producer["source_commit"]
 for name, row in source["inputs"].items():
-    raw = gzip.decompress((CURRENT / "gate/source" / row["archive"]).read_bytes())
+    archive = CURRENT / "gate/source" / row["archive"]
+    assert archive.resolve().is_relative_to((CURRENT / "gate/source").resolve()), name
+    raw = gzip.decompress(archive.read_bytes())
     assert hashlib.sha256(raw).hexdigest() == row["sha256"], name
-    assert raw == (ROOT / name).read_bytes(), name
+
+# The closed runtime keeps its original producer and every original source hash.
+# Receiving changes need their own source integrity; they are not reruns of that
+# producer. Fresh receiving gate/runtime receipts qualify the composed code.
+authority = load(BASE / "current-source.json")
+assert authority["schema_version"] == 1 and authority["family_certified"] is False
+assert authority["runtime_producer"] == producer["source_commit"]
+assert authority["source_index_sha256"] == sha(CURRENT / "gate/source/index.json")
+assert set(authority["current_sha256"]) == set(source["inputs"])
+for name, expected in authority["current_sha256"].items():
+    assert (ROOT / name).resolve().is_relative_to(ROOT.resolve()), name
+    assert sha(ROOT / name) == expected, name
+assert authority["current_rust_cargo_equals_runtime"] == all(
+    authority["current_sha256"][name] == row["sha256"]
+    for name, row in source["inputs"].items()
+)
 
 gate = load(CURRENT / "gate/index.json")
 assert len(gate["stages"]) == 8
