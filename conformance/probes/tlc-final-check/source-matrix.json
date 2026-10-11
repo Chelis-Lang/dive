@@ -39,6 +39,7 @@
   "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged.",
   "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "runtime_name_recovery_previous_authority": {
     "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
     "matrix_sha256": "e8777f165520187b2454402363ed6a8d5a464a973c38df49bcc1b2ddcd407e8c",
@@ -65,8 +66,8 @@
     "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
     "crates/dive-conformance/src/pipeline.rs": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4",
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
-    "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",
-    "crates/dive-liveness/src/phase_execution.rs": "7508947abdfbc5751b14cb39a63a498869166970d3ae49a1053a3fb6bcd39f34",
+    "crates/dive-liveness/src/lib.rs": "1cc2723c0327ae840428d88516534a84e166e1b6587d4913c48a4f410d89ffcb",
+    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
     "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",

@@ -2127,3 +2127,5 @@ well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
 for Next. Mixed-value diagnostic printing remains unproved: rejecting an
 incomplete state before keying does not establish its exact printer/error
 counterpart, and no malformed-input-wide conformance is claimed.
+
+The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.

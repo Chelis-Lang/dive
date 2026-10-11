@@ -697,7 +697,12 @@
         "conformance/probes/ordinary-periodic-work/README.md",
         "docs/ordinary-periodic-controller.md",
         "crates/dive-liveness/tests/runtime_ratio.rs",
-        "conformance/probes/runtime-ratio/README.md"
+        "conformance/probes/runtime-ratio/README.md",
+        "conformance/probes/periodic-backend/README.md",
+        "crates/dive-liveness/src/periodic_backend.rs",
+        "crates/dive-liveness/tests/periodic_backend.rs",
+        "crates/dive-check/tests/observer_barrier.rs",
+        "docs/periodic-backend.md"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/design/m6-plan.md",
@@ -715,7 +720,7 @@
         189
       ],
       "name": "Periodic/final/off/sequential liveness schedules",
-      "notes": "Historical inline and single-null-OOS stages remain separately preserved with their original limits and no model-proof credit. Current bounded explicit final-only TLC fingerprint SCC/greedy-witness mode retains configured identity and independent replay. Source-produced partial SCC diagnostics skip unwritten records and retain original OOS/PEM/candidate order under shared graph quotas; successful partial checks never prove Holds. The separate controller matches296 actual doPeriodicWork callback observations. Numeric arithmetic matches196 actual updateRuntimeRatio observations and three negative assertion controls. Supplied growth, timestamps and callback outcomes do not certify pointer-table growth, actual clock/quiescence, checkpoint persistence or ordinary stopping/verdict behavior. Ordinary schedules and exact temporal proof remain open; family stays missing/audit-required.",
+      "notes": "Historical inline and single-null-OOS stages remain separately preserved with their original limits and no model-proof credit. Current bounded explicit final-only TLC fingerprint SCC/greedy-witness mode retains configured identity and independent replay. Source-produced partial SCC diagnostics skip unwritten records and retain original OOS/PEM/candidate order under shared graph quotas; successful partial checks never prove Holds. The separate controller matches296 actual doPeriodicWork callback observations. Numeric arithmetic matches196 actual updateRuntimeRatio observations and three negative assertion controls. Supplied growth, timestamps and callback outcomes do not certify pointer-table growth, actual clock/quiescence, checkpoint persistence or ordinary stopping/verdict behavior. Ordinary schedules and exact temporal proof remain open; family stays missing/audit-required.  Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Bounded source-produced partial SCC checkpoints skip unwritten records and preserve original OOS/PEM/traversal/candidate order. Shared graph quota and independent witness mutants are staged diagnostics only; no partial Holds, ordinary clock schedule, stopping-count or family credit. Source-qualified pointer-table sizes, last-check snapshots and actual joined native-wave receipts now drive explicit bounded checkpoint requests, stopping real capture at first candidate. All32 clean projections at four widths plus retained Java IO faults qualify only graph-growth/backend diagnostics, not ordinary clock/ratio/queue/checkpoint or model verdict authority; F-023 remains missing/uncertified.",
       "phase": 4,
       "pinned_source": "tlc2/tool/liveness/LiveCheck.java",
       "rust_evidence": "crates/dive-api/src/check.rs"

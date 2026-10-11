@@ -1,15 +1,16 @@
 {
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "scope": "Current bounded partial SCC source contract; all reference prefix projections remain explicit diagnostic fields, not ordinary schedule/model proof.",
   "source_sha256": {
-    "crates/dive-liveness/src/phase_execution.rs": "7508947abdfbc5751b14cb39a63a498869166970d3ae49a1053a3fb6bcd39f34",
+    "conformance/parity-features.json": "dc3ee70d4094e6eafcfaf277c0d6628cf6ce04d3b0092f93a6f680fff360cbd9",
+    "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
+    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/tests/partial_execution.rs": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",
     "crates/dive-liveness/tests/tlc_partial_scc.rs": "cbe25041e2ec98c10930865d7d7159d46ba712fe864d8316f97413f773fcbf93",
-    "scripts/check-tlc-partial-scc.py": "7b5d0ddab95a64eeee51f50959010067016de1e6818692cf693a9aa5616c4e45",
-    "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
-    "crates/dive-api/examples/partial_temporal_checks.rs": "307806c72e2b38b30c16747787bb359d662a1d92d9aaaafda6925b0fec553115",
-    "docs/partial-temporal-checks.md": "d3a4075e3c8a44953e2f381834b17764c177ec95a9f3ee3acc7ca603e5d9b7f5"
-  },
-  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+    "docs/partial-temporal-checks.md": "d3a4075e3c8a44953e2f381834b17764c177ec95a9f3ee3acc7ca603e5d9b7f5",
+    "scripts/check-tlc-partial-scc.py": "7b5d0ddab95a64eeee51f50959010067016de1e6818692cf693a9aa5616c4e45"
+  }
 }

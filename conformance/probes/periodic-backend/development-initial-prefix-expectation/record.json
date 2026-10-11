@@ -1,0 +1,6 @@
+{
+  "exit": 101,
+  "source_sha256": "adbd27dc791571cc51885f98df7ff2dec465e273fc4062ee07657f99f873006d",
+  "log_sha256": "bc860eea1a42418bd8a1fe91a84fcf2d9c8c6d3297c23a3019025f26c73bece4",
+  "reason": "Empty Init is complete exploration, not a failed generation; replace this mistaken negative with incomplete state TRUE, preserving source/failure."
+}

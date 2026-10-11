@@ -49,8 +49,8 @@
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-concrete-graph/matrix.json",
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
-      "scope": "current main context/tableau/PhaseL source before concrete graph integration",
-      "source_archive": "conformance/probes/tlc-planning/historical-before-concrete-graph/sources"
+      "source_archive": "conformance/probes/tlc-planning/historical-before-concrete-graph/sources",
+      "scope": "current main context/tableau/PhaseL source before concrete graph integration"
     },
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-state-if/matrix.json",
@@ -60,26 +60,26 @@
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-checkpoint/matrix.json",
       "matrix_sha256": "8cf5ac97a07935ec5dc21529602b3b6ac777740f77654231e832fed105f2114d",
-      "scope": "current source before native checkpoint integration",
-      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources"
+      "source_archive": "conformance/probes/tlc-planning/historical-before-checkpoint/sources",
+      "scope": "current source before native checkpoint integration"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/graph/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "d2eec1d7ae3d5c2f2c0efb6b4ef9997afcf99ba078f9c07abc9ad0ee44f5e2a6",
-      "scope": "immutable independently verified graph source before final native integration",
-      "source_archive": "conformance/probes/native-parity-integration/history/graph/sources"
+      "source_archive": "conformance/probes/native-parity-integration/history/graph/sources",
+      "scope": "immutable independently verified graph source before final native integration"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/conditional/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "60cb94fddec0590c909dc502d8a81c85fa4edee3661db2887aa19eb1fa0cbdd3",
-      "scope": "immutable independently verified conditional source before final native integration",
-      "source_archive": "conformance/probes/native-parity-integration/history/conditional/sources"
+      "source_archive": "conformance/probes/native-parity-integration/history/conditional/sources",
+      "scope": "immutable independently verified conditional source before final native integration"
     },
     {
       "matrix_path": "conformance/probes/native-parity-integration/history/checkpoint/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "7a8fc837073101d5d248ce2cac1a467ef52906e3dfc300ffed83f6e621a945fa",
-      "scope": "immutable independently verified checkpoint source before final native integration",
-      "source_archive": "conformance/probes/native-parity-integration/history/checkpoint/sources"
+      "source_archive": "conformance/probes/native-parity-integration/history/checkpoint/sources",
+      "scope": "immutable independently verified checkpoint source before final native integration"
     },
     {
       "matrix_path": "conformance/probes/tlc-planning/historical-before-final-mode/matrix.json",
@@ -89,8 +89,8 @@
     {
       "matrix_path": "conformance/probes/native-checkpoint-parallel/before-authorities/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
       "matrix_sha256": "b547a5b8c232e4241013661f3cddaea4ae69d63d52f72a919728292c9104b329",
-      "scope": "immutable combined source before deterministic native parallel checkpoint recovery",
-      "source_archive": "conformance/probes/native-checkpoint-parallel/before-authorities/sources"
+      "source_archive": "conformance/probes/native-checkpoint-parallel/before-authorities/sources",
+      "scope": "immutable combined source before deterministic native parallel checkpoint recovery"
     },
     {
       "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
@@ -119,6 +119,7 @@
     "scripts/check-state-if-planning.py"
   ],
   "parent_translation_commit": "e2a3a8d5343c0831e28529c8ae282e549f0736f5",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "reason": "Preserve combined phase-L integration source history and add pinned conditional planning error precedence controls for issue147",
   "runtime_name_recovery_previous_authority": {
     "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
@@ -138,16 +139,16 @@
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
     "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
-    "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
+    "crates/dive-check/src/capture.rs": "917a8de80c6bdec1dc28212119082453f2dbee978bb3daa99d5f92cbd28dcc31",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
-    "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
+    "crates/dive-check/src/engine.rs": "af6213f55fa7a25788c0b453c9f237771a8071699a5b7f7fd776564fa17e9b84",
+    "crates/dive-check/src/parallel.rs": "1b81bf965fbceeed02bdb9fc0f18caf090805c6858a28d759845784edfb62fc4",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",
-    "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
+    "crates/dive-liveness/src/lib.rs": "1cc2723c0327ae840428d88516534a84e166e1b6587d4913c48a4f410d89ffcb",
+    "crates/dive-liveness/src/phase_graph.rs": "dc30cae82223c36725651d74faf854ae174456d92fe575cedc638cced4dc77e6",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",

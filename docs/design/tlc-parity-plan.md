@@ -141,3 +141,5 @@ operator/scope admission, conditional planning and concrete witness recovery.
 Do not raise resource defaults, weaken callback-free admission or invent
 product evidence to promote a refusal. Periodic schedule and strict integrated
 error/stopping coverage remain separate obligations.
+
+The #189 [source-qualified backend](../periodic-backend.md) supplies actual node-pointer bucket/snapshot and joined source-wave facts for explicit partial requests. The next ordinary integration must compose the separate callback controller and elapsed-ratio kernel with real triggering/queue-finish/suspension/PERIODIC/checkpoint/stop authority, preserving each original OOS/PEM update/error boundary. Never use identities, file bytes, partial success or a caller boolean as a replacement for those contracts; the ordinary CLI remains refused.

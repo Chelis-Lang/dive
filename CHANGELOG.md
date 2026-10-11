@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The project will follow
   observations, including wrapping and NaN/zero behavior. It remains separate
   from ordinary scheduling and checker verdicts.
 
+- Source-owned periodic backend diagnostics retain pinned pointer-bucket growth/check-size snapshots, private joined-wave facts and first-candidate stopping. Original work bounds and independent replay remain required; ordinary periodic checking and partial Holds remain unsupported. See `docs/periodic-backend.md`.
+
 - Bounded partial temporal SCC/source-checkpoint diagnostics retain written-record authority and candidate fields under shared graph limits; successful partial checks never certify temporal completion.
 - Fixed-arity `Append` operator arguments in explicit bounded final TLC checking,
   with independent operand and witness proof. Tail/SubSeq runtime-name refusals
