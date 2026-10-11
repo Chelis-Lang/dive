@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/dive-archive-native-slice.py", line 10, in <module>
+    obj=json.loads(data);row['source_sha256'].update(obj.get('source_sha256',obj.get('checked_sources',{})))
+ValueError: dictionary update sequence element #0 has length 1; 2 is required

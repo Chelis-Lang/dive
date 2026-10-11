@@ -49,12 +49,14 @@ Bounded in-memory translation-block editing is also available:
 dive translate docs/user/examples/Algorithm.tla --rewrite --compat=tlc --output json
 ```
 
-For admitted sequential shapes, the default Full policy derives the algorithm
+For admitted sequential shapes, including bounded non-junction multiline
+expressions, the default Full policy derives the algorithm
 AST checksum and generated-body checksum. An explicit `--checksums tla` request
 selects body-only editing and labels TLC mode `tlc+overrides`. The replacement
 module is returned in JSON; the command does not write the source file. Read
 [the editing contract](../pluscal-rewriting.md) and
-[nested checksum expressions](../pluscal-checksum-expressions.md) for supported
+[nested checksum expressions](../pluscal-checksum-expressions.md) and
+[multiline expressions](../pluscal-multiline.md) for supported
 shapes, stale-block handling, budgets and executable Rust examples. A matching
 checksum alone is not an artifact or model proof; accepted artifacts also pass
 native enclosing-module analysis.

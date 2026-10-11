@@ -5,18 +5,18 @@
   "source_sha256": {
     "crates/dive-check/src/capture/pure.rs": "73195b6094279104f3bb2d90ec146878d493c07bb22d61790aaddce1c8972276",
     "crates/dive-api/tests/material_capture.rs": "7ec0877aa600d513a5a1ae97440f7155dcef525282038f68094c9141dbcb5d7a",
-    "scripts/check-material-capture.py": "234178c367d5fea93d65462507f8350cca109ed0ac7ebfbac2dc90f0e9883284",
+    "scripts/check-material-capture.py": "7bd5b5e174468a7f69df9e41f0a03a5b4a14e72965a98f1e920658732555f134",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "docs/material-capture.md": "e668e8b0ae11f3ee21abb9c95d3ecbef90c7f9a0685cce821ab9c142ca713cb9",
     "docs/user/temporal.md": "434a6a3fae165ca7592b60adfcfaa1eb63e8e1ffaf33edd5655bffc5d00c7728",
-    "docs/provenance.md": "7dfbb67fd887b3a47ff04b324d8071b7f1dd374bbafb08e635e080ccd59c59d1",
-    "docs/divergences.md": "f92197c8409a9b8ef4c3414a8f1a182c53e9d6ef26fcd4c5adffb625cf16e4e1",
-    "docs/tlc-differences.md": "233b3675b432fb614c58cb4bf09c970ecdbd374a9bac00b24431c6601d91f6d1",
+    "docs/provenance.md": "e6fd70eebd8485e19df8edea6d3ef1e91b314bde2343f875999c9168b6d42c75",
+    "docs/divergences.md": "beaa5080ef2fa9724efef37c392998a49933d3a4a9de28f4d73a6c921770a28e",
+    "docs/tlc-differences.md": "56f25c890888756bdffd0ed9cacf3e918afc1ae1eb0d77c57d00855126fc3893",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "617a857c088a43bc083ca9f3a54003ae13363ffdded10151627e84428e390f95",
-    "conformance/parity-features.json": "6420df6dd0a220dc024c0b21a89bb8b42deb6ef56ee476f2505f75fe52801794",
-    "CHANGELOG.md": "8cd456c34ecdf5d358c9ad0499f7fdd81150955eabef5ecd5f866438f43e698e",
-    "AGENTS.md": "69530defc99ed2b62a9659c223e3ead85da5f4186590c64f0fd9a80910d2fb1b",
-    ".github/workflows/ci.yml": "d5e2bbcca2f2142c7e7604bde619d2d45751fc965e0713eefe8edb9992b91e42",
+    "conformance/parity-features.json": "330f92f3dfe35ac90f9417f2a8040a9e7a732bf938129fcb52f697380f88c3f8",
+    "CHANGELOG.md": "87488b14ceaa7d4af0c84a4f4f7343ba28b56b8929c283d863c7549cf5f1346d",
+    "AGENTS.md": "cc45fff00e734b7dcb330099eda393da1a0c384d597da203a31869a9b0242b3e",
+    ".github/workflows/ci.yml": "6939b08fb58706678039c2c8f222fbe081945267460bc5075daa52fa0d248ea5",
     "conformance/probes/material-capture/make-general.py": "1053910425d010d8499d8cda673709aca1ac46bd28ab2fd069ca06246602d79e",
     "conformance/probes/material-capture/selection-general.json": "34a9d409c9092ba1efd72140b5310597ee532aa18e44950829a215580de249c7",
     "conformance/probes/material-capture/make-cases.py": "4572987cf6b23072fdb1596f2f56bbfe07c336065024a645ace1d12e1838ce7c",
@@ -3057,5 +3057,6 @@
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatEnumSetHolds-8/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stdout": "001f3729c7144bd8b836cfebc2c18858f0d85612edc0a97fe752972a13ca9f63",
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  }
+  },
+  "current_integration_scope": "Combined stored-material captures and configured/expanded property origins with bounded sequential non-junction multiline generation; prior campaigns remain producer-bound, no full-family or current corpus certification."
 }

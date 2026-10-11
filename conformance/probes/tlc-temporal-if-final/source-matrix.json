@@ -1,6 +1,6 @@
 {
   "base_commit": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification.",
+  "current_integration_scope": "Combined stored-material captures and configured/expanded property origins with bounded sequential non-junction multiline generation; prior campaigns remain producer-bound, no full-family or current corpus certification.",
   "schema_version": 1,
   "scope": "current bounded direct IF final admission and original configured/derived identities, no ordinary periodic/full-family certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "scoped_final_parent_history": {
@@ -10,7 +10,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "conformance/parity-features.json": "6575647d851a8cb85b596e900a96b9e49510e12b356cf4c40af5d989377f0292",
+    "conformance/parity-features.json": "330f92f3dfe35ac90f9417f2a8040a9e7a732bf938129fcb52f697380f88c3f8",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
@@ -21,9 +21,9 @@
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "docs/divergences.md": "c30f25d6c3176ea25fd4110a1a9e40f75bc2ed8f5e613babdab7f3010ecaebe6",
-    "docs/provenance.md": "d92d2d5dd750c48e61eb46026dccc3dcb9656a04c86fc29c1af90bf4699e24f0",
-    "docs/tlc-differences.md": "3b2c22f9d60f88f0ab19a7825b0c75d93dad44f2c3677f4964ae0c9b0ccd4443",
+    "docs/divergences.md": "beaa5080ef2fa9724efef37c392998a49933d3a4a9de28f4d73a6c921770a28e",
+    "docs/provenance.md": "e6fd70eebd8485e19df8edea6d3ef1e91b314bde2343f875999c9168b6d42c75",
+    "docs/tlc-differences.md": "56f25c890888756bdffd0ed9cacf3e918afc1ae1eb0d77c57d00855126fc3893",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",

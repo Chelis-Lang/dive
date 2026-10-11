@@ -10,6 +10,13 @@ primary=load(BASE/'clean-tlc/capture.json');assert primary['oracle_sha256']=='7b
 assert primary['selection_sha256']==sha(BASE/'selection.json')and primary['capture_source_sha256']==sha(BASE/'capture-clean.py')
 assert [r['name']for r in primary['rows']]==[r['name']for r in selection]
 refs={r['name']:r for r in primary['rows']}
+# Native rows below belong to the immutable material producer, not this integration.
+HISTORY=ROOT/'conformance/probes/native-parity-integration/history/material-runtime-source-authority'
+PRODUCER=load(HISTORY/'record.json')
+assert PRODUCER['source_commit']=='9b098e172d02abcf2dd3126faabf719ad5d1940a'
+def material_source(path,digest):
+ assert PRODUCER['source_sha256'][path]==digest,path
+ assert hashlib.sha256(gzip.decompress((HISTORY/'sources'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 general_selection=load(BASE/'selection-general.json');assert len(general_selection)==2
 general=load(BASE/'clean-general/capture.json');assert len(general['rows'])==2 and general['oracle_sha256']==primary['oracle_sha256']
 assert general['selection_sha256']==sha(BASE/'selection-general.json')and general['capture_source_sha256']==sha(BASE/'capture-general.py')
@@ -47,7 +54,7 @@ assert 'useless conversion' in(BASE/'development-clippy-controls/clippy.log').re
 for current,selection_path,capture_path,current_selection,primary_path,expected in [(BASE/'native-current','selection.json','capture-native.py',selection,'clean-tlc',32),(BASE/'native-general-current','selection-general.json','capture-native-general.py',general_selection,'clean-general',4)]:
  m=load(current/'capture.json');assert m['source_and_binary_unchanged']is True
  assert m['selection_sha256']==sha(BASE/selection_path)and m['capture_source_sha256']==sha(BASE/capture_path)
- for path,d in m['source_sha256'].items():assert sha(ROOT/path)==d,path
+ for path,d in m['source_sha256'].items():material_source(path,d)
  assert [(r['model'],r['requested_workers'])for r in m['rows']]==[(r['name'],w)for r in current_selection for w in [1,3,4,8]]
  counts={}
  for row in m['rows']:
@@ -71,7 +78,7 @@ for current,selection_path,capture_path,current_selection,primary_path,expected 
  assert counts=={'liveness-violation':expected,'success':expected}
 example=BASE/'user-example-controls';e=load(example/'receipt.json');assert e['compile_exit']==e['run_exit']==0 and e['source_and_binary_unchanged']is True
 assert sha(BASE/'user-example.rs')==e['source_sha256']
-for path,d in e['crate_source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in e['crate_source_sha256'].items():material_source(path,d)
 for path,d in e['files'].items():assert sha(example/path)==d,path
 assert(example/'stdout').read_text().strip()=='["Live"]'
 for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path

@@ -141,13 +141,15 @@ The original failed comparisons remain in the integration evidence.
 
 [Conditional and expression-layout checksum support](pluscal-checksum-expressions.md)
 describes the admitted nested `elsif` and multiple `with` forms. Multiline
-checksum serialization is available in the proved subset; multiline artifact
-generation still returns a named unsupported result in this delivery.
+checksum serialization and sequential non-junction multiline artifact generation
+are available in the proved subset. Multiline junction, macro, process and
+procedure layouts still return named unsupported results. See the
+[multiline guide](pluscal-multiline.md) for the precise boundaries.
 
 These checks do not certify full PlusCal parity, source integrity, model
 correctness or byte-for-byte generator formatting.
 
-## Current combined publication checks
+## Prior combined publication checks
 
 The [current source-bound receipt](../conformance/probes/native-parity-integration/current-controls/full-checksum-runtime-publication/verification.json) records the corrected combined
 runtime: 982 workspace tests, zero skipped, all eight local gate stages, the
