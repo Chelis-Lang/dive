@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Ordinary configured `RandomElement` safety checking uses actual bound native
+  authority for predecessor streams and reports real inline worker use. Independent
+  replay resolves constant targets and definition redirects; unproved startup,
+  strict first-successor printing, transformed-key, Randomization replacement,
+  graph/temporal and recovery paths retain explicit refusals (#180).
+
 - Refuse configured native random replacements before startup/output/search in
   both profiles and all capture routes, including source-visible/configured
   mixed calls. Preserve false-success and false-violation controls; direct RNG

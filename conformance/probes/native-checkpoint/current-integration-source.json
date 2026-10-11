@@ -21,8 +21,8 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "40e8aee4a011b30ed8c43746c75cb4a9227625ac636b2195535b8d49f127e53a",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
-    "crates/dive-check/src/lib.rs": "3a924b12f02585c61f6c57739f0e473fb1adf5b6a9a6a116c37c0469b68c206f",
+    "crates/dive-check/src/engine.rs": "4484a0b15391f3e01d3f06fa058facf327d040b56f02d92f07040a70cc3e7f8d",
+    "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
     "crates/dive-cli/src/main.rs": "aeb9609d19ea071cc12a44c2d5877854e76376dfc974858bfd00aab5c0c595e9",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07",
     "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
@@ -67,5 +67,11 @@
     "matrix_sha256": "4a95e06d66e560bc9fe8020f36b57b400cdbf4515842c3db5ca18dd55e21e71f",
     "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
   },
-  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "7bd15c1c7a012d18da05105d94c14bc1c53c8654545aae122229ba6c2f0f7ec1",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures."
 }

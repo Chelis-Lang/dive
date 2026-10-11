@@ -1031,5 +1031,11 @@
     "matrix_sha256": "573bffcca034da63273b77e291ad38727984694b31534f2de3962a5234acb133",
     "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
   },
-  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-state-if/source-matrix.json",
+    "matrix_sha256": "84dfe9bace62885fb21b089648fcc31df852bd18ed3f53d4a79c7da7b7528345",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures."
 }

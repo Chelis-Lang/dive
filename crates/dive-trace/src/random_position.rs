@@ -8,7 +8,7 @@
 
 use std::collections::BTreeSet;
 
-use dive_eval::{Scope, St};
+use dive_eval::{ConstBinding, Scope, St};
 use dive_ir::{Arg, BuiltinOp, Effects, Expr, ExprId, JunctionKind, Level, OpRef, StdOp};
 use dive_model::{Model, Pred};
 use dive_value::Value;
@@ -19,21 +19,25 @@ pub(crate) fn aligned(model: &Model, pred: &Pred, st: &St, initial: bool) -> boo
     if model.evaluator.scope_shares_side_effects(&pred.scope) {
         return false;
     }
-    if initial
-        && model.ir.defs().iter().any(|d| {
-            d.std.is_none() && d.level == Level::Constant && d.effects.contains(Effects::IMPURE)
-        })
-    {
-        // Constant definitions and assumptions can advance the startup
-        // stream before Init; a fresh stream is then insufficient.
-        return false;
-    }
     let mut proof = Proof {
         model,
         st,
         initial,
         fuel: 256,
     };
+    if initial
+        && model.ir.defs().iter().any(|d| {
+            d.std.is_none()
+                && d.params.is_empty()
+                && d.level == Level::Constant
+                && (d.effects.contains(Effects::IMPURE) || !proof.bound_pure(d.body))
+        })
+    {
+        // Constant definitions and assumptions can advance the startup
+        // stream before Init. Configured calls can hide those draws from
+        // source effect metadata; no fresh-stream certificate is then made.
+        return false;
+    }
     proof
         .branches(pred.expr, &pred.scope)
         .is_some_and(|branches| {
@@ -168,6 +172,91 @@ impl Proof<'_> {
             && !node.effects.contains(Effects::USES_ENABLED)
             && !node.effects.contains(Effects::OPEN)
             && !node.effects.contains(Effects::TEMPORAL)
+            && self.bound_pure(expr)
+    }
+
+    // Source effects cannot certify a body after configuration redirects it
+    // to native randomness. This bounded, non-evaluating walk rejects actual
+    // native effects and opaque operator parameters, even when public typed
+    // IR supplied a pure original body. None is never interpreted as purity.
+    fn bound_pure(&self, expr: ExprId) -> bool {
+        let mut work = vec![expr];
+        let mut seen = BTreeSet::new();
+        let mut fuel = 256_usize;
+        while let Some(expr) = work.pop() {
+            let Some(remaining) = fuel.checked_sub(1) else {
+                return false;
+            };
+            fuel = remaining;
+            if !seen.insert(expr) {
+                continue;
+            }
+            let Some(node) = self.model.ir.nodes().get(expr.index()) else {
+                return false;
+            };
+            if matches!(&node.expr, Expr::Apply { args, .. } if args.len() > fuel)
+                || matches!(&node.expr, Expr::Subst { bindings, .. } if bindings.len() > fuel)
+            {
+                return false;
+            }
+            let mut ops = node.expr.op_refs().into_iter().cloned().collect::<Vec<_>>();
+            match &node.expr {
+                Expr::Def(id) => ops.push(OpRef::Def(*id)),
+                Expr::Const(id) => ops.push(OpRef::Const(*id)),
+                _ => {}
+            }
+            for op in ops {
+                let def = match op {
+                    OpRef::Def(id) => Some(id),
+                    OpRef::Const(id) => match self.model.evaluator.constant_binding(id) {
+                        Some(ConstBinding::Def(id)) => Some(id),
+                        Some(ConstBinding::Value(_)) => None,
+                        None => return false,
+                    },
+                    OpRef::Std(op) if op.impure() => return false,
+                    OpRef::Std(_) | OpRef::Builtin(_) => None,
+                    OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => return false,
+                };
+                if let Some(def) = def {
+                    let def = self.model.evaluator.redirected(def);
+                    let Some(def) = self.model.ir.defs().get(def.index()) else {
+                        return false;
+                    };
+                    match def.std {
+                        Some(op) if op.impure() => return false,
+                        Some(_) => {}
+                        None => work.push(def.body),
+                    }
+                }
+            }
+            let children = node.expr.children();
+            if work
+                .len()
+                .checked_add(children.len())
+                .is_none_or(|n| n > fuel)
+            {
+                return false;
+            }
+            work.extend(children);
+        }
+        true
+    }
+
+    fn native(&self, op: &OpRef) -> Option<StdOp> {
+        let def = match op {
+            OpRef::Std(op) => return Some(*op),
+            OpRef::Def(id) => *id,
+            OpRef::Const(id) => match self.model.evaluator.constant_binding(*id)? {
+                ConstBinding::Def(id) => id,
+                ConstBinding::Value(_) => return None,
+            },
+            _ => return None,
+        };
+        self.model
+            .ir
+            .defs()
+            .get(self.model.evaluator.redirected(def).index())?
+            .std
     }
 
     fn rhs(&self, expr: ExprId) -> bool {
@@ -182,11 +271,7 @@ impl Proof<'_> {
         let Expr::Apply { callee, args } = self.model.ir.expr(expr) else {
             return false;
         };
-        let op = match callee {
-            OpRef::Std(op) => Some(*op),
-            OpRef::Def(def) => self.model.ir.def(self.model.evaluator.redirected(*def)).std,
-            _ => None,
-        };
+        let op = self.native(callee);
         op.is_some_and(|op| {
             matches!(
                 op,

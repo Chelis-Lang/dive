@@ -13,11 +13,11 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "c56e978c2cc43c8a84febf5efb3ab65b9ceb8fb0629e0491cb94a8447a4f6f7c",
-    "docs/divergences.md": "7fc8e2e18b3281e80f39b799e2e67ab758b071bc9c76a1dd4109c42ee9bd7e0d",
-    "docs/tlc-differences.md": "78decd6811b7d657f68ecd4e0138815a08e8cceb2306711ee71ceb2f1dbf082f",
+    "docs/provenance.md": "aec56f40eabd5b79b9eaf259fceb3da1789d75f1bab38a54e38ac71eb0750823",
+    "docs/divergences.md": "b3045a6c9cf2c39baa38bf90a91699932c2c506329c1adcc6cd73f790dbf5bba",
+    "docs/tlc-differences.md": "d34703ccfa9b48e4e8c0559cbb3d0d4d1b99d21f1c6fe32dd111d89c3885c4b6",
     "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
-    "CHANGELOG.md": "609236d5cae1e2dbb58ba63b434900e15135c3e34ee538e8861e7a6df438a360",
+    "CHANGELOG.md": "91177e64d2673590ff06cf22160bfc82db197b65ee27540941593e1bd560745a",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "1cee8ceba0aab8e5c7d0bf679b28948a4ffedd5e94150603151ceb11c34af3b0",
     "conformance/parity-features.json": "2eee032f39151b743313af8368f50c0c9e3a96e278fec5f43e64b9d9a9a467cd",
@@ -767,5 +767,11 @@
     "matrix_sha256": "f2c2c126224e281ae9036d39783da46090014c9b4167106d48c524fc8bc618d3",
     "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
   },
-  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "4e6de57d85d808c5299fe753586347b8f372fefe703479b083946a1e25d0a8d7",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures."
 }

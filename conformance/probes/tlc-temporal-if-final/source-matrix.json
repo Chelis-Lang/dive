@@ -17,9 +17,9 @@
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
-    "docs/provenance.md": "c56e978c2cc43c8a84febf5efb3ab65b9ceb8fb0629e0491cb94a8447a4f6f7c",
-    "docs/divergences.md": "7fc8e2e18b3281e80f39b799e2e67ab758b071bc9c76a1dd4109c42ee9bd7e0d",
-    "docs/tlc-differences.md": "78decd6811b7d657f68ecd4e0138815a08e8cceb2306711ee71ceb2f1dbf082f",
+    "docs/provenance.md": "aec56f40eabd5b79b9eaf259fceb3da1789d75f1bab38a54e38ac71eb0750823",
+    "docs/divergences.md": "b3045a6c9cf2c39baa38bf90a91699932c2c506329c1adcc6cd73f790dbf5bba",
+    "docs/tlc-differences.md": "d34703ccfa9b48e4e8c0559cbb3d0d4d1b99d21f1c6fe32dd111d89c3885c4b6",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "conformance/parity-features.json": "2eee032f39151b743313af8368f50c0c9e3a96e278fec5f43e64b9d9a9a467cd",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07"
@@ -59,5 +59,11 @@
     "matrix_sha256": "958d2789d89b226732f3ce1cc149ab50bedbb67175ce3abd54398893e42b36e5",
     "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
   },
-  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "d925ce5121eaba938b850f97a23e48ac583aae4442ee94f8b978429f900efac7",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures."
 }

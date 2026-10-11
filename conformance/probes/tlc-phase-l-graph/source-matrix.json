@@ -20,7 +20,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+    "crates/dive-check/src/engine.rs": "4484a0b15391f3e01d3f06fa058facf327d040b56f02d92f07040a70cc3e7f8d",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
@@ -64,5 +64,11 @@
     "matrix_sha256": "e8313555cabbe2351215577964e7527edf492a9046432457ec3fda475880ab91",
     "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
   },
-  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-phase-l-graph/source-matrix.json",
+    "matrix_sha256": "85784cd4c48ba1cdf7ee5a4d5830318a090b95c5bacdc2ae5ed2691e118424d6",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures."
 }
