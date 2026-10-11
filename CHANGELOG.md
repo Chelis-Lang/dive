@@ -72,6 +72,7 @@ All notable changes to this project are documented here. The project will follow
   admission and model proof. Singleton identity clauses now follow the
   reference five-unit UTF-16 spelling threshold; original CST failure retained.
 
+
 - Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
   multiple `with` binders and LF/CRLF expression line grouping with normalized
   ASCII junction columns. C `with` trailing separators match the reference;

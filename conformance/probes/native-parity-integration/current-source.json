@@ -1,8 +1,8 @@
 {
-  "schema_version": 1,
   "family_certified": false,
-  "scope": "Current combined source integrity for material captures, property origins, multiline generation, finite-process Full checksum derivation and corrected recovery scheduling. Frozen producer evidence remains separate; combined full-gate and runtime controls pending. No family certification.",
   "historical_slices_sha256": "b1ca2df73d320a161db5796c71b30fbb06f754438de968803c30b58bc78e5fad",
+  "schema_version": 1,
+  "scope": "Current combined-source integrity only; historical producer observations and proof qualifications remain separate. Consult current feature guides and source-bound receipts.",
   "source_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
     ".github/workflows/ci.yml": "a7230ce13028942fbab8f9d3bb92ff36c321a1fee53673d3e927026167e36932",
