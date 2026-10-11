@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "selected": 6,
+  "rows": [
+    {
+      "id": "Forms_C_function_state_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    },
+    {
+      "id": "Forms_C_function_state_domain_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    },
+    {
+      "id": "Forms_C_local_state_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    },
+    {
+      "id": "Forms_P_function_state_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    },
+    {
+      "id": "Forms_P_function_state_domain_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    },
+    {
+      "id": "Forms_P_local_state_cross",
+      "outcome": "exact-ast-crc-whole-cst-sany-validator",
+      "model_proved": false
+    }
+  ],
+  "script_sha256": "0fb7e775efb781eabdf4b8345e7dfd088753505395f3147411e63962f8e0f426",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "cst_sha256": "29b987e6ce6c9a12ae1028faecc6430da555b3aebfc47653b46f1718ad59c546",
+  "family_certified": false
+}

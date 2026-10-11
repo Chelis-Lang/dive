@@ -66,7 +66,7 @@ fn every_selected_define_ast_is_exact_or_named_refusal() -> Result<(), Box<dyn s
             }
         }
     }
-    assert_eq!(counts, [80, 18, 36, 2]);
+    assert_eq!(counts, [84, 18, 32, 2]);
     Ok(())
 }
 #[test]
@@ -150,7 +150,6 @@ fn define_byte_work_and_invalid_scope_boundaries_refuse() -> Result<(), Box<dyn 
         "RECURSIVE F(_) F(a)==IF a=0 THEN 0 ELSE F(a-1)",
         "F(a)==G(a) G(a)==F(a)",
         "F==x'",
-        "LOCAL F==1",
         "Init==TRUE",
     ] {
         let source = format!(

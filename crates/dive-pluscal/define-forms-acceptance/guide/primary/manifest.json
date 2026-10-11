@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "Relation.tla": "396cfc86672145d54002f6052b0fcfcfc3802bc3294520b4d8add6d91e9504a5",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "5ded41185bf294afced0b72756d1370bf7e9a25ad8a547d0153d0eb44b9df714",
+  "capture_sha256": "0e96e1d8baf1498668439159f1633a616ce59725700bccf93da6f8476cd99f9f",
+  "adapter_sha256": {
+    "DefinitionProbe.class": "cff461fd85e24923876b2fded1c11969ef2c96ecad357fb7400d4fa5977a7337",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "Forms_C_local_calls_function",
+      "input_sha256": "a06a0602a73ce372b9b1fd73b7ad22aee319011ac069ad1ac113c69788404b57",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_calls_function",
+      "process": false,
+      "style": "",
+      "output_sha256": "3f33aa42aeccb4e140fa1de9a86878283e536e943f8c3e2de6930ac100e8df69",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_C_local_calls_function.primary.stdout.gz",
+          "sha256": "4cedb7d0a5bc55f4ef739b1a559fed4068ce3c4febfd7e35b5be14a6afbdfcd3"
+        },
+        "stderr": {
+          "path": "Forms_C_local_calls_function.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "901e4dd9",
+        "525aa856"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_C_local_calls_function.stages.stdout.gz",
+          "sha256": "2b7aecd7e95717301dfbc2f337fa7819e1fbb3c7bcb4a91bbaf06b5af0caa09d"
+        },
+        "stderr": {
+          "path": "Forms_C_local_calls_function.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "0cf27fe9604e39da1a6bee4e66dedbb508bae58ceb6a04eaef4bc4dfda2d883a"
+        },
+        "names": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "0cf27fe9604e39da1a6bee4e66dedbb508bae58ceb6a04eaef4bc4dfda2d883a"
+        },
+        "translated": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "0cf27fe9604e39da1a6bee4e66dedbb508bae58ceb6a04eaef4bc4dfda2d883a"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_C_local_calls_function.sany.stdout.gz",
+          "sha256": "396e01f19395bd8de6f5e8ee235cc3c9659765699878999238c3deb8b5897dcb"
+        },
+        "stderr": {
+          "path": "Forms_C_local_calls_function.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "Forms_C_local_calls_function.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "Forms_P_local_calls_function",
+      "input_sha256": "662f69459e00404c12b2d75362980c94e030c393ef14972f7bd7493b23e7c24a",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_calls_function",
+      "process": false,
+      "style": "",
+      "output_sha256": "683e7a77f2ce544b66ed6f693898310a07ce9fb80baf42f431d811134f7c2e63",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_P_local_calls_function.primary.stdout.gz",
+          "sha256": "f28045eb7f1eac33cce7ad934d76751e4e0eede114bb1afe1cc84b3904044832"
+        },
+        "stderr": {
+          "path": "Forms_P_local_calls_function.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "901e4dd9",
+        "525aa856"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_P_local_calls_function.stages.stdout.gz",
+          "sha256": "1b7396d0250bcea899eb89ffdcbbf4f3d783507c1372a6f9772d4b7600250929"
+        },
+        "stderr": {
+          "path": "Forms_P_local_calls_function.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "621c28b38b8834291e0b7c59fd5fba64d5edf763a1365f8d1a493d7b8f74e0d2"
+        },
+        "names": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "621c28b38b8834291e0b7c59fd5fba64d5edf763a1365f8d1a493d7b8f74e0d2"
+        },
+        "translated": {
+          "crc": "901e4dd9",
+          "ast_sha256": "75435b3f68fdc0d51d7289c2796c1608dcc540260caf34fe539b68f4e48836ce",
+          "json_sha256": "621c28b38b8834291e0b7c59fd5fba64d5edf763a1365f8d1a493d7b8f74e0d2"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "Forms_P_local_calls_function.sany.stdout.gz",
+          "sha256": "f0a3184c87989a4f86f8044e39a7469f8e4503893f91a8da7f25c8fabadf313e"
+        },
+        "stderr": {
+          "path": "Forms_P_local_calls_function.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "Forms_P_local_calls_function.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "scope": "exact selected guide sources; original capture identities retained"
+}
