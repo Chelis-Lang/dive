@@ -9,7 +9,7 @@
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
-    "conformance/parity-features.json": "6b9c1e259e54da97c0c45692d97518313253727b8307349ed4050610ab74ffd1"
+    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1"
   },
   "history_sha256": {
     "current-integration-before-admission/conformance/probes/native-checkpoint/current-integration-source.json": "ee158aed604043a2f9395ae8ed49f2fffedba871844832c5f8f2b691e3c49ec0",
@@ -1005,5 +1005,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate."
+  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

@@ -100,3 +100,5 @@ The [native lifecycle diagnostic](../native-periodic-lifecycle.md) connects inte
 The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md) selects the actual pure `_PERIODIC` body before constant caching and preserves its configured name and original definition. This separate Rust API does not enable ordinary CLI scheduling or temporal proof.
 
 The [producer-owned request diagnostic](../producer-progress-requests.md) adds real expansion claim/pause receipts to the configured snapshot. Completed uncommitted output is not a temporal graph write; ordinary periodic checking remains unsupported. Its runnable Cargo example documents the separate request/controller force policies.
+
+[Committed request prefixes](../committed-periodic-prefix.md) publish actual returned contiguous work under the existing owned pause. The Cargo example and typed receipts distinguish expansion, graph publication and physical frontier append; ordinary temporal checking remains unsupported.

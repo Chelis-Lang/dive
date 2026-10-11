@@ -34,6 +34,7 @@ impl Default for Options {
 #[derive(Clone, Debug)]
 pub struct Invocation {
     pub(crate) source: u64,
+    pub(crate) publication: dive_check::capture::SourceBarrier,
     pub(crate) stats: Stats,
     pub(crate) workers: usize,
     pub(crate) generation: u64,
@@ -46,6 +47,13 @@ pub struct Invocation {
     pub(crate) resume_requested: bool,
 }
 impl Invocation {
+    /// Source-owned publication transaction at this invocation. Its pending
+    /// frontier flag records the actual pre-append callback stage even when
+    /// a hook/candidate stops the diagnostic before append can succeed.
+    #[must_use]
+    pub fn publication(&self) -> dive_check::capture::SourceBarrier {
+        self.publication
+    }
     /// Actual logical source identity; speculative jobs remain separate.
     #[must_use]
     pub fn source(&self) -> u64 {

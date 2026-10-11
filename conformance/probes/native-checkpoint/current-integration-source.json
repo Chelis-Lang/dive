@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate.",
+  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",

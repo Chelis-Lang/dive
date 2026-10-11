@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "selection": 24,
+  "development_epochs": [
+    0,
+    1
+  ],
+  "primary_epoch": 2,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "artifact_sha256": {
+    "primary-candidate0.tar.gz": "d82ac9351fbb7d8756ff7cee3c6a2560dd9aa712d8e86187624005a74e4b584e",
+    "primary-candidate1.tar.gz": "e69ad69fd8fce6e5e2c8f69d054e7cb9070ca18a61c9833c9a1fd6e263aa86fa",
+    "primary-candidate2.tar.gz": "01415c4dedfba7edb93ab17680f1aa06cda1244f6b87c19d8089086f6b0776d1",
+    "capture.json": "87301e4d68c16ad5d432ff974dc3893b84354d1e7488b92b5df731db9a7800cb",
+    "independent-readback.json": "1a4ed06471063df1eccf9c58f8b6a27d2e0a1c693742fa45f1a2ba5ae611ab54",
+    "PrefixProbe.java": "90b832024781f39e321f28e812885c793e64f7d56130a2f2683f86b7de77842e",
+    "Prefix.java": "36efa2f12fe3a7ca64ed8d7ff901ecbaf18bae1423d89d26cdf032565afee153",
+    "ObservedTool.java": "68338f500e8efae30ec9a76960083169e8ad03cf05e8a5db1b0465af28bd43b0",
+    "PrefixSignals.java": "8f69b0e55e5f998b623db1fe628d28ecef2f2f0b755700e169a455025f6b22c1",
+    "FastTool.java.pinned": "4cab0eeb2e75e576a12a886407080789ab19d0a1447184b52e8ff27789beaa5a",
+    "capture.py": "c6318871da9df5a6a8cba6344891ac178f04140cbcd9258cec3bb547512d9a6e",
+    "readback.py": "3298dd8f89e62d5aafb02f0ebaa06927e5a8e9ba31870a8245585c5f41620d2e"
+  }
+}

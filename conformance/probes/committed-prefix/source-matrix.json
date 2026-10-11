@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "history_manifest_sha256": "a18f017c5fc0262f2ad634f9ad428eec4b57c82e9ff206469b7b6f87cce24177",
+  "scope": "Current actual contiguous prefix publication under producer-owned request quiescence. Source graph publication and physical frontier append are distinct; no ordinary clock/queue/count/verdict/family certificate.",
+  "source_sha256": {
+    "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
+    "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
+    "crates/dive-check/src/progress.rs": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
+    "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
+    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
+    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
+    "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
+    "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "a5fa59708db9605f19416b7ac9de5061388c05084e088407c120d6a3fa5f0c64",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
+    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "551dc8fe438ab026a810419e2b082e6050ba71d6c302368add110139df6d33d4",
+    "crates/dive-api/examples/committed_prefix.rs": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
+    "docs/committed-periodic-prefix.md": "3f3bc7c4bc5fe04a02d611c7b65de2fd3bd7cbdcca2713b2b1a6fb50e51974a7",
+    "docs/decisions/0062-committed-periodic-prefix.md": "9b430402458436acfb6b763ad772a853c92aad0de50fa7b563df72ec382d3f12",
+    "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
+    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
+    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
+    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1"
+  }
+}

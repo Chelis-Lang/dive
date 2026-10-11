@@ -163,6 +163,28 @@ impl<K, P, T> Candidates<K, P, T> {
         }
     }
 
+    /// Moves matching positions into a same-shard buffer without hashing or
+    /// comparing any stored key. Nonmatching candidates remain in original
+    /// shard order, with their original hash and payload.
+    #[must_use]
+    pub fn extract_if(&mut self, mut selected: impl FnMut(&P) -> bool) -> Self {
+        let mut result = Self::new(self.per_shard.len());
+        for (shard, candidates) in self.per_shard.iter_mut().enumerate() {
+            let mut retained = Vec::with_capacity(candidates.len());
+            for candidate in std::mem::take(candidates) {
+                if selected(&candidate.pos) {
+                    result.per_shard[shard].push(candidate);
+                    result.len += 1;
+                } else {
+                    retained.push(candidate);
+                }
+            }
+            *candidates = retained;
+        }
+        self.len -= result.len;
+        result
+    }
+
     /// The number of candidates.
     #[must_use]
     pub const fn len(&self) -> usize {
@@ -430,4 +452,52 @@ where
 pub fn shard_bits_for(workers: usize) -> u32 {
     let shards = workers.max(1).saturating_mul(8).next_power_of_two();
     shards.trailing_zeros().min(12)
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "forced collision admission assertions")]
+mod prefix_collision_tests {
+    use super::{Candidates, ResolveOptions, StateSet};
+    use crate::ExactSet;
+
+    #[test]
+    fn partition_preserves_forced_collision_hashes_and_original_exact_keys() {
+        // Deliberately supply one stored hash for every distinct exact key.
+        // Never recompute it during partition; normal key hashing is irrelevant
+        // to this adversarial internal resolve control.
+        let mut set = ExactSet::new(1);
+        let mut buffer: Candidates<Box<[u8]>, usize, usize> = set.candidates();
+        for (key, pos) in [(b"a", 3), (b"b", 2), (b"a", 0), (b"b", 1), (b"c", 4)] {
+            buffer.push(&set, key.to_vec().into_boxed_slice(), pos, pos);
+        }
+        for candidate in &mut buffer.per_shard[0] {
+            candidate.hash = 0;
+        }
+        let first = buffer.extract_if(|pos| *pos < 2);
+        assert!(first.per_shard[0].iter().all(|c| c.hash == 0));
+        assert!(buffer.per_shard[0].iter().all(|c| c.hash == 0));
+        let first = set
+            .resolve(vec![first], &ResolveOptions::threads(1))
+            .expect("prefix collision resolve")
+            .into_position_order();
+        assert_eq!(
+            first
+                .iter()
+                .map(|c| (c.key.as_ref(), c.pos, c.payload))
+                .collect::<Vec<_>>(),
+            vec![(b"a".as_slice(), 0, 0), (b"b".as_slice(), 1, 1)]
+        );
+        let later = set
+            .resolve(vec![buffer], &ResolveOptions::threads(4))
+            .expect("retained collision resolve")
+            .into_position_order();
+        assert_eq!(
+            later
+                .iter()
+                .map(|c| (c.key.as_ref(), c.pos, c.payload))
+                .collect::<Vec<_>>(),
+            vec![(b"c".as_slice(), 4, 4)]
+        );
+        assert_eq!(set.len(), 3);
+    }
 }

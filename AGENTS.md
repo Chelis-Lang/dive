@@ -176,6 +176,7 @@ python3 -I scripts/check-periodic-lifecycle.py
 python3 -I scripts/check-periodic-hook.py
 python3 -I scripts/check-periodic-snapshot.py
 python3 -I scripts/check-progress-queue.py
+python3 -I scripts/check-committed-prefix.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

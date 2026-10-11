@@ -3,19 +3,19 @@
   "base_commit": "f3c00c9b702ad1c196367338325b98e1a3a322df",
   "scope": "Combined ordered observed pool with bounded source waves and current checkpoint/admission; original execution source retained separately; no strict verdict certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "c4b939644434aac9fa90691e59695e65cfc9194de4d5aef9af22e51273877ed1",
+    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/parallel.rs": "c27d441d172837bc368835492d03a8ca9408d6bbd88bec48438fbbcc76db3e53",
+    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
-    "crates/dive-liveness/src/phase_execution.rs": "dfd1574afe1662fabf890d8a5c201f118a2185165ce1fd48b28164d9b1d2ff22",
+    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
   "historical_execution_slice": "execution",
-  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate.",
+  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "scoped_final_parent_history": {

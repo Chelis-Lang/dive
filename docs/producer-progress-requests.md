@@ -154,3 +154,7 @@ stop/error/count, checkpoint and complete deciding-witness contracts must still
 compose before ordinary checking can be admitted. See
 [ADR 0059](decisions/0059-producer-progress-requests.md) and the
 [parity roadmap](design/tlc-parity-plan.md).
+
+## Current continuation (#204)
+
+The original #201 producer and its uncommitted receipts remain immutable evidence. The [committed-prefix extension](committed-periodic-prefix.md) now uses the same request API to publish a returned contiguous source prefix through the shared ordered path while retaining later outputs. Its new source/runtime epoch separately reports graph publication and physical frontier append; ordinary schedule/model-proof restrictions are unchanged.

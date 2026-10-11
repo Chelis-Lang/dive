@@ -1,6 +1,6 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
-  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate.",
+  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
   "historical_integrations": [
@@ -94,10 +94,10 @@
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
     "conformance/probes/tlc-tableau/TableauProbe.java": "464810a3bad74ee4355b1145b4ada7d82323397aa9d1341d8f9c4ddd512ba83c",
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
-    "crates/dive-check/src/capture.rs": "c4b939644434aac9fa90691e59695e65cfc9194de4d5aef9af22e51273877ed1",
+    "crates/dive-check/src/capture.rs": "557e773604e687eddedadd1d7a4b46c941a2a0408752eca4ecd59c8efb0941f5",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/parallel.rs": "c27d441d172837bc368835492d03a8ca9408d6bbd88bec48438fbbcc76db3e53",
+    "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",

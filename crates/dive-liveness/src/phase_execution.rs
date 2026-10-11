@@ -662,6 +662,7 @@ impl Observer<'_> {
             .invocations
             .push(crate::periodic_lifecycle::Invocation {
                 source: source.id,
+                publication: source.barrier,
                 stats: source.stats,
                 workers: pause.workers(),
                 generation: pause.generation(),

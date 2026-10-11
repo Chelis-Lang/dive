@@ -1,0 +1,26 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.00s
+     Running tests/observer_barrier.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/observer_barrier-efe4544b15c5eedc)
+
+running 6 tests
+test actual_request_observer_error_and_unwind_close_timer_and_pool_without_eof ... ok
+test actual_dispatch_pause_and_eof_are_not_prefix_inferences ... ok
+test generation_and_source_failures_keep_the_real_callback_prefix ... ok
+test complete_initialization_is_once_before_real_wave_and_never_after_failed_init ... ok
+test source_fault_after_graph_observation_never_certifies_frontier_append_or_eof ... ok
+test observer_failure_after_prefix_append_retains_actual_queue_and_counters ... FAILED
+
+failures:
+
+---- observer_failure_after_prefix_append_retains_actual_queue_and_counters stdout ----
+
+thread 'observer_failure_after_prefix_append_retains_actual_queue_and_counters' (125262446) panicked at crates/dive-check/tests/observer_barrier.rs:478:42:
+attempt to subtract with overflow
+
+
+failures:
+    observer_failure_after_prefix_append_retains_actual_queue_and_counters
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+error: test failed, to rerun pass `-p dive-check --test observer_barrier`

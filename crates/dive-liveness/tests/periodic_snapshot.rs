@@ -524,6 +524,341 @@ fn repeated_timer_claim_pauses_preserve_complete_safety_graph_and_ordinary_refus
 }
 
 #[test]
+fn completed_prefixes_publish_exact_duplicate_graphs_under_actual_requests() {
+    let source = "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..8\nNext == x' \\in 0..512\nInv == x>=0\nLive == []<>(x>=0)\nHook == TRUE\n====\n";
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Live\n_PERIODIC Hook\nCHECK_DEADLOCK FALSE\n")
+        .into_config().expect("config");
+    let mut published = 0;
+    for store in [
+        dive_store::StoreMode::Exact,
+        dive_store::StoreMode::Fingerprint,
+    ] {
+        for width in [1, 3, 4, 8] {
+            let options = dive_check::CheckOptions {
+                workers: width,
+                store,
+                chaos: Some(19),
+                ..dive_check::CheckOptions::tlc(0, 0)
+            };
+            let policy = periodic_lifecycle::Options {
+                progress_interval: i32::MAX,
+                ..periodic_lifecycle::Options::default()
+            };
+            let snapshot = periodic_snapshot::bind(lowered(source), &cfg).expect("snapshot");
+            let baseline = snapshot
+                .execute(&options, phase_graph::Limits::default(), policy)
+                .expect("whole waves");
+            let run = snapshot
+                .execute_requests(
+                    &options,
+                    phase_graph::Limits::default(),
+                    policy,
+                    dive_check::progress::Options {
+                        interval: std::time::Duration::from_millis(1),
+                        force: true,
+                    },
+                )
+                .expect("requests");
+            let actual = run
+                .lifecycle()
+                .backend()
+                .complete()
+                .expect("complete safety graph");
+            let expected = baseline
+                .lifecycle()
+                .backend()
+                .complete()
+                .expect("baseline graph");
+            assert_eq!(actual.capture.stats, expected.capture.stats);
+            assert_eq!(actual.capture.graph.states, expected.capture.graph.states);
+            assert_eq!(actual.capture.graph.edges, expected.capture.graph.edges);
+            assert_eq!(actual.capture.output, expected.capture.output);
+            assert_eq!(actual.capture.warnings, expected.capture.warnings);
+            for pause in run.lifecycle().expansion_pauses() {
+                let receipt = pause.receipt();
+                assert_eq!(pause.pool().0, width);
+                assert_eq!(receipt.frontier_appended(), receipt.committed());
+                for id in receipt.committed() {
+                    assert!(receipt.completed().contains(&id));
+                }
+                assert!(receipt.committed_stats().generated >= receipt.logical_stats().generated);
+                assert!(receipt.committed_stats().distinct >= receipt.logical_stats().distinct);
+                assert!(receipt.predicate_workers() <= 1);
+                if !receipt.committed().is_empty() {
+                    published += 1;
+                }
+                assert!(!receipt.model_proof());
+            }
+            record_requests(&format!("published-{store:?}-w{width}"), run.lifecycle());
+        }
+    }
+    // This bounded real-timer campaign must exercise publication, rather than
+    // count only its forced empty request. Exact pause timing is not asserted.
+    assert!(
+        published > 0,
+        "no real returned-prefix publication exercised"
+    );
+}
+
+#[test]
+#[allow(
+    clippy::panic,
+    clippy::too_many_lines,
+    reason = "one complete paired disposition matrix keeps stopping evidence auditable"
+)]
+fn prefix_and_whole_wave_preserve_constraints_and_ordered_safety_stops() {
+    for (label, next, extra, deadlock, completes) in [
+        (
+            "constraint",
+            "x' \\in 0..64",
+            "CONSTRAINT Keep\n",
+            false,
+            true,
+        ),
+        (
+            "action-constraint",
+            "x' \\in 0..64",
+            "ACTION_CONSTRAINT Changes\n",
+            false,
+            true,
+        ),
+        (
+            "invariant",
+            "x' \\in 0..64",
+            "INVARIANT Inv\n",
+            false,
+            false,
+        ),
+        (
+            "action-property",
+            "x' \\in 0..64",
+            "PROPERTY ActionSafe\n",
+            false,
+            false,
+        ),
+        ("deadlock", "x<10 /\\ x'=x+1", "", true, false),
+        (
+            "predicate-error",
+            "x' \\in 0..64",
+            "INVARIANT Bad\n",
+            false,
+            false,
+        ),
+    ] {
+        let source = format!(
+            "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..8\nNext == {next}\nKeep == x<31\nChanges == x'<31\nInv == x<31\nActionSafe == [][x'<31]_x\nBad == IF x<31 THEN TRUE ELSE 1 \\div 0 = 0\nLive == []<>(x>=0)\nHook == TRUE\n====\n"
+        );
+        let cfg = dive_config::parse(&format!(
+            "INIT Init\nNEXT Next\nPROPERTY Live\n{extra}_PERIODIC Hook\nCHECK_DEADLOCK {}\n",
+            if deadlock { "TRUE" } else { "FALSE" }
+        ))
+        .into_config()
+        .expect("config");
+        for width in [1, 3, 4, 8] {
+            let options = dive_check::CheckOptions {
+                workers: width,
+                chaos: Some(19),
+                ..dive_check::CheckOptions::tlc(0, 0)
+            };
+            let policy = periodic_lifecycle::Options {
+                progress_interval: i32::MAX,
+                ..periodic_lifecycle::Options::default()
+            };
+            let baseline = periodic_snapshot::bind(lowered(&source), &cfg)
+                .expect("baseline binding")
+                .execute(&options, phase_graph::Limits::default(), policy)
+                .expect("whole wave");
+            let run = periodic_snapshot::bind(lowered(&source), &cfg)
+                .expect("request binding")
+                .execute_requests(
+                    &options,
+                    phase_graph::Limits::default(),
+                    policy,
+                    dive_check::progress::Options {
+                        interval: std::time::Duration::from_millis(1),
+                        force: true,
+                    },
+                )
+                .expect("requests");
+            if completes {
+                let expected = baseline
+                    .lifecycle()
+                    .backend()
+                    .complete()
+                    .expect("baseline safety EOF");
+                let actual = run
+                    .lifecycle()
+                    .backend()
+                    .complete()
+                    .expect("actual safety EOF");
+                assert_eq!(actual.capture.stats, expected.capture.stats);
+                assert_eq!(actual.capture.graph.states, expected.capture.graph.states);
+                assert_eq!(actual.capture.graph.edges, expected.capture.graph.edges);
+            } else {
+                let expected = baseline
+                    .lifecycle()
+                    .backend()
+                    .stop()
+                    .expect("original stop");
+                let actual = run.lifecycle().backend().stop().expect("actual stop");
+                let (phase_graph::Error::Capture(expected), phase_graph::Error::Capture(actual)) =
+                    (&expected.error, &actual.error)
+                else {
+                    panic!(
+                        "expected actual safety stopping path, got {:?} / {:?}",
+                        expected.error, actual.error
+                    );
+                };
+                assert_eq!(actual.verdict, expected.verdict);
+                assert_eq!(actual.stats, expected.stats);
+                assert_eq!(
+                    actual.counterexample.as_ref().map(|c| c
+                        .states
+                        .iter()
+                        .map(|s| (&s.label, &s.action, &s.values, &s.text))
+                        .collect::<Vec<_>>()),
+                    expected.counterexample.as_ref().map(|c| c
+                        .states
+                        .iter()
+                        .map(|s| (&s.label, &s.action, &s.values, &s.text))
+                        .collect::<Vec<_>>())
+                );
+                assert!(run.lifecycle().safety_eof().is_none());
+            }
+            assert!(!run.lifecycle().model_proof());
+            record_requests(&format!("safety-{label}-w{width}"), run.lifecycle());
+        }
+    }
+}
+
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "retain paired valid/refused replay and publication evidence together"
+)]
+fn deciding_candidates_preserve_publication_stage_and_replay_independently() {
+    for (duplicate_bound, guarded) in [(1024, false), (8192, false), (1024, true)] {
+        let source = "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == \\E i \\in 1..BOUND : x'=x+1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+        let source = source.replace("BOUND", &duplicate_bound.to_string());
+        let source = if guarded {
+            source.replace(
+                "Next == \\E i \\in 1..1024 : x'=x+1",
+                "Next == x'=x+1 \\/ (x'=x+1 /\\ \\E i \\in 1..1024 : TRUE)",
+            )
+        } else {
+            source
+        };
+        let cfg = dive_config::parse(
+            "INIT Init\nNEXT Next\nPROPERTY Live\n_PERIODIC Hook\nCHECK_DEADLOCK FALSE\n",
+        )
+        .into_config()
+        .expect("cfg");
+        for width in [1, 3, 4, 8] {
+            let snapshot = periodic_snapshot::bind(lowered(&source), &cfg).expect("snapshot");
+            let run = snapshot
+                .execute_requests(
+                    &dive_check::CheckOptions {
+                        workers: width,
+                        chaos: Some(7),
+                        ..dive_check::CheckOptions::tlc(0, 0)
+                    },
+                    phase_graph::Limits::default(),
+                    periodic_lifecycle::Options {
+                        force: true,
+                        progress_interval: 0,
+                        ..periodic_lifecycle::Options::default()
+                    },
+                    dive_check::progress::Options {
+                        interval: std::time::Duration::from_millis(1),
+                        force: true,
+                    },
+                )
+                .expect("run");
+            let invocation = run
+                .lifecycle()
+                .invocations()
+                .first()
+                .expect("actual candidate invocation");
+            assert!(invocation.publication().frontier_append_pending());
+            assert_eq!(
+                invocation.publication().prefix_predicate_workers(),
+                invocation.publication().published_prefix().map(|_| 0)
+            );
+            assert_eq!(
+                invocation.stats().generated,
+                if guarded { 3 } else { duplicate_bound + 1 }
+            );
+            assert_eq!(invocation.stats().distinct, 2);
+            assert_eq!(invocation.stats().left_on_queue, 1);
+            assert!(run.lifecycle().hook_evaluations().is_empty());
+            assert!(run.lifecycle().safety_eof().is_none());
+            assert!(
+                run.lifecycle()
+                    .expansion_pauses()
+                    .iter()
+                    .all(|p| p.receipt().committed().is_empty())
+            );
+            let fresh =
+                periodic_snapshot::bind(lowered(&source), &cfg).expect("fresh independent binding");
+            if duplicate_bound == 1024 || guarded {
+                assert_fresh_candidate_named(
+                    run.lifecycle(),
+                    fresh.model(),
+                    width,
+                    if guarded {
+                        "prefix-guarded"
+                    } else {
+                        "prefix-within-budget"
+                    },
+                );
+            } else {
+                // The original 8192-element development observation exceeds the
+                // independent validator's unchanged work bound. Never promote it.
+                let check = run
+                    .lifecycle()
+                    .backend()
+                    .checks()
+                    .iter()
+                    .find(|c| c.selection().candidate().is_some())
+                    .expect("candidate");
+                let (states, back_to) = concrete_word(run.lifecycle().backend(), check);
+                let trace = dive_trace::Trace {
+                    labels: vec![None; states.len()],
+                    length: Some(states.len()),
+                    states,
+                    ending: dive_trace::Ending::Lasso { back_to },
+                    properties: vec!["Live".into()],
+                };
+                let memory = dive_trace::validate(fresh.model(), &trace, None).validation;
+                let document = trace.to_doc(fresh.model()).expect("transport doc");
+                let json = dive_trace::validate_doc(fresh.model(), &document, &[], None)
+                    .0
+                    .validation;
+                for validation in [&memory, &json] {
+                    assert!(
+                        matches!(validation, dive_trace::Validation::Unsupported(message) if message.contains("quantifier domain materialization work"))
+                    );
+                }
+                if let Some(dir) = std::env::var_os("DIVE_PERIODIC_SNAPSHOT_CAPTURE") {
+                    let dir = std::path::PathBuf::from(dir);
+                    std::fs::create_dir_all(&dir).expect("refusal capture directory");
+                    let row = serde_json::json!({"width":width,"source":source,"memory":format!("{memory:?}"),"json":format!("{json:?}"),"model_proof":false,"ordinary_schedule_certified":false});
+                    std::fs::write(
+                        dir.join(format!("prefix-validator-refused-w{width}.json")),
+                        serde_json::to_vec_pretty(&row).expect("refusal JSON"),
+                    )
+                    .expect("refusal capture");
+                }
+            }
+            record_requests(
+                &format!("prefix-candidate-{duplicate_bound}-guarded{guarded}-w{width}"),
+                run.lifecycle(),
+            );
+        }
+    }
+}
+
+#[test]
 fn failed_init_and_invalid_request_policy_cannot_create_quiescence() {
     for (invariant, interval) in [
         ("x>=0", std::time::Duration::ZERO),
@@ -557,6 +892,14 @@ fn failed_init_and_invalid_request_policy_cannot_create_quiescence() {
 }
 
 fn assert_fresh_candidate(run: &periodic_lifecycle::Run, fresh: &dive_model::Model, width: usize) {
+    assert_fresh_candidate_named(run, fresh, width, "replay");
+}
+fn assert_fresh_candidate_named(
+    run: &periodic_lifecycle::Run,
+    fresh: &dive_model::Model,
+    width: usize,
+    label: &str,
+) {
     let check = run
         .backend()
         .checks()
@@ -643,7 +986,7 @@ fn assert_fresh_candidate(run: &periodic_lifecycle::Run, fresh: &dive_model::Mod
         std::fs::create_dir_all(&dir).expect("capture dir");
         let row = serde_json::json!({"width":width,"producer_profile":"tlc","fresh_validator_profile":"tlc","memory":"Valid","json":"Valid","wrong_property":outcomes[0],"wrong_init":outcomes[1],"wrong_closing_next":outcomes[2],"malformed_ending":outcomes[3],"model_proof":false,"ordinary_schedule_certified":false});
         std::fs::write(
-            dir.join(format!("replay-w{width}.json")),
+            dir.join(format!("{label}-w{width}.json")),
             serde_json::to_vec_pretty(&row).expect("json"),
         )
         .expect("capture replay");
@@ -797,9 +1140,10 @@ fn record_requests(name: &str, run: &periodic_lifecycle::Run) {
                 "forced":receipt.request().forced(),"pool":pause.pool(),"submitted_start":receipt.submitted().start,
                 "submitted_end":receipt.submitted().end,"claimed":receipt.claimed(),"completed":receipt.completed(),
                 "failed":receipt.failed(),"expanded_generated":receipt.expanded_generated(),
-                "logical_stats":stats(receipt.logical_stats()),"phase_l_written":false,"model_proof":false})
+                "logical_stats":stats(receipt.logical_stats()),"committed_start":receipt.committed().start,"committed_end":receipt.committed().end,"committed_stats":stats(receipt.committed_stats()),"frontier_appended_start":receipt.frontier_appended().start,"frontier_appended_end":receipt.frontier_appended().end,"predicate_workers":receipt.predicate_workers(),"phase_l_written":!receipt.committed().is_empty(),"model_proof":false})
         }).collect();
-        let record = serde_json::json!({"pauses":pauses,"eof":run.safety_eof().map(stats),"complete":run.backend().complete().is_some(),
+        let invocations: Vec<_> = run.invocations().iter().map(|i| serde_json::json!({"source":i.source(),"stats":stats(i.stats()),"publication":format!("{:?}",i.publication().publication()),"prefix":i.publication().published_prefix().map(|r|[r.start,r.end]),"frontier_append_pending":i.publication().frontier_append_pending(),"predicate_workers":i.publication().prefix_predicate_workers(),"outcome":format!("{:?}",i.outcome()),"model_proof":false})).collect();
+        let record = serde_json::json!({"pauses":pauses,"invocations":invocations,"stop_stats":run.backend().stop().and_then(|s|s.stats).map(stats),"eof":run.safety_eof().map(stats),"complete":run.backend().complete().is_some(),
             "stop":run.backend().stop().map(|s| s.error.to_string()),"requests_cancelled":run.requests_cancelled(),"aborted_request":run.aborted_request().map(|r| r.sequence()),"model_proof":false,"ordinary_schedule_certified":false});
         std::fs::write(
             path.join(format!("{name}.json")),
