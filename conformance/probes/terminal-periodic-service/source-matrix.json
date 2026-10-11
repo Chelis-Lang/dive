@@ -19,9 +19,9 @@
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/terminal_periodic_candidate.rs": "cbcb588dc5221911c9027a97f5fba1cb71cf0a21b309ec250aad9c6a06d9711a",
     "crates/dive-api/examples/terminal_periodic_candidate.rs": "d8fe275873a33d7c394938d87f539f9b3a55e450736d26ee2ea61bf5c3d7643d",
-    "docs/terminal-periodic-service.md": "5eeb2150e4f8e19a8cca9606dcad19b3221fd12788e1e53f59a9f995625a3a48",
-    "docs/decisions/0076-exhausted-queue-terminal-service.md": "99b183ea8f49946fa4ddd18803de3bb01d001f3730040ccb8654b6cf9af37611",
-    "scripts/check-terminal-periodic-service.py": "c4e869424fb50834a1b0b3b79e9e64ca3a6ac2d5e8e10166570caebfc17893c7",
+    "docs/terminal-periodic-service.md": "a7bdc4caec747f08e74ad595f436241975abac9ca599ba84b3ec0f4717a4f3f2",
+    "docs/decisions/0076-exhausted-queue-terminal-service.md": "c8ce234c0140fbf7fe144e2e45c381530d117cfaa6c880defea288764a57c4f0",
+    "scripts/check-terminal-periodic-service.py": "18baaa526f71fc1513f0e39aa13ef2bd4ddd710de879dd6bf73c4ccbbef02fc1",
     "conformance/parity-features.json": "edcb1c4d742cba804df7cb223061c46f75e9572b9a238717d9dbf09d2471b3c0",
     "AGENTS.md": "776114479b1142720c51bfec6923d8c932f861c8c224b139889b1186d381c8e2",
     ".github/workflows/ci.yml": "9e201e7e3eb66e8956276c94f0c0f1bb114ba3ab93967bf0d4aca0461ac451b1"

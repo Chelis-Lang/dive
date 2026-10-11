@@ -68,6 +68,24 @@ for row in controlled['rows']:
         assert 'checker-error-at-return:0'in e and row['exit']==0
         assert any(x.startswith('worker-at-return:')and x.endswith(':true')for x in e)
     assert e.index('modelCheck-return')<e.index('observer-cleanup-enter')
+returned_folder=BASE/'claimed-return-controlled4'
+for path,digest in load(returned_folder/'closed-index.json')['files'].items():
+    assert sha((returned_folder/path).read_bytes())==digest,path
+returned=load(returned_folder/'capture.json')
+assert len(returned['rows'])==12 and not returned['ordinary_native_proof']
+assert [r['id']for r in returned['rows']]==[r['id']for r in controlled['rows']]
+expected_returns={'safe-true':0,'safe-false':2104,'safe-division':1000,'violating-false':2116}
+for row in returned['rows']:
+    assert row['exit']==0 and not row['timeout']
+    events=row['events']
+    assert [e for e in events if e.startswith('modelCheck-return-code:')]==['modelCheck-return-code:'+str(expected_returns[row['case']])]
+    assert 'queue-suspendAll-return:true:size=1'in events
+    assert ('live-finalCheck-return:0'in events)==(row['case']=='safe-true')
+    for path,digest in row['artifact_sha256'].items():assert sha((returned_folder/row['directory']/path).read_bytes())==digest,(row['id'],path)
+assert 'public final int modelCheck()'in(returned_folder/'actual-abstractchecker-javap.log').read_text()
+original_delivery=load(BASE/'history-delivery-f3-before-return-correction/manifest.json')
+assert original_delivery['index_sha256']=='b006b1501601e2309b1c87f9071cc74e7f9d62deb061e8eeff00c8a32a449822'
+for path,record in original_delivery['files'].items():assert sha(gzip.decompress((ROOT/record['archive']).read_bytes()))==record['sha256'],path
 plain=BASE/'plain-cli-false-hook'
 for path,digest in load(plain/'closed-index.json')['files'].items():
     assert sha((plain/path).read_bytes())==digest,path
@@ -93,7 +111,7 @@ for digest,path in history['source_archive_paths'].items():
 ledger=load(ROOT/'conformance/parity-features.json')
 f=next(f for f in ledger['families']if f['id']=='F-023')
 assert f['implementation_status']=='missing'and f['certification']=='audit-required'and 222 in f['issues']
-print('Complete192 distinct raw reference/observer rows plus separate unmodified CLI exit10 and independent stutter controls preserved; no ordinary proof')
+print('Complete204 distinct raw reference/observer rows plus separate unmodified CLI exit10 and independent stutter controls preserved; no ordinary proof')
 closed=load(BASE/'gate-current/after.json');compiled=load(BASE/'gate-current/before.json')
 assert closed['all_steps_passed']and closed['build_inputs_unchanged']and closed['expected_steps']==47
 assert len(compiled['source_sha256'])==483

@@ -1876,8 +1876,13 @@ physical queue size 0 is not finished while a Worker owns outstanding work.
 Actual suspension succeeds, partial checking precedes the hook, and FALSE or
 division stops without final selection; a deciding temporal2116 precedes FALSE.
 These bounded scheduler observations are separate from the natural full CLI.
-The void `ModelChecker.modelCheck` observer can return with reflected errorCode 0
-and observer process 0; neither is a temporal success or the inner periodic code.
+The original observer discards the integer returned by `AbstractChecker.modelCheck`;
+its earlier description as a void method was incorrect and is preserved as history.
+The separate corrected twelve-row observer records actual returns at widths 1/4/8:
+TRUE 0, FALSE 2104, division 1000, and temporal violation 2116. Reflected
+`errorCode` 0 and observer process exit 0 are separate fields. The subprocess
+exits zero because its adapter does not forward the method result to `System.exit`;
+none of these early-stop observations establishes temporal success.
 
 The separate unmodified full CLI FALSE-hook counter exits 10, with 3,913,590
 states generated/distinct and one queued state after 4.2456s; it prints no success

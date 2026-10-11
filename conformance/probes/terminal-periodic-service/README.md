@@ -24,8 +24,16 @@ exit and payload hash. The primary jar SHA is
   is not EOF: actual suspension returns true after successor generation. TRUE
   resumes after partial0 and reaches final0; FALSE/division stop without final;
   temporal2116 precedes FALSE. This controlled scheduler does not establish
-  natural timing. `modelCheck` is void; observer process0 and reflected
-  `errorCode0` are not `doPeriodicWork`'s internal2104 or full CLI success.
+  natural timing. The original adapter discards the actual integer returned
+  by `AbstractChecker.modelCheck`; the prior void-method label was wrong.
+  Observer process0 and reflected `errorCode0` are separate from that return.
+- `claimed-return-controlled4`: separate corrected twelve-row observer, same
+  declared selected models at widths1/4/8. Actual method returns are TRUE0,
+  FALSE2104, division1000, and temporal2116; all observer subprocesses exit0
+  because their main method does not forward this int to `System.exit`. The
+  actual pinned signature/source and closed payload readback are retained.
+  Original controlled3 source/raw and mislabeled deliveryf3 docs remain intact
+  in `history-delivery-f3-before-return-correction`; no native receipt is retagged.
 - `plain-cli-false-hook`: separate unmodified full CLI, unbounded `x'=x+1`, safe
   `<>(x=0)` and `_PERIODIC Hook` with FALSE. Declared512MiB heap/30s observer bound,
   width1/fp0/seed0. It exits10 after4.2456s, with3,913,590 generated/distinct and
