@@ -738,5 +738,5 @@
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "8cf81138d5abd1724d798c5881a5e6d2473cccb4a06d3f46cc2dd7d4710c2eac",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "c08074cf5e00aaeaa2df85f7b1010870b27c7f6753d1a6ecca6e2ecbae3cad47"
   },
-  "current_integration_scope": "Current combined-source integrity includes spill/process fairness plus scoped temporal shape/role fixes. Frozen 92/f27 native, guide and gate evidence stays source-archive-qualified; fresh combined execution is separate, no family certification."
+  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification"
 }

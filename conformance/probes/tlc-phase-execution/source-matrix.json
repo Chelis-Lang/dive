@@ -1,7 +1,7 @@
 {
   "base_commit": "f3c00c9b702ad1c196367338325b98e1a3a322df",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Current combined-source integrity includes spill/process fairness plus scoped temporal shape/role fixes. Frozen 92/f27 native, guide and gate evidence stays source-archive-qualified; fresh combined execution is separate, no family certification.",
+  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
   "current_source_qualification": "Current combined-source integrity after direct temporal IF, transient checkpoint storage, process procedure fairness and CI integration. Immutable producer outcomes remain attached to their archived sources; this map supplies no new runtime or full-family parity credit.",
   "historical_execution_slice": "execution",
   "schema_version": 1,

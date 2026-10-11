@@ -292,9 +292,9 @@ native archive serialization, visited sets, candidate payloads and reconstructio
 workspace. Neither archive checksums nor successful recovery authenticate or
 independently certify imported snapshots.
 
-## Current transient-storage verification
+## Frozen transient-storage campaign
 
-The [combined-source receipt](../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json)
+The [frozen producer receipt](../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json)
 records a fresh complete 576-group recovery campaign, 4,032 CLI calls, 1,728
 independent witness controls and 96 failure controls. Its runtime executable and
 254 implementation inputs are separate from the earlier frozen producers. The
@@ -302,3 +302,21 @@ CLI and Rust examples above executed on this source. All 916 workspace tests and
 CM1/ValidationTestSuite selections at 1/4/8 workers passed locally. Local timings
 and the pending Linux CI scheduling qualification are retained in the study;
 they are not performance or full recovery-family certification.
+
+## Current publication integration
+
+The [publication receipt](../conformance/probes/native-parity-integration/current-controls/spill-publication/verification.json)
+records the integration with process-procedure fairness and the partitioned CI
+gate. All 928 workspace tests passed, with none skipped, followed by all other
+local gate stages. The actual inventory contains four disjoint, complete partitions.
+The three CLI examples and exact wrapped Rust example above executed on this
+source; the Rust example used a fresh directory because archives are never
+overwritten. An initial runner mistake that reused the CLI archive is retained
+separately, including its failed assertion and archive.
+
+All 21 CM1 models and 16 validation smoke models agree at 1, 4 and 8 workers;
+the smoke selection also passed the unchanged 30-second CI limit. These are
+fresh current-source observations. The earlier 4,032-call campaign remains tied
+to its own executable and source. Local timings under machine contention and
+Linux CI results are distinct; this receipt does not claim a total RAM bound,
+Java archive interoperability or independent reachability certification.
