@@ -38,8 +38,9 @@ Since the preserved standard report below, the verified increments now include:
   checks admitted enclosing modules, sequential algorithms and disjoint finite
   processes with pinned fairness. Bounded macros now expand with checked source origins and enclosing-module
   admission. Disjoint explicitly labelled sequential procedures support call graphs,
-  saved frames, mutual recursion and self-tail calls. Process-owned procedure
-  stacks, general renaming, rewriting and checksums remain pending.
+  saved frames, mutual recursion and self-tail calls. Disjoint finite processes also call shared procedures with per-ID stacks
+  and pinned weak/strong process/procedure fairness. General scoped renaming,
+  sequential procedure modifiers, rewriting and checksums remain pending.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;

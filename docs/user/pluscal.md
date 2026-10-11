@@ -35,7 +35,15 @@ Read the [single-procedure contract](../pluscal-procedures.md) and
 [recursive-procedure guide](../pluscal-recursive-procedures.md) for executable C/P and
 Rust examples, adjacent call/return behavior, budgets and pending strict replay.
 
-Process-owned procedure stacks, general renaming, historical translator flags,
+Disjoint finite processes may call shared procedures with per-ID stacks and
+parameters, including recursive calls. Weak/strong process fairness and reachable
+procedure label modifiers generate the pinned Spec, without claiming a liveness
+proof. Read the [one-process guide](../pluscal-process-procedures.md),
+[shared-procedure guide](../pluscal-multiple-procedures.md) and
+[fair procedure guide](../pluscal-procedure-fairness.md) for executable C/P and
+Rust examples, ownership, ordering, quotas and pending strict witness replay.
+
+General scoped renaming, sequential procedure modifiers, historical translator flags,
 format-width, file rewriting/checksums and TLC mapping-file parity are unfinished
 in this guide's source. Reference-produced but SANY-invalid text cannot become
 an admitted public artifact. The lower-level source parser/raw translator is a
@@ -47,3 +55,14 @@ Detailed boundaries and evidence: [normalization](../pluscal-normalization.md),
 [single process](../pluscal-processes.md), [multiple processes](../pluscal-multiple-processes.md)
 and [fairness](../pluscal-fairness.md). Historical studies retain their original
 selections; the current guides must not be read as claiming the full translator.
+
+Checked-in process examples can be translated directly:
+
+```sh
+dive translate docs/user/examples/MultipleCallExample.tla --compat=tlc --output json
+dive translate docs/user/examples/FairCall.tla --compat=tlc --output json
+```
+
+Both return admitted in-memory artifacts. Inspect `module_source` and the
+nonproof fields before using the result. File rewriting and checksum
+interoperability are separate unfinished features.
