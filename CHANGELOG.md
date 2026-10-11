@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Composed request/candidate diagnostics, disk safety and positioned replay,
+  bounded procedure checksum editing, and inductive tuple replay with fresh
+  release verification and maintained user/developer guides.
+
 - Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
 
 - Bounded Full PlusCal editing supports disjoint explicitly labelled sequential

@@ -31,3 +31,12 @@ ordinary temporal scheduling and the full TLC feature set remain uncertified.
 The next receiving integration requires a new immutable source producer, a full
 local gate and fresh runtime checks for the affected functionality. Component
 qualification receipts and user guides remain separate from that new result.
+
+## Later composed receiving epoch
+
+The closed `05b3a1ef` epoch now composes the request-service, disk-engine,
+positioned replay, candidate and bounded procedure checksum increments. It has
+its own 1,346-test gate, audited CI supplement and fresh release runtimes. See
+[the composed delivery](../../../docs/core-prefix-storage-composition.md); run
+`python3 -I scripts/check-core-composed-epoch.py` to verify its archives. Neither
+epoch retags the other, and no complete-family parity claim follows.

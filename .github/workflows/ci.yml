@@ -101,6 +101,8 @@ jobs:
           python3 -I scripts/check-inductive-tuple-replay.py
           python3 -I scripts/check-fixed-tuple-projection.py
           python3 -I scripts/check-core-prefix-storage-integration.py
+          python3 -I scripts/check-core-composed-epoch.py
+          python3 -I scripts/test-core-composed-epoch.py
           python3 -I scripts/check-native-parity-integration.py
           python3 -I scripts/check-tlc-final.py
           python3 -I scripts/check-tlc-final-safety.py

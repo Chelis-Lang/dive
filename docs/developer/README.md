@@ -34,3 +34,9 @@ source callback and graph contract, independently of the exposed final/short mod
 [candidate-admission guide](../producer-owned-temporal-candidate.md) characterize
 the subsequent implemented diagnostic stages. Ordinary scheduling, stopping
 counts and temporal completion remain separate unfinished obligations.
+
+The [composed core receiving delivery](../core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.

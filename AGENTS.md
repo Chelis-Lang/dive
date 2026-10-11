@@ -164,8 +164,11 @@ workspace suite. Test and job time limits remain unchanged:
 cargo fmt --all --check
 python3 scripts/test-validation-import.py
 python3 -I scripts/check-inductive-tuple-replay.py
+python3 -I scripts/check-fallible-seen-store.py
 python3 -I scripts/check-fixed-tuple-projection.py
 python3 -I scripts/check-core-prefix-storage-integration.py
+python3 -I scripts/check-core-composed-epoch.py
+python3 -I scripts/test-core-composed-epoch.py
 python3 -I scripts/test-frontend-campaign.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py
@@ -222,6 +225,8 @@ python3 -I scripts/check-view-random-stream.py
 python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
 python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
+python3 -I scripts/check-test-partitions.py
+python3 -I scripts/test-workspace-gate.py
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --locked

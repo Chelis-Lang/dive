@@ -681,3 +681,9 @@ Disk parallel/capture/temporal/recovery and full error-class coverage remain
 pending; F-031 stays partial/audit-required. The original `881b75992d0ef5dc11539018da526e5e55066027` producer
 passed independent source, full-gate and runtime readback; the combined receiving
 branch still requires its own qualification. See [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+The [composed core receiving delivery](core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.

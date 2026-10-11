@@ -1,5 +1,5 @@
 {
-  "scope": "Current combined receiving source integrity only. Original da0f producer runtime/gate remain immutable; later combined gate and runtime pending. No family certification.",
+  "scope": "Current combined receiving source integrity only. Original da0f producer runtime/gate remain immutable; the combined 05b receiving gate and fresh runtimes retain their own producer. No family certification.",
   "runtime_producer": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
   "current_sha256": {
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",

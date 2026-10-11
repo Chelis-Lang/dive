@@ -25,8 +25,8 @@
     "docs/request-owned-periodic-service.md": "118cd07e75691a2afe8499e6ce33047b16d59c5a8b3ce0c1764e3d2eafcb5dea",
     "docs/decisions/0065-request-owned-periodic-service.md": "d3d831081e5f0d7cb83aa332a82d23eb2d87a6fa89e9b3ac8c5cb6325117f44f",
     "scripts/check-request-owned-service.py": "3cdccc2ec16b90b9127adf4eca8aed568c101b76faa34b6cc9af39b575c2b96b",
-    "AGENTS.md": "6d5ea601172c0a634679bb19aca35a3aab9696e7217a967e355c872ec2f1049d",
-    ".github/workflows/ci.yml": "56f3dc27d6b7377daf9057d5b4db2c12d9b27fd4d8ef848501c763ab14f0bcd0",
+    "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
+    ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."

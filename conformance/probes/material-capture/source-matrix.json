@@ -4,9 +4,9 @@
   "schema_version": 1,
   "scope": "Callback-free stored material captures with same-run ordering, namespace and scoped actualOPEN proof; 18primary/72native and immutable blocked histories, fixed50k/128 limits; no ordinary/family/corpus gain",
   "source_sha256": {
-    ".github/workflows/ci.yml": "56f3dc27d6b7377daf9057d5b4db2c12d9b27fd4d8ef848501c763ab14f0bcd0",
-    "AGENTS.md": "6d5ea601172c0a634679bb19aca35a3aab9696e7217a967e355c872ec2f1049d",
-    "CHANGELOG.md": "e2e9246a6d5747325224358fb57fac2a396c7b4f4243cee3168bcb40123937d2",
+    ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
+    "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
+    "CHANGELOG.md": "21a56f29416e5bc78d1bf9a48b3e1d3155b082d2a51ce8683714e228dc20c899",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
