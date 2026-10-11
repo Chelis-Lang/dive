@@ -9,6 +9,142 @@ use std::sync::Arc;
 const SPEC: &str = include_str!("fixtures/runtime-names/ReplayNames.tla");
 const CFG: &str = include_str!("fixtures/runtime-names/ReplayNames.cfg");
 
+fn tuple_replay_source(definitions: &str, expression: &str) -> String {
+    format!(
+        "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLE x\n{definitions}\nInit == x=0\nNext == x'=IF Len({expression})=1 THEN 1 ELSE 2\nInv == x=0\n====\n"
+    )
+}
+
+fn tuple_replay_model(source: &str, extra_config: &str) -> Model {
+    let analysis =
+        dive_sema::analyze_source("TupleReplay.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted(), "{:?}", analysis.diagnostics());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("lower tuple replay"));
+    let cfg = dive_config::parse(&format!(
+        "INIT Init\nNEXT Next\nINVARIANT Inv\n{extra_config}"
+    ))
+    .into_config()
+    .expect("tuple config");
+    dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("tuple binding")
+}
+
+fn tuple_replay_doc(value: i64, lossy: bool) -> TraceDoc {
+    if lossy {
+        TraceDoc::from_json(&json!({
+            "vars":["x"],"counterexample":{"action":[],"state":[[1,{"x":0}],[2,{"x":value}]]}
+        }))
+        .expect("lossy tuple word")
+        .with_ending(Ending::Invariant("Inv".to_owned()))
+    } else {
+        TraceDoc::behavior(vec![json!({"x":0}), json!({"x":value})])
+            .expect("tuple behavior")
+            .with_ending(Ending::Invariant("Inv".to_owned()))
+    }
+}
+
+#[test]
+fn strict_whole_words_admit_proved_tuple_calls_and_reject_forged_steps() {
+    for (definitions, expression, actual) in [
+        ("", "Tail(<<0,1>>)", 1),
+        ("Pair == <<0,1>>", "Tail(Pair)", 1),
+        ("", "Tail(IF x=0 THEN <<0,1>> ELSE <<2,3>>)", 1),
+        ("", "<<0>> \\o <<1>>", 2),
+        ("", "SubSeq(<<0,1>>,2,2)", 1),
+        ("Drop(v) == Tail(v)", "Drop(<<0,1>>)", 1),
+        ("", "LET Pair == <<0,1>> IN Tail(Pair)", 1),
+    ] {
+        let source = tuple_replay_source(definitions, expression);
+        for lossy in [false, true] {
+            let model = tuple_replay_model(&source, "");
+            // The checker retains its existing conservative sequential policy.
+            assert!(model.runtime_name_order, "{expression}");
+            let actual_word = tuple_replay_doc(actual, lossy);
+            assert_eq!(
+                validate_doc(&model, &actual_word, &[], None).0.validation,
+                Validation::Valid,
+                "{expression}; lossy={lossy}"
+            );
+            // Bind anew: the actual word cannot seed a forged word's namespace.
+            let fresh = tuple_replay_model(&source, "");
+            let forged = tuple_replay_doc(if actual == 1 { 2 } else { 1 }, lossy);
+            assert!(matches!(
+                validate_doc(&fresh, &forged, &[], None).0.validation,
+                Validation::Invalid(_)
+            ));
+        }
+    }
+}
+
+#[test]
+fn strict_tuple_admission_keeps_string_branches_elements_and_assumptions_refused() {
+    for (definitions, expression) in [
+        ("", "Tail(\"ab\")"),
+        ("", "Tail(IF x=0 THEN <<0,1>> ELSE \"ab\")"),
+        ("", "Tail(<<0,ToString(x)>>)"),
+        ("ASSUME ToString(0)=\"0\"", "Tail(<<0,1>>)"),
+        (
+            "Unknown == IF x=0 THEN <<0,1>> ELSE \"ab\"",
+            "Tail(Unknown)",
+        ),
+    ] {
+        let source = tuple_replay_source(definitions, expression);
+        for lossy in [false, true] {
+            let model = tuple_replay_model(&source, "");
+            assert!(model.runtime_name_order);
+            assert_eq!(
+                validate_doc(&model, &tuple_replay_doc(1, lossy), &[], None)
+                    .0
+                    .validation,
+                Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned()),
+                "{definitions}; {expression}; lossy={lossy}"
+            );
+        }
+    }
+}
+
+#[test]
+fn configured_sequence_aliases_require_the_same_proof() {
+    for (expression, admitted) in [("Alias(<<0,1>>)", true), ("Alias(\"ab\")", false)] {
+        let source = tuple_replay_source("Alias(v) == v", expression);
+        let model = tuple_replay_model(&source, "CONSTANT Alias <- Tail\n");
+        assert!(model.runtime_name_order);
+        let actual = validate_doc(&model, &tuple_replay_doc(1, false), &[], None)
+            .0
+            .validation;
+        assert_eq!(
+            actual,
+            if admitted {
+                Validation::Valid
+            } else {
+                Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+            }
+        );
+    }
+}
+
+#[test]
+fn trace_supplied_tuple_shapes_do_not_prove_variable_stack_history() {
+    let source = "---- MODULE StackReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s\nInit == x=0 /\\ s=<<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
+    let analysis =
+        dive_sema::analyze_source("StackReplay.tla", source, &dive_sema::Options::default());
+    assert!(analysis.accepted());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("stack lowering"));
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\n")
+        .into_config()
+        .expect("stack config");
+    let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("stack bind");
+    let doc = TraceDoc::behavior(vec![
+        json!({"x":0,"s":{"seq":[0,1]}}),
+        json!({"x":1,"s":{"seq":[1]}}),
+    ])
+    .expect("actual tuple stack word")
+    .with_ending(Ending::Invariant("Inv".to_owned()));
+    assert_eq!(
+        validate_doc(&model, &doc, &[], None).0.validation,
+        Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+    );
+}
+
 fn model(tlc: bool, source: &str) -> Model {
     let a = dive_sema::analyze_source("ReplayNames.tla", source, &dive_sema::Options::default());
     let ir = Arc::new(dive_ir::lower(&a).expect("lower"));
