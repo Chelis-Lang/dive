@@ -560,3 +560,5 @@ Source option admission guard: pinned `pcal.trans.performTranslation / ParseAlgo
 and `Validator.validate` reparsing options, commit `94d0c5070852b37b801bb8998c436383ab7ee37b`
 (MIT). Native recognizes a conservative context for named refusal, not execution
 of the reference option parser. Captures: `crates/dive-pluscal/source-option-acceptance/`.
+
+| Bounded pure operator-formal admission (`scope_operator_analysis`, scoped temporal/independent Word and finite/capture proof) | `tlc2.tool.impl.Tool.getOpContext`, operator-param lookup / `OpLambdaValue` captured Context; `Liveness.astToLive` application context; pin `94d0c50` | MIT | Callback-free known user-body proof retains captured lexical/dynamic scope; actual application remains scope_apply_param; constant-origin ambiguity and all opaque/native/recursive targets explicitly refuse. Exact primary/projection/word/witness controls: `conformance/probes/temporal-operators/README.md`; no ordinary scheduling claim |

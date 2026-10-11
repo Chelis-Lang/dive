@@ -73,3 +73,9 @@ Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
 procedures retain per-ID ownership; their admitted translation reports still
 carry `model_proved: false`. Read [PlusCal boundaries](pluscal.md) before
 interpreting a generated Spec as a checker result.
+
+For pure operator formals through `tlc_temporal::check_final`, use the runnable
+[operator example](../temporal-operators.md). The low-level
+`Evaluator::scope_operator_analysis` exposes a callback-free known user scope for
+analysis only; its unknown formals cannot be forced or certify a model. Actual
+applications use real arguments and fresh independent witness replay.

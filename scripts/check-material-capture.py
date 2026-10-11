@@ -5,6 +5,14 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/material-capture'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+FROZEN_MATERIAL=ROOT/'conformance/probes/temporal-operators/frozen-material-producer'
+FROZEN_MATERIAL_MAP=load(FROZEN_MATERIAL/'manifest.json')['source_sha256']
+def material_source(path,digest):
+ if path.startswith('conformance/probes/material-capture/') and path not in FROZEN_MATERIAL_MAP:
+  assert sha(ROOT/path)==digest,path
+ else:
+  assert FROZEN_MATERIAL_MAP[path]==digest,path
+  assert hashlib.sha256(gzip.decompress((FROZEN_MATERIAL/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 selection=load(BASE/'selection.json');assert len(selection)==16 and len({r['name']for r in selection})==16
 primary=load(BASE/'clean-tlc/capture.json');assert primary['oracle_sha256']=='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 assert primary['selection_sha256']==sha(BASE/'selection.json')and primary['capture_source_sha256']==sha(BASE/'capture-clean.py')
@@ -81,5 +89,5 @@ assert sha(BASE/'user-example.rs')==e['source_sha256']
 for path,d in e['crate_source_sha256'].items():material_source(path,d)
 for path,d in e['files'].items():assert sha(example/path)==d,path
 assert(example/'stdout').read_text().strip()=='["Live"]'
-for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path
+for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():material_source(path,d)
 print('Verified18 primary/72 native material pairs and all36 prior refusals/64 first-attempt outcomes; fresh replay and fixed50k/128 controls, no corpus/family/ordinary credit')

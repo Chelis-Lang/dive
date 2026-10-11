@@ -1,0 +1,24 @@
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.07s
+     Running tests/cli.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/cli-7eb29837c83c467a)
+
+running 1 test
+test final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options ... FAILED
+
+failures:
+
+---- final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options stdout ----
+
+thread 'final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options' (116185815) panicked at crates/dive-cli/tests/cli.rs:533:5:
+assertion `left == right` failed
+  left: String("lasso")
+ right: "stuttering"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.64s
+
+error: test failed, to rerun pass `-p dive-cli --test cli`

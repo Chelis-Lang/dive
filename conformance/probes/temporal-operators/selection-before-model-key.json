@@ -1,0 +1,58 @@
+[
+  {
+    "name": "OpConstantHolds",
+    "kind": "Constant"
+  },
+  {
+    "name": "OpConstantFails",
+    "kind": "Constant"
+  },
+  {
+    "name": "OpStateHolds",
+    "kind": "State"
+  },
+  {
+    "name": "OpStateFails",
+    "kind": "State"
+  },
+  {
+    "name": "OpTemporalHolds",
+    "kind": "Temporal"
+  },
+  {
+    "name": "OpTemporalFails",
+    "kind": "Temporal"
+  },
+  {
+    "name": "OpRelayHolds",
+    "kind": "Relay"
+  },
+  {
+    "name": "OpRelayFails",
+    "kind": "Relay"
+  },
+  {
+    "name": "OpLetHolds",
+    "kind": "Let"
+  },
+  {
+    "name": "OpLetFails",
+    "kind": "Let"
+  },
+  {
+    "name": "OpCaptureHolds",
+    "kind": "Capture"
+  },
+  {
+    "name": "OpCaptureFails",
+    "kind": "Capture"
+  },
+  {
+    "name": "OpEffectHolds",
+    "kind": "Effect"
+  },
+  {
+    "name": "OpEffectFails",
+    "kind": "Effect"
+  }
+]

@@ -649,3 +649,11 @@ native currently refuses them before generation/CRC rather than ignore them. No
 new default checksum scheme is adopted. The six paired Validator controls, four
 source declarations and 20 spacing cases are retained in
 `crates/dive-pluscal/source-option-acceptance/`. See the user log D-021.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).

@@ -25,14 +25,14 @@
   "source_sha256": {
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
+    "crates/dive-liveness/src/plan.rs": "afb64cf4738bf319397e5f9ddee0dfb6cf7673e6db5c96ce0b73dcef168dab6b",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",
     "scripts/check-tlc-planning.py": "d5c5859e82d3b8c8389bb12c3131b71650d4867f1a17c7c035e227d10daf024e",
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
     "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
-    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "crates/dive-eval/src/scope.rs": "10695d924523f746981f4d097a84dd997c3cf0f63696ec7389e87f8458cdfe13",
     "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab"
   }

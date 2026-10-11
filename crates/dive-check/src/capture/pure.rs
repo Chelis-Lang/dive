@@ -133,10 +133,31 @@ fn definition(
 fn argument(model: &Model, arg: &Arg, scope: &Scope, depth: u32, budget: &mut usize) -> bool {
     match arg {
         Arg::Expr { expr, .. } => expression(model, *expr, scope, depth + 1, budget),
-        // Opaque operators passed through a context are not proven pure merely
-        // because their caller's static IR node has no IMPURE bit.
-        Arg::Op { .. } => false,
+        Arg::Op { op, .. } => operator(model, op, scope, depth + 1, budget),
     }
+}
+
+fn operator(model: &Model, op: &OpRef, scope: &Scope, depth: u32, budget: &mut usize) -> bool {
+    depth <= 128
+        && *budget > 0
+        && model
+            .evaluator
+            .scope_operator_analysis(scope, op)
+            .is_ok_and(|known| {
+                known.is_some_and(|(def, captured)| {
+                    model
+                        .evaluator
+                        .scope_operator_captures(&captured, budget)
+                        .is_ok_and(|captures| {
+                            captures.is_some_and(|captures| {
+                                captures.into_iter().all(|(body, scope)| {
+                                    expression(model, body, &scope, depth + 1, budget)
+                                })
+                            })
+                        })
+                        && expression(model, model.ir.def(def).body, &captured, depth + 1, budget)
+                })
+            })
 }
 
 #[allow(
@@ -208,7 +229,28 @@ fn expression(model: &Model, expr: ExprId, scope: &Scope, depth: u32, budget: &m
         Expr::Apply { callee, args } => match callee {
             OpRef::Def(def) => definition(model, *def, scope, args, depth, budget),
             OpRef::Const(c) => constant(model, *c, scope, args, depth, budget),
-            OpRef::Param(_) | OpRef::Subst(_) | OpRef::Unbound(_) => false,
+            OpRef::Param(local) => {
+                operator(model, callee, scope, depth + 1, budget)
+                    && args.iter().all(|arg| {
+                        matches!(arg, Arg::Expr { .. })
+                            && argument(model, arg, scope, depth + 1, budget)
+                    })
+                    && model
+                        .evaluator
+                        .scope_apply_param(scope, *local, args)
+                        .is_some_and(|called| {
+                            called.is_ok_and(|(def, called)| {
+                                expression(
+                                    model,
+                                    model.ir.def(def).body,
+                                    &called,
+                                    depth + 1,
+                                    budget,
+                                )
+                            })
+                        })
+            }
+            OpRef::Subst(_) | OpRef::Unbound(_) => false,
             OpRef::Std(op) => {
                 !op.impure()
                     && !op.creates_runtime_names()

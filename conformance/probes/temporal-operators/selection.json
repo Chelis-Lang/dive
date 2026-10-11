@@ -1,0 +1,72 @@
+[
+  {
+    "name": "OpConstantHolds",
+    "kind": "Constant",
+    "model": "OpConstantHolds"
+  },
+  {
+    "name": "OpConstantFails",
+    "kind": "Constant",
+    "model": "OpConstantFails"
+  },
+  {
+    "name": "OpStateHolds",
+    "kind": "State",
+    "model": "OpStateHolds"
+  },
+  {
+    "name": "OpStateFails",
+    "kind": "State",
+    "model": "OpStateFails"
+  },
+  {
+    "name": "OpTemporalHolds",
+    "kind": "Temporal",
+    "model": "OpTemporalHolds"
+  },
+  {
+    "name": "OpTemporalFails",
+    "kind": "Temporal",
+    "model": "OpTemporalFails"
+  },
+  {
+    "name": "OpRelayHolds",
+    "kind": "Relay",
+    "model": "OpRelayHolds"
+  },
+  {
+    "name": "OpRelayFails",
+    "kind": "Relay",
+    "model": "OpRelayFails"
+  },
+  {
+    "name": "OpLetHolds",
+    "kind": "Let",
+    "model": "OpLetHolds"
+  },
+  {
+    "name": "OpLetFails",
+    "kind": "Let",
+    "model": "OpLetFails"
+  },
+  {
+    "name": "OpCaptureHolds",
+    "kind": "Capture",
+    "model": "OpCaptureHolds"
+  },
+  {
+    "name": "OpCaptureFails",
+    "kind": "Capture",
+    "model": "OpCaptureFails"
+  },
+  {
+    "name": "OpEffectHolds",
+    "kind": "Effect",
+    "model": "OpEffectHolds"
+  },
+  {
+    "name": "OpEffectFails",
+    "kind": "Effect",
+    "model": "OpEffectFails"
+  }
+]

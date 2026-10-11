@@ -1,0 +1,11 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-api)
+error[E0559]: variant `Arg::Op` has no field named `pass`
+   --> crates/dive-api/tests/temporal_operators.rs:374:17
+    |
+374 |                 pass: dive_ir::Pass::Lazy,
+    |                 ^^^^ `Arg::Op` does not have this field
+    |
+    = note: available fields are: `level`
+
+For more information about this error, try `rustc --explain E0559`.
+error: could not compile `dive-api` (test "temporal_operators") due to 1 previous error

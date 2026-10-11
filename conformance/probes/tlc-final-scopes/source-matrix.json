@@ -726,7 +726,7 @@
     "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
     "crates/dive-api/tests/tlc_final_scopes.rs": "5dfbc92a044a815773f1fea9fd61db55e4a4b9ff1bded2a38435907f6dd8d00e",
     "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
-    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
+    "crates/dive-liveness/src/plan.rs": "afb64cf4738bf319397e5f9ddee0dfb6cf7673e6db5c96ce0b73dcef168dab6b",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_final_scopes.rs": "e1343c6c7a9d17aa8e79e4f4f58502134e437cfbf97cddf7624160e1beffac2c",
     "crates/dive-model/src/spec.rs": "0b23f75dae433b3689758fbcabc1b5246f89b5d0a38b0dec12ffb49763970275",
@@ -735,7 +735,7 @@
     "docs/provenance.md": "580420ff4e1973791bd36c873c3babbdee4e6f1d4e6a6bade88116bc2763c9ae",
     "docs/tlc-differences.md": "900da1ca937764bd405563b36775c42bc0853fa5fd1d61eb445c400156d6825a",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
-    "docs/user/temporal.md": "434a6a3fae165ca7592b60adfcfaa1eb63e8e1ffaf33edd5655bffc5d00c7728",
+    "docs/user/temporal.md": "7cfc3a164171042f58808807c7b7cbd166d6ef70d0572e3d58d68257894fe925",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1"
   }

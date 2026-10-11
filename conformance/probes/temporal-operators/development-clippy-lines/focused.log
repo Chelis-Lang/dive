@@ -1,0 +1,21 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.49s
+     Running tests/temporal_operators.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/temporal_operators-735b4238665dde24)
+
+running 6 tests
+test actual_operator_planning_keeps_existing_work_and_formula_bounds ... ok
+test erased_effect_annotations_never_authorize_hidden_native_operator_callbacks ... ok
+test configured_target_origin_and_runtime_domains_keep_named_boundaries ... ok
+test unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity ... ok
+test retained_operator_formals_match_independent_words_and_closing_edges ... ok
+test clean_paired_primary_models_have_final_outcomes_with_fresh_validation ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.24s
+
+     Running tests/temporal_operators.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/temporal_operators-c0d835539188b358)
+
+running 1 test
+test exact_operator_fields ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+

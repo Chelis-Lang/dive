@@ -1929,3 +1929,11 @@ Status: measured interoperability candidate; no corrected default or model
 proof. `--compat=tlc` retains reference-compatible explicit settings, not a new
 checksum scheme. D-020's fair-header-only weakness still applies. All primary
 outputs and original failures are in `crates/dive-pluscal/source-option-acceptance/`.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).

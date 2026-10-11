@@ -113,3 +113,22 @@ repair a cached canonical sequence used by TLC-mode CHOOSE. Tuple domains are
 ascending integer indices and exempt only at their outer representation. The
 pre-guard positive matrix and interrupted gate remain development evidence;
 opposite-profile public controls now refuse before workers or counters.
+
+## Addendum: pure user operator formals, 2026-10-11
+
+The captured-operator refusal is narrowed only for admitted known nonrecursive
+user targets with ordinary value formals. A callback-free analysis scope binds
+those formals to non-forcible AnalysisBound slots and preserves original lexical
+parents and dynamic substitutions. Planner, independent Word and capture/finite
+proofs inspect supplied targets even when unused; execution always uses actual
+arguments through scope_apply_param. Native effects/runtime names are inspected
+authoritatively rather than accepted from erased summary annotations.
+
+The original resource ceilings and material ordering/context rules remain. A
+configured operator's erased origin is not guessed: every ConstBinding::Def
+target also refuses when passed explicitly. Native/builtin, higher-order target,
+recursive, overridden and unknown callbacks still refuse. Clean accepted exported
+operator-formal INSTANCE cases and previous temporal-expression2213 cases remain
+distinct. Diagnostic null-liveness helper failures retain no field/error credit.
+See `docs/temporal-operators.md` and the source-bound paired controls; no new
+ordinary scheduling, family, corpus or aggregate-memory claim is made.

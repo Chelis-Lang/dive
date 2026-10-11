@@ -1,0 +1,31 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.70s
+     Running tests/temporal_operators.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/temporal_operators-735b4238665dde24)
+
+running 3 tests
+test clean_paired_primary_models_have_final_outcomes_with_fresh_validation ... FAILED
+test unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity ... FAILED
+test retained_operator_formals_match_independent_words_and_closing_edges ... ok
+
+failures:
+
+---- clean_paired_primary_models_have_final_outcomes_with_fresh_validation stdout ----
+
+thread 'clean_paired_primary_models_have_final_outcomes_with_fresh_validation' (115248677) panicked at crates/dive-api/tests/temporal_operators.rs:166:21:
+assertion failed: matches!(e.result().verdict, dive_check::Verdict::Success)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity stdout ----
+
+thread 'unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity' (115248679) panicked at crates/dive-api/tests/temporal_operators.rs:327:9:
+assertion failed: dive_liveness::plan::lower(&model, &pred, Limits::default().formula).is_err()
+
+
+failures:
+    clean_paired_primary_models_have_final_outcomes_with_fresh_validation
+    unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p dive-api --test temporal_operators`
