@@ -120,7 +120,10 @@ All twelve runtime stages closed successfully, including 20 fixture guide routes
 at widths 1, 4 and 8. The full local gate ran 55 commands, including 1,211 tests
 with zero skipped. Runtime and gate retain committed producer `0064beb1`; the
 later Python assembler syntax repair and portable packaging carry separate
-metadata authority. The original assembler failure remains archived, and the
+metadata authority. The portable reader also checks actual admitted SANY logs
+and named-refusal classes; 31 repaired-hash semantic corruptions are rejected
+alongside a genuine read. These checks do not change runtime dispositions.
+The original assembler failure remains archived, and the
 actual repaired helper materializes all 56 `-nof` settings with exact readback.
 Selected source/driver archives are explicit rather than a hermetic environment
 or dependency closure.

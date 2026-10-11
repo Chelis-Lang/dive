@@ -1,8 +1,8 @@
 {
-  "selected": 30,
+  "selected": 32,
   "original_source_commit": "0064beb1f1ec4edc246e3b20e017cecad9a626b3",
-  "records_archive_sha256": "565d4569c2af5094c1ec9c7366e236bc7b328d95b202bf3588b83804756b56ba",
-  "script_sha256": "3028df391af1df1514d490823d15dd811308158291ad7743252b2ed57c202880",
+  "records_archive_sha256": "387aa2756698a415f81a1597eadb29ee77d92a08bb72a4eebee9c35bda376b07",
+  "script_sha256": "f16ac1116fc53b3aaa8657b7c949c8cc40c2d3e4a7b774878373ed7a24bbd4bf",
   "all_mutations_rehashed": true,
   "all_closed": true,
   "rows": [
@@ -10,7 +10,7 @@
       "control": "baseline",
       "rejected": false,
       "result": {
-        "records": 56903,
+        "records": 56915,
         "selected_source_inputs": 6542,
         "separate_external_inputs": 5058,
         "gate_commands": 55,
@@ -81,6 +81,18 @@
       "path": "final-runtime/raw-main242/report.json",
       "rejected": true,
       "diagnostic": "raw census:raw-main242"
+    },
+    {
+      "control": "raw-internal-error-refusal",
+      "path": "final-runtime/raw-main242/report.json",
+      "rejected": true,
+      "diagnostic": "raw named refusal"
+    },
+    {
+      "control": "public-refusal-internal-error",
+      "path": "final-runtime/public-main242/MultipleOwner_C_duplicate_procedure_dive.native.stdout.gz",
+      "rejected": true,
+      "diagnostic": "public document claims"
     },
     {
       "control": "public-skip",

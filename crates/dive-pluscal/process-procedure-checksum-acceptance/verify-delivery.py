@@ -72,6 +72,8 @@ def verify(base, binaries=None):
             out=row.get('document')
             if row['outcome']=='command-rejection-uncredited':need(out is None,'command rejection credited');continue
             need(out['artifact_admitted'] is False and out['model_proved'] is False and out.get('exhaustive',False) is False,'raw false proof')
+            if row['outcome']=='named-refusal':
+                error=out['checksum']['Err']['diagnostic'];need(error['code']=='Unsupported' and isinstance(error['message'],str) and bool(error['message']), 'raw named refusal')
             if row['outcome'] in ['exact-raw-ast','primary-invalid-raw-uncredited']:
                 v=out['checksum']['Ok'];n=row['id'];need(v['serialized_ast'].encode()==records[reference+'/primary/'+n+'.translated.ast'] and v['checksum']==by[n]['stages']['translated']['crc'], 'raw header exactness')
     for folder,total,expected in [('public-main242',484,{'admitted-exact-cst-sany-validator':404,'named-public-refusal':48,'rejection-accounted':20,'command-rejection-uncredited':4,'invalid-primary-uncredited':8}),('public-none56',112,{'admitted-exact-cst-sany-validator':112})]:
@@ -81,7 +83,7 @@ def verify(base, binaries=None):
         for row in r['rows']:
             if row['outcome']=='command-rejection-uncredited':continue
             stream=packed('final-runtime/'+folder+'/'+row['id']+'.native.stdout.gz');out=json.loads(stream)
-            need(sha(stream)==row['native']['stdout_sha256'] and out['model_proved'] is False and out['exhaustive'] is False and out['profile']==row['profile'], 'public document claims')
+            need(sha(stream)==row['native']['stdout_sha256'] and out['model_proved'] is False and out['exhaustive'] is False and out['profile']==row['profile'] and out['exit_code']==row['native']['exit_code'] and out['result']!='internal-error', 'public document claims')
             if row['outcome']=='admitted-exact-cst-sany-validator':
                 need(out['accepted'] and out['result']=='replacement' and out['algorithm_checksum_verified'] and out['body_checksum_verified'] and row['native']['exit_code']==0 and row['validator']=={'configured':'[NO_DIVERGENCE]','unconfigured':'[NO_DIVERGENCE]'}, 'public artifact admission')
                 need(refs[row['source_id']]['sany']['accepted'] is True, 'primary SANY admission')
@@ -97,7 +99,7 @@ def verify(base, binaries=None):
                          not any(marker in sany for marker in [b'Semantic errors:',b'Fatal errors:',b'Parsing aborted',b'*** Errors:']), 'actual admitted SANY:'+label)
                 for suffix in ['native-configured','native-unconfigured']:
                     need(re.search(rb'VALIDATION\t([^\r\n]*)', packed(stem+'.'+suffix+'.stdout.gz'))[1]==b'[NO_DIVERGENCE]','actual Validator')
-            else:need(out['accepted'] is False and row['native']['exit_code']!=0,'refusal credited')
+            else:need(out['accepted'] is False and out['result'] in ['unsupported','rejected'] and row['native']['exit_code'] in [1,3] and out.get('replacement') is None,'refusal credited')
     models=doc('final-runtime/models/report.json');selection=doc('reference/model-selection.json')
     need(models['selected']==len(models['rows'])==308 and models['selected_source_ids']==selection['source_ids'] and len(selection['source_ids'])==154 and models['worker_store_controls']==3696 and models['valid_witness_controls']==0 and models['rejected_mutants']==616 and not models['family_certified'], 'finite model census')
     need({r['id'] for r in models['rows']}=={n+suffix for n in selection['source_ids'] for suffix in ['.complete','.violation']}, 'finite selection complete')

@@ -13,7 +13,7 @@
     {
       "path": "crates/dive-pluscal/process-procedure-checksum-acceptance/README.md",
       "before_sha256": "abe901a9df9e2a33bd95e2697811ebeb7b577d072334bb9d2a52e3b292c8cfd1",
-      "after_sha256": "946d1a58462755c4aee9af40711973528c40f593cbac01c9118ce764f288ea57",
+      "after_sha256": "180ad8cfcfce6e41784b6febf288992c7137cdb7a916a932ffc3eeddb50adb23",
       "Rust_Cargo_changed": false
     },
     {
@@ -31,7 +31,7 @@
     {
       "path": "docs/pluscal-process-procedure-checksums.md",
       "before_sha256": "b69bd84655a0998768608abbe0c5fcb049e5464a616f68cc0ee212895629c946",
-      "after_sha256": "cdb648b3336c978192933792cb442360b815209c07b815bc296a5f565cedabb7",
+      "after_sha256": "5c46cb4ffb4e88fe39a6a9acbf49e32d043f411117e3967a071994cc91aacc84",
       "Rust_Cargo_changed": false
     },
     {
@@ -126,7 +126,13 @@
       "qualification": "Generated current authority after qualified packaging-only changes; exact new bytes checked by native integration guard. After hash not copied into an input that this map itself hashes."
     }
   ],
-  "closed_semantic_controls": 30,
-  "rehashed_semantic_mutations_rejected": 29,
-  "SANY_reader_extension": "Post-review reader verifies primary manifest acceptance and actual admitted native/primary SANY logs; both rehashed semantic-error stream mutations reject. Prior27-reader epoch remains archived with its narrower qualification."
+  "closed_semantic_controls": 32,
+  "rehashed_semantic_mutations_rejected": 31,
+  "SANY_reader_extension": "Post-review reader verifies primary manifest acceptance and actual admitted native/primary SANY logs; both rehashed semantic-error stream mutations reject. Prior27-reader epoch remains archived with its narrower qualification.",
+  "named_refusal_reader_extension": {
+    "prior_metadata_commit": "4579b9adec111594ad9537a9f390afdf19d9e7ef",
+    "original_reader_retained": "reader-before-refusal-proof/verify-delivery.py",
+    "prior_scope_receipt": "reader-before-refusal-proof/qualification.json",
+    "qualification": "After all four prior post-packaging guard stages closed, public document/captured exit equality and unsupported/rejected exit1/3 without replacement/internal-error were independently required. Raw named refusals require an actual nonempty Unsupported diagnostic. Two rehashed semantic mutations reject after inner capture hashes and public recorded exit were repaired. Frozen native0064/source/runtime/gate unchanged."
+  }
 }

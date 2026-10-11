@@ -21,6 +21,8 @@ change('runtime-command-failure','final-runtime/campaign.json',lambda x:x['rows'
 change('main-raw-false-proof','final-runtime/raw-main242/report.json',lambda x:x['rows'][0]['document'].__setitem__('model_proved',True))
 change('raw-header-guess','final-runtime/raw-main242/report.json',lambda x:x['rows'][0]['document']['checksum']['Ok'].__setitem__('checksum','00000000'))
 change('raw-refusal-credit','final-runtime/raw-main242/report.json',lambda x:x['summary'].__setitem__('exact-raw-ast',242))
+change('raw-internal-error-refusal','final-runtime/raw-main242/report.json',lambda x:next(r for r in x['rows']if r['outcome']=='named-refusal')['document']['checksum']['Err']['diagnostic'].__setitem__('code','Internal'))
+change('public-refusal-internal-error','final-runtime/public-main242/MultipleOwner_C_duplicate_procedure_dive.native.stdout.gz',lambda x:x.update(result='internal-error',exit_code=4),True)
 change('public-skip','final-runtime/public-main242/report.json',lambda x:x['rows'].pop())
 change('public-false-proof','final-runtime/public-main242/MultipleHeader_C_both_dive.native.stdout.gz',field('model_proved',True),True)
 change('public-false-exhaustive','final-runtime/public-main242/MultipleHeader_C_both_dive.native.stdout.gz',field('exhaustive',True),True)
@@ -56,7 +58,9 @@ for label,path,fn,packed in controls:
         report=json.loads(base64.b64decode(original[by[report_path]]['data']))
         identity=Path(path).name
         for row in report['rows']:
-            if identity==row['id']+'.native.stdout.gz':row['native']['stdout_sha256']=sha(gzip.decompress(data))
+            if identity==row['id']+'.native.stdout.gz':
+                row['native']['stdout_sha256']=sha(gzip.decompress(data))
+                if packed is True and 'exit_code'in obj:row['native']['exit_code']=obj['exit_code']
             if identity==row['id']+'.stdout.gz' and 'stdout_sha256'in row:row['stdout_sha256']=sha(gzip.decompress(data))
             for setting in row.get('settings',[]):
                 if setting['capture']['stdout']['path']==identity:setting['capture']['stdout']['sha256']=sha(gzip.decompress(data))

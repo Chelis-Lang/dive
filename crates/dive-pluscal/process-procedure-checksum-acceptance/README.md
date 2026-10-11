@@ -77,5 +77,10 @@ source identity and incomplete archive qualification; no final-source credit.
 `python3 -I crates/dive-pluscal/process-procedure-checksum-acceptance/verify-delivery.py`
 checks exact bytes and meaningful dispositions without Java or a build;
 `--binaries <immutable-directory>` additionally reads back all five clients.
-`test-delivery.py` rehashes corrupted semantic claims to test fail-closed reading.
+`test-delivery.py` closes one genuine read and 31 rehashed semantic corruption
+controls. Admitted artifacts require actual native/primary SANY logs and primary
+manifest acceptance. Named refusals require typed unsupported/rejected status,
+matching document/captured exit and no replacement/internal error; raw checksum
+refusals require an actual Unsupported diagnostic. Earlier narrower reader
+authorities and their closed checks remain archived separately.
 Historical capture packs and their selection authority remain unchanged.
