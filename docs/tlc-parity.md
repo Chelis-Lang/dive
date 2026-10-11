@@ -675,3 +675,15 @@ controls and rejects altered words, while conditional tuple permutations retain
 strict refusal. The separate generated procedure study admits 32/32
 strict words at the archived producer; general runtime-name and stack provenance
 remain pending. No family certification or denominator changes.
+
+## Current combined core receiver
+
+The integration source composes the qualified request-service, producer-owned
+candidate, P elsif and disjoint-procedure checksum, ordinary disk seen-state
+safety, and fixed tuple-projection replay increments. Each component retains its
+original source and runtime identity. The archived receiving epoch `2bff2728`
+predates these additions: its full gate and runtime are historical evidence,
+not qualification of the new combined source. A new immutable producer, full
+workspace gate and fresh affected runtime campaign are required before this
+receiver can ship. F-023 and F-031 remain partial or missing as recorded in the
+ledger; source composition does not certify them.

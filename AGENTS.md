@@ -165,6 +165,7 @@ cargo fmt --all --check
 python3 scripts/test-validation-import.py
 python3 -I scripts/check-inductive-tuple-replay.py
 python3 -I scripts/check-fixed-tuple-projection.py
+python3 -I scripts/check-core-prefix-storage-integration.py
 python3 -I scripts/test-frontend-campaign.py
 python3 -I scripts/check-tlc-final-safety.py
 python3 -I scripts/check-tlc-state-if.py
@@ -195,6 +196,11 @@ python3 -I scripts/check-tuple-only-replay.py
 python3 -I scripts/check-committed-prefix.py
 python3 -I scripts/check-request-owned-service.py
 python3 -I scripts/check-producer-owned-candidate.py
+python3 -I scripts/check-fallible-seen-engine.py
+python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
+python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
+python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
+python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

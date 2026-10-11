@@ -7,7 +7,7 @@
   "scope": "Private source-selected request/EOF candidate admission with original-value fingerprint audit and fresh independent memory/JSON validation. No ordinary clock/queue/count/verdict/family certificate.",
   "source_sha256": {
     "crates/dive-api/Cargo.toml": "bc9e6e1660bf0d71eba2738b3aba3b6d980e908ab6925dbcc38ddba8e2029090",
-    "crates/dive-api/src/lib.rs": "0a210d7ba71183ea9c5910f32e1e4e624738cf0b80515e9fb9e5b3fa068e60f8",
+    "crates/dive-api/src/lib.rs": "ea7a9ea09b78bedb147aa962cba7a7b5ce6ab78086a166111054ff5dd6ed96c5",
     "crates/dive-api/src/periodic_candidate.rs": "a06cf7284b3c280e5ba38a0965bea40ca20079f5ce47a818827b85518d593204",
     "crates/dive-api/src/periodic_candidate_word.rs": "f7fa91df45978eec384a3ed4352efeb42af0371649ee64d6d1b15c5f8a5cf190",
     "crates/dive-api/tests/periodic_candidate.rs": "3b928e4628dd8817896c1c9c7ed65f6a2e9a74edef0354512cfab7ce65da3b9f",
@@ -20,8 +20,9 @@
     "docs/producer-owned-temporal-candidate.md": "53f4b758f1cfba9da016c5054fb08aa9648b2aa485b0ebce9b435623ef0faa6d",
     "docs/decisions/0070-producer-owned-candidate-admission.md": "3f98cee35bb2ccff842f1afe6977dda9b2606a520604f1b23618e0d34c0fc454",
     "scripts/check-producer-owned-candidate.py": "a7af848ec98959f6f99820c1147825cd5eecaf8f3a974a8e3fd57bc9f3613033",
-    "AGENTS.md": "e2a564cf8b02c62a1f392e08b72413c48017f25b521f1f4696baf906e004d0e1",
-    ".github/workflows/ci.yml": "c7ea826f8e0f0be8cfbc7e34131e0efc5114ad09293924172814a3b26641a288",
-    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
-  }
+    "AGENTS.md": "554405ad999e5f5dd2e0a1b46150fa3bab5a94fab8620986bbeec617cfc96e11",
+    ".github/workflows/ci.yml": "74d178605024702b552bf5bc4f59c940430dd31ebdc94bef6e431565a7a6e9bf",
+    "conformance/parity-features.json": "8574020481fd3987636f5f5dbd3e80d03bf0f8833d31037f2c64ce7cdbe2cb92"
+  },
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

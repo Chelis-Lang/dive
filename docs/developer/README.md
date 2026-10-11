@@ -29,4 +29,8 @@ source callback and graph contract, independently of the exposed final/short mod
 
 - [Configured periodic snapshot](../configured-periodic-snapshot.md): original configured/selected body identities, callback-free prebinding policy and ADR 0057; ordinary schedule authority remains unfinished.
 
-[Producer request/claim quiescence](../producer-progress-requests.md), [ADR 0059](../decisions/0059-producer-progress-requests.md) and [complete actual method controls](../../conformance/probes/progress-queue/README.md) track #201; contiguous-prefix graph publication remains the next production obligation.
+[Producer request/claim quiescence](../producer-progress-requests.md), [ADR 0059](../decisions/0059-producer-progress-requests.md) and [complete actual method controls](../../conformance/probes/progress-queue/README.md) track the original #201 boundary. The [committed-prefix guide](../committed-periodic-prefix.md),
+[request-service guide](../request-owned-periodic-service.md) and
+[candidate-admission guide](../producer-owned-temporal-candidate.md) characterize
+the subsequent implemented diagnostic stages. Ordinary scheduling, stopping
+counts and temporal completion remain separate unfinished obligations.

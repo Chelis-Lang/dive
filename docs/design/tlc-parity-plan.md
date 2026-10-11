@@ -160,3 +160,16 @@ ADR0059 implements a bounded diagnostic claim barrier and actual joined pause, n
 #208 adds request-owned whole-prefix/empty controller service after real frontier append, with distinct request/source/EOF facts and unchanged ordinary refusal. The next proof boundary remains actual asynchronous request/queue/stop/count/checkpoint composition plus independent deciding witness admission; controlled method observations and partial success do not certify F-023.
 
 #213 supplies the independent deciding-word prerequisite through a privately owned configuration/request run and original source retention. Fresh binding rehomes material atoms before memory replay; separately parsed JSON binds again. Remaining ordinary scheduling proof must still establish request/clock/queue ordering, stop/error/count/checkpoint/end composition. No candidate API input can supply a graph, fingerprint representative, witness, Valid result or clock, and no result certifies model completion.
+
+### Ordinary disk safety role continuation
+
+Issue #221 extends the fallible ordinary seen-store route to pure safety
+`PROPERTY` and `SPECIFICATION` decomposition through the actual shared binder.
+The initial ADR0068 scope remains the immutable INIT/NEXT evidence. Admission
+must inspect original source/context before startup effects and preserve role,
+ASSUME, error and output precedence; a supplied predicate or guessed TRUE body
+is not decomposition authority. Temporal obligations, capture, recovery and
+unproved effects continue to refuse. The declared matrix, resident/pinned
+counterparts, two profiles/stores, widths and tiny-budget interactions require
+fresh native CLI and public API evidence, independently validated witnesses
+and same-delivery user documentation. This continuation does not certify F-031.

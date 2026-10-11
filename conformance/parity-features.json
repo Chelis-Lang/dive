@@ -966,7 +966,9 @@
         128,
         144,
         205,
-        212
+        212,
+        217,
+        221
       ],
       "acceptance": "Tiny-budget forced spill equals in-memory runs for values, counts, stop order and traces; resource failure is explicit with truthful partial evidence. Delivered safety frontier and separately budgeted predecessor log: both profiles/stores, ordered witnesses, tiny budgets and explicit filesystem failure; parallel seen/candidate/graph/SCC spill and broader recovery remain pending; reconstructed paths are outside the retained-record budget.",
       "interactions": [

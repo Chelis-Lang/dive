@@ -68,7 +68,8 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: unproved recursive/process-owned or virtual-elsif-transfer procedure ASTs,
+translation: unproved recursive/process-owned procedure checksum ASTs and elsif shapes
+outside the bounded [P elsif contract](../pluscal-p-elsif-checksums.md),
 macro substitution/renaming shapes beyond the [bounded macro Full contract](../pluscal-macro-checksums.md),
 unproved source-option declarations and layout/name-fix shapes may translate
 successfully while an editing request explicitly refuses. Bounded ordinary and nested shared-vector procedure calls have their own
@@ -129,8 +130,9 @@ and scoped checksum shapes remain separate named boundaries.
 For the newly bounded nested sequential call/return header shapes, use the
 [nested procedure checksum guide](../pluscal-nested-procedure-checksums.md). It
 distinguishes exact stored-header bytes, admitted generated modules and finite
-model/trace evidence. Multiline procedure layouts and unproved P `elsif` transfers
-remain named checksum/generation refusals; strict saved-frame replay remains
+model/trace evidence. Procedure layouts and transfers outside that guide and the bounded
+[P elsif editor](../pluscal-p-elsif-checksums.md) remain named refusals; strict
+saved-frame replay remains
 separately qualified under #124.
 
 For bounded sequential procedure `elsif` header editing, see

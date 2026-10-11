@@ -10,10 +10,10 @@
     "crates/dive-liveness/Cargo.toml": "589d0af0087bfa40514295114a88efad1bb4bd2204761c44ee3473c59ea04ea5",
     "crates/dive-check/src/progress.rs": "5eb33ca05e070773e584ddef66d491ea9855c71c5a25cdc98a8fcc17b9a34db3",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "2abf4107947b699b4a352bb3bb02816df68ee5dd9789249cfc13e15bf1663b71",
+    "crates/dive-check/src/capture.rs": "ee7329996bc125eed385d92d574ede810e41c5bd8eec21ef212b45277469d6f4",
     "crates/dive-check/src/parallel.rs": "c6868293ee7c4d69f743af5502499d5f6c25ea52575d993c638a291fa7d41b12",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
-    "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
+    "crates/dive-liveness/src/lib.rs": "8bc4dfd0daee87e938e55dedb92660c8b5ed099982cbba3334186e38057a6c53",
     "crates/dive-liveness/src/periodic_service.rs": "65e1447989436c78e63019ee79ec30f45dfc9166a33a08737b2ac5df2786293b",
     "crates/dive-liveness/src/periodic_lifecycle.rs": "40618abeddcf9b551bcf7bdf9dd74d4a3a93ded673e8e9cdf92d2ace9d87000c",
     "crates/dive-liveness/src/periodic_snapshot.rs": "ed0757c8cf8a77db068b5c54790514bf406dc859cd66d75d6d218078d8560288",
@@ -25,9 +25,9 @@
     "docs/request-owned-periodic-service.md": "118cd07e75691a2afe8499e6ce33047b16d59c5a8b3ce0c1764e3d2eafcb5dea",
     "docs/decisions/0065-request-owned-periodic-service.md": "d3d831081e5f0d7cb83aa332a82d23eb2d87a6fa89e9b3ac8c5cb6325117f44f",
     "scripts/check-request-owned-service.py": "3cdccc2ec16b90b9127adf4eca8aed568c101b76faa34b6cc9af39b575c2b96b",
-    "AGENTS.md": "e2a564cf8b02c62a1f392e08b72413c48017f25b521f1f4696baf906e004d0e1",
-    ".github/workflows/ci.yml": "c7ea826f8e0f0be8cfbc7e34131e0efc5114ad09293924172814a3b26641a288",
-    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
+    "AGENTS.md": "554405ad999e5f5dd2e0a1b46150fa3bab5a94fab8620986bbeec617cfc96e11",
+    ".github/workflows/ci.yml": "74d178605024702b552bf5bc4f59c940430dd31ebdc94bef6e431565a7a6e9bf",
+    "conformance/parity-features.json": "8574020481fd3987636f5f5dbd3e80d03bf0f8833d31037f2c64ce7cdbe2cb92"
   },
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }
