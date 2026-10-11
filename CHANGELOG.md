@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- Full PlusCal editing derives exact header AST/CRC for proved nested sequential
+  procedure If/With/Either/While transfers, with bounded typed expansion and
+  separate artifact/model/replay qualifications (ADR 0061).
 - Bounded Full PlusCal editing now derives exact header AST checksums for one
   disjoint labelled sequential procedure, with ordinary calls/returns and
   call-goto. Nested transfers and wider ownership remain named checksum

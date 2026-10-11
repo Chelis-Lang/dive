@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "Relation.tla": "396cfc86672145d54002f6052b0fcfcfc3802bc3294520b4d8add6d91e9504a5",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "6990d238a8e8d47dd14b4530bfcbbee16080573221e3d25181a87dda320ab1a9",
+  "capture_sha256": "244a639d8e4fa69d52258f57a96d837ba0a66c50c76a4409c5a94dda4795ca63",
+  "adapter_sha256": {
+    "DefinitionProbe.class": "cff461fd85e24923876b2fded1c11969ef2c96ecad357fb7400d4fa5977a7337",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "NestedProcedureChecksum_C",
+      "flags": [],
+      "input_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c",
+      "output_sha256": "84e26eae41781937948f21780506309b1fb86bdb3080e99389478df1d7ab2916",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_C.primary.stdout.gz",
+          "sha256": "41e0abe03affb2d1f3b38e2e86e3528de7c2e7eb74206ee0202b0e394aa810c7"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_C.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "434b066c",
+        "67bc3cf8"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_C.stages.stdout.gz",
+          "sha256": "9cc621d73b334b7f82a514fc16931151d2aa748a15a8c4ddf3a879642c9b8ed6"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_C.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "b0dbbf86",
+          "ast_sha256": "93293b7a28bcec945c589a094876d7e46666c2783216119eaf3e8baff990e5be",
+          "json_sha256": "4313d7f49eb3b8dccf2b8257f6f5be66162e7b7b643eba0c6678eb3028278661"
+        },
+        "names": {
+          "crc": "b0dbbf86",
+          "ast_sha256": "93293b7a28bcec945c589a094876d7e46666c2783216119eaf3e8baff990e5be",
+          "json_sha256": "4313d7f49eb3b8dccf2b8257f6f5be66162e7b7b643eba0c6678eb3028278661"
+        },
+        "translated": {
+          "crc": "434b066c",
+          "ast_sha256": "d3bc2b35d0e7f58db4b5493831974853295a2f08eb466cbcf31ae8c7dce16795",
+          "json_sha256": "48f51bfa25cd812cd9d52a9d704f877d4027d28e0d623efc36da9865ea1fb689"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_C.sany.stdout.gz",
+          "sha256": "c3c45dea6428936471435dad7ede729136111919a7f23049950599e206aa1d4f"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_C.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "NestedProcedureChecksum_C.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "NestedProcedureChecksum_P",
+      "flags": [],
+      "input_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9",
+      "output_sha256": "e4d28dfe2e5d1e1c3b36c279f0f33e66521857845d7ee6bfbe127f8b71a4656b",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_P.primary.stdout.gz",
+          "sha256": "2faf81a2fb9d80b604253ad59c91b605eb349c3ee1a69279d77d85642b55ed23"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_P.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "434b066c",
+        "67bc3cf8"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_P.stages.stdout.gz",
+          "sha256": "0d0d191b0dcb540ac22b50bfab5e9cefe2b1f532f6d2a9960d23a935da05fd74"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_P.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "b0dbbf86",
+          "ast_sha256": "93293b7a28bcec945c589a094876d7e46666c2783216119eaf3e8baff990e5be",
+          "json_sha256": "104f3021677dc98f1b287bdff12174aa7bc5522090208a440db326fb7decb4f7"
+        },
+        "names": {
+          "crc": "b0dbbf86",
+          "ast_sha256": "93293b7a28bcec945c589a094876d7e46666c2783216119eaf3e8baff990e5be",
+          "json_sha256": "104f3021677dc98f1b287bdff12174aa7bc5522090208a440db326fb7decb4f7"
+        },
+        "translated": {
+          "crc": "434b066c",
+          "ast_sha256": "d3bc2b35d0e7f58db4b5493831974853295a2f08eb466cbcf31ae8c7dce16795",
+          "json_sha256": "46af3ff12c90fc95130eb7cd6f3d7c868eaf48e744e77d3a8cc15e2d1009ee1e"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "NestedProcedureChecksum_P.sany.stdout.gz",
+          "sha256": "4b2b74f2f3b769670064fd2a32391a1fc73045bb36ca10e90640961bac8d48e0"
+        },
+        "stderr": {
+          "path": "NestedProcedureChecksum_P.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "NestedProcedureChecksum_P.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

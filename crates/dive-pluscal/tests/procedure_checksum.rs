@@ -72,11 +72,11 @@ fn all_declared_procedure_rows_preserve_exact_bytes_or_named_boundaries()
         }
     }
     assert_eq!(rows.len(), 132);
-    assert_eq!(census, [84, 2, 30, 16]);
+    assert_eq!(census, [90, 2, 24, 16]);
     Ok(())
 }
 #[test]
-fn nested_transfer_and_tiny_ast_budgets_never_produce_a_partial_crc()
+fn nested_transfer_promotions_preserve_pin_and_tiny_budgets_never_produce_partial_crc()
 -> Result<(), Box<dyn std::error::Error>> {
     let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("procedure-checksum-acceptance/cases");
     for syntax in ["C", "P"] {
@@ -84,15 +84,17 @@ fn nested_transfer_and_tiny_ast_budgets_never_produce_a_partial_crc()
             let source =
                 std::fs::read_to_string(base.join(format!("ProcedureCrc_{syntax}_{shape}.tla")))?;
             let selected = select_rewrite(&source, &RewriteOptions::default())?;
-            let error = algorithm_checksum_at(
+            let checksum = algorithm_checksum_at(
                 &source,
                 selected.algorithm.start..selected.algorithm.end,
                 &TranslationOptions::default(),
-            )
-            .err()
-            .ok_or("nested mutation unexpectedly admitted")?;
-            assert_eq!(error.diagnostic.code, Code::Unsupported);
-            assert!(error.diagnostic.message.contains("shared AST mutation"));
+            )?;
+            assert_eq!(
+                checksum.serialized_ast,
+                std::fs::read_to_string(base.parent().ok_or("missing parent")?.join(format!(
+                    "primary/ProcedureCrc_{syntax}_{shape}.translated.ast"
+                )))?
+            );
         }
         let source =
             std::fs::read_to_string(base.join(format!("ProcedureCrc_{syntax}_basic.tla")))?;

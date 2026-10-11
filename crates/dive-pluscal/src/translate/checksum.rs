@@ -25,7 +25,7 @@ pub struct AlgorithmChecksum {
     /// Requested and effective settings used for exact AST serialization.
     pub option_context: super::TranslationContext,
 }
-fn unsupported(span: Span, detail: &str) -> TranslationError {
+pub(super) fn unsupported(span: Span, detail: &str) -> TranslationError {
     error(
         TranslationStage::Normalization,
         Code::Unsupported,
@@ -34,7 +34,7 @@ fn unsupported(span: Span, detail: &str) -> TranslationError {
     )
 }
 type Groups = Vec<(String, Vec<StmtId>)>;
-fn flatten(
+pub(super) fn flatten(
     parsed: &macros::Expanded,
     ids: &[StmtId],
     span: Span,
@@ -61,7 +61,7 @@ fn flatten(
     }
     Ok(flat)
 }
-fn groups(
+pub(super) fn groups(
     parsed: &macros::Expanded,
     block: &Block,
 ) -> Result<(Vec<StmtId>, Groups), TranslationError> {
@@ -92,7 +92,7 @@ fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), Transla
             "procedure/process checksum ownership",
         ));
     };
-    let mut top_level_transfers = std::collections::BTreeSet::new();
+
     for (block, procedure_body) in [(main, false), (&procedure.body, true)] {
         let (_, labelled) = groups(parsed, block)?;
         for (_, ids) in labelled {
@@ -112,19 +112,6 @@ fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), Transla
                     "multiple sequential procedure assignments within one source label",
                 ));
             }
-            top_level_transfers.extend(ids.iter().map(|id| id.0));
-        }
-    }
-    for (index, statement) in parsed.statements.iter().enumerate() {
-        if matches!(
-            statement.kind,
-            StatementKind::Call { .. } | StatementKind::Return
-        ) && !top_level_transfers.contains(&index)
-        {
-            return Err(unsupported(
-                statement.span,
-                "nested call/return shared AST mutation",
-            ));
         }
     }
     Ok(())
@@ -176,6 +163,7 @@ struct Writer {
     limit: usize,
     span: Span,
     procedure_owner: Option<String>,
+    header: super::checksum_transfers::Plan,
 }
 impl Writer {
     fn push(&mut self, text: &str) -> Result<(), TranslationError> {
@@ -395,6 +383,121 @@ impl Writer {
         self.push(">>")?;
         self.end();
         Ok(())
+    }
+    fn header_empty(
+        &mut self,
+        parsed: &macros::Expanded,
+        key: (usize, usize),
+    ) -> Result<(), TranslationError> {
+        if let Some(nodes) = self.header.blocks.remove(&key) {
+            let result = self.header_nodes(parsed, &nodes);
+            self.header.blocks.insert(key, nodes);
+            result
+        } else {
+            self.sequence::<StmtId>(&[], |_, _| Ok(()))
+        }
+    }
+    fn header_block(
+        &mut self,
+        parsed: &macros::Expanded,
+        block: &Block,
+        key: (usize, usize),
+    ) -> Result<(), TranslationError> {
+        let flat = flatten(parsed, &block.statements, block.span)?;
+        if flat
+            .iter()
+            .any(|id| parsed.statement(*id).is_none_or(|s| s.label.is_some()))
+        {
+            return Err(unsupported(block.span, "branch-internal labelled AST"));
+        }
+        if let Some(nodes) = self.header.blocks.remove(&key) {
+            let result = self.header_nodes(parsed, &nodes);
+            self.header.blocks.insert(key, nodes);
+            result
+        } else {
+            self.plain_block(parsed, block)
+        }
+    }
+    fn header_nodes(
+        &mut self,
+        parsed: &macros::Expanded,
+        nodes: &[super::checksum_transfers::Node],
+    ) -> Result<(), TranslationError> {
+        use super::checksum_transfers::Node;
+        self.sequence(nodes, |writer, node| match node {
+            Node::Source(id) => writer.statement(parsed, *id),
+            Node::Assign(assignments) => {
+                writer.push("[type |-> \"assignment\",")?;
+                writer.newline()?;
+                writer.indent(" ass  |-> ")?;
+                writer.sequence(assignments, |w, assignment| {
+                    w.push("[lhs |-> [var |-> \"")?;
+                    w.push(&assignment.variable)?;
+                    w.push("\", sub |-> <<  >>],")?;
+                    w.newline()?;
+                    w.push(" rhs |-> ")?;
+                    w.header_rhs(parsed, &assignment.rhs)?;
+                    w.push("]")
+                })?;
+                writer.push("]")?;
+                writer.end();
+                Ok(())
+            }
+        })
+    }
+    fn header_token(&mut self, token: &str, quoted: bool) -> Result<(), TranslationError> {
+        if quoted {
+            self.push("\"\\\"\", \"")?;
+            self.push(token)?;
+            self.push("\", \"\\\"\"")
+        } else {
+            self.push("\"")?;
+            if token.starts_with('\\') {
+                self.push("\\")?;
+            }
+            self.push(token)?;
+            self.push("\"")
+        }
+    }
+    fn header_rhs(
+        &mut self,
+        parsed: &macros::Expanded,
+        rhs: &super::checksum_transfers::Rhs,
+    ) -> Result<(), TranslationError> {
+        use super::checksum_transfers::Rhs;
+        match rhs {
+            Rhs::Source(Some(expression)) => self.expression(parsed, Some(*expression)),
+            Rhs::Source(None) => self.push("<< \"defaultInitValue\" >>"),
+            Rhs::Quoted(value) => {
+                self.push("<< ")?;
+                self.header_token(value, true)?;
+                self.push(" >>")
+            }
+            Rhs::Head(slot) => {
+                self.push("<< \"Head\", \"(\", \"stack\", \")\", \".\", ")?;
+                self.header_token(slot, false)?;
+                self.push(" >>")
+            }
+            Rhs::Tail => self.push("<< \"Tail\", \"(\", \"stack\", \")\" >>"),
+            Rhs::Frame(next) => {
+                let procedure = parsed
+                    .algorithm
+                    .procedures
+                    .first()
+                    .ok_or_else(|| unsupported(self.span, "missing frame owner"))?;
+                self.push("<< \"<<\", \"[\", \"procedure\", \"|->\", ")?;
+                self.header_token(&procedure.name.text, true)?;
+                self.push(", \",\"\n, \"pc\", \"|->\", ")?;
+                self.header_token(next, true)?;
+                for slot in procedure.variables.iter().chain(&procedure.parameters) {
+                    self.push(", \",\"\n, ")?;
+                    self.header_token(&slot.name.text, false)?;
+                    self.push(", \"|->\", ")?;
+                    self.header_token(&slot.name.text, false)?;
+                }
+                self.push(", \"]\", \">>\"\n, \"\\\\o\", \"stack\" >>")
+            }
+        }
     }
     fn quoted_labels(&mut self, labels: &[&Label], modifier: char) -> Result<(), TranslationError> {
         self.indent("<<")?;
@@ -669,7 +772,7 @@ impl Writer {
             StatementKind::If {
                 branches,
                 otherwise,
-            } => self.if_branches(parsed, branches, otherwise.as_ref()),
+            } => self.if_branches(parsed, id, branches, otherwise.as_ref()),
             StatementKind::Either(blocks) => {
                 self.push("[type |-> \"either\", ")?;
                 self.newline()?;
@@ -680,7 +783,7 @@ impl Writer {
                         self.push(", ")?;
                         self.newline()?;
                     }
-                    self.plain_block(parsed, block)?;
+                    self.header_block(parsed, block, (id.0, i))?;
                 }
                 self.push(" >>")?;
                 self.end();
@@ -688,7 +791,9 @@ impl Writer {
                 self.end();
                 Ok(())
             }
-            StatementKind::With { bindings, body } => self.with_bindings(parsed, bindings, body),
+            StatementKind::With { bindings, body } => {
+                self.with_bindings(parsed, id, bindings, body)
+            }
             StatementKind::While { test, body } => {
                 let (unlabelled, labelled) = groups(parsed, body)?;
                 self.push("[type    |-> \"while\", ")?;
@@ -703,18 +808,6 @@ impl Writer {
                 self.end();
                 self.newline()?;
                 self.indent(" unlabDo |-> ")?;
-                if !parsed.algorithm.procedures.is_empty()
-                    && unlabelled.iter().any(|id| {
-                        parsed.statement(*id).is_some_and(|s| {
-                            matches!(s.kind, StatementKind::Call { .. } | StatementKind::Return)
-                        })
-                    })
-                {
-                    return Err(unsupported(
-                        body.span,
-                        "nested loop call/return AST mutation",
-                    ));
-                }
                 self.statements(parsed, &unlabelled)?;
                 self.push("]")?;
                 self.end();
@@ -729,6 +822,7 @@ impl Writer {
     fn if_branches(
         &mut self,
         parsed: &macros::Expanded,
+        id: StmtId,
         branches: &[Branch],
         otherwise: Option<&Block>,
     ) -> Result<(), TranslationError> {
@@ -743,7 +837,7 @@ impl Writer {
             self.push(",")?;
             self.newline()?;
             self.indent(" then |-> ")?;
-            self.plain_block(parsed, &branch.body)?;
+            self.header_block(parsed, &branch.body, (id.0, 0))?;
             self.push(",")?;
             self.end();
             self.newline()?;
@@ -751,9 +845,9 @@ impl Writer {
             if index + 1 < branches.len() {
                 self.indent("<<")?;
             } else if let Some(block) = otherwise {
-                self.plain_block(parsed, block)?;
+                self.header_block(parsed, block, (id.0, 1))?;
             } else {
-                self.sequence::<StmtId>(&[], |_, _| Ok(()))?;
+                self.header_empty(parsed, (id.0, 1))?;
             }
         }
         for index in (0..branches.len()).rev() {
@@ -769,6 +863,7 @@ impl Writer {
     fn with_bindings(
         &mut self,
         parsed: &macros::Expanded,
+        id: StmtId,
         bindings: &[WithBinding],
         body: &Block,
     ) -> Result<(), TranslationError> {
@@ -798,7 +893,7 @@ impl Writer {
             if index + 1 < bindings.len() {
                 self.indent("<<")?;
             } else {
-                self.plain_block(parsed, body)?;
+                self.header_block(parsed, body, (id.0, 0))?;
             }
         }
         for index in (0..bindings.len()).rev() {
@@ -822,21 +917,6 @@ impl Writer {
             .any(|id| parsed.statement(*id).is_none_or(|s| s.label.is_some()))
         {
             return Err(unsupported(block.span, "branch-internal labelled AST"));
-        }
-        if !parsed.algorithm.procedures.is_empty()
-            && flat.iter().any(|id| {
-                parsed.statement(*id).is_some_and(|s| {
-                    matches!(s.kind, StatementKind::Call { .. } | StatementKind::Return)
-                })
-            })
-        {
-            // Explode mutates shared unlabelled branch vectors in the original
-            // header AST. Top-level calls stay source nodes; nested transfers
-            // require separately proved synthetic-expression serialization.
-            return Err(unsupported(
-                block.span,
-                "nested call/return shared AST mutation",
-            ));
         }
         self.statements(parsed, &flat)
     }
@@ -862,9 +942,10 @@ impl Writer {
 /// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// nested/recursive/process-owned procedures and branch-internal labels are refused.
-/// One explicitly labelled disjoint sequential procedure supports top-level calls,
-/// returns and adjacent call-goto, with exact original/header AST ownership.
+/// recursive/process-owned procedures and branch-internal labels are refused.
+/// One explicitly labelled disjoint sequential procedure supports calls, returns
+/// and adjacent call-goto, including proved nested If/With/Either and While shared
+/// vectors, with exact original/header AST ownership.
 /// Pure bounded nonrecursive
 /// macros use single-line substitutions; multiline arguments and substituted
 /// junction columns remain refused. Admitted process
@@ -974,8 +1055,8 @@ fn checksum_inline(
     }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
-    // Admission precedes serialization: unproved shared-vector transfers never
-    // produce CRC bytes, including fair-header cases whose CRC ignores the AST.
+    // Admission precedes serialization, including fair-header cases whose CRC
+    // ignores the AST. The typed overlay alone owns proved shared-vector mutations.
     procedure_checksum_admission(&parsed)?;
     // The existing admission pass proves no identifier fixups are required.
     lower::normalize(&parsed, options)?;
@@ -987,6 +1068,7 @@ fn checksum_inline(
         limit: options.max_output_bytes.min(4_194_304),
         span: parsed.algorithm.span,
         procedure_owner: None,
+        header: super::checksum_transfers::build(&parsed, options)?,
     };
     w.push(if sequential {
         "[type     |-> \"uniprocess\", "

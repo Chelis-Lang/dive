@@ -43,7 +43,7 @@ fn procedure_full_and_body_only_admission_are_explicit_and_idempotent()
     Ok(())
 }
 #[test]
-fn nested_shared_mutation_and_resource_limits_have_no_replacement() {
+fn proved_nested_mutation_is_admitted_but_resource_limits_have_no_replacement() {
     let nested = include_str!(
         "../../dive-pluscal/procedure-checksum-acceptance/cases/ProcedureCrc_P_if_call.tla"
     );
@@ -51,10 +51,15 @@ fn nested_shared_mutation_and_resource_limits_have_no_replacement() {
         let mut request = RewriteRequest::default();
         request.translation.compat_tlc = compat_tlc;
         let report = rewrite_source("ProcedureCrc_P_if_call.tla", nested, &request);
-        assert!(!report.accepted());
+        assert!(report.accepted(), "{}", report.to_json());
         let doc = report.to_json();
-        assert_eq!(doc["result"], "unsupported");
-        assert!(doc.get("replacement").is_none());
+        assert_eq!(doc["result"], "replacement");
+        assert_eq!(
+            doc["replacement"]["algorithm_checksum"]["serialized_ast"],
+            include_str!(
+                "../../dive-pluscal/procedure-checksum-acceptance/primary/ProcedureCrc_P_if_call.translated.ast"
+            )
+        );
         assert_eq!(doc["model_proved"], false);
         for limit in [0, 1, 16, 256] {
             request.translation.limits.max_output_bytes = limit;

@@ -68,11 +68,12 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: unproved recursive/process-owned or nested-transfer procedure ASTs,
+translation: unproved recursive/process-owned or virtual-elsif-transfer procedure ASTs,
 macro substitution/renaming shapes beyond the [bounded macro Full contract](../pluscal-macro-checksums.md),
 unproved source-option declarations and layout/name-fix shapes may translate
-successfully while an editing request explicitly refuses. Bounded top-level
-ordinary procedure calls have their own [Full editing contract](../pluscal-procedure-checksums.md). It never
+successfully while an editing request explicitly refuses. Bounded ordinary and nested shared-vector procedure calls have their own
+[Full editing contracts](../pluscal-procedure-checksums.md) and
+[nested scope guide](../pluscal-nested-procedure-checksums.md). It never
 silently falls back to body-only editing. Reference-produced but SANY-invalid
 text cannot become an admitted public artifact. The lower-level source parser/raw
 translator is a separate contract, not a replacement for enclosing-module admission.
@@ -120,3 +121,7 @@ covers the selected fixtures only.
 The [sequential procedure checksum guide](../pluscal-procedure-checksums.md)
 explains the narrower one-procedure Full editor, runnable CLI/Cargo examples,
 nested-transfer refusals and CRC/witness qualification.
+
+The [nested procedure checksum guide](../pluscal-nested-procedure-checksums.md)
+adds proved shared If/With/Either/While header mutations; recursive, process-owned
+and scoped checksum shapes remain separate named boundaries.

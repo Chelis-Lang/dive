@@ -2219,3 +2219,10 @@ retained local_update controls are primary missing-label errors while raw native
 lowering admits them; neither receives compatible artifact credit here. Read
 [the procedure checksum guide](pluscal-procedure-checksums.md) for exact scope,
 D-020 fair-header CRC limits and strict #124 pending replay.
+
+D-008 nested sequential procedure checksum continuation (ADR 0061): Full editing
+uses typed shared header vectors for proved If/With/Either/While transfers. The
+180-row selection retains the old six byte mismatches/refusals and all primary
+errors/invalid outputs; no reference defect is silently repaired. Broader call
+scopes and strict #124 saved-frame replay remain qualified. See
+[the user guide](pluscal-nested-procedure-checksums.md).
