@@ -1,0 +1,102 @@
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
+    Blocking waiting for file lock on build directory
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 33.02s
+    Blocking waiting for file lock on build directory
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.13s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+{"selected_tests": 1032, "ignored_tests": 0, "hash_partitions": [132, 140, 148, 125, 134, 124, 123, 106], "disjoint_and_complete": true}

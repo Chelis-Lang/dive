@@ -785,7 +785,7 @@ impl Parser<'_> {
                     let test = self.expression(false, false)?;
                     let body = if self.syntax == Syntax::P {
                         self.need("then")?;
-                        self.sequence(depth, &["else", "elsif", "end"], true)?
+                        self.sequence(depth, &["else", "elsif", "end"], false)?
                     } else {
                         self.need(")")?;
                         self.c_body(depth)?
@@ -798,13 +798,22 @@ impl Parser<'_> {
                 }
                 let otherwise = if self.eat("else") {
                     Some(if self.syntax == Syntax::P {
-                        self.sequence(depth, &["end"], true)?
+                        self.sequence(depth, &["end"], false)?
                     } else {
                         self.c_body(depth)?
                     })
                 } else {
                     None
                 };
+                if branches
+                    .last()
+                    .is_none_or(|branch| branch.body.statements.is_empty())
+                    && otherwise
+                        .as_ref()
+                        .is_none_or(|body| body.statements.is_empty())
+                {
+                    return Err(self.error(Code::Syntax, "if statement has no branch statements"));
+                }
                 if self.syntax == Syntax::P {
                     self.finish("if")?;
                     self.semi()?;
@@ -852,7 +861,9 @@ impl Parser<'_> {
                         break;
                     }
                     self.separator()?;
-                    if self.syntax == Syntax::P && self.peek() == "do" {
+                    if (self.syntax == Syntax::P && self.peek() == "do")
+                        || (self.syntax == Syntax::C && self.peek() == ")")
+                    {
                         break;
                     }
                 }

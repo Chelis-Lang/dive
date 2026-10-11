@@ -1,0 +1,12 @@
+[type     |-> "uniprocess", 
+ name  |-> "A", 
+ decls  |-> <<[var |-> "x", eqOrIn |-> "=", val |-> << "0" >>], 
+              [var |-> "y", eqOrIn |-> "=", val |-> << "0" >>]>>,
+ defs   |-> <<  >>,
+ prcds  |-> <<>>,
+ body  |-> <<[label |-> "L",
+              stmts |-> <<[type |-> "when", 
+                           exp |-> << "(col49) /\\", "(", "y", "=", "0", "(col57) \\/", "y", "=", "1", ")"
+, "(col0) /\\", "TRUE" >>]>>], 
+             [label |-> "E",
+              stmts |-> <<[type |-> "skip"]>>]>>]

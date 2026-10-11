@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-rewrite-publication-work/scripts/check-tlc-temporal-if-final.py", line 67, in <module>
+    for path,d in nm['source_sha256'].items():assert sha(ROOT/path)==d,path
+AssertionError: crates/dive-pluscal/examples/translate.rs

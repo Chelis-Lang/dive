@@ -13,14 +13,14 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "d024cab6a105aba0ce0f1226481c6cde007322dc9c60b7e6699d31175aeaaa2d",
-    "docs/divergences.md": "547ae8a1ab15393a7a4f94ec569b0cf61d3bf4f1657c152964a8504cd4da6315",
-    "docs/tlc-differences.md": "3b3af415e47d920b6adc74dea22059858096e118c5c841956e90c55ab811f6fc",
+    "docs/provenance.md": "c56e978c2cc43c8a84febf5efb3ab65b9ceb8fb0629e0491cb94a8447a4f6f7c",
+    "docs/divergences.md": "7fc8e2e18b3281e80f39b799e2e67ab758b071bc9c76a1dd4109c42ee9bd7e0d",
+    "docs/tlc-differences.md": "78decd6811b7d657f68ecd4e0138815a08e8cceb2306711ee71ceb2f1dbf082f",
     "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
-    "CHANGELOG.md": "d0435c2a418c34d2e678db9969557af05536972e5783610d5043abca27a869c0",
+    "CHANGELOG.md": "78e0742b57b78517ca659a0588fbaa932ab01caf8915f5347f5e19f326cfc66f",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
-    ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
-    "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f",
+    ".github/workflows/ci.yml": "1cee8ceba0aab8e5c7d0bf679b28948a4ffedd5e94150603151ceb11c34af3b0",
+    "conformance/parity-features.json": "2eee032f39151b743313af8368f50c0c9e3a96e278fec5f43e64b9d9a9a467cd",
     "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -738,7 +738,7 @@
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "8cf81138d5abd1724d798c5881a5e6d2473cccb4a06d3f46cc2dd7d4710c2eac",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "c08074cf5e00aaeaa2df85f7b1010870b27c7f6753d1a6ecca6e2ecbae3cad47"
   },
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
+  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification.",
   "view_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
     "matrix_sha256": "335ef12cf2a2a04bcaa364f5a23651cb884b87010456a283b0063154f78de7e1",
@@ -761,5 +761,11 @@
     "matrix_sha256": "ab72819f10bd797f45c245b05f6efab3b406ade84b3644032cbe65e865b722e3",
     "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
   },
-  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "f2c2c126224e281ae9036d39783da46090014c9b4167106d48c524fc8bc618d3",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
 }

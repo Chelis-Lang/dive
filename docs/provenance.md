@@ -405,6 +405,7 @@ symmetry witnesses across memory/disk, stores, profiles and worker widths.
 | `dive-pluscal` source string admission (`lexer.rs`) | pinned `pcal/PcalBuiltInSymbols.java` `buildStringCharTable` and `pcal/Tokenize.java` `STRING`; commit `94d0c50` | MIT | Printable-ASCII/escape source boundary, with original illegal Unicode/control inputs and failed native overaccept retained. |
 
 
+
 | Native PlusCal sequential procedure admission/typed continuations (`translate/procedures.rs`, `lower.rs`, `emit.rs`) | pinned `pcal.PcalTranslate.ExplodeCall`, `ExplodeReturn`, `ExplodeCallGoto`, `ExplodeLabeledStmt` (Error fallthrough); `PcalTLAGen` sequential changed-variable, GenVars/GenInit/procedure-wrapper/GenNext rules; `PcalSymTab` procedure declaration ordering; `ParseAlgorithm` labels and call-tail folds; commit `94d0c50` | MIT | Bounded one-procedure path: complete token/CST/SANY selection, clean count controls, strict namespace refusals retained and separately qualified default independent replay; no scope/recursive/process-stack certification |
 
 | Native PlusCal nonrecursive procedure graphs and adjacent call/return (`translate/procedures.rs`, `lower.rs`, `emit.rs`) | pinned `pcal.PcalTranslate.ExplodeCall`, `ExplodeReturn`, `ExplodeCallGoto`, `ExplodeCallReturn` (caller locals/head replacement/parameter simultaneous assignment/local initialization); `PcalTLAGen` procedure/variable/action/Next/wrapper order, `ParseAlgorithm` call-tail folding; commit `94d0c50` | MIT | Complete 120-row C/P source/normalization/artifact selection, enclosing CST/SANY, clean model counts and separately qualified default replay. Acyclic disjoint scope admission and iterative cycle/global budget proof are native design; recursive/process/name rewriting and strict namespace evidence remain pending. |
@@ -468,6 +469,7 @@ remain those matched against `ModelChecker`/`Worker`/`TLCTrace` at revision
 keep original parallel source/raw evidence separate from current storage controls.
 
 
+
 | Native single finite process procedure ownership (`translate/process.rs`, `procedures.rs`, `lower.rs`, `emit.rs`) | pinned `pcal.PcalTranslate.ExplodeCall`, `ExplodeReturn`, `ExplodeCallReturn`, `ExplodeCallGoto`; `PcalTLAGen.GenProcedure`, `GenVars`, `GenInit`, `GenNext`, `AddSubscriptsToExpr` owner contexts; `PcalSymTab` declaration order; commit `94d0c50` | MIT | 112 capture-first C/P rows, disjoint ownership, source-vs-generated stack indexing, complete raw/invalid evidence; artifact/count/strict-pending/canonical replay stages separate. Global quotas and conservative naming restrictions are native design; no multiple-block, renaming, process-declared fairness or strict namespace certification. Separate algorithm-level fair controls match `ParseAlgorithm.getAlgorithm` FairAlgorithm and `PcalTLAGen.GenSpec` global WF_vars(Next), without liveness execution credit. |
 
 | Native shared procedures across finite process blocks (`translate/process.rs`) | Pinned `pcal.PcalTLAGen.GenMultiprocess`, `GenProcedure`, `GenVars`, `GenInit`, `GenNext`, `AddSubscriptsToExpr`; `PcalTranslate.ExplodeCall`, `ExplodeReturn`, `ExplodeCallReturn`, `ExplodeCallGoto`; `PcalSymTab` context ownership; commit `94d0c50` | MIT | One procedure normalization and borrowed per-process bodies, shared ProcSet storage and constant/procedure/member scheduling. Complete capture-first evidence remains separate from strict pending versus qualified canonical witnesses. Disjointness admission/global quotas are native design; no scoped renaming/fairness/full family certification. |
@@ -477,6 +479,19 @@ keep original parallel source/raw evidence separate from current storage control
 | Native component | Pinned reference | License | Adaptation and evidence boundary |
 | --- | --- | --- | --- |
 | `dive-pluscal` caller reachability and fairness generation (`translate/fairness.rs`, process/procedure context in `process.rs` and `procedures.rs`, Spec emission in `emit.rs`) | `pcal.ParseAlgorithm.GetCall`, `pcal.PcalFixIDs.FixMultiprocess`, `pcal.PcalTLAGen.GenSpec`, `FormulaPair`, `ProcessFairness`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Syntactic call order and declaration-ordered closure adapted to bounded sparse traversal, per-caller WF/SF and +/- ownership, UTF-16 significant junction grouping. Complete clean primary captures, SANY/operator-CST and finite counts/replay remain separate stages. Quotas and conservative disjointness are native design; no scoped renaming, sequential-modifier or liveness-execution certification. |
+
+
+## Native bounded PlusCal block editing
+
+| Native component | Pinned reference | License | Adaptation and evidence boundary |
+| --- | --- | --- | --- |
+| `dive-pluscal::rewrite`, `dive-api::rewrite`, CLI editing policy | `pcal.trans.performTranslation`, `findTokenPair`; `pcal.Validator.CHECKSUM_PATTERN`, `checksum(Vector)`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Native bounded span selection and pure replacement, UTF-8 line-concatenation CRC32 and recognized header fields. Explicit partial sentinel, overwrite grant and byte quotas are native policy. Primary-body exact-byte editing is development-only evidence; native generated artifacts have separate admission controls. This historical body-only increment preceded the separate post-translation AST serializer below. Other AST shapes, exact generator formatting and file writes remain pending; fair CRC collision retained as D-020. |
+
+## Native post-translation PlusCal AST checksum
+
+| Native component | Pinned reference | License | Adaptation and evidence boundary |
+| --- | --- | --- | --- |
+| `dive-pluscal::algorithm_checksum_at` (`translate/checksum.rs`) and Full rewrite policy | `pcal.AST.toString`, `TLAExpr.toString`, AST indentation helpers; `ParseAlgorithm` default declarations; `PcalTranslate.removeNameConflicts`, `translate`, `Explode`; `trans.performTranslation` and `Validator` AST CRC expression; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Bounded sequential reference templates/token encoding and proved transparent C block flattening; native serialized bytes compared to each primary post-translation capture. Name-fix/unproved AST contexts refuse; Java probes are development-only. Full CRC derivation and body/source replacement remain separate from TLA admission/model proof. Fair-only CRC weakness reproduced and flagged, not corrected (D-020). |
 
 ### Scoped final attribution and cardinality-one DNF (#134)
 
@@ -496,32 +511,25 @@ search. The default formula kernel and independent Word implementation stay
 unchanged. Complete positive/negative fields and periodic/closing controls
 retain the old extra-negation mismatch; this is normalization fidelity only.
 
-The #178 VIEW/RNG admission guard is a temporary native soundness restriction,
-not a port or a change to TLC's random algorithm. Its evidence compares
-`RandomEnumerableValues.get` state seeding with `TLCStateMutExt.fingerPrint`
-(symmetry representative followed by VIEW) at pinned commit `94d0c50`.
-[Preserved source and raw outputs](../conformance/probes/view-random-seeding/README.md)
-show equal counts with unequal concrete draws; the guard promises no transformed
-RNG replay until that path is independently proved.
 
-The pre-bind #178 admission scan additionally follows configured substitution
-RHS names through `Module.context` and the source native names installed by
-`SpecProcessor.processModuleOverrides` (`dive-model::bind`). This is conservative
-callback-free admission, not an emulation of successful substitution binding.
-The original node-only guard missed `CONSTANT C(_)` / `C <- RandomElement`;
-its failed no-work controls and interrupted gate are preserved separately.
+Pure-runtime-name native recovery (ADR 0038, 2026-10-11) reuses dive's ordered name
+archive and the `dive-model` typed encounter-order fallback. It introduces no
+ported Java checkpoint codec. Clean `tlc2.TLC` safety runs with `-workers 1`,
+`-seed` 0/7/14 and `-fp 0` provide the separately retained constructor/CHOOSE
+counterparts in `conformance/probes/native-checkpoint-runtime-names/tlc-primary/`.
+The independent TLC trace runtime-name refusal remains unchanged.
 
-Configured native RNG admission (#180) conservatively matches `.cfg` RHS
-module-context aliases and source-native override names before binding. Reference
-selection authority is `SpecProcessor.processConstants`/`processModuleOverrides`
-at pinned `94d0c50`; this callback-free refusal is dive admission design, not a
-ported/proven stream algorithm. Bound-context scheduling and `Worker.run` per-state
-stream seeding remain pending. Both concrete wrong-verdict probes are preserved
-in `conformance/probes/configured-random-admission/README.md`.
+The separate checksum-expression increment additionally ports
+`ParseAlgorithm.GetIf` / `InnerGetWith` nesting and optional C trailing
+separator behavior, `TLAExpr.normalize` first-token minimum columns and
+`TLAExpr.toString` line/token grouping, and `trans.removeTabs` eight-column
+expansion (Java UTF-16 columns), all at the same `94d0c50` pin. Native flat
+branch/binder serialization and source position indexing are iterative bounded
+adaptations. The complete original/corrected/layout/separator selections, initial
+parser disagreements and separate SANY-invalid artifacts are retained in
+`crates/dive-pluscal/checksum-expression-acceptance/`. No Java delegation,
+name-fix/process/procedure serialization or stronger checksum default is added.
 
-The same #180 boundary in graph capture inspects supplied admitted constant
-bindings and evaluator redirects before host/search; no body/lazy callback is
-invoked. It preserves unused native imports/pure legacy captures. Original caller
-binding is outside that check. The property-bearing final/short false invariant
-control and pinned-final/DFID/simulation/checkpoint refusals are separately recorded
-in `conformance/probes/configured-random-admission/backend-before/`.
+| `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |
+
+| Native PlusCal value-expression parenthesization (`translate/emit.rs`) | Pinned `pcal.PcalTLAGen.NeedsParentheses`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | A top-level CASE arrow contains the reference greater-than trigger. C/P whole-module node/token CST controls retain parentheses so the CASE arm cannot absorb following action conjuncts. Original failed grouping controls and source remain archived; first-line scanning behavior is unchanged. |

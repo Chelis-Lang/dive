@@ -68,3 +68,19 @@ missing results fail closed. The conformance job remains unchanged.
 
 Local contributors still run the whole gate. Partition reproduction and
 coverage verification are documented in [CI scheduling](../developer/ci.md).
+
+## Recovery-matrix scheduling addendum (2026-10-11)
+
+PR #179 run 38104630509 passed conformance and workspace checks, but three
+test partitions exhausted the unchanged 15-minute job bound. Runtime-name
+recovery wrappers also exhausted the unchanged 180-second test bound. The
+complete failed log and original test source remain under
+`conformance/probes/native-parity-integration/current-controls/full-runtime-ci-before-scheduling-repair/`.
+
+Runtime-name controls now partition their exact original cross-product by store
+and requested width. Both chaos settings, all three pause boundaries, changed
+recovery widths, both counter policies, metadata comparisons and independent
+witness checks remain unchanged. Ten broad wrappers become 60 smaller tests;
+no setting or assertion is removed. The full workspace uses eight disjoint
+hash partitions, checked against the complete actual inventory. The per-test
+and per-job bounds, required aggregate gate and no-ignore policy are unchanged.

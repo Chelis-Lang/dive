@@ -1,0 +1,16 @@
+RUN cargo fmt --all --check
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-0.log
+RUN cargo clippy --workspace --all-targets --locked -- -D warnings
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-1.log
+RUN cargo nextest run --workspace --locked --profile ci
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-2.log
+RUN cargo test --workspace --doc --locked
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-3.log
+RUN cargo doc --workspace --no-deps --locked
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-4.log
+RUN cargo xtask check-layering
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-5.log
+RUN cargo build -p dive-trace --locked
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-6.log
+RUN cargo deny --locked check
+RESULT 0 /tmp/dive-full-runtime-cst-final-gate-7.log

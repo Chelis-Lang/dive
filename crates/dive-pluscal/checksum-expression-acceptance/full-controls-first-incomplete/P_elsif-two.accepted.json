@@ -1,0 +1,244 @@
+{
+  "accepted": true,
+  "algorithm_checksum_verified": true,
+  "analysis": {
+    "accepted": true,
+    "command": "analyze",
+    "definitions": [
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "vars"
+      },
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "Init"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "L"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "E"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Terminating"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Next"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Spec"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Termination"
+      }
+    ],
+    "diagnostics": [],
+    "file": "P_elsif_two.tla",
+    "files": [
+      {
+        "id": 0,
+        "origin": "text",
+        "path": "P_elsif_two.tla"
+      },
+      {
+        "id": 1,
+        "origin": "standard",
+        "path": "<standard>/Integers.tla"
+      },
+      {
+        "id": 2,
+        "origin": "standard",
+        "path": "<standard>/TLC.tla"
+      },
+      {
+        "id": 3,
+        "origin": "standard",
+        "path": "<standard>/Sequences.tla"
+      },
+      {
+        "id": 4,
+        "origin": "standard",
+        "path": "<standard>/Naturals.tla"
+      },
+      {
+        "id": 5,
+        "origin": "standard",
+        "path": "<standard>/FiniteSets.tla"
+      }
+    ],
+    "module": "P_elsif_two",
+    "modules": [
+      "Naturals",
+      "Integers",
+      "Sequences",
+      "FiniteSets",
+      "TLC",
+      "P_elsif_two"
+    ],
+    "schema_version": 1
+  },
+  "artifact": {
+    "actions": [
+      "L",
+      "E"
+    ],
+    "configuration": "",
+    "inserted_labels": [],
+    "mappings": [
+      {
+        "generated": {
+          "end": 44,
+          "start": 0
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      },
+      {
+        "generated": {
+          "end": 99,
+          "start": 44
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      },
+      {
+        "generated": {
+          "end": 330,
+          "start": 99
+        },
+        "original": {
+          "end": 163,
+          "start": 104
+        }
+      },
+      {
+        "generated": {
+          "end": 411,
+          "start": 330
+        },
+        "original": {
+          "end": 171,
+          "start": 164
+        }
+      },
+      {
+        "generated": {
+          "end": 457,
+          "start": 411
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      },
+      {
+        "generated": {
+          "end": 488,
+          "start": 457
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      },
+      {
+        "generated": {
+          "end": 519,
+          "start": 488
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      },
+      {
+        "generated": {
+          "end": 550,
+          "start": 519
+        },
+        "original": {
+          "end": 186,
+          "start": 65
+        }
+      }
+    ],
+    "processes": [],
+    "program_counter": true,
+    "tla": "VARIABLES pc, x, y\n\nvars == << pc, x, y >>\n\nInit == /\\ x = 0\n        /\\ y = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ x' = 1\n           ELSE /\\ IF x = 1\n                      THEN /\\ x' = 2\n                      ELSE /\\ TRUE\n                           /\\ x' = x\n     /\\ pc' = \"E\"\n     /\\ y' = y\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, y >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n",
+    "warnings": []
+  },
+  "body_checksum_verified": true,
+  "command": "translate-rewrite",
+  "editing": {
+    "checksums": "Full",
+    "max_bytes": 4194304,
+    "normalize_newlines": false,
+    "replace_modified": false
+  },
+  "exact_primary_generated_bytes": false,
+  "exhaustive": false,
+  "exit_code": 0,
+  "file": "P_elsif_two.tla",
+  "model_proved": false,
+  "overrides": [],
+  "pending": [
+    "unproved-post-translation-ast-checksum-shapes",
+    "exact-primary-generator-pretty-bytes",
+    "file-writing",
+    "mapping-format",
+    "full-pluscal-translation"
+  ],
+  "profile": "tlc",
+  "replacement": {
+    "algorithm_checksum": {
+      "checksum": "e1d3fda3",
+      "fair_header_crc_only": false,
+      "serialized_ast": "[type     |-> \"uniprocess\", \n name  |-> \"A\", \n decls  |-> <<[var |-> \"x\", eqOrIn |-> \"=\", val |-> << \"0\" >>], \n              [var |-> \"y\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs   |-> <<  >>,\n prcds  |-> <<>>,\n body  |-> <<[label |-> \"L\",\n              stmts |-> <<[type    |-> \"if\", \n                           test    |-> << \"x\", \"=\", \"0\" >>,\n                           then |-> <<[type |-> \"assignment\",\n                                       ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                   rhs |-> << \"1\" >>]>>]>>,\n                           else |-> <<[type    |-> \"if\", \n                                       test    |-> << \"x\", \"=\", \"1\" >>,\n                                       then |-> <<[type |-> \"assignment\",\n                                                   ass  |-> <<[lhs |-> [var |-> \"x\", sub |-> <<  >>],\n                                                               rhs |-> << \"2\" >>]>>]>>,\n                                       else |-> <<[type |-> \"skip\"]>>]>>]>>], \n             [label |-> \"E\",\n              stmts |-> <<[type |-> \"skip\"]>>]>>]"
+    },
+    "algorithm_checksum_verified": true,
+    "module_source": "---- MODULE P_elsif_two ----\nEXTENDS Integers, TLC, Sequences\n(* --algorithm A variables x=0,y=0; begin L:if x=0 then x:=1; elsif x=1 then x:=2; else skip; end if; E:skip; end algorithm; *)\n\\* BEGIN TRANSLATION (chksum(pcal) = \"e1d3fda3\" /\\ chksum(tla) = \"c31493ba\")\nVARIABLES pc, x, y\n\nvars == << pc, x, y >>\n\nInit == /\\ x = 0\n        /\\ y = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ x' = 1\n           ELSE /\\ IF x = 1\n                      THEN /\\ x' = 2\n                      ELSE /\\ TRUE\n                           /\\ x' = x\n     /\\ pc' = \"E\"\n     /\\ y' = y\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, y >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\\* END TRANSLATION \n====\n",
+    "newlines_normalized": true,
+    "replacement": "\\* BEGIN TRANSLATION (chksum(pcal) = \"e1d3fda3\" /\\ chksum(tla) = \"c31493ba\")\nVARIABLES pc, x, y\n\nvars == << pc, x, y >>\n\nInit == /\\ x = 0\n        /\\ y = 0\n        /\\ pc = \"L\"\n\nL == /\\ pc = \"L\"\n     /\\ IF x = 0\n           THEN /\\ x' = 1\n           ELSE /\\ IF x = 1\n                      THEN /\\ x' = 2\n                      ELSE /\\ TRUE\n                           /\\ x' = x\n     /\\ pc' = \"E\"\n     /\\ y' = y\n\nE == /\\ pc = \"E\"\n     /\\ TRUE\n     /\\ pc' = \"Done\"\n     /\\ UNCHANGED << x, y >>\n\nTerminating == pc = \"Done\" /\\ UNCHANGED vars\n\nNext == L \\/ E \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(pc = \"Done\")\n\\* END TRANSLATION \n",
+    "selection": {
+      "algorithm": {
+        "end": 187,
+        "start": 65
+      },
+      "checksum": null,
+      "comment": {
+        "end": 189,
+        "start": 62
+      },
+      "insertion": 190,
+      "previous": null,
+      "previous_body": null
+    },
+    "span": {
+      "end": 190,
+      "start": 190
+    },
+    "translation_checksum": "c31493ba"
+  },
+  "requested_profile": "tlc",
+  "result": "replacement",
+  "schema_version": 1,
+  "stage": "replacement-analysis"
+}

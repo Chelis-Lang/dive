@@ -21,14 +21,16 @@
 pub mod ast;
 mod lexer;
 mod parser;
+/// Bounded source editing and translation-body checksum interoperability.
+pub mod rewrite;
 #[path = "translate/mod.rs"]
 mod translation;
 pub use parser::{Options, parse, parse_at};
 use serde::{Deserialize, Serialize};
 pub use translation::{
-    FairnessOption, InsertedLabel, ProcessTranslation, Translation, TranslationError,
-    TranslationMap, TranslationOptions, TranslationStage, TranslationWarning, translate,
-    translate_at,
+    AlgorithmChecksum, FairnessOption, InsertedLabel, ProcessTranslation, Translation,
+    TranslationError, TranslationMap, TranslationOptions, TranslationStage, TranslationWarning,
+    algorithm_checksum_at, translate, translate_at,
 };
 
 /// Stable native PlusCal diagnostic categories.

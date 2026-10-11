@@ -1,8 +1,8 @@
 {
   "base_commit": "f3c00c9b702ad1c196367338325b98e1a3a322df",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
-  "current_source_qualification": "Current combined-source integrity after direct temporal IF, transient checkpoint storage, process procedure fairness and CI integration. Immutable producer outcomes remain attached to their archived sources; this map supplies no new runtime or full-family parity credit.",
+  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification.",
+  "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
   "historical_execution_slice": "execution",
   "schema_version": 1,
   "scope": "Combined ordered observed pool with bounded source waves and current checkpoint/admission; original execution source retained separately; no strict verdict certification",
@@ -34,7 +34,7 @@
     "matrix_sha256": "7f32282f10162cf35f56aaa9396f96089c1ca706037b77a5acb1cf71f025bac6",
     "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
   },
-  "current_scope_addendum": "Configured native RHS authority amendment to pre-bind VIEW/RNG admission; historical producer evidence and certification status remain unchanged.",
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged.",
   "configured_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
     "matrix_sha256": "33c585c781f6db0e281382cf142cb699467a9d224c32569b1a3f46ccf5854050",
@@ -51,5 +51,16 @@
     "matrix_sha256": "81dc3ee20aaabab36dd5c367f8fe9326aa3b58a03b168710a6847ea73930aaf5",
     "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
   },
-  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "3eaf427c6de5f36515218c5617dea4c8aa4d360014240d081edaa8de8641a475",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "b790cadff3dd0d16b4d64799fd43928776f2e241241f4f13710769027cd4a11b",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
 }

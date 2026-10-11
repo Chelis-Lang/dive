@@ -17,11 +17,11 @@
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
-    "docs/provenance.md": "d024cab6a105aba0ce0f1226481c6cde007322dc9c60b7e6699d31175aeaaa2d",
-    "docs/divergences.md": "547ae8a1ab15393a7a4f94ec569b0cf61d3bf4f1657c152964a8504cd4da6315",
-    "docs/tlc-differences.md": "3b3af415e47d920b6adc74dea22059858096e118c5c841956e90c55ab811f6fc",
+    "docs/provenance.md": "c56e978c2cc43c8a84febf5efb3ab65b9ceb8fb0629e0491cb94a8447a4f6f7c",
+    "docs/divergences.md": "7fc8e2e18b3281e80f39b799e2e67ab758b071bc9c76a1dd4109c42ee9bd7e0d",
+    "docs/tlc-differences.md": "78decd6811b7d657f68ecd4e0138815a08e8cceb2306711ee71ceb2f1dbf082f",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f",
+    "conformance/parity-features.json": "2eee032f39151b743313af8368f50c0c9e3a96e278fec5f43e64b9d9a9a467cd",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07"
   },
   "scoped_final_parent_history": {
@@ -30,7 +30,7 @@
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
+  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification.",
   "view_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
     "matrix_sha256": "510b896121368b487e3a914fe4edad4e04a41d109b1f84dcc47d333a59e0ea02",
@@ -53,5 +53,11 @@
     "matrix_sha256": "116384bce8347cefd51d297faf1d62c11afa8ec677151ff364c61a08a54b96f1",
     "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
   },
-  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "958d2789d89b226732f3ce1cc149ab50bedbb67175ce3abd54398893e42b36e5",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged."
 }
