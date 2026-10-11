@@ -31,6 +31,15 @@ for r in old['rows']:
  for p,h in r['model_source_sha256'].items():assert sha(dev/p)==h,p
  for stream in ['stdout','stderr']:assert sha(dev/'clean-primary'/r['name']/stream)==r[stream+'_sha256']
 assert sum(r['exit']==150 for r in old['rows'])==7
+# The completed census is a distinct clean known-user epoch, not native credit.
+study=ROOT/'conformance/studies/temporal-operators-final-small'
+closed=load(study/'closed-after.json');before=load(study/'before.json')
+assert closed['source_commit']==before['source_commit']=='7683204a1ab328ffc2dabb9b932f5c545e129b79'
+assert closed['row_count']==140 and closed['harness_exit']==1 and closed['source_and_binaries_unchanged']is True
+assert closed['models']['agree']==53 and closed['models']['unsupported']==85 and closed['models']['timeout']==2 and closed['models']['disagree']==0
+for p,h in closed['artifact_sha256'].items():assert sha(study/p)==h,p
+for p,h in before['source_sha256'].items():assert hashlib.sha256(gzip.decompress((study/'source'/(p+'.gz')).read_bytes())).hexdigest()==h,p
+comparison=load(study/'model-by-model.json');assert comparison['selected']==140 and len(comparison['models'])==140
 current=BASE/'native-current';c=load(current/'capture.json');assert c['source_and_binary_unchanged']is True
 assert c['selections_sha256']=={'selection.json':sha(BASE/'selection.json')}
 assert c['capture_source_sha256']==sha(BASE/'capture-native.py')
