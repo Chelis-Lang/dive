@@ -12,7 +12,7 @@
     "crates/dive-api/src/check.rs": "2ff17387f71629ee3a6ff056e2e59ad9d12ac67962cbabc12af382403e0f0694",
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
-    "crates/dive-check/src/checkpoint.rs": "a3f45df36f6c93869c47c3feb848c069ebe7064a2c6768534f41effc8d6b865d",
+    "crates/dive-check/src/checkpoint.rs": "40e8aee4a011b30ed8c43746c75cb4a9227625ac636b2195535b8d49f127e53a",
     "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
     "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
@@ -25,5 +25,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "f53b6961727674708c27d154d5e1b8e9b96c9d383d59b7bb5c1c679adac63fa9",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
 }

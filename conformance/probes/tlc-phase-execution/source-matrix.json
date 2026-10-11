@@ -20,5 +20,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "3eaf427c6de5f36515218c5617dea4c8aa4d360014240d081edaa8de8641a475",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
 }

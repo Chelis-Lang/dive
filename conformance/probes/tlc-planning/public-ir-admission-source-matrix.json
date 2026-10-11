@@ -20,5 +20,11 @@
   "evidence_scope": "Current native admission controls, no new oracle or full family certification",
   "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
   "historical_public_ir_matrix": "conformance/probes/native-parity-integration/history/public-ir/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
-  "historical_public_ir_matrix_sha256": "0b8bb554ac320a0edf35f2ebef5b3e2628ea1eb586c52a52811d33449ab67c42"
+  "historical_public_ir_matrix_sha256": "0b8bb554ac320a0edf35f2ebef5b3e2628ea1eb586c52a52811d33449ab67c42",
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+    "matrix_sha256": "96de9cc07a50d84f9bdd8b6761767288c92e2aa951879cf01eb28745b4ebb57d",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
 }

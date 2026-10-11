@@ -136,7 +136,9 @@ for case, family in ((case, family) for case in ("RuntimeStrings", "RuntimeChoos
                         assert pause[1]["checkpoint"]["status"] == "paused-incomplete", stem
                         assert (retained[0], observable(retained[1])) == (full[0], observable(full[1])), stem
                         assert retained[1]["checkpoint"]["status"] == "recovered", stem
-                        for value, actual, requested in ((full[1], 1 if profile == "tlc" else width, width), (pause[1], 1 if profile == "tlc" or boundary == 0 else width, width), (retained[1], 1 if profile == "tlc" else resumed_width, resumed_width), (reset[1], 1 if profile == "tlc" else resumed_width, resumed_width)):
+                        assert full[1]["options"]["workers"]["used"] == (1 if profile == "tlc" else width), stem
+                        assert full[1]["options"]["workers"]["requested"] == width, stem
+                        for value, actual, requested in ((pause[1], 1 if profile == "tlc" or boundary == 0 else width, width), (retained[1], 1 if profile == "tlc" else resumed_width, resumed_width), (reset[1], 1 if profile == "tlc" else resumed_width, resumed_width)):
                             assert value["options"]["workers"]["used"] == actual, stem
                             assert value["options"]["checkpoint"]["parallel_recovery"] is True, stem
                             assert value["options"]["workers"]["requested"] == requested, stem
