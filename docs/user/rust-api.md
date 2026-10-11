@@ -72,3 +72,7 @@ For pure operator formals through `tlc_temporal::check_final`, use the runnable
 `Evaluator::scope_operator_analysis` exposes a callback-free known user scope for
 analysis only; its unknown formals cannot be forced or certify a model. Actual
 applications use real arguments and fresh independent witness replay.
+
+Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
+[Pure native temporal operator arguments](../native-temporal-operators.md), with
+executable CLI/Rust examples and retained refusal boundaries.

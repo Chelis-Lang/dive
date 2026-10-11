@@ -9,7 +9,7 @@
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
-    "conformance/parity-features.json": "b86e69f59c50ce530d99a35fbf0f01f6149881b6e427b68436168a5cfd130acb"
+    "conformance/parity-features.json": "3439c8d35430e79c573bc93d0d7d5d8f27b5460a9e6463ef7294339adff0cf6b"
   },
   "history_sha256": {
     "current-integration-before-admission/conformance/probes/native-checkpoint/current-integration-source.json": "ee158aed604043a2f9395ae8ed49f2fffedba871844832c5f8f2b691e3c49ec0",

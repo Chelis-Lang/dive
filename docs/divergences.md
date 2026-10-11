@@ -545,3 +545,9 @@ opaque/native/recursive/higher-order and configured-origin-ambiguous targets
 remain refused. Clean accepted INSTANCE operator-formal controls are separate
 from older exported temporal-expression failures2213. Full periodic/corpus/family
 parity is unclaimed; see [the operator guide](temporal-operators.md).
+
+The subsequent bounded [native operator actual slice](native-temporal-operators.md)
+accepts Len/Head/Cardinality with separately proved constant/state arguments and
+stored-input admission. It changes no result default or schedule. Other native,
+configured/opaque/effectful and unsupported state-storage/error boundaries retain
+named refusals; all20 clean probe outcomes remain accounted for separately.

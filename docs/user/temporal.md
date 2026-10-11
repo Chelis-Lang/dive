@@ -75,3 +75,7 @@ recursive admission limits and deferred/provider refusals.
 Pure user operator formals in bounded explicit final TLC mode retain local and
 INSTANCE scopes; see [operator arguments](../temporal-operators.md). Native,
 configured-origin-ambiguous, recursive and opaque targets remain named refusals.
+
+Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
+[Pure native temporal operator arguments](../native-temporal-operators.md), with
+executable CLI/Rust examples and retained refusal boundaries.

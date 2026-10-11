@@ -1729,3 +1729,13 @@ opaque/native/recursive/higher-order and configured-origin-ambiguous targets
 remain refused. Clean accepted INSTANCE operator-formal controls are separate
 from older exported temporal-expression failures2213. Full periodic/corpus/family
 parity is unclaimed; see [the operator guide](temporal-operators.md).
+
+### Bounded pure native operator arguments
+
+The explicit final TLC mode now accepts Len/Head/Cardinality operator actuals
+within its bounded pure constant/state slice. TLC13 and dive13 agree on the
+minimal `Use(F(_)) == []<>F(x); Live == Use(Head)` with `x=<<FALSE>>`.
+Configured/opaque/effectful targets still refuse. Concrete normalized set states,
+unknown deciding runtime error classes and ordinary periodic scheduling remain
+limitations. See [the guide](native-temporal-operators.md) and the complete
+20-control probe selection; this is bounded support, not family certification.

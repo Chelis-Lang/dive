@@ -5,6 +5,12 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/temporal-operators'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+FROZEN_KNOWN=ROOT/'conformance/probes/native-temporal-operators/frozen-known-user-producer'
+FROZEN_KNOWN_MAP=load(FROZEN_KNOWN/'manifest.json')['source_sha256']
+def operator_source(path,digest):
+ if sha(ROOT/path)==digest: return
+ assert FROZEN_KNOWN_MAP[path]==digest,path
+ assert hashlib.sha256(gzip.decompress((FROZEN_KNOWN/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 selection=load(BASE/'selection.json');instance=load(BASE/'selection-instance.json')
 assert len(selection)==14 and len(instance)==4
@@ -51,7 +57,7 @@ current=BASE/'native-current';m=load(current/'capture.json')
 assert m['source_and_binary_unchanged']is True and m['capture_source_sha256']==sha(BASE/'capture-native.py')
 assert m['selections_sha256']=={f:sha(BASE/f)for f in ['selection.json','selection-instance.json']}
 assert [(x['model'],x['requested_workers'])for x in m['rows']]==[(x['name'],w)for x in all_cases for w in [1,3,4,8]]
-for path,digest in m['source_sha256'].items():assert sha(ROOT/path)==digest,path
+for path,digest in m['source_sha256'].items():operator_source(path,digest)
 fields={r['name']:r['fields']for file in ['capture.json','capture-instance-projection.json']for r in load(BASE/file)['rows']}
 counts={}
 for row in m['rows']:
@@ -86,7 +92,7 @@ assert counts=={'success':36,'liveness-violation':28,'unsupported':8},counts
 example=BASE/'user-example-controls';e=load(example/'receipt.json')
 assert e['compile_exit']==e['run_exit']==0 and e['source_and_binary_unchanged']is True
 assert sha(BASE/'user-example.rs')==e['source_sha256']
-for path,digest in e['crate_source_sha256'].items():assert sha(ROOT/path)==digest,path
+for path,digest in e['crate_source_sha256'].items():operator_source(path,digest)
 for path,digest in e['files'].items():assert sha(example/path)==digest,path
 assert(example/'stdout').read_text().strip()=='["Live"]'
 # The whole140 census belongs to the previous9b producer, never the current one.
@@ -116,5 +122,5 @@ failed=BASE/'development-full-gate-refusals';failed_before=load(failed/'gate-cur
 for path,digest in failed_before['source_sha256'].items():assert hashlib.sha256(gzip.decompress((failed/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 assert load(failed/'gate-current/after.json')['all_steps_passed']is False
 assert '941 tests run: 939 passed, 2 failed' in (failed/'gate-current/workspace.log').read_text()
-for path,digest in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==digest,path
+for path,digest in load(BASE/'source-matrix.json')['source_sha256'].items():operator_source(path,digest)
 print('Verified18 clean primary/72 current native rows,14 exact temporal projections,72 original refusals, bounded independent captures/replay; prior9b140 census46/92/2 remains separate, no ordinary/family credit')

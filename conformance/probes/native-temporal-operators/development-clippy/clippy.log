@@ -1,0 +1,44 @@
+   Compiling proc-macro2 v1.0.107
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-syntax)
+   Compiling serde_core v1.0.229
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+    Checking serde_json v1.0.151
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-sema)
+   Compiling serde_derive v1.0.229
+   Compiling libc v0.2.190
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-value)
+    Checking serde v1.0.229
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-config)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-store)
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-ir)
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-pluscal)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-native-operator-work/crates/dive-eval)
+   Compiling getrandom v0.3.4
+    Checking bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+    Checking rand_core v0.9.5
+error: this function has too many lines (173/100)
+   --> crates/dive-eval/src/finite.rs:108:5
+    |
+108 |     fn native_values(&mut self, scope: &Scope, st: &St) -> crate::Result<()> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_lines
+    = note: `-D clippy::too-many-lines` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::too_many_lines)]`
+
+error: assigning the result of `Clone::clone()` may be inefficient
+   --> crates/dive-eval/src/finite.rs:181:25
+    |
+181 |                         link = binding.next.clone();
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `clone_from()`: `link.clone_from(&binding.next)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assigning_clones
+    = note: `-D clippy::assigning-clones` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::assigning_clones)]`
+
+error: could not compile `dive-eval` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

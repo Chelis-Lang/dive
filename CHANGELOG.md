@@ -10,6 +10,12 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
+  scoped constant/state calls with independent word/witness checks and
+  callback-free stored-input admission. Configured/opaque/effectful and
+  unsupported state-storage/error boundaries remain explicit; final TLC
+  scheduling remains separately scoped.
+
 
 - Explicit bounded final TLC checking supports proved pure user operator formals,
   retained LET/INSTANCE scopes and constant/state/temporal actuals. Independent

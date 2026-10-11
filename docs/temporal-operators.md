@@ -90,3 +90,7 @@ stutter forever; the pin and the bounded final checker both report the resulting
 liveness violation. Acceptance does not imply that `P` holds. A recursive actual
 remains refused before evaluation, and an actual definition whose own parameters
 include an operator remains outside the analysis accessor's admitted subset.
+
+The subsequent bounded [native actual slice](native-temporal-operators.md) admits
+Len/Head/Cardinality separately. Earlier receipts below retain their original
+known-user source identity; they are not recredited as native-source runs.
