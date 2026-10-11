@@ -13,9 +13,9 @@
   "schema_version": 1,
   "scope": "Bounded known-user operator/formal forwarding with callback-free mandatory scoped capture projection and independent word/witness replay;18 clean primary/72 native outcomes,14 supported temporal projections; separate9b material140 census46/92/2, no ordinary/family/aggregate-memory upgrade",
   "source_sha256": {
-    ".github/workflows/ci.yml": "7293ae1610c410f61f12fbbcffa0ba0c1d9a60540f8f9743ed0d2c5b6e6442d3",
-    "AGENTS.md": "12baac979062b2757050bf209579788fe7b7b04f82ae72171f43c1dfe58ca325",
-    "CHANGELOG.md": "6faf12154c4973f46076b8d3437dc8c33f3b77a2607ac1b0681fd498fe7cae89",
+    ".github/workflows/ci.yml": "954cf1df815a2edaabb90bdace5e785260470329a475eb5be6269bd332c49195",
+    "AGENTS.md": "bd2e8fb5226c618a58e4ea7a867718e851ec7bcbfd2de9fd92382d06bfb59c2f",
+    "CHANGELOG.md": "c64bbce4a812b0777304edbd2e6d67e3ebdfae492b3966f95cb92a06dc2ad8cb",
     "conformance/parity-features.json": "98b985566c314c5434145e4d71c08ffc43e9e56bfa147d6bfe3801e316e76a98",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",

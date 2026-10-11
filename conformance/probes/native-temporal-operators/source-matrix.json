@@ -4,9 +4,9 @@
   "schema_version": 1,
   "scope": "Current combined-source integrity only. Original producer783/dc execution, gate and runtime authority remain under history/native-operator-source-runtime-authority; fresh integration observations are separate. No ordinary/family certification.",
   "source_sha256": {
-    ".github/workflows/ci.yml": "7293ae1610c410f61f12fbbcffa0ba0c1d9a60540f8f9743ed0d2c5b6e6442d3",
-    "AGENTS.md": "12baac979062b2757050bf209579788fe7b7b04f82ae72171f43c1dfe58ca325",
-    "CHANGELOG.md": "6faf12154c4973f46076b8d3437dc8c33f3b77a2607ac1b0681fd498fe7cae89",
+    ".github/workflows/ci.yml": "954cf1df815a2edaabb90bdace5e785260470329a475eb5be6269bd332c49195",
+    "AGENTS.md": "bd2e8fb5226c618a58e4ea7a867718e851ec7bcbfd2de9fd92382d06bfb59c2f",
+    "CHANGELOG.md": "c64bbce4a812b0777304edbd2e6d67e3ebdfae492b3966f95cb92a06dc2ad8cb",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/parity-features.json": "98b985566c314c5434145e4d71c08ffc43e9e56bfa147d6bfe3801e316e76a98",
