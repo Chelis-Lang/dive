@@ -1,0 +1,10 @@
+{
+  "source_commit": "822561025807976eaa784c6ac2ce0cdf520080c4",
+  "exit": 0,
+  "source_inputs": 390,
+  "log_sha256": "4aed51829e7da14553c6695e9d271560fe84e46eed566ef80c2d94b3cc2d0464",
+  "binary_sha256": {
+    "dive": "9d42f15ee302a670117cce2a819559fa7f18b82da567c2eac4dc6327150ad024",
+    "dive-conformance": "fc4f53c8007cccca762625361d5d32219a700244cfd5a059d9b83450e083c680"
+  }
+}

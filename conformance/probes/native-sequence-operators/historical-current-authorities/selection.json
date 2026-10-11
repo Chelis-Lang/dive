@@ -10,5 +10,6 @@
   "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
   "conformance/probes/tlc-state-if/source-matrix.json",
   "conformance/probes/tlc-temporal-if-final/source-matrix.json",
-  "conformance/probes/tlc-temporal-if/source-matrix.json"
+  "conformance/probes/tlc-temporal-if/source-matrix.json",
+  "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json"
 ]

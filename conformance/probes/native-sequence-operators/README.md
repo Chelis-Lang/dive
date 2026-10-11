@@ -31,3 +31,22 @@ opposite storage order and exhausted work before additional callbacks.
 Official source-bound CLI/gate receipts are captured separately; the preceding
 claims are focused test obligations. No ordinary scheduling, full semantic
 family certification, broad corpus gain or aggregate-memory claim follows.
+
+## Closed producer evidence
+
+The exact production822561 source now has a closed34-stage local gate:
+956 Rust tests passed, zero skipped, plus doc/layering/standalone/deny and all
+source/Python checks. CM1's21 and ValidationTestSuite's16 models agree at
+workers1/4/8. The executable Rust guide compiles and runs successfully.
+The complete current132 CLI observations retain16 success,16 independently
+validated violations,84 named refusals and16 SANY rejections, with no timeouts.
+The paired API controls add2,504 independent periodic words and both operand,
+ownership/order/budget/configuration/unused-effect/Prime controls.
+
+The first full gate stopped before Rust tests at a stale current
+`public-ir-admission-source-matrix` scope binding. Its failed gate and exact
+matrix/source bytes remain in `development-initial/gate-public-ir-source-binding`.
+Only current source authority hashes were refreshed before the complete green
+rerun; no earlier runtime capture was relabelled or awarded new credit.
+Historical current-authority snapshots retain all13 pre-refresh map bytes.
+No current-main publication or new full-corpus report is claimed here.

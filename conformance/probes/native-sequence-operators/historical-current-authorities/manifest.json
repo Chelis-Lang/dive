@@ -12,6 +12,7 @@
     "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "9a7cb0c93cbe60a84f7cb0f2c77a08066df517fd729ba1d3dcfd6694b916b244",
     "conformance/probes/tlc-state-if/source-matrix.json": "feab2a99c4a2486d81039b539f2018180dc5f5e380db3dd1823cedf630570c84",
     "conformance/probes/tlc-temporal-if-final/source-matrix.json": "91160f5a2c5402f79839bb20307a838d50e08349323b20eb04eefcb6c0609a09",
-    "conformance/probes/tlc-temporal-if/source-matrix.json": "409d6d9a7f7c62978a0f74f05fd13873d8b99cfbfc03134ac91c27a197bf2920"
+    "conformance/probes/tlc-temporal-if/source-matrix.json": "409d6d9a7f7c62978a0f74f05fd13873d8b99cfbfc03134ac91c27a197bf2920",
+    "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "45af9d2ac8a877ddc44b412f64df5a5162e74d39cb19119481bc12d718a01b7f"
   }
 }
