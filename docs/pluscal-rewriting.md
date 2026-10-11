@@ -81,11 +81,12 @@ assignment (including parallel/selectors), skip/goto, await/assert/print, if/els
 either, single-binding with and while, including proved C block wrappers and
 label normalization. Nested `elsif`, multiple `with` binders, multiline
 expressions and normalized ASCII junction columns have proved raw CRC
-derivation. Multiline expression generation remains a named refusal;
+derivation. Bounded sequential non-junction multiline generation is admitted;
+unproved junction, binder, macro and process layouts remain named refusals.
 [the expression guide](pluscal-checksum-expressions.md) gives executable C/P
 and Rust examples and precise newline/column/refusal limits. The separately
 measured Unicode expression controls include `∧`, `≤`, `≠` and `∈`. Definitions,
-macros, procedures, processes, scoped name fixes, branch-internal labels,
+macros, procedures, scoped name fixes, branch-internal labels,
 labelled C wrappers and unproved
 proof-step-shaped expression tokens are named refusals. Use `--checksums tla`
 explicitly when generation is supported but full serialization is not; that

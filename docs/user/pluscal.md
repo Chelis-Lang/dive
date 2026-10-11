@@ -50,13 +50,14 @@ dive translate docs/user/examples/Algorithm.tla --rewrite --compat=tlc --output 
 ```
 
 For admitted sequential shapes, including bounded non-junction multiline
-expressions, the default Full policy derives the algorithm
-AST checksum and generated-body checksum. An explicit `--checksums tla` request
+expressions, and bounded finite processes with declared fairness, the default
+Full policy derives the algorithm AST checksum and generated-body checksum. An explicit `--checksums tla` request
 selects body-only editing and labels TLC mode `tlc+overrides`. The replacement
 module is returned in JSON; the command does not write the source file. Read
 [the editing contract](../pluscal-rewriting.md) and
 [nested checksum expressions](../pluscal-checksum-expressions.md) and
-[multiline expressions](../pluscal-multiline.md) for supported
+[multiline expressions](../pluscal-multiline.md) and
+[finite-process checksums](../pluscal-process-checksums.md) for supported
 shapes, stale-block handling, budgets and executable Rust examples. A matching
 checksum alone is not an artifact or model proof; accepted artifacts also pass
 native enclosing-module analysis.
@@ -64,7 +65,8 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: process/procedure/macro and unproved layout/name-fix shapes may
+translation: procedure/macro ASTs, unproved process option normalization and
+layout/name-fix shapes may
 translate successfully while an editing request explicitly refuses. It never
 silently falls back to body-only editing. Reference-produced but SANY-invalid
 text cannot become an admitted public artifact. The lower-level source parser/raw

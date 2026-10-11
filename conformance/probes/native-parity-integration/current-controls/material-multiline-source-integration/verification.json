@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "base_commit": "ea79ed83d1a39a184a649deb2bf6845bd1be1315",
-  "scope": "Source-integrity and immutable delivery readback only; full combined gate/public execution pending. No fresh combined campaign or family certification.",
+  "scope": "Current combined source integrity only: material captures, property origins, multiline generation and finite-process Full checksum derivation. Runtime and full-gate qualification remain pending.",
   "source_controls": 23,
   "source_controls_passed": true,
   "family_certified": false,
@@ -19,5 +19,8 @@
     "source-controls.log": "0f1aa154cd614d1372f79cdb432f47731a43f15f68895042dc3e3f07fc495d5b",
     "material-independent-delivery-verification.json": "5eb1ac7ff16fb879d83254321984b1c7a33a9325664cbe6f2015788ab180bbe9",
     "material-delivery-index.json": "bbc6ba950ebe0bd9ee206c556c650ed92952fe60efc02e88ae03326daaecef5d"
-  }
+  },
+  "process_checksum_producer": "89822a1c4dd35191c80855fec9cb2e513ad9d6b3",
+  "process_delivery_readback_sha256": "ed403681888a8096b8aef68d5a0ac87acab571c26c38a9a9d2d83fc7917efb55",
+  "combined_execution_passed": false
 }

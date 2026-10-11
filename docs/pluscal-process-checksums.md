@@ -109,3 +109,8 @@ singleton-UNCHANGED spelling rule: names longer than five UTF-16 units use
 five/six boundary and in branches. Default-initializer name conflicts retain
 their measured reference rejection and native named refusal; no scoped renaming
 is guessed. All earlier failed artifacts and gate producers remain archived.
+
+The counts above belong to the immutable process-checksum producer identified
+in the study delivery receipt. They are retained producer evidence; combining
+this code with later temporal, capture or recovery changes requires fresh
+source-bound controls and the current required conformance selection.
