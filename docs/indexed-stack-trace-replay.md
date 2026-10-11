@@ -1,0 +1,68 @@
+# Replaying process-indexed tuple stacks
+
+The independent validator can prove that every value of a finite state function
+is a tuple, from Init and every Next branch. This allows strict replay of admitted
+process-owned procedure stacks without trusting the frame values in a report.
+It does not establish general runtime-name history or full PlusCal parity.
+
+The runnable example is
+[`IndexedStack.tla`](../conformance/probes/indexed-stack-replay/specs/IndexedStack.tla)
+with its adjacent config. Owner 1 drops a tuple element, then owner 2 prepends 4.
+The invariant `x<2` fails on the three-state word. Replay must check the original
+Init, both actual indexed updates, every unchanged owner's values and the ending.
+
+```sh
+# A supported invariant violation exits 12; retain its report.
+dive check conformance/probes/indexed-stack-replay/specs/IndexedStack.tla --compat=tlc --seed 0 --fp 0 --trace-format representation-v2 --output json > indexed-v2.json
+dive validate-trace conformance/probes/indexed-stack-replay/specs/IndexedStack.tla --compat=tlc --seed 0 --fp 0 --trace indexed-v2.json --output json
+# Legacy version 1 stays the default and is separately checked on this shape.
+dive check conformance/probes/indexed-stack-replay/specs/IndexedStack.tla --compat=tlc --seed 0 --fp 0 --output json > indexed-v1.json
+dive validate-trace conformance/probes/indexed-stack-replay/specs/IndexedStack.tla --compat=tlc --seed 0 --fp 0 --trace indexed-v1.json --output json
+cargo run --locked -p dive-api --example indexed_stack_replay
+```
+
+The Cargo example checks both profiles and both transports, and independently
+rejects an altered Next state. Version 2 can retain admitted stored representations;
+transport success is not semantic proof. Use the same source, config, seed/fp,
+profile and original field spellings. Do not rebuild token order from JSON.
+
+## Source admission and limits
+
+Init must establish a finite function constructor with independently tuple-proved
+body; supported domains are closed finite sets or authoritative stored finite-set
+bindings. Every Next disjunct and both conditional branches must preserve that
+range. Single-index EXCEPT replaces only tuple-proved values. Fixed UNCHANGED
+aliases retain ADR 0071 projection identity. Existential finite-owner actions use
+analysis-only binder scopes; no owner values are sampled or enumerated to prove
+shape. Indexed reads inherit only these private source facts. The actual selector,
+record fields and relation still pass their existing bound-role/predicate checks.
+
+Both tuple and range candidates share the existing 32,768-visit/depth 64 proof
+policy, with at most 256 variables and 256 visits per operand proof. The separate
+all-role audit remains limited to 8,192 visits/depth 64. These policies bound admission
+work, not aggregate search memory or exact CPU time. Unsupported shapes or exhausted
+work return the existing named runtime string encounter-order Unsupported.
+
+Off-path string replacements, tuple/string branches, omitted assignments,
+primed self-reference, nested EXCEPT paths, opaque maps, unproved domains and
+runtime effects stay refused. A supplied tuple does not discharge an unproved
+Init/Next branch. Validating a malformed word can fail at shape decoding or a
+predicate, rather than yielding semantic replay credit. History construction
+itself evaluates no expressions, forces no providers and interns no names.
+
+Public arbitrary-state enabledness and lasso predicate APIs do not inherit this
+whole-word induction. Canonical-profile validation stays distinct from TLC-order
+validation. This increment neither changes the checker sequential fallback nor
+widens Random/VIEW admission or mixed-set transport boundaries.
+
+## Evidence boundaries
+
+The immutable before census retains 40 selected procedure cases in both profiles:
+32 sequential originals Valid and32 altered words Invalid in each profile;
+eight process originals/mutants Unsupported in TLC order, and eight originals
+Valid/eight mutants Invalid in canonical order. Eight fresh clean primary process
+runs all report the same invariant/count/depth observations as the native checker.
+Final receiving replay/gate outcomes are recorded separately from that baseline
+and from the original ADR 0071 producer. See [ADR 0081](decisions/0081-indexed-stack-range-replay.md).
+Issue #124 and F-029 remain partial until broader source-owned namespace histories
+are proved; this is a bounded admission rule rather than family certification.

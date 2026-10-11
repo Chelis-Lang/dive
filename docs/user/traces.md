@@ -81,4 +81,4 @@ For TLC-profile sequence calls, [literal tuple admission](../tuple-only-trace-re
 and [bounded tuple-variable histories](../inductive-tuple-trace-replay.md)
 prove operand shape without using the report itself as evidence. The latter
 requires Init and every Next branch to establish/preserve the invariant.
-Arbitrary-state APIs and general saved procedure stacks remain refused.
+A [bounded finite function-range proof](../indexed-stack-trace-replay.md) additionally admits tuple stacks indexed by process owners when Init and every Next branch establish/preserve the range. Arbitrary-state APIs and general saved procedure stacks remain refused.

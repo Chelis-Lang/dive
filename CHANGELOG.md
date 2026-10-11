@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Strict independent trace replay can prove bounded finite tuple ranges from
+  Init and every Next branch, admitting indexed process stacks without using
+  witness values as namespace/type evidence. Unproved branches, strings, opaque
+  maps and effects retain named refusals; arbitrary-state APIs and budgets stay
+  unchanged. Executable CLI/Cargo guides cover both transports and profiles.
+
 - Source-owned pre-startup admission extends opt-in disk seen-state checking to
   proven pure safety PROPERTY/SPECIFICATION roles through the shared binder.
   Temporal/effectful/opaque and evaluation-demanding contexts remain explicit

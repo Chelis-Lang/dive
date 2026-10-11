@@ -539,7 +539,7 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 
 | Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |
 
-| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
+| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at 94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
 
 | Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
 
@@ -828,3 +828,16 @@ commit/tree objects establish the selected Git blob identities without requiring
 an unsquashed producer object in a future clone. This is selected-input provenance,
 not a hermetic build or independent semantic certificate. Runtime/gate histories
 and metadata-only current authority stay separate in the role study.
+
+### Independent indexed tuple-stack replay (#227)
+
+`dive-trace::tuple_history` and private `exists::TupleProof` extend the native
+logical admission with finite function-range tuple invariants (ADR 0081). The
+reference semantics are TLA+ function construction/application, EXCEPT and
+UNCHANGED as evaluated by pinned MIT `tlc2.tool.impl.Tool.eval` at 94d0c50.
+No Java state generation or checker enumeration algorithm is ported. Proof
+construction uses checked bound scopes and source expressions only; selectors,
+Init/Next/ending predicates and transport namespace authority remain independently
+checked. Original 32 sequential and eight process before-profile observations
+retain separate producer/raw identity. No whole-family or arbitrary-state
+namespace certification is claimed.

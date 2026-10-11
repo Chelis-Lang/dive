@@ -1434,7 +1434,7 @@ branches and nested name constructors retain the refusal. A separately bounded
 some variable sequence histories; general saved-frame provenance remains
 unproved. Fixed nested tuple aliases through `UNCHANGED vars` have a bounded
 projection proof (#215); conditional tuple permutations cannot establish
-per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. See [the literal operand slice](tuple-only-trace-replay.md).
+per-variable preservation. The independently measured 32 generated procedure words admit 32/32 in strict replay at this producer; general saved-stack and runtime-name authority remain pending. A [finite tuple-range proof](indexed-stack-trace-replay.md) additionally permits indexed reads only when Init and every Next branch prove a tuple range. Strings, opaque maps, nested updates, primed self-reference and effects keep the refusal; public arbitrary-state APIs do not inherit these facts. See [the literal operand slice](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling

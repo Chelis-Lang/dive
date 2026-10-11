@@ -914,7 +914,8 @@
       "conformance_evidence": "crates/dive-api/tests/trace_controls.rs",
       "issues": [
         124,
-        190
+        190,
+        227
       ],
       "acceptance": "TLC trace loading, generated trace specs, binary/JSON/state/DOT dumps, ALIAS and exploration preserve evaluation side effects; retain clean oracle run when dumpTrace perturbs overrides.",
       "interactions": [
@@ -923,13 +924,16 @@
         "F-026",
         "F-027"
       ],
-      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification.",
+      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required. Separate v2 release selection retains72 independentlyValid originals/216 semanticInvalid mutants and24 matching legacyMixed shapeInvalid rows, with12 interval encoding refusals; no arbitrary representation or family certification. Source-owned finite tuple-range induction additionally admits indexed process stacks only when Init and every Next branch establish/preserve the range; arbitrary-state predicate APIs retain empty facts and broader namespace replay remains partial (#227).",
       "additional_evidence": [
         "docs/trace-representation.md",
         "docs/decisions/0055-stored-trace-transport.md",
         "crates/dive-api/tests/trace_representation.rs",
         "crates/dive-trace/tests/value_representation.rs",
-        "conformance/probes/trace-representation-v2/current/receipt.json"
+        "conformance/probes/trace-representation-v2/current/receipt.json",
+        "docs/indexed-stack-trace-replay.md",
+        "docs/decisions/0081-indexed-stack-range-replay.md",
+        "crates/dive-trace/tests/indexed_stack_history.rs"
       ]
     },
     {
