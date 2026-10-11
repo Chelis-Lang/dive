@@ -2,6 +2,10 @@
 use std::io::Write;
 use std::process::ExitCode;
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "ordered CLI option mapping retains explicit rewrite/checksum opt-ins and failure exits"
+)]
 pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Write) -> ExitCode {
     let mut request = dive_api::TranslationRequest::default();
     match std::env::var("DIVE_COMPAT").as_deref() {
@@ -12,12 +16,31 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
             return ExitCode::from(2);
         }
     }
+    let mut editing = dive_api::RewriteOptions::default();
+    let mut rewrite = false;
+    let mut editing_flag = false;
     let mut file = None;
     let mut json = false;
     let mut arguments = args.iter();
     while let Some(argument) = arguments.next() {
         match argument.as_str() {
             "--compat=tlc" => request.compat_tlc = true,
+            "--rewrite" => rewrite = true,
+            "--replace-modified" => {
+                editing.replace_modified = true;
+                editing_flag = true;
+            }
+            "--checksums" => {
+                editing_flag = true;
+                match arguments.next().map(String::as_str) {
+                    Some("tla") => editing.checksums = dive_api::ChecksumPolicy::TranslationOnly,
+                    Some("full") => editing.checksums = dive_api::ChecksumPolicy::Full,
+                    _ => {
+                        let _ = writeln!(err, "error: --checksums expects tla|full");
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             "--label" | "-label" | "--report-labels" | "-reportLabels" => {
                 request.limits.insert_missing_labels = true;
             }
@@ -78,23 +101,44 @@ pub(super) fn command(args: &[String], out: &mut impl Write, err: &mut impl Writ
         );
         return ExitCode::from(2);
     };
+    if editing_flag && !rewrite {
+        let _ = writeln!(err, "error: checksum/replacement flags require --rewrite");
+        return ExitCode::from(2);
+    }
     let path = std::path::Path::new(file);
     if let Some(parent) = path.parent() {
         request.analyze.after_standard.push(parent.into());
     }
-    match dive_api::translate_file(path, &request) {
-        Ok(report) => {
-            let document = report.to_json();
+    let result = if rewrite {
+        dive_api::rewrite_file(
+            path,
+            &dive_api::RewriteRequest {
+                translation: request,
+                editing,
+            },
+        )
+        .map(|report| (report.exit_code(), report.accepted(), report.to_json()))
+    } else {
+        dive_api::translate_file(path, &request)
+            .map(|report| (report.exit_code(), report.accepted(), report.to_json()))
+    };
+    match result {
+        Ok((status, accepted, document)) => {
             if json {
                 let _ = writeln!(out, "{document}");
-            } else if report.accepted() {
-                if let Some(module) = document["module_source"].as_str() {
+            } else if accepted {
+                let source = if rewrite {
+                    &document["replacement"]["module_source"]
+                } else {
+                    &document["module_source"]
+                };
+                if let Some(module) = source.as_str() {
                     let _ = write!(out, "{module}");
                 }
             } else {
                 let _ = writeln!(err, "{document}");
             }
-            ExitCode::from(report.exit_code())
+            ExitCode::from(status)
         }
         Err(error) => {
             let _ = writeln!(err, "error: {error}");

@@ -1,0 +1,35 @@
+RUN test-validation-import.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.628s
+
+OK
+RESULT 0
+RUN test-frontend-campaign.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 5.340s
+
+OK
+RESULT 0
+RUN test-parity-ledger.py
+E.......
+======================================================================
+ERROR: test_current_census_and_individual_evidence (__main__.LedgerControls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-rewrite-publication-work/scripts/test-parity-ledger.py", line 31, in test_current_census_and_individual_evidence
+    counts = CHECK.validate(REPO, self.ledger, self.markdown)
+  File "/Users/jeff/code/dive-pluscal-rewrite-publication-work/scripts/check-parity-ledger.py", line 69, in validate
+    evidence(root, row.get(key), f"{fid} {key}")
+  File "/Users/jeff/code/dive-pluscal-rewrite-publication-work/scripts/check-parity-ledger.py", line 35, in evidence
+    require(target.is_file(), f"{label}: evidence file does not exist: {value}")
+  File "/Users/jeff/code/dive-pluscal-rewrite-publication-work/scripts/check-parity-ledger.py", line 20, in require
+    raise ValueError(message)
+ValueError: F-034 conformance_evidence: evidence file does not exist: docs/pluscal-process-procedures.md; docs/pluscal-rewriting.md (bounded explicit body CRC/source editing, no full AST CRC/file-format/proof credit)
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.526s
+
+FAILED (errors=1)
+RESULT 1

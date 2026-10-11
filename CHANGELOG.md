@@ -34,6 +34,11 @@ All notable changes to this project are documented here. The project will follow
   failures, typed TLC errors and source-order fallback before graph work.
 
 
+- Bounded in-memory PlusCal block replacement through `dive translate --rewrite`
+  and Rust APIs. Explicit `--checksums tla` records body CRC and disables unproved
+  algorithm checking; modified bodies need `--replace-modified`. Full AST CRC
+  and file writes remain named unsupported. See `docs/pluscal-rewriting.md`.
+
 - Native process-owned procedure fairness for bounded finite callers: reachable
   WF/SF clauses, process/procedure label modifiers and pinned option precedence,
   with formula/closure quotas. Scoped renaming and strict namespace witnesses
@@ -55,6 +60,7 @@ All notable changes to this project are documented here. The project will follow
   are rejected. See `docs/pluscal-process-procedures.md`.
 
 
+
 - Native recursive sequential PlusCal procedures: self/mutual call stacks,
   frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
   retain pinned artifacts/errors without unrolling. Invalid upstream output is
@@ -62,6 +68,21 @@ All notable changes to this project are documented here. The project will follow
   separate. Process-owned/scoped renaming and strict namespace provenance are
   still pending. See `docs/pluscal-recursive-procedures.md`.
 
+
+- Native PlusCal translation supports multiple disjoint sequential procedures and
+  nonrecursive nested calls, with procedure-owned frames and exact adjacent
+  call/return normalization. Cycles, unproved name rewriting and process stacks
+  remained named refusals in that earlier graph increment. Generated modules are validated artifacts, never proofs;
+  strict namespace/deadlock replay gaps remain explicit.
+
+- Native bounded sequential PlusCal procedure calls/returns: saved stack frames,
+  parameter/local initialization, procedure action wrappers and original spans;
+  unproved scopes refuse explicitly, with qualified replay evidence kept separate.
+
+- Native PlusCal translation admits multiple disjoint finite process blocks, with
+  source-owned scalar/indexed storage, shared CASE `pc` initialization, actions
+  and fairness formulas. Aggregate bounds and named scope/domain refusals remain
+  active; artifacts report no exhaustive search or model proof.
 
 - Bounded single-process PlusCal translation supports weak/strong declarations,
   post-colon `+`/`-` label modifiers and pinned `-nof`/`-wf`/`-sf`/`-wfNext`
@@ -423,6 +444,8 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Native bounded C/P PlusCal macro expansion, simultaneous argument/assignment-selector substitution, nested prior declarations, original macro call/definition locations, and finite process/fairness interactions. Enclosing-module admission rejects invalid reference outputs; expansion budgets return named resource results. Full procedure/name/options/rewrite/map parity remains pending.
+
 - Opt-in `dive check --lncheck final --lasso short`, using the bounded final
   temporal backend and independently validated lossless lassos. Version 2
   reports retain complete property claims, seed, store and actual worker width;

@@ -1,0 +1,5 @@
+Accounted 96 rewrite-acceptance
+Accounted 72 partial-headers
+Accounted 84 corrected-c
+Accounted 6 fair-checksum
+{"editor": {"uncredited-primary-rejection": 93, "uncredited-primary-invalid-artifact": 3, "partial-policy-edit": 98, "named-editor-refusal": 16, "exact-primary-byte-match": 48}, "dive": {"rejection-accounted": 89, "native-refusal": 23, "native-admitted-partial-checksum": 146}, "tlc": {"rejection-accounted": 89, "native-refusal": 23, "native-admitted-partial-checksum": 146}}

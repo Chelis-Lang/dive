@@ -391,12 +391,14 @@ unused-standard-body refusal are preserved in
 
 ### D-008 progress: native PlusCal artifact admission
 
+
 The bounded [native macro translator](pluscal-macros.md) retains all invalid
 primary outputs as diagnostic evidence. Under D-008, public CLI/API module
 admission rejects them in both profiles and never grants artifact/proof credit.
 Lexical macro substitution itself remains reference-compatible; general binders,
 procedure interactions and name rewrites remain explicit refusals. No new
 capture-avoidance or Unicode-string default is adopted.
+
 
 
 The recursive procedure selection adds a D-008 artifact-admission case: a
@@ -515,6 +517,7 @@ admission remain; no aggregate memory bound or periodic-family claim is added.
 See [the user guide](tlc-temporal-if.md) and
 `conformance/probes/tlc-temporal-if-final/`.
 
+
 D-008 now includes native single finite process procedure ownership (ADR 0044).
 No result-changing default is introduced: all owned call/return generation is
 matched to the pinned reference. Explicit source `stack` stays unsubstituted;
@@ -572,3 +575,17 @@ Java byte-interop or archive certificate claim. Counter reset/Retain and pure
 VIEW/symmetry witnesses retain their existing semantics. See
 [the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
 and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
+
+## D-020: fair-algorithm checksum collision (candidate)
+
+The pinned PlusCal translator computes `7c28162a` for every tested `--fair`
+algorithm, because its ternary checksum expression hashes only `"fair"` and
+omits the normalized AST. Changing `x=0` to `x=9` without changing the translation
+leaves `Validator` reporting `NO_DIVERGENCE`. C/P primary bodies still have different
+TLA CRCs. No native corrected default or full algorithm-CRC implementation is
+adopted. Native `--rewrite --checksums tla` disables algorithm CRC explicitly;
+`--checksums full` refuses by name. Compatibility reproduction of the full
+algorithm CRC remains pending exact AST serialization. See D-020 in the
+[user log](tlc-differences.md), D-008 for separate artifact admission, and
+`crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
+source-edit controls.

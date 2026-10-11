@@ -1551,6 +1551,7 @@ rewrites remain named refusals. Source PlusCal strings deliberately preserve the
 pinned printable-ASCII boundary; no wider Unicode-string default is adopted.
 
 
+
 The bounded sequential PlusCal procedure path now generates saved parameter/local
 frames and call/return continuations. Its 84-row selection keeps four primary
 SANY-invalid modules uncredited. Thirty generated invariant witnesses reproduce
@@ -1563,6 +1564,12 @@ and nonrecursive nested calls. Procedure fallthrough still generates `pc="Error"
 and may deadlock, matching the reference. That study refused cycles (including unused ones), name
 rewriting, process-owned stacks and unproved procedure-label/macro interactions.
 The current recursive path is described below; its original study is unchanged. Strict stack witness replay remains pending under
+
+The bounded sequential PlusCal graph path now admits multiple disjoint procedures
+and nonrecursive nested calls. Procedure fallthrough still generates `pc="Error"`
+and may deadlock, matching the reference. Cycles (including unused ones), name
+rewriting, process-owned stacks and unproved procedure-label/macro interactions
+remain honest named refusals. Strict stack witness replay remains pending under
 #124; separately qualified canonical replay confers no TLC-profile certification.
 See [procedure graph use and limits](pluscal-procedure-graphs.md).
 
@@ -1698,6 +1705,7 @@ admission remain; no aggregate memory bound or periodic-family claim is added.
 See [the user guide](tlc-temporal-if.md) and
 `conformance/probes/tlc-temporal-if-final/`.
 
+
 **PlusCal process procedure status (D-008):** one unfair finite process block
 can now call disjoint procedures in both syntaxes, including recursive and
 self-tail transfers. Slots and stack are owned by the process ID, while explicit
@@ -1778,3 +1786,36 @@ failure rather than silently dropping a clause. Generation does not prove
 liveness or remove strict #124 namespace replay restrictions. See
 [fair procedure use](pluscal-procedure-fairness.md) for runnable C/P and Rust
 examples and the complete supported/refused contract.
+
+
+## D-020: fair-algorithm checksums do not detect source edits
+
+This minimal source has the same algorithm checksum after changing `x=0` to `x=9`:
+
+```tla
+---- MODULE FairCRC ----
+EXTENDS Integers
+(* --fair algorithm A variable x=0; begin L:x:=1; E:skip; end algorithm; *)
+====
+```
+
+The pinned translator (commit `94d0c50`) emits pcal checksum **`7c28162a`** for
+initial values 0, 1 and 9 in both C and P syntax. Their TLA-body CRCs are respectively
+**`64f9cea5`, `7faa8ba4`, `a530a3ac`**. Editing just the algorithm initializer in
+the original translated file from 0 to 9 still gives **`NO_DIVERGENCE`** in all
+four original/edited C/P validator controls. This is a missed source edit, not
+an admitted algorithm-equivalence claim: `trans.performTranslation` and
+`Validator` hash `"fair"` alone because of Java ternary-expression precedence.
+
+**Status: measured upstream candidate; no native correction adopted.** Native
+block rewriting offers explicit `--checksums tla`, which disables algorithm CRC
+and verifies only the generated body. Full AST checksum requests are refused
+until the normalized/name-fixed serializer is independently proved. That partial
+policy is also an explicit override under `--compat=tlc`; it does not claim to
+reproduce or fix full algorithm checking. A future corrected option would require
+a named TLC counterpart and its own approved default decision.
+
+All six primary sources/artifacts and four unchanged-body source-edit controls
+remain in `crates/dive-pluscal/rewrite-acceptance/fair-checksum/`. Body CRC and
+usable artifact admission are separate contracts (D-008). See
+[block rewriting](pluscal-rewriting.md) for executable CLI/Rust usage and limits.
