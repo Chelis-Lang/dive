@@ -416,7 +416,7 @@ impl<'a> Run<'a> {
 
     /// Validates `trace`.
     pub(crate) fn validate(&mut self, trace: &Trace) -> Validation {
-        if self.model.runtime_name_order {
+        if !crate::runtime_order::admitted(self.model) {
             return Validation::Unsupported(RUNTIME_NAMES_UNSUPPORTED.to_owned());
         }
         match self.run(trace) {

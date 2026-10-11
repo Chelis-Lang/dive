@@ -446,7 +446,7 @@ pub fn validate_tlc(
     };
     // Refuse before interpretation heuristics evaluate predicates. A lossy
     // witness must not construct the namespace history that proves itself.
-    if model.runtime_name_order {
+    if !crate::runtime_order::admitted(model) {
         return TlcReading {
             report: report(
                 Validation::Unsupported(crate::RUNTIME_NAMES_UNSUPPORTED.to_owned()),

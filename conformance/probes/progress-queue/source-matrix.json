@@ -20,8 +20,8 @@
     "docs/producer-progress-requests.md": "99edbe43e575672f4fc28f9a36a14365ef0c17251b8df9a7125df91a9a28d7a3",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "c4a48711083342f3434b8727b192970958b0d3be7bfc5080534922e5e0fb3329",
-    ".github/workflows/ci.yml": "3554b4f09a7c60f8d9cee55d8b580f5d46c8d4e8c7aecd20c0878bba238e43d6",
+    "AGENTS.md": "9bc0cf431f83ee23e30d87c73a4680e1dbeefd9dea035c6dc36a401c1d30baa0",
+    ".github/workflows/ci.yml": "6c3c9b699ac410733b41a4a6f409e17df22e36e5d1e8397453a2d19f9ab194b2",
     "conformance/parity-features.json": "507219cb985cee2959c05d908ca5dfa03987853bb3b580a7dd74e79e7fbf49c9",
     "crates/dive-check/tests/observer_barrier.rs": "c69be24a810b579f42903352f1cb6631d0cbc8e24f3f6bc7a01489405363c566"
   },

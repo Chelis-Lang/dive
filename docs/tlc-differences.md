@@ -1390,6 +1390,11 @@ rejects the forged `"7"` step. Ordinary literal strings remain supported.
 This is dive's own limitation, not a new language default. Establishing namespace
 provenance independently is required before lifting the refusal. The admission
 analysis conservatively includes operators with both tuple and string forms.
+Whole-word replay can now discharge that guard for independently proved
+tuple-only `Tail`, concatenation and `SubSeq` operands, without evaluating
+their arguments or using witness values as type evidence. Strings, mixed
+branches, nested name constructors and variable procedure stacks retain the
+refusal. See [the admitted slice and its limits](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling
