@@ -72,7 +72,7 @@ Declared process fairness and `L:+`/`L:-` label modifiers are serialized in lexi
 order within their owner. Proved explicit fairness and automatic-label settings
 are documented in [the option guide](pluscal-process-checksum-options.md);
 unproved source-option declarations remain named refusals. General renaming, definitions,
-macros, procedures and branch-internal labels also refuse; no placeholder Full
+unproved macro layouts, procedures and branch-internal labels also refuse; no placeholder Full
 checksum is invented. Multiline process expressions may have exact raw AST
 serialization while generation still refuses their unproved layout. Raw checksum
 evidence is not public artifact admission. Invalid primary artifacts remain
@@ -121,3 +121,7 @@ explicit fairness/automatic-label settings. See [the option guide](pluscal-proce
 for supported combinations, exact CLI/API distinctions, configured Validator
 evidence and the source-option-comment refusal. The original selection above
 remains its own immutable producer history.
+
+Bounded nonrecursive macro Full serialization is now separately proved in
+[the macro guide](pluscal-macro-checksums.md); the original process selection
+and its historical refusal evidence remain unchanged.

@@ -1,9 +1,9 @@
-//! dive's lossless JSON form of values (trace format version 1).
+//! dive's tagged JSON form of values (trace format version 1).
 //!
 //! TLC's `-dumpTrace json` form ([`dive_value::json`]) cannot be read back
 //! exactly: a set and a sequence are both arrays, a string and a model value
-//! are both strings. dive's form keeps every distinction, and stays plain
-//! JSON for the common scalar cases:
+//! are both strings. dive's form distinguishes these extensional value kinds
+//! and stays plain JSON for the common scalar cases:
 //!
 //! | Value | JSON |
 //! |---|---|
@@ -20,8 +20,14 @@
 //! A function whose domain is `1..n` is a `seq`; one whose domain is a
 //! non-empty set of strings is a `record`. Reading normalizes, so a `fcn`
 //! with domain `{1, 2}` reads as the sequence it equals. Sets are written
-//! in the run's normalized order, but read in any order. Infinite sets
-//! (`Nat`) have no form: TLC cannot hold one in a state either.
+//! in the run's normalized order; reading applies the value layer's construction
+//! and comparability rules. This is not a lossless encoding of TLC construction
+//! provenance or concrete function representation. In particular, some mixed
+//! record/tuple sets serialize but fail to read back after enumeration changes
+//! their order. Such transport failures cannot count as independent semantic
+//! validation; see the maintained limitations in `docs/tlc-differences.md` and
+//! issue #190. Infinite sets (`Nat`) have no form: TLC cannot hold one in a state
+//! either.
 
 use dive_value::{Ctx, Int, Interner, Value};
 use serde_json::{Map, Value as J, json};

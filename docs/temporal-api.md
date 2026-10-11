@@ -83,7 +83,7 @@ unsupported formulas, missing independent covers and limits return no verdict.
 Safety violations found during exploration retain their full original report.
 
 Opt-in requests use JSON schema 2. Ordinary checks retain schema 1. A temporal
-violation includes `properties`, a lossless `counterexample.trace`, a 1-based
+violation includes `properties`, an independently admitted tagged `counterexample.trace`, a 1-based
 `counterexample.back_to`, and `counterexample.validation: "valid"`. The trace
 document itself retains its own schema and 0-based back edge. Save the trace
 field and replay it with `dive validate-trace` against the same spec/config.

@@ -310,6 +310,8 @@ impl Writer {
             writer.process(parsed, process, &labels[start..end], options)
         })
     }
+    // Keep the exact token/position serialization contract together for audit.
+    #[allow(clippy::too_many_lines)]
     fn expression(
         &mut self,
         parsed: &macros::Expanded,
@@ -317,6 +319,7 @@ impl Writer {
     ) -> Result<(), TranslationError> {
         self.push("<< ")?;
         if let Some(expr) = expr {
+            let diagnostic_span = parsed.origin(expr.span);
             let text = parsed.text(expr.span).unwrap_or_default();
             // The shared SANY lexer recognizes proof-step tokens; pinned
             // PlusCal Tokenize does not. Never invent a reference AST from
@@ -334,20 +337,39 @@ impl Writer {
                 })
             {
                 return Err(unsupported(
-                    expr.span,
+                    diagnostic_span,
                     "proof-step-shaped expression lexer tokens",
                 ));
             }
             let tokens = parsed.tokens(expr);
+            let substituted = parsed.substituted(expr);
+            if substituted
+                && tokens
+                    .iter()
+                    .any(|token| matches!(token.text.as_str(), "/\\" | "\\/"))
+            {
+                return Err(unsupported(
+                    diagnostic_span,
+                    "junction columns in substituted macro expressions",
+                ));
+            }
             let mut located = Vec::with_capacity(tokens.len());
             let mut previous = None;
             let mut minimum = usize::MAX;
             for token in tokens {
+                if substituted {
+                    // ParseAlgorithm substitutes single-line arguments in the
+                    // macro expression's logical line. Provenance spans can
+                    // point to different physical definition/call lines.
+                    located.push((0, 0));
+                    minimum = 0;
+                    continue;
+                }
                 let index = self
                     .positions
                     .binary_search_by_key(&token.span.start, |(offset, _)| *offset)
                     .map_err(|_| {
-                        unsupported(expr.span, "unknown substituted expression token location")
+                        unsupported(diagnostic_span, "unknown expression token location")
                     })?;
                 let (line, column) = self.positions[index].1;
                 if previous != Some(line) {
@@ -612,7 +634,9 @@ impl Writer {
 /// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// macros, procedures and branch-internal labels are refused. Admitted process
+/// procedures and branch-internal labels are refused. Pure bounded nonrecursive
+/// macros use single-line substitutions; multiline arguments and substituted
+/// junction columns remain refused. Admitted process
 /// fairness and automatic-label options retain the pinned parser precedence. Native generation/admission
 /// remains separate. A scoped worker provides a 16 MiB stack.
 ///
@@ -668,14 +692,23 @@ fn checksum_inline(
     let context = super::resolve_translation_options(source, options)?;
     let options = &context.effective;
     let algorithm = &parsed.algorithm;
-    if !algorithm.macros.is_empty()
-        || !algorithm.procedures.is_empty()
-        || algorithm.definitions.is_some()
-    {
-        return Err(unsupported(
-            algorithm.span,
-            "macros, procedures or definitions",
-        ));
+    if !algorithm.procedures.is_empty() || algorithm.definitions.is_some() {
+        return Err(unsupported(algorithm.span, "procedures or definitions"));
+    }
+    for statement in &parsed.statements {
+        if let StatementKind::MacroCall { arguments, .. } = &statement.kind {
+            for argument in arguments {
+                if parsed
+                    .text(argument.span)
+                    .is_some_and(|text| text.contains(['\n', '\r']))
+                {
+                    return Err(unsupported(
+                        argument.span,
+                        "multiline macro argument layout",
+                    ));
+                }
+            }
+        }
     }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
