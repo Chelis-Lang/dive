@@ -136,3 +136,30 @@ Invalid primary output is not admitted or counted as successful conformance.
 Global source/token/node/depth/action/output/document budgets are unchanged.
 No new dependency edge, formatter contract, checksum default or D-020 correction
 is introduced. The executable user contract is `docs/pluscal-multiline.md`.
+
+## Addendum: bounded declared-fairness process AST serialization
+
+Native `AST.Multiprocess`/`Process` templates preserve source-ordered process
+records, declarations, ID expressions, labels and declared fairness metadata.
+`VectorToSeqQuotedString` owns the exact modifier list formatting. Statement
+arena allocation order is not source encounter order, so label metadata is
+indexed once by source offset and partitioned by owning process span. Existing
+finite-domain/name/normalization admission and global budgets remain prerequisites.
+Non-default process fairness/automatic-label options, scoped renaming, definitions,
+macros/procedures and internal branch labels remain named Full refusals until
+post-Explode serialization is proved. Java remains development-only.
+
+The complete retained raw selection and failed parent/source histories precede
+admission. Public Full admission independently requires exact AST bytes/CRC,
+whole-module operator CST equality, SANY and Validator controls. Supplied-body
+editing and finite model/witness checks remain separate. Both profiles retain
+the D-020 fair-header-only weakness; no new checksum policy, formatter or
+filesystem contract is adopted. No dependency graph change is needed.
+The executable user contract is `docs/pluscal-process-checksums.md`.
+
+Additional owner/name controls exposed an inherited singleton identity spelling
+gap. The narrow `PcalTLAGen.GenLabeledStmt`/`GenIf`/`GenEither` rule emits
+`UNCHANGED name` above five Java UTF-16 units and `name' = name` otherwise.
+Original whole-operator CST failure, five/six controls and default-initializer
+name-conflict refusals are retained before the repair; no semantic/default
+change is introduced. Modifier vectors remain partitioned by source owner.

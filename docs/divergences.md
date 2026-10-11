@@ -333,3 +333,11 @@ multiline junction/macro/process/procedure layouts and empty-Then generation sti
 refuse explicitly. All 320 primary controls and original
 failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
 remains compatibility reproduction only; no stronger checksum default.
+
+
+D-008 finite-process Full checksum continuation: declared-fairness records and
+source-owned modifier lists have native post-Explode byte/CRC controls in
+`crates/dive-pluscal/process-checksum-acceptance/`. Exact-CST/SANY/Validator
+admission and finite model/witness stages remain separate. Unproved process
+options/calls/name scopes stay Full refusals in both profiles. D-020 remains
+reference reproduction only; no stronger checksum default or family certificate.

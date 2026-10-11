@@ -1,0 +1,99 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.197s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 4.482s
+
+OK
+   Compiling syn v3.0.6
+    Checking num-traits v0.2.19
+    Checking zmij v1.0.23
+    Checking memchr v2.8.3
+    Checking itoa v1.0.18
+    Checking serde_json v1.0.151
+    Checking num-integer v0.1.47
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-sema)
+   Compiling serde_derive v1.0.229
+    Checking num-bigint v0.5.1
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-value)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-config)
+   Compiling libc v0.2.190
+    Checking serde v1.0.229
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-ir)
+    Checking cfg-if v1.0.5
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-store)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-pluscal)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-eval)
+   Compiling getrandom v0.3.4
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-trace)
+    Checking bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+    Checking rand_core v0.9.5
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-liveness)
+    Checking rand v0.9.5
+    Checking rand_xorshift v0.4.0
+    Checking unarray v0.1.4
+    Checking regex-syntax v0.8.11
+    Checking errno v0.3.14
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-api)
+   Compiling rustix v1.1.5
+    Checking ppv-lite86 v0.2.21
+    Checking rand_chacha v0.9.0
+    Checking proptest v1.11.0
+    Checking terminal_size v0.4.4
+    Checking typenum v1.20.1
+    Checking clap_lex v1.1.1
+    Checking anstyle v1.0.14
+    Checking clap_builder v4.6.7
+    Checking hybrid-array v0.4.15
+   Compiling syn v2.0.119
+    Checking clap v4.6.7
+    Checking condtype v1.3.0
+    Checking regex-lite v0.1.9
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking winnow v1.0.4
+    Checking const-oid v0.10.2
+   Compiling signal-hook v0.4.5
+    Checking digest v0.11.3
+    Checking toml_parser v1.1.4+spec-1.1.0
+   Compiling divan-macros v0.1.21
+    Checking signal-hook-registry v1.4.8
+    Checking cpufeatures v0.3.1
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking toml v1.1.7+spec-1.1.0
+    Checking sha2 v0.11.0
+    Checking divan v0.1.21
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-conformance)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-bench)
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-syntax)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-cli)
+error: this function's return value is unnecessary
+  --> crates/dive-pluscal/tests/process_checksum.rs:60:1
+   |
+60 | / fn unproved_process_normalization_options_have_no_full_crc()
+61 | | -> Result<(), Box<dyn std::error::Error>> {
+   | |_________________________________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#unnecessary_wraps
+   = note: `-D clippy::unnecessary-wraps` implied by `-D clippy::pedantic`
+   = help: to override `-D clippy::pedantic` add `#[allow(clippy::unnecessary_wraps)]`
+help: remove the return type...
+   |
+61 - -> Result<(), Box<dyn std::error::Error>> {
+61 + -> () {
+   |
+help: ...and then remove returned values
+   |
+86 -     Ok(())
+   |
+
+error: could not compile `dive-pluscal` (test "process_checksum") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

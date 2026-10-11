@@ -1353,3 +1353,18 @@ invalid generated artifact is admitted. See
 [the scope and executable examples](pluscal-checksum-expressions.md). D-020
 continues to expose the fair-header-only checksum weakness without correcting
 it by default.
+
+
+**D-008 finite-process Full reports.** Declared-fairness finite process records
+now have proved native post-translation AST/CRC derivation, separately checked
+from admitted generated modules. Raw multiline process checksum matching does
+not lift the generator's layout refusal. Non-default process options, name
+rewrites and procedure/macro ASTs remain named Full refusals. Both profiles
+report nonproof editing results. See [process checksum examples](pluscal-process-checksums.md).
+D-020's fair-header-only source detection weakness remains explicit and unchanged.
+
+The process checksum source study retains a native generator CST failure for a
+long singleton unchanged variable. The pinned five-unit UTF-16 identity spelling
+rule is now matched; this restores artifact fidelity in both profiles, without
+a new divergence or proof claim. Opposite process modifiers and default-value
+name conflicts have separate captured dispositions.

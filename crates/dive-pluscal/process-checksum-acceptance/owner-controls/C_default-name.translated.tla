@@ -1,0 +1,40 @@
+---- MODULE C_default_name ----
+EXTENDS Integers, TLC, Sequences
+(* --algorithm A {variables g=0,defaultInitValue=9; process(P = 1){L:g:=1; E:skip;}} *)
+\* BEGIN TRANSLATION (chksum(pcal) = "4a066f6c" /\ chksum(tla) = "1e05ca1e")
+VARIABLES pc, g, defaultInitValue
+
+vars == << pc, g, defaultInitValue >>
+
+ProcSet == {1}
+
+Init == (* Global variables *)
+        /\ g = 0
+        /\ defaultInitValue = 9
+        /\ pc = [self \in ProcSet |-> "L"]
+
+L == /\ pc[1] = "L"
+     /\ g' = 1
+     /\ pc' = [pc EXCEPT ![1] = "E"]
+     /\ UNCHANGED defaultInitValue
+
+E == /\ pc[1] = "E"
+     /\ TRUE
+     /\ pc' = [pc EXCEPT ![1] = "Done"]
+     /\ UNCHANGED << g, defaultInitValue >>
+
+P == L \/ E
+
+(* Allow infinite stuttering to prevent deadlock on termination. *)
+Terminating == /\ \A self \in ProcSet: pc[self] = "Done"
+               /\ UNCHANGED vars
+
+Next == P
+           \/ Terminating
+
+Spec == Init /\ [][Next]_vars
+
+Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+
+\* END TRANSLATION 
+====

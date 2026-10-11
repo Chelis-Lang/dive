@@ -1,0 +1,288 @@
+{
+  "accepted": true,
+  "algorithm_checksum_verified": true,
+  "analysis": {
+    "accepted": true,
+    "command": "analyze",
+    "definitions": [
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "vars"
+      },
+      {
+        "arity": 0,
+        "level": "constant",
+        "name": "ProcSet"
+      },
+      {
+        "arity": 0,
+        "level": "state",
+        "name": "Init"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "L"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "E"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "P"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Terminating"
+      },
+      {
+        "arity": 0,
+        "level": "action",
+        "name": "Next"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Spec"
+      },
+      {
+        "arity": 0,
+        "level": "temporal",
+        "name": "Termination"
+      }
+    ],
+    "diagnostics": [],
+    "file": "C_constant.tla",
+    "files": [
+      {
+        "id": 0,
+        "origin": "text",
+        "path": "C_constant.tla"
+      },
+      {
+        "id": 1,
+        "origin": "standard",
+        "path": "<standard>/Integers.tla"
+      },
+      {
+        "id": 2,
+        "origin": "standard",
+        "path": "<standard>/TLC.tla"
+      },
+      {
+        "id": 3,
+        "origin": "standard",
+        "path": "<standard>/Sequences.tla"
+      },
+      {
+        "id": 4,
+        "origin": "standard",
+        "path": "<standard>/Naturals.tla"
+      },
+      {
+        "id": 5,
+        "origin": "standard",
+        "path": "<standard>/FiniteSets.tla"
+      }
+    ],
+    "module": "C_constant",
+    "modules": [
+      "Naturals",
+      "Integers",
+      "Sequences",
+      "FiniteSets",
+      "TLC",
+      "C_constant"
+    ],
+    "schema_version": 1
+  },
+  "artifact": {
+    "actions": [
+      "L",
+      "E"
+    ],
+    "configuration": "",
+    "inserted_labels": [],
+    "mappings": [
+      {
+        "generated": {
+          "end": 38,
+          "start": 0
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 54,
+          "start": 38
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 115,
+          "start": 54
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 192,
+          "start": 115
+        },
+        "original": {
+          "end": 118,
+          "start": 109
+        }
+      },
+      {
+        "generated": {
+          "end": 281,
+          "start": 192
+        },
+        "original": {
+          "end": 126,
+          "start": 119
+        }
+      },
+      {
+        "generated": {
+          "end": 294,
+          "start": 281
+        },
+        "original": {
+          "end": 127,
+          "start": 94
+        }
+      },
+      {
+        "generated": {
+          "end": 385,
+          "start": 294
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 411,
+          "start": 385
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 442,
+          "start": 411
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      },
+      {
+        "generated": {
+          "end": 500,
+          "start": 442
+        },
+        "original": {
+          "end": 128,
+          "start": 64
+        }
+      }
+    ],
+    "processes": [
+      {
+        "binding_kind": "Equal",
+        "id_source": {
+          "end": 107,
+          "start": 106
+        },
+        "local_variables": [],
+        "name": "P",
+        "source": {
+          "end": 127,
+          "start": 94
+        }
+      }
+    ],
+    "program_counter": true,
+    "tla": "VARIABLES pc, g\n\nvars == << pc, g >>\n\nProcSet == {1}\n\nInit == /\\ g = 0\n        /\\ pc = [self \\in ProcSet |-> \"L\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ g' = g + 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n\nE == /\\ pc[1] = \"E\"\n     /\\ TRUE\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ g' = g\n\nP == L \\/ E\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n",
+    "warnings": []
+  },
+  "body_checksum_verified": true,
+  "command": "translate-rewrite",
+  "editing": {
+    "checksums": "Full",
+    "max_bytes": 4194304,
+    "normalize_newlines": false,
+    "replace_modified": false
+  },
+  "exact_primary_generated_bytes": false,
+  "exhaustive": false,
+  "exit_code": 0,
+  "file": "C_constant.tla",
+  "model_proved": false,
+  "overrides": [],
+  "pending": [
+    "unproved-post-translation-ast-checksum-shapes",
+    "exact-primary-generator-pretty-bytes",
+    "file-writing",
+    "mapping-format",
+    "full-pluscal-translation"
+  ],
+  "profile": "tlc",
+  "replacement": {
+    "algorithm_checksum": {
+      "checksum": "6939cd64",
+      "fair_header_crc_only": false,
+      "serialized_ast": "[type    |-> \"multiprocess\", \n name  |-> \"A\", \n decls |-> <<[var |-> \"g\", eqOrIn |-> \"=\", val |-> << \"0\" >>]>>,\n defs  |-> <<  >>,\n prcds |-> <<>>,\n procs |-> <<[name   |-> \"P\",\n              fairness |-> \"unfair\", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<>>,\n              eqOrIn |-> \"=\",\n              id     |-> << \"1\" >>,\n              decls  |-> <<>>,\n              body   |-> <<[label |-> \"L\",\n                            stmts |-> <<[type |-> \"assignment\",\n                                         ass  |-> <<[lhs |-> [var |-> \"g\", sub |-> <<  >>],\n                                                     rhs |-> << \"g\", \"+\", \"1\" >>]>>]>>], \n                           [label |-> \"E\",\n                            stmts |-> <<[type |-> \"skip\"]>>]>>]>>]"
+    },
+    "algorithm_checksum_verified": true,
+    "module_source": "---- MODULE C_constant ----\nEXTENDS Integers, TLC, Sequences\n(* --algorithm A {variables g=0; process(P = 1){L:g:=g+1; E:skip;}} *)\n\\* BEGIN TRANSLATION (chksum(pcal) = \"6939cd64\" /\\ chksum(tla) = \"ee392d18\")\nVARIABLES pc, g\n\nvars == << pc, g >>\n\nProcSet == {1}\n\nInit == /\\ g = 0\n        /\\ pc = [self \\in ProcSet |-> \"L\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ g' = g + 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n\nE == /\\ pc[1] = \"E\"\n     /\\ TRUE\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ g' = g\n\nP == L \\/ E\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n\\* END TRANSLATION \n====\n",
+    "newlines_normalized": true,
+    "replacement": "\\* BEGIN TRANSLATION (chksum(pcal) = \"6939cd64\" /\\ chksum(tla) = \"ee392d18\")\nVARIABLES pc, g\n\nvars == << pc, g >>\n\nProcSet == {1}\n\nInit == /\\ g = 0\n        /\\ pc = [self \\in ProcSet |-> \"L\"]\n\nL == /\\ pc[1] = \"L\"\n     /\\ g' = g + 1\n     /\\ pc' = [pc EXCEPT ![1] = \"E\"]\n\nE == /\\ pc[1] = \"E\"\n     /\\ TRUE\n     /\\ pc' = [pc EXCEPT ![1] = \"Done\"]\n     /\\ g' = g\n\nP == L \\/ E\n\nTerminating == /\\ \\A self \\in ProcSet: pc[self] = \"Done\"\n               /\\ UNCHANGED vars\n\nNext == P \\/ Terminating\n\nSpec == Init /\\ [][Next]_vars\n\nTermination == <>(\\A self \\in ProcSet: pc[self] = \"Done\")\n\\* END TRANSLATION \n",
+    "selection": {
+      "algorithm": {
+        "end": 129,
+        "start": 64
+      },
+      "checksum": null,
+      "comment": {
+        "end": 131,
+        "start": 61
+      },
+      "insertion": 132,
+      "previous": null,
+      "previous_body": null
+    },
+    "span": {
+      "end": 132,
+      "start": 132
+    },
+    "translation_checksum": "ee392d18"
+  },
+  "requested_profile": "tlc",
+  "result": "replacement",
+  "schema_version": 1,
+  "stage": "replacement-analysis"
+}

@@ -141,6 +141,7 @@ impl Emitter<'_> {
     fn unchanged(names: &[&str]) -> Option<String> {
         match names {
             [] => None,
+            [name] if name.encode_utf16().count() > 5 => Some(format!("UNCHANGED {name}")),
             [name] => Some(format!("{name}' = {name}")),
             _ => Some(format!("UNCHANGED << {} >>", names.join(", "))),
         }
