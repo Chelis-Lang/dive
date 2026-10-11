@@ -15,7 +15,7 @@ widths, spill limits, witness mutation controls and required checks are unchange
 
 `selection.json` declares the original cross-products. The normal
 `scripts/check-test-partitions.py` census checks their actual compiled test names,
-rejects nine corrupted selections, and still proves the eight partitions are
+rejects nine corrupted selections; at producer `d21ea2c6` it proved eight partitions were
 disjoint and cover every non-ignored workspace test. This is CI scheduling
 maintenance; it does not expand supported model-checking behavior or parity.
 The earlier 1,346-test qualification retains its own producer and receipt;
