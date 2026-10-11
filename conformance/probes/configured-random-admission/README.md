@@ -93,3 +93,10 @@ runtime effects in RandomElement. These backends do not pass through the ordinar
 guard; their observed refusals are not evidence of a proved configured stream.
 The [source/commands/raw observations](backend-before/index.json) retain their
 actual stage and output. No cross-backend seeded stream claim is made.
+
+The first full gate after current-main integration stopped on two Clippy
+`assert_is_empty` style checks in the no-output malformed-context controls. The
+[exact source/log](development/current-main-clippy-before/index.json) is preserved;
+assertions now use strict empty-vector equality. Production and oracle bytes were
+unchanged. The current-main source authorities are archived independently under
+`current-main-before-authorities/` before refreshing current integrity hashes.

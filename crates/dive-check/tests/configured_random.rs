@@ -366,7 +366,7 @@ fn foreign_native_bound_models_refuse_in_legacy_capture_before_assumptions() {
         );
         assert_eq!(r.workers.used, 0);
         assert!(r.output.is_empty() && r.stats.is_none() && r.counterexample.is_none());
-        assert!(valid.evaluator.take_output().is_empty());
-        assert!(foreign.evaluator.take_output().is_empty());
+        assert_eq!(valid.evaluator.take_output(), Vec::<String>::new());
+        assert_eq!(foreign.evaluator.take_output(), Vec::<String>::new());
     }
 }
