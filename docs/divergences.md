@@ -760,10 +760,16 @@ Artifact admission and CRC equality still never establish model correctness.
 D-008 bounded DEFINE progress: [DEFINE helpers](pluscal-definitions.md) can be
 serialized and emitted with reference declaration ordering. Raw AST/CRC equality
 is separate from enclosing-module SANY/native admission and finite-model
-checking. Invalid primary artifacts stay uncredited; recursive, LOCAL/symbolic,
+checking. Invalid primary artifacts stay uncredited; recursive, symbolic,
 action/temporal and unproved scope shapes remain named refusals. Neither profile
 inlines helpers or silently repairs the reference output.
 
 ## Supplied pure periodic expressions (bounded diagnostic limitation)
 
 ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+
+D-008 bounded LOCAL/function DEFINE progress: [the executable guide](pluscal-definition-forms.md)
+preserves local export visibility, pre-state helper lookup and function domains.
+Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
+is distinct from public enclosing-module admission and model proof; invalid
+reference outputs remain uncredited. Both profiles keep these same semantics.

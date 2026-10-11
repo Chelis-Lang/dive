@@ -105,3 +105,12 @@ The bounded proved source fairness/label subset is resolved before generation
 and CRC derivation. Reports retain explicit requested settings, effective
 settings and original declaration spans; unknown, malformed and conflicting
 contexts return no artifact. See [runnable C/P and Rust source-option examples](../pluscal-source-options.md).
+
+
+Global pure DEFINE helpers are supported within the documented scope. See
+[bounded DEFINE translation](../pluscal-definitions.md) and
+[LOCAL and function DEFINE helpers](../pluscal-definition-forms.md) for runnable
+C/P and Cargo-owned Rust examples, current name/cycle/action/temporal refusals,
+visibility checks and CRC/admission versus model-proof boundaries. Parsed
+function domains are not universally proved finite; the finite model evidence
+covers the selected fixtures only.

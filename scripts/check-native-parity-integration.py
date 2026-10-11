@@ -166,3 +166,10 @@ for profile in ("dive", "tlc"):
         if result["outcome"] == "full-derivation-and-admission":
             assert result["operator_structure_equal"] and result["sany"]["exit_code"] == result["validator"]["exit_code"] == 0, row["id"]
 print("Verified frozen550 complete1076 zero-skip gate and524 explicit-option cases;640 complete CST/SANY/Validator pairs; no family certification")
+
+# Always verify the portable LOCAL/function DEFINE source and raw runtime bytes.
+# This receipt is historical and is never inferred from current integration hashes.
+import subprocess
+import sys
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/define-forms-acceptance" / verifier)], check=True)
