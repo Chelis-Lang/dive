@@ -79,8 +79,10 @@ prefix cannot justify an assignment on an unvisited branch.
 
 The public independent enabledness and lasso predicate APIs may receive arbitrary
 states without a validated predecessor chain. They do **not** inherit this
-whole-word history proof. General runtime-name provenance and all procedure
-stack histories remain unproved; issue #124 stays open. Canonical-profile
+whole-word history proof. An `UNCHANGED vars` alias currently remains unproved even when `vars`
+is a fixed tuple; issue #215 tracks that continuation. Conditional tuple
+permutations cannot establish preservation of each individual variable.
+General runtime-name provenance and all procedure stack histories remain unproved; issue #124 stays open. Canonical-profile
 behavior and TLC-compatible evaluation remain available under their existing
 settings. This is an admission improvement, not a new result-changing default.
 

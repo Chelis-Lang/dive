@@ -74,3 +74,77 @@ gap_gate = json.loads(read_gap("gate-steps.json"))
 assert len(gap_gate) == 8 and all(row["exit"] == 0 for row in gap_gate)
 assert b"1214 tests run: 1214 passed, 0 skipped" in read_gap("gate/2.log")
 print("retained actual configured-native qualification failure and original1214 full-gate epoch")
+
+# The corrected frozen implementation has separate source authority from this
+# publication. Compare archived bytes, never retag old captures as the live tree.
+epoch = BASE / "implemented-epoch"
+index = json.loads((epoch / "index.json").read_text())
+assert index["producer"] == "f8b3b51521ba166dd5ce5f8031a8bfb7185acefb"
+assert index["all_consumers_closed"] and not index["family_certified"]
+for rel, digest in index["files_sha256"].items():
+    assert hashlib.sha256((epoch / rel).read_bytes()).hexdigest() == digest, rel
+read_current = lambda rel: gzip.decompress((epoch / (rel + ".gz")).read_bytes())
+source = json.loads(read_current("source-index.json"))
+assert source["source_commit"] == index["producer"]
+for rel, digest in index["portable_compile_source_sha256"].items():
+    assert source["source_sha256"][rel] == digest
+    assert hashlib.sha256(read_current("source/" + rel)).hexdigest() == digest
+steps = json.loads(read_current("gate/steps.json"))
+assert len(steps) == 8 and all(row["exit"] == 0 for row in steps)
+for i, row in enumerate(steps):
+    assert hashlib.sha256(read_current(f"gate/{i}.log")).hexdigest() == row["log_sha256"]
+assert b"1216 tests run: 1216 passed, 0 skipped" in read_current("gate/2.log")
+offline = json.loads(read_current("offline/steps.json"))["steps"]
+assert len(offline) == 43 and all(row["exit"] == 0 for row in offline)
+for i, row in enumerate(offline):
+    assert hashlib.sha256(read_current(f"offline/{i}.log")).hexdigest() == row["sha256"]
+rows = json.loads(read_current("runtime/rows.json"))
+closure = json.loads(read_current("runtime/closure.json"))
+assert closure["all_consumers_closed"] and closure["consumer_count"] == 68
+assert rows["native_producer"] == closure["producer"]
+assert closure["producer"]["source_commit"] == index["producer"]
+assert {row["case"] for row in rows["rows"]} == EXPECTED
+assert len({(row["case"], row["label"]) for row in rows["rows"]}) == 68
+negative = {"string_init", "off_path_string", "off_path_constructor"}
+for row in rows["rows"]:
+    stream = read_current(f"runtime/{row['case']}/{row['label']}.stdout")
+    assert hashlib.sha256(stream).hexdigest() == row["stdout_sha256"]
+    error = read_current(f"runtime/{row['case']}/{row['label']}.stderr")
+    assert hashlib.sha256(error).hexdigest() == row["stderr_sha256"]
+    if row["label"] not in {"primary", "native-check"}:
+        result = json.loads(stream)
+        expected = "unsupported" if row["case"] in negative and row["label"].startswith("tlc-") else ("valid" if row["label"].endswith("original") else "invalid")
+        assert result["result"] == expected
+        assert row["exit"] == {"unsupported": 3, "valid": 0, "invalid": 1}[expected]
+widths = json.loads(read_current("width-controls/steps.json"))
+closure = json.loads(read_current("width-controls/closure.json"))
+assert closure["all_consumers_closed"] and closure["model_checks"] == 288 and closure["replay_checks"] == 528
+assert widths["producer"] == closure["producer"] and widths["producer"]["source_commit"] == index["producer"]
+assert len(widths["rows"]) == 816 and len({row["label"] for row in widths["rows"]}) == 816
+for row in widths["rows"]:
+    case = next(case for case in EXPECTED if row["label"].startswith(case + "-"))
+    raw = read_current(f"width-controls/{case}/{row['label']}.stdout")
+    assert hashlib.sha256(raw).hexdigest() == row["stdout_sha256"]
+    doc = json.loads(raw)
+    if row["label"].endswith("-check"):
+        if case == "unconstrained_next":
+            assert doc["verdict"] == "incomplete-state" and doc["counterexample"]["trace"] is None and doc["tlc"]["code"] == 2109
+        else:
+            assert doc["verdict"] == "invariant-violation" and doc["property"] == "Inv"
+            assert all(doc["statistics"][key] == 2 for key in ["generated", "distinct", "depth"])
+    else:
+        strict = row["label"].startswith(case + "-tlc-")
+        expected = "unsupported" if strict and case in negative else ("valid" if row["label"].endswith("-original") else "invalid")
+        assert doc["result"] == expected
+        assert row["exit"] == {"unsupported": 3, "valid": 0, "invalid": 1}[expected]
+# A successful bounded variable proof does not certify general saved stacks.
+for folder in ["unchanged-alias-gap", "projection-negative-assigned"]:
+    closure = json.loads(read_current(folder + "/closure.json"))
+    assert closure["all_consumers_closed"] and closure["consumer_count"] == 6
+    assert closure["producer"]["source_commit"] == index["producer"]
+    cases = json.loads(read_current(folder + "/rows.json"))["rows"]
+    for row in cases:
+        if row["label"].startswith("tlc-"):
+            doc = json.loads(read_current(f"{folder}/{row['case']}/{row['label']}.stdout"))
+            assert doc["result"] == "unsupported"
+print("verified corrected 1216-test producer, 68 pinned cases, 816 worker/store consumers and preserved fixed-projection refusals; no general stack certificate")

@@ -1396,7 +1396,9 @@ their arguments or using witness values as type evidence. Strings, mixed
 branches and nested name constructors retain the refusal. A separately bounded
 [source-wide tuple-history proof](inductive-tuple-trace-replay.md) can admit
 some variable sequence histories; general saved-frame provenance remains
-unproved. See [the literal operand slice](tuple-only-trace-replay.md).
+unproved. Fixed tuple aliases through `UNCHANGED vars` are a separate pending
+projection proof (#215); conditional tuple permutations cannot establish
+per-variable preservation. See [the literal operand slice](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling

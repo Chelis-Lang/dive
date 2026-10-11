@@ -40,3 +40,15 @@ is not general namespace provenance, all saved-frame replay, periodic scheduling
 or a family certificate. Preserve original refused controls and report each
 newly admitted case independently. Publication requires the full gate and fresh
 CLI transport, corrupted-word, negative-branch and existing conformance controls.
+
+## Validation
+
+The corrected frozen producer `f8b3b51521ba166dd5ce5f8031a8bfb7185acefb`
+passed all eight gate stages with 1,216 tests and zero skips. Twelve paired
+primary cases retain 68 consumers; the worker/store matrix retains 288 checks
+and 528 replays. Both profiles retain all string/name-producing refusals where
+required, and corrupted admitted words are Invalid. Existing CM1/validation
+smoke models agree at 1/4/8 workers. Original failed implementation and capture
+epochs are separately archived. Thirty-two original generated procedure words
+remain refused in strict replay; fixed tuple aliases and conditional permutations
+retain the explicit boundary described in the user guide.
