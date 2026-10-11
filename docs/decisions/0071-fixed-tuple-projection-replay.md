@@ -34,3 +34,13 @@ procedure words require separate fresh replay measurements. Preserve the actual
 conditional-permutation negative and false-proof mutation. The user guide and
 maintained limitation log describe the measured current boundary. Full frozen
 gate and fresh CLI/JSON controls precede publication.
+
+## Qualification
+
+The frozen implementation passes 1,219 workspace tests without skips and the
+full local gate, with the original disk-space interruption retained. Fresh fixed
+aliases and their altered words are tested at 1/4/8 workers, both stores and
+two scheduling seeds. A real false-proof mutation admits a conditional tuple
+permutation; the focused negative catches it. The original generated procedure
+study admits 32/32 strict words at this producer; this is separately
+measured and does not establish general saved-stack authority.

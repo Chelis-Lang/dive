@@ -84,15 +84,25 @@ fixed tuple aliases and lazy parameters, LET and substitution contexts.
 A variable must occupy an established fixed projection; finding it somewhere
 in every conditional branch is insufficient. Conditional tuple permutations,
 opaque slots and recursive aliases remain refused. See [ADR 0071](decisions/0071-fixed-tuple-projection-replay.md)
-for the rule. Focused controls pass; fresh runtime qualification is pending.
-General runtime-name provenance and all procedure stack histories remain unproved; issue #124 stays open. Canonical-profile
+for the rule. Four fresh fixed-alias models (flat, nested, parameterized and LET)
+are Valid in both profiles; altering their final state is Invalid. Their
+96 worker/store/scheduling model checks and 192 replay controls pass. The
+conditional permutation control stays Unsupported in strict mode, even when
+its supplied word is otherwise legal.
+The separate original 32 generated procedure words admit 32/32 in strict
+replay at this producer; the individual results are retained in the qualification
+archive. This does not certify arbitrary saved-stack histories or general
+runtime-name provenance. Issue #124 stays open. Canonical-profile
 behavior and TLC-compatible evaluation remain available under their existing
 settings. This is an admission improvement, not a new result-changing default.
 
-The implementation is under integration validation. Focused tests cover actual
-and altered words, both initial branches, off-path string construction, missing
-assignments, wrappers and the arbitrary-state API boundary. Whole-workspace and
-fresh receiving CLI results are required before publication.
+Qualification at this implementation producer includes 1,219 passing workspace
+tests with zero skips, the full local gate, 20 focused runtime-name controls,
+68 original clean-primary/native consumers, and 816 original worker/store/replay
+controls. All 37 CM1/ValidationTestSuite models agree at 1, 4 and 8 workers.
+The interrupted disk-space gate and its completion on the same source are
+retained separately. These observations qualify the stated bounded rules; they
+do not certify the full operator family.
 
 See [the literal tuple admission](tuple-only-trace-replay.md) and
 [ADR 0067](decisions/0067-inductive-tuple-replay.md).

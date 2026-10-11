@@ -765,7 +765,7 @@
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
     "docs/divergences.md": "111d6adbbb33e004773e64ecbf926f8d30bdc6a97a5ee3b04a299769801d5694",
     "docs/provenance.md": "db6231fe2a99093b09362b57ef84daad940a775a566411ba1babf95ee3a606a9",
-    "docs/tlc-differences.md": "e15dabe65f8df8d34730cd8c261c1c11a3ac7505d98789a751eb3d4ae9410fa5",
+    "docs/tlc-differences.md": "4740f00b031ee5e4a2e3e2304736a971bb8924c5cfd8394ef05d471807e6559e",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/user/temporal.md": "3ac252803ceb9926ef7a25cecd5850fbbb31319023ce036a47b7549a5a16998c",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
