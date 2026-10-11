@@ -115,6 +115,11 @@ fn write(
         Value::Bool(b) => J::Bool(*b),
         Value::Int(i) => J::from(*i),
         Value::BigInt(i) => {
+            if ctx.int_mode != dive_value::IntMode::Big {
+                return Err(
+                    "stored large integer is unavailable in the bound integer profile".into(),
+                );
+            }
             if v.as_int().and_then(|n| n.to_i64()).is_some() {
                 return Err(
                     "stored trace transport refuses noncanonical small BigInt representation"
@@ -139,7 +144,7 @@ fn write(
                 return Err("stored function order differs from bound profile".into());
             }
             members(f.len())?;
-            if let Some(values) = f.as_tuple() {
+            let result = if let Some(values) = f.as_tuple() {
                 let items = values
                     .iter()
                     .map(|x| write(x, ctx, budget, depth + 1, proofs))
@@ -154,9 +159,7 @@ fn write(
                         write(x, ctx, budget, depth + 1, proofs)?
                     ]));
                 }
-                if !f.is_record_literal() {
-                    charge_items(&items, budget, 1)?;
-                }
+                charge_items(&items, budget, 1)?;
                 json!({"repr":if f.is_record_literal(){"record"}else{"record-fcn"},"order":order_name(f.order()),"items":items})
             } else {
                 let mut items = Vec::with_capacity(f.len());
@@ -168,7 +171,19 @@ fn write(
                 }
                 charge_items(&items, budget, 1)?;
                 json!({"repr":"fcn","order":order_name(f.order()),"items":items})
+            };
+            if proofs {
+                let candidate =
+                    dive_value::codec::probe_fcn(f, ctx).map_err(|e| e.message().to_owned())?;
+                let mut expected = result.clone();
+                remove_witnesses(&mut expected);
+                if shape(&candidate, ctx)? != expected {
+                    return Err(
+                        "stored function is not reproduced by its ordinary constructor".into(),
+                    );
+                }
             }
+            result
         }
         Value::Set(s) => {
             let Some(values) = s.stored_elements() else {
@@ -195,7 +210,23 @@ fn write(
             }
             match s.kind() {
                 SetKind::Raw => {
-                    json!({"repr":"raw-set","order":order_name(s.order()),"normalized":s.is_tlc_normalized(),"items":items})
+                    let result = json!({"repr":"raw-set","order":order_name(s.order()),"normalized":s.is_tlc_normalized(),"items":items});
+                    if proofs {
+                        let candidate = dive_value::codec::probe_raw_set(
+                            values.to_vec(),
+                            ctx,
+                            s.is_tlc_normalized(),
+                        )
+                        .map_err(|e| e.message().to_owned())?;
+                        let mut expected = result.clone();
+                        remove_witnesses(&mut expected);
+                        if shape(&candidate, ctx)? != expected {
+                            return Err(
+                                "stored Raw set is not reproduced by ordinary normalization".into(),
+                            );
+                        }
+                    }
+                    result
                 }
                 SetKind::Enum => {
                     let mut j = json!({"repr":"set","order":order_name(s.order()),"items":items});
@@ -365,7 +396,7 @@ fn read(
         _ => {}
     }
     let kind = j["repr"].as_str().ok_or("stored value needs a repr tag")?;
-    if matches!(kind, "set" | "raw-set" | "fcn" | "record-fcn") {
+    if matches!(kind, "set" | "raw-set" | "fcn" | "record-fcn" | "record") {
         charge_items(items(j)?, budget, 1)?;
     }
     let value = match kind {

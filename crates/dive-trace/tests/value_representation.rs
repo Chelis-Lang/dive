@@ -249,3 +249,52 @@ fn normalization_policy_budget_is_shared_by_writer_and_reader() {
     let json = json!({"repr":"raw-set","order":"tlc","normalized":false,"items":vec![json!({"repr":"tuple","items":[true,true,true,true]});value_repr::MAX_MEMBERS]});
     assert!(value_repr::from_json(&json, &names, ctx).is_err());
 }
+
+#[test]
+fn encoder_refuses_trusted_noncanonical_function_and_raw_flags() {
+    let names = Interner::new();
+    names.intern("a");
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let bit = u8::from(ctx.order == dive_value::ValueOrder::Tlc);
+        for bytes in [
+            vec![0x2a | bit, 1, 2, 2, 2, 2],
+            vec![0x2a | bit, 1, 4, 0, 2, 2],
+            vec![0x28 | bit, 0],
+        ] {
+            let value = codec::decode(&mut &bytes[..], &mut |i| names.resolve(i))
+                .expect("trusted storage decoder admits raw tag");
+            assert!(
+                value_repr::to_json(&value, ctx).is_err(),
+                "noncanonical trusted function"
+            );
+        }
+        let record = Value::record(
+            vec![
+                (names.intern("a"), Value::Int(1)),
+                (names.intern("b"), Value::Int(1)),
+            ],
+            ctx,
+        )
+        .expect("record");
+        let raw = Value::set_raw(vec![Value::tuple(vec![Value::Int(1)]), record], ctx);
+        let mut bytes = Vec::new();
+        codec::encode(&raw, ctx, &mut bytes).expect("trusted raw encoding");
+        bytes[1] = 1; // Forge old trusted-storage normalization, not a transport witness.
+        let value =
+            codec::decode(&mut &bytes[..], &mut |i| names.resolve(i)).expect("trusted flag");
+        assert!(value_repr::to_json(&value, ctx).is_err());
+        for value in [
+            Value::tuple(vec![Value::TRUE]),
+            Value::tuple_fcn(vec![Value::FALSE]),
+            Value::record(vec![(names.intern("a"), Value::Int(1))], ctx).expect("record"),
+            Value::fcn(vec![(Value::Int(2), Value::Int(3))], ctx).expect("general"),
+            Value::fcn(vec![(Value::string(&names, "a"), Value::Int(1))], ctx)
+                .expect("record function"),
+        ] {
+            let j = value_repr::to_json(&value, ctx).expect("ordinary constructor shape");
+            let decoded = value_repr::from_json(&j, &names, ctx)
+                .expect("same-table/profile structural admission");
+            assert_eq!(value_repr::to_json(&decoded, ctx).expect("roundtrip"), j);
+        }
+    }
+}

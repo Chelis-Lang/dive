@@ -78,3 +78,11 @@ Decimal large integers are limited to 4,096 digits before parsing. A hand-built
 `BigInt` fitting i64 is refused rather than silently converted to another stored
 variant; ordinary canonical large integers remain supported in the big-integer
 profile. This does not change legacy integer transport or model arithmetic.
+
+The encoder also recomputes function/Raw-set constructor shape, suppressing
+borrowed normalization markers during bounded probes. A trusted-storage General
+function with a tuple/string domain or forged Raw normalization flag refuses
+before output; it is not silently reinterpreted. Successful value encoding is
+structurally readable with the same admitted names/table and profile, within
+the same bounds. A different receiving name table/profile may refuse, and
+independent Init/Next/ending replay remains a separate obligation.

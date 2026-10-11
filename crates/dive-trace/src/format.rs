@@ -1,4 +1,4 @@
-//! The counterexample format (version 1), and reading TLC's `-dumpTrace json`.
+//! Counterexample transports: legacy version 1, opt-in stored version 2, and TLC JSON.
 //!
 //! # dive's format
 //!
@@ -17,8 +17,9 @@
 //! ```
 //!
 //! - `variables` lists the specification's variables. Every state assigns
-//!   exactly these, as values in dive's lossless JSON form
-//!   ([`crate::value_json`]).
+//!   exactly these. Version 1 uses normalized value JSON with known stored
+//!   representation gaps ([`crate::value_json`]); opt-in version 2 uses
+//!   checked bounded stored representation ([`crate::value_repr`]).
 //! - `states[k].action` labels the step into state `k`: `null` for the
 //!   initial state, and optional elsewhere. `name` is the action's name as
 //!   TLC prints it, without parameters; `location` is informative.

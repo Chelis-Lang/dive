@@ -729,3 +729,12 @@ repeated forced original checks are diagnostics, not ordinary schedule runs.
 See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
+
+D-009 trace transport boundary (#190): default legacy version 1 retains the
+known mixed-set shape failures. Opt-in `--trace-format representation-v2`
+preserves admitted forward stored sets and nonliteral tuple/record functions
+through checked constructor witnesses and independent replay. This changes no
+comparison, construction or Random/VIEW shape policy. A transported word is not
+a certificate. Reverse construction, arbitrary deferred/symbolic values and
+trusted-storage tuple bit loss (#195) remain separate. See
+[the schema and bounded CLI/API guide](trace-representation.md).

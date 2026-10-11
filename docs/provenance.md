@@ -653,3 +653,9 @@ Encoder witness probes use the existing Quiet marker authority solely to keep
 shared operand normalization markers unchanged. Provider/opaque representation
 is refused before probing. `dive-trace` retains its standalone generator-free
 build; transport success proves shape, not Init/Next/ending or reachability.
+
+Stored v2 constructor probes additionally reconstruct function kind/literal/order
+and Raw normalized flags through the existing constructors, under Quiet marker
+suppression. They do not authorize trusted-storage flags or change canonical
+keys. The first frozen 249f gate passed all 1,156 tests and every other stage but
+failed Clippy helper placement; the unchanged failed epoch is retained separately.

@@ -31,3 +31,12 @@ frontier spill and checkpoint recovery report a tuple-index diagnostic because
 the storage codec drops the tuple-function literal bit. Predecessor-only spilling
 preserves the diagnostic in this minimal control. Storage formats are unchanged
 by version 2; no Java byte interoperability or archive certificate is claimed.
+
+`before-style-gate/` preserves the first frozen 249f gate: 1,156 tests pass with
+zero skipped, and all other stages pass except a workspace Clippy helper
+placement diagnostic. It contains 443 current workspace Rust/Cargo inputs,
+excluding unrelated plaintext historical acceptance snapshots; the original
+804-input superset index/source archive is retained separately with the original
+producer. A later encoder-shape hardening recomputes ordinary function and Raw
+constructor shape before emitting v2, refusing trusted noncanonical tags/flags.
+Neither the failed gate nor its source is retagged as the corrected producer.
