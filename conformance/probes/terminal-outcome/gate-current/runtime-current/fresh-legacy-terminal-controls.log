@@ -1,0 +1,12 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
+     Running tests/terminal_periodic_candidate.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/terminal_periodic_candidate-1224a6320cafaf28)
+
+running 4 tests
+test empty_init_is_genuine_exhaustion_while_profile_and_zero_work_remain_refused ... ok
+test deciding_final_words_use_same_independent_replay_and_strict_mutants ... ok
+test failed_init_expansion_cut_hook_and_quota_never_create_terminal_authority ... ok
+test safe_finished_queue_skips_false_integer_hook_and_confirms_post_service_joins ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+

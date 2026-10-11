@@ -85,9 +85,18 @@ The initial182-case declaration remains in `native-declaration-before-boolean`.
 The current selection is declared before any release execution in
 `native-runtime-selection.json`: all146 unchanged earlier diagnostic cases plus
 60 terminal/postcondition cases at1/3/4/8, total206. The standalone source is
-`native-runtime-source.rs`. Its fresh default-library run and full gate will be
-recorded separately against a clean immutable producer; declaration is not
-execution or matching credit. The new RequestPrefix refusal is exercised at the
+`native-runtime-source.rs`. The clean immutable producer `3968821` passed all49
+gate stages and all1100 workspace tests without skips. Its fresh default-library
+run closed all206 rows, including28 independently Valid originals and112 strict
+Invalid mutants through both memory and JSON. The executable Cargo guide passed
+all three declared classifications; all21 CM1 and16 validation smoke models
+agreed at1/4/8. `gate-current` retains the complete input archive, commands,
+logs and runtime receipts. The original first attempt remains separately in
+`development-enospc-fullgate`:43 stages passed, nextest compilation failed with
+linker errno28, and ENOSPC also prevented the original after.json write. Its
+supplemental reader never substitutes a successful gate receipt.
+
+The new RequestPrefix refusal is exercised at the
 existing direct OptionalSnapshot seam with a test-only real returned-output
 rendezvous; the public facade's fresh thread intentionally does not inherit that
 thread-local seam. Both failed public discriminator assumptions remain historical,
@@ -102,3 +111,20 @@ returns2116/CLI13 despite returned render errors. These prove the positive and
 short-circuit grammar path without a synthetic TRUE hook, supplied EOF or
 changed default. `boolean-reference-import.json` independently hashes this
 closed addition; the original import/epochs remain unchanged.
+
+`history-production-396` preserves the original31 map inventories byte-for-byte.
+Its source-origin manifest distinguishes actual396 compiler/source bytes from
+16 intentionally retained qualified historical references; those old hashes
+are not renamed as current inputs. The first packaging observer that assumed
+all inventory references were current is preserved as a failed development
+epoch. Metadata-only closed-delivery guards reject12 semantic corruptions
+including false completion, failed/missing commands, skipped tests and Valid
+mutants; these are reader controls, never additional checker verdicts.
+
+The independent receiving run is retained in `root-independent`: all206 native
+rows and independently public-CLI rebound28 originals plus112 mutants passed
+their semantic contracts. Its initial full-JSON comparison failed on actual
+clock/elapsed fields and captured zero-versus-NaN ratios. Both complete raw
+epochs and that failure remain untouched. Only declared source/count/word/
+disposition fields are compared; no deterministic clock, ratio value or ordinary
+schedule equivalence is claimed.

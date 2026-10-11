@@ -1,0 +1,55 @@
+cargo fmt --all --check
+python3 scripts/test-validation-import.py
+python3 -I scripts/test-frontend-campaign.py
+python3 -I scripts/check-tlc-final-safety.py
+python3 -I scripts/check-tlc-state-if.py
+python3 -I scripts/check-tlc-temporal-if.py
+python3 -I scripts/check-tlc-temporal-if-final.py
+python3 -I scripts/check-tlc-final-scopes.py
+python3 -I scripts/check-tlc-property-origins.py
+python3 -I scripts/check-material-capture.py
+python3 -I scripts/check-temporal-operators.py
+python3 -I scripts/check-native-temporal-operators.py
+python3 -I scripts/check-stored-successor-material.py
+python3 -I scripts/check-native-sequence-operators.py
+python3 -I scripts/check-tlc-partial-scc.py
+python3 -I scripts/check-periodic-backend.py
+python3 -I scripts/check-periodic-controller.py
+python3 -I scripts/check-runtime-ratio.py
+python3 -I scripts/check-periodic-lifecycle.py
+python3 -I scripts/check-periodic-hook.py
+python3 -I scripts/check-periodic-snapshot.py
+python3 -I scripts/check-progress-queue.py
+python3 -I scripts/check-committed-prefix.py
+python3 -I scripts/check-request-owned-service.py
+python3 -I scripts/check-producer-owned-candidate.py
+python3 -I scripts/check-optional-periodic-hook.py
+python3 -I scripts/check-terminal-periodic-service.py
+python3 -I scripts/check-stopped-periodic-service.py
+python3 -I scripts/check-terminal-outcome.py
+python3 -I scripts/check-parity-ledger.py
+python3 -I scripts/test-parity-ledger.py
+python3 -I scripts/check-tlc-planning.py
+python3 -I scripts/check-tlc-tableau.py
+python3 -I scripts/check-temporal-action-order.py
+python3 -I scripts/check-phase-l.py
+python3 -I scripts/check-phase-l-graph.py
+python3 -I scripts/check-phase-execution.py
+python3 -I scripts/check-tlc-final.py
+python3 -I scripts/check-state-if-planning.py
+python3 -I scripts/check-predecessor-spill.py
+python3 -I scripts/check-native-checkpoint.py
+python3 -I scripts/check-native-parity-integration.py
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo nextest run --workspace --locked --test-threads 2
+FAILED cargo nextest run --workspace --locked --test-threads 2
+Traceback (most recent call last):
+  File "/tmp/dive-terminal-classification-gate.py", line 45, in <module>
+    (b/'after.json').write_text(json.dumps(dict(producer=head,build_inputs_unchanged=unchanged,source_sha256=inputs,all_steps_passed=passed,expected_steps=len(commands),log_sha256=sha(b/'workspace.log')),indent=2)+'\n')
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1275, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors) as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+OSError: [Errno 28] No space left on device: '/tmp/dive-terminal-classification-fullgate/after.json'
