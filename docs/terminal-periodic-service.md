@@ -139,3 +139,15 @@ This is an intentional-boundary observation, not a newly declared TLC bug. A
 native early hook/service stop remains incomplete or refused and cannot be Holds.
 All original selections, cleanup events and raw command/timing facts are retained
 in [the evidence](../conformance/probes/terminal-periodic-service/README.md).
+
+
+### Qualified delivery evidence
+
+The closed source epoch passes all 47 local gate stages and 1,078 tests with no
+skips. Its complete 70-row default-library selection retains early stops and
+preexecution refusals. Twelve actual EOF words pass two fresh independent routes;
+48 deliberate mutants fail both. The executable Cargo example and required 37
+safety models pass at 1, 4 and 8 workers. These are bounded diagnostic and safety
+regression controls, not an ordinary scheduling or temporal-absence certificate.
+The [delivery index](../conformance/probes/terminal-periodic-service/delivery-index.json)
+identifies the compiled source, closed raw payloads and immutable binaries.

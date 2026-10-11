@@ -46,3 +46,16 @@ Paths in raw commands retain the original invocation; no system Java is required
 The [user guide](../../../docs/terminal-periodic-service.md) and
 [ADR0076](../../../docs/decisions/0076-exhausted-queue-terminal-service.md)
 describe the narrower native diagnostic and its remaining obligations.
+
+## Closed native delivery
+
+Compiled producer `586b07994da5d4ce78071c21d6285e66bd6389ef` passes all47
+local stages,1078tests and no skipped tests. All483 Rust/Cargo/literal embedded
+inputs match Git/live/gzip archives. The separate70-row default-library selection
+retains40 joined terminal receipts,24 earlier stops and6 preexecution refusals.
+Twelve EOF words pass both freshly bound independent routes; all48 mutants fail
+both. The controlled RequestPrefix case is distinct from these EOF words. The
+Cargo-owned user example and37 safety-gate models at1/4/8 pass. This closes only
+the bounded diagnostic contract; ordinary scheduling/Holds/family credit remains
+missing. `gate-current` and `history-production-586` preserve the original producer
+rather than retagging its receipts after delivery metadata changes.

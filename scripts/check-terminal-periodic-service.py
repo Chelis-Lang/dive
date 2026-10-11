@@ -94,3 +94,37 @@ ledger=load(ROOT/'conformance/parity-features.json')
 f=next(f for f in ledger['families']if f['id']=='F-023')
 assert f['implementation_status']=='missing'and f['certification']=='audit-required'and 222 in f['issues']
 print('Complete192 distinct raw reference/observer rows plus separate unmodified CLI exit10 and independent stutter controls preserved; no ordinary proof')
+closed=load(BASE/'gate-current/after.json');compiled=load(BASE/'gate-current/before.json')
+assert closed['all_steps_passed']and closed['build_inputs_unchanged']and closed['expected_steps']==47
+assert len(compiled['source_sha256'])==483
+assert len(compiled['literal_include_sources'])==50 and not compiled['unresolved_include_macros']
+for path,digest in compiled['source_sha256'].items():
+    assert sha(gzip.decompress((BASE/'gate-current/source'/(path+'.gz')).read_bytes()))==digest,path
+assert '1078 tests run: 1078 passed, 0 skipped'in(BASE/'gate-current/workspace.log').read_text()
+runtime=BASE/'gate-current/runtime-current'
+steps=load(runtime/'runtime-steps.json');assert len(steps)==15 and all(step['exit']==0 for step in steps)
+selection=load(runtime/'selection.json');manifest=load(runtime/'native-manifest.json')
+assert len(selection['rows'])==len(manifest['rows'])==70
+assert {row['id']for row in selection['rows']}=={row['file'].removesuffix('.json')for row in manifest['rows']}
+words=mutants=joined=refused=0
+for row in manifest['rows']:
+    path=runtime/'native-current'/row['file'];assert sha(path.read_bytes())==row['sha256']
+    outcome=load(path);assert outcome['model_proof']is False and outcome['ordinary_schedule_certified']is False
+    if not outcome['execution_retained']:refused+=1
+    if outcome.get('terminal_service')is not None:
+        t=outcome['terminal_service'];joined+=1
+        assert t['joins_confirmed']and t['left_on_queue']==0 and not t['model_proof']
+        assert t['actual_pool'][0]==outcome['requested_width']
+    if 'document'in outcome:
+        words+=1;assert 'validation: Valid'in outcome['memory_validation']and 'validation: Valid'in outcome['json_validation']
+        for mutant in outcome['mutants']:
+            mutants+=1;assert 'validation: Invalid'in mutant['memory_validation']and 'validation: Invalid'in mutant['json_validation']
+assert (words,mutants,joined,refused)==(12,48,40,6)
+for line in(runtime/'default-release-build.log').read_text().splitlines():
+    try:artifact=json.loads(line)
+    except json.JSONDecodeError:continue
+    if artifact.get('reason')=='compiler-artifact':assert 'test-rendezvous'not in artifact.get('features',[])
+history=load(BASE/'history-production-586/manifest.json')
+for path,digest in history['matrices_sha256'].items():assert sha((BASE/'history-production-586/matrices'/path).read_bytes())==digest,path
+for digest,path in history['source_archive_paths'].items():assert sha(gzip.decompress((ROOT/path).read_bytes()))==digest,path
+print('Closed47-stage/1078-test producer; complete70 native rows,12EOF words/48strict mutants each independently replayed twice; no ordinary proof')
