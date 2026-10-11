@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Pure safety native checkpoint/recovery now composes with opt-in frontier and
+  predecessor disk budgets, including deterministic parallel VIEW/symmetry
+  recovery and explicit finalized transient cleanup evidence.
+
 - CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
   prerequisite fails, is cancelled or is skipped.

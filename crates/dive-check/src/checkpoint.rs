@@ -94,6 +94,10 @@ pub struct Receipt {
     pub status: &'static str,
     /// Payload SHA-256, not an authenticity guarantee.
     pub payload_sha256: String,
+    /// Whether configured transient queue/log cleanup completed without failure.
+    /// A committed archive can exist despite a later storage failure; this is
+    /// execution evidence, never an archive correctness certificate.
+    pub transient_storage_cleanup_completed: bool,
     /// Encoded native archive bytes.
     pub archive_bytes: u64,
     /// Next frontier's BFS level, where actual recovery starts.
@@ -106,6 +110,18 @@ pub struct Receipt {
     pub counters: Counters,
 }
 
+impl Receipt {
+    pub(crate) fn finish_storage(
+        &mut self,
+        frontier: &crate::FrontierUsage,
+        predecessor: &crate::result::PredecessorUsage,
+    ) {
+        self.transient_storage_cleanup_completed = frontier.failures.is_empty()
+            && predecessor.failures.is_empty()
+            && predecessor.cleanup_completed;
+    }
+}
+
 /// A check plus its native checkpoint evidence. Failed admission has no receipt.
 #[derive(Clone, Debug)]
 pub struct Result {
@@ -115,8 +131,7 @@ pub struct Result {
     pub receipt: Option<Receipt>,
 }
 
-type Frontier = Vec<(StateVals, StateId)>;
-type Restored = Option<(Frontier, u64)>;
+type Restored = Option<u64>;
 type Fallible<T> = std::result::Result<T, String>;
 
 /// Checks or resumes a pure safety model with a native snapshot.
@@ -124,8 +139,9 @@ type Fallible<T> = std::result::Result<T, String>;
 /// Pure admitted models use the deterministic level engine at the requested
 /// worker width, unless explicit inline mode is selected. Boundary-zero pauses
 /// stop before the pool starts and report one actual worker. Runtime effects,
-/// names, evaluator-driven deferred state values,
-/// Temporal properties and transient-spill options refuse by name. Pure supported
+/// name creation, evaluator-driven deferred state values and temporal properties
+/// refuse by name. Frontier and predecessor budgets apply
+/// only to their transient queue/log records, not the resident native archive. Pure supported
 /// VIEW and safety symmetry use the configured live-search key path during restore.
 /// Identity and archive structure are validated before evaluation. Recovery
 /// restores names before binding and resumes the saved frontier without regenerating
@@ -155,6 +171,9 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, options: &CheckOptions, request: &
             && check.verdict == Verdict::Success
         {
             check.notes.push("Search completed before the requested checkpoint boundary; no snapshot was committed.".into());
+        }
+        if let Some(receipt) = &mut session.receipt {
+            receipt.finish_storage(&check.frontier, &check.predecessor);
         }
         check.elapsed = started.elapsed();
         Result {
@@ -417,13 +436,14 @@ impl Session {
         if matches!(request.action, Action::PauseAfterLevels(n) if n >= MAX_LEVEL) {
             return Err(failure("pause level exceeds native depth bound"));
         }
-        if opts.frontier_memory_bytes.is_some()
-            || opts.frontier_directory.is_some()
-            || opts.predecessor_memory_bytes.is_some()
-            || opts.predecessor_directory.is_some()
-        {
-            return Err(unsupported(
-                "with transient predecessor spill is not implemented",
+        if opts.frontier_directory.is_some() && opts.frontier_memory_bytes.is_none() {
+            return Err(failure(
+                "frontier directory requires frontier memory budget",
+            ));
+        }
+        if opts.predecessor_directory.is_some() && opts.predecessor_memory_bytes.is_none() {
+            return Err(failure(
+                "predecessor directory requires predecessor memory budget",
             ));
         }
         if cfg.specification.is_some()
@@ -492,6 +512,7 @@ impl Session {
                 validate_structure(&snapshot).map_err(failure)?;
                 session.pending_receipt = Some(Receipt {
                     status: "recovered",
+                    transient_storage_cleanup_completed: false,
                     payload_sha256,
                     archive_bytes,
                     next_level: snapshot.next_level,
@@ -611,15 +632,12 @@ impl Session {
     pub(crate) fn restore<S: Keyed>(
         &mut self,
         search: &mut Search<'_, '_, S>,
+        frontier: &mut crate::frontier::Queue,
     ) -> std::result::Result<Restored, Verdict> {
         let Some(snapshot) = self.imported.take() else {
             return Ok(None);
         };
         let mut decoder = StateDecoder::new(&search.m.names);
-        let mut frontier = Vec::new();
-        frontier
-            .try_reserve_exact(snapshot.frontier.len())
-            .map_err(|e| failure(e.to_string()))?;
         let first_frontier = snapshot.frontier.first().copied().unwrap_or(u64::MAX);
         for (i, discovery) in snapshot.discoveries.iter().enumerate() {
             encoded_shape(
@@ -657,7 +675,7 @@ impl Session {
                 return Err(failure("discovery/log ID mismatch"));
             }
             if id >= first_frontier {
-                frontier.push((state, id));
+                frontier.push(state, id)?;
             }
         }
         search.generated = match self.request.counters {
@@ -681,7 +699,7 @@ impl Session {
                 .map(|name| name.len() + 8)
                 .sum::<usize>();
         self.receipt = self.pending_receipt.take();
-        Ok(Some((frontier, snapshot.next_level)))
+        Ok(Some(snapshot.next_level))
     }
 
     pub(crate) fn pause_due(&self, level: u64) -> bool {
@@ -722,6 +740,7 @@ impl Session {
         write(&self.request.path, &payload).map_err(failure)?;
         self.receipt = Some(Receipt {
             status: "paused-incomplete",
+            transient_storage_cleanup_completed: false,
             payload_sha256: sha,
             archive_bytes: (HEADER + payload.len()) as u64,
             next_level: level,
@@ -1182,6 +1201,83 @@ mod tests {
             "original sync failure"
         );
     }
+    #[test]
+    fn committed_archive_receipt_retains_identity_after_actual_transient_close_failure() {
+        let parent = dir();
+        let archive = parent.join("snapshot");
+        let snapshot = valid_snapshot();
+        let payload = serde_json::to_vec(&snapshot).expect("payload");
+        write(&archive, &payload).expect("commit");
+        let committed = fs::read(&archive).expect("committed bytes");
+        let mut receipt = Receipt {
+            status: "paused-incomplete",
+            payload_sha256: hash(&payload),
+            transient_storage_cleanup_completed: false,
+            archive_bytes: committed.len() as u64,
+            next_level: snapshot.next_level,
+            discovered: snapshot.discoveries.len() as u64,
+            queued: snapshot.frontier.len() as u64,
+            counters: Counters::Retain,
+        };
+        let logs = parent.join("logs");
+        fs::create_dir(&logs).expect("parent");
+        let mut log = dive_store::predecessor::PredecessorLog::new(Some(0), Some(&logs));
+        log.push_initial(0).expect("disk predecessor");
+        let mut evidence = crate::result::PredecessorUsage {
+            storage: log.usage(),
+            ..crate::result::PredecessorUsage::default()
+        };
+        fs::remove_dir_all(&logs).expect("remove backing files before close");
+        evidence
+            .failures
+            .push(log.close().expect_err("actual close failure").to_string());
+        receipt.finish_storage(&crate::FrontierUsage::default(), &evidence);
+        assert!(!receipt.transient_storage_cleanup_completed);
+        assert_eq!(receipt.status, "paused-incomplete");
+        assert_eq!(receipt.payload_sha256, hash(&payload));
+        assert_eq!(receipt.archive_bytes, committed.len() as u64);
+        assert_eq!(
+            fs::read(&archive).expect("actual archive retained"),
+            committed
+        );
+        assert!(read(&archive).is_ok());
+        let mut good = dive_store::predecessor::PredecessorLog::new(None, None);
+        good.push_initial(0).expect("memory predecessor");
+        let clean = crate::result::PredecessorUsage {
+            storage: good.usage(),
+            cleanup_completed: good.close().is_ok(),
+            ..crate::result::PredecessorUsage::default()
+        };
+        receipt.finish_storage(&crate::FrontierUsage::default(), &clean);
+        assert!(receipt.transient_storage_cleanup_completed);
+        let queues = parent.join("queues");
+        fs::create_dir(&queues).expect("queue parent");
+        let options = CheckOptions {
+            frontier_memory_bytes: Some(0),
+            frontier_directory: Some(queues.clone()),
+            ..CheckOptions::tlc(0, 7)
+        };
+        let accounting = crate::frontier::accounting(&options);
+        let mut queue = crate::frontier::Queue::new(&options, accounting.clone());
+        queue
+            .push(
+                vec![Some(dive_value::Value::int(dive_value::Int::Small(1)))].into(),
+                0,
+            )
+            .expect("disk queue");
+        fs::remove_dir_all(&queues).expect("remove disk queue before close");
+        drop(queue);
+        let frontier = crate::frontier::evidence(&accounting);
+        assert_ne!(frontier.failures, [] as [String; 0]);
+        receipt.finish_storage(&frontier, &clean);
+        assert!(!receipt.transient_storage_cleanup_completed);
+        assert_eq!(
+            fs::read(&archive).expect("actual archive retained"),
+            committed
+        );
+        fs::remove_dir_all(parent).expect("cleanup");
+    }
+
     #[test]
     fn corrupt_and_interrupted_files_never_become_native_snapshots() {
         let dir = dir();

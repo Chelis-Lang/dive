@@ -433,6 +433,16 @@ Pre-bind source admission also resolves configuration names through every
 `Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
 The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
 before binding, zero used workers and no graph evidence.
+## Native checkpoint composition with transient storage
+
+The recovery engine streams saved frontier suffix states into the existing native
+indexed Queue and reconstructs TraceLog parent/ordinal records through the existing
+fallible predecessor store. No Java I/O/checkpoint format or new algorithm is
+ported. The configured TLC live-search key path, discovery IDs and replay ordinals
+remain those matched against `ModelChecker`/`Worker`/`TLCTrace` at revision
+`94d0c50` (MIT), as recorded above. ADR 0038 and the native spill recovery study
+keep original parallel source/raw evidence separate from current storage controls.
+
 
 | Native single finite process procedure ownership (`translate/process.rs`, `procedures.rs`, `lower.rs`, `emit.rs`) | pinned `pcal.PcalTranslate.ExplodeCall`, `ExplodeReturn`, `ExplodeCallReturn`, `ExplodeCallGoto`; `PcalTLAGen.GenProcedure`, `GenVars`, `GenInit`, `GenNext`, `AddSubscriptsToExpr` owner contexts; `PcalSymTab` declaration order; commit `94d0c50` | MIT | 112 capture-first C/P rows, disjoint ownership, source-vs-generated stack indexing, complete raw/invalid evidence; artifact/count/strict-pending/canonical replay stages separate. Global quotas and conservative naming restrictions are native design; no multiple-block, renaming, process-declared fairness or strict namespace certification. Separate algorithm-level fair controls match `ParseAlgorithm.getAlgorithm` FairAlgorithm and `PcalTLAGen.GenSpec` global WF_vars(Next), without liveness execution credit. |
 
