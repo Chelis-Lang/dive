@@ -8,6 +8,7 @@
 | Current shipped coverage and evidence limits | [Sprint status](../sprint-status.md), [feature ledger](../tlc-parity.md) |
 | User contract and runnable usage | [User manual](../user/README.md) |
 | Feature design and rationale | [ADRs](../decisions/), [design plans](../design/) |
+| Strict tuple-only replay admission | [ADR 0064](../decisions/0064-tuple-only-independent-replay.md), [user boundary](../tuple-only-trace-replay.md) |
 | TLC limitations and behavior changes | [User-facing differences](../tlc-differences.md), [registry](../divergences.md) |
 | Reference source/license provenance | [Provenance](../provenance.md) |
 | Reproduction, pins and reports | [Corpus guide](../conformance-corpora.md), [harness README](../../crates/dive-conformance/README.md) |

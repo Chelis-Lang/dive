@@ -4,9 +4,9 @@
   "schema_version": 1,
   "scope": "Callback-free stored material captures with same-run ordering, namespace and scoped actualOPEN proof; 18primary/72native and immutable blocked histories, fixed50k/128 limits; no ordinary/family/corpus gain",
   "source_sha256": {
-    ".github/workflows/ci.yml": "246e36a05235b0a8f85f74b8a578aabb01f5d3519498da55e91fef6e7fc3aa93",
-    "AGENTS.md": "14f43544ae8705e5a59fe57b33810c9f110010e5d3f8c506e4961193d8b816cf",
-    "CHANGELOG.md": "c76e2ee5f0405c3392b0bc94ac1680a6cceb7ac7505d9ac9d476b2e82e95a24b",
+    ".github/workflows/ci.yml": "ebc9e1425ba349d4fdc3c05a9a53c325a397ecaf488448fe8dbd185661e30b62",
+    "AGENTS.md": "0d818ca47e564db0c6421a9d158040c86928308432457c59fb206c1f3932cd55",
+    "CHANGELOG.md": "8fe5c0b524a23e0d1fe5fc3aa7c85edbf081363395fc15a3f33850ae0cb33fb9",
     "conformance/parity-features.json": "696e32524af15fdc10bc1e1eee999d0e69590fdef81c45a7ff7244f2392c2a5d",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
@@ -3053,8 +3053,8 @@
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "111d6adbbb33e004773e64ecbf926f8d30bdc6a97a5ee3b04a299769801d5694",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
-    "docs/provenance.md": "0ce916f1ae720b2773848c72b3555c87211865ae9e4e749b88314160d053f795",
-    "docs/tlc-differences.md": "97275b8aad8bdb45c0673ee5dd3d0462cdef0085b2e55ddd63b76be418e0aff0",
+    "docs/provenance.md": "2d4d441f8792e03141cfc7126d139c8325e2f97cfec8a8e6cff0b7582587d9eb",
+    "docs/tlc-differences.md": "0203dcc2f51eb655efa09301126e0f787e594d06fbd4e127b44644dd84db3eda",
     "docs/user/temporal.md": "3ac252803ceb9926ef7a25cecd5850fbbb31319023ce036a47b7549a5a16998c",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"
