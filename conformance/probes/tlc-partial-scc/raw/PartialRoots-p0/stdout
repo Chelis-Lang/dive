@@ -1,0 +1,20 @@
+groups	1
+action_names	Live
+role_names	Live
+configured_names	Live
+g0.state_bins	0
+g0.action_bins	1
+g0.tableau	false
+initial.log	
+initial.g0.roots	15040402659625261443:-1;17760107650593637555:-1
+initial.g0.records.15040402659625261443	
+initial.g0.records.17760107650593637555	
+final.g0.roots	15040402659625261443:-1;17760107650593637555:-1
+final.g0.records.15040402659625261443	
+final.g0.records.17760107650593637555	
+generated	2
+distinct	2
+completion	bounded-partial-projection-not-model-proof
+scc.g0.pem0.events	get:15040402659625261443:-1:undone;get:17760107650593637555:-1:undone
+scc.g0.pem0.components	0
+partial_check_code	0

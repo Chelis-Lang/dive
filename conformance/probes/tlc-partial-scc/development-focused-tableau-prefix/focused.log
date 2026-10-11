@@ -1,0 +1,27 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-partial-scc-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+     Running tests/partial_execution.rs (/Users/jeff/code/dive-native-tail-target/debug/deps/partial_execution-79f3e1b247f9a39e)
+
+running 4 tests
+test repeated_partial_checks_share_the_original_graph_steps_budget ... ok
+test foreign_roles_effects_and_partial_bounds_remain_named_failures ... ok
+test actual_partial_candidates_require_independent_memory_json_and_mutant_replay ... ok
+test actual_source_prefixes_match_complete_pinned_partial_selection ... FAILED
+
+failures:
+
+---- actual_source_prefixes_match_complete_pinned_partial_selection stdout ----
+
+thread 'actual_source_prefixes_match_complete_pinned_partial_selection' (118884332) panicked at crates/dive-liveness/tests/partial_execution.rs:203:25:
+assertion `left == right` failed
+  left: "15040402659625261443;0"
+ right: "15040402659625261443"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    actual_source_prefixes_match_complete_pinned_partial_selection
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+
+error: test failed, to rerun pass `-p dive-liveness --test partial_execution`

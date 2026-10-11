@@ -95,3 +95,8 @@ See [Stored successor values](../stored-successor-material.md) for concrete set/
 
 [Fixed-arity Append operator arguments](../native-sequence-operators.md) retain
 both operand scopes; Tail/SubSeq runtime-name admission remains pending.
+
+The [partial SCC diagnostic guide](../partial-temporal-checks.md) describes the
+separate Rust checkpoint API. A partial check can return a candidate requiring
+fresh independent replay, but never temporal Holds or an ordinary schedule
+certificate. Original graph/partial inspection bounds remain shared.

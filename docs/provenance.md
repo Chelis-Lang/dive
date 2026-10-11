@@ -616,3 +616,5 @@ current native producer identities are separated in
 `conformance/probes/configured-random-stream/`. Licence: MIT reference semantics.
 
 | Pure native `Append` temporal operator actual admission | `tlc2.module.Sequences.Append`, pinned `94d0c50`; actual arity and processLiveness projections under `conformance/probes/native-sequence-operators` | MIT | Existing native evaluator unchanged; bounded operand/context proof retains original calls and independent word/witness replay; Tail/SubSeq remain refused |
+
+| Bounded partial SCC/source checkpoint projection | `LiveWorker.checkSccs` non-final UNDONE root/target skips, `checkComponent` EA-root/reverse-stack order, `LiveCheck.check0` repeated pointer restoration and `AbstractDiskGraph.getPath`; pin94d0c50 | MIT | Complete32 actual explicit-prefix fields plus8 original repeated checks; private native source-slot authority, independent acceptance/word/mutant controls; ordinary clock schedule remains unimplemented |

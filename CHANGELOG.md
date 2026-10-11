@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- Bounded partial temporal SCC/source-checkpoint diagnostics retain written-record authority and candidate fields under shared graph limits; successful partial checks never certify temporal completion.
 - Fixed-arity `Append` operator arguments in explicit bounded final TLC checking,
   with independent operand and witness proof. Tail/SubSeq runtime-name refusals
   and existing budgets remain unchanged.
