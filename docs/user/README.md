@@ -30,3 +30,7 @@ and approved better defaults. LSP, native compilation and distributed recovery
 are not exposed as completed functionality here.
 
 Concrete temporal state representation: [Stored successor values](../stored-successor-material.md).
+
+- [Source-owned periodic backend diagnostic](../periodic-backend.md): pointer growth, explicit partial requests and real native-source stopping; no ordinary clock schedule or model-proof claim.
+
+- [Native clock/dispatch lifecycle diagnostic](../native-periodic-lifecycle.md): real pauses, internal timer observations and EOF checks; ordinary scheduling and model proof remain unsupported.

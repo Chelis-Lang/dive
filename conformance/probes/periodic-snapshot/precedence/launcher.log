@@ -1,0 +1,12 @@
+constant-missing-first: 2
+init-missing-first: 2
+next-missing-first: 2
+next-name-first: 2
+constraint-name-first: 2
+reward-name-first: 2
+view-name-later: 2
+possible-name-later: 2
+small-subset-startup: 0
+small-quantifier-startup: 0
+state-witness-not-cached: 0
+replacement-erases-state: 0

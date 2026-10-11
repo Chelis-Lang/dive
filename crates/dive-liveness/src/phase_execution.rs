@@ -5,6 +5,7 @@
 //! SCC traversal, lasso choice, periodic schedule or model-checking verdict.
 
 use crate::Graph;
+use crate::periodic_backend::{Checkpoint, Decision, Growth, Policy};
 use crate::phase_graph::{Commit, Error, Limits, Transition};
 use crate::phase_l::{self, Incoming, Session};
 use crate::search::Acceptance;
@@ -326,6 +327,8 @@ pub struct PartialFailure {
     pub failure: Box<Failure>,
     checks: Vec<PartialCheck>,
     inspections: usize,
+    graph_inspections: usize,
+    periodic_checks: Vec<Checkpoint>,
 }
 impl std::fmt::Display for PartialFailure {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -372,6 +375,11 @@ struct Observer<'a> {
     partial_checks: Vec<PartialCheck>,
     partial_steps: usize,
     successor_origins: BTreeMap<(usize, usize), SuccessorOrigin>,
+    periodic: Option<Policy>,
+    periodic_checks: Vec<Checkpoint>,
+    pointer_sizes: Vec<u64>,
+    last_sizes: Vec<u64>,
+    lifecycle: Option<crate::periodic_lifecycle::State>,
 }
 fn charge(
     total: &mut usize,
@@ -497,9 +505,290 @@ impl Observer<'_> {
                 // This diagnostic continues later source commits deliberately;
                 // it does not claim the actual ordinary stopping schedule.
                 if accepting {
+                    self.record_check_size(group);
                     return Ok(());
                 }
             }
+            self.record_check_size(group);
+        }
+        Ok(())
+    }
+    fn record_check_size(&mut self, group: usize) {
+        if self.periodic.is_some() {
+            self.last_sizes[group] = self.pointer_sizes[group];
+        }
+    }
+    fn pointer_counts(&mut self) -> Result<Vec<u64>, Error> {
+        self.partial_charge(self.groups.len().checked_mul(2))?;
+        let mut counts = Vec::with_capacity(self.groups.len());
+        for index in 0..self.groups.len() {
+            let g = &self.groups[index];
+            let work = g.nodes.len().checked_add(g.done.len());
+            self.partial_charge(work)?;
+            let g = &self.groups[index];
+            // Count actual pointer keys: null placeholders/initial roots are not
+            // entries; tableau registrations AND done-only buckets are entries.
+            let mut keys = BTreeSet::new();
+            for n in &g.nodes {
+                if self.tableaux[index].is_some() || n.written {
+                    keys.insert(n.fingerprint);
+                }
+            }
+            if self.tableaux[index].is_some() {
+                keys.extend(g.done.iter().copied());
+            }
+            let count = u32::try_from(keys.len())
+                .ok()
+                .filter(|n| i32::try_from(*n).is_ok())
+                .ok_or(Error::Limit("pinned node-pointer table entry count"))?;
+            counts.push(u64::from(count));
+        }
+        Ok(counts)
+    }
+    fn periodic_check(
+        &mut self,
+        stats: Stats,
+        barrier: Option<capture::SourceBarrier>,
+    ) -> Result<(), Error> {
+        let Some(policy) = self.periodic else {
+            return Ok(());
+        };
+        self.pointer_sizes = self.pointer_counts()?;
+        // Charge both OOS vectors and checkpoint metadata BEFORE allocation.
+        self.partial_charge(
+            self.groups
+                .len()
+                .checked_mul(2)
+                .and_then(|n| n.checked_add(1)),
+        )?;
+        let before: Vec<_> = self
+            .pointer_sizes
+            .iter()
+            .zip(&self.last_sizes)
+            .map(|(size, last)| Growth {
+                size: *size,
+                last: *last,
+            })
+            .collect();
+        let due = before.iter().any(|g| g.due(policy.threshold));
+        let perform =
+            policy.force || (policy.schedule == crate::periodic_backend::Schedule::Default && due);
+        let start = self.partial_checks.len();
+        let result = if perform {
+            self.partial_check()
+        } else {
+            Ok(())
+        };
+        let candidate = self
+            .partial_checks
+            .iter()
+            .enumerate()
+            .skip(start)
+            .find_map(|(index, c)| c.selection.candidate().is_some().then_some(index));
+        let decision = if result.is_err() {
+            Decision::Failed
+        } else if candidate.is_some() {
+            Decision::Candidate
+        } else if perform {
+            Decision::NoCandidate
+        } else {
+            Decision::Skipped
+        };
+        let after = self
+            .pointer_sizes
+            .iter()
+            .zip(&self.last_sizes)
+            .map(|(size, last)| Growth {
+                size: *size,
+                last: *last,
+            })
+            .collect();
+        self.periodic_checks.push(Checkpoint {
+            sources: self.sources,
+            stats,
+            barrier,
+            before,
+            after,
+            due,
+            decision,
+            candidate,
+        });
+        result?;
+        if candidate.is_some() {
+            return Err(Error::PartialCandidate);
+        }
+        Ok(())
+    }
+    fn lifecycle_poll(
+        &mut self,
+        source: &CommittedSource<'_>,
+        pause: &capture::DispatchPause<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        let now = crate::periodic_lifecycle::time_millis()?;
+        let elapsed = now.wrapping_sub(state.last);
+        if elapsed < 0 {
+            return Err(Error::Execution(
+                "native progress clock moved backwards".into(),
+            ));
+        }
+        if elapsed < i64::from(state.options.progress_interval) && !state.force {
+            return Ok(());
+        }
+        self.partial_charge(Some(1))?;
+        state.last = now;
+        let ratio_before = state.ratio;
+        let force_before = state.force;
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: state.hook.is_some(),
+        };
+        let mut hooks = NativeHooks {
+            observer: self,
+            state,
+            source,
+            pause,
+            resumed: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks
+            .state
+            .invocations
+            .push(crate::periodic_lifecycle::Invocation {
+                source: source.id,
+                publication: source.barrier,
+                stats: source.stats,
+                workers: pause.workers(),
+                generation: pause.generation(),
+                now,
+                ratio_before,
+                ratio_after: policy.runtime_ratio,
+                force_before,
+                force_after: policy.force_liveness,
+                resume_requested: hooks.resumed,
+                outcome: outcome.as_ref().map(|o| *o).map_err(|e| format!("{e:?}")),
+            });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
+            Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
+                Err(Error::PeriodicAssumptionFalse)
+            }
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native liveness clock moved backwards".into(),
+            )),
+        }
+    }
+    fn lifecycle_final(
+        &mut self,
+        state: &mut crate::periodic_lifecycle::State,
+        end: &capture::ExplorationEnd,
+    ) -> Result<(), Error> {
+        state.eof = Some(end.stats());
+        self.pointer_sizes = self.pointer_counts()?;
+        for group in 0..self.groups.len() {
+            for pem in 0..self.groups[group].pems.len() {
+                // Reserve projection metadata before clones/retention, using the
+                // original shared graph meter rather than a fresh SCC allowance.
+                let records = &self.groups[group];
+                let edge_count = records
+                    .nodes
+                    .iter()
+                    .try_fold(0usize, |n, x| n.checked_add(x.transitions.len()));
+                let cells = records
+                    .nodes
+                    .len()
+                    .checked_mul(records.pems[pem].ae_state.len())
+                    .and_then(|n| {
+                        edge_count?
+                            .checked_mul(records.pems[pem].ae_action.len().checked_add(1)?)?
+                            .checked_add(n)
+                    })
+                    .and_then(|n| {
+                        records
+                            .nodes
+                            .len()
+                            .checked_mul(
+                                self.tableaux[group]
+                                    .as_ref()
+                                    .map_or(0, |t| t.promises.len()),
+                            )?
+                            .checked_add(n)
+                    });
+                self.partial_charge(
+                    records
+                        .nodes
+                        .len()
+                        .checked_mul(3)
+                        .and_then(|n| n.checked_add(edge_count?))
+                        .and_then(|n| n.checked_add(cells?))
+                        .and_then(|n| n.checked_add(records.roots.len()))
+                        .and_then(|n| n.checked_add(1)),
+                )?;
+                let records = &self.groups[group];
+                let (graph, labels) = project_inputs_inner(
+                    records,
+                    pem,
+                    self.limits.graph,
+                    self.tableaux[group].as_ref(),
+                    false,
+                )?;
+                let identities = records
+                    .nodes
+                    .iter()
+                    .map(|n| crate::tlc_witness::Identity {
+                        fingerprint: n.fingerprint,
+                        tableau: n.tableau,
+                    })
+                    .collect::<Vec<_>>();
+                let remaining = self
+                    .limits
+                    .graph
+                    .steps
+                    .checked_sub(self.steps)
+                    .ok_or(Error::Limit("final SCC cumulative inspections"))?;
+                let selection = crate::tlc_witness::select(
+                    &graph,
+                    &labels,
+                    &identities,
+                    crate::product::Limits {
+                        steps: remaining,
+                        ..self.limits.graph
+                    },
+                )
+                .map_err(|e| match e {
+                    crate::tlc_scc::Error::Limit(_) => {
+                        Error::Limit("final SCC cumulative inspections")
+                    }
+                    other => Error::Input(format!("final SCC selection: {other}")),
+                })?;
+                self.partial_charge(
+                    selection
+                        .traversal
+                        .inspections
+                        .checked_add(selection.candidate.as_ref().map_or(0, |c| c.inspections)),
+                )?;
+                let candidate = selection.candidate.is_some();
+                state
+                    .final_checks
+                    .push(crate::periodic_lifecycle::FinalCheck {
+                        group,
+                        pem,
+                        selection,
+                    });
+                if candidate {
+                    self.record_check_size(group);
+                    return Err(Error::PartialCandidate);
+                }
+            }
+            self.record_check_size(group);
         }
         Ok(())
     }
@@ -1101,7 +1390,141 @@ impl Observer<'_> {
         })
     }
 }
+struct NativeHooks<'a, 'model, 'source, 'pause> {
+    observer: &'a mut Observer<'model>,
+    state: &'a mut crate::periodic_lifecycle::State,
+    source: &'a CommittedSource<'source>,
+    pause: &'a capture::DispatchPause<'pause>,
+    resumed: bool,
+}
+impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
+    type Error = Error;
+    fn growth_due(&mut self) -> Result<bool, Error> {
+        self.observer.pointer_sizes = self.observer.pointer_counts()?;
+        Ok(self
+            .observer
+            .pointer_sizes
+            .iter()
+            .zip(&self.observer.last_sizes)
+            .any(|(size, last)| {
+                Growth {
+                    size: *size,
+                    last: *last,
+                }
+                .due(self.state.options.backend.threshold)
+            }))
+    }
+    fn suspend_workers(&mut self) -> Result<bool, Error> {
+        if self.pause.workers() != self.source.barrier.workers() {
+            return Err(Error::Input("dispatch pause/source pool mismatch".into()));
+        }
+        Ok(true)
+    }
+    fn check_liveness(&mut self, forced: bool) -> Result<i32, Error> {
+        let saved = self.observer.periodic;
+        self.observer.periodic = Some(Policy {
+            force: forced,
+            ..self.state.options.backend
+        });
+        let result = self
+            .observer
+            .periodic_check(self.source.stats, Some(self.source.barrier));
+        self.observer.periodic = saved;
+        match result {
+            Ok(()) => Ok(0),
+            Err(Error::PartialCandidate) => Ok(2116),
+            Err(e) => Err(e),
+        }
+    }
+    fn time_millis(&mut self) -> Result<i64, Error> {
+        crate::periodic_lifecycle::time_millis()
+    }
+    fn update_runtime_ratio(&mut self, elapsed: i64) -> Result<f64, Error> {
+        crate::periodic::calculate_runtime_ratio(
+            self.state.ratio,
+            self.state.start,
+            crate::periodic_lifecycle::time_millis()?,
+            self.state.options.progress_interval,
+            elapsed,
+        )
+        .map_err(|_| Error::Execution("negative native liveness elapsed time".into()))
+    }
+    fn periodic_is_false(&mut self) -> Result<bool, Error> {
+        let (pred, admission_work) = self
+            .state
+            .hook
+            .as_ref()
+            .ok_or_else(|| Error::Input("missing supplied PERIODIC expression".into()))?;
+        // Charge before evaluation and retaining its receipt. The original
+        // graph+partial+hook bookkeeping quota remains shared.
+        self.observer
+            .partial_charge(crate::periodic_hook::evaluation_charge(*admission_work))?;
+        let result = self
+            .observer
+            .model
+            .eval(pred, &dive_eval::St::empty())
+            .and_then(|value| {
+                self.observer
+                    .model
+                    .evaluator
+                    .equal_values(&dive_value::Value::Bool(false), &value)
+            })
+            .map_err(|error| error.at(pred.expr));
+        self.state
+            .hook_evaluations
+            .push(crate::periodic_hook::Evaluation {
+                source: self.source.id,
+                expression: pred.expr,
+                result: result.clone(),
+            });
+        result.map_err(Error::PeriodicEvaluation)
+    }
+    fn checkpoint(&mut self) -> Result<(), Error> {
+        Err(Error::Input(
+            "checkpoint transaction is not admitted by native lifecycle".into(),
+        ))
+    }
+    fn resume_workers(&mut self) -> Result<(), Error> {
+        self.resumed = true;
+        Ok(())
+    }
+}
+
 impl SourceObserver for Observer<'_> {
+    fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+        self.lifecycle.as_ref().and_then(|state| state.requests)
+    }
+    fn expansion_requests_cancelled(&mut self, pending: Option<dive_check::progress::Request>) {
+        if let Some(state) = &mut self.lifecycle {
+            state.requests_cancelled = true;
+            state.aborted_request = pending;
+        }
+    }
+    fn expansion_quiescent(
+        &mut self,
+        receipt: capture::ExpansionQuiescence,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        // Charge before retaining each bounded at-most-eight-source receipt.
+        let cost = 1usize
+            .checked_add(receipt.claimed().len())
+            .and_then(|c| c.checked_add(receipt.completed().len()))
+            .and_then(|c| c.checked_add(receipt.failed().len()));
+        let result = self.partial_charge(cost).and_then(|()| {
+            let Some(state) = &mut self.lifecycle else {
+                return Err(Error::Input("request pause without owned lifecycle".into()));
+            };
+            state
+                .expansion_pauses
+                .push(crate::periodic_lifecycle::ExpansionPause {
+                    receipt,
+                    workers: pause.workers(),
+                    generation: pause.generation(),
+                });
+            Ok(())
+        });
+        self.retain(result)
+    }
     fn initial(
         &mut self,
         _id: u64,
@@ -1109,15 +1532,61 @@ impl SourceObserver for Observer<'_> {
         _ordinal: u64,
         _stats: Stats,
     ) -> Result<(), String> {
+        let result = self.initial_inner(state).and_then(|()| {
+            if self.periodic.is_none() {
+                self.partial_check()
+            } else {
+                Ok(())
+            }
+        });
+        self.retain(result)
+    }
+    fn initial_complete(&mut self, stats: Stats) -> Result<(), String> {
+        let result = if self.lifecycle.is_some() {
+            Ok(())
+        } else {
+            self.periodic_check(stats, None)
+        };
+        self.retain(result)
+    }
+    fn requires_dispatch_pause(&self) -> bool {
+        self.lifecycle.is_some()
+    }
+    fn paused_source(
+        &mut self,
+        source: CommittedSource<'_>,
+        pause: &capture::DispatchPause<'_>,
+    ) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.source(source);
+        };
         let result = self
-            .initial_inner(state)
-            .and_then(|()| self.partial_check());
+            .source_inner(&source)
+            .and_then(|()| self.lifecycle_poll(&source, pause, &mut state));
+        self.lifecycle = Some(state);
+        self.retain(result)
+    }
+    fn exploration_complete(&mut self, end: &capture::ExplorationEnd) -> Result<(), String> {
+        let Some(mut state) = self.lifecycle.take() else {
+            return Ok(());
+        };
+        let result = self.lifecycle_final(&mut state, end);
+        self.lifecycle = Some(state);
         self.retain(result)
     }
     fn source(&mut self, source: CommittedSource<'_>) -> Result<(), String> {
-        let result = self
-            .source_inner(&source)
-            .and_then(|()| self.partial_check());
+        if self.lifecycle.is_some() {
+            return self.retain(Err(Error::Input(
+                "native lifecycle requires dispatch-pause authority".into(),
+            )));
+        }
+        let result = self.source_inner(&source).and_then(|()| {
+            if self.periodic.is_some() {
+                self.periodic_check(source.stats, Some(source.barrier))
+            } else {
+                self.partial_check()
+            }
+        });
         self.retain(result)
     }
 }
@@ -1140,8 +1609,8 @@ pub fn execute(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<Complete, Box<Failure>> {
-    execute_inner(model, options, limits, false)
-        .map(|(execution, _, _, _)| execution)
+    execute_inner(model, options, limits, false, None, None, None)
+        .map(|(execution, _, _, _, _, _)| execution)
         .map_err(|failure| failure.failure)
 }
 
@@ -1163,8 +1632,8 @@ pub fn execute_partial(
     options: &CheckOptions,
     limits: Limits,
 ) -> Result<PartialExecution, Box<PartialFailure>> {
-    execute_inner(model, options, limits, true).map(
-        |(execution, checks, inspections, graph_inspections)| PartialExecution {
+    execute_inner(model, options, limits, true, None, None, None).map(
+        |(execution, checks, inspections, graph_inspections, _, _)| PartialExecution {
             execution,
             checks,
             inspections,
@@ -1172,6 +1641,171 @@ pub fn execute_partial(
         },
     )
 }
+
+pub(crate) fn execute_periodic_backend(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: Policy,
+) -> crate::periodic_backend::Run {
+    match execute_inner(model, options, limits, true, Some(policy), None, None) {
+        Ok((complete, checks, inspections, graph_inspections, checkpoints, _)) => {
+            crate::periodic_backend::Run {
+                complete: Some(complete),
+                failure: None,
+                checks,
+                inspections,
+                graph_inspections,
+                checkpoints,
+                options: options.clone(),
+                policy,
+                limits,
+            }
+        }
+        Err(failure) => crate::periodic_backend::Run {
+            complete: None,
+            failure: Some(failure.failure),
+            checks: failure.checks,
+            inspections: failure.inspections,
+            graph_inspections: failure.graph_inspections,
+            checkpoints: failure.periodic_checks,
+            options: options.clone(),
+            policy,
+            limits,
+        },
+    }
+}
+
+pub(crate) fn execute_periodic_lifecycle(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+) -> crate::periodic_lifecycle::Run {
+    execute_periodic_lifecycle_hook(model, options, limits, policy, None)
+}
+
+pub(crate) fn execute_periodic_lifecycle_hook(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+) -> crate::periodic_lifecycle::Run {
+    execute_periodic_lifecycle_requests(model, options, limits, policy, hook, None)
+}
+
+pub(crate) fn execute_periodic_lifecycle_requests(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+    requests: Option<dive_check::progress::Options>,
+) -> crate::periodic_lifecycle::Run {
+    let mut failed_state = None;
+    let outcome = execute_inner(
+        model,
+        options,
+        limits,
+        true,
+        Some(policy.backend),
+        Some((policy, hook, requests)),
+        Some(&mut failed_state),
+    );
+    let (backend, state) = match outcome {
+        Ok((complete, checks, inspections, graph_inspections, checkpoints, state)) => (
+            crate::periodic_backend::Run {
+                complete: Some(complete),
+                failure: None,
+                checks,
+                inspections,
+                graph_inspections,
+                checkpoints,
+                options: options.clone(),
+                policy: policy.backend,
+                limits,
+            },
+            state,
+        ),
+        Err(failure) => (
+            crate::periodic_backend::Run {
+                complete: None,
+                failure: Some(failure.failure),
+                checks: failure.checks,
+                inspections: failure.inspections,
+                graph_inspections: failure.graph_inspections,
+                checkpoints: failure.periodic_checks,
+                options: options.clone(),
+                policy: policy.backend,
+                limits,
+            },
+            failed_state,
+        ),
+    };
+    let (
+        invocations,
+        final_checks,
+        eof,
+        hook_evaluations,
+        expansion_pauses,
+        request_options,
+        requests_cancelled,
+        aborted_request,
+    ) = state.map_or_else(
+        || {
+            (
+                Vec::new(),
+                Vec::new(),
+                None,
+                Vec::new(),
+                Vec::new(),
+                requests,
+                false,
+                None,
+            )
+        },
+        |s| {
+            (
+                s.invocations,
+                s.final_checks,
+                s.eof,
+                s.hook_evaluations,
+                s.expansion_pauses,
+                s.requests,
+                s.requests_cancelled,
+                s.aborted_request,
+            )
+        },
+    );
+    crate::periodic_lifecycle::Run {
+        backend,
+        options: policy,
+        invocations,
+        final_checks,
+        eof,
+        hook_evaluations,
+        expansion_pauses,
+        request_options,
+        requests_cancelled,
+        aborted_request,
+    }
+}
+
+type ExecutionParts = (
+    Complete,
+    Vec<PartialCheck>,
+    usize,
+    usize,
+    Vec<Checkpoint>,
+    Option<crate::periodic_lifecycle::State>,
+);
+
+type LifecycleInput = (
+    crate::periodic_lifecycle::Options,
+    Option<(dive_model::Pred, usize)>,
+    Option<dive_check::progress::Options>,
+);
 
 #[allow(
     clippy::too_many_lines,
@@ -1182,11 +1816,16 @@ fn execute_inner(
     options: &CheckOptions,
     limits: Limits,
     partial: bool,
-) -> Result<(Complete, Vec<PartialCheck>, usize, usize), Box<PartialFailure>> {
+    periodic: Option<Policy>,
+    lifecycle: Option<LifecycleInput>,
+    lifecycle_failure: Option<&mut Option<crate::periodic_lifecycle::State>>,
+) -> Result<ExecutionParts, Box<PartialFailure>> {
     let early = |error| {
         Box::new(PartialFailure {
             checks: Vec::new(),
             inspections: 0,
+            graph_inspections: 0,
+            periodic_checks: Vec::new(),
             failure: Box::new(Failure {
                 error,
                 stats: None,
@@ -1218,6 +1857,18 @@ fn execute_inner(
     model
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
+    let lifecycle = lifecycle
+        .map(|(options, hook, requests)| {
+            if let Some(requests) = requests {
+                requests.validate().map_err(Error::Input)?;
+            }
+            let mut state = crate::periodic_lifecycle::State::new(options)?;
+            state.hook = hook;
+            state.requests = requests;
+            Ok(state)
+        })
+        .transpose()
+        .map_err(early)?;
     let session = Session::new(model, options.fp_index, 1, limits.phase_l)
         .map_err(|error| early(Error::Phase(error)))?;
     if session.orders().is_empty() {
@@ -1236,6 +1887,17 @@ fn execute_inner(
             ..Default::default()
         })
         .collect();
+    let group_count = orders.len();
+    let mut setup_steps = 0;
+    if periodic.is_some() {
+        charge(
+            &mut setup_steps,
+            group_count.checked_mul(2),
+            limits.graph.steps,
+            "periodic backend setup inspections",
+        )
+        .map_err(early)?;
+    }
     let mut observer = Observer {
         model,
         tableaux,
@@ -1250,13 +1912,22 @@ fn execute_inner(
         vertices: 0,
         edges: 0,
         cells: 0,
-        steps: 0,
+        steps: setup_steps,
         sources: 0,
         last_commit_work: None,
         partial,
         partial_checks: Vec::new(),
-        partial_steps: 0,
+        partial_steps: setup_steps,
         successor_origins: BTreeMap::new(),
+        periodic,
+        periodic_checks: Vec::new(),
+        lifecycle,
+        pointer_sizes: Vec::new(),
+        last_sizes: if periodic.is_some() {
+            vec![1; group_count]
+        } else {
+            Vec::new()
+        },
     };
     let captured =
         capture::explore_observed_with_evidence(model, options, limits.capture, &mut observer);
@@ -1279,9 +1950,14 @@ fn execute_inner(
                     None,
                 ),
             };
+            if let Some(output) = lifecycle_failure {
+                *output = observer.lifecycle.take();
+            }
             return Err(Box::new(PartialFailure {
                 checks: std::mem::take(&mut observer.partial_checks),
                 inspections: observer.partial_steps,
+                graph_inspections: observer.steps,
+                periodic_checks: std::mem::take(&mut observer.periodic_checks),
                 failure: Box::new(Failure {
                     error,
                     stats,
@@ -1310,6 +1986,8 @@ fn execute_inner(
         observer.partial_checks,
         observer.partial_steps,
         observer.steps,
+        observer.periodic_checks,
+        observer.lifecycle,
     ))
 }
 

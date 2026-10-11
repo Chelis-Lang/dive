@@ -730,17 +730,14 @@ See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
 
-D-009 trace transport boundary (#190): default legacy version 1 retains the
-known mixed-set shape failures. Opt-in `--trace-format representation-v2`
-preserves admitted forward stored sets and nonliteral tuple/record functions
-through checked constructor witnesses and independent replay. This changes no
-comparison, construction or Random/VIEW shape policy. A transported word is not
-a certificate. Reverse construction, arbitrary deferred/symbolic values and
-trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
-[the schema and bounded CLI/API guide](trace-representation.md).
+## Supplied pure periodic expressions (bounded diagnostic limitation)
 
-D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
-provides actual fallible disk fingerprint/exact membership with bounded
-workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
-seen-memory CLI budgets remain pending; the library is not a full storage-family
-certificate. See `docs/user/disk-seen-library.md`.
+ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).
+
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
+
+Producer request limitation (#201): [the bounded Rust diagnostic](producer-progress-requests.md) stops actual new expansion claims and joins admitted work, but current-wave outputs remain uncommitted until the existing ordered source path. These receipts do not certify ordinary Java queue suspension, schedule/count parity or a model verdict. Checkpoint and ordinary CLI refusals stay in place; no new default or family credit.
+
+### Actual committed request-prefix limitation (#204)
+
+The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.

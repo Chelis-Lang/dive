@@ -194,6 +194,16 @@ struct BlockOut<K> {
     accepted: Vec<Accepted<K>>,
 }
 
+/// Returned outputs selected for one actual ordered publication transaction.
+struct CommitInput<K> {
+    gens: Vec<u64>,
+    done: Vec<bool>,
+    lines: Lines,
+    first: Option<Event>,
+    accepted: Vec<Accepted<K>>,
+    buffers: Vec<Candidates<K, Pos, Payload>>,
+}
+
 /// One level's phase-1 job.
 struct Expand<'env, S: Keyed> {
     m: &'env Model,
@@ -217,6 +227,7 @@ struct Expand<'env, S: Keyed> {
     native_counter_remaining: Option<u64>,
     capture_quotas: Option<(usize, u64)>,
     buffers: Mutex<Vec<Candidates<S::Key, Pos, Payload>>>,
+    progress: Option<Arc<crate::progress::Lane>>,
     chaos: Option<u64>,
 }
 
@@ -229,6 +240,81 @@ struct Stopped {
 }
 
 impl<S: Keyed> Expand<'_, S> {
+    /// Capture waves have one block per concrete source. Missing output stops
+    /// this prefix; a claim alone never counts as a returned expansion.
+    fn completed_prefix(&self, cursor: usize, end: usize) -> usize {
+        contiguous_returned(
+            self.blocks.iter().zip(&self.outs).map(|(block, out)| {
+                (
+                    block.clone(),
+                    out.lock().unwrap_or_else(PoisonError::into_inner).is_some(),
+                )
+            }),
+            cursor,
+            end,
+        )
+    }
+
+    /// Moves only the selected completed source records and candidate positions.
+    /// Later buffers remain intact and are never resolved prematurely.
+    fn take_sources(&self, units: Range<usize>, n_units: usize) -> CommitInput<S::Key> {
+        let mut input = CommitInput {
+            gens: vec![0; n_units],
+            done: vec![false; n_units],
+            lines: Vec::new(),
+            first: None,
+            accepted: Vec::new(),
+            buffers: Vec::new(),
+        };
+        for (block, out) in self.blocks.iter().zip(&self.outs) {
+            if block.start < units.start || block.end > units.end {
+                continue;
+            }
+            let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() else {
+                continue;
+            };
+            for (k, generated) in out.gens.iter().enumerate() {
+                input.gens[block.start + k] = *generated;
+                input.done[block.start + k] = true;
+            }
+            input.lines.extend(out.lines);
+            input.accepted.extend(out.accepted);
+            input.first = earlier(input.first, out.event);
+        }
+        let mut buffers = self.buffers.lock().unwrap_or_else(PoisonError::into_inner);
+        if self
+            .blocks
+            .last()
+            .is_some_and(|block| block.end == units.end)
+        {
+            // All retained candidates belong to this wave's uncommitted suffix.
+            // Preserve the original whole-wave move without repartition buffers.
+            input.buffers = std::mem::take(&mut *buffers);
+            return input;
+        }
+        for buffer in buffers.iter_mut() {
+            let selected = buffer.extract_if(|pos| {
+                usize::try_from(pos.0)
+                    .ok()
+                    .and_then(|source| {
+                        if self.narrow {
+                            source
+                                .checked_mul(self.actions())?
+                                .checked_add(pos.1 as usize)
+                        } else {
+                            Some(source)
+                        }
+                    })
+                    .is_some_and(|unit| units.contains(&unit))
+            });
+            if !selected.is_empty() {
+                input.buffers.push(selected);
+            }
+        }
+        buffers.retain(|buffer| !buffer.is_empty());
+        input
+    }
+
     fn actions(&self) -> usize {
         self.m.actions.len()
     }
@@ -257,7 +343,14 @@ impl<S: Keyed> Expand<'_, S> {
             .map(|c| Rng(c ^ (w as u64).wrapping_mul(0x2545_f491_4f6c_dd1d) ^ self.level));
         loop {
             Rng::maybe_yield(&mut rng);
-            let k = self.claim.fetch_add(1, Ordering::Relaxed);
+            let k = if let Some(progress) = &self.progress {
+                let Some(claim) = progress.claim(&self.claim, self.order.len()) else {
+                    break;
+                };
+                claim
+            } else {
+                self.claim.fetch_add(1, Ordering::Relaxed)
+            };
             let Some(&b) = self.order.get(k) else { break };
             let range = self.blocks[b].clone();
             if range.start as u64 > self.cut.load(Ordering::Relaxed) {
@@ -782,8 +875,22 @@ pub(crate) fn levels_from<S: Keyed>(
 ) -> (Option<Stop>, Stats, usize) {
     let set = RwLock::new(std::mem::replace(&mut search.set, S::fresh(0)));
     let (stop, stats, used) = with_pool(workers, dive_eval::RECOMMENDED_STACK, |pool| {
-        let (stop, stats) = run_levels(search, &set, next, opts, pool, level);
-        (stop, stats, pool.threads())
+        let request_options = search.observer.as_ref().and_then(|o| o.progress_requests());
+        match crate::progress::with_lane(request_options, |progress| {
+            run_levels(search, &set, next, opts, pool, level, progress.as_ref())
+        }) {
+            Ok((stop, stats)) => (stop, stats, pool.threads()),
+            Err(feature) => (
+                Some(Stop {
+                    verdict: Verdict::Unsupported { feature },
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                search.stats(0),
+                pool.threads(),
+            ),
+        }
     });
     search.set = set.into_inner().unwrap_or_else(PoisonError::into_inner);
     // Statistics computed with the set outside the search report its size.
@@ -881,6 +988,7 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
     opts: &CheckOptions,
     pool: &Pool<'env>,
     mut level: u64,
+    progress: Option<&Arc<crate::progress::Lane>>,
 ) -> (Option<Stop>, Stats) {
     let m: &'env Model = search.m;
     let keyer: &'env S::Keyer = search.keyer;
@@ -1021,34 +1129,186 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                 claim: AtomicUsize::new(0),
                 cut: AtomicU64::new(u64::MAX),
                 buffers: Mutex::new(Vec::new()),
+                progress: progress.cloned(),
                 chaos: opts.chaos,
             });
             let job: Job<'env> = {
                 let e = expand.clone();
                 Arc::new(move |w| e.work(w))
             };
-            if let Err(message) = run(pool, &job, inline) {
-                return internal(message, stats_now(search, 0));
+            let mut cursor = wave_start;
+            loop {
+                if let Err(message) = run(pool, &job, inline) {
+                    return internal(
+                        message,
+                        stats_now(search, (len - cursor + next_frontier.len()) as u64),
+                    );
+                }
+                if let Some(progress) = &progress {
+                    let request = if expand.cut.load(Ordering::Relaxed) == u64::MAX {
+                        match progress.take() {
+                            Ok(request) => request,
+                            Err(message) => {
+                                return internal(
+                                    message,
+                                    stats_now(search, (len - cursor + next_frontier.len()) as u64),
+                                );
+                            }
+                        }
+                    } else {
+                        let (fresh, pending) = progress.cancel_requests();
+                        if fresh && let Some(observer) = &mut search.observer {
+                            observer.expansion_requests_cancelled(pending);
+                        }
+                        None
+                    };
+                    if let Some(request) = request {
+                        let mut completed: Vec<_> = expand
+                            .outs
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(b, out)| {
+                                out.lock()
+                                    .unwrap_or_else(PoisonError::into_inner)
+                                    .as_ref()
+                                    .map(|_| first_id + expand.blocks[b].start as u64)
+                            })
+                            .collect();
+                        completed.extend((wave_start..cursor).map(|unit| first_id + unit as u64));
+                        completed.sort_unstable();
+                        let claimed = expand
+                            .order
+                            .iter()
+                            .take(expand.claim.load(Ordering::Relaxed))
+                            .map(|b| first_id + expand.blocks[*b].start as u64)
+                            .collect();
+                        let mut failed = Vec::new();
+                        let mut expanded_generated = 0u64;
+                        for (b, output) in expand.outs.iter().enumerate() {
+                            let guard = output.lock().unwrap_or_else(PoisonError::into_inner);
+                            if let Some(output) = guard.as_ref() {
+                                if output.event.is_some() {
+                                    failed.push(first_id + expand.blocks[b].start as u64);
+                                }
+                                for generated in &output.gens {
+                                    let Some(total) = expanded_generated.checked_add(*generated)
+                                    else {
+                                        return internal(
+                                            "request scratch generation counter overflow".into(),
+                                            stats_now(
+                                                search,
+                                                (len - cursor + next_frontier.len()) as u64,
+                                            ),
+                                        );
+                                    };
+                                    expanded_generated = total;
+                                }
+                            }
+                        }
+                        let logical_before =
+                            stats_now(search, (len - cursor + next_frontier.len()) as u64);
+                        let prefix_end = if search.capture.is_some() && !narrow {
+                            expand.completed_prefix(cursor, wave_end)
+                        } else {
+                            cursor
+                        };
+                        let prefix_start = cursor;
+                        let mut stopped = None;
+                        let result = pool
+                            .with_pause(|pause| {
+                                if prefix_end > cursor {
+                                    let input = expand.take_sources(cursor..prefix_end, n_units);
+                                    let committed_generated = input.gens.iter().sum::<u64>();
+                                    let result = commit_sources(
+                                        search,
+                                        set,
+                                        pool,
+                                        Some(pause),
+                                        threads,
+                                        opts,
+                                        level,
+                                        first_id,
+                                        &frontier,
+                                        &mut next_frontier,
+                                        narrow,
+                                        concrete_pool,
+                                        wave_start..wave_end,
+                                        cursor..prefix_end,
+                                        &input.gens,
+                                        &input.done,
+                                        input.lines,
+                                        input.first,
+                                        input.accepted,
+                                        input.buffers,
+                                        &mut rng,
+                                        observed_pool_generated + expanded_generated,
+                                    );
+                                    if result.0.is_some() {
+                                        stopped = Some(result);
+                                        return Ok(());
+                                    }
+                                    observed_pool_generated += committed_generated;
+                                    cursor = prefix_end;
+                                }
+                                let receipt = crate::capture::ExpansionQuiescence {
+                                    request,
+                                    submitted: first_id + wave_start as u64
+                                        ..first_id + wave_end as u64,
+                                    completed,
+                                    claimed,
+                                    failed,
+                                    expanded_generated,
+                                    logical: logical_before,
+                                    committed: first_id + prefix_start as u64
+                                        ..first_id + cursor as u64,
+                                    logical_after: stats_now(
+                                        search,
+                                        (len - cursor + next_frontier.len()) as u64,
+                                    ),
+                                    predicate_workers: usize::from(
+                                        cursor > prefix_start
+                                            && !m.invariants.is_empty()
+                                            && set
+                                                .read()
+                                                .unwrap_or_else(PoisonError::into_inner)
+                                                .len()
+                                                > logical_before.distinct,
+                                    ),
+                                };
+                                search.observer.as_mut().map_or(Ok(()), |observer| {
+                                    observer.expansion_quiescent(receipt, pause)
+                                })
+                            })
+                            .and_then(std::convert::identity);
+                        if let Some(result) = stopped {
+                            return result;
+                        }
+                        if let Err(feature) = result {
+                            return (
+                                Some(Stop {
+                                    verdict: Verdict::Unsupported { feature },
+                                    in_init: false,
+                                    path: None,
+                                    then: None,
+                                }),
+                                stats_now(search, (len - cursor + next_frontier.len()) as u64),
+                            );
+                        }
+                    }
+                }
+                if expand.claim.load(Ordering::Relaxed) >= expand.order.len() {
+                    break;
+                }
             }
             drop(job);
-            let mut gens = vec![0u64; n_units];
-            let mut done = vec![false; n_units];
-            let mut lines: Lines = Vec::new();
-            let mut first: Option<Event> = None;
-            let mut accepted = Vec::new();
-            for (b, out) in expand.outs.iter().enumerate() {
-                let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() else {
-                    continue;
-                };
-                let start = expand.blocks[b].start;
-                for (k, g) in out.gens.iter().enumerate() {
-                    gens[start + k] = *g;
-                    done[start + k] = true;
-                }
-                lines.extend(out.lines);
-                accepted.extend(out.accepted);
-                first = earlier(first, out.event);
-            }
+            let CommitInput {
+                gens,
+                done,
+                lines,
+                mut first,
+                accepted,
+                buffers,
+            } = expand.take_sources(cursor..wave_end, n_units);
             if narrow && check_deadlock {
                 // A state's deadlock needs all its actions' counts.
                 for i in 0..len {
@@ -1061,412 +1321,34 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                     }
                 }
             }
-            // Phase 2: resolve.
-            let buffers = std::mem::take(
-                &mut *expand
-                    .buffers
-                    .lock()
-                    .unwrap_or_else(PoisonError::into_inner),
-            );
             drop(expand);
-            let candidates: usize = buffers.iter().map(Candidates::len).sum();
-            let distinct_before = set.read().unwrap_or_else(PoisonError::into_inner).len();
-            let resolve = ResolveOptions {
-                threads: match &mut rng {
-                    Some(r) => 1 + r.below(threads),
-                    None if candidates < PARALLEL_RESOLVE => 1,
-                    None => threads,
-                },
-                chaos: rng.as_mut().map(Rng::next),
-            };
-            let resolved = set
-                .write()
-                .unwrap_or_else(PoisonError::into_inner)
-                .resolve(buffers, &resolve);
-            let resolved = match resolved {
-                Ok(r) => r,
-                Err(e) => return internal(e.to_string(), stats_now(search, 0)),
-            };
-            let winners: Arc<Vec<Winner>> = Arc::new(
-                resolved
-                    .into_position_order()
-                    .into_iter()
-                    .map(|c| Winner {
-                        pos: c.pos,
-                        vals: c.payload.vals,
-                        action: c.payload.action,
-                        checkpoint_key: search.has_checkpoint().then(|| S::checkpoint_key(&c.key)),
-                    })
-                    .collect(),
+            observed_pool_generated += gens.iter().sum::<u64>();
+            let result = commit_sources(
+                search,
+                set,
+                pool,
+                None,
+                threads,
+                opts,
+                level,
+                first_id,
+                &frontier,
+                &mut next_frontier,
+                narrow,
+                concrete_pool,
+                wave_start..wave_end,
+                cursor..wave_end,
+                &gens,
+                &done,
+                lines,
+                first,
+                accepted,
+                buffers,
+                &mut rng,
+                observed_pool_generated,
             );
-            if search.has_checkpoint() {
-                first = earlier(
-                    native_counter_event(
-                        search.generated,
-                        &gens,
-                        wave_start..wave_end,
-                        narrow,
-                        n_actions,
-                    ),
-                    first,
-                );
-                // Record winners in discovery order before the invariant phase,
-                // matching inline admission's key/record/invariant ordering.
-                // The resolved key is retained; the model is never re-keyed here.
-                for winner in winners.iter() {
-                    if first
-                        .as_ref()
-                        .is_some_and(|event| (winner.pos, PH_NATIVE) > event.key)
-                    {
-                        break;
-                    }
-                    let Some(ordinal) = ordinal_of(winner, &gens, narrow, n_actions) else {
-                        return internal(
-                            "more than 2^32 successors of one state".into(),
-                            stats_now(search, 0),
-                        );
-                    };
-                    let Some(key) = &winner.checkpoint_key else {
-                        return internal(
-                            "native winner key was not retained".into(),
-                            stats_now(search, 0),
-                        );
-                    };
-                    if let Err(verdict) = search.checkpoint_discovery(
-                        key.clone(),
-                        &winner.vals,
-                        first_id + winner.pos.0,
-                        ordinal,
-                    ) {
-                        let unit = if narrow {
-                            usize::try_from(winner.pos.0).unwrap_or(usize::MAX) * n_actions
-                                + winner.pos.1 as usize
-                        } else {
-                            usize::try_from(winner.pos.0).unwrap_or(usize::MAX)
-                        };
-                        first = earlier(
-                            Some(Event {
-                                key: (winner.pos, PH_NATIVE),
-                                unit,
-                                c: u64::from(winner.pos.2) + 1,
-                                verdict,
-                                then: None,
-                                resume: false,
-                                stutter: false,
-                            }),
-                            first,
-                        );
-                        break;
-                    }
-                }
-            }
-            // Resolve logical generated limits in reference order, independently of
-            // which workers consumed the bounded per-source scratch budget.
-            if let Some(capture) = &search.capture {
-                let mut generated = search.generated;
-                for (unit, &count) in gens.iter().enumerate().take(wave_end).skip(wave_start) {
-                    if generated.saturating_add(count) > capture.limits().generated {
-                        let j = capture.limits().generated.saturating_sub(generated);
-                        first = earlier(
-                            Some(Event {
-                                key: (
-                                    (unit as u64, 0, u32::try_from(j).unwrap_or(u32::MAX)),
-                                    PH_ENUM,
-                                ),
-                                unit,
-                                c: j + 1,
-                                verdict: crate::capture::limit("generated states"),
-                                then: None,
-                                resume: false,
-                                stutter: false,
-                            }),
-                            first,
-                        );
-                        break;
-                    }
-                    generated += count;
-                }
-            }
-            let mut observed = if search.observer.is_some() {
-                accepted
-                    .iter()
-                    .map(|a| (a.pos, a.vals.clone(), a.action))
-                    .collect::<Vec<_>>()
-            } else {
-                Vec::new()
-            };
-            if search.capture.is_some() {
-                first = capture_wave(
-                    search,
-                    first_id,
-                    &winners,
-                    accepted,
-                    &gens,
-                    &done,
-                    wave_start..wave_end,
-                    first,
-                );
-            }
-            // Phase 3: the invariants of the new states.
-            let limit = first.as_ref().map(|e| e.key);
-            if !m.invariants.is_empty() && !winners.is_empty() {
-                let n = winners.len();
-                let size = match &mut rng {
-                    Some(r) => 1 + r.below(2 * block_size(n, threads)),
-                    None => block_size(n, threads),
-                };
-                let chunks = ranges(n, size);
-                let mut order: Vec<usize> = (0..chunks.len()).collect();
-                if let Some(r) = &mut rng {
-                    r.shuffle(&mut order);
-                }
-                let inline = !concrete_pool
-                    && match &mut rng {
-                        Some(r) => r.coin(),
-                        None => chunks.len() == 1,
-                    };
-                let check = Arc::new(Check {
-                    m,
-                    level,
-                    winners: winners.clone(),
-                    limit,
-                    narrow,
-                    outs: chunks.iter().map(|_| Mutex::new(None)).collect(),
-                    chunks,
-                    order,
-                    claim: AtomicUsize::new(0),
-                    cut: AtomicUsize::new(usize::MAX),
-                    chaos: opts.chaos,
-                });
-                let job: Job<'env> = {
-                    let c = check.clone();
-                    Arc::new(move |w| c.work(w))
-                };
-                if let Err(message) = run(pool, &job, inline) {
-                    return internal(message, stats_now(search, 0));
-                }
-                drop(job);
-                for out in &check.outs {
-                    if let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() {
-                        lines.extend(out.lines);
-                        first = earlier(first, out.event);
-                    }
-                }
-            }
-            // Consume complete sources only after their safety checks, before
-            // a later source's deciding event. Counts include previous committed
-            // waves but exclude speculative work beyond this source.
-            if search.observer.is_some() {
-                observed.sort_by_key(|a| a.0);
-                observed_pool_generated += gens.iter().sum::<u64>();
-                let pool_generated = observed_pool_generated;
-                let source_limit = first.as_ref().map_or(wave_end, |e| {
-                    usize::try_from(e.key.0.0).unwrap_or(wave_end).min(wave_end)
-                });
-                let mut from = 0;
-                let mut to = 0;
-                let mut upto = 0;
-                let mut generated = search.generated;
-                for (source, emitted) in gens.iter().enumerate().take(source_limit).skip(wave_start)
-                {
-                    while to < observed.len() && observed[to].0.0 <= source as u64 {
-                        to += 1;
-                    }
-                    while upto < winners.len() && winners[upto].pos.0 <= source as u64 {
-                        upto += 1;
-                    }
-                    generated += emitted;
-                    let successors: Vec<_> = observed[from..to]
-                        .iter()
-                        .map(|a| crate::capture::ConcreteSuccessor {
-                            state: a.1.clone(),
-                            ordinal: u64::from(a.0.2),
-                            label: m.actions[a.2 as usize].label().to_owned(),
-                        })
-                        .collect();
-                    from = to;
-                    let counters = Stats {
-                        generated,
-                        distinct: distinct_before + upto as u64,
-                        left_on_queue: ((len - source - 1) + next_frontier.len() + upto) as u64,
-                        depth: if upto > 0 {
-                            search.depth.max(level + 1)
-                        } else {
-                            search.depth
-                        },
-                        initial_generated: search.initial_generated,
-                    };
-                    let (state, _) = match frontier.read(source, &m.names) {
-                        Ok(state) => state,
-                        Err(verdict) => {
-                            return (
-                                Some(Stop {
-                                    verdict,
-                                    in_init: false,
-                                    path: None,
-                                    then: None,
-                                }),
-                                counters,
-                            );
-                        }
-                    };
-                    let observation = crate::capture::CommittedSource {
-                        id: first_id + source as u64,
-                        level,
-                        state: &state,
-                        successors: &successors,
-                        stats: counters,
-                        pool_generated,
-                    };
-                    if let Some(observer) = &mut search.observer
-                        && let Err(message) = observer.source(observation)
-                    {
-                        first = earlier(
-                            first,
-                            Some(Event {
-                                key: ((source as u64, u32::MAX, u32::MAX), PH_DEADLOCK + 1),
-                                unit: source,
-                                c: *emitted,
-                                verdict: Verdict::Unsupported {
-                                    feature: format!("ordered source observer: {message}"),
-                                },
-                                then: None,
-                                resume: false,
-                                stutter: false,
-                            }),
-                        );
-                        break;
-                    }
-                }
-            }
-            // `Print` output in TLC's order, up to the stop.
-            if let Some(e) = &first {
-                lines.retain(|(k, _)| *k <= e.key);
-            }
-            lines.sort_by_key(|(k, _)| *k);
-            m.evaluator
-                .release(lines.into_iter().map(|(_, l)| l).collect());
-            if let Some(e) = first {
-                // ADR 0015 §3's closed forms at E*.
-                let (pos, _) = e.key;
-                let i = usize::try_from(pos.0).unwrap_or(usize::MAX);
-                let upto = winners
-                    .partition_point(|w| w.pos < pos || (w.pos == pos && e.key.1 >= PH_NATIVE));
-                let before = winners.partition_point(|w| w.pos < pos);
-                let generated = search.generated + gens[..e.unit].iter().sum::<u64>() + e.c;
-                let depth_prefix = if e.key.1 == PH_NATIVE { before } else { upto };
-                let depth = if depth_prefix > 0 {
-                    search.depth.max(level + 1)
-                } else {
-                    search.depth
-                };
-                search.generated = generated;
-                search.depth = depth;
-                let mut stats = Stats {
-                    generated,
-                    distinct: distinct_before + upto as u64,
-                    left_on_queue: if e.stutter {
-                        0
-                    } else {
-                        ((len - i - 1) + next_frontier.len() + before) as u64
-                    },
-                    depth,
-                    initial_generated: search.initial_generated,
-                };
-                let mut verdict = e.verdict;
-                let vals = match frontier.read(i, &m.names) {
-                    Ok((vals, _)) => vals,
-                    Err(verdict) => {
-                        return (
-                            Some(Stop {
-                                verdict,
-                                in_init: false,
-                                path: None,
-                                then: None,
-                            }),
-                            stats,
-                        );
-                    }
-                };
-                if e.resume {
-                    // TLC's replay goes on past the state: as of E*, the states
-                    // this level found after it are not in the set yet.
-                    let unseen: BTreeSet<S::Key> = winners[upto..]
-                        .iter()
-                        .filter_map(|w| {
-                            let st = St::state(w.vals.clone());
-                            state_key_of::<S>(m, keyer, search.ctx, &w.vals, &st).ok()
-                        })
-                        .collect();
-                    let first_unit = if narrow { i * n_actions } else { i };
-                    let ordinal = gens[first_unit..e.unit].iter().sum::<u64>() + e.c - 1;
-                    let set = set.read().unwrap_or_else(PoisonError::into_inner);
-                    let r = search.replay_after(&set, &vals, ordinal, level, &unseen);
-                    stats.distinct += r.distinct;
-                    stats.left_on_queue += r.queued;
-                    verdict = r.apply(verdict);
-                }
-                let stop = Stop {
-                    verdict,
-                    in_init: false,
-                    path: if e.stutter {
-                        None
-                    } else {
-                        Some((first_id + pos.0, vals.clone()))
-                    },
-                    then: e.then,
-                };
-                return (Some(stop), stats);
-            }
-            search.generated += gens.iter().sum::<u64>();
-            // The trace log and the next frontier, in position order.
-            for w in winners.iter() {
-                let i = w.pos.0;
-                let ordinal = ordinal_of(w, &gens, narrow, n_actions);
-                let Some(ordinal) = ordinal else {
-                    return internal(
-                        "more than 2^32 successors of one state".to_owned(),
-                        stats_now(search, 0),
-                    );
-                };
-                if let Err(e) = search.log.push(first_id + i, ordinal) {
-                    return (
-                        Some(Stop {
-                            verdict: store_verdict(&e),
-                            in_init: false,
-                            path: None,
-                            then: None,
-                        }),
-                        stats_now(search, 0),
-                    );
-                }
-            }
-            if !winners.is_empty() {
-                search.depth = search.depth.max(level + 1);
-            }
-            let winners = Arc::try_unwrap(winners).unwrap_or_else(|w| {
-                w.iter()
-                    .map(|x| Winner {
-                        pos: x.pos,
-                        vals: x.vals.clone(),
-                        action: x.action,
-                        checkpoint_key: x.checkpoint_key.clone(),
-                    })
-                    .collect()
-            });
-            let wave_first = search.log.len() - winners.len() as u64;
-            for (j, w) in winners.into_iter().enumerate() {
-                if let Err(verdict) = next_frontier.push(w.vals, wave_first + j as u64) {
-                    return (
-                        Some(Stop {
-                            verdict,
-                            in_init: false,
-                            path: None,
-                            then: None,
-                        }),
-                        stats_now(search, (frontier.len() + next_frontier.len()) as u64),
-                    );
-                }
+            if result.0.is_some() {
+                return result;
             }
         }
         frontier = Arc::new(next_frontier);
@@ -1474,4 +1356,518 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
         level += 1;
     }
     (None, stats_now(search, 0))
+}
+
+/// Shared publication path for a whole wave or an actually completed contiguous
+/// prefix. A borrowed pause keeps expansion dispatch closed; predicate work is
+/// inline and resolve uses one thread rather than re-entering that pool.
+#[allow(
+    clippy::too_many_arguments,
+    clippy::too_many_lines,
+    reason = "one ordered publication transaction shared by waves and prefixes"
+)]
+fn commit_sources<'a: 'env, 'env, S: Keyed>(
+    search: &mut Search<'a, '_, S>,
+    set: &'env RwLock<S>,
+    pool: &Pool<'env>,
+    pause: Option<&crate::capture::DispatchPause<'_>>,
+    threads: usize,
+    opts: &CheckOptions,
+    level: u64,
+    first_id: u64,
+    frontier: &crate::frontier::Queue,
+    next_frontier: &mut crate::frontier::Queue,
+    narrow: bool,
+    concrete_pool: bool,
+    submitted: Range<usize>,
+    units: Range<usize>,
+    gens: &[u64],
+    done: &[bool],
+    mut lines: Lines,
+    mut first: Option<Event>,
+    accepted: Vec<Accepted<S::Key>>,
+    buffers: Vec<Candidates<S::Key, Pos, Payload>>,
+    rng: &mut Option<Rng>,
+    speculative_generated: u64,
+) -> (Option<Stop>, Stats) {
+    let m: &'env Model = search.m;
+    let keyer: &'env S::Keyer = search.keyer;
+    let n_actions = m.actions.len();
+    let len = frontier.len();
+    let stats_now = |search: &Search<'_, '_, S>, left: u64| Stats {
+        generated: search.generated,
+        distinct: set.read().unwrap_or_else(PoisonError::into_inner).len(),
+        left_on_queue: left,
+        depth: search.depth,
+        initial_generated: search.initial_generated,
+    };
+    let candidates: usize = buffers.iter().map(Candidates::len).sum();
+    let distinct_before = set.read().unwrap_or_else(PoisonError::into_inner).len();
+    let resolve = ResolveOptions {
+        threads: if pause.is_some() {
+            1
+        } else {
+            match &mut *rng {
+                Some(r) => 1 + r.below(threads),
+                None if candidates < PARALLEL_RESOLVE => 1,
+                None => threads,
+            }
+        },
+        chaos: rng.as_mut().map(Rng::next),
+    };
+    let resolved = set
+        .write()
+        .unwrap_or_else(PoisonError::into_inner)
+        .resolve(buffers, &resolve);
+    let resolved = match resolved {
+        Ok(r) => r,
+        Err(e) => return internal(e.to_string(), stats_now(search, 0)),
+    };
+    let winners: Arc<Vec<Winner>> = Arc::new(
+        resolved
+            .into_position_order()
+            .into_iter()
+            .map(|c| Winner {
+                pos: c.pos,
+                vals: c.payload.vals,
+                action: c.payload.action,
+                checkpoint_key: search.has_checkpoint().then(|| S::checkpoint_key(&c.key)),
+            })
+            .collect(),
+    );
+    if search.has_checkpoint() {
+        first = earlier(
+            native_counter_event(
+                search.generated,
+                gens,
+                units.start..units.end,
+                narrow,
+                n_actions,
+            ),
+            first,
+        );
+        // Record winners in discovery order before the invariant phase,
+        // matching inline admission's key/record/invariant ordering.
+        // The resolved key is retained; the model is never re-keyed here.
+        for winner in winners.iter() {
+            if first
+                .as_ref()
+                .is_some_and(|event| (winner.pos, PH_NATIVE) > event.key)
+            {
+                break;
+            }
+            let Some(ordinal) = ordinal_of(winner, gens, narrow, n_actions) else {
+                return internal(
+                    "more than 2^32 successors of one state".into(),
+                    stats_now(search, 0),
+                );
+            };
+            let Some(key) = &winner.checkpoint_key else {
+                return internal(
+                    "native winner key was not retained".into(),
+                    stats_now(search, 0),
+                );
+            };
+            if let Err(verdict) = search.checkpoint_discovery(
+                key.clone(),
+                &winner.vals,
+                first_id + winner.pos.0,
+                ordinal,
+            ) {
+                let unit = if narrow {
+                    usize::try_from(winner.pos.0).unwrap_or(usize::MAX) * n_actions
+                        + winner.pos.1 as usize
+                } else {
+                    usize::try_from(winner.pos.0).unwrap_or(usize::MAX)
+                };
+                first = earlier(
+                    Some(Event {
+                        key: (winner.pos, PH_NATIVE),
+                        unit,
+                        c: u64::from(winner.pos.2) + 1,
+                        verdict,
+                        then: None,
+                        resume: false,
+                        stutter: false,
+                    }),
+                    first,
+                );
+                break;
+            }
+        }
+    }
+    // Resolve logical generated limits in reference order, independently of
+    // which workers consumed the bounded per-source scratch budget.
+    if let Some(capture) = &search.capture {
+        let mut generated = search.generated;
+        for (unit, &count) in gens.iter().enumerate().take(units.end).skip(units.start) {
+            if generated.saturating_add(count) > capture.limits().generated {
+                let j = capture.limits().generated.saturating_sub(generated);
+                first = earlier(
+                    Some(Event {
+                        key: (
+                            (unit as u64, 0, u32::try_from(j).unwrap_or(u32::MAX)),
+                            PH_ENUM,
+                        ),
+                        unit,
+                        c: j + 1,
+                        verdict: crate::capture::limit("generated states"),
+                        then: None,
+                        resume: false,
+                        stutter: false,
+                    }),
+                    first,
+                );
+                break;
+            }
+            generated += count;
+        }
+    }
+    let mut observed = if search.observer.is_some() {
+        accepted
+            .iter()
+            .map(|a| (a.pos, a.vals.clone(), a.action))
+            .collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
+    if search.capture.is_some() {
+        first = capture_wave(
+            search,
+            first_id,
+            &winners,
+            accepted,
+            gens,
+            done,
+            units.start..units.end,
+            first,
+        );
+    }
+    // Phase 3: the invariants of the new states.
+    let limit = first.as_ref().map(|e| e.key);
+    if !m.invariants.is_empty() && !winners.is_empty() {
+        let n = winners.len();
+        let size = match &mut *rng {
+            Some(r) => 1 + r.below(2 * block_size(n, threads)),
+            None => block_size(n, threads),
+        };
+        let chunks = ranges(n, size);
+        let mut order: Vec<usize> = (0..chunks.len()).collect();
+        if let Some(r) = &mut *rng {
+            r.shuffle(&mut order);
+        }
+        let inline = !concrete_pool
+            && match &mut *rng {
+                Some(r) => r.coin(),
+                None => chunks.len() == 1,
+            };
+        let check = Arc::new(Check {
+            m,
+            level,
+            winners: winners.clone(),
+            limit,
+            narrow,
+            outs: chunks.iter().map(|_| Mutex::new(None)).collect(),
+            chunks,
+            order,
+            claim: AtomicUsize::new(0),
+            cut: AtomicUsize::new(usize::MAX),
+            chaos: opts.chaos,
+        });
+        let job: Job<'env> = {
+            let c = check.clone();
+            Arc::new(move |w| c.work(w))
+        };
+        if let Err(message) = if pause.is_some() {
+            Pool::run_inline(&job)
+        } else {
+            run(pool, &job, inline)
+        } {
+            return internal(message, stats_now(search, 0));
+        }
+        drop(job);
+        for out in &check.outs {
+            if let Some(out) = out.lock().unwrap_or_else(PoisonError::into_inner).take() {
+                lines.extend(out.lines);
+                first = earlier(first, out.event);
+            }
+        }
+    }
+    // Consume complete sources only after their safety checks, before
+    // a later source's deciding event. Counts include previous committed
+    // waves but exclude speculative work beyond this source.
+    if search.observer.is_some() {
+        observed.sort_by_key(|a| a.0);
+        let pool_generated = speculative_generated;
+        let source_limit = first.as_ref().map_or(units.end, |e| {
+            usize::try_from(e.key.0.0)
+                .unwrap_or(units.end)
+                .min(units.end)
+        });
+        let mut from = 0;
+        let mut to = 0;
+        let mut upto = 0;
+        let mut generated = search.generated;
+        for (source, emitted) in gens.iter().enumerate().take(source_limit).skip(units.start) {
+            while to < observed.len() && observed[to].0.0 <= source as u64 {
+                to += 1;
+            }
+            while upto < winners.len() && winners[upto].pos.0 <= source as u64 {
+                upto += 1;
+            }
+            generated += emitted;
+            let successors: Vec<_> = observed[from..to]
+                .iter()
+                .map(|a| crate::capture::ConcreteSuccessor {
+                    state: a.1.clone(),
+                    ordinal: u64::from(a.0.2),
+                    label: m.actions[a.2 as usize].label().to_owned(),
+                })
+                .collect();
+            from = to;
+            let counters = Stats {
+                generated,
+                distinct: distinct_before + upto as u64,
+                left_on_queue: ((len - source - 1) + next_frontier.len() + upto) as u64,
+                depth: if upto > 0 {
+                    search.depth.max(level + 1)
+                } else {
+                    search.depth
+                },
+                initial_generated: search.initial_generated,
+            };
+            let (state, _) = match frontier.read(source, &m.names) {
+                Ok(state) => state,
+                Err(verdict) => {
+                    return (
+                        Some(Stop {
+                            verdict,
+                            in_init: false,
+                            path: None,
+                            then: None,
+                        }),
+                        counters,
+                    );
+                }
+            };
+            let observation = crate::capture::CommittedSource {
+                id: first_id + source as u64,
+                level,
+                state: &state,
+                successors: &successors,
+                stats: counters,
+                pool_generated,
+                barrier: if pause.is_some() {
+                    crate::capture::SourceBarrier::joined_prefix(
+                        threads,
+                        first_id + submitted.start as u64,
+                        first_id + submitted.end as u64,
+                        first_id + units.start as u64,
+                        first_id + units.end as u64,
+                        usize::from(!m.invariants.is_empty() && !winners.is_empty()),
+                    )
+                } else {
+                    crate::capture::SourceBarrier::joined(
+                        threads,
+                        first_id + submitted.start as u64,
+                        first_id + submitted.end as u64,
+                    )
+                },
+            };
+            let observation_result = if let Some(observer) = &mut search.observer {
+                if observer.requires_dispatch_pause() {
+                    if let Some(pause) = pause {
+                        observer.paused_source(observation, pause)
+                    } else {
+                        pool.with_pause(|pause| observer.paused_source(observation, pause))
+                            .and_then(std::convert::identity)
+                    }
+                } else {
+                    observer.source(observation)
+                }
+            } else {
+                Ok(())
+            };
+            if let Err(message) = observation_result {
+                first = earlier(
+                    first,
+                    Some(Event {
+                        key: ((source as u64, u32::MAX, u32::MAX), PH_DEADLOCK + 1),
+                        unit: source,
+                        c: *emitted,
+                        verdict: Verdict::Unsupported {
+                            feature: format!("ordered source observer: {message}"),
+                        },
+                        then: None,
+                        resume: false,
+                        stutter: false,
+                    }),
+                );
+                break;
+            }
+        }
+    }
+    // `Print` output in TLC's order, up to the stop.
+    if let Some(e) = &first {
+        lines.retain(|(k, _)| *k <= e.key);
+    }
+    lines.sort_by_key(|(k, _)| *k);
+    m.evaluator
+        .release(lines.into_iter().map(|(_, l)| l).collect());
+    if let Some(e) = first {
+        // ADR 0015 §3's closed forms at E*.
+        let (pos, _) = e.key;
+        let i = usize::try_from(pos.0).unwrap_or(usize::MAX);
+        let upto =
+            winners.partition_point(|w| w.pos < pos || (w.pos == pos && e.key.1 >= PH_NATIVE));
+        let before = winners.partition_point(|w| w.pos < pos);
+        let generated = search.generated + gens[..e.unit].iter().sum::<u64>() + e.c;
+        let depth_prefix = if e.key.1 == PH_NATIVE { before } else { upto };
+        let depth = if depth_prefix > 0 {
+            search.depth.max(level + 1)
+        } else {
+            search.depth
+        };
+        search.generated = generated;
+        search.depth = depth;
+        let mut stats = Stats {
+            generated,
+            distinct: distinct_before + upto as u64,
+            left_on_queue: if e.stutter {
+                0
+            } else {
+                ((len - i - 1) + next_frontier.len() + before) as u64
+            },
+            depth,
+            initial_generated: search.initial_generated,
+        };
+        let mut verdict = e.verdict;
+        let vals = match frontier.read(i, &m.names) {
+            Ok((vals, _)) => vals,
+            Err(verdict) => {
+                return (
+                    Some(Stop {
+                        verdict,
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    }),
+                    stats,
+                );
+            }
+        };
+        if e.resume {
+            // TLC's replay goes on past the state: as of E*, the states
+            // this level found after it are not in the set yet.
+            let unseen: BTreeSet<S::Key> = winners[upto..]
+                .iter()
+                .filter_map(|w| {
+                    let st = St::state(w.vals.clone());
+                    state_key_of::<S>(m, keyer, search.ctx, &w.vals, &st).ok()
+                })
+                .collect();
+            let first_unit = if narrow { i * n_actions } else { i };
+            let ordinal = gens[first_unit..e.unit].iter().sum::<u64>() + e.c - 1;
+            let set = set.read().unwrap_or_else(PoisonError::into_inner);
+            let r = search.replay_after(&set, &vals, ordinal, level, &unseen);
+            stats.distinct += r.distinct;
+            stats.left_on_queue += r.queued;
+            verdict = r.apply(verdict);
+        }
+        let stop = Stop {
+            verdict,
+            in_init: false,
+            path: if e.stutter {
+                None
+            } else {
+                Some((first_id + pos.0, vals.clone()))
+            },
+            then: e.then,
+        };
+        return (Some(stop), stats);
+    }
+    search.generated += gens.iter().sum::<u64>();
+    // The trace log and the next frontier, in position order.
+    for w in winners.iter() {
+        let i = w.pos.0;
+        let ordinal = ordinal_of(w, gens, narrow, n_actions);
+        let Some(ordinal) = ordinal else {
+            return internal(
+                "more than 2^32 successors of one state".to_owned(),
+                stats_now(search, 0),
+            );
+        };
+        if let Err(e) = search.log.push(first_id + i, ordinal) {
+            return (
+                Some(Stop {
+                    verdict: store_verdict(&e),
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                stats_now(search, 0),
+            );
+        }
+    }
+    if !winners.is_empty() {
+        search.depth = search.depth.max(level + 1);
+    }
+    let winners = Arc::try_unwrap(winners).unwrap_or_else(|w| {
+        w.iter()
+            .map(|x| Winner {
+                pos: x.pos,
+                vals: x.vals.clone(),
+                action: x.action,
+                checkpoint_key: x.checkpoint_key.clone(),
+            })
+            .collect()
+    });
+    let wave_first = search.log.len() - winners.len() as u64;
+    for (j, w) in winners.into_iter().enumerate() {
+        if let Err(verdict) = next_frontier.push(w.vals, wave_first + j as u64) {
+            return (
+                Some(Stop {
+                    verdict,
+                    in_init: false,
+                    path: None,
+                    then: None,
+                }),
+                stats_now(search, (frontier.len() + next_frontier.len()) as u64),
+            );
+        }
+    }
+    (None, stats_now(search, next_frontier.len() as u64))
+}
+
+/// Contiguity depends on returned outputs, never on claim position or later work.
+fn contiguous_returned(
+    outputs: impl IntoIterator<Item = (Range<usize>, bool)>,
+    cursor: usize,
+    end: usize,
+) -> usize {
+    let mut upto = cursor;
+    for (block, returned) in outputs {
+        if block.start < cursor {
+            continue;
+        }
+        if block.start != upto || block.end > end || !returned {
+            break;
+        }
+        upto = block.end;
+    }
+    upto
+}
+#[cfg(test)]
+mod prefix_tests {
+    use super::contiguous_returned;
+    #[test]
+    fn unclaimed_gap_never_publishes_later_returned_sources() {
+        for mask in 0u16..256 {
+            for cursor in 0..=8 {
+                let expected = (cursor..8).find(|i| mask & (1 << i) == 0).unwrap_or(8);
+                let outputs = (0..8).map(|i| (i..i + 1, mask & (1 << i) != 0));
+                assert_eq!(contiguous_returned(outputs, cursor, 8), expected);
+            }
+        }
+    }
 }

@@ -89,3 +89,16 @@ work/depth admission checks are separate from finite graph construction.
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+The [source-owned periodic backend](../periodic-backend.md) is a separate `dive_liveness::periodic_backend::execute` diagnostic. Its Cargo-owned example binds a real model and retains source-growth/check snapshots, actual caller limits and joined native-wave evidence. A candidate remains unvalidated and no outcome certifies ordinary temporal checking.
+
+
+The [native clock/dispatch lifecycle](../native-periodic-lifecycle.md) adds `dive_liveness::periodic_lifecycle::execute`, with a Cargo-owned example. It polls only at committed source boundaries under real dispatch authority and checks SCCs at actual EOF; it grants no ordinary temporal verdict.
+
+The [pure supplied periodic-expression diagnostic](../periodic-hook.md) adds `dive_liveness::periodic_hook::execute`. It holds real native dispatch authority, but does not bind configured `_PERIODIC` or certify an ordinary verdict. Its Cargo-owned example documents original typed errors and bounds.
+
+The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) adds `dive_liveness::periodic_snapshot::bind` and private `Snapshot::execute`. Run `cargo run -p dive-api --example periodic_snapshot --locked`; source/startup admission precedes binding. The exposed Model retains ordinary-check refusal, and the diagnostic result never certifies a model.
+
+`PeriodicSnapshot::execute_requests` exposes producer-clock expansion request diagnostics; [Cargo example and receipt contract](../producer-progress-requests.md). It adds no ordinary model verdict or schedule proof.
+
+[Committed request prefixes](../committed-periodic-prefix.md) use `PeriodicSnapshot::execute_requests` with producer-owned claims and actual source publication. The Cargo example retains completed safety counters and typed nonproof receipts; ordinary temporal checking remains unsupported.

@@ -49,6 +49,12 @@ pub enum Error {
     Capture(Box<dive_check::CheckResult>),
     /// A worker failure lost execution evidence.
     Execution(String),
+    /// Explicit partial diagnostic stopped at a candidate; not a certified violation.
+    PartialCandidate,
+    /// Supplied pure hook evaluated FALSE; diagnostic TLC assumption code 2104.
+    PeriodicAssumptionFalse,
+    /// Original supplied-expression or FALSE-equality error; never a verdict.
+    PeriodicEvaluation(dive_eval::EvalError),
     /// An internal receipt/graph inconsistency; never an empty language.
     Input(String),
 }
@@ -57,6 +63,9 @@ impl Error {
     #[must_use]
     pub fn code(&self) -> &'static str {
         match self {
+            Self::PartialCandidate => "DIVE-L0054",
+            Self::PeriodicAssumptionFalse => "DIVE-L0055",
+            Self::PeriodicEvaluation(_) => "DIVE-L0056",
             Self::Phase(e) => e.error.code(),
             Self::Limit(_) => "DIVE-L0050",
             Self::Input(_) => "DIVE-L0051",
@@ -68,6 +77,13 @@ impl Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::PeriodicAssumptionFalse => {
+                f.write_str("supplied pure PERIODIC expression evaluated FALSE (TLC 2104)")
+            }
+            Self::PeriodicEvaluation(e) => e.fmt(f),
+            Self::PartialCandidate => {
+                f.write_str("source checkpoint found an unvalidated temporal candidate")
+            }
             Self::Phase(e) => e.error.fmt(f),
             Self::Limit(e) => write!(f, "phase-L graph resource limit: {e}"),
             Self::Capture(e) => write!(f, "phase-L safety capture stopped: {:?}", e.verdict),

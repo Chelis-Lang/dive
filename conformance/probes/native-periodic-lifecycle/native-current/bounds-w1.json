@@ -1,0 +1,27 @@
+{
+  "final_checks": [],
+  "graph_inspections": 8,
+  "invocations": [],
+  "model_proof": false,
+  "name": "bounds-w1",
+  "ordinary_schedule_certified": false,
+  "partial_candidate": false,
+  "safety_complete": false,
+  "safety_eof": null,
+  "stop": {
+    "code": "DIVE-L0052",
+    "stats": {
+      "depth": 4,
+      "distinct": 4,
+      "generated": 4,
+      "initial_generated": 1,
+      "queue": 0
+    },
+    "text": "phase-L safety capture stopped: ResourceLimit { message: \"behavior graph capture states\" }",
+    "workers": {
+      "requested": 1,
+      "sequential": false,
+      "used": 1
+    }
+  }
+}

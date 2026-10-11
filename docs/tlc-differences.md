@@ -2137,62 +2137,23 @@ See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
 
-## Incomplete VIEW diagnostic limits (#188)
-
-The #188 investigation also retains incomplete VIEW states under
-`conformance/probes/view-concrete-normalization/incomplete-primary/`. Leaving
-`y` unassigned while storing `{<<1>>, [a |-> 1,b |-> 1]}` makes Init diagnostic
-printing throw EC1000/exit255; incomplete Next reports EC2109/exit75. The
-well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
-for Next. Mixed-value diagnostic printing remains unproved: rejecting an
-incomplete state before keying does not establish its exact printer/error
-counterpart, and no malformed-input-wide conformance is claimed.
+The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
 
 
-### Opt-in stored trace transport (#190)
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
 
-Trace version 1 remains the default and retains the measured 36 original/108
-altered shape failures above. Version 2 (`--trace-format representation-v2`)
-uses checked stored representation for admitted forward mixed record/tuple sets
-and nonliteral tuple/record functions. It recomputes construction witnesses under
-the bound profile; normalized/order/literal claims never substitute for semantic
-Init/Next/ending validation. The transport does not alter comparison semantics,
-reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
-and unproved witness shapes remain explicit transport refusals. The
-[guide and schema](trace-representation.md) specify limits and migration.
-Historical shape failures remain excluded from certificate credit. The separate
-current v2 selection proves 72 independently valid words and 216 semantic mutant
-rejections; 24 matching legacy mixed-value shape failures stay explicit. The
-Model-based writer checks existing name tokens before emission, and fresh owned
-constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
-interval encoding controls retain the concrete violation but emit no transport
-or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
-this does not certify arbitrary stored representations.
+## Native periodic hook boundary
 
-### Native tuple-function storage repair (#195)
+The [pure supplied-expression API](periodic-hook.md) now composes a bounded hook at real native dispatch pauses, with original FALSE comparison and evaluation errors. It does not bind configured `_PERIODIC` and does not enable ordinary checking. The complete59 actual-TLC controls retain even setup failures: an `_PERIODIC` constant name throws ClassCastException rather than a stable binding diagnostic. Native configured binding remains a named refusal, so no fabricated error-class agreement is claimed. Checkpoint/host effects, ordinary schedule and stopping-count parity remain pending; no result default changes.
 
-This was a dive defect, not a TLC defect. For `s=[i \in 1..1 |-> 1]`, the
-pinned TLC run reports `Attempted to apply function with integer domain to the
-non-integer argument "a"` when Next evaluates `s["a"]`. The old frontier/recovery
-path instead reported a tuple-index error because it discarded the representation
-bit. Both had one generated/distinct state, depth one and TLC exit 75; the clean
-message stream carries EC1000 then 2103. Memory and predecessor-only storage
-already retained the correct function diagnostic.
+### Configuration-owned periodic diagnostic limitation (#197)
 
-Structural storage format 2 now retains this distinction, including nested
-functions, in both profiles. CP01/FQ01/FI01 imports explicitly refuse; users must
-recreate old archives. This is not a result-changing default or a new divergence:
-mathematical canonical keys and fingerprints are unchanged. Native error metadata
-still reports `verified: false` for this ported diagnostic site; representation
-matching does not certify every error class. Independent transported-witness
-checks remain separate. See [the full evidence](../conformance/probes/storage-tuple-function/README.md).
+`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
 
-### Disk seen-state retention is a library increment
+### Progress-request/worker stopping boundary (#201)
 
-D-007 now has an additive Rust disk-membership library, described in
-[the user guide](user/disk-seen-library.md). It preserves full fingerprints or
-canonical exact bytes and reports storage failures explicitly. This is not yet
-an ordinary checker flag: seen sets remain resident during `dive check`. Its
-physical entry count does not certify a discovery prefix, and bounded collision
-summary refusal cannot be counted as completed safety. Frontier/predecessor
-budgets, recovery and total-memory qualifications remain unchanged.
+The [producer-clock Rust diagnostic](producer-progress-requests.md) now has a real expansion claim barrier and joined dispatch pause. It still cannot use an uncommitted expansion as a written temporal graph. Complete33 actual pinned method controls retain successful resume, early temporal/hook stops, evaluation errors, real EOF and failed Init. At widths1/4/8, early temporal2116 and false-hook2104 return with workers alive; later probe cleanup joins are not original runTLC behavior. A worker division-by-zero sets2179 with keepCallStack=true while runTLC itself returns0, so that return is not model-check success. These are measured method boundaries, not newly declared TLC bugs or ordinary native parity. Ordinary scheduling/count/checkpoint/model-proof authority remains unfinished.
+
+### Actual committed request-prefix limitation (#204)
+
+The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.

@@ -1,0 +1,20 @@
+{
+  "production_commit": "b160992a04454a2a340def57c4b7222c7c613161",
+  "command": [
+    "/tmp/dive-periodic-hook-frozen-native/dive",
+    "check",
+    "/Users/jeff/code/dive-periodic-hook-work/conformance/probes/periodic-hook/gate-current/ordinary-cli-refusal/HookGuide.tla",
+    "--compat=tlc",
+    "--output",
+    "json"
+  ],
+  "exit": 3,
+  "ordinary_schedule_certified": false,
+  "configured_binding_certified": false,
+  "artifact_sha256": {
+    "HookGuide.tla": "e1acef0dbfd2763e154e10e127764bd87683c4a45596411225c4bc4751be3302",
+    "HookGuide.cfg": "39fab9027ef0830865aa7e4bbf0d9000ec6839dbaac745f67700536b2f366a55",
+    "stdout": "a1d46298ef5dd6c1b54aff185294ff2e01134257f6b5b6de75693cabfc110070",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized] target(s) in 0.16s
+     Running tests/periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-1e88501020554822)
+
+running 1 test
+test configured_candidate_precedes_false_hook_and_replays_on_fresh_binding ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.05s
+

@@ -1,0 +1,85 @@
+{
+  "checkpoints": [
+    {
+      "after": [
+        {
+          "last": 0,
+          "size": 0
+        }
+      ],
+      "barrier": null,
+      "before": [
+        {
+          "last": 1,
+          "size": 0
+        }
+      ],
+      "candidate_check": null,
+      "decision": "NoCandidate",
+      "growth_due": false,
+      "model_proof": false,
+      "sources": 0,
+      "stats": {
+        "depth": 1,
+        "distinct": 2,
+        "generated": 2,
+        "initial_generated": 2,
+        "queue": 2
+      }
+    },
+    {
+      "after": [
+        {
+          "last": 1,
+          "size": 1
+        }
+      ],
+      "barrier": {
+        "end": 2,
+        "first": 0,
+        "workers": 1
+      },
+      "before": [
+        {
+          "last": 0,
+          "size": 1
+        }
+      ],
+      "candidate_check": 1,
+      "decision": "Candidate",
+      "growth_due": true,
+      "model_proof": false,
+      "sources": 1,
+      "stats": {
+        "depth": 1,
+        "distinct": 2,
+        "generated": 3,
+        "initial_generated": 2,
+        "queue": 1
+      }
+    }
+  ],
+  "complete_safety": false,
+  "graph_inspections": 103,
+  "inspections": 101,
+  "model_proof": false,
+  "name": "PartialRoots-final-forced",
+  "stop": {
+    "code": "DIVE-L0054",
+    "error": "source checkpoint found an unvalidated temporal candidate",
+    "stats": {
+      "depth": 1,
+      "distinct": 2,
+      "generated": 3,
+      "initial_generated": 2,
+      "queue": 1
+    },
+    "workers": {
+      "reason": null,
+      "requested": 1,
+      "sequential": false,
+      "used": 1
+    }
+  },
+  "workers": 1
+}

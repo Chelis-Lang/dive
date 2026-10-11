@@ -499,3 +499,43 @@ proptest! {
         prop_assert!(log.path(log.len()).is_err());
     }
 }
+
+#[test]
+fn prefix_partition_retains_stored_hashes_and_later_duplicate_payloads() {
+    for shards in [1, 4, 16] {
+        let mut set = FpSet::new(shards);
+        let mut buffer = set.candidates();
+        for (key, pos) in [(13, 3usize), (9, 2), (13, 0), (9, 1), (17, 4)] {
+            buffer.push(&set, key, pos, pos);
+        }
+        let first = buffer.extract_if(|pos| *pos < 2);
+        assert_eq!(first.shard_count(), buffer.shard_count());
+        assert_eq!(first.len(), 2);
+        assert_eq!(buffer.len(), 3);
+        let winners = set
+            .resolve(vec![first], &ResolveOptions::threads(1))
+            .expect("prefix resolve")
+            .into_position_order();
+        assert_eq!(
+            winners
+                .iter()
+                .map(|c| (c.key, c.pos, c.payload))
+                .collect::<Vec<_>>(),
+            vec![(13, 0, 0), (9, 1, 1)]
+        );
+        for c in &winners {
+            assert_eq!(c.hash(), set.hash(&c.key));
+        }
+        let later = set
+            .resolve(vec![buffer], &ResolveOptions::threads(4))
+            .expect("remainder resolve")
+            .into_position_order();
+        assert_eq!(
+            later
+                .iter()
+                .map(|c| (c.key, c.pos, c.payload))
+                .collect::<Vec<_>>(),
+            vec![(17, 4, 4)]
+        );
+    }
+}

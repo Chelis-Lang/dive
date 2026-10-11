@@ -1,0 +1,823 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "javac_sha256": "6f5159301c750bba340390eda5fdd4a0959445355f97c40aa9c2addb00ede5ab",
+  "compile_exit": 0,
+  "source_sha256": {
+    "SnapshotProbe.java": "edacbcbbe9fce51c75ea0d476a1057746ddf1677f5037f7ea5906e9fd5aaea75",
+    "capture.py": "bd7d1ebbd8d57707a91ed999fe01e0a3ea6da39036641337d00ed8188e76b7f0",
+    "selection.json": "69ec4ea76c57003da9701c0a3ca205ab1e43a861a126d135188e2601666cce8b"
+  },
+  "rows": [
+    {
+      "id": "absent",
+      "directory": "case-000",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 2.372597333,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:",
+        "snapshot-class:null",
+        "body-present:false"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "2659b61a0a2c26c96164361cf7b76ae04da1e66d77e17cb5b92bc143c632f1cc",
+        "Snapshot.cfg": "51ae70c6a86ceb1f83c416194ada9c8680c8c6fd06d88786a1a6584b93065e9d",
+        "stdout": "5935695780f915353bfdf9f49dc946c39f9dd56c459ed72ca699f95e8ab237ae",
+        "stderr": "9da57b2c7b2d0577b4bc556a7f4542df0b986b8f37ea72e1a7a26f3b9a69a0ad"
+      }
+    },
+    {
+      "id": "direct-true",
+      "directory": "case-001",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.3244014169999998,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 12 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "2659b61a0a2c26c96164361cf7b76ae04da1e66d77e17cb5b92bc143c632f1cc",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "afcc0432ddd8b47dba79acdf818382f28d8e49c10f119aca4ae1be2f7b3a87e5",
+        "stderr": "9b001df832ab9234c0644c753c451a7c3fb4518795d2d5b01c2109d6811a24b2"
+      }
+    },
+    {
+      "id": "direct-false",
+      "directory": "case-002",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.38165087500000006,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 13 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:FALSE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "92090f26635bdbb1cce2f976f587da08390c52a9a349f91646dcef12e2aab034",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "4ad3dc58c198fcfc5dfb66946072c8dc0b3d979ae9fc190d1df43425889d5f57",
+        "stderr": "758f5f3d2fd65c87f2dc6d98da70a2a1c735314c060c529aa616ddccbd2aa34d"
+      }
+    },
+    {
+      "id": "alias",
+      "directory": "case-003",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.37524987499999973,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 9 to line 8, col 12 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "41df8f9703ffb5fc1dbfadf445a04bd68a71c339a0fee84bd82ddaf65e6730f1",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "e2bf178caeda74ad8a02f0e801ead8e3bb4eb46ffd14c0cfe98d473c9a612563",
+        "stderr": "476e268b43859410dc2500b58332804b52a9d8bc2722aee9b96479807eec48e2"
+      }
+    },
+    {
+      "id": "let-local",
+      "directory": "case-004",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.4380135000000003,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.LetInNode",
+        "body-kind:10",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 34 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "9f8f14b66676ddf3604907c847d9d79daa79c91dfe8b07a93fd9a3445c106254",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "bedbd5d9c52b96d52c122a12bf24da16f2a9aa7949d1aca1134441d6b7ac7a0f",
+        "stderr": "ab75c63dec4b71af6785edc2f5b2cca5c28a7c3081967ed306d63e2456c3e76d"
+      }
+    },
+    {
+      "id": "state",
+      "directory": "case-005",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.3268418749999995,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:1",
+        "body-location:line 7, col 9 to line 7, col 11 of module Snapshot",
+        "evaluation-start",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "207b31c2d6934bd27e89824b0b7fc528c1a864e9723a91b1eb9a2899c530839b",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "c53b48cf03509d1ae73f2b3587a546aaeb11d03174a7dd41a1b805c94eaffe83",
+        "stderr": "506a9016bf1a64b37748d5a43a86e2159c030e03375b8ce7d0ddcead4675750e"
+      }
+    },
+    {
+      "id": "action",
+      "directory": "case-006",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.306109792,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:2",
+        "body-location:line 7, col 9 to line 7, col 12 of module Snapshot",
+        "evaluation-start",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2280"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "09b352af2acf1aa68a86ece793a326cb4f36bfb36ad1f0274343f8a396fe0ff4",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "5540c075ed8587a94864610e9de865dba1db8ffb9261e0bdd7771ece0073b0f1",
+        "stderr": "399f232f238af9f4ea476c8b6e7cc6df7472f51cecc06af3d94301cfda497b02"
+      }
+    },
+    {
+      "id": "temporal",
+      "directory": "case-007",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.3194816249999999,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:3",
+        "body-location:line 7, col 9 to line 7, col 15 of module Snapshot",
+        "evaluation-start",
+        "exception-class:util.Assert$TLCDetailedRuntimeException",
+        "exception-code:2261"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "e41f7bb58c8c32d0d810a62362e92cc3f0cabb85649850cc0328c50936711c3b",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "f55c9b07af88a63315a0aff9c8d00a73820907b5a6b4b192a253c02decc8c823",
+        "stderr": "756b2f501bf7a383ce8f5a2af5207dbfbd04c2a7f09f351ba83b7c07b2d61ca0"
+      }
+    },
+    {
+      "id": "integer",
+      "directory": "case-008",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.29034479199999996,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.NumeralNode",
+        "body-kind:16",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 9 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.IntValue",
+        "value:1"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "ffb90b5cc6a331503f5fe126eeff11ae804f9309612d18b303bc1b1a14db56f9",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "cc72d2196d2c015ff1b9a2de59ff8991d913009f85e53fbbfecc76b4eaf59cf8",
+        "stderr": "9421ff3cab7ff72f93c0804b4eb2a5973d3cee18882d5db3c46cb6c0611ae7ea"
+      }
+    },
+    {
+      "id": "div-zero",
+      "directory": "case-009",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.3273837500000001,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 16 of module Snapshot",
+        "evaluation-start",
+        "exception-class:tlc2.tool.EvalException",
+        "exception-code:2179"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "520c0a91ff27b9a6aed5731e33bbcd1a09b167db8d5509e06a5a6c6ef4a4c052",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "f19a30827e29448893da11affef0aad241fd79ac560a2091d2b97a3638288d57",
+        "stderr": "5eabc4b44b77e659f7d856440260536f3823a8683fbee39b3dd72d57d9aaf3f1"
+      }
+    },
+    {
+      "id": "constant-value",
+      "directory": "case-010",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.2921627909999991,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 21 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "9d0facfc5c614979bf1340e71d524d2c924da02625239adbfa79f17a9979283a",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "729092e260a29fc37a362302e85de998937b9b699201aece2b581bfbcf39d9c2",
+        "stderr": "f85d6201dd9ae15a16ad311d2a2224289b0aa9436525e1f1a790f2df1e2088c4"
+      }
+    },
+    {
+      "id": "definition-substitution",
+      "directory": "case-011",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.37537070800000016,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Replacement",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 16 to line 8, col 20 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:FALSE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "0772f7ce04b116cdf8d1a447faf912b13a94544bf6527ce97519ab928a1134cc",
+        "Snapshot.cfg": "59e13483fe18609753a0e18896718ac1b38b592db61e01cdc2d8ee3693ce0d13",
+        "stdout": "2e58f24282c7bca09cf70e1dbfdf0f2c0bec23e8599e7031bc9d0e67929da505",
+        "stderr": "ed54ebd37729c3032289c897d7e8b24574bbc189114f824b42ea43657364ffd9"
+      }
+    },
+    {
+      "id": "definition-value",
+      "directory": "case-012",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.31579912499999985,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:java.lang.ClassCastException",
+        "exception-code:-1"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "2659b61a0a2c26c96164361cf7b76ae04da1e66d77e17cb5b92bc143c632f1cc",
+        "Snapshot.cfg": "dcbd9137fd4f129e22f5406c26912cf9c4fab182286e97ce9e1d1a2b5020bbfb",
+        "stdout": "80af67b779435fbfea97b7c9267cd154e2965ff66450abf81b578d23dadd9fa8",
+        "stderr": "9146df90fc1409aef9b822486f83d9d04600dd3d8a1b7f1d004993010be53b78"
+      }
+    },
+    {
+      "id": "constant-substitution",
+      "directory": "case-013",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.29648274999999913,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 13 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "df68641a9eb11533e838c538704c1b7ab881393e2ecc3d6b62b4b373e3d9b0f5",
+        "Snapshot.cfg": "acd148223fed6a42cc5507beb8ae663616881fac353d88bacf8e42f813772d8b",
+        "stdout": "b4f5a4a17b2424e29cf877bbb04e1f8d2cbcf4eaf0d29b1853826cef7cb3407e",
+        "stderr": "35fab2639c82108f2ecc36f500cd5ca965f63b028d4da05b46f325eef4b2b946"
+      }
+    },
+    {
+      "id": "missing",
+      "directory": "case-014",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.27769262500000025,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2229"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "2659b61a0a2c26c96164361cf7b76ae04da1e66d77e17cb5b92bc143c632f1cc",
+        "Snapshot.cfg": "1943c5e338500a21a699643e1481525fac2c8b7029313ee193c74e96e9629ba4",
+        "stdout": "ba151a640fcd8b5a9bb0a573df839dad6b7d1ef2fb8163af2197721e264c293f",
+        "stderr": "3a27e2f76eaf8ba5c2ada4c40e26b0169cf9e455386ab435999fc49b98591263"
+      }
+    },
+    {
+      "id": "nonzero-arity",
+      "directory": "case-015",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.35777341600000057,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2228"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "be26c3b3f0ec413582cf1a4b91d6bb28b94926c32568f47166472325ecd81867",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "097819c8b89cdff98553d5b73e222c60da317e1630f02227902892450a8e81e3",
+        "stderr": "425110077042888500a5d1e3e80f1e64e89cfd71984e0533753645c9aecc3a5e"
+      }
+    },
+    {
+      "id": "constant-role",
+      "directory": "case-016",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.29947079200000104,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:java.lang.ClassCastException",
+        "exception-code:-1"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "2659b61a0a2c26c96164361cf7b76ae04da1e66d77e17cb5b92bc143c632f1cc",
+        "Snapshot.cfg": "74e6b2281011ebbc77be4201e517f42fb2558b0d2e8134f4edcad018924277a8",
+        "stdout": "3aeb7254e4a99a7f897d9f03afd8715f9b1073b6bed91df2bc5c1cf8b80c0363",
+        "stderr": "4f6127cb841ae256c7f5cc542e88ffc50961b1ea599bf3ba572cd60ec78da7bf"
+      }
+    },
+    {
+      "id": "startup-effect-Hook",
+      "directory": "case-017",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.3773433329999989,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 9 to line 8, col 12 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "6d7f84ef25b0e5504428f264cf41ccfebef6d1dcb95b5d7e40985f486db22994",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "e2bf178caeda74ad8a02f0e801ead8e3bb4eb46ffd14c0cfe98d473c9a612563",
+        "stderr": "a699181a52bf8f6d0eabc84dcfc4acd6823ddbe0f5b9d4c12fd3421462e10b51"
+      }
+    },
+    {
+      "id": "startup-effect-Missing",
+      "directory": "case-018",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.3173455829999998,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2229"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "6d7f84ef25b0e5504428f264cf41ccfebef6d1dcb95b5d7e40985f486db22994",
+        "Snapshot.cfg": "1943c5e338500a21a699643e1481525fac2c8b7029313ee193c74e96e9629ba4",
+        "stdout": "ba151a640fcd8b5a9bb0a573df839dad6b7d1ef2fb8163af2197721e264c293f",
+        "stderr": "2324e5fb57162c9283fb3bd8503be6e7ff254feb88d357a107d68d45995ad91e"
+      }
+    },
+    {
+      "id": "startup-effect-HookArg",
+      "directory": "case-019",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.2633012499999996,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:util.Assert$TLCRuntimeException",
+        "exception-code:2228"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "6d7f84ef25b0e5504428f264cf41ccfebef6d1dcb95b5d7e40985f486db22994",
+        "Snapshot.cfg": "c97bd7082db6160b85920e9f5c0d3b23972d13de0292cf44825e1e51b1008d0a",
+        "stdout": "89d8216829ced263b2b6340afa23461945c789904af45e99ca5edf1a8529c98f",
+        "stderr": "b0bc62dee1de71c2f0c8d342043d30d746a9b0a79f8f46d06f06ab2fec6b8eff"
+      }
+    },
+    {
+      "id": "startup-effect-Token",
+      "directory": "case-020",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.27025291600000045,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:java.lang.ClassCastException",
+        "exception-code:-1"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "6d7f84ef25b0e5504428f264cf41ccfebef6d1dcb95b5d7e40985f486db22994",
+        "Snapshot.cfg": "74e6b2281011ebbc77be4201e517f42fb2558b0d2e8134f4edcad018924277a8",
+        "stdout": "3aeb7254e4a99a7f897d9f03afd8715f9b1073b6bed91df2bc5c1cf8b80c0363",
+        "stderr": "e6fc95ca078f775284d35843870797a9c0af4a2471e10dc11403b483633072a4"
+      }
+    },
+    {
+      "id": "hook-effect",
+      "directory": "case-021",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.30769716599999875,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 7, col 9 to line 7, col 29 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "37aaef5ebe87baa79b2122bc1eec7c9201b1976039cf2dcee3af1300aae3d5c2",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "stdout": "a68b59c5bfeacee1b20ecdf9326fe9f1c2e057c9cb375419b0e53c4149cc20cd",
+        "stderr": "d86da0ab74d0dfbcf03f833f9650847184dc2cc745a8ae77a8c3a431d73fff4d"
+      }
+    },
+    {
+      "id": "qualified-instance",
+      "directory": "case-022",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.3179793750000002,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 9 to line 8, col 15 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "51b8120c149be519fb97ea80139a753098a276ae684335aacef5a17ecc82579c",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "Helper.tla": "212946b112e06520b7ecb127abce032a88414789a99f78141f0590d1fdb61feb",
+        "stdout": "d10a405d2b651a5175d80cc0f243d172fa179bb9ac445b78cb9ef887e07101e6",
+        "stderr": "8c7c0b5096e7400dbaa80d5d7b05dffb25b5b98ec4e2a9b542dc658aacf631e2"
+      }
+    },
+    {
+      "id": "qualified-role",
+      "directory": "case-023",
+      "exit": 2,
+      "timeout": false,
+      "wall_seconds": 0.15731720900000035,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "exception-class:tlc2.tool.ConfigFileException",
+        "exception-code:5006"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "51b8120c149be519fb97ea80139a753098a276ae684335aacef5a17ecc82579c",
+        "Snapshot.cfg": "efd76aa358d688ef3592653037ae5d67ab1c116b5d410ece2ec49211e80f4ae2",
+        "Helper.tla": "212946b112e06520b7ecb127abce032a88414789a99f78141f0590d1fdb61feb",
+        "stdout": "c783ec5a22a58828b5a46037d975ad90761c66a204f6551edafe50e67cbcf33b",
+        "stderr": "c133085978b0ef8aecffe927f984bf02e1fa55fac1170e19a46afab217898ccf"
+      }
+    },
+    {
+      "id": "instance-substitution",
+      "directory": "case-024",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.29693745900000046,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 9 to line 8, col 15 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "06688ea4846ca74f4d04636a970a926953d857f9cee1b952da60ea4382caef7b",
+        "Snapshot.cfg": "810f88f6267cd6144c2c1abdb2e8b64719ea8c77a915f66dc02878762c05e23a",
+        "Helper.tla": "3110871414374f2db478451da98c47e746dd34f8dc6ed46a20d84b75636663f4",
+        "stdout": "d10a405d2b651a5175d80cc0f243d172fa179bb9ac445b78cb9ef887e07101e6",
+        "stderr": "0bc19cc197d732bd8e7614f2678418ecba320f14d2ee5eb075a1fff8dc54bf90"
+      }
+    },
+    {
+      "id": "constant-substitution-effect",
+      "directory": "case-025",
+      "exit": 0,
+      "timeout": false,
+      "wall_seconds": 0.3420952909999997,
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/private/tmp/dive-periodic-snapshot-primary/classes:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "SnapshotProbe"
+      ],
+      "events": [
+        "setup-complete",
+        "configured-name:Hook",
+        "snapshot-class:tla2sany.semantic.OpDefNode",
+        "body-present:true",
+        "definition-name:Hook",
+        "definition-arity:0",
+        "body-identical:true",
+        "body-class:tla2sany.semantic.OpApplNode",
+        "body-kind:9",
+        "body-level:0",
+        "body-location:line 8, col 9 to line 8, col 12 of module Snapshot",
+        "evaluation-start",
+        "value-class:tlc2.value.impl.BoolValue",
+        "value:TRUE"
+      ],
+      "files_sha256": {
+        "Snapshot.tla": "d57a2edfe535dce6e88b36415b50b5dc4cf7cc2223f9c0f3a65700882e6ca03e",
+        "Snapshot.cfg": "0a1ebb5f8bde6a42614faf9c3c8c190d6648a3a2ef86e26b4cceb58ae11dcf61",
+        "stdout": "e2bf178caeda74ad8a02f0e801ead8e3bb4eb46ffd14c0cfe98d473c9a612563",
+        "stderr": "66a18e7b79096d230ede7a9daae5010605b4927919dc1521e7ab208b6a5fee74"
+      }
+    }
+  ],
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Actual FastTool startup and processPeriodic pre-constant definition snapshot/body lookup, with optional actual empty-state body evaluation; not an ordinary model-checking run."
+}

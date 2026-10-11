@@ -1,0 +1,217 @@
+[
+  {
+    "command": "cargo fmt --all --check",
+    "exit": 0,
+    "wall_seconds": 1.359489666
+  },
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "wall_seconds": 0.18557895899999988
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "wall_seconds": 1.1054150409999997
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 0,
+    "wall_seconds": 0.33826070900000005
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "wall_seconds": 0.4371917090000004
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 0,
+    "wall_seconds": 0.1569429160000002
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "wall_seconds": 0.6502023330000002
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "wall_seconds": 0.4724502079999997
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "wall_seconds": 0.4497082500000005
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "wall_seconds": 0.7021852090000005
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 0.5544770000000003
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "wall_seconds": 0.41709041599999974
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "exit": 0,
+    "wall_seconds": 0.41743349999999957
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "exit": 0,
+    "wall_seconds": 0.2295299160000006
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-partial-scc.py",
+    "exit": 0,
+    "wall_seconds": 0.32230604100000093
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-backend.py",
+    "exit": 0,
+    "wall_seconds": 0.34055666699999954
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-controller.py",
+    "exit": 0,
+    "wall_seconds": 0.24579070899999955
+  },
+  {
+    "command": "python3 -I scripts/check-runtime-ratio.py",
+    "exit": 0,
+    "wall_seconds": 0.08192795799999963
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-lifecycle.py",
+    "exit": 0,
+    "wall_seconds": 0.8945488749999999
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-hook.py",
+    "exit": 0,
+    "wall_seconds": 0.33738875000000057
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-snapshot.py",
+    "exit": 0,
+    "wall_seconds": 0.5504127499999996
+  },
+  {
+    "command": "python3 -I scripts/check-progress-queue.py",
+    "exit": 0,
+    "wall_seconds": 0.6395395829999995
+  },
+  {
+    "command": "python3 -I scripts/check-committed-prefix.py",
+    "exit": 0,
+    "wall_seconds": 0.318496541
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 0.09040029099999991
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "wall_seconds": 0.21202395799999962
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 0,
+    "wall_seconds": 0.16995762500000033
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "exit": 0,
+    "wall_seconds": 0.158724874999999
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "exit": 0,
+    "wall_seconds": 0.08023370799999974
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "exit": 0,
+    "wall_seconds": 0.20078041699999893
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "exit": 0,
+    "wall_seconds": 0.12746266599999956
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "exit": 0,
+    "wall_seconds": 0.1437497919999995
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "exit": 0,
+    "wall_seconds": 0.2152942919999994
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "exit": 0,
+    "wall_seconds": 0.09897429200000118
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "exit": 0,
+    "wall_seconds": 0.22571758399999986
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "exit": 0,
+    "wall_seconds": 0.23720062499999983
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "exit": 0,
+    "wall_seconds": 2.6684079170000015
+  },
+  {
+    "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+    "exit": 0,
+    "wall_seconds": 6.8437642499999995
+  },
+  {
+    "command": "cargo nextest run --workspace --locked --test-threads 2",
+    "exit": 0,
+    "wall_seconds": 365.944097375
+  },
+  {
+    "command": "cargo test --workspace --doc --locked",
+    "exit": 0,
+    "wall_seconds": 12.887696708999954
+  },
+  {
+    "command": "RUSTDOCFLAGS=\"-D warnings\" cargo doc --workspace --no-deps --locked",
+    "exit": 0,
+    "wall_seconds": 7.930600499999969
+  },
+  {
+    "command": "cargo xtask check-layering",
+    "exit": 0,
+    "wall_seconds": 0.3737252500000068
+  },
+  {
+    "command": "cargo build -p dive-trace --locked",
+    "exit": 0,
+    "wall_seconds": 0.07381399999997029
+  },
+  {
+    "command": "cargo deny --locked check",
+    "exit": 0,
+    "wall_seconds": 1.0168216250000341
+  }
+]

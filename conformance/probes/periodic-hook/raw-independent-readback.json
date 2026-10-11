@@ -1,0 +1,30 @@
+{
+  "capture_sha256": "eaee847f9584c7ef0d4a1e78aa39d1e19fba8de399e249ed4fd89e549e325dc0",
+  "archive_sha256": "031a7557adb0f858070280ca88254d60fd017122dbd44cda1583b865bdcd2806",
+  "raw_events_derived": 59,
+  "raw_files_verified": 236,
+  "effect_markers": [
+    {
+      "case": "effect-invoke",
+      "stdout_marker": 1,
+      "stderr_marker": 1
+    },
+    {
+      "case": "effect-suspend-false",
+      "stdout_marker": 0,
+      "stderr_marker": 1
+    },
+    {
+      "case": "effect-live-error-first",
+      "stdout_marker": 0,
+      "stderr_marker": 1
+    },
+    {
+      "case": "effect-checkpoint-after",
+      "stdout_marker": 1,
+      "stderr_marker": 1
+    }
+  ],
+  "ordinary_schedule_certified": false,
+  "configured_binding_certified": false
+}

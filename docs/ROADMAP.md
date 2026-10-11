@@ -128,3 +128,14 @@ on actual committed Phase-L records. Explicit prefix diagnostics and repeated
 forced reference checks do not establish the wall-clock threshold/quiescence/
 error/stop/checkpoint schedule; that execution contract must be ported next
 without routing ordinary strict checks through final-only or short witnesses.
+
+Periodic backend increment #189 now derives actual pointer-bucket growth/check-size snapshots and stops the native source capture on its first explicit partial candidate. The [user guide](periodic-backend.md) qualifies that diagnostic contract. Real ordinary clock, queue suspension, ratio/PERIODIC/checkpoint transactions and complete stopping witnesses still gate ordinary temporal admission.
+
+
+Issue #189 now has a bounded native clock/dispatch diagnostic seam: internally sampled source-commit polling plus actual EOF final SCCs. Ordinary periodic CLI support still requires queue/timer stop-prefix equivalence, hook/checkpoint transactions and independent deciding witness certification.
+
+F-023 next-stage evidence now includes a bounded pure supplied-expression hook at actual native pauses. Configured PERIODIC snapshot binding, host/checkpoint effects, asynchronous queue timing, exact stop counts and ordinary deciding-witness replay remain open; diagnostic hook results earn no family/model credit.
+
+Issue #197 adds a bounded pure configuration-owned snapshot diagnostic. Startup effects and unproved constructor/alias work refuse before binding; configured and selected identities remain separate. Ordinary scheduler admission still requires real queue/timer stop-prefix, checkpoint, exact count and independently certified deciding-witness contracts. See [the configured snapshot guide](configured-periodic-snapshot.md).
+
+F-023/#201: producer-owned timer requests now have a real claim barrier/joined mutex pause diagnostic. Next: publish the maximal contiguous completed prefix through the same safety/output/count/graph authority before controller checks, retaining out-of-order scratch. Ordinary CLI scheduling and checkpoints stay refused until the complete queue/clock/stop/witness contracts compose.

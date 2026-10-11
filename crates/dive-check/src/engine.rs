@@ -2067,8 +2067,8 @@ fn search_in<S: Keyed>(
                 s.stats(0),
             )
         }
-        Ok(None) => match s.initial_states(&mut next) {
-            Some((stop, stats)) => {
+        Ok(None) => {
+            if let Some((stop, stats)) = s.initial_states(&mut next) {
                 drop(next);
                 if !workers.sequential {
                     workers.used = 1;
@@ -2076,9 +2076,33 @@ fn search_in<S: Keyed>(
                     workers.reason = Some("search stopped during inline initial-state enumeration before the worker pool started".into());
                 }
                 (Some(stop), stats)
+            } else {
+                let stats = s.stats(next.len() as u64);
+                let callback = s
+                    .observer
+                    .as_mut()
+                    .map_or(Ok(()), |observer| observer.initial_complete(stats));
+                if let Err(message) = callback {
+                    workers.used = 1;
+                    workers.sequential = true;
+                    workers.reason =
+                        Some("ordered initialization consumer stopped after inline Init before worker pool".into());
+                    (
+                        Some(Stop {
+                            verdict: Verdict::Unsupported {
+                                feature: format!("ordered initial completion observer: {message}"),
+                            },
+                            in_init: true,
+                            path: None,
+                            then: None,
+                        }),
+                        stats,
+                    )
+                } else {
+                    s.begin_levels(next, opts, &mut workers, 1)
+                }
             }
-            None => s.begin_levels(next, opts, &mut workers, 1),
-        },
+        }
     };
     let mut frontier = crate::frontier::evidence(&accounting);
     let stop = if frontier.failures.is_empty() {

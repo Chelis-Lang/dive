@@ -1,0 +1,142 @@
+[
+  {
+    "command": "python3 scripts/test-validation-import.py",
+    "exit": 0,
+    "elapsed": 0.9680118560791016
+  },
+  {
+    "command": "python3 -I scripts/test-frontend-campaign.py",
+    "exit": 0,
+    "elapsed": 3.637659788131714
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-safety.py",
+    "exit": 0,
+    "elapsed": 1.696457862854004
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-state-if.py",
+    "exit": 0,
+    "elapsed": 2.1046128273010254
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if.py",
+    "exit": 0,
+    "elapsed": 0.5945758819580078
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+    "exit": 0,
+    "elapsed": 1.8927838802337646
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final-scopes.py",
+    "exit": 0,
+    "elapsed": 1.4774818420410156
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-property-origins.py",
+    "exit": 0,
+    "elapsed": 1.677048921585083
+  },
+  {
+    "command": "python3 -I scripts/check-material-capture.py",
+    "exit": 0,
+    "elapsed": 2.8980281352996826
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-operators.py",
+    "exit": 0,
+    "elapsed": 1.7523868083953857
+  },
+  {
+    "command": "python3 -I scripts/check-native-temporal-operators.py",
+    "exit": 0,
+    "elapsed": 1.178318977355957
+  },
+  {
+    "command": "python3 -I scripts/check-stored-successor-material.py",
+    "exit": 0,
+    "elapsed": 1.0677571296691895
+  },
+  {
+    "command": "python3 -I scripts/check-native-sequence-operators.py",
+    "exit": 0,
+    "elapsed": 0.7333250045776367
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-partial-scc.py",
+    "exit": 0,
+    "elapsed": 2.1827051639556885
+  },
+  {
+    "command": "python3 -I scripts/check-periodic-backend.py",
+    "exit": 0,
+    "elapsed": 0.6222920417785645
+  },
+  {
+    "command": "python3 -I scripts/check-parity-ledger.py",
+    "exit": 0,
+    "elapsed": 0.3279139995574951
+  },
+  {
+    "command": "python3 -I scripts/test-parity-ledger.py",
+    "exit": 0,
+    "elapsed": 0.8435859680175781
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-planning.py",
+    "exit": 0,
+    "elapsed": 0.38671207427978516
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-tableau.py",
+    "exit": 0,
+    "elapsed": 0.7347760200500488
+  },
+  {
+    "command": "python3 -I scripts/check-temporal-action-order.py",
+    "exit": 0,
+    "elapsed": 0.14262104034423828
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l.py",
+    "exit": 0,
+    "elapsed": 0.42806291580200195
+  },
+  {
+    "command": "python3 -I scripts/check-phase-l-graph.py",
+    "exit": 0,
+    "elapsed": 0.38226985931396484
+  },
+  {
+    "command": "python3 -I scripts/check-phase-execution.py",
+    "exit": 0,
+    "elapsed": 0.43291306495666504
+  },
+  {
+    "command": "python3 -I scripts/check-tlc-final.py",
+    "exit": 0,
+    "elapsed": 0.5829730033874512
+  },
+  {
+    "command": "python3 -I scripts/check-state-if-planning.py",
+    "exit": 0,
+    "elapsed": 0.27729296684265137
+  },
+  {
+    "command": "python3 -I scripts/check-predecessor-spill.py",
+    "exit": 0,
+    "elapsed": 0.5250911712646484
+  },
+  {
+    "command": "python3 -I scripts/check-native-checkpoint.py",
+    "exit": 0,
+    "elapsed": 0.5999729633331299
+  },
+  {
+    "command": "python3 -I scripts/check-native-parity-integration.py",
+    "exit": 0,
+    "elapsed": 5.9004809856414795
+  }
+]

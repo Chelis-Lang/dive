@@ -1,0 +1,9 @@
+{
+  "capture_sha256": "eaee847f9584c7ef0d4a1e78aa39d1e19fba8de399e249ed4fd89e549e325dc0",
+  "rows": 59,
+  "files_verified": 236,
+  "all_selected_retained": true,
+  "exact_event_contract_verified": true,
+  "ordinary_schedule_certified": false,
+  "configured_binding_certified": false
+}

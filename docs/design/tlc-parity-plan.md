@@ -141,3 +141,18 @@ operator/scope admission, conditional planning and concrete witness recovery.
 Do not raise resource defaults, weaken callback-free admission or invent
 product evidence to promote a refusal. Periodic schedule and strict integrated
 error/stopping coverage remain separate obligations.
+
+The #189 [source-qualified backend](../periodic-backend.md) supplies actual node-pointer bucket/snapshot and joined source-wave facts for explicit partial requests. The next ordinary integration must compose the separate callback controller and elapsed-ratio kernel with real triggering/queue-finish/suspension/PERIODIC/checkpoint/stop authority, preserving each original OOS/PEM update/error boundary. Never use identities, file bytes, partial success or a caller boolean as a replacement for those contracts; the ordinary CLI remains refused.
+
+
+P4/#189 lifecycle increment connects actual dispatch-mutex authority and internally sampled controller/ratio polling to source-owned graph growth, with mandatory final SCCs at actual EOF. Commit-boundary timing is explicitly narrower than ordinary TLC scheduling; no Holds/ordinary verdict or family credit. PERIODIC/checkpoint and exact stop/clock/replay contracts remain pending.
+
+The ADR0054 supplied pure PERIODIC seam follows ADR0052 real native lifecycle. It preserves configured binding refusal and original bounds. Next ordinary schedule work must establish actual snapshot/name lookup, queue progress/stop timing, checkpoint effects and fresh independent deciding witness replay; do not promote supplied-predicate or callback controls to strict verdicts.
+
+Configuration-owned pure `_PERIODIC` snapshot diagnostic #197 now separates actual pre-constant binding provenance from supplied-expression callbacks. Its prebinding startup grammar and postbinding zero-state admission remain conservative policies. Next ordinary proof prerequisite: genuine configuration hook composition across actual periodic/queue/EOF stop paths, independent deciding-candidate replay and exact safety/temporal error/count precedence; checkpoint effects and asynchronous scheduling remain separate unimplemented contracts. See [the executable snapshot guide](../configured-periodic-snapshot.md).
+
+## Producer request lane (#201)
+
+ADR0059 implements a bounded diagnostic claim barrier and actual joined pause, not ordinary periodic verdicts. The next engine slice must publish a maximal completed contiguous prefix under that authority through existing safety/output/count/Phase-L paths, then check its actual written graph. Do not use completed-but-uncommitted outputs or prior-wave-only graph as TLC suspendAll authority. Retain unclaimed/out-of-order work, exact source error winner and cumulative bounds; checkpoints remain named-refused. F-023 stays missing/audit-required.
+
+#204 now implements that bounded [committed-prefix transaction](../committed-periodic-prefix.md): candidate partition precedes resolve; shared source/safety publication happens under real owned pause, with separately reported frontier append. Next ordinary boundary is source-qualified asynchronous request/queue/stop/count composition, including hook/candidate/error precedence and checkpoint behavior. Complete24 controlled actual Worker/queue method projections and native prefix controls do not certify those remaining contracts or F-023.

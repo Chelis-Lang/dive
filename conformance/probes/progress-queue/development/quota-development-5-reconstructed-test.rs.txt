@@ -1,0 +1,51 @@
+fn request_metadata_consumes_the_existing_shared_quota_before_retention() {
+    let source = "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == UNCHANGED x\nLive == []<>(x=0)\nHook == TRUE\n====\n";
+    let cfg = dive_config::parse(
+        "INIT Init\nNEXT Next\nPROPERTY Live\n_PERIODIC Hook\nCHECK_DEADLOCK FALSE\n",
+    )
+    .into_config()
+    .expect("cfg");
+    let options = dive_check::CheckOptions::tlc(0, 0);
+    let policy = periodic_lifecycle::Options {
+        progress_interval: i32::MAX,
+        ..periodic_lifecycle::Options::default()
+    };
+    let mut refusal = None;
+    for budget in 1..128 {
+        let mut limits = phase_graph::Limits::default();
+        limits.graph.steps = budget;
+        let baseline = periodic_snapshot::bind(lowered(source), &cfg)
+            .expect("baseline")
+            .execute(&options, limits, policy)
+            .expect("baseline run");
+        let run = periodic_snapshot::bind(lowered(source), &cfg)
+            .expect("snapshot")
+            .execute_requests(
+                &options,
+                limits,
+                policy,
+                dive_check::progress::Options {
+                    interval: std::time::Duration::from_secs(1),
+                    force: true,
+                },
+            )
+            .expect("request run");
+        if baseline.lifecycle().backend().complete().is_some()
+            && run.lifecycle().backend().stop().is_some()
+        {
+            assert!(matches!(
+                run.lifecycle().backend().stop().expect("quota stop").error,
+                phase_graph::Error::Limit(_)
+            ));
+            assert!(run.lifecycle().safety_eof().is_none());
+            assert!(!run.lifecycle().model_proof());
+            record_requests(&format!("quota-{budget}"), run.lifecycle());
+            refusal = Some(budget);
+            break;
+        }
+    }
+    assert!(
+        refusal.is_some(),
+        "request work must share the original cumulative graph budget"
+    );
+}

@@ -1,0 +1,31 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.78s
+     Running tests/periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-0c2e35a6eb020218)
+
+running 4 tests
+test configured_false_is_the_only_paused_expression_and_never_a_model_proof ... ok
+test effects_and_unproved_state_or_instance_inputs_refuse_without_output ... FAILED
+test actual_preconstant_snapshot_retains_body_name_and_substitution_identity ... FAILED
+test missing_arity_and_actual_exception_boundaries_are_separate ... ok
+
+failures:
+
+---- effects_and_unproved_state_or_instance_inputs_refuse_without_output stdout ----
+
+thread 'effects_and_unproved_state_or_instance_inputs_refuse_without_output' (123246457) panicked at crates/dive-liveness/tests/periodic_snapshot.rs:86:14:
+must refuse
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- actual_preconstant_snapshot_retains_body_name_and_substitution_identity stdout ----
+
+thread 'actual_preconstant_snapshot_retains_body_name_and_substitution_identity' (123246428) panicked at crates/dive-liveness/tests/periodic_snapshot.rs:34:66:
+pure selection: Failure { error: BindError { kind: Unsupported { feature: "unsupported: bounded pure zero-state supplied PERIODIC expression (DIVE-L0057)" }, message: "unsupported: bounded pure zero-state supplied PERIODIC expression (DIVE-L0057)" }, output: [] }
+
+
+failures:
+    actual_preconstant_snapshot_retains_body_name_and_substitution_identity
+    effects_and_unproved_state_or_instance_inputs_refuse_without_output
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+error: test failed, to rerun pass `-p dive-liveness --test periodic_snapshot`
