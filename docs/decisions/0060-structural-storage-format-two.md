@@ -45,3 +45,22 @@ canonical bytes and FP64 equality. Paired memory/spill/recovery controls compare
 actual diagnostics, EC1000/2103 metadata and counts, while preserving the native
 error-site `verified: false`. Independent v2 witness checks are separate from
 archive admission and from the error diagnostic.
+
+## Implementation evidence (2026-10-11)
+
+The corrected frozen producer and complete source/runtime readback live in
+`conformance/probes/storage-tuple-function/current/`. The full gate passes all
+1167 tests, zero skipped. The complete192-case memory/spill/pause/recovery
+selection retains both profiles, both stores,1/4/8 workers and chaos controls;
+192 original words independently validate and576 Init/middle/final mutants
+reject. Twelve actual old CP01 archives refuse before continuation. The Cargo
+guide and21+16 conformance models pass at1/4/8. Canonical-key/FP and predecessor
+source authority remains distinct from structural format changes.
+
+The first dc0f gate’s seven failures are preserved separately: existing
+current-payload fixture builders still emitted CP01 and therefore reached only
+version refusal. Their headers were migrated without weakening assertions or
+selection. A deliberate header mutation now makes the generic corruption check
+fail, proving that it cannot claim payload-validation credit from version-only
+rejection. Original version-one migration negatives stay intact. No historical
+execution is retagged as the corrected producer.
