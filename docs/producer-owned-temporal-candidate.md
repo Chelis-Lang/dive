@@ -4,10 +4,16 @@
 actual request service and deciding word. You supply original IR/configuration and
 options/limits; you cannot supply a graph, candidate, witness, Valid flag or clock.
 Only two fresh independent validations create the privately constructible witness.
-This bounded Rust API implements issue #213; focused controls are passing and the
-complete delivery gate is pending. Its exact focused source passes seven public
-controls, two request/private selection units, one pre-dedup audit unit, the Cargo
-guide and focused clippy. Earlier failed sources remain separate. Ordinary CLI checking is still unsupported for these schedules.
+This bounded Rust API implements issue #213. Its frozen production source passes
+all 45 local gate steps and 1,057 workspace tests with zero skips. Fresh default
+library runtime preserves 27 selected outcomes: 12 EOF witnesses admitted by both
+independent routes, 48 corrupted words rejected by both routes, and all selected
+no-witness and admission refusals. Separate controlled request units prove the
+actual request origin before a false hook. The executable Cargo guide and all
+21 Examples plus 16 validation-smoke gate models pass at 1, 4 and 8 workers.
+Earlier failed sources remain separate. These are exact-producer results, not
+ordinary scheduling certification; ordinary CLI checking remains unsupported
+for these schedules.
 
 ## Run the Cargo example
 
@@ -135,3 +141,17 @@ synthetic fingerprint ambiguity to test admission. That injection does not claim
 an observed collision of the actual FP64 polynomial. A low capture ceiling
 retains actual incomplete execution and no witness. These diagnostic controls do
 not broaden ordinary schedule support or certify the feature family.
+
+## Source and observation history
+
+The closed production is `10afc4cbf2c0ee39638f7c54e51337e3f2899368`;
+[delivery evidence](../conformance/probes/producer-owned-candidate/delivery-index.json)
+separates its source archive, full gate, default release library and controlled
+request tests. The corrected 27-row runtime is a new declared selection, not a
+rewrite of the failed observer epoch. The original material probe used
+`x'=IF x=0 THEN 1 ELSE 1 /\ s'=s`: that conjunction belongs to `ELSE`,
+leaving `s` undefined when `x=0`. All four old material inputs give pinned exit75
+and native incomplete-successor evidence. The separately parenthesized
+`x'=(IF x=0 THEN 1 ELSE 1) /\ s'=s` controls give pinned exit13 and admitted
+words. Both exact sources, all errors and the original probe assertion failure
+are retained; no refusal becomes success by discarding that history.

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/tmp/dive-producer-candidate-runtime.py", line 28, in <module>
+    run([str(frozen/'candidate-runtime'),str(b/'native-current')],'default-api-runtime.log')
+  File "/tmp/dive-producer-candidate-runtime.py", line 10, in run
+    steps.append(dict(command=cmd,log=log,exit=p.returncode,wall_seconds=time.monotonic()-start));(b/'runtime-steps.json').write_text(json.dumps(steps,indent=2)+'\n');assert p.returncode==0,(cmd,p.returncode)
+AssertionError: (['/tmp/dive-producer-candidate-frozen-native/candidate-runtime', '/Users/jeff/code/dive-periodic-snapshot-work/conformance/probes/producer-owned-candidate/gate-current/native-current'], 101)

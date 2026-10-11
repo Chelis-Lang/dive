@@ -18,7 +18,7 @@
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "6a7ca100f492b5e566426207568816b6da607e63eb37645916fbbddda54d1385"
+    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
   },
   "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
 }

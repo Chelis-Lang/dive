@@ -25,7 +25,7 @@
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
     "AGENTS.md": "e2a564cf8b02c62a1f392e08b72413c48017f25b521f1f4696baf906e004d0e1",
     ".github/workflows/ci.yml": "c7ea826f8e0f0be8cfbc7e34131e0efc5114ad09293924172814a3b26641a288",
-    "conformance/parity-features.json": "6a7ca100f492b5e566426207568816b6da607e63eb37645916fbbddda54d1385"
+    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
   },
   "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
 }

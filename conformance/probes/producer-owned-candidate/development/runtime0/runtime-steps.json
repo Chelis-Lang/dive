@@ -1,0 +1,133 @@
+[
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-api",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-api-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.189450625
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-cli",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-cli-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.042962957999999996
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-conformance",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-conformance-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.060679415999999986
+  },
+  {
+    "command": [
+      "cargo",
+      "tree",
+      "--locked",
+      "-p",
+      "dive-trace",
+      "--edges",
+      "normal,build,features"
+    ],
+    "log": "dive-trace-default-feature-scope.log",
+    "exit": 0,
+    "wall_seconds": 0.041891665999999994
+  },
+  {
+    "command": [
+      "cargo",
+      "rustc",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-check",
+      "--lib",
+      "--no-default-features",
+      "--",
+      "--print",
+      "cfg"
+    ],
+    "log": "default-check-cfg.log",
+    "exit": 0,
+    "wall_seconds": 0.27603441700000003
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "-p",
+      "dive-api",
+      "-p",
+      "dive-cli",
+      "-p",
+      "dive-conformance",
+      "--message-format=json-render-diagnostics"
+    ],
+    "log": "default-release-build.log",
+    "exit": 0,
+    "wall_seconds": 25.483465
+  },
+  {
+    "command": [
+      "rustc",
+      "--edition=2024",
+      "/tmp/dive-producer-candidate-runtime.rs",
+      "-L",
+      "dependency=/Users/jeff/code/dive-periodic-snapshot-target/release/deps",
+      "-o",
+      "/tmp/dive-producer-candidate-frozen-native/candidate-runtime",
+      "--extern",
+      "dive_api=/Users/jeff/code/dive-periodic-snapshot-target/release/libdive_api.rlib",
+      "--extern",
+      "dive_check=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_check-87a658f32195a5e8.rlib",
+      "--extern",
+      "dive_liveness=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_liveness-14bc6582068dd5ec.rlib",
+      "--extern",
+      "dive_sema=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_sema-b5bda40fa29ae6c5.rlib",
+      "--extern",
+      "dive_ir=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_ir-ae1ace45933e9b28.rlib",
+      "--extern",
+      "dive_config=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_config-9ed24e059499b6a3.rlib",
+      "--extern",
+      "dive_trace=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libdive_trace-2678553fa3c2bb9e.rlib",
+      "--extern",
+      "serde_json=/Users/jeff/code/dive-periodic-snapshot-target/release/deps/libserde_json-67e93f6c02cd99ab.rlib"
+    ],
+    "log": "default-api-runtime-compile.log",
+    "exit": 0,
+    "wall_seconds": 0.29927533300000064
+  },
+  {
+    "command": [
+      "/tmp/dive-producer-candidate-frozen-native/candidate-runtime",
+      "/Users/jeff/code/dive-periodic-snapshot-work/conformance/probes/producer-owned-candidate/gate-current/native-current"
+    ],
+    "log": "default-api-runtime.log",
+    "exit": 101,
+    "wall_seconds": 0.5003175830000011
+  }
+]

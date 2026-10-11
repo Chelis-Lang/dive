@@ -7,7 +7,7 @@
     "crates/dive-liveness/tests/partial_execution.rs": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",
     "crates/dive-liveness/tests/tlc_partial_scc.rs": "cbe25041e2ec98c10930865d7d7159d46ba712fe864d8316f97413f773fcbf93",
     "scripts/check-tlc-partial-scc.py": "b7769f1b04e16a50f940e96617a6ae79e9e0bf78c111a1959ae587a18625f7bd",
-    "conformance/parity-features.json": "6a7ca100f492b5e566426207568816b6da607e63eb37645916fbbddda54d1385"
+    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
   },
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
