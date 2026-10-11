@@ -1,0 +1,21 @@
+{
+  "producer": "d21ea2c699c6514f61038c6fe8205219b83fa2f5",
+  "source_inputs": 855,
+  "compiled_rust_sources": 479,
+  "gate_commands": 72,
+  "tests": 1648,
+  "matrix_tests": 336,
+  "original_inner_cases": 768,
+  "original_runtime_producer": "05b3a1ef498ea1609c0413383b81bebb1b411749",
+  "family_certified": false,
+  "rejected_rehashed_semantic_controls": [
+    "family",
+    "unfinished",
+    "runtime-retag",
+    "new-runtime-claim",
+    "failed-command",
+    "skipped-tests",
+    "missing-ci",
+    "omitted-matrix-test"
+  ]
+}

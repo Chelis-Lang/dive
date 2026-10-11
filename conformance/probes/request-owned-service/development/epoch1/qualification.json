@@ -1,0 +1,4 @@
+{
+  "source_sha256": "e663c81cf9a6d10fa12e4f64281b58b4e86cfe3fac80f018301d72bee8be5b4f",
+  "outcome": "3 pass,1 fail: new full-completion test incorrectly expected []<>x=0 on a nondeterministic0..512 complete graph. The reported candidate precedes hook; stuttering at x=1 is a valid counterexample. Retain failed source and pair a universally true x>=0 property in distinct completion control; independently replay original candidate before credit."
+}

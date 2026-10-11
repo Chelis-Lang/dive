@@ -34,6 +34,7 @@ impl Default for Options {
 #[derive(Clone, Debug)]
 pub struct Invocation {
     pub(crate) source: u64,
+    pub(crate) publication: dive_check::capture::SourceBarrier,
     pub(crate) stats: Stats,
     pub(crate) workers: usize,
     pub(crate) generation: u64,
@@ -46,6 +47,13 @@ pub struct Invocation {
     pub(crate) resume_requested: bool,
 }
 impl Invocation {
+    /// Source-owned publication transaction at this invocation. Its pending
+    /// frontier flag records the actual pre-append callback stage even when
+    /// a hook/candidate stops the diagnostic before append can succeed.
+    #[must_use]
+    pub fn publication(&self) -> dive_check::capture::SourceBarrier {
+        self.publication
+    }
     /// Actual logical source identity; speculative jobs remain separate.
     #[must_use]
     pub fn source(&self) -> u64 {
@@ -112,17 +120,91 @@ impl FinalCheck {
         &self.selection
     }
 }
+/// Actual request quiescence and returned-prefix publication under the pool mutex.
+/// The receipt distinguishes the selected returned prefix, successful physical
+/// frontier append and later unreturned outputs; it does not assert that every
+/// submitted source has completed or that TLC's queue suspension was reproduced.
+#[derive(Clone, Debug)]
+pub struct ExpansionPause {
+    pub(crate) receipt: dive_check::capture::ExpansionQuiescence,
+    pub(crate) workers: usize,
+    pub(crate) generation: u64,
+}
+impl ExpansionPause {
+    /// Actual claims/completed output and committed/frontier-appended prefix.
+    #[must_use]
+    pub fn receipt(&self) -> &dive_check::capture::ExpansionQuiescence {
+        &self.receipt
+    }
+    /// Actual joined pool width and generation held during service.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+}
+/// Original concrete values of one actually completed graph/source callback.
+/// A caller cannot manufacture this producer-owned provenance.
+#[derive(Clone, Debug)]
+pub struct ConcreteSource {
+    pub(crate) identity: u64,
+    pub(crate) fingerprint: u64,
+    pub(crate) values: dive_eval::next::StateVals,
+}
+impl ConcreteSource {
+    /// Actual logical discovery identity, distinct from transaction range.
+    #[must_use]
+    pub fn identity(&self) -> u64 {
+        self.identity
+    }
+    /// Original concrete state fingerprint observed by the graph producer.
+    #[must_use]
+    pub fn fingerprint(&self) -> u64 {
+        self.fingerprint
+    }
+    /// Original source values admitted by the same Phase-L session.
+    #[must_use]
+    pub fn values(&self) -> &dive_eval::next::StateVals {
+        &self.values
+    }
+}
+
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
+    pub(crate) concrete_sources: Vec<ConcreteSource>,
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
+    pub(crate) expansion_pauses: Vec<ExpansionPause>,
+    pub(crate) request_options: Option<dive_check::progress::Options>,
+    pub(crate) requests_cancelled: bool,
+    pub(crate) aborted_request: Option<dive_check::progress::Request>,
     pub(crate) invocations: Vec<Invocation>,
     pub(crate) final_checks: Vec<FinalCheck>,
     pub(crate) eof: Option<Stats>,
     pub(crate) hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
+    pub(crate) request_services: Vec<crate::periodic_service::Invocation>,
+    pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Actual successful source callbacks retained in discovery order. These
+    /// original concrete values are not recovered from a fingerprint or from
+    /// an arbitrary stored target representative. Only the distinct
+    /// candidate-source endpoint retains this bounded reconstruction authority.
+    #[must_use]
+    pub fn concrete_sources(&self) -> &[ConcreteSource] {
+        &self.concrete_sources
+    }
+    /// Request-owned services after actual prefix append. Empty services retain
+    /// no invented source; these never establish ordinary temporal verdicts.
+    #[must_use]
+    pub fn request_services(&self) -> &[crate::periodic_service::Invocation] {
+        &self.request_services
+    }
+    /// Actual configured-hook calls in request service, separate from ordinal calls.
+    #[must_use]
+    pub fn service_evaluations(&self) -> &[crate::periodic_service::Evaluation] {
+        &self.service_evaluations
+    }
     /// Source-owned graph/partial-check evidence and actual deciding stop.
     #[must_use]
     pub fn backend(&self) -> &periodic_backend::Run {
@@ -142,6 +224,31 @@ impl Run {
     #[must_use]
     pub fn final_checks(&self) -> &[FinalCheck] {
         &self.final_checks
+    }
+    /// Actual extra claim-gate policy; absent for the existing commit-only path.
+    #[must_use]
+    pub fn request_options(&self) -> Option<dive_check::progress::Options> {
+        self.request_options
+    }
+    /// An actual expansion cut disabled requests while leaving earlier claims open.
+    #[must_use]
+    pub fn requests_cancelled(&self) -> bool {
+        self.requests_cancelled
+    }
+    /// The one pending request cancelled at that cut, if any. This is a bounded
+    /// stopping scalar, not a successful pause/hook/SCC or ordinary stop receipt.
+    #[must_use]
+    pub fn aborted_request(&self) -> Option<dive_check::progress::Request> {
+        self.aborted_request
+    }
+    /// Producer-clock claim pauses retaining actual successful prefix publication.
+    /// Per-source graph/controller callbacks precede physical frontier append;
+    /// this receipt is retained after the selected transaction's append succeeds.
+    /// Later unreturned outputs remain separate from the committed graph. An
+    /// empty prefix is not an EOF or a model-completion certificate.
+    #[must_use]
+    pub fn expansion_pauses(&self) -> &[ExpansionPause] {
+        &self.expansion_pauses
     }
     /// Actual supplied-expression calls. These assert no configured `_PERIODIC` identity.
     #[must_use]
@@ -179,8 +286,25 @@ pub fn execute(
     phase_execution::execute_periodic_lifecycle(model, options, limits, policy)
 }
 
+/// Reconstruction provenance is retained only by the distinct candidate endpoint.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceRetention {
+    Omitted,
+    Original,
+}
 pub(crate) struct State {
+    pub concrete_sources: Vec<ConcreteSource>,
+    pub concrete_retention: SourceRetention,
+    pub request_service: bool,
+    pub initial_stats: Option<Stats>,
+    pub graph_source: Option<u64>,
+    pub request_services: Vec<crate::periodic_service::Invocation>,
+    pub service_evaluations: Vec<crate::periodic_service::Evaluation>,
     pub options: Options,
+    pub requests: Option<dive_check::progress::Options>,
+    pub requests_cancelled: bool,
+    pub aborted_request: Option<dive_check::progress::Request>,
+    pub expansion_pauses: Vec<ExpansionPause>,
     pub start: i64,
     pub last: i64,
     pub ratio: f64,
@@ -213,7 +337,18 @@ impl State {
         }
         let start = time_millis()?;
         Ok(Self {
+            concrete_sources: Vec::new(),
+            concrete_retention: SourceRetention::Omitted,
+            request_service: false,
+            initial_stats: None,
+            graph_source: None,
+            request_services: Vec::new(),
+            service_evaluations: Vec::new(),
             options,
+            requests: None,
+            requests_cancelled: false,
+            aborted_request: None,
+            expansion_pauses: Vec::new(),
             start,
             last: start,
             ratio: 0.0,

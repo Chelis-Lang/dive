@@ -1,0 +1,13 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.05s
+     Running tests/storage_tuple_function.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/storage_tuple_function-65c5a2e650f942d5)
+
+running 5 tests
+test actual_older_ambiguous_archive_refuses_without_search ... ok
+test apply_tlc ... ok
+test apply_dive ... ok
+test witness_tlc ... ok
+test witness_dive ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 67.91s
+

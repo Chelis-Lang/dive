@@ -1,0 +1,19 @@
+{
+  "producer_commit": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
+  "compiled_source_index": "../source/index.json",
+  "binaries": [
+    {
+      "name": "dive",
+      "sha256": "6d9d69f634d90091084f456eb8a608470fb9ee0cbd6c0a5e31cc0aa8e836d0b5",
+      "runtime_source_commit": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
+      "compiled_inputs": 470
+    },
+    {
+      "name": "dive-conformance",
+      "sha256": "0f3549b29bff150b867898faa4b97706a491a893e6c8b005022e60b912bcfc30",
+      "runtime_source_commit": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
+      "compiled_inputs": 470
+    }
+  ],
+  "release_log_sha256": "a2127d20ca505e5f1452613be2faf13d3b5ef41787d40dab3eb5b56579d16863"
+}

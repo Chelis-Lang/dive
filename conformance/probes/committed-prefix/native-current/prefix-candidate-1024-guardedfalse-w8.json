@@ -1,0 +1,75 @@
+{
+  "aborted_request": null,
+  "complete": false,
+  "eof": null,
+  "invocations": [
+    {
+      "frontier_append_pending": true,
+      "model_proof": false,
+      "outcome": "Ok(LivenessStopped(2116))",
+      "predicate_workers": 0,
+      "prefix": [
+        0,
+        1
+      ],
+      "publication": "RequestPrefix",
+      "source": 0,
+      "stats": {
+        "depth": 2,
+        "distinct": 2,
+        "generated": 1025,
+        "initial_generated": 1,
+        "queue": 1
+      }
+    }
+  ],
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "pauses": [
+    {
+      "claimed": [],
+      "committed_end": 0,
+      "committed_start": 0,
+      "committed_stats": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "queue": 1
+      },
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": true,
+      "frontier_appended_end": 0,
+      "frontier_appended_start": 0,
+      "logical_stats": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 1,
+        "initial_generated": 1,
+        "queue": 1
+      },
+      "millis": 1791728310454,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        8,
+        1
+      ],
+      "predicate_workers": 0,
+      "request": 1,
+      "submitted_end": 1,
+      "submitted_start": 0
+    }
+  ],
+  "requests_cancelled": false,
+  "stop": "source checkpoint found an unvalidated temporal candidate",
+  "stop_stats": {
+    "depth": 2,
+    "distinct": 2,
+    "generated": 1025,
+    "initial_generated": 1,
+    "queue": 1
+  }
+}

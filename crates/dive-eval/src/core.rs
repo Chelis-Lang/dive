@@ -88,6 +88,8 @@ pub(crate) struct Core {
     /// use of the definition sees this value.
     pub(crate) startup: Vec<OnceLock<Value>>,
     pub(crate) sink: Arc<dyn PrintSink>,
+    /// Actual Print/PrintT events, including quiet captures and empty text.
+    pub(crate) printed: std::sync::atomic::AtomicBool,
     /// The run hosting the evaluator, and TLC's register file.
     pub(crate) host: crate::host::HostSlot,
 }
@@ -166,6 +168,7 @@ impl Core {
             warned: Mutex::default(),
             startup,
             sink,
+            printed: std::sync::atomic::AtomicBool::new(false),
             host: crate::host::HostSlot::default(),
         }
     }
@@ -363,6 +366,8 @@ impl Core {
     /// Prints a line through the sink, or into the thread's
     /// [`crate::capture::PrintCapture`].
     pub(crate) fn print(&self, text: String) {
+        self.printed
+            .store(true, std::sync::atomic::Ordering::Relaxed);
         if let Some(text) = crate::capture::push(text, false) {
             self.sink.print(text);
         }
@@ -562,4 +567,45 @@ fn structural_set_operand(value: &Value) -> bool {
         todo.extend(s.components().into_iter().map(|(_, v)| v));
     }
     true
+}
+
+#[cfg(test)]
+mod print_events {
+    #![allow(clippy::expect_used, reason = "test setup")]
+    use super::*;
+
+    #[test]
+    fn actual_empty_print_event_survives_drain_and_quiet_capture_without_sink_calls() {
+        let analysis = dive_sema::analyze_source(
+            "PrintFacts.tla",
+            "---- MODULE PrintFacts ----\nEXTENDS TLC\nUnused == PrintT(\"unused\")\n====\n",
+            &dive_sema::Options::default(),
+        );
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+        let ev = crate::Evaluator::new(crate::Model::new(ir), Options::tlc()).expect("context");
+        assert!(
+            !ev.has_print_event(),
+            "unused Print definition is not execution"
+        );
+        ev.core.print_warning("warning".into());
+        assert!(!ev.has_print_event(), "warnings are separate events");
+        assert_eq!(ev.take_output(), ["warning"]);
+        let cap = crate::capture::PrintCapture::start();
+        ev.core.print(String::new());
+        assert!(ev.has_print_event());
+        assert!(ev.take_output().is_empty(), "quiet event did not call sink");
+        assert_eq!(
+            cap.take(),
+            [crate::capture::Captured {
+                text: String::new(),
+                warning: false
+            }]
+        );
+        drop(cap);
+        assert!(
+            ev.has_print_event(),
+            "draining a quiet capture does not erase execution"
+        );
+    }
 }

@@ -1,0 +1,53 @@
+{
+  "scope": "Portable consistency mutation controls, not search or engine proof",
+  "producer": "0be524349e4b09f452ee399edc7005653a4825d5",
+  "mutations": [
+    {
+      "mutation": "false-engine-admission-claim",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "forged-producer-binary",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "false-current-runtime-equality",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "omitted-offline-check-with-rehashed-receipt",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "cancelled-nextest-with-rehashed-receipt",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "changed-focused-raw-output",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "changed-source-archive",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "focused-omission",
+      "refused": true,
+      "error_type": "AssertionError"
+    },
+    {
+      "mutation": "focused-duplicate",
+      "refused": true,
+      "error_type": "AssertionError"
+    }
+  ],
+  "original_restoration_pass": true,
+  "verifier_sha256": "280d9c0c3f7311409e623c98b228d61d787f0824f81a9b2ccb290459c2ed08fc"
+}

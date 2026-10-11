@@ -1,0 +1,29 @@
+{
+  "args": [
+    "<pinned-jre>",
+    "-cp",
+    "<primary-jar>",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-lncheck",
+    "final",
+    "-cleanup",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-metadir",
+    "<private-metadir>",
+    "-config",
+    "ErInvReplayProp.cfg",
+    "ErInvReplayProp"
+  ],
+  "cwd": "crates/dive-check/tests/fixtures/errors/specs/ErInvReplayProp",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "source_sha256": "db64d982e75facdbd3708ab31486c5472dfcb5f5e4145868535404c5c6fd2ac8",
+  "config_sha256": "9cfd902116e406369dee15837560ab0b0c9ef8c6ee4731ec95fe88c2538fbbdf",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b"
+}

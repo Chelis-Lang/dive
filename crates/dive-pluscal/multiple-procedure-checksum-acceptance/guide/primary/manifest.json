@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "Relation.tla": "396cfc86672145d54002f6052b0fcfcfc3802bc3294520b4d8add6d91e9504a5",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "75353a052f86731259260255d7189872956ff14a3bd75b65ca7c4e86247493db",
+  "capture_sha256": "244a639d8e4fa69d52258f57a96d837ba0a66c50c76a4409c5a94dda4795ca63",
+  "adapter_sha256": {
+    "DefinitionProbe.class": "cff461fd85e24923876b2fded1c11969ef2c96ecad357fb7400d4fa5977a7337",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "MultipleProcedureChecksum_C",
+      "flags": [],
+      "input_sha256": "9ef18f9e8823e269ba330706f44c72ec4e76127953d63427593964bc5cc3f3bc",
+      "output_sha256": "1fa75fda1c83890852a270c8e312040a4189a735f63d2722859cc9149db49d0a",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_C.primary.stdout.gz",
+          "sha256": "7f47918390b61df254b18e619513e80d01e179363e62697aeb728d056f4047b1"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_C.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "99cb7254",
+        "52a06a3d"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_C.stages.stdout.gz",
+          "sha256": "2bf07c20b3f328d80a486533ce968be418a023e2b1dfae36b3aef5f935d0734a"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_C.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "d4a3ebf3eaa8c2b004db7f2316c97db2f8d983c3f7cbb77ff49a10f7fc305739"
+        },
+        "names": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "d4a3ebf3eaa8c2b004db7f2316c97db2f8d983c3f7cbb77ff49a10f7fc305739"
+        },
+        "translated": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "d4a3ebf3eaa8c2b004db7f2316c97db2f8d983c3f7cbb77ff49a10f7fc305739"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_C.sany.stdout.gz",
+          "sha256": "70ada463b0e132134c2ec14d6c79ce4faacadeb598edc7b84b99cc64cc0b1f27"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_C.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MultipleProcedureChecksum_C.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MultipleProcedureChecksum_P",
+      "flags": [],
+      "input_sha256": "47af034f521c20806667231e053bd194fbdef13c5c6921300513b5843b66fe27",
+      "output_sha256": "027f5d0a3e9b550e8e617b9426426e4f2c97a1bf262dec84c51a1e93a162cf30",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_P.primary.stdout.gz",
+          "sha256": "78fa16b2cd1cc4050173ce9e8e4f2611bb5e18ea395b381e2832f3a59ae8cf85"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_P.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "99cb7254",
+        "52a06a3d"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_P.stages.stdout.gz",
+          "sha256": "842ca9e1abbaf904e6839cd5670a73beabc533d3f7a400e17900044d813bb1d2"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_P.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "af38bfcabed25b02bc4fe395877e4a5b699b4b1cc5fc4e8e3a6665e4c4906956"
+        },
+        "names": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "af38bfcabed25b02bc4fe395877e4a5b699b4b1cc5fc4e8e3a6665e4c4906956"
+        },
+        "translated": {
+          "crc": "99cb7254",
+          "ast_sha256": "a89788917bc69c981fbecfbb705b41e82e1593d2c1e9bd233e7db60a18bdb33e",
+          "json_sha256": "af38bfcabed25b02bc4fe395877e4a5b699b4b1cc5fc4e8e3a6665e4c4906956"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleProcedureChecksum_P.sany.stdout.gz",
+          "sha256": "0ed1606ed38d0f48d6abafd22b3867a9a02a37e07a625911dcbd391b6fabfd8c"
+        },
+        "stderr": {
+          "path": "MultipleProcedureChecksum_P.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MultipleProcedureChecksum_P.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

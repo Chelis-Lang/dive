@@ -1,0 +1,31 @@
+{
+  "gate_source_commit": "657eaebd844bc33fe90d3f7e2698eaa50d8868e5",
+  "runtime_source_commit": "657eaebd844bc33fe90d3f7e2698eaa50d8868e5",
+  "historical_producer_retagged": false,
+  "gate_input_count": 5912,
+  "unchanged_gate_inputs": 5908,
+  "post_gate_changes": [
+    {
+      "path": "crates/dive-pluscal/nested-procedure-checksum-acceptance/README.md",
+      "before_sha256": "423fadfe87d9990819923080e925e3014a7286fe617b486129f08b630fb4d431",
+      "after_sha256": "a6b1026c9bd9adbab79e7ef6f492fdbe905a7bc1c1e1e3c554eb2781265066ad"
+    },
+    {
+      "path": "docs/decisions/0061-nested-procedure-header-vectors.md",
+      "before_sha256": "0af9fddaf5742db0ffb8b1811d886db486e71daec92a052112a087de8a2f19a5",
+      "after_sha256": "cae7be012d0236f2337f0b6874ecf22cba85fa41664b90095f5d3a6dfd2ccc7e"
+    },
+    {
+      "path": "docs/pluscal-nested-procedure-checksums.md",
+      "before_sha256": "487b462feab5b80b7bfbf966c9a18f24c81d4ea3741def5d545c989eed7ba332",
+      "after_sha256": "d3d8cfc4b8ef88f17d350b26cc335094bff73a3a7a15d3db2c8d0eaa69bcb4c1"
+    },
+    {
+      "path": "scripts/check-native-parity-integration.py",
+      "before_sha256": "f622314276179e12337cba2d0af3b64e5b3494084df487d0574e83fb44d98dcf",
+      "after_sha256": "ab73d38a3affe28a1c1eaff577461437c2d647503ea2411dc868a3543a337a10"
+    }
+  ],
+  "unchanged_rust_cargo_test_example": true,
+  "qualification": "Only explicitly listed docs/verifier/current-map metadata changed after all source/gate/runtime consumers closed."
+}

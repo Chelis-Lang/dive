@@ -1,0 +1,237 @@
+{
+  "aborted_request": null,
+  "complete": true,
+  "eof": {
+    "depth": 2,
+    "distinct": 41,
+    "generated": 1690,
+    "initial_generated": 9,
+    "queue": 0
+  },
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "pauses": [
+    {
+      "claimed": [],
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": true,
+      "logical_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "initial_generated": 9,
+        "queue": 9
+      },
+      "millis": 1791721156814,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        1
+      ],
+      "request": 1,
+      "submitted_end": 8,
+      "submitted_start": 0
+    },
+    {
+      "claimed": [
+        4,
+        5,
+        1,
+        2,
+        7,
+        3,
+        0,
+        6
+      ],
+      "completed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "expanded_generated": 328,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "initial_generated": 9,
+        "queue": 9
+      },
+      "millis": 1791721156815,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        2
+      ],
+      "request": 2,
+      "submitted_end": 8,
+      "submitted_start": 0
+    },
+    {
+      "claimed": [],
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 2,
+        "distinct": 41,
+        "generated": 337,
+        "initial_generated": 9,
+        "queue": 9
+      },
+      "millis": 1791721156817,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        3
+      ],
+      "request": 3,
+      "submitted_end": 9,
+      "submitted_start": 8
+    },
+    {
+      "claimed": [
+        13,
+        10,
+        16,
+        12,
+        15,
+        14,
+        11,
+        9
+      ],
+      "completed": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "expanded_generated": 328,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 2,
+        "distinct": 41,
+        "generated": 378,
+        "initial_generated": 9,
+        "queue": 32
+      },
+      "millis": 1791721156833,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        5
+      ],
+      "request": 4,
+      "submitted_end": 17,
+      "submitted_start": 9
+    },
+    {
+      "claimed": [
+        22,
+        21,
+        23,
+        24,
+        17,
+        18,
+        20
+      ],
+      "completed": [
+        17,
+        18,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "expanded_generated": 287,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 2,
+        "distinct": 41,
+        "generated": 706,
+        "initial_generated": 9,
+        "queue": 32
+      },
+      "millis": 1791721156846,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        6
+      ],
+      "request": 5,
+      "submitted_end": 25,
+      "submitted_start": 17
+    },
+    {
+      "claimed": [],
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 2,
+        "distinct": 41,
+        "generated": 1034,
+        "initial_generated": 9,
+        "queue": 32
+      },
+      "millis": 1791721156849,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        8
+      ],
+      "request": 6,
+      "submitted_end": 33,
+      "submitted_start": 25
+    },
+    {
+      "claimed": [],
+      "completed": [],
+      "expanded_generated": 0,
+      "failed": [],
+      "forced": false,
+      "logical_stats": {
+        "depth": 2,
+        "distinct": 41,
+        "generated": 1362,
+        "initial_generated": 9,
+        "queue": 32
+      },
+      "millis": 1791721156852,
+      "model_proof": false,
+      "phase_l_written": false,
+      "pool": [
+        4,
+        10
+      ],
+      "request": 7,
+      "submitted_end": 41,
+      "submitted_start": 33
+    }
+  ],
+  "requests_cancelled": false,
+  "stop": null
+}

@@ -36,6 +36,8 @@ pub use translate::{
     translate_source,
 };
 
+/// Producer-owned periodic candidates, independently replayed without a model-proof claim.
+pub mod periodic_candidate;
 pub mod temporal;
 /// Explicit pinned final-only SCC/lasso analysis with independent replay.
 pub mod tlc_temporal;
@@ -351,6 +353,11 @@ pub use dive_syntax;
 
 /// Re-exported so API users can work with the semantic model directly.
 pub use dive_sema;
+
+/// Bounded transient disk seen-state safety options.
+pub use dive_check::SeenOptions;
+/// Limits for full disk keys, entries, probes and collision summaries.
+pub use dive_store::seen::Limits as SeenLimits;
 
 #[cfg(test)]
 mod tests {

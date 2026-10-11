@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "selected": 8,
+  "native_binary_sha256": "63846d90fab85e0b6727454e3fba97002f6cc06196a0ffdaf0d6bd51bb445de9",
+  "cst_binary_sha256": "9c79348f83262bc33c14f14b4173246af341055db4df4ca5a99af29aca9d6fcf",
+  "script_sha256": "e230063ec35858aefdfba4affd902102f4f898e8c78a7be9e903b7ab1dfc983a",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false,
+  "model_proved": false,
+  "summary": {
+    "disagree": 4,
+    "admitted-exact-cst-sany-validator": 4
+  },
+  "rows": [
+    {
+      "id": "WhileTail_C_TRUE_dive",
+      "folder": "",
+      "source_id": "WhileTail_C_TRUE",
+      "profile": "dive",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "2df034632eb13d68e9eee1d3b795f640c556e4afc94cc1a9bf7a80e2daf6604c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileTail_C_TRUE_tlc",
+      "folder": "",
+      "source_id": "WhileTail_C_TRUE",
+      "profile": "tlc",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "94e671ce7fec3b320f10b080ee094595d548e7b12af720b81126cb2e928e07d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileTail_C_Test_dive",
+      "folder": "",
+      "source_id": "WhileTail_C_Test",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "4e796eab2ba55027638bae3ae516ce70021f91a593e466b60d325ed7fe6a92ca",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileTail_C_Test_tlc",
+      "folder": "",
+      "source_id": "WhileTail_C_Test",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "130f56660430f6f836d9f82f135ef082471f42e2896c7ea4785bf8d4603be1b0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileTail_P_TRUE_dive",
+      "folder": "",
+      "source_id": "WhileTail_P_TRUE",
+      "profile": "dive",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "84f171557f0398aa3ca4f0ab58780c946eb5103b2cb059f7a0daed74f46d5dec",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileTail_P_TRUE_tlc",
+      "folder": "",
+      "source_id": "WhileTail_P_TRUE",
+      "profile": "tlc",
+      "outcome": "disagree",
+      "detail": "AssertionError()",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "63ffbac53d3e9d40f5466942d8c0f77ef7e8d495f70e172d94aee3703e97de26",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {}
+    },
+    {
+      "id": "WhileTail_P_Test_dive",
+      "folder": "",
+      "source_id": "WhileTail_P_Test",
+      "profile": "dive",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "a6a81d726ef2414259bd43dd2d4062f6be67ca659573d5f5d25c4c28efbe5e91",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    },
+    {
+      "id": "WhileTail_P_Test_tlc",
+      "folder": "",
+      "source_id": "WhileTail_P_Test",
+      "profile": "tlc",
+      "outcome": "admitted-exact-cst-sany-validator",
+      "detail": "",
+      "native": {
+        "exit_code": 0,
+        "stdout_sha256": "9eb3702883b7c5b99eb1f6fa8bb4bdb1ddb282ffa60a7d904d1b8a6d77c24402",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "validator": {
+        "configured": "[NO_DIVERGENCE]",
+        "unconfigured": "[NO_DIVERGENCE]"
+      }
+    }
+  ]
+}

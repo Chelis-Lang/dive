@@ -1,0 +1,516 @@
+{
+  "source_producer": "producer.json",
+  "source_commit": null,
+  "all_stages": 49,
+  "completed": [
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3057820796966553,
+      "log": "00.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/test-validation-import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17687678337097168,
+      "log": "01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-frontend-campaign.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.1024818420410156,
+      "log": "02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0856027603149414,
+      "log": "03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-parity-ledger.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1982588768005371,
+      "log": "04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1715400218963623,
+      "log": "05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-tableau.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.15279412269592285,
+      "log": "06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-action-order.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0844731330871582,
+      "log": "07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.225142240524292,
+      "log": "08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-l-graph.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12558698654174805,
+      "log": "09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-phase-execution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.13797712326049805,
+      "log": "10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-controller.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23111510276794434,
+      "log": "11.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-runtime-ratio.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.08025908470153809,
+      "log": "12.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.21269607543945312,
+      "log": "13.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-state-if-planning.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.09683609008789062,
+      "log": "14.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-predecessor-spill.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.25589680671691895,
+      "log": "15.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23331117630004883,
+      "log": "16.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-view-normalization.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4749782085418701,
+      "log": "17.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-view-random-stream.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0965349674224854,
+      "log": "18.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-parity-integration.py"
+      ],
+      "exit_code": 0,
+      "seconds": 11.962592840194702,
+      "log": "19.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-safety.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3382909297943115,
+      "log": "20.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-state-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5250718593597412,
+      "log": "21.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17961502075195312,
+      "log": "22.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-temporal-if-final.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8226330280303955,
+      "log": "23.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-final-scopes.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.46439027786254883,
+      "log": "24.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-property-origins.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.556506872177124,
+      "log": "25.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-material-capture.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6910068988800049,
+      "log": "26.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8622050285339355,
+      "log": "27.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-temporal-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.101733922958374,
+      "log": "28.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.355706214904785,
+      "log": "29.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-stored-successor-material.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.521522045135498,
+      "log": "30.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-stored-successor-census.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.18158602714538574,
+      "log": "31.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-native-sequence-operators.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23044109344482422,
+      "log": "32.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-tlc-partial-scc.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.36562514305114746,
+      "log": "33.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-backend.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.42655491828918457,
+      "log": "34.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-lifecycle.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9602761268615723,
+      "log": "35.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-periodic-hook.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3084549903869629,
+      "log": "36.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/macro-checksum-acceptance/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.8600502014160156,
+      "log": "37.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/define-acceptance/verify-delivery.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.6568419933319092,
+      "log": "38.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/check-test-partitions.py"
+      ],
+      "exit_code": 0,
+      "seconds": 218.09779810905457,
+      "log": "39.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "scripts/test-workspace-gate.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9225447177886963,
+      "log": "40.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "crates/dive-pluscal/procedure-checksum-acceptance/verify.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5267858505249023,
+      "log": "41.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 53.85287690162659,
+      "log": "42.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "nextest",
+        "run",
+        "--workspace",
+        "--locked",
+        "--profile",
+        "ci",
+        "--test-threads",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 1086.7946138381958,
+      "log": "43.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--doc",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 18.729948043823242,
+      "log": "44.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "doc",
+        "--workspace",
+        "--no-deps",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 34.58077073097229,
+      "log": "45.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "xtask",
+        "check-layering"
+      ],
+      "exit_code": 0,
+      "seconds": 3.9512240886688232,
+      "log": "46.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "dive-trace",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 3.412153720855713,
+      "log": "47.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2856552600860596,
+      "log": "48.log"
+    }
+  ],
+  "passed": true
+}

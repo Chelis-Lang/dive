@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized] target(s) in 0.03s
+     Running tests/periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-1e88501020554822)
+
+running 1 test
+test real_request_pause_retains_uncommitted_facts_and_existing_candidate_replay ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.03s
+

@@ -1,0 +1,6 @@
+{
+  "status": "failed-local-clippy",
+  "reason": "ignored_unit_patterns in newly-added close/no-request test",
+  "source_sha256": "22d637480afe146cd6283750386053a388bfd311b61f0be55383c6f49b9172f6",
+  "model_proof": false
+}

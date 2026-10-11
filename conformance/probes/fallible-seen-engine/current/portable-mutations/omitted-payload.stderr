@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 104, in <module>
+    if __name__=='__main__':main()
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-engine.py", line 18, in main
+    assert set(manifest['payload_sha256'])==expected_payload
+AssertionError

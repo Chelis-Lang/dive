@@ -10,6 +10,7 @@ The canonical tlaplus tools are MIT-licensed. Translated code carries attributio
 
 | dive component | Source | Licence | Nature |
 |---|---|---|---|
+| `dive-pluscal` bounded sequential procedure checksum (`translate/checksum.rs`) | tlaplus `pcal/AST.java` (`Procedure`, `PVarDecl`, `Call`, `Return`, `CallGoto`, `VectorToSeqString`), `ParseAlgorithm.java` (`GetProcedure`, `GetCall` mutable proceduresCalled alias and CallGoto fold), `PCalTLAGenerator.translate`, `PcalTranslate.Explode`; commit `94d0c50` | MIT | Exact original post-generation header AST templates; independent development-only expanded ownership captures; shared nested-vector mutation stays refused. ADR 0058; complete 132-case selection preserves failed/native/reference stage distinctions |
 | `dive-trace` tuple-only whole-word admission (`runtime_order.rs`, existing `exists.rs` tuple proof) | tlaplus `tlc2/module/Sequences.java` (`Tail`, `Concat`, `SubSeq`), `util/UniqueString.java` string encounter behavior; commit `94d0c50` | MIT reference | Native bounded scoped shape proof, not a Java algorithm port. Sequence evaluation is unchanged; audit never evaluates operands or uses supplied states to infer missing namespace history (ADR 0064). |
 | `dive-check` native checkpoint/resume (`checkpoint.rs`, ordered completed-level engine) | tlaplus `tlc2/tool/ModelChecker.java` (`checkpoint`, `recover`, `doInit`), `AbstractChecker.java`, `Worker.java`, `TLCTrace.java`, `queue/DiskStateQueue.java`, `fp/MemFPSet.java`, `util/InternTable.java`, commit `94d0c50` | MIT | Recovery resumes queue without Init, preserves concrete trace/order and restores intern names before evaluation; ADR 0038 recomputes VIEW/symmetry keys via the live configured path, retaining actual concrete discoveries; TLC generated/initial counter reset matched. Pure parallel recovery retains resolved configured keys and concrete discoveries in ordered commits, resumes the actual saved level and resolves counter/record limits at the inline prefix (ADR0038 addendum). Native bounded single-file format and completed-level pausing are dive designs, not Java byte interoperability. Source hashes/raw counts in `conformance/probes/native-checkpoint/` |
 | `dive-eval` `Evaluator::intern_bfs_config` and `dive-check` startup | tlaplus `tlc2/tool/AbstractChecker.java` constructor and `createConfig`, commit `94d0c50` | MIT | Eagerly intern bfs, seed, fingerprint polynomial and install strings in source order; clean seed 0/7/14 captures in `crates/dive-check/tests/fixtures/runtime-names/` reproduce counts and chosen violation |
@@ -703,9 +704,12 @@ using the existing `Value::set`, `Value::fcn`, record and tuple constructors.
 Pinned `SetEnumValue.normalize`, `ValueVec.sort`, `TupleValue` and `FcnRcdValue`
 representation are semantic references at `94d0c50`, under MIT; JSON, admission
 budgets and construction witnesses are dive's own design. The storage codec's
-native format is not exposed to untrusted words. Its tuple tag loses the
-nonliteral tuple distinction; the separate preserved spill/recovery study
-records that remaining storage limitation without changing its format here.
+native format is not exposed to untrusted words. The frozen version2 transport
+producer used the older native codec whose tuple tag lost the nonliteral tuple
+distinction; its preserved spill/recovery study records that historical defect.
+The separate [structural storage repair](../conformance/probes/storage-tuple-function/README.md)
+retains the distinction in the current native codec. Neither producer's archived
+observations are retagged as execution of the composed receiving source.
 Encoder witness probes use the existing Quiet marker authority solely to keep
 shared operand normalization markers unchanged. Provider/opaque representation
 is refused before probing. `dive-trace` retains its standalone generator-free
@@ -733,6 +737,45 @@ and both-profile compiled Rust guide also pass. Metadata-only evidence packaging
 checks all 443 producing workspace Rust/Cargo inputs against archived and Git
 bytes; earlier source and runtime histories are not relabelled.
 
+| Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
+
+### Structural storage format 2 (#195)
+
+The pinned `tlc2/value/impl/TupleValue` and `FcnRcdValue` application/write
+contracts at `94d0c50` (MIT) retain distinct concrete classes despite mathematical
+function equality. The native `codec::encode_step`/decoder use separate tuple
+and tuple-function tags; this is dive's own versioned format, not Java byte
+interoperability. Canonical encoding and FP64 remain unchanged. CP02/FQ02/FI02
+admission and preserved predecessor-only format are documented in ADR 0060.
+Paired minimal raw reference/memory/spill/recovery evidence is in
+`conformance/probes/storage-tuple-function/`; equal error exits alone receive no
+representation-conformance credit.
+| Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
+
+The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
+for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
+preserved as an observer limitation, without tableau write-authority credit.
+Worker/controller outcomes and native owned publication remain separately
+measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
+| `dive-pluscal` typed nested procedure header view (`translate/checksum_transfers.rs`, `checksum.rs`) | tlaplus `pcal/PcalTranslate.java` `CopyAndExplodeLastStmt`, `ExplodeLabeledStmt`, `ExplodeWhile`, `ExplodeCall`, `ExplodeReturn`, `UpdatePC`; `PCalTLAGen.GenAssign/SortSass`; `AST.Assign/SingleAssign` and `TLAExpr.toString`; commit `94d0c50` | MIT | Typed shared child-vector mutation only; outer source vectors remain copied/preserved. Clean original-after-generation CRC authority is separate from direct exploded ownership. ADR 0061; complete 180-row declared selection |
+
+Nested procedure header continuation also matches pinned `PcalTranslate.IsTRUE`
+(single logical token line), `ExplodeWhile` tail mutation/discard, and
+`PCalTLAGen.GenAssign` sorting only for actually generated assignments. Separate
+192 primary rows (original180 plus4+8 token-line/tail controls) retain original
+failed native producer results. Native work reservation/indexing is a bounded
+implementation policy, not ported evaluator complexity or allocation counts.
+
+## Fallible disk seen-state library
+
+`dive-store/src/seen.rs` and `seen/files.rs` match the error boundary of pinned
+`tlc2.tool.fp.FPSet.put`, `contains` and `checkFPs` (`94d0c50`, MIT): I/O is
+fallible and cannot be a membership answer. `DiskFPSet.diskLookup` and
+`checkFPs` are reference semantics, not copied Java storage layouts. Native
+open-addressed disk indexing, private ownership, bounded rehash/audit and
+first-error poisoning are dive designs (ADR 0063). Fingerprint gap uses existing
+`collision::closer`/subset authority; bounded pair work refuses explicitly.
+No ordinary engine or checkpoint admission is established by this library.
 The independent tuple-history admission (ADR 0067) is a bounded Rust logical
 proof of necessary Init facts and all-branches Next preservation. It ports no
 checker enumeration algorithm and uses neither supplied witness states nor
@@ -742,3 +785,23 @@ TLC's encounter-order side effects as type evidence.
   TLA+ function/tuple equality and UNCHANGED semantics, using original actual
   bound definitions and scopes. It is an independent logical admission proof,
   not a port of the successor enumerator. Conditional/permuted projections refuse.
+
+### Positioned disk invariant-error replay (#217)
+
+`dive-check::Search::replay_after_disk/replay_disk_states` matches MIT pinned
+94d0c50 `tlc2.tool.ModelChecker.doNext`, `doNextSetErr` and invariant/action
+continuation ordering. Full disk keys and Result operations use the existing
+ADR0063 library; no Boolean StateSet adapter or resident key mirror exists.
+Fresh clean six-fixture stdout/exit evidence is in
+`conformance/probes/fallible-invariant-replay/primary/`. Original wrong-count and
+refusal epochs are unchanged. Class parity is limited to actual known verified
+sites, and the private bound action-property control does not lift public
+PROPERTY admission. Inline fallback, logical versus physical replay counts,
+first cause/cleanup retention and non-certificate limits are ADR0072.
+
+The ADR0072 Print boundary is native admission, not a ported output algorithm:
+`Evaluator::has_print_event` observes actual `Core::print` dispatch before
+capture/sink calls, separately from warnings. The disk error route refuses
+unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
+and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
+pre-review native run's single event is retained as failed output evidence.

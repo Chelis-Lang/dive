@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "WhileTail_C_TRUE",
+      "flags": [],
+      "input_sha256": "f9a7e8381ac47e3c0e22966183158c727cff3e53d16f6c747cdf927e74775c06"
+    },
+    {
+      "id": "WhileTail_C_Test",
+      "flags": [],
+      "input_sha256": "c98016704aa3727c33a11dd4921d9619ccc458fc938aee839ae8e55ad6014a47"
+    },
+    {
+      "id": "WhileTail_P_TRUE",
+      "flags": [],
+      "input_sha256": "487e0aa15b50a656be76b42fd2ee0127d304759f805431a43130ce68f97433bd"
+    },
+    {
+      "id": "WhileTail_P_Test",
+      "flags": [],
+      "input_sha256": "f2cf0b1067418d1b16f234606a2b2ed22a14be6107bfb3a23267fb74f8fbe364"
+    }
+  ]
+}

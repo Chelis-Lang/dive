@@ -1,0 +1,27 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized] target(s) in 2.34s
+     Running tests/periodic_service.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_service-2d0132487f166d60)
+
+running 6 tests
+test empty_request_preserves_actual_hook_evaluation_error_and_does_not_resume ... ok
+test actual_empty_true_service_resumes_before_real_safety_eof ... ok
+test failed_init_never_services_the_initial_request ... ok
+test initial_empty_false_service_has_no_invented_source_and_no_elapsed_suppression ... ok
+test requested_default_or_mixed_evaluator_mode_refuses_before_service_setup ... ok
+test real_nonempty_request_service_observes_the_appended_transaction_once ... FAILED
+
+failures:
+
+---- real_nonempty_request_service_observes_the_appended_transaction_once stdout ----
+
+thread 'real_nonempty_request_service_observes_the_appended_transaction_once' (126993811) panicked at crates/dive-liveness/tests/periodic_service.rs:240:9:
+actual nonempty service required w4
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    real_nonempty_request_service_observes_the_appended_transaction_once
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.93s
+
+error: test failed, to rerun pass `-p dive-liveness --test periodic_service`

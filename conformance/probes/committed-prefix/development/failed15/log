@@ -1,0 +1,22 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized] target(s) in 2.74s
+     Running tests/periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-1e88501020554822)
+
+running 1 test
+test prefix_and_whole_wave_preserve_constraints_and_ordered_safety_stops ... FAILED
+
+failures:
+
+---- prefix_and_whole_wave_preserve_constraints_and_ordered_safety_stops stdout ----
+
+thread 'prefix_and_whole_wave_preserve_constraints_and_ordered_safety_stops' (125585817) panicked at crates/dive-liveness/tests/periodic_snapshot.rs:614:28:
+config
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    prefix_and_whole_wave_preserve_constraints_and_ordered_safety_stops
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p dive-liveness --test periodic_snapshot`

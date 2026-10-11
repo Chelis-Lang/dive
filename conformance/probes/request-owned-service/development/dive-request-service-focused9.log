@@ -1,0 +1,32 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized] target(s) in 14.51s
+     Running tests/periodic_service.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_service-2d0132487f166d60)
+
+running 11 tests
+test actual_empty_true_service_resumes_before_real_safety_eof ... ok
+test earlier_safety_winner_cancels_requests_without_a_later_service_or_eof ... FAILED
+test empty_request_preserves_actual_hook_evaluation_error_and_does_not_resume ... ok
+test failed_init_never_services_the_initial_request ... ok
+test graph_predicate_failure_prevents_later_request_hook_service ... ok
+test initial_empty_false_service_has_no_invented_source_and_no_elapsed_suppression ... ok
+test appended_request_candidate_precedes_hook_and_replays_against_fresh_binding ... ok
+test real_nonempty_request_service_observes_the_appended_transaction_once ... ok
+test request_service_eof_candidates_have_separate_fresh_replay ... ok
+test requested_default_or_mixed_evaluator_mode_refuses_before_service_setup ... ok
+test request_service_retention_and_partial_work_share_the_existing_graph_quota ... ok
+
+failures:
+
+---- earlier_safety_winner_cancels_requests_without_a_later_service_or_eof stdout ----
+
+thread 'earlier_safety_winner_cancels_requests_without_a_later_service_or_eof' (127249960) panicked at crates/dive-liveness/tests/periodic_service.rs:843:9:
+assertion failed: new.lifecycle().requests_cancelled()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    earlier_safety_winner_cancels_requests_without_a_later_service_or_eof
+
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.51s
+
+error: test failed, to rerun pass `-p dive-liveness --test periodic_service`

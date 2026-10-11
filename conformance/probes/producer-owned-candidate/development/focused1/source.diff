@@ -1,0 +1,443 @@
+diff --git a/crates/dive-api/Cargo.toml b/crates/dive-api/Cargo.toml
+index d1f1c72b6..1dd1749fa 100644
+--- a/crates/dive-api/Cargo.toml
++++ b/crates/dive-api/Cargo.toml
+@@ -25,5 +25,10 @@ dive-model = { workspace = true }
+ dive-trace = { workspace = true }
+ serde_json = { workspace = true }
+ 
++[dev-dependencies]
++# Only unit controls use the genuine returned-output/request rendezvous. Normal
++# API/CLI/release dependency graphs never enable this testing feature.
++dive-check = { workspace = true, features = ["test-rendezvous"] }
++
+ [lints]
+ workspace = true
+diff --git a/crates/dive-api/src/lib.rs b/crates/dive-api/src/lib.rs
+index 3d60f78fc..e3487e8a8 100644
+--- a/crates/dive-api/src/lib.rs
++++ b/crates/dive-api/src/lib.rs
+@@ -32,6 +32,8 @@ pub use translate::{
+     translate_source,
+ };
+ 
++/// Producer-owned periodic candidates, independently replayed without a model-proof claim.
++pub mod periodic_candidate;
+ pub mod temporal;
+ /// Explicit pinned final-only SCC/lasso analysis with independent replay.
+ pub mod tlc_temporal;
+diff --git a/crates/dive-liveness/src/periodic_hook.rs b/crates/dive-liveness/src/periodic_hook.rs
+index edf075230..69edbc214 100644
+--- a/crates/dive-liveness/src/periodic_hook.rs
++++ b/crates/dive-liveness/src/periodic_hook.rs
+@@ -99,6 +99,7 @@ pub(crate) fn execute_service(
+     limits: crate::phase_graph::Limits,
+     policy: crate::periodic_lifecycle::Options,
+     requests: dive_check::progress::Options,
++    retain_sources: bool,
+ ) -> Result<crate::periodic_lifecycle::Run, EvalError> {
+     let work = admit(model, predicate)?;
+     Ok(crate::phase_execution::execute_periodic_service(
+@@ -108,6 +109,7 @@ pub(crate) fn execute_service(
+         policy,
+         Some((predicate.clone(), work)),
+         requests,
++        retain_sources,
+     ))
+ }
+ 
+diff --git a/crates/dive-liveness/src/periodic_lifecycle.rs b/crates/dive-liveness/src/periodic_lifecycle.rs
+index e973ba9ad..e2574a468 100644
+--- a/crates/dive-liveness/src/periodic_lifecycle.rs
++++ b/crates/dive-liveness/src/periodic_lifecycle.rs
+@@ -142,9 +142,36 @@ impl ExpansionPause {
+         (self.workers, self.generation)
+     }
+ }
++/// Original concrete values of one actually completed graph/source callback.
++/// A caller cannot manufacture this producer-owned provenance.
++#[derive(Clone, Debug)]
++pub struct ConcreteSource {
++    pub(crate) identity: u64,
++    pub(crate) fingerprint: u64,
++    pub(crate) values: dive_eval::next::StateVals,
++}
++impl ConcreteSource {
++    /// Actual logical discovery identity, distinct from transaction range.
++    #[must_use]
++    pub fn identity(&self) -> u64 {
++        self.identity
++    }
++    /// Original concrete state fingerprint observed by the graph producer.
++    #[must_use]
++    pub fn fingerprint(&self) -> u64 {
++        self.fingerprint
++    }
++    /// Original source values admitted by the same Phase-L session.
++    #[must_use]
++    pub fn values(&self) -> &dive_eval::next::StateVals {
++        &self.values
++    }
++}
++
+ /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
+ #[derive(Clone, Debug)]
+ pub struct Run {
++    pub(crate) concrete_sources: Vec<ConcreteSource>,
+     pub(crate) backend: periodic_backend::Run,
+     pub(crate) options: Options,
+     pub(crate) expansion_pauses: Vec<ExpansionPause>,
+@@ -159,6 +186,14 @@ pub struct Run {
+     pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
+ }
+ impl Run {
++    /// Actual successful source callbacks retained in discovery order. These
++    /// original concrete values are not recovered from a fingerprint or from
++    /// an arbitrary stored target representative. Only request-service runs
++    /// retain this bounded reconstruction authority.
++    #[must_use]
++    pub fn concrete_sources(&self) -> &[ConcreteSource] {
++        &self.concrete_sources
++    }
+     /// Request-owned services after actual prefix append. Empty services retain
+     /// no invented source; these never establish ordinary temporal verdicts.
+     #[must_use]
+@@ -252,6 +287,8 @@ pub fn execute(
+ }
+ 
+ pub(crate) struct State {
++    pub concrete_sources: Vec<ConcreteSource>,
++    pub retain_concrete_sources: bool,
+     pub request_service: bool,
+     pub initial_stats: Option<Stats>,
+     pub graph_source: Option<u64>,
+@@ -294,6 +331,8 @@ impl State {
+         }
+         let start = time_millis()?;
+         Ok(Self {
++            concrete_sources: Vec::new(),
++            retain_concrete_sources: false,
+             request_service: false,
+             initial_stats: None,
+             graph_source: None,
+diff --git a/crates/dive-liveness/src/periodic_snapshot.rs b/crates/dive-liveness/src/periodic_snapshot.rs
+index 48b921c17..e28c3ab54 100644
+--- a/crates/dive-liveness/src/periodic_snapshot.rs
++++ b/crates/dive-liveness/src/periodic_snapshot.rs
+@@ -50,7 +50,7 @@ impl Snapshot {
+         limits: crate::phase_graph::Limits,
+         policy: crate::periodic_lifecycle::Options,
+     ) -> Result<Run, EvalError> {
+-        self.execute_inner(options, limits, policy, None, false)
++        self.execute_inner(options, limits, policy, None, false, false)
+     }
+     /// Add an internally generated timer/initial-force lane to actual expansion
+     /// claims. Requests join claimed work under real dispatch authority, then
+@@ -69,7 +69,7 @@ impl Snapshot {
+         policy: crate::periodic_lifecycle::Options,
+         requests: dive_check::progress::Options,
+     ) -> Result<Run, EvalError> {
+-        self.execute_inner(options, limits, policy, Some(requests), false)
++        self.execute_inner(options, limits, policy, Some(requests), false, false)
+     }
+     /// Service each genuine request once after its returned prefix has passed
+     /// ordered safety/graph publication and successful frontier append. Source
+@@ -91,7 +91,24 @@ impl Snapshot {
+         policy: crate::periodic_lifecycle::Options,
+         requests: dive_check::progress::Options,
+     ) -> Result<Run, EvalError> {
+-        self.execute_inner(options, limits, policy, Some(requests), true)
++        self.execute_inner(options, limits, policy, Some(requests), true, false)
++    }
++    /// Run the same request-owned service while retaining bounded original
++    /// concrete source authority for independent candidate admission. This is
++    /// still a diagnostic: no caller may certify its graph or selected word.
++    /// Raw fingerprint collisions and additional provenance retention bounds
++    /// refuse; the existing service entry preserves its prior resource policy.
++    ///
++    /// # Errors
++    /// The same source/profile admission and shared limits as `execute_service`.
++    pub fn execute_candidate_source(
++        &self,
++        options: &dive_check::CheckOptions,
++        limits: crate::phase_graph::Limits,
++        policy: crate::periodic_lifecycle::Options,
++        requests: dive_check::progress::Options,
++    ) -> Result<Run, EvalError> {
++        self.execute_inner(options, limits, policy, Some(requests), true, true)
+     }
+     fn execute_inner(
+         &self,
+@@ -100,6 +117,7 @@ impl Snapshot {
+         policy: crate::periodic_lifecycle::Options,
+         requests: Option<dive_check::progress::Options>,
+         service: bool,
++        retain_sources: bool,
+     ) -> Result<Run, EvalError> {
+         admit_source(&self.bound.model().ir, &self.configuration)?;
+         crate::periodic_hook::admit(self.bound.model(), self.bound.predicate())?;
+@@ -131,6 +149,7 @@ impl Snapshot {
+                 limits,
+                 policy,
+                 requests,
++                retain_sources,
+             )?
+         } else if let Some(requests) = requests {
+             crate::periodic_hook::execute_requests(
+diff --git a/crates/dive-liveness/src/phase_execution.rs b/crates/dive-liveness/src/phase_execution.rs
+index 3ff64fcd6..a0446ee29 100644
+--- a/crates/dive-liveness/src/phase_execution.rs
++++ b/crates/dive-liveness/src/phase_execution.rs
+@@ -933,7 +933,11 @@ impl Observer<'_> {
+         clippy::too_many_lines,
+         reason = "preflight aggregate reservations before original concrete collection and per-group graph commit"
+     )]
+-    fn source_inner(&mut self, source: &CommittedSource<'_>) -> Result<(), Error> {
++    fn source_inner(
++        &mut self,
++        source: &CommittedSource<'_>,
++        lifecycle: Option<&mut crate::periodic_lifecycle::State>,
++    ) -> Result<(), Error> {
+         self.last_commit_work = Some(CommitWork {
+             source: source.id,
+             logical: source.stats,
+@@ -942,6 +946,21 @@ impl Observer<'_> {
+         if usize::try_from(source.id).ok() != Some(self.sources) {
+             return Err(Error::Input("nonconsecutive actual source commits".into()));
+         }
++        if lifecycle
++            .as_ref()
++            .is_some_and(|state| state.retain_concrete_sources)
++        {
++            // Reserve the source provenance entry before graph evaluation or
++            // retention. Material inspection remains in the original Session
++            // meter; reconstruction does not introduce an unbounded second
++            // traversal or infer values from fingerprints.
++            self.partial_charge(Some(1))?;
++            bounded(
++                self.sources.checked_add(1),
++                self.limits.capture.states,
++                "concrete source reconstruction entries",
++            )?;
++        }
+         let incoming_count = source.successors.len().checked_add(1);
+         bounded(
+             incoming_count,
+@@ -1045,6 +1064,15 @@ impl Observer<'_> {
+             });
+         }
+         self.session.finish_source(&receipt).map_err(Error::Phase)?;
++        if let Some(state) = lifecycle.filter(|state| state.retain_concrete_sources) {
++            state
++                .concrete_sources
++                .push(crate::periodic_lifecycle::ConcreteSource {
++                    identity: source.id,
++                    fingerprint: fp,
++                    values: source.state.clone(),
++                });
++        }
+         self.sources += 1;
+         Ok(())
+     }
+@@ -1673,7 +1701,7 @@ impl SourceObserver for Observer<'_> {
+         let Some(mut state) = self.lifecycle.take() else {
+             return self.source(source);
+         };
+-        let result = self.source_inner(&source).and_then(|()| {
++        let result = self.source_inner(&source, Some(&mut state)).and_then(|()| {
+             state.graph_source = Some(source.id);
+             if state.request_service {
+                 Ok(())
+@@ -1698,7 +1726,7 @@ impl SourceObserver for Observer<'_> {
+                 "native lifecycle requires dispatch-pause authority".into(),
+             )));
+         }
+-        let result = self.source_inner(&source).and_then(|()| {
++        let result = self.source_inner(&source, None).and_then(|()| {
+             if self.periodic.is_some() {
+                 self.periodic_check(source.stats, Some(source.barrier))
+             } else {
+@@ -1821,7 +1849,7 @@ pub(crate) fn execute_periodic_lifecycle_requests(
+     hook: Option<(dive_model::Pred, usize)>,
+     requests: Option<dive_check::progress::Options>,
+ ) -> crate::periodic_lifecycle::Run {
+-    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false)
++    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false, false)
+ }
+ pub(crate) fn execute_periodic_service(
+     model: &Model,
+@@ -1830,9 +1858,23 @@ pub(crate) fn execute_periodic_service(
+     policy: crate::periodic_lifecycle::Options,
+     hook: Option<(dive_model::Pred, usize)>,
+     requests: dive_check::progress::Options,
++    retain_sources: bool,
+ ) -> crate::periodic_lifecycle::Run {
+-    execute_lifecycle_mode(model, options, limits, policy, hook, Some(requests), true)
++    execute_lifecycle_mode(
++        model,
++        options,
++        limits,
++        policy,
++        hook,
++        Some(requests),
++        true,
++        retain_sources,
++    )
+ }
++#[allow(
++    clippy::too_many_arguments,
++    reason = "separate existing service mode from opt-in reconstruction authority"
++)]
+ fn execute_lifecycle_mode(
+     model: &Model,
+     options: &CheckOptions,
+@@ -1841,6 +1883,7 @@ fn execute_lifecycle_mode(
+     hook: Option<(dive_model::Pred, usize)>,
+     requests: Option<dive_check::progress::Options>,
+     service: bool,
++    retain_sources: bool,
+ ) -> crate::periodic_lifecycle::Run {
+     let mut failed_state = None;
+     let outcome = execute_inner(
+@@ -1849,7 +1892,7 @@ fn execute_lifecycle_mode(
+         limits,
+         true,
+         Some(policy.backend),
+-        Some((policy, hook, requests, service)),
++        Some((policy, hook, requests, service, retain_sources)),
+         Some(&mut failed_state),
+     );
+     let (backend, mut state) = match outcome {
+@@ -1882,12 +1925,13 @@ fn execute_lifecycle_mode(
+             failed_state,
+         ),
+     };
+-    let (request_services, service_evaluations) = state.as_mut().map_or_else(
+-        || (Vec::new(), Vec::new()),
++    let (request_services, service_evaluations, concrete_sources) = state.as_mut().map_or_else(
++        || (Vec::new(), Vec::new(), Vec::new()),
+         |state| {
+             (
+                 std::mem::take(&mut state.request_services),
+                 std::mem::take(&mut state.service_evaluations),
++                std::mem::take(&mut state.concrete_sources),
+             )
+         },
+     );
+@@ -1927,6 +1971,7 @@ fn execute_lifecycle_mode(
+         },
+     );
+     crate::periodic_lifecycle::Run {
++        concrete_sources,
+         request_services,
+         service_evaluations,
+         backend,
+@@ -1956,6 +2001,7 @@ type LifecycleInput = (
+     Option<(dive_model::Pred, usize)>,
+     Option<dive_check::progress::Options>,
+     bool,
++    bool,
+ );
+ 
+ #[allow(
+@@ -2009,19 +2055,20 @@ fn execute_inner(
+         .validate_context()
+         .map_err(|error| early(Error::Input(error.to_string())))?;
+     let lifecycle = lifecycle
+-        .map(|(options, hook, requests, service)| {
++        .map(|(options, hook, requests, service, retain_sources)| {
+             if let Some(requests) = requests {
+                 requests.validate().map_err(Error::Input)?;
+             }
+             let mut state = crate::periodic_lifecycle::State::new(options)?;
+             state.request_service = service;
++            state.retain_concrete_sources = retain_sources;
+             state.hook = hook;
+             state.requests = requests;
+             Ok(state)
+         })
+         .transpose()
+         .map_err(early)?;
+-    let session = Session::new(model, options.fp_index, 1, limits.phase_l)
++    let mut session = Session::new(model, options.fp_index, 1, limits.phase_l)
+         .map_err(|error| early(Error::Phase(error)))?;
+     if session.orders().is_empty() {
+         return Err(early(Error::Phase(Box::new(phase_l::Failure {
+@@ -2030,6 +2077,12 @@ fn execute_inner(
+             partial: None,
+         }))));
+     }
++    if lifecycle
++        .as_ref()
++        .is_some_and(|state| state.retain_concrete_sources)
++    {
++        session.audit_concrete_sources(limits.capture.states);
++    }
+     let orders = session.orders().to_vec();
+     let tableaux = session.tableaux().to_vec();
+     let groups = orders
+diff --git a/crates/dive-liveness/src/phase_l.rs b/crates/dive-liveness/src/phase_l.rs
+index 8732e829d..4e82d17aa 100644
+--- a/crates/dive-liveness/src/phase_l.rs
++++ b/crates/dive-liveness/src/phase_l.rs
+@@ -524,6 +524,7 @@ pub struct Session<'a> {
+     limits: Limits,
+     multiplier: usize,
+     progress: Progress,
++    concrete_audit: Option<(usize, std::collections::BTreeMap<u64, State>)>,
+ }
+ impl<'a> Session<'a> {
+     /// Plans a diagnostic history with the existing fixed bounds. The current
+@@ -587,6 +588,7 @@ impl<'a> Session<'a> {
+             limits,
+             multiplier: 1,
+             progress,
++            concrete_audit: None,
+         })
+     }
+     pub(super) fn orders(&self) -> &[crate::tlc_plan::OrderOfSolution] {
+@@ -661,6 +663,11 @@ impl<'a> Session<'a> {
+         self.fingerprint(state)
+             .map_err(|error| failure(error, &self.progress, None))
+     }
++    // Enabled only by the separate candidate-source producer before any state
++    // fingerprint. The ordinary/legacy receipt policy remains unchanged.
++    pub(super) fn audit_concrete_sources(&mut self, maximum: usize) {
++        self.concrete_audit = Some((maximum, std::collections::BTreeMap::new()));
++    }
+     /// Actual cumulative diagnostic work; no checking verdict is implied.
+     #[must_use]
+     pub fn progress(&self) -> &Progress {
+@@ -722,9 +729,30 @@ impl<'a> Session<'a> {
+             .map(|v| state[v.index()].clone())
+             .collect::<Option<Vec<_>>>()
+             .ok_or_else(|| Error::Input("TLC variable permutation".into()))?;
+-        self.fingerprint
++        if self.concrete_audit.is_some() {
++            step(&mut self.progress, self.limits)?;
++        }
++        let fingerprint = self
++            .fingerprint
+             .fingerprint_state(&values, Ctx::tlc())
+-            .map_err(Error::Value)
++            .map_err(Error::Value)?;
++        if let Some((maximum, originals)) = self.concrete_audit.as_mut() {
++            if let Some(original) = originals.get(&fingerprint) {
++                // Material admission above excluded providers/deferred values,
++                // foreign names and opposite storage order before comparison.
++                if original != state {
++                    return Err(Error::Input(
++                        "ambiguous original concrete fingerprint".into(),
++                    ));
++                }
++            } else {
++                if originals.len() >= *maximum {
++                    return Err(Error::Limit("original concrete fingerprint audit entries"));
++                }
++                originals.insert(fingerprint, state.clone());
++            }
++        }
++        Ok(fingerprint)
+     }
+     fn atom(&mut self, atom: Atom, state: &St) -> Result<bool, Error> {
+         let o = self

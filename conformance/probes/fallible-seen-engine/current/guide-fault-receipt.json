@@ -1,0 +1,33 @@
+{
+  "producer": "da0f857161c57b52e8cb1d6c18ef0cebb0021ea4",
+  "cargo_guide": {
+    "exit": 0,
+    "stdout_sha256": "db619928fa49a5e9dec81ab23e6604ea92fa50bae52a40f42f952c50927402d1",
+    "stderr_sha256": "0d64b456182c2f0685c599d5838803b234b8a60b42db84988c9af11f598b0ea0",
+    "rows": 4
+  },
+  "fault_selection": {
+    "exit": 0,
+    "selected": 7,
+    "passed": 7,
+    "filtered": 26,
+    "command": [
+      "cargo",
+      "nextest",
+      "run",
+      "-p",
+      "dive-check",
+      "--lib",
+      "--locked",
+      "--profile",
+      "ci",
+      "--test-threads",
+      "2",
+      "-E",
+      "test(seen::tests::)"
+    ],
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "a21082baf1a22df2ffde3985383d887e6fc327e6dcddd09c68cb5de7e67798f2"
+  },
+  "family_certified": false
+}

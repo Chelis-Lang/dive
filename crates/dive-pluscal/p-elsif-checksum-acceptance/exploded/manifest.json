@@ -1,0 +1,1165 @@
+{
+  "schema_version": 1,
+  "selected": 32,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "adapter_sha256": "483e27238f5a8bdd4e5c2897b88e8b798279576ba21a69318782ccfaf48420eb",
+  "script_sha256": "cf2731b0c1c25bd1e9c2be4716985b7cb6fe9fe3fd6aa2d312d2af3599a0fd90",
+  "selection_sha256": "7f44a2cf0d57d6b786aab566fe98dc88c774d43e3d3f1e6600ad8be0014d9171",
+  "header_crc_authority": false,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "ElsifProcedure_C_call_0",
+      "input_sha256": "f5ad6b8d99767ef786e0483bdd95097ca814111ad2ccd7705666af286e90f4b1",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "85c41c95",
+          "ast_sha256": "987fc49be826a6ad8e6d57839fa2f68c18dfc44adcf55fc2bb0805287d8df05b",
+          "json_sha256": "d196ad8f7826de491a979247af1215be41ab83d7b73a1746ddfe6e24696f7e78"
+        },
+        "names": {
+          "crc": "85c41c95",
+          "ast_sha256": "987fc49be826a6ad8e6d57839fa2f68c18dfc44adcf55fc2bb0805287d8df05b",
+          "json_sha256": "d196ad8f7826de491a979247af1215be41ab83d7b73a1746ddfe6e24696f7e78"
+        },
+        "original-after-explode": {
+          "crc": "3d28f3a9",
+          "ast_sha256": "f32709097a2eb872fc237c654b50d925c59cc12626c827e66ddd38e88ac09269",
+          "json_sha256": "6329f3b9afe11d8af0578204635cc9b966b1147b9c5b9de6d647bb5fcb4d17ba"
+        },
+        "exploded": {
+          "crc": "86790b41",
+          "ast_sha256": "197cc7d1e02157869f10ffca6355449b8189a4dc81483b5d40593d015890bd9e",
+          "json_sha256": "9d9a6ab70cd5c921c128dc5f304aaa2aa30aafc3ba694d756ab28bf3d97589ef"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_call_0.stdout.gz",
+        "sha256": "4775cab78f477fada43052e55799d6c727d58c54ef5ac2077ba78cdc0035db39"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_call_0.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_call_1",
+      "input_sha256": "80e6ea2419378bfeecb9fac24616acc5a23b18047fcd1bf9c3d461d271f9ab9d",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "45b3ba82",
+          "ast_sha256": "eda080bb6ddc094a449706f003701105479983b9749c8f1f7e8d22c21751a6dc",
+          "json_sha256": "6d4c9648daf2a469b45cc1e5808c95f9aa9cca269813d8e41ad7829e8bef6ee1"
+        },
+        "names": {
+          "crc": "45b3ba82",
+          "ast_sha256": "eda080bb6ddc094a449706f003701105479983b9749c8f1f7e8d22c21751a6dc",
+          "json_sha256": "6d4c9648daf2a469b45cc1e5808c95f9aa9cca269813d8e41ad7829e8bef6ee1"
+        },
+        "original-after-explode": {
+          "crc": "40eb1bc0",
+          "ast_sha256": "74845ff0c42e4e026e7ab09c9aa9b1e307a06458ca8f046e57762769711412b2",
+          "json_sha256": "b8a9b46fe32c3f92ec06eb8294ef274aa36a24a1d23cdad302ecd481193ed95d"
+        },
+        "exploded": {
+          "crc": "a7b255ac",
+          "ast_sha256": "889d982fd7cd6ebead26d39d020618b3fbdf71d3ae12939da667d7be7e286cab",
+          "json_sha256": "9aa13d06f6313b5df5ef3327aa7e8d88642f103eece2665ad3366cceccfa0b0b"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_call_1.stdout.gz",
+        "sha256": "a7671bcf206236af84ac3a37b7df745d4f14da09fee1015f85d4a15ac10c3a64"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_call_1.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_call_2",
+      "input_sha256": "df2de141a34d731d0660e5ea791e8ac709015dc2f4a43d7aa9de058be51be8bd",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "3fba13bd",
+          "ast_sha256": "352f09e6a5fb666ce7098f36ae82677892df8677ffba25f96605ea1bcc29aee4",
+          "json_sha256": "ab18f1393aac89769e7e179cdc1b6e326333bc4a4bab27b1e1f010b4f59887c5"
+        },
+        "names": {
+          "crc": "3fba13bd",
+          "ast_sha256": "352f09e6a5fb666ce7098f36ae82677892df8677ffba25f96605ea1bcc29aee4",
+          "json_sha256": "ab18f1393aac89769e7e179cdc1b6e326333bc4a4bab27b1e1f010b4f59887c5"
+        },
+        "original-after-explode": {
+          "crc": "fef17b65",
+          "ast_sha256": "188d846072ec3789966dac5ba83fcc11a6a570420a7357e8e747d498aa324720",
+          "json_sha256": "325b06b97146338e36ea28b4d2b9167e985f71650d34dd347001525034bf3a94"
+        },
+        "exploded": {
+          "crc": "7ebcb841",
+          "ast_sha256": "8690f788e00480ea54acf28121e1ed16e45ccc68f4e9068b212d386b7ae71b4c",
+          "json_sha256": "e8af7e4e5f3763b6aa056e84ec2e90fe9f7a1e660a0f88b7657d90ead992bccd"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_call_2.stdout.gz",
+        "sha256": "7567e0dadf50204b797fe3122eaef78c9d953e0e91c1f0e01e8bd56dfe29b5e2"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_call_2.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_with_call",
+      "input_sha256": "f5c95eeef531ca566b052ab0cba42087b0a4d0927e514746339dc1bd442f4822",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "d9918bce",
+          "ast_sha256": "27c944770c3890ef7324d40393ede03df0165d781ce82e912b056278867faef4",
+          "json_sha256": "c8cb0fbf46daf6b1005c817255f0030752701de302c1b31ef6f4a584bda84010"
+        },
+        "names": {
+          "crc": "d9918bce",
+          "ast_sha256": "27c944770c3890ef7324d40393ede03df0165d781ce82e912b056278867faef4",
+          "json_sha256": "c8cb0fbf46daf6b1005c817255f0030752701de302c1b31ef6f4a584bda84010"
+        },
+        "original-after-explode": {
+          "crc": "613983e9",
+          "ast_sha256": "96bf8d1779253cc06c8ef824de45a790ee508236632339441aece1476385c8d7",
+          "json_sha256": "e50e170384aa72d55491dbdf200e8c2faf34c461907acf796c97b826b3221fe6"
+        },
+        "exploded": {
+          "crc": "9a883489",
+          "ast_sha256": "2c430f321c16c6541cc9fd971ccf636059c4800a78ba788fa1b1832e74beed01",
+          "json_sha256": "e9abde1bffd0522ff86a87c77d601b34bc0eccf139f1a465202ffaaeab04a0ec"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_with_call.stdout.gz",
+        "sha256": "cb832b4fc2104974f778b33d2b286ce11eea0c5247567eab90d03fc2d908aeee"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_with_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_either_call",
+      "input_sha256": "fa14f04a8351435d1e5b34627ac76eef2686b78d7107b66de31471dba8b8547e",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "19b71b6b",
+          "ast_sha256": "4d51c2ae8935bca05575ed0b79a7a283f40ab17b0ffe87390bb8dbcc614532b5",
+          "json_sha256": "53f699f45e9d48b038a7cb896dd8501eac96cfb1246c22c0868caa7ef2916fcf"
+        },
+        "names": {
+          "crc": "19b71b6b",
+          "ast_sha256": "4d51c2ae8935bca05575ed0b79a7a283f40ab17b0ffe87390bb8dbcc614532b5",
+          "json_sha256": "53f699f45e9d48b038a7cb896dd8501eac96cfb1246c22c0868caa7ef2916fcf"
+        },
+        "original-after-explode": {
+          "crc": "1806dc7c",
+          "ast_sha256": "335d21dbc81fc0e7c4faabca73d4f7fc44286df2bd8e9f7d7542006b5be8c15c",
+          "json_sha256": "32161bc0a38afd05968bff05bca653dd849680a52fcbd84032ff624878d88be7"
+        },
+        "exploded": {
+          "crc": "4187336c",
+          "ast_sha256": "f0d48e6efe5d8f52c7094b6ffe2fb5567d88e200c55e061463a08587b0f12348",
+          "json_sha256": "804bc1a9dd07fae888252cc284744d65a2702a86d003d4e6db0a47cef1870b55"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_either_call.stdout.gz",
+        "sha256": "40d9e4fe21954d54fda69b69cfb19491cca5633f85131a65f13e62aee5c34425"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_either_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_while_call",
+      "input_sha256": "04ec80741f8bd34e10e92b38ece231245b7f9b93a19f7b280d04312b71efe97a",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "7a220131",
+          "ast_sha256": "99d7991e21d9a445994018c37ec82037055eb6ab125e2d4648b5211e08147e04",
+          "json_sha256": "b6b6c661b135d1c171fa952b5d1ae30c628e8b4d8ef321a1922fba0a774fe47a"
+        },
+        "names": {
+          "crc": "7a220131",
+          "ast_sha256": "99d7991e21d9a445994018c37ec82037055eb6ab125e2d4648b5211e08147e04",
+          "json_sha256": "b6b6c661b135d1c171fa952b5d1ae30c628e8b4d8ef321a1922fba0a774fe47a"
+        },
+        "original-after-explode": {
+          "crc": "bc0c876e",
+          "ast_sha256": "7755553b672028d71ed25067fc95398be457ba525fe457b7b3cb8a80e9d17f56",
+          "json_sha256": "3a53e29a90267095d7ed56d13e3dd63e9f338157a5fa603dcdf2b27852a38d2d"
+        },
+        "exploded": {
+          "crc": "f386f6e5",
+          "ast_sha256": "aaf5bdf7950724103dd8171cb7b963ed89c567907a73fabeff0a484303b6340e",
+          "json_sha256": "d5fbdb5c83f0f48a82a647f78b2b024bbf01127805d1ff904e3aaaebfc9dd022"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_while_call.stdout.gz",
+        "sha256": "f3123910deb7d180cf88e16c48dbd04831ca13d1083c9d5a14e050243cc2d8b8"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_while_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_nested_call",
+      "input_sha256": "590f86ca177fe3b7c5500ca758bd6bfb80690f92e2346f0675170f41c3ab1c3d",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "f294cdb5",
+          "ast_sha256": "69faf5ca4824035daf9307a694fbe443c4b7778f54b214588e0a08f147c9fc29",
+          "json_sha256": "910722778bc28e801459f16ef1ff58b6529cb5cec410d3083205149a9fc0027b"
+        },
+        "names": {
+          "crc": "f294cdb5",
+          "ast_sha256": "69faf5ca4824035daf9307a694fbe443c4b7778f54b214588e0a08f147c9fc29",
+          "json_sha256": "910722778bc28e801459f16ef1ff58b6529cb5cec410d3083205149a9fc0027b"
+        },
+        "original-after-explode": {
+          "crc": "b81e455",
+          "ast_sha256": "27158331813b5859cca61f95b630c89194d595efc4b517348262d34b0149ea76",
+          "json_sha256": "876ed4698316b52f05ae368dd9ca0c8f1eed44a2de4c76274fdfb16d43ebd2a5"
+        },
+        "exploded": {
+          "crc": "954118e0",
+          "ast_sha256": "188a1980eff7bb2660acb15dc7af26ba6fe115417075888b2537ce0364ad78f5",
+          "json_sha256": "2336764414365ca0b6c22694faed2d9fbc337031b329cb527e642ea5df658ebd"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_nested_call.stdout.gz",
+        "sha256": "5144cd813bfd8da1aa7fa74dd0f42557141d8c965163c7e4c81cb0cb3059f40c"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_nested_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_all_call",
+      "input_sha256": "9a694368561fb04c8e8c486301cc75c998fe53555e14b481dd8d9ca141f57abd",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "f7d86ec8",
+          "ast_sha256": "a774b476ecec162327599e467aad6587fac49623ca871b0539ba374b3e87568d",
+          "json_sha256": "e80fd5c890e1e59537dcd6aaa124a7f2d95ee1b208455eeb2e38c7c0bb6303d2"
+        },
+        "names": {
+          "crc": "f7d86ec8",
+          "ast_sha256": "a774b476ecec162327599e467aad6587fac49623ca871b0539ba374b3e87568d",
+          "json_sha256": "e80fd5c890e1e59537dcd6aaa124a7f2d95ee1b208455eeb2e38c7c0bb6303d2"
+        },
+        "original-after-explode": {
+          "crc": "d3068467",
+          "ast_sha256": "612ad3dcb7e8cba54090365562e9d199a27f78a79ec795cf04c2eeb6287666a5",
+          "json_sha256": "34fac30daf4082bedfca8f1925fb6043cb4738a5dfc8d5b8861f67a6ee667b72"
+        },
+        "exploded": {
+          "crc": "5a836caa",
+          "ast_sha256": "95ca99d4ff37f22274368679a5f01c31b4537e5f33d9b8ae8f98c7cb67005ac1",
+          "json_sha256": "0c591445aac2244e564955e493de0d2e050f84ce290463f2f26545f4b5ace2fc"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_all_call.stdout.gz",
+        "sha256": "7ff8f658988278fba2416e3e262a352ace74cde2805eaf4071af4ba5afa95ba7"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_all_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_return_0",
+      "input_sha256": "7d1e60a7b025af2c13b5b7ebee906fbe13ee8ded8dffb000782b7fd525bc9b92",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "ba60abad",
+          "ast_sha256": "a036533447fb8f4ba76e80cbc2a216bfe1a6d8a46bceb982c86099bb6aa9b3f6",
+          "json_sha256": "c3b196c59cf48e41ca259fe328f831b144c14684bfe51e3b0799390894ac0edf"
+        },
+        "names": {
+          "crc": "ba60abad",
+          "ast_sha256": "a036533447fb8f4ba76e80cbc2a216bfe1a6d8a46bceb982c86099bb6aa9b3f6",
+          "json_sha256": "c3b196c59cf48e41ca259fe328f831b144c14684bfe51e3b0799390894ac0edf"
+        },
+        "original-after-explode": {
+          "crc": "e750d645",
+          "ast_sha256": "2f8422b15afa900a4c9ee729809f3f8c43e4268296710e6a0431bab35925d5a1",
+          "json_sha256": "8abef521657316a51f65ac81e085a4d133bff331c7141f1663d379620ad25dbb"
+        },
+        "exploded": {
+          "crc": "45a571c",
+          "ast_sha256": "da008189a0804da7a15755f7ab4bbc4c97555f6a169a9d49296074609870302c",
+          "json_sha256": "5a4c7eacc0ae0d9a06b3aff3dc8b3cd0def5709446f14a1fe27bb0bda1d2a636"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_return_0.stdout.gz",
+        "sha256": "127c6698b3549e9724d254df31c54b89c0cac53e5afa9012d2d2d4937c85dba3"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_return_0.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_return_1",
+      "input_sha256": "640990112b52fcb04f2e2bc6488265755fa73950727ea2e6883db00a4c91541d",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "8a2b4e13",
+          "ast_sha256": "eba3d0f65d0b734e3bfcc83ed496b5c186dbf0ae40bcc1923be37c0f798e675e",
+          "json_sha256": "e3c15172954ffa54b74eeba278310fa25253e69bebcb78ce7abdb7206dbeea15"
+        },
+        "names": {
+          "crc": "8a2b4e13",
+          "ast_sha256": "eba3d0f65d0b734e3bfcc83ed496b5c186dbf0ae40bcc1923be37c0f798e675e",
+          "json_sha256": "e3c15172954ffa54b74eeba278310fa25253e69bebcb78ce7abdb7206dbeea15"
+        },
+        "original-after-explode": {
+          "crc": "af6f3a98",
+          "ast_sha256": "3a6af1266e8c3898793d8b34efcb636b17119602d719a60e9d12cc38b809d577",
+          "json_sha256": "f4aa9c7f7633b0794455b7dba813dfdf4abac8f97b92a8104cf5935e4e0b8481"
+        },
+        "exploded": {
+          "crc": "50e7bd6b",
+          "ast_sha256": "9ae1fd8ca8c2208453b1f7d395a0ec2352961149a5a760f6d712b8849e0df621",
+          "json_sha256": "206b6217bd3dac81bc312cf663b872c0e8d47fdad39f36e895e656658a153633"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_return_1.stdout.gz",
+        "sha256": "bd668fdd14fa65c8a68d2a9797b71824ca4a75b9b8a7d40fe0c920d877e1c7f5"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_return_1.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_return_2",
+      "input_sha256": "da33ff9585f3b3b67a037cb862b65390564b376189762f6c2ef8c35ebcafdc17",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "363046d",
+          "ast_sha256": "9082027556430c9bfeab561e2d1a5b0c7d39a2e8a349733d89f85a15eff9598d",
+          "json_sha256": "cac794a0b1f29957931265723f0fca0a815764f6214d4569e9b9d4bc61512e29"
+        },
+        "names": {
+          "crc": "363046d",
+          "ast_sha256": "9082027556430c9bfeab561e2d1a5b0c7d39a2e8a349733d89f85a15eff9598d",
+          "json_sha256": "cac794a0b1f29957931265723f0fca0a815764f6214d4569e9b9d4bc61512e29"
+        },
+        "original-after-explode": {
+          "crc": "86b36cf9",
+          "ast_sha256": "1e1b5ff31d6147ead7eb364c5148c10ecccf8f2692ed600e3e3caa66b305e368",
+          "json_sha256": "4b05bbe616fb1ad77640fc7f4d9c3a1c64d7a6f7e1c74bb29695622968f05898"
+        },
+        "exploded": {
+          "crc": "22c27516",
+          "ast_sha256": "8850d82a82d7d749ac9d3b9de01892e6d3a680fcab5c0247d218f9835412a48d",
+          "json_sha256": "f0272f15f488cd94e62a6030dcc571f61c77535376d32db6d9c834ca7d801833"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_return_2.stdout.gz",
+        "sha256": "73fba969051a45bf4a546c21a8fc293a08a49c5136b1730c91cf7dd70728ddd9"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_return_2.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_with_return",
+      "input_sha256": "06b639021db8293d77baa317e868f8dd705d7db3af1709274439bce3b4dcd2f8",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "c818b3d0",
+          "ast_sha256": "b9e18e26cc5590044fbbeae657dcf6940e1d11b90e4b375b8e5dc8149e5db5fb",
+          "json_sha256": "5d40773f2c7b853f09b2b9c95cabc7eed77818210f85a3c2271e6141c12a96ab"
+        },
+        "names": {
+          "crc": "c818b3d0",
+          "ast_sha256": "b9e18e26cc5590044fbbeae657dcf6940e1d11b90e4b375b8e5dc8149e5db5fb",
+          "json_sha256": "5d40773f2c7b853f09b2b9c95cabc7eed77818210f85a3c2271e6141c12a96ab"
+        },
+        "original-after-explode": {
+          "crc": "9c491b92",
+          "ast_sha256": "38e6d635c5f86ddab27a8e9bbff1aff4ec46f19ca135dba90f8c3471c8644441",
+          "json_sha256": "0a866ad69a4ac229b249d88c2be651d7b9010ad4a14579a28b3b57d4718540ed"
+        },
+        "exploded": {
+          "crc": "5b88708f",
+          "ast_sha256": "3865a79ebbff9a4ce26c4ee52ae7e0804a2a76fb1d1144c3547c492ad981d67e",
+          "json_sha256": "37ce79d46714f5cb9306aed8087edec81420a6e00cdf48a6edcc9cbc0d681815"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_with_return.stdout.gz",
+        "sha256": "740afcb9eba6fa4d5f655d8afdea52f9778b6072ba61c84ddef4deda6a59f7c4"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_with_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_either_return",
+      "input_sha256": "dfb7ec3f868941b3a7b2d36b545573a190f6cc599562c66d49a7a1f3478cbb0e",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "b4c67234",
+          "ast_sha256": "c6b54180496ca7eddfb13d7a6d9767a782f0ea44622177faba5037aac3c0901b",
+          "json_sha256": "d50735e68b11c793941c707237dc5a61aebd92941b300f8d601bea5a72ac7cf7"
+        },
+        "names": {
+          "crc": "b4c67234",
+          "ast_sha256": "c6b54180496ca7eddfb13d7a6d9767a782f0ea44622177faba5037aac3c0901b",
+          "json_sha256": "d50735e68b11c793941c707237dc5a61aebd92941b300f8d601bea5a72ac7cf7"
+        },
+        "original-after-explode": {
+          "crc": "3ac94300",
+          "ast_sha256": "bdd9e223acdf98cc66940708100d5be8a31626c6bd626e52bdb626d845466ede",
+          "json_sha256": "327f03749e2ba9e16598d4c439e4f706e531b6c064d52e539b2072b5d1daead0"
+        },
+        "exploded": {
+          "crc": "808f33e3",
+          "ast_sha256": "aed22d1d9c8cea138880232f1a275b638396730ee9eb36879a9596c62860e493",
+          "json_sha256": "17f3303d910efacbd5f18d77213eaff3d4dc8e616cf99a35057c7df7030f880e"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_either_return.stdout.gz",
+        "sha256": "10385f043a7580d17bf54954f0cc70225355e02b18400f582a4b25c9ec755150"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_either_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_while_return",
+      "input_sha256": "bfd01fed563a36d9e8295d0adeb1c4d148adabd9205dd8438dc05f7d840cb237",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "94ed2552",
+          "ast_sha256": "165d69e722c13976212aa99984e8f9fde1f57814a5005d4f8231a5de492e73c9",
+          "json_sha256": "44596ffb6990a8657b6c7643fb07e57e6b99210317b236ac8110e227629ca41c"
+        },
+        "names": {
+          "crc": "94ed2552",
+          "ast_sha256": "165d69e722c13976212aa99984e8f9fde1f57814a5005d4f8231a5de492e73c9",
+          "json_sha256": "44596ffb6990a8657b6c7643fb07e57e6b99210317b236ac8110e227629ca41c"
+        },
+        "original-after-explode": {
+          "crc": "c59d8002",
+          "ast_sha256": "223d083d57331973dd9f42b3d860eab33e24ccc2dc1df449aa555a998eab821c",
+          "json_sha256": "0ea911984a0de4d47ab669c8f4cde8863a5f0e51e7abec25b58e3ec4ae0c9948"
+        },
+        "exploded": {
+          "crc": "21a533ae",
+          "ast_sha256": "4a92087e064117cbb6ec5f220830627f414cf40f2f1695a169e7fb1c880c098a",
+          "json_sha256": "7c2b4d2e824e1a6f0975bca82c94f291cfb1fdc017dbd4be9c20e4196877d7da"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_while_return.stdout.gz",
+        "sha256": "a7883f2c0b0f754f5911be268d40d9141ab006cc214a51ed0fa277baab2faac7"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_while_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_nested_return",
+      "input_sha256": "b740909875f3ec0d9579c8b2d7903cdc1020cc70cd9f71c7f31f3b8041397185",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "739d1f78",
+          "ast_sha256": "ac49c95f46c179f629fb6e16ee668d57f472d62da5f60f6c9df4004afef2f517",
+          "json_sha256": "ddce2b227380d7cad01d5467ea03bbda07db623040703a471420c779e767ef65"
+        },
+        "names": {
+          "crc": "739d1f78",
+          "ast_sha256": "ac49c95f46c179f629fb6e16ee668d57f472d62da5f60f6c9df4004afef2f517",
+          "json_sha256": "ddce2b227380d7cad01d5467ea03bbda07db623040703a471420c779e767ef65"
+        },
+        "original-after-explode": {
+          "crc": "3f3249d2",
+          "ast_sha256": "c9916984cf1b4e1b5868858773a67b68fccf2742cff714625d0b086bba48c7eb",
+          "json_sha256": "b6b134927cc4911fb6bca99d13ab56feb56c9dfe91f918c14ee9f06cf0416873"
+        },
+        "exploded": {
+          "crc": "6846a7c3",
+          "ast_sha256": "a5fe6d0e0db93a1e21eb392974ec84e503772ab87fc7efb92eaefbc45d5c4642",
+          "json_sha256": "fe7887cb852d61b6022043463f797d5569af968c5fe4630ac1816174097471fe"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_nested_return.stdout.gz",
+        "sha256": "dacf0b1eb79b25870626ba374951e2dbad1e8da16501ca923d89ae8e07f9d44d"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_nested_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_C_no_transfer",
+      "input_sha256": "4830ddf8707b76b8aa39e383d43813e0b9b3bfe77281426b53efacd7f4dab6f6",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "75a315fabc45d41ac13c1c4b7de500228b3f0d612d49dd207a2c457e3c5197b2"
+        },
+        "names": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "75a315fabc45d41ac13c1c4b7de500228b3f0d612d49dd207a2c457e3c5197b2"
+        },
+        "original-after-explode": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "75a315fabc45d41ac13c1c4b7de500228b3f0d612d49dd207a2c457e3c5197b2"
+        },
+        "exploded": {
+          "crc": "779a63e",
+          "ast_sha256": "c34b9c9160e88964d40c0325537e0a910057c785f557faa780ed6f25b9badba4",
+          "json_sha256": "2595cff15b5978301f05f69b21fb9d6d322fb5781a38d1ab2c79996d75b17d67"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_C_no_transfer.stdout.gz",
+        "sha256": "2cc2b2cdeb15f9f7b11f0fa0a3927f943db20ad8dba282adfdea39006dfe4794"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_C_no_transfer.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_call_0",
+      "input_sha256": "1d3401ac55f2f513a897960ebb6a938775bfdac26fed01412bfab68417423c5a",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "85c41c95",
+          "ast_sha256": "987fc49be826a6ad8e6d57839fa2f68c18dfc44adcf55fc2bb0805287d8df05b",
+          "json_sha256": "1771de71cc72a0a4c7888c318e91c7f162bd484711e76d0f2a54292cad14f5e5"
+        },
+        "names": {
+          "crc": "85c41c95",
+          "ast_sha256": "987fc49be826a6ad8e6d57839fa2f68c18dfc44adcf55fc2bb0805287d8df05b",
+          "json_sha256": "1771de71cc72a0a4c7888c318e91c7f162bd484711e76d0f2a54292cad14f5e5"
+        },
+        "original-after-explode": {
+          "crc": "3d28f3a9",
+          "ast_sha256": "f32709097a2eb872fc237c654b50d925c59cc12626c827e66ddd38e88ac09269",
+          "json_sha256": "cc975f8838cfd57eb9458d76eb22f14f77a4f51d357afac79f86b6c4ee1db35a"
+        },
+        "exploded": {
+          "crc": "86790b41",
+          "ast_sha256": "197cc7d1e02157869f10ffca6355449b8189a4dc81483b5d40593d015890bd9e",
+          "json_sha256": "dd33994fa177bca8cf9fec3ce524a4cd49ab3f3bfdf6fce3b1fe0a682f15f520"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_call_0.stdout.gz",
+        "sha256": "0be66fec346c5032734f43051d0af152609accb7521d08d95a7bf2cf93242db3"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_call_0.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_call_1",
+      "input_sha256": "28690ed3ea2904a199e0f6b74290aa16cc409948cb4c4b4c681bfed3ef787b83",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "45b3ba82",
+          "ast_sha256": "eda080bb6ddc094a449706f003701105479983b9749c8f1f7e8d22c21751a6dc",
+          "json_sha256": "81e952c6d785273b5f6ebb69d492b3a64da7f3682be570835bc3cafaaf2e6d07"
+        },
+        "names": {
+          "crc": "45b3ba82",
+          "ast_sha256": "eda080bb6ddc094a449706f003701105479983b9749c8f1f7e8d22c21751a6dc",
+          "json_sha256": "81e952c6d785273b5f6ebb69d492b3a64da7f3682be570835bc3cafaaf2e6d07"
+        },
+        "original-after-explode": {
+          "crc": "40eb1bc0",
+          "ast_sha256": "74845ff0c42e4e026e7ab09c9aa9b1e307a06458ca8f046e57762769711412b2",
+          "json_sha256": "6e586b2b752797bd05efdd8eef2db6bc21e02e781b87499552374d4b9f56abaf"
+        },
+        "exploded": {
+          "crc": "a7b255ac",
+          "ast_sha256": "889d982fd7cd6ebead26d39d020618b3fbdf71d3ae12939da667d7be7e286cab",
+          "json_sha256": "e9c6dba4582d16f0b2438ac6cc36b0aec79c93b1ed13224e0aba8c8ef9cf8249"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_call_1.stdout.gz",
+        "sha256": "5a0c703323955d53d852a3e67c503871117a51d3a7cdc3f8aa81244b37f7c939"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_call_1.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_call_2",
+      "input_sha256": "de47fc8dae4669e4ac3643655bb7afbe7e6a4584c80b16973f5b4b74cdf0c169",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "3fba13bd",
+          "ast_sha256": "352f09e6a5fb666ce7098f36ae82677892df8677ffba25f96605ea1bcc29aee4",
+          "json_sha256": "c5e8b7206a5ba57a4bf3fe5bc8a498a2d820244ea27c83f73c5988e2f2e6a3fe"
+        },
+        "names": {
+          "crc": "3fba13bd",
+          "ast_sha256": "352f09e6a5fb666ce7098f36ae82677892df8677ffba25f96605ea1bcc29aee4",
+          "json_sha256": "c5e8b7206a5ba57a4bf3fe5bc8a498a2d820244ea27c83f73c5988e2f2e6a3fe"
+        },
+        "original-after-explode": {
+          "crc": "fef17b65",
+          "ast_sha256": "188d846072ec3789966dac5ba83fcc11a6a570420a7357e8e747d498aa324720",
+          "json_sha256": "ca443db3ed0b50ec03c607d53e877bb4f6b77224f89b9b53061e6b4fe7be56e9"
+        },
+        "exploded": {
+          "crc": "7ebcb841",
+          "ast_sha256": "8690f788e00480ea54acf28121e1ed16e45ccc68f4e9068b212d386b7ae71b4c",
+          "json_sha256": "eacd2fcdf1e1567e83a743ce8fac1caa9f3f7cfc0ed7541df902593f9f88797d"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_call_2.stdout.gz",
+        "sha256": "b7d0895ebf9a39c3970a941864939e1d2e1cc6b9cbc0576d01693a2def80e0d5"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_call_2.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_with_call",
+      "input_sha256": "4d919752191a89d4c391d1140da94965729931becc42dadb44629e6b02374792",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "d9918bce",
+          "ast_sha256": "27c944770c3890ef7324d40393ede03df0165d781ce82e912b056278867faef4",
+          "json_sha256": "c43220e7dc362499dd8618a8ccdf49ee55a863069c6dd4c56ccc97d792d38464"
+        },
+        "names": {
+          "crc": "d9918bce",
+          "ast_sha256": "27c944770c3890ef7324d40393ede03df0165d781ce82e912b056278867faef4",
+          "json_sha256": "c43220e7dc362499dd8618a8ccdf49ee55a863069c6dd4c56ccc97d792d38464"
+        },
+        "original-after-explode": {
+          "crc": "613983e9",
+          "ast_sha256": "96bf8d1779253cc06c8ef824de45a790ee508236632339441aece1476385c8d7",
+          "json_sha256": "2f67085d2272830ea415a021ad473f0e3f8a9d02fbd72be22be95b01f9758510"
+        },
+        "exploded": {
+          "crc": "9a883489",
+          "ast_sha256": "2c430f321c16c6541cc9fd971ccf636059c4800a78ba788fa1b1832e74beed01",
+          "json_sha256": "d806fa25a7963c5d25ec02f4a61b7c2e58bd13b5cb76793b4c6046aba7fcf279"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_with_call.stdout.gz",
+        "sha256": "824b643dddde399a257a9781d03f2f20819eed41664cdf6bbf9e12c8c3006efa"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_with_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_either_call",
+      "input_sha256": "591cb4982a5e817965b3e7e7a6b0735b58e481d794fdeda2cc2ae8914d98d4eb",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "19b71b6b",
+          "ast_sha256": "4d51c2ae8935bca05575ed0b79a7a283f40ab17b0ffe87390bb8dbcc614532b5",
+          "json_sha256": "347b5dd53577d7a02f9943f5392ae717bed71f113c65736d34d9f9d331efbd50"
+        },
+        "names": {
+          "crc": "19b71b6b",
+          "ast_sha256": "4d51c2ae8935bca05575ed0b79a7a283f40ab17b0ffe87390bb8dbcc614532b5",
+          "json_sha256": "347b5dd53577d7a02f9943f5392ae717bed71f113c65736d34d9f9d331efbd50"
+        },
+        "original-after-explode": {
+          "crc": "1806dc7c",
+          "ast_sha256": "335d21dbc81fc0e7c4faabca73d4f7fc44286df2bd8e9f7d7542006b5be8c15c",
+          "json_sha256": "2d05a4e06a5595001931f64cd31b59468b38acbdd392b647c0e9cae8cf508cdc"
+        },
+        "exploded": {
+          "crc": "4187336c",
+          "ast_sha256": "f0d48e6efe5d8f52c7094b6ffe2fb5567d88e200c55e061463a08587b0f12348",
+          "json_sha256": "19f38c4f9851de728113add869ba89f3ea9b070cda035e4e263630ece9ccef2c"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_either_call.stdout.gz",
+        "sha256": "60c9815c0b8e36c5e2d8167bc6c61d7e0f6e43acdfd0b7dd8db6df3d643611f1"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_either_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_while_call",
+      "input_sha256": "d6ef6c20ff64a25bf680104c740a00cd3e29fc61dd91bdeb6da14ef296cda55c",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "7a220131",
+          "ast_sha256": "99d7991e21d9a445994018c37ec82037055eb6ab125e2d4648b5211e08147e04",
+          "json_sha256": "80d31711c905488e93e1e8bdf41446168828753228d903a81479f70177b1dce0"
+        },
+        "names": {
+          "crc": "7a220131",
+          "ast_sha256": "99d7991e21d9a445994018c37ec82037055eb6ab125e2d4648b5211e08147e04",
+          "json_sha256": "80d31711c905488e93e1e8bdf41446168828753228d903a81479f70177b1dce0"
+        },
+        "original-after-explode": {
+          "crc": "bc0c876e",
+          "ast_sha256": "7755553b672028d71ed25067fc95398be457ba525fe457b7b3cb8a80e9d17f56",
+          "json_sha256": "4438ac5e1a7c42b85f941512551e847b4e2331d41f3c46c0751852f954e9f239"
+        },
+        "exploded": {
+          "crc": "f386f6e5",
+          "ast_sha256": "aaf5bdf7950724103dd8171cb7b963ed89c567907a73fabeff0a484303b6340e",
+          "json_sha256": "2eea5688a72a78c8980a8fab38b65e9675464014cc29ee823c5994bd247a30d0"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_while_call.stdout.gz",
+        "sha256": "a771c91b618bbe39ac6bbefedf8e1cd1de61dfb3c3148ad3a0fe7c8bd5c35467"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_while_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_nested_call",
+      "input_sha256": "c8b32d93f2d2fd2914071c8eab0269858e786416c7664b5a1d0114dbf589fcb5",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "f294cdb5",
+          "ast_sha256": "69faf5ca4824035daf9307a694fbe443c4b7778f54b214588e0a08f147c9fc29",
+          "json_sha256": "96c5d898e41a50ce0abcb488402e6348d7fb11a5006066371590958b62e3276f"
+        },
+        "names": {
+          "crc": "f294cdb5",
+          "ast_sha256": "69faf5ca4824035daf9307a694fbe443c4b7778f54b214588e0a08f147c9fc29",
+          "json_sha256": "96c5d898e41a50ce0abcb488402e6348d7fb11a5006066371590958b62e3276f"
+        },
+        "original-after-explode": {
+          "crc": "b81e455",
+          "ast_sha256": "27158331813b5859cca61f95b630c89194d595efc4b517348262d34b0149ea76",
+          "json_sha256": "22604a6bb971f8a54e466efde52a8a3c293bac28cbf762c47a799f1485dea6c7"
+        },
+        "exploded": {
+          "crc": "954118e0",
+          "ast_sha256": "188a1980eff7bb2660acb15dc7af26ba6fe115417075888b2537ce0364ad78f5",
+          "json_sha256": "3b2a53cf021048cf6dbcb12cf9ab529f6fb5d21ffb80b4701b9500ea3403575a"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_nested_call.stdout.gz",
+        "sha256": "95b224a1a0594b8e27f447a520b5ef3cd1aa55f76586ea47c4c4506c41c05587"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_nested_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_all_call",
+      "input_sha256": "f26fb277823a2b19c12d6bd477396c56dc489d68ffa5cd9917bbb93e6e558564",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "f7d86ec8",
+          "ast_sha256": "a774b476ecec162327599e467aad6587fac49623ca871b0539ba374b3e87568d",
+          "json_sha256": "8cf607466aedf1f72c48e52bfe26e2357fd644c01a9fb27b18cabe6ed7480db2"
+        },
+        "names": {
+          "crc": "f7d86ec8",
+          "ast_sha256": "a774b476ecec162327599e467aad6587fac49623ca871b0539ba374b3e87568d",
+          "json_sha256": "8cf607466aedf1f72c48e52bfe26e2357fd644c01a9fb27b18cabe6ed7480db2"
+        },
+        "original-after-explode": {
+          "crc": "d3068467",
+          "ast_sha256": "612ad3dcb7e8cba54090365562e9d199a27f78a79ec795cf04c2eeb6287666a5",
+          "json_sha256": "2785b2eb126a649cd2b0520c46556f6c865fe37c7af9e8fcf13c7b8920413a54"
+        },
+        "exploded": {
+          "crc": "5a836caa",
+          "ast_sha256": "95ca99d4ff37f22274368679a5f01c31b4537e5f33d9b8ae8f98c7cb67005ac1",
+          "json_sha256": "c6a76949fb734a1f56d436105a0c9c14ef9e9f07d9c35852eba3fdcf2cb6772a"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_all_call.stdout.gz",
+        "sha256": "55379d3724bd1a6d8b15bf5976bbda7d35dd26cd3b666c88b22be662f846bf5b"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_all_call.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_return_0",
+      "input_sha256": "6b368b8deddb90bac66b7567c8c7cc30f1c47aeaa49f7756980da8fb025e4d48",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "ba60abad",
+          "ast_sha256": "a036533447fb8f4ba76e80cbc2a216bfe1a6d8a46bceb982c86099bb6aa9b3f6",
+          "json_sha256": "8965ed004cf8caf82af707c016eff0f4abf53586e6ce2f8db9082cfbe71efae7"
+        },
+        "names": {
+          "crc": "ba60abad",
+          "ast_sha256": "a036533447fb8f4ba76e80cbc2a216bfe1a6d8a46bceb982c86099bb6aa9b3f6",
+          "json_sha256": "8965ed004cf8caf82af707c016eff0f4abf53586e6ce2f8db9082cfbe71efae7"
+        },
+        "original-after-explode": {
+          "crc": "e750d645",
+          "ast_sha256": "2f8422b15afa900a4c9ee729809f3f8c43e4268296710e6a0431bab35925d5a1",
+          "json_sha256": "62a56fc034ace8b79c26e5ee50c6b0e4fd5f8d210044a08c26393165d71e7980"
+        },
+        "exploded": {
+          "crc": "45a571c",
+          "ast_sha256": "da008189a0804da7a15755f7ab4bbc4c97555f6a169a9d49296074609870302c",
+          "json_sha256": "81e29ca00e493039374fa314867845c32ee6c189e5ae7e4b7d5af0f430164aa5"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_return_0.stdout.gz",
+        "sha256": "d2a6b7231730647240f11a21d52d0bbd96372eb01ecae8e90955a77af1deadba"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_return_0.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_return_1",
+      "input_sha256": "7e57972eb2f68eac562988797f54eab64f9f8f3873ee8a20d89852f2ce51466b",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "8a2b4e13",
+          "ast_sha256": "eba3d0f65d0b734e3bfcc83ed496b5c186dbf0ae40bcc1923be37c0f798e675e",
+          "json_sha256": "c91f4c78731664b5a5594dd22e4bc4b15f4403d0e710ad58f7af93392e18c47b"
+        },
+        "names": {
+          "crc": "8a2b4e13",
+          "ast_sha256": "eba3d0f65d0b734e3bfcc83ed496b5c186dbf0ae40bcc1923be37c0f798e675e",
+          "json_sha256": "c91f4c78731664b5a5594dd22e4bc4b15f4403d0e710ad58f7af93392e18c47b"
+        },
+        "original-after-explode": {
+          "crc": "af6f3a98",
+          "ast_sha256": "3a6af1266e8c3898793d8b34efcb636b17119602d719a60e9d12cc38b809d577",
+          "json_sha256": "ad0bd216f9f60fae108babbf21a88944169794172f15dfe057d3636b0568e555"
+        },
+        "exploded": {
+          "crc": "50e7bd6b",
+          "ast_sha256": "9ae1fd8ca8c2208453b1f7d395a0ec2352961149a5a760f6d712b8849e0df621",
+          "json_sha256": "c6b8bdb7e4770ea83fde479bb4008f5fadbd891818bf55d7d2f21c5d324f1c5f"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_return_1.stdout.gz",
+        "sha256": "57b83dfb58c8e8df748c75dc8a665e56bfd6bc2c80369f2d0fe9e47b8c464251"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_return_1.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_return_2",
+      "input_sha256": "f5d09e54e96e2073d28018b6e9ce11ec06510b5de1553bdcb6ac0cb30ab42b66",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "363046d",
+          "ast_sha256": "9082027556430c9bfeab561e2d1a5b0c7d39a2e8a349733d89f85a15eff9598d",
+          "json_sha256": "f15abf2813ca77df1a9b94050963bb42f8e941c979422698fd63d4ec77360472"
+        },
+        "names": {
+          "crc": "363046d",
+          "ast_sha256": "9082027556430c9bfeab561e2d1a5b0c7d39a2e8a349733d89f85a15eff9598d",
+          "json_sha256": "f15abf2813ca77df1a9b94050963bb42f8e941c979422698fd63d4ec77360472"
+        },
+        "original-after-explode": {
+          "crc": "86b36cf9",
+          "ast_sha256": "1e1b5ff31d6147ead7eb364c5148c10ecccf8f2692ed600e3e3caa66b305e368",
+          "json_sha256": "f65bbd198829e25d753bc80ca3801f537acc338dd931d4b675748e3cdb992caf"
+        },
+        "exploded": {
+          "crc": "22c27516",
+          "ast_sha256": "8850d82a82d7d749ac9d3b9de01892e6d3a680fcab5c0247d218f9835412a48d",
+          "json_sha256": "ca92a215f6abeb3a00104cf716fd49fc2bb937fc4d5fdf7c1cf3b8dbe228b0cb"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_return_2.stdout.gz",
+        "sha256": "300d067353cbeac951d4440d127ef395050f5c0c638de282684b761fc760d9bb"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_return_2.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_with_return",
+      "input_sha256": "e4d8e62716afbc0bf88eeda734aa0c1c1b81f4d84e751a98976582e6ad210ea7",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "c818b3d0",
+          "ast_sha256": "b9e18e26cc5590044fbbeae657dcf6940e1d11b90e4b375b8e5dc8149e5db5fb",
+          "json_sha256": "219cceae32de5606a74589ba3898d12d472352fc9d9f9338ba88edcd4dd7ddd3"
+        },
+        "names": {
+          "crc": "c818b3d0",
+          "ast_sha256": "b9e18e26cc5590044fbbeae657dcf6940e1d11b90e4b375b8e5dc8149e5db5fb",
+          "json_sha256": "219cceae32de5606a74589ba3898d12d472352fc9d9f9338ba88edcd4dd7ddd3"
+        },
+        "original-after-explode": {
+          "crc": "9c491b92",
+          "ast_sha256": "38e6d635c5f86ddab27a8e9bbff1aff4ec46f19ca135dba90f8c3471c8644441",
+          "json_sha256": "760b3bdc5108cb0044641e4a5cd6de621f07ce4cc0d5ded3bd3e1bde387e809a"
+        },
+        "exploded": {
+          "crc": "5b88708f",
+          "ast_sha256": "3865a79ebbff9a4ce26c4ee52ae7e0804a2a76fb1d1144c3547c492ad981d67e",
+          "json_sha256": "444b66b8e160e4b9e56f5a7cce160f703eaf3aa8a52346d2825f924f64ec2e92"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_with_return.stdout.gz",
+        "sha256": "37fb08e2c43c2626fe0c298d01c9b472c32ef5c2cc9f5fb360fe31b649dce4ad"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_with_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_either_return",
+      "input_sha256": "f1662bfd8672910bb823d57e7220a75cbc586bc5a1889f824ae1b1dc12208a4a",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "b4c67234",
+          "ast_sha256": "c6b54180496ca7eddfb13d7a6d9767a782f0ea44622177faba5037aac3c0901b",
+          "json_sha256": "b81564e162054e478c718d7c1f6cca57d01a90a24a4cce470d9e8dd6846de47c"
+        },
+        "names": {
+          "crc": "b4c67234",
+          "ast_sha256": "c6b54180496ca7eddfb13d7a6d9767a782f0ea44622177faba5037aac3c0901b",
+          "json_sha256": "b81564e162054e478c718d7c1f6cca57d01a90a24a4cce470d9e8dd6846de47c"
+        },
+        "original-after-explode": {
+          "crc": "3ac94300",
+          "ast_sha256": "bdd9e223acdf98cc66940708100d5be8a31626c6bd626e52bdb626d845466ede",
+          "json_sha256": "5b789018a10636c0d0d055965c08b477d22206a627e910eb9900e192f43dd685"
+        },
+        "exploded": {
+          "crc": "808f33e3",
+          "ast_sha256": "aed22d1d9c8cea138880232f1a275b638396730ee9eb36879a9596c62860e493",
+          "json_sha256": "14e5851f0cb888422d93cb507073a6b0897689bda815682a4889ed935dcf7c96"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_either_return.stdout.gz",
+        "sha256": "976fcc43ca5636e8c0adecaee136360c3677a4d3858e435273d54d3ab3d47fda"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_either_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_while_return",
+      "input_sha256": "e998a028049191646a073cc34dae8dd938c0ed4c16c66885d9e4ca35c5ab6efb",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "94ed2552",
+          "ast_sha256": "165d69e722c13976212aa99984e8f9fde1f57814a5005d4f8231a5de492e73c9",
+          "json_sha256": "2635e26cc88585db8a2b53745c9471c35aa504b1e6cb01bb081198f610aca524"
+        },
+        "names": {
+          "crc": "94ed2552",
+          "ast_sha256": "165d69e722c13976212aa99984e8f9fde1f57814a5005d4f8231a5de492e73c9",
+          "json_sha256": "2635e26cc88585db8a2b53745c9471c35aa504b1e6cb01bb081198f610aca524"
+        },
+        "original-after-explode": {
+          "crc": "c59d8002",
+          "ast_sha256": "223d083d57331973dd9f42b3d860eab33e24ccc2dc1df449aa555a998eab821c",
+          "json_sha256": "d341f6211f68b3b5972d19ce033e05a6b13a87e53ab4dddc0a3bca3e39b107a1"
+        },
+        "exploded": {
+          "crc": "21a533ae",
+          "ast_sha256": "4a92087e064117cbb6ec5f220830627f414cf40f2f1695a169e7fb1c880c098a",
+          "json_sha256": "533568a9f30e5f364c3a26e4ff9d00ca39362a2c641f06142a772e8f5fdf3520"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_while_return.stdout.gz",
+        "sha256": "7ad6ec2dad27ac39293d37c7c87116d26ddcee03086358504180e5229c80079e"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_while_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_nested_return",
+      "input_sha256": "f1c9db606d160ad49dd83b14a10a2fb30620427edf1d642bd7c2137406c7b01a",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "739d1f78",
+          "ast_sha256": "ac49c95f46c179f629fb6e16ee668d57f472d62da5f60f6c9df4004afef2f517",
+          "json_sha256": "71361049ef60658686f04661ffcb27162ba3f14f0f90002e10fcb9e18b8decf6"
+        },
+        "names": {
+          "crc": "739d1f78",
+          "ast_sha256": "ac49c95f46c179f629fb6e16ee668d57f472d62da5f60f6c9df4004afef2f517",
+          "json_sha256": "71361049ef60658686f04661ffcb27162ba3f14f0f90002e10fcb9e18b8decf6"
+        },
+        "original-after-explode": {
+          "crc": "3f3249d2",
+          "ast_sha256": "c9916984cf1b4e1b5868858773a67b68fccf2742cff714625d0b086bba48c7eb",
+          "json_sha256": "c52e6d5b80f3fce20da0495bf7aa3aefb2366ebe2eadbea039f64e3b23ed9238"
+        },
+        "exploded": {
+          "crc": "6846a7c3",
+          "ast_sha256": "a5fe6d0e0db93a1e21eb392974ec84e503772ab87fc7efb92eaefbc45d5c4642",
+          "json_sha256": "121862e05ed5c4e5bab1db4bd976289723455d514b450a904035042b98ecc17d"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_nested_return.stdout.gz",
+        "sha256": "3e294a3ccda5e68d44ae336c64ab81b1f0b6098e248cef20f80efbba8df01ec9"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_nested_return.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "ElsifProcedure_P_no_transfer",
+      "input_sha256": "727a2922ed34bcb2c8c56008c3198a0d9ba674b0e83bd51ebc26cb415e218210",
+      "exit_code": 0,
+      "stages": {
+        "parse": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "e3ee10d8e611c96fbf46c80b986d0c4f7ce0972b17d4486e3afd6b7c2c353ba7"
+        },
+        "names": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "e3ee10d8e611c96fbf46c80b986d0c4f7ce0972b17d4486e3afd6b7c2c353ba7"
+        },
+        "original-after-explode": {
+          "crc": "a428132",
+          "ast_sha256": "d3e4bbd5bd9dad0ece73271d26262b8964f4fa3212d7f6660c54846d84ef1814",
+          "json_sha256": "e3ee10d8e611c96fbf46c80b986d0c4f7ce0972b17d4486e3afd6b7c2c353ba7"
+        },
+        "exploded": {
+          "crc": "779a63e",
+          "ast_sha256": "c34b9c9160e88964d40c0325537e0a910057c785f557faa780ed6f25b9badba4",
+          "json_sha256": "cea474ed08549883fd7a2ad22fbbb35a785a150886dd7b69bd4e039a6e48f475"
+        }
+      },
+      "rejections": [],
+      "stdout": {
+        "path": "ElsifProcedure_P_no_transfer.stdout.gz",
+        "sha256": "b9e7401c89d62963ea9839fe6e59592caf0558f4724f2f4d2d7ce2533714f352"
+      },
+      "stderr": {
+        "path": "ElsifProcedure_P_no_transfer.stderr.gz",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

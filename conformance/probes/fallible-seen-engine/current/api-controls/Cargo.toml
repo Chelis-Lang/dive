@@ -1,0 +1,9 @@
+[package]
+name = "dive-seen-engine-independent-controls"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dive-api = { path = "/Users/jeff/code/dive-trace-representation-work/crates/dive-api" }
+serde_json = "1"

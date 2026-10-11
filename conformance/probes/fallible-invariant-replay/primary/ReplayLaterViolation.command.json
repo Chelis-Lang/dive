@@ -1,0 +1,29 @@
+{
+  "args": [
+    "<pinned-jre>",
+    "-cp",
+    "<primary-jar>",
+    "tlc2.TLC",
+    "-tool",
+    "-workers",
+    "1",
+    "-lncheck",
+    "final",
+    "-cleanup",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-metadir",
+    "<private-metadir>",
+    "-config",
+    "ReplayLaterViolation.cfg",
+    "ReplayLaterViolation"
+  ],
+  "cwd": "crates/dive-check/tests/fixtures/disk-seen/ReplayLaterViolation",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_git_revision": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "source_sha256": "b72236ec6cb5fa7c9c007da94dcd6cd3b04847589f0bead0f619a46e42ee01bd",
+  "config_sha256": "504b3c58971045488a164dd526ca0f37151a8d84f78a09415f41f9a22e1741c7"
+}

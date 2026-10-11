@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "gate_source_commit": "37ace0360d4d9ae89f358161602f71898178b793",
+  "gate_input_count": 7291,
+  "unchanged_gate_inputs": 7286,
+  "unchanged_rust_cargo_test_example": true,
+  "historical_producer_retagged": false,
+  "post_gate_changes": [
+    {
+      "path": "crates/dive-pluscal/p-elsif-checksum-acceptance/README.md",
+      "before_sha256": "bef2762921213ad66b5701bd25ea87c5c54aca41c9605188c9153b6a0dc085f1",
+      "after_sha256": "cc26ed8e654581f7a9c11e6b4f10ce4e4226822019dd4d662d40e9d0585e9d47",
+      "group": "scoped-reference-guide-verification-input"
+    },
+    {
+      "path": "crates/dive-pluscal/p-elsif-checksum-acceptance/replay.py",
+      "before_sha256": "0060df58337bbfe362654eb6337614a96bfa793e7562b0321c17f2b6e4a2c2f7",
+      "after_sha256": "f93a9df411645749d58b0d0c7acfc533521acbb90c050256835cf6de6bc28ba8",
+      "group": "scoped-reference-guide-verification-input"
+    },
+    {
+      "path": "docs/decisions/0066-p-elsif-shared-header-checksums.md",
+      "before_sha256": "9a581ee24a43a9f492b7850dbff88da73832711451cd9d7b112d8ebad5f18d1b",
+      "after_sha256": "f23937054797e95c5bd326d63b69468e7bb07f64786041fb0ffeb88d3a933bcc",
+      "group": "scoped-reference-guide-verification-input"
+    },
+    {
+      "path": "docs/pluscal-p-elsif-checksums.md",
+      "before_sha256": "6f1224e6cb46621e7d853ab060a2a9cbb86e8b999b0617480ea50fe8a702f469",
+      "after_sha256": "7a947f582d03beb892effe4e2b1cbcfd80e923dfaaa5e4e119a2eefcac175584",
+      "group": "scoped-reference-guide-verification-input"
+    },
+    {
+      "path": "scripts/check-native-parity-integration.py",
+      "before_sha256": "ab73d38a3affe28a1c1eaff577461437c2d647503ea2411dc868a3543a337a10",
+      "after_sha256": "6f9454de7540caea416013b03a4214814c139012d0b771e7ea82e8b343be58b7",
+      "group": "scoped-reference-guide-verification-input"
+    }
+  ]
+}

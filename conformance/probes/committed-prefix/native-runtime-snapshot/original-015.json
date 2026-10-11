@@ -1,0 +1,12 @@
+{
+  "index": 15,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "binding_code": 2228,
+    "startup_output": [],
+    "status": "refused",
+    "text": "TLC_CONFIG_ID_REQUIRES_NO_ARG (2228): TLC requires periodic not to take any argument, but one was given: Hook"
+  },
+  "selection": "original"
+}

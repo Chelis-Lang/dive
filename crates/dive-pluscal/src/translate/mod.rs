@@ -1,5 +1,6 @@
 //! Native sequential/finite-process translation; normalization is bounded and explicit.
 mod checksum;
+mod checksum_transfers;
 mod definitions;
 mod emit;
 pub use checksum::{AlgorithmChecksum, algorithm_checksum_at};

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "selected": 20,
+  "script_sha256": "0d3e1e4de19a2bbd582c1a8b48a628acdc0c0a57ac1226dc74335475f7df90ef",
+  "family_certified": false,
+  "binaries_sha256": {
+    "nested-guide": "e897b6d9119189af22ab832fae1e852f37bcb5cc877171fe67576b4c323a9e64",
+    "context": "bf469cfb6d936533c0fedba41ac8cd597ded9ef0df2ede702411f417be440d27",
+    "cst": "29b987e6ce6c9a12ae1028faecc6430da555b3aebfc47653b46f1718ad59c546",
+    "dive": "f333959d108615babe8c8400ed3b43e2564bd20eaee6bfadc53f573139fc84db",
+    "dive-conformance": "15411b78e7b30fd2d5b64b766a32c98c8c8ed7e7da0ce2e77e4a33d82a6087b1"
+  },
+  "rows": [
+    {
+      "id": "NestedProcedureChecksum_C.dive.cli-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "45da8f9f7ac8c1a0df91e8eab587bab2a93ebc8aa4084a977f6c2972b3f648a0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.dive.rust-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "45da8f9f7ac8c1a0df91e8eab587bab2a93ebc8aa4084a977f6c2972b3f648a0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.dive.cli-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "b0435cbddc97cfb614aff8da01c890ed34b69034c0b9c31d211b039125e813b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.dive.rust-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "b0435cbddc97cfb614aff8da01c890ed34b69034c0b9c31d211b039125e813b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.dive.cargo-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "45da8f9f7ac8c1a0df91e8eab587bab2a93ebc8aa4084a977f6c2972b3f648a0",
+      "stderr_sha256": "a6dfc9384ee841c1e2ba003ecc3e40e78a57cb2f208e7a4569dd159306f7e8ce",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.tlc.cli-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c1a1a3cae6cfb80870e897610736f7e67076e7c3420ceef87981cfc0a591a9b0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.tlc.rust-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c1a1a3cae6cfb80870e897610736f7e67076e7c3420ceef87981cfc0a591a9b0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.tlc.cli-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "30f61fbfafccd4d3dbfe9c3b67d6165c9bca506c4640ce24b813fb769682838b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.tlc.rust-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "30f61fbfafccd4d3dbfe9c3b67d6165c9bca506c4640ce24b813fb769682838b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_C.tlc.cargo-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c1a1a3cae6cfb80870e897610736f7e67076e7c3420ceef87981cfc0a591a9b0",
+      "stderr_sha256": "3e85228a86de78a042660bc1ade8bac7d9c688162ba62a3763b39c592ef8f415",
+      "source_sha256": "d8d9ed6c7602d9b379cb534110ad9a2cc07823a9747e4f0d3d6df9c489e90f2c"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.dive.cli-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "b6e29a43e27f6874743f9b271513dc766e80c93b4729de1381f5959fe7e72ee4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.dive.rust-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "b6e29a43e27f6874743f9b271513dc766e80c93b4729de1381f5959fe7e72ee4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.dive.cli-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c4697ebb754e9066d87aee1fb84db1fefcea3b5cf11db90205dee815146ed75d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.dive.rust-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c4697ebb754e9066d87aee1fb84db1fefcea3b5cf11db90205dee815146ed75d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.dive.cargo-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "b6e29a43e27f6874743f9b271513dc766e80c93b4729de1381f5959fe7e72ee4",
+      "stderr_sha256": "2c846e6e48ab8ff1337ae66a7ce91b30c8a68177f80028ff4abb044ca674d431",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.tlc.cli-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c685f0d4f4b63916d0e93464b597d286d094b9ffd109c7188d4a4d8eed44d4e9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.tlc.rust-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c685f0d4f4b63916d0e93464b597d286d094b9ffd109c7188d4a4d8eed44d4e9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.tlc.cli-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "f3b5124f41aa6788e7b661472e34d6961912a772be5babf3cb048e92a667ce61",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.tlc.rust-body",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "f3b5124f41aa6788e7b661472e34d6961912a772be5babf3cb048e92a667ce61",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    },
+    {
+      "id": "NestedProcedureChecksum_P.tlc.cargo-full",
+      "outcome": "admitted-no-model-proof",
+      "stdout_sha256": "c685f0d4f4b63916d0e93464b597d286d094b9ffd109c7188d4a4d8eed44d4e9",
+      "stderr_sha256": "1f1bcf7e84fdb65468251c8475ab45ce129064a1c416a71a37523bf3a2994545",
+      "source_sha256": "d4603fa2f3d99331c09f7b41308d0835b06acd182b4c5467c276eaa9f4371bc9"
+    }
+  ]
+}

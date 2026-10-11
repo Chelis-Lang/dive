@@ -1,0 +1,4 @@
+profile=dive,store=fingerprint,actual_workers=1,cleanup_completed=true
+profile=dive,store=exact,actual_workers=1,cleanup_completed=true
+profile=tlc,store=fingerprint,actual_workers=1,cleanup_completed=true
+profile=tlc,store=exact,actual_workers=1,cleanup_completed=true

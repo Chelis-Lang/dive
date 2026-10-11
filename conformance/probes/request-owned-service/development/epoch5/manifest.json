@@ -1,0 +1,6 @@
+{
+  "qualification": "6 passed1 failed: incorrect candidate-at-x0 mutation expectation; actual fresh memory/JSON witness passed",
+  "source_sha256": {
+    "crates/dive-liveness/tests/periodic_service.rs": "4fcbbb4554f19e0c0e811353e926f4300bf720a1a432363549c507ed45f2c732"
+  }
+}

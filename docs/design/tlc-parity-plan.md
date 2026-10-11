@@ -150,3 +150,26 @@ P4/#189 lifecycle increment connects actual dispatch-mutex authority and interna
 The ADR0054 supplied pure PERIODIC seam follows ADR0052 real native lifecycle. It preserves configured binding refusal and original bounds. Next ordinary schedule work must establish actual snapshot/name lookup, queue progress/stop timing, checkpoint effects and fresh independent deciding witness replay; do not promote supplied-predicate or callback controls to strict verdicts.
 
 Configuration-owned pure `_PERIODIC` snapshot diagnostic #197 now separates actual pre-constant binding provenance from supplied-expression callbacks. Its prebinding startup grammar and postbinding zero-state admission remain conservative policies. Next ordinary proof prerequisite: genuine configuration hook composition across actual periodic/queue/EOF stop paths, independent deciding-candidate replay and exact safety/temporal error/count precedence; checkpoint effects and asynchronous scheduling remain separate unimplemented contracts. See [the executable snapshot guide](../configured-periodic-snapshot.md).
+
+## Producer request lane (#201)
+
+ADR0059 implements a bounded diagnostic claim barrier and actual joined pause, not ordinary periodic verdicts. The next engine slice must publish a maximal completed contiguous prefix under that authority through existing safety/output/count/Phase-L paths, then check its actual written graph. Do not use completed-but-uncommitted outputs or prior-wave-only graph as TLC suspendAll authority. Retain unclaimed/out-of-order work, exact source error winner and cumulative bounds; checkpoints remain named-refused. F-023 stays missing/audit-required.
+
+#204 now implements that bounded [committed-prefix transaction](../committed-periodic-prefix.md): candidate partition precedes resolve; shared source/safety publication happens under real owned pause, with separately reported frontier append. Next ordinary boundary is source-qualified asynchronous request/queue/stop/count composition, including hook/candidate/error precedence and checkpoint behavior. Complete24 controlled actual Worker/queue method projections and native prefix controls do not certify those remaining contracts or F-023.
+
+#208 adds request-owned whole-prefix/empty controller service after real frontier append, with distinct request/source/EOF facts and unchanged ordinary refusal. The next proof boundary remains actual asynchronous request/queue/stop/count/checkpoint composition plus independent deciding witness admission; controlled method observations and partial success do not certify F-023.
+
+#213 supplies the independent deciding-word prerequisite through a privately owned configuration/request run and original source retention. Fresh binding rehomes material atoms before memory replay; separately parsed JSON binds again. Remaining ordinary scheduling proof must still establish request/clock/queue ordering, stop/error/count/checkpoint/end composition. No candidate API input can supply a graph, fingerprint representative, witness, Valid result or clock, and no result certifies model completion.
+
+### Ordinary disk safety role continuation
+
+Issue #221 extends the fallible ordinary seen-store route to pure safety
+`PROPERTY` and `SPECIFICATION` decomposition through the actual shared binder.
+The initial ADR0068 scope remains the immutable INIT/NEXT evidence. Admission
+must inspect original source/context before startup effects and preserve role,
+ASSUME, error and output precedence; a supplied predicate or guessed TRUE body
+is not decomposition authority. Temporal obligations, capture, recovery and
+unproved effects continue to refuse. The declared matrix, resident/pinned
+counterparts, two profiles/stores, widths and tiny-budget interactions require
+fresh native CLI and public API evidence, independently validated witnesses
+and same-delivery user documentation. This continuation does not certify F-031.

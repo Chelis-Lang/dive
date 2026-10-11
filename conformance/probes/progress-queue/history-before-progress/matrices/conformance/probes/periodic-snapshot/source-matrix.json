@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Current configuration-owned pure snapshot diagnostic only, not ordinary configured-hook scheduling or proof.",
+  "history_manifest_sha256": "19e43daa6f7b11ddc96ef7217ac1c5b36db97a6308ddce30e6bce30858e64c06",
+  "source_sha256": {
+    "crates/dive-model/src/periodic.rs": "7f0c20c1b8d4d8d4d04936eb18b194579c2458f193e6061a1899a87dac4df1dd",
+    "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",
+    "crates/dive-model/src/bind.rs": "c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f",
+    "crates/dive-model/src/spec.rs": "7b000e0371510d25cbc718b285bf5ce5d08163c5c6aea2ab7053a4e9c20de6d0",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "65b7c0d26f7d1d50f16742ba7fe312e7b902eeaeb351fef2d30a86a9f0646a65",
+    "crates/dive-liveness/src/periodic_hook.rs": "46d2e9632bd7b85fe498421497ccbaf2bb96c392c5df64f60d55e4edd4527c46",
+    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+    "crates/dive-liveness/Cargo.toml": "bae732c71316c4e9127682c0672c535fa88971faaefafc33de01cddf7dafbc21",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "6923dae10fb6b1dc3971fcb5fb42afd9b7faff4cd097f81e61f0038232e5f540",
+    "crates/dive-api/examples/periodic_snapshot.rs": "f860e45ba4eb3645d038b36972c2d16156aa734133448866797799a16b4a0e21",
+    "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
+    "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
+    "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
+    "AGENTS.md": "e1f142e6236aec98d3c272179d748efde58009ac41c2ea20aae714ee12fdd19c",
+    ".github/workflows/ci.yml": "e739b9998ed8dfbbc7d1fabfdc96f0f4e1da60583b64c5496b14884e51f19e50",
+    "conformance/parity-features.json": "51aba76eff5080f9706729dbff37e8a5cba73e5ab0cdb0f1ff501a1f54a5e59c"
+  }
+}

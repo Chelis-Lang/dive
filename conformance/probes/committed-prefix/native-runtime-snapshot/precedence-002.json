@@ -1,0 +1,12 @@
+{
+  "index": 2,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "binding_code": 2232,
+    "startup_output": [],
+    "status": "refused",
+    "text": "TLC_CONFIG_MISSING_NEXT (2232): The configuration file did not specify the next state predicate."
+  },
+  "selection": "precedence"
+}

@@ -1,0 +1,18 @@
+{
+  "index": 9,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "configured": "Hook",
+    "definition": 94,
+    "expression": 671,
+    "result": {
+      "evaluation_code": 2179,
+      "text": "TLC_MODULE_DIVISION_BY_ZERO (2179): The second argument of \\div is 0."
+    },
+    "selected": "Hook",
+    "startup_output": [],
+    "status": "selected"
+  },
+  "selection": "original"
+}

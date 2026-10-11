@@ -74,8 +74,11 @@ mod host;
 mod options;
 mod parallel;
 mod pool;
+pub mod progress;
 mod render;
 mod result;
+mod seen;
+pub use seen::{SeenFailure, SeenOptions, SeenPhase, SeenReplay, SeenUsage};
 
 use std::sync::Arc;
 use std::time::Instant;
@@ -226,6 +229,7 @@ fn bare(verdict: Verdict, opts: &CheckOptions, ir: &Ir) -> CheckResult {
                 .map(|_| dive_store::spill::MAX_RECORD_BYTES),
             ..crate::FrontierUsage::default()
         },
+        seen: None,
         predecessor: crate::result::PredecessorUsage::default(),
         verdict,
         stats: None,
@@ -272,6 +276,14 @@ pub(crate) fn run_check_with_checkpoint(
     opts: &CheckOptions,
     mut checkpoint: Option<&mut checkpoint::Session>,
 ) -> CheckResult {
+    if let Some(disk) = &opts.seen_disk {
+        if let Err(error) = disk.limits.validate() {
+            return bare(seen::verdict(&error), opts, ir);
+        }
+        if checkpoint.is_some() || !cfg.properties.is_empty() || cfg.specification.is_some() {
+            return bare(Verdict::Unsupported { feature: "disk seen-state retention requires explicit INIT/NEXT; checkpoints, PROPERTY and SPECIFICATION roles are not implemented".into() }, opts, ir);
+        }
+    }
     // Only the callback-free closed pure VIEW slice has transformed stream
     // authority. Other shapes retain the source-wide pre-binding refusal,
     // including unused random calls and native aliases (#178).
@@ -393,6 +405,7 @@ pub(crate) fn run_check_with_checkpoint(
     } else {
         engine::search(&m, opts, &host)
     };
+    r.seen = outcome.seen;
     r.frontier = outcome.frontier;
     r.predecessor = outcome.predecessor;
     r.verdict = outcome.verdict;

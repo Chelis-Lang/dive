@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "family_certified": false,
+  "history_manifest_sha256": "66feb1244bb73ac46ab12fea60a1b1b59de1cb6d138156c192b1aaa19660c8cf",
+  "scope": "Current producer-clock claim/pause diagnostic. Current-wave output remains uncommitted; no ordinary clock/queue/count/verdict or family certificate.",
+  "source_sha256": {
+    "crates/dive-check/src/progress.rs": "4a8c98f4887c8c635d2a4ca5ced243a88ee3fb4d20b7116318ea7825085dd7d5",
+    "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
+    "crates/dive-check/src/capture.rs": "c4b939644434aac9fa90691e59695e65cfc9194de4d5aef9af22e51273877ed1",
+    "crates/dive-check/src/parallel.rs": "c27d441d172837bc368835492d03a8ca9408d6bbd88bec48438fbbcc76db3e53",
+    "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "804f6597f986c30b06f23b80149fac4f4bb28a2e678432ba5cdebb307b73fc86",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "e8dc35ed3648263843303d943c64a88efc03bdb43997e1d69e199687bd5ddaa3",
+    "crates/dive-liveness/src/phase_execution.rs": "dfd1574afe1662fabf890d8a5c201f118a2185165ce1fd48b28164d9b1d2ff22",
+    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "1dce5111e5a113a76cc82eece3d6a9caa1fcee727a360d6cc45b44c9b13cd8ea",
+    "crates/dive-api/examples/progress_requests.rs": "8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4",
+    "docs/producer-progress-requests.md": "99edbe43e575672f4fc28f9a36a14365ef0c17251b8df9a7125df91a9a28d7a3",
+    "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
+    "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
+    "AGENTS.md": "2d4dfa872b092ac91127f4743cd31b8a5c4741727759305ec17c10a218d3b247",
+    ".github/workflows/ci.yml": "3597cc1df1403228103c6df33cd466bc4d359b07c1d3789a638ea2df05ec1127",
+    "conformance/parity-features.json": "6b9c1e259e54da97c0c45692d97518313253727b8307349ed4050610ab74ffd1",
+    "crates/dive-check/tests/observer_barrier.rs": "c69be24a810b579f42903352f1cb6631d0cbc8e24f3f6bc7a01489405363c566"
+  }
+}
