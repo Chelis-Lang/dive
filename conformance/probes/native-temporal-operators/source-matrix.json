@@ -735,7 +735,7 @@
     "crates/dive-value/tests/tlc_differential.rs": "6ed886834eb2c68e9bd97072739f39ee910d23e68751bfd3732c7474f0018cf6",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "4ecc42f11035f4d6fdfe6ce69627002fb1580faf0b8a5dddfbfb01c69282545a",
     "docs/divergences.md": "c56b50b4e9da5a36932437af2084fc54fb5fc03e1b13ffdad7b36e609541c910",
-    "docs/native-temporal-operators.md": "ce24cbd16b73abb0c2396c5dc7cb45a619c4794768732ab378b5ba8a31755868",
+    "docs/native-temporal-operators.md": "f6784ff959690900f28d6b3941e70b231bb3832a1ab54ced8c0fb58d3b7abb23",
     "docs/provenance.md": "cebc65341bfce08357b3adeb3ce4e0bf0dd220cff30a98390602e5681ce792ca",
     "docs/temporal-operators.md": "107543cf79d996b9671c6c5b82705e8745c3beda9d7ea94040a1a33cdf7d0101",
     "docs/tlc-differences.md": "738f1cbd42cbbc6cfbc969bb6f5d45c7a165adef0da1f39149d81c81d9431dbc",
@@ -750,6 +750,7 @@
     "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9",
     "conformance/probes/native-temporal-operators/user-example-controls/stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
     "conformance/probes/native-temporal-operators/user-example-controls/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "conformance/probes/native-temporal-operators/user-example-controls/receipt.json": "508257e464127ffcef817fa504ca2f31bb56d5ffe301ce8d44e95cb30e3b376d"
+    "conformance/probes/native-temporal-operators/user-example-controls/receipt.json": "508257e464127ffcef817fa504ca2f31bb56d5ffe301ce8d44e95cb30e3b376d",
+    "conformance/probes/native-temporal-operators/DELIVERY.md": "e68adec63c2831be25073886c810abebc945aca9f03f2723361376bb90db9a60"
   }
 }

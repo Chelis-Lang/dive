@@ -89,3 +89,10 @@ Evidence and source contracts are in the
 This feature adds supported bounded contracts, not full temporal-family or
 ordinary scheduling certification. Historical corpus reports belong to their
 original immutable producers.
+
+A separate unchanged 140-model census of the preceding known-user forwarding
+producer (`7683204`) records 53 agreements, 85 explicit refusals and two timeouts,
+with harness exit 1. It adds seven agreements to the earlier material producer.
+It is retained in the [complete census](../conformance/studies/temporal-operators-final-small/README.md).
+Those outcomes do not describe this later native-actual producer; its evidence
+is the complete 20-row control selection and all 80 width observations above.
