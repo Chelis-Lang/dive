@@ -9,7 +9,7 @@ Pinned TLC `ModelChecker.doNext` enters call-stack replay after an invariant
 fails to evaluate on a new state. `doNextSetErr`/`doNextCheckInvariants` continue
 through later successors and may admit additional states or meet a second
 error, without increasing the generated counter. Resident replay already
-reproduces this behavior. The first disk attempt instead inspected its empty
+reproduces this counting behavior; repeated Print output is a separate boundary. The first disk attempt instead inspected its empty
 resident reference: `ReplayMembership` gave 4 distinct/2 queued instead of the
 clean pinned 3 distinct/1 queued. ADR0068 prevented that wrong answer with a
 named refusal. Both old outcomes remain immutable evidence.
@@ -49,9 +49,25 @@ duplicate or completed success.
 
 `seen_storage.replay` reports the original error, source/ordinal, frozen generated
 count, newly admitted keys, logical queue contribution and any later halt. These
-facts do not certify the diagnostic word. I/O, bound and cleanup failures remain
+facts do not certify the diagnostic word. `unproved_print_output` records actual
+Print/PrintT execution before or during reconstruction. I/O, bound and cleanup failures remain
 resource-limit results; independently replayable violation certificates are a
 separate obligation. Memory reports receive no new replay field.
+
+Actual Print/PrintT execution on this error-replay route refuses with
+`disk seen-state invariant-error replay with Print/PrintT output`. Clean
+`ReplayPrint` produces three `"expand"` events (ordinary expansion, error
+replay and trace reconstruction), while the pre-review native run produced
+one. Counts alone therefore cannot establish output/class agreement.
+A monotonic per-evaluator execution flag is set before capture/sink dispatch,
+including empty text, custom sinks, startup/Init, aliases and quiet replay;
+unexecuted definitions and warnings do not set it. The flag is inspected after
+trace reconstruction. Such a result retains original error/counts and output
+only as diagnostic evidence, with no TLC class or counterexample certificate.
+An earlier storage/resource/refusal cause keeps precedence; later cleanup can
+still prevent completion. This is a conservative event-based boundary: an
+Init-only or cached Print event may also refuse even where that particular
+reference event was not repeated. Pure replay remains unchanged.
 
 ## Consequences
 

@@ -135,13 +135,27 @@ cargo run -p dive-api --example disk_seen_replay --locked
 
 `seen_storage.replay` preserves the original error, concrete predecessor and
 stopped successor ordinal, frozen `generated`, additional `admitted_keys`,
-logical `queued` contribution and any `halted_by` error. Replay admissions are
+logical `queued` contribution, `unproved_print_output` and any `halted_by` error. Replay admissions are
 physical keys, not new predecessor/frontier rows. If replay hits an I/O or entry
 bound, the result is `resource-limit` with the original error and completed
 prefix retained. Its concrete word is diagnostic evidence, not an independently
 validated certificate. A later audit/cleanup failure also prevents completion.
 Unknown error sites still report an unverified error class; this does not grant
 blanket TLC error-class coverage.
+
+If actual `Print`/`PrintT` execution occurred before or during this error
+reconstruction, the result is `unsupported` naming the repeated-output
+boundary. For example, adding `PrintT("expand") /\` to `ReplayNew.Next`
+makes clean TLC print `"expand"` three times; the pre-review native run printed
+it once. The checker does not claim TLC class/output agreement for that word:
+`tlc` and `counterexample` are null, while original error, counts, output and
+`seen_storage.replay.unproved_print_output=true` remain diagnostic facts.
+The check uses actual event presence, including empty text, startup/Init,
+wrappers, configured aliases and quiet reconstruction. It excludes warnings
+and unused definitions; draining output does not erase the event. This
+conservative boundary can also refuse a cached or Init-only print whose exact
+repetition has not been proved. A prior storage/resource failure retains its
+first cause. No resident-memory print behavior is changed by this disk guard.
 
 For the minimal already-seen successor case, pinned TLC and resident checking
 report 3 generated, 3 distinct and 1 queued. The original failed disk epoch gave

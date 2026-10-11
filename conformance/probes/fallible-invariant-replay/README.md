@@ -44,3 +44,34 @@ Original runtime/gate receipts and old wrong-count/refusal rows were not retagge
 Current full gate/runtime receipt is pending. No new family certification is
 claimed. See [ADR0072](../../../docs/decisions/0072-fallible-invariant-error-replay.md)
 and [the runnable user/API guide](../../../docs/user/disk-seen-safety.md).
+
+## Print output boundary (pre-review source bd5841b95)
+
+`ReplayPrint` adds `PrintT("expand")` to the next action. Clean primary exits
+76 with 2 generated/4 distinct/2 queued/depth2 and emits three events; the
+pre-review targeted native API run emitted one while reporting known class
+2111. That failed output claim is retained separately as development evidence,
+not an immutable compiled producer receipt. No old primary/run is retagged.
+
+Seven clean probes retain the same counts and exit. Actual event counts:
+
+| Probe | Primary Print events | Placement |
+| --- | ---: | --- |
+| ReplayPrint | 3 | next action |
+| ReplayPrintInit | 1 | Init only |
+| ReplayPrintEmpty | 1 | empty string in Init |
+| ReplayPrintInvariant | 4 | invariant |
+| ReplayPrintWrapper | 1 | cached wrapper |
+| ReplayPrintAlias | 3 | configured native PrintT alias |
+| ReplayPrintReplayOnly | 2 | later invariant reached by error replay |
+
+The corrected route uses an actual monotonic evaluator event flag, not rendered
+text. All seven fixtures × both profiles/stores × requested 1/4/8 widths refuse
+the unproved output contract, retain original error and counts, and report
+actual inline execution/cleanup. A raw empty-text event under quiet capture
+sets the flag with zero sink calls; warnings and an unused Print definition do
+not. An earlier positioned membership/read fault remains the first resource
+cause instead of being replaced by the output refusal. Memory behavior and pure
+replay are unchanged. Init-only/cached events are conservatively refused even
+where that particular reference event was not repeated. These targeted
+controls do not replace the pending frozen gate and executable campaign.

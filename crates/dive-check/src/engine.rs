@@ -1747,6 +1747,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             generated: self.generated,
             admitted_keys: 0,
             queued: 0,
+            unproved_print_output: false,
             halted_by: None,
         });
         let replay = self.replay_disk_states(&mut disk, s0, source, ordinal, level);
@@ -2458,6 +2459,17 @@ fn search_in<S: Keyed>(
         s.counterexample(&stop)
     };
     let _ = m.take_output();
+    let unproved_disk_print_replay = m.evaluator.has_print_event()
+        && s.disk
+            .as_mut()
+            .is_some_and(|disk| disk.refuse_print_replay(&stop.verdict));
+    if s.disk
+        .as_ref()
+        .and_then(crate::seen::Run::replay_evidence)
+        .is_some_and(|replay| replay.unproved_print_output)
+    {
+        notes.push("Actual Print/PrintT events occurred before or during disk invariant-error reconstruction. TLC repeats reconstruction output; this native output contract is unproved. Retained output, counts and original error are diagnostic evidence, not class/output agreement or a certificate.".into());
+    }
     if let Some(replay) = s.disk.as_ref().and_then(crate::seen::Run::replay_evidence)
         && replay
             .halted_by
@@ -2471,6 +2483,7 @@ fn search_in<S: Keyed>(
     }
     let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
+        _ if unproved_disk_print_replay => (crate::seen::print_replay_refusal(), None),
         _ if unproved_initial_replay => {
             notes.push(format!("The search reached {:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification.", stop.verdict));
             (

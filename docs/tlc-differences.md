@@ -2247,3 +2247,15 @@ retain the original error and diagnostic prefix while refusing completion;
 unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
 parallel disk/capture/temporal and recovery restrictions remain. See
 [the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+The disk error-replay continuation has a separate output refusal: clean
+`ReplayPrint` emits `"expand"` three times at 2 generated/4 distinct/2 queued,
+where the pre-review native run emitted it once. Actual Print/PrintT execution
+before or during reconstruction now yields a named unsupported result in both
+profiles, including empty events, Init-only printing, wrappers and configured
+aliases. The original error/counts/output remain diagnostic; neither a TLC
+class nor a counterexample certificate is claimed. Earlier resource/storage
+causes retain precedence. Warnings and unexecuted Print definitions do not
+trigger this event-based guard. Pure positioned replay is unchanged; resident
+memory replay's repeated-output contract is not extended here. Clean primary
+records and the original failed output are retained in the replay study.

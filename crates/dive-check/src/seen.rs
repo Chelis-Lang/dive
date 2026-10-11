@@ -92,6 +92,9 @@ pub struct SeenReplay {
     pub admitted_keys: u64,
     /// TLC's logical replay queue contribution; no native queue is published.
     pub queued: u64,
+    /// Actual Print/PrintT execution has an unproved repeated-output contract.
+    /// Original counts and error remain diagnostic evidence only.
+    pub unproved_print_output: bool,
     /// Further error/refusal, when replay did not finish normally.
     pub halted_by: Option<Verdict>,
 }
@@ -113,6 +116,12 @@ impl SeenUsage {
             deciding_event_before_failure: None,
             replay: None,
         }
+    }
+}
+
+pub(crate) fn print_replay_refusal() -> Verdict {
+    Verdict::Unsupported {
+        feature: "disk seen-state invariant-error replay with Print/PrintT output".into(),
     }
 }
 
@@ -167,6 +176,19 @@ impl Run {
             replay.queued = queued;
             replay.halted_by = error;
         }
+    }
+
+    pub(crate) fn refuse_print_replay(&mut self, current: &Verdict) -> bool {
+        let Some(replay) = &mut self.usage.replay else {
+            return false;
+        };
+        replay.unproved_print_output = true;
+        // A prior storage/resource/unsupported stop keeps its first cause.
+        if !current.is_verdict() {
+            return false;
+        }
+        replay.halted_by = Some(print_replay_refusal());
+        true
     }
 
     pub(crate) fn replay_contains(

@@ -773,3 +773,9 @@ original error and ordered prefix and refuse completion. This adds no new
 result-changing default, disk parallel/capture/recovery support or family credit.
 Original guarded and incorrect-count epochs remain separately linked in
 [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+ADR0072's D-007 disk continuation retains an explicit actual-Print/PrintT
+error-reconstruction refusal. Clean `ReplayPrint` has three output events,
+pre-review native one; equal counts do not grant class/output or certificate
+credit. Pure key/count replay, original errors and positioned failure evidence
+remain separately qualified. This adds no result-changing default.

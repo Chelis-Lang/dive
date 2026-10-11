@@ -742,3 +742,10 @@ refusal epochs are unchanged. Class parity is limited to actual known verified
 sites, and the private bound action-property control does not lift public
 PROPERTY admission. Inline fallback, logical versus physical replay counts,
 first cause/cleanup retention and non-certificate limits are ADR0072.
+
+The ADR0072 Print boundary is native admission, not a ported output algorithm:
+`Evaluator::has_print_event` observes actual `Core::print` dispatch before
+capture/sink calls, separately from warnings. The disk error route refuses
+unproved repeated output after reconstruction. Pinned `ModelChecker.doNextSetErr`
+and `TLCTrace` reconstruction yield three events in clean `ReplayPrint`; the
+pre-review native run's single event is retained as failed output evidence.

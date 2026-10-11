@@ -801,3 +801,34 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
         }
     }
 }
+
+#[test]
+fn printed_error_replay_keeps_earlier_positioned_read_failure() {
+    for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+        REPLAY_PLAN.with(|plan| *plan.borrow_mut() = Some((1, false, Mutation::TruncateIndex)));
+        let (out, parent) = run_named(
+            "ReplayPrint",
+            dive_store::StoreMode::Exact,
+            None,
+            100,
+            profile,
+        );
+        assert!(matches!(out.verdict, Verdict::ResourceLimit { .. }));
+        let usage = out.seen.expect("seen facts");
+        let replay = usage.replay.expect("replay");
+        assert!(replay.unproved_print_output);
+        assert!(matches!(
+            replay.original_error,
+            Verdict::EvaluationError { .. }
+        ));
+        assert!(matches!(
+            replay.halted_by,
+            Some(Verdict::ResourceLimit { .. })
+        ));
+        let failure = usage.first_failure.expect("positioned failure");
+        assert_eq!(failure.phase, SeenPhase::ReplayMembership);
+        assert_eq!(failure.successor_ordinal, Some(1));
+        assert!(usage.after_cleanup.expect("cleanup").cleanup_completed);
+        std::fs::remove_dir_all(parent).expect("test parent cleanup");
+    }
+}

@@ -899,7 +899,7 @@ impl CheckReport {
                         "before_cleanup": storage.before_cleanup.map(facts), "after_cleanup": storage.after_cleanup.map(facts),
                         "first_failure": storage.first_failure.as_ref().map(|failure| json!({"phase": format!("{:?}", failure.phase), "operation": format!("{:?}", failure.error.operation), "code": failure.error.code(), "message": failure.error.message, "cleanup_failure": failure.error.cleanup_failure, "generated": failure.generated, "predecessor": failure.predecessor, "successor_ordinal": failure.successor_ordinal})),
                         "deciding_event_before_failure": storage.deciding_event_before_failure.as_ref().map(|v| format!("{v:?}")),
-                        "replay": storage.replay.as_ref().map(|r| json!({"original_error": format!("{:?}", r.original_error), "predecessor": r.predecessor, "stopped_successor_ordinal": r.stopped_successor_ordinal, "generated": r.generated, "admitted_keys": r.admitted_keys, "queued": r.queued, "halted_by": r.halted_by.as_ref().map(|v| format!("{v:?}"))})),
+                        "replay": storage.replay.as_ref().map(|r| json!({"original_error": format!("{:?}", r.original_error), "predecessor": r.predecessor, "stopped_successor_ordinal": r.stopped_successor_ordinal, "generated": r.generated, "admitted_keys": r.admitted_keys, "queued": r.queued, "unproved_print_output": r.unproved_print_output, "halted_by": r.halted_by.as_ref().map(|v| format!("{v:?}"))})),
                         "crash_durable": false, "checkpoint_import_supported": false,
                     });
                 }
