@@ -5005,7 +5005,7 @@
     "conformance/probes/committed-prefix/source-matrix.json": "6e3af9d61617dc155a1cfe8438198c3321be453733fe7161763827b55c26c645",
     "conformance/probes/material-capture/source-matrix.json": "a9689fa6998772ab82a7728c29af0070faf17eb4deac1485cc6d9a932ea0fa0f",
     "conformance/probes/native-checkpoint/current-integration-source.json": "b769bf91065a85a089c4482f6cc6e64b7fd0636b5ff36d78cdd24bcb0853db3f",
-    "conformance/probes/native-parity-integration/current-source.json": "89f281b332263c3e0d0beed1d26b2e357785b4608bab28f58c1e051e53a0fb34",
+    "conformance/probes/native-parity-integration/current-source.json": "c4ad363078e6d9b0a8eb5ff9ffd9b06a3fe9c6dc95140d4c87ea59e8af930e8e",
     "conformance/probes/native-periodic-lifecycle/source-matrix.json": "c619fe86f0f968bbc0d4f60c67ee572e07853fb4b3f804328c1732d54023ec60",
     "conformance/probes/native-temporal-operators/source-matrix.json": "34b2539dee04516ff1db053c63ecf8261e0349f5e588605d88f4bee2e15bdd1c",
     "conformance/probes/optional-periodic-hook/source-matrix.json": "de8af90692f4be3905fe15f2b6b7d26e51d04ecb6deef44fd6cb4b307cfaf525",

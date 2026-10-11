@@ -74,6 +74,54 @@ for digest, path in history['source_archive_paths'].items():
     assert sha(gzip.decompress((ROOT / path).read_bytes())) == digest, path
 family = next(item for item in load(ROOT / 'conformance/parity-features.json')['families'] if item['id'] == 'F-023')
 assert family['implementation_status'] == 'missing' and family['certification'] == 'audit-required' and 228 in family['issues']
+def verify_original_inputs(before, index):
+    """Anchor historical gzip inputs to original commit/tree paths, not live code."""
+    proof_root = BASE / 'original-396-git-proof'
+    proof = load(proof_root / 'proof.json')
+    expected = '3968821ee1dedf9a486896443a16f3af7e348570'
+    assert before['producer'] == index['production_commit'] == proof['producer'] == expected
+    assert proof['source_inputs'] == len(before['source_sha256']) == 491
+    assert index['source_sha256'] == before['source_sha256']
+    assert set(index['source_git_blob_sha1']) == set(before['source_sha256'])
+    trees = {}
+    def original_object(oid, kind):
+        assert len(oid) == 40 and all(c in '0123456789abcdef' for c in oid)
+        record = proof['objects'][oid]
+        assert record['kind'] == kind and record['file'] == f'objects/{oid}.gz'
+        raw = gzip.decompress((proof_root / record['file']).read_bytes())
+        assert sha(raw) == record['sha256']
+        assert hashlib.sha1(f'{kind} {len(raw)}'.encode() + b'\0' + raw).hexdigest() == oid
+        return raw
+    commit = original_object(expected, 'commit')
+    root = commit.splitlines()[0].decode().removeprefix('tree ')
+    assert root == proof['root_tree']
+    def children(oid):
+        if oid not in trees:
+            raw = original_object(oid, 'tree')
+            start = 0
+            entries = {}
+            while start < len(raw):
+                sep = raw.index(b' ', start)
+                end = raw.index(b'\0', sep)
+                mode, name = raw[start:sep].decode(), raw[sep+1:end].decode()
+                assert end+21 <= len(raw) and name not in entries
+                entries[name] = mode, raw[end+1:end+21].hex()
+                start = end+21
+            trees[oid] = entries
+        return trees[oid]
+    for path, digest in before['source_sha256'].items():
+        parts = path.split('/')
+        assert parts and all(part not in ['', '.', '..'] for part in parts)
+        node = root
+        for part in parts[:-1]:
+            mode, node = children(node)[part]
+            assert mode == '40000'
+        mode, blob = children(node)[parts[-1]]
+        assert mode in ['100644', '100755'] and blob == index['source_git_blob_sha1'][path]
+        raw = gzip.decompress((ROOT / index['source_archive_paths'][path]).read_bytes())
+        assert sha(raw) == digest
+        assert hashlib.sha1(f'blob {len(raw)}'.encode() + b'\0' + raw).hexdigest() == blob
+
 def check_closed_outcomes(gate, steps, log, manifest, runtime, selection, native):
     """Check actual closed commands and semantic words, never proof promotion."""
     assert gate['all_steps_passed'] is True and gate['build_inputs_unchanged'] is True
@@ -126,9 +174,7 @@ if delivery.exists():
     before = load(gate / 'before.json')
     assert before['producer'] == index['production_commit'] and len(before['source_sha256']) == 491
     assert len(before['literal_include_sources']) == 50 and not before['unresolved_include_macros']
-    for path, digest in before['source_sha256'].items():
-        assert sha(gzip.decompress((ROOT / index['source_archive_paths'][path]).read_bytes())) == digest
-        assert sha((ROOT / path).read_bytes()) == digest, path
+    verify_original_inputs(before, index)
     native_manifest = load(runtime / 'native-manifest.json')
     native = []
     for row in native_manifest['rows']:

@@ -132,3 +132,9 @@ comparison failure; they are not schedule-equivalence evidence.
 These component deliveries are source-composed here. Fresh combined gate,
 runtime and public-guide qualification remain pending on this receiving branch.
 Their original native producers and failure histories have not been retagged.
+
+Historical input receipts now verify their archived source through the original
+Git commit, tree paths and blob IDs. Current-file integrity is checked separately.
+The retained receiving failure shows why a historical source snapshot cannot be
+required to equal later implementation files. This strengthens provenance without
+changing any model assertion, runtime result or original producer.

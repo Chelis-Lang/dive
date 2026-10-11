@@ -19,7 +19,7 @@
     "crates/dive-api/examples/terminal_classification.rs": "108589ed239d0974c96a107f7ba989c75cf7ceb0fe30584b491c354a1ebdc6d0",
     "docs/terminal-outcome.md": "3367c7bdf50ac8e3a4b4c141898c98764be1bf5a74ffa7723349a6f51cd0e2ec",
     "docs/decisions/0080-owned-terminal-finalization.md": "49a0aed84378041d9774399479f4c71a7432d5ac1f0c7746064316f891668177",
-    "scripts/check-terminal-outcome.py": "e90e97e619babec2fb7cec58922561b89fead3a5718a1aeb044dc81e2d585490",
+    "scripts/check-terminal-outcome.py": "0a84e5f6bf3a2b6741b210253797cdea14b19198b17c86fca5b5b5d1e0264e50",
     "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
     "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
     ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a"

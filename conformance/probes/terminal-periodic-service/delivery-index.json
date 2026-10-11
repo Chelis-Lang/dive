@@ -7811,7 +7811,7 @@
     "conformance/probes/tlc-state-if/source-matrix.json": "ad2de1b2069abc9b4422723cea1b942c3502c3fbc1da3c5fcc9d8f314fef2c51",
     "conformance/probes/tlc-temporal-if-final/source-matrix.json": "2c563cff2d3f91a6a598dc2c0f6758ec6b1e4d6add383f062f588e5374941783",
     "conformance/probes/tlc-temporal-if/source-matrix.json": "0b9f095cc7ca0d5708c545237115d79611361755f76ae8fb398e40d92380bbea",
-    "conformance/probes/native-parity-integration/current-source.json": "89f281b332263c3e0d0beed1d26b2e357785b4608bab28f58c1e051e53a0fb34"
+    "conformance/probes/native-parity-integration/current-source.json": "c4ad363078e6d9b0a8eb5ff9ffd9b06a3fe9c6dc95140d4c87ea59e8af930e8e"
   },
   "binary_directory": "/tmp/dive-terminal-service-frozen-native",
   "binary_sha256": {
