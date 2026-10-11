@@ -6,7 +6,7 @@ use super::{
 use crate::{
     Code,
     ast::{
-        BindingKind, Block, Body, Branch, Decl, Expr, Fairness, Label, Process, Span,
+        BindingKind, Block, Body, Branch, Decl, Expr, Fairness, Label, Procedure, Process, Span,
         StatementKind, StmtId, WithBinding,
     },
 };
@@ -82,6 +82,53 @@ fn groups(
     }
     Ok((unlabelled, groups))
 }
+fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), TranslationError> {
+    let Some(procedure) = parsed.algorithm.procedures.first() else {
+        return Ok(());
+    };
+    let Body::Sequential(main) = &parsed.algorithm.body else {
+        return Err(unsupported(
+            parsed.algorithm.span,
+            "procedure/process checksum ownership",
+        ));
+    };
+    let mut top_level_transfers = std::collections::BTreeSet::new();
+    for (block, procedure_body) in [(main, false), (&procedure.body, true)] {
+        let (_, labelled) = groups(parsed, block)?;
+        for (_, ids) in labelled {
+            if procedure_body
+                && ids
+                    .iter()
+                    .filter(|id| {
+                        parsed
+                            .statement(**id)
+                            .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
+                    })
+                    .count()
+                    > 1
+            {
+                return Err(unsupported(
+                    procedure.span,
+                    "multiple sequential procedure assignments within one source label",
+                ));
+            }
+            top_level_transfers.extend(ids.iter().map(|id| id.0));
+        }
+    }
+    for (index, statement) in parsed.statements.iter().enumerate() {
+        if matches!(
+            statement.kind,
+            StatementKind::Call { .. } | StatementKind::Return
+        ) && !top_level_transfers.contains(&index)
+        {
+            return Err(unsupported(
+                statement.span,
+                "nested call/return shared AST mutation",
+            ));
+        }
+    }
+    Ok(())
+}
 type TokenPositions = Vec<(usize, (usize, usize))>;
 pub(super) fn token_positions(
     parsed: &macros::Expanded,
@@ -128,6 +175,7 @@ struct Writer {
     indents: Vec<usize>,
     limit: usize,
     span: Span,
+    procedure_owner: Option<String>,
 }
 impl Writer {
     fn push(&mut self, text: &str) -> Result<(), TranslationError> {
@@ -208,6 +256,145 @@ impl Writer {
             }
             writer.push("]")
         })
+    }
+    fn procedure(
+        &mut self,
+        parsed: &macros::Expanded,
+        procedure: &Procedure,
+    ) -> Result<(), TranslationError> {
+        self.indent("")?;
+        self.push("[name   |-> \"")?;
+        self.push(&procedure.name.text)?;
+        self.push("\", ")?;
+        self.newline()?;
+        self.push("minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |->")?;
+        // ParseAlgorithm.GetProcedure stores the static vector by reference.
+        // In this single nonrecursive procedure scope, subsequent main calls
+        // append this procedure's name once, including repeated calls.
+        let called = parsed.statements.iter().any(|s| {
+            matches!(&s.kind,
+            StatementKind::Call { name, .. } if name.text == procedure.name.text)
+        });
+        self.push("<<")?;
+        if called {
+            self.push("\"")?;
+            self.push(&procedure.name.text)?;
+            self.push("\"")?;
+        }
+        self.push(">>,")?;
+        self.newline()?;
+        self.indent(" params |-> ")?;
+        self.declarations(parsed, &procedure.parameters)?;
+        self.push(",")?;
+        self.end();
+        self.newline()?;
+        self.indent(" decls  |-> ")?;
+        self.declarations(parsed, &procedure.variables)?;
+        self.push(",")?;
+        self.end();
+        self.newline()?;
+        self.indent(" body   |-> ")?;
+        let (unlabelled, labelled) = groups(parsed, &procedure.body)?;
+        if !unlabelled.is_empty() {
+            return Err(unsupported(procedure.span, "unlabelled procedure entry"));
+        }
+        if labelled.iter().any(|(_, ids)| {
+            ids.iter()
+                .filter(|id| {
+                    parsed
+                        .statement(**id)
+                        .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
+                })
+                .count()
+                > 1
+        }) {
+            return Err(unsupported(
+                procedure.span,
+                "multiple sequential procedure assignments within one source label",
+            ));
+        }
+        self.procedure_owner = Some(procedure.name.text.clone());
+        self.labelled(parsed, &labelled)?;
+        self.procedure_owner = None;
+        self.push("]")?;
+        self.end();
+        self.end();
+        Ok(())
+    }
+    fn call(
+        &mut self,
+        parsed: &macros::Expanded,
+        name: &str,
+        arguments: &[Expr],
+        after: Option<&str>,
+    ) -> Result<(), TranslationError> {
+        self.indent("")?;
+        self.push(if after.is_some() {
+            "[type     |-> \"callGoto\","
+        } else {
+            "[type     |-> \"call\","
+        })?;
+        self.newline()?;
+        if let Some(after) = after {
+            self.push(" after    |-> \"")?;
+            self.push(after.trim_matches('"'))?;
+        } else {
+            self.push(" returnTo |-> \"")?;
+        }
+        self.push("\",")?;
+        self.newline()?;
+        self.push(" to       |-> \"")?;
+        self.push(name)?;
+        self.push("\",")?;
+        self.newline()?;
+        self.indent(if after.is_some() {
+            "args     |-> "
+        } else {
+            " args     |-> "
+        })?;
+        self.sequence(arguments, |w, arg| w.expression(parsed, Some(*arg)))?;
+        self.push("]")?;
+        if after.is_some() {
+            self.newline()?;
+        }
+        self.end();
+        self.end();
+        Ok(())
+    }
+    fn statements(
+        &mut self,
+        parsed: &macros::Expanded,
+        ids: &[StmtId],
+    ) -> Result<(), TranslationError> {
+        self.indent("<<")?;
+        let mut i = 0;
+        while let Some(&id) = ids.get(i) {
+            if i > 0 {
+                self.push(", ")?;
+                self.newline()?;
+            }
+            let statement = parsed
+                .statement(id)
+                .ok_or_else(|| unsupported(self.span, "invalid statement reference"))?;
+            if let StatementKind::Call { name, arguments } = &statement.kind {
+                let next = ids.get(i + 1).and_then(|id| parsed.statement(*id));
+                if let Some(next) = next.filter(|s| s.label.is_none()) {
+                    if let StatementKind::Goto(after) = &next.kind {
+                        self.call(parsed, &name.text, arguments, Some(&after.text))?;
+                        i += 2;
+                        continue;
+                    }
+                    if matches!(next.kind, StatementKind::Return) {
+                        return Err(unsupported(statement.span, "adjacent call-return AST"));
+                    }
+                }
+            }
+            self.statement(parsed, id)?;
+            i += 1;
+        }
+        self.push(">>")?;
+        self.end();
+        Ok(())
     }
     fn quoted_labels(&mut self, labels: &[&Label], modifier: char) -> Result<(), TranslationError> {
         self.indent("<<")?;
@@ -428,6 +615,18 @@ impl Writer {
             .statement(id)
             .ok_or_else(|| unsupported(self.span, "invalid statement reference"))?;
         match &statement.kind {
+            StatementKind::Call { name, arguments } => {
+                self.call(parsed, &name.text, arguments, None)
+            }
+            StatementKind::Return => {
+                let owner = self
+                    .procedure_owner
+                    .clone()
+                    .ok_or_else(|| unsupported(statement.span, "return outside procedure"))?;
+                self.push("[type |-> \"return\", from |-> \"")?;
+                self.push(&owner)?;
+                self.push("\"]")
+            }
             StatementKind::Skip => self.push("[type |-> \"skip\"]"),
             StatementKind::Goto(name) => {
                 self.push("[type |-> \"goto\",  to |-> \"")?;
@@ -504,7 +703,19 @@ impl Writer {
                 self.end();
                 self.newline()?;
                 self.indent(" unlabDo |-> ")?;
-                self.sequence(&unlabelled, |w, id| w.statement(parsed, *id))?;
+                if !parsed.algorithm.procedures.is_empty()
+                    && unlabelled.iter().any(|id| {
+                        parsed.statement(*id).is_some_and(|s| {
+                            matches!(s.kind, StatementKind::Call { .. } | StatementKind::Return)
+                        })
+                    })
+                {
+                    return Err(unsupported(
+                        body.span,
+                        "nested loop call/return AST mutation",
+                    ));
+                }
+                self.statements(parsed, &unlabelled)?;
                 self.push("]")?;
                 self.end();
                 Ok(())
@@ -612,7 +823,22 @@ impl Writer {
         {
             return Err(unsupported(block.span, "branch-internal labelled AST"));
         }
-        self.sequence(&flat, |w, id| w.statement(parsed, *id))
+        if !parsed.algorithm.procedures.is_empty()
+            && flat.iter().any(|id| {
+                parsed.statement(*id).is_some_and(|s| {
+                    matches!(s.kind, StatementKind::Call { .. } | StatementKind::Return)
+                })
+            })
+        {
+            // Explode mutates shared unlabelled branch vectors in the original
+            // header AST. Top-level calls stay source nodes; nested transfers
+            // require separately proved synthetic-expression serialization.
+            return Err(unsupported(
+                block.span,
+                "nested call/return shared AST mutation",
+            ));
+        }
+        self.statements(parsed, &flat)
     }
     fn labelled(
         &mut self,
@@ -625,7 +851,7 @@ impl Writer {
             writer.push("\",")?;
             writer.newline()?;
             writer.indent(" stmts |-> ")?;
-            writer.sequence(ids, |w, id| w.statement(parsed, *id))?;
+            writer.statements(parsed, ids)?;
             writer.push("]")?;
             writer.end();
             Ok(())
@@ -636,7 +862,10 @@ impl Writer {
 /// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// procedures and branch-internal labels are refused. Pure bounded nonrecursive
+/// nested/recursive/process-owned procedures and branch-internal labels are refused.
+/// One explicitly labelled disjoint sequential procedure supports top-level calls,
+/// returns and adjacent call-goto, with exact original/header AST ownership.
+/// Pure bounded nonrecursive
 /// macros use single-line substitutions; multiline arguments and substituted
 /// junction columns remain refused. Admitted process
 /// fairness and automatic-label options retain the pinned parser precedence. Native generation/admission
@@ -695,7 +924,38 @@ fn checksum_inline(
     let options = &context.effective;
     let algorithm = &parsed.algorithm;
     if !algorithm.procedures.is_empty() {
-        return Err(unsupported(algorithm.span, "procedures"));
+        if algorithm.procedures.len() != 1
+            || !matches!(algorithm.body, Body::Sequential(_))
+            || algorithm.definitions.is_some()
+            || !algorithm.macros.is_empty()
+            || options.insert_missing_labels
+        {
+            return Err(unsupported(
+                algorithm.span,
+                "checksum requires one explicitly labelled sequential procedure without definitions/macros",
+            ));
+        }
+        let procedure = &algorithm.procedures[0];
+        if parsed.statements.iter().any(|s| {
+            s.span.start >= procedure.body.span.start
+                && s.span.end <= procedure.body.span.end
+                && matches!(s.kind, StatementKind::Call { .. })
+        }) {
+            return Err(unsupported(
+                procedure.span,
+                "procedure call graph/recursion checksum",
+            ));
+        }
+        if parsed
+            .statements
+            .iter()
+            .any(|s| s.label.as_ref().is_some_and(|l| l.modifier.is_some()))
+        {
+            return Err(unsupported(
+                algorithm.span,
+                "procedure label fairness checksum",
+            ));
+        }
     }
     for statement in &parsed.statements {
         if let StatementKind::MacroCall { arguments, .. } = &statement.kind {
@@ -714,6 +974,9 @@ fn checksum_inline(
     }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
+    // Admission precedes serialization: unproved shared-vector transfers never
+    // produce CRC bytes, including fair-header cases whose CRC ignores the AST.
+    procedure_checksum_admission(&parsed)?;
     // The existing admission pass proves no identifier fixups are required.
     lower::normalize(&parsed, options)?;
     let sequential = matches!(parsed.algorithm.body, Body::Sequential(_));
@@ -723,6 +986,7 @@ fn checksum_inline(
         indents: vec![0],
         limit: options.max_output_bytes.min(4_194_304),
         span: parsed.algorithm.span,
+        procedure_owner: None,
     };
     w.push(if sequential {
         "[type     |-> \"uniprocess\", "
@@ -751,11 +1015,16 @@ fn checksum_inline(
     w.expression(&parsed, parsed.algorithm.definitions)?;
     w.push(",")?;
     w.newline()?;
-    w.push(if sequential {
-        " prcds  |-> <<>>,"
+    w.indent(if sequential {
+        " prcds  |-> "
     } else {
-        " prcds |-> <<>>,"
+        " prcds |-> "
     })?;
+    w.sequence(&parsed.algorithm.procedures, |w, procedure| {
+        w.procedure(&parsed, procedure)
+    })?;
+    w.push(",")?;
+    w.end();
     w.newline()?;
     match &parsed.algorithm.body {
         Body::Sequential(block) => {

@@ -173,3 +173,7 @@ import subprocess
 import sys
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/define-forms-acceptance" / verifier)], check=True)
+
+# Always verify every portable sequential-procedure checksum runtime/source record.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/procedure-checksum-acceptance" / verifier)], check=True)

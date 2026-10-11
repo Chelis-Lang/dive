@@ -1,0 +1,2090 @@
+{
+  "schema_version": 1,
+  "selected": 132,
+  "header_crc_authority": false,
+  "adapter_source_sha256": "b417f26825ad2f1c6fa4c2627d52c308658e0868262030efb68728ff9f347d0a",
+  "rows": [
+    {
+      "id": "Procedure_P_simple",
+      "exit_code": 0,
+      "input_sha256": "c91f7bf14a8eec7de1083d7cfe7d56561180115af8dfa62f3d77bcd69a602b38",
+      "stages_sha256": {
+        "Procedure_P_simple.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_P_simple.parse.json": "df13201b787239e517d21102d0425851fb63744be104d94e43fb3dcfa25fe171",
+        "Procedure_P_simple.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_P_simple.names.json": "df13201b787239e517d21102d0425851fb63744be104d94e43fb3dcfa25fe171",
+        "Procedure_P_simple.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_P_simple.original-after-explode.json": "df13201b787239e517d21102d0425851fb63744be104d94e43fb3dcfa25fe171",
+        "Procedure_P_simple.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "Procedure_P_simple.exploded.json": "c580d87fdbcc06e94d8210fed9f9352ca7a5fce3f5f1aefad2fb70843b36d9a7"
+      },
+      "stdout_sha256": "f77002532b4b8de8ae0c0319176d6022681ef3270ce9ac7714c552a6dc71c0c5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_no_params",
+      "exit_code": 0,
+      "input_sha256": "5ebede8bce39c54a32d91850df18252238c033a89153feb745ca86c45b6b8930",
+      "stages_sha256": {
+        "Procedure_P_no_params.parse.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_P_no_params.parse.json": "02bea6f6e2178ac965af244eed69258782c62a51b5ed3766013e542c2af58910",
+        "Procedure_P_no_params.names.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_P_no_params.names.json": "02bea6f6e2178ac965af244eed69258782c62a51b5ed3766013e542c2af58910",
+        "Procedure_P_no_params.original-after-explode.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_P_no_params.original-after-explode.json": "02bea6f6e2178ac965af244eed69258782c62a51b5ed3766013e542c2af58910",
+        "Procedure_P_no_params.exploded.ast": "7cf6d0cc6db844dd24391bcbd26822fee4e186bc449dca7854247f31942b61fe",
+        "Procedure_P_no_params.exploded.json": "932de874725e1497a85f9b216c1b2f0b75e80439b3a4520f0d2b8d73d1a24b6f"
+      },
+      "stdout_sha256": "1a000f72c2c26705f8b485f790aeb3b30202124e614e1194092ddc01589ad11e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_default_param",
+      "exit_code": 0,
+      "input_sha256": "1ae457bc515f007350266882ad96c2df9a13afeeab2375f8b779feaea68c58c9",
+      "stages_sha256": {
+        "Procedure_P_default_param.parse.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_P_default_param.parse.json": "b33ba3bdbbf87d2a1eeed1aa8fef369e1ac20edb813d19c6278579e500376c21",
+        "Procedure_P_default_param.names.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_P_default_param.names.json": "b33ba3bdbbf87d2a1eeed1aa8fef369e1ac20edb813d19c6278579e500376c21",
+        "Procedure_P_default_param.original-after-explode.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_P_default_param.original-after-explode.json": "b33ba3bdbbf87d2a1eeed1aa8fef369e1ac20edb813d19c6278579e500376c21",
+        "Procedure_P_default_param.exploded.ast": "a5bac4fba317d1f467c8a0a2e5a0c507edf694725db8a0f05fa91ad0630e517e",
+        "Procedure_P_default_param.exploded.json": "df3dcd32e5ef560d67eb0dca0d120bc33cad6fffd100a88bc4487add99ce1fdd"
+      },
+      "stdout_sha256": "f76b3785d4ccf26f4170ced772fffc5bc1817ffaa4f334dae5a06a7ea2c6d9c8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_local",
+      "exit_code": 0,
+      "input_sha256": "fcfcd770789ef5706f63636b80e9628c03f81f40e7e2fb80f6bd4454ae45063e",
+      "stages_sha256": {
+        "Procedure_P_local.parse.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_P_local.parse.json": "195ab04ddd3f739b6e358631fd6feaf57f52a65a110eba3aac13fea8474a634c",
+        "Procedure_P_local.names.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_P_local.names.json": "195ab04ddd3f739b6e358631fd6feaf57f52a65a110eba3aac13fea8474a634c",
+        "Procedure_P_local.original-after-explode.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_P_local.original-after-explode.json": "195ab04ddd3f739b6e358631fd6feaf57f52a65a110eba3aac13fea8474a634c",
+        "Procedure_P_local.exploded.ast": "667a8a2330b3e3977d7a00b89c5d772d9f72f29fe9e48c7a4df01bf212e3ea6d",
+        "Procedure_P_local.exploded.json": "6fcf5c5a845d7b92a9ab5be83d180690931ef0df53092f89f3cee4ad5890df67"
+      },
+      "stdout_sha256": "849c5cf623912e5c03266de585959043902bf39bb6a12553afbd9332ecc21b4a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_local_from_param",
+      "exit_code": 0,
+      "input_sha256": "39443f0b783f238001d1e363783795b60e510164dda1996f21efc04bf6b2248c",
+      "stages_sha256": {
+        "Procedure_P_local_from_param.parse.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_P_local_from_param.parse.json": "fe32edf583016d52dac3d2ce10bfc63f52516f333b510a53965be7e0f3caa594",
+        "Procedure_P_local_from_param.names.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_P_local_from_param.names.json": "fe32edf583016d52dac3d2ce10bfc63f52516f333b510a53965be7e0f3caa594",
+        "Procedure_P_local_from_param.original-after-explode.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_P_local_from_param.original-after-explode.json": "fe32edf583016d52dac3d2ce10bfc63f52516f333b510a53965be7e0f3caa594",
+        "Procedure_P_local_from_param.exploded.ast": "cec923a232d7576dbcc82a6a79a5f827f4939e7187ee1a4a96a5c293612a2421",
+        "Procedure_P_local_from_param.exploded.json": "6a80df963567c694406da3450e820f0aa6d6d8632238223e328a5edd17afde0d"
+      },
+      "stdout_sha256": "7c352b673333f2a618890373a0da4dc76a9f474f9aa9fb0aa0b3376abd9e66c7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_default_local",
+      "exit_code": 0,
+      "input_sha256": "c29bc85011b67335cdd997f1c88d15561f121459baab799b8f9b1ca09a6ddf8c",
+      "stages_sha256": {
+        "Procedure_P_default_local.parse.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_P_default_local.parse.json": "f9609f51e9ab05226dfba5b40c73d50cd707c43cc7c8d1fe5e0bb1a4f2a3b918",
+        "Procedure_P_default_local.names.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_P_default_local.names.json": "f9609f51e9ab05226dfba5b40c73d50cd707c43cc7c8d1fe5e0bb1a4f2a3b918",
+        "Procedure_P_default_local.original-after-explode.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_P_default_local.original-after-explode.json": "f9609f51e9ab05226dfba5b40c73d50cd707c43cc7c8d1fe5e0bb1a4f2a3b918",
+        "Procedure_P_default_local.exploded.ast": "c735b8889a4936767f43c0fe6cd72d9fbebe5a74a748af445488497803db3e03",
+        "Procedure_P_default_local.exploded.json": "894f1e2d06b6a1fbb7ed98c05963081fbcbb7db6b28678781b5e07d023563b4c"
+      },
+      "stdout_sha256": "114ec514ca2c4b5790825d7d12bd3d243271719525f2006010e2197f5b7eaf1c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_two_params",
+      "exit_code": 0,
+      "input_sha256": "1439e06957c48954342cc5b465e44c1d409e01058aff9c80fc81dc1a6544844b",
+      "stages_sha256": {
+        "Procedure_P_two_params.parse.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_P_two_params.parse.json": "bf5c0e03f7416f49f413f46e8bd2e900c22e75fe3757c8fd83eeff1af33d49bc",
+        "Procedure_P_two_params.names.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_P_two_params.names.json": "bf5c0e03f7416f49f413f46e8bd2e900c22e75fe3757c8fd83eeff1af33d49bc",
+        "Procedure_P_two_params.original-after-explode.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_P_two_params.original-after-explode.json": "bf5c0e03f7416f49f413f46e8bd2e900c22e75fe3757c8fd83eeff1af33d49bc",
+        "Procedure_P_two_params.exploded.ast": "d48c72f4d3a18a4d7e11b433cc5d7f2624f51150968ffe48ffc6542eff81a218",
+        "Procedure_P_two_params.exploded.json": "3b59161f65f06c131a3bf524ab66809364f2c1a1d21f06c2e2172f025086c147"
+      },
+      "stdout_sha256": "2bb79b2a068d594faca772fa295226f5fb37bed630d12d2305d631cbe1d80279",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_repeat",
+      "exit_code": 0,
+      "input_sha256": "217a6ad82f6f11e5be82738689856c7886e4d80eaef91a185374902e1cccf17a",
+      "stages_sha256": {
+        "Procedure_P_repeat.parse.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_P_repeat.parse.json": "5d6160175a5092e05afe3d0e77f35aadb5e17b5885ce2e6cd2ec1ab24e06a932",
+        "Procedure_P_repeat.names.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_P_repeat.names.json": "5d6160175a5092e05afe3d0e77f35aadb5e17b5885ce2e6cd2ec1ab24e06a932",
+        "Procedure_P_repeat.original-after-explode.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_P_repeat.original-after-explode.json": "5d6160175a5092e05afe3d0e77f35aadb5e17b5885ce2e6cd2ec1ab24e06a932",
+        "Procedure_P_repeat.exploded.ast": "f10c7bb0f086eb3d43b37cdb0463fac9d3423b3152c144a55ccc1217160c0f74",
+        "Procedure_P_repeat.exploded.json": "7cdf859097bee27a8e1b9a43ddc41dcb588430a177754c0bcd67f9af50e731f7"
+      },
+      "stdout_sha256": "28355e4287f70812c7b7a13c156b52fa03d15c69ba56df38a8b0c724fc3a932a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_return_same_label",
+      "exit_code": 0,
+      "input_sha256": "56e903a65cb05347ba570be63c2550af80dd102165188c7f36fec595f18ce879",
+      "stages_sha256": {
+        "Procedure_P_return_same_label.parse.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_P_return_same_label.parse.json": "19227e199b38c0e31b2f6c41ad1a4b56a89df9655e9d81ccb60d4e7a3202be2e",
+        "Procedure_P_return_same_label.names.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_P_return_same_label.names.json": "19227e199b38c0e31b2f6c41ad1a4b56a89df9655e9d81ccb60d4e7a3202be2e",
+        "Procedure_P_return_same_label.original-after-explode.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_P_return_same_label.original-after-explode.json": "19227e199b38c0e31b2f6c41ad1a4b56a89df9655e9d81ccb60d4e7a3202be2e",
+        "Procedure_P_return_same_label.exploded.ast": "3f5d499d40fafdbf385f52e42a3c99a472513803050a21a3d9d5431e4585cc61",
+        "Procedure_P_return_same_label.exploded.json": "76052a5af4808c8c7b366f6f432ce1b8f4baf0a0593aac9e3df380abd4534695"
+      },
+      "stdout_sha256": "dc43963718c88ad40073f3be08f6af13784538a72e69eccb4f21f2dd1a4bc9a1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_implicit_return",
+      "exit_code": 0,
+      "input_sha256": "eb7f116df0fa56e7c295ac7d61316d76a2c3cb423e029580b2b59fd830b8b5b9",
+      "stages_sha256": {
+        "Procedure_P_implicit_return.parse.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_P_implicit_return.parse.json": "461c2c41571c869155b6209c3a0a7b6f428d96730b5e7a9e0a6ac773e92f2fae",
+        "Procedure_P_implicit_return.names.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_P_implicit_return.names.json": "461c2c41571c869155b6209c3a0a7b6f428d96730b5e7a9e0a6ac773e92f2fae",
+        "Procedure_P_implicit_return.original-after-explode.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_P_implicit_return.original-after-explode.json": "461c2c41571c869155b6209c3a0a7b6f428d96730b5e7a9e0a6ac773e92f2fae",
+        "Procedure_P_implicit_return.exploded.ast": "7b1cc908b99cbe69c20f06f32c607757aba761e59319d57fdd4b189299e3b36a",
+        "Procedure_P_implicit_return.exploded.json": "96bac41ca8223c508c667db845e9b0275c4eea1bac4b365bb581caa29124fcce"
+      },
+      "stdout_sha256": "735e03057581294ca6d33a3f85b80ec3add07714450f2942a6b5cc1c42ef15cf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_return_only",
+      "exit_code": 0,
+      "input_sha256": "820d2fd51a61f2fef1fdf7e3575412494b57c4dd746d3d1dcd4be446bf7ef6e9",
+      "stages_sha256": {
+        "Procedure_P_return_only.parse.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_P_return_only.parse.json": "5e03b4bbf2479e4121aadba8e6a12276265eb9a7504a06aa9b2b3e02b6f45762",
+        "Procedure_P_return_only.names.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_P_return_only.names.json": "5e03b4bbf2479e4121aadba8e6a12276265eb9a7504a06aa9b2b3e02b6f45762",
+        "Procedure_P_return_only.original-after-explode.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_P_return_only.original-after-explode.json": "5e03b4bbf2479e4121aadba8e6a12276265eb9a7504a06aa9b2b3e02b6f45762",
+        "Procedure_P_return_only.exploded.ast": "6ce4e28b3a5d1c6218a53ff5c61a2b55340491712b7edc1d0d22732323d450ee",
+        "Procedure_P_return_only.exploded.json": "b04da95e9ed1b01b2ee1fd4e5e63f8ae615d331e0b61d1091930f3f72ae9f757"
+      },
+      "stdout_sha256": "83fcbd3d67392639d94c0ec3c94145dc76f8addb76ecde54b73bc8563b2c6c60",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_call_to_done",
+      "exit_code": 0,
+      "input_sha256": "95e623c6aa2d76b2ce8292b6e70aaeb721af9b8200775f042b39abe27f437c1d",
+      "stages_sha256": {
+        "Procedure_P_call_to_done.parse.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_P_call_to_done.parse.json": "8e33a0f4498e0720f41dc9832177c5da80ec141c95e7d189d2c1e4b6b168b2a4",
+        "Procedure_P_call_to_done.names.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_P_call_to_done.names.json": "8e33a0f4498e0720f41dc9832177c5da80ec141c95e7d189d2c1e4b6b168b2a4",
+        "Procedure_P_call_to_done.original-after-explode.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_P_call_to_done.original-after-explode.json": "8e33a0f4498e0720f41dc9832177c5da80ec141c95e7d189d2c1e4b6b168b2a4",
+        "Procedure_P_call_to_done.exploded.ast": "bc9c9cdc39894cea43177af91b7299c742886c388cd340df356567def3204a0e",
+        "Procedure_P_call_to_done.exploded.json": "422f5e007aedc97dcd563122033acc3992fd14a2d556ce7611347b7ff6e3394f"
+      },
+      "stdout_sha256": "3fa1092c7afdf6b7e71284a753c8d99ebf7693bbb80694276481340c2180b30e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_loop",
+      "exit_code": 0,
+      "input_sha256": "1d8362da1888034b0fe6b3797905c49314e882eb9c8dc8a604056050631d95c8",
+      "stages_sha256": {
+        "Procedure_P_loop.parse.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_P_loop.parse.json": "3766bf4d517b15d74807a29ad64ec440cb44fce6b4aea150f8674fd42ff94870",
+        "Procedure_P_loop.names.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_P_loop.names.json": "3766bf4d517b15d74807a29ad64ec440cb44fce6b4aea150f8674fd42ff94870",
+        "Procedure_P_loop.original-after-explode.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_P_loop.original-after-explode.json": "3766bf4d517b15d74807a29ad64ec440cb44fce6b4aea150f8674fd42ff94870",
+        "Procedure_P_loop.exploded.ast": "c3625021ab3de793921b60a4c49e78d05ccc583932d2626d56ce4d7c113924c9",
+        "Procedure_P_loop.exploded.json": "1aca3dd35f343677eab2ac44dc1cdb278236f895cd295e650d560b07eca3a730"
+      },
+      "stdout_sha256": "523fe95bcf998eaac6cb68a7211692d35d67e08bfe105ea6516fabd56221132e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_branch",
+      "exit_code": 0,
+      "input_sha256": "0a0c4882fadcf7553e5b055d5b1280370962acc2ced0c231f7f6b48fff40f7be",
+      "stages_sha256": {
+        "Procedure_P_branch.parse.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_P_branch.parse.json": "63882bdfe54c1dd7028db6f3c5587aa051b718026a9e7155ef630bab244015ea",
+        "Procedure_P_branch.names.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_P_branch.names.json": "63882bdfe54c1dd7028db6f3c5587aa051b718026a9e7155ef630bab244015ea",
+        "Procedure_P_branch.original-after-explode.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_P_branch.original-after-explode.json": "63882bdfe54c1dd7028db6f3c5587aa051b718026a9e7155ef630bab244015ea",
+        "Procedure_P_branch.exploded.ast": "0a9e6e737bb95d61ccda3dd488c0bb0d0e2d34a5ab4538291530bd62372bec2c",
+        "Procedure_P_branch.exploded.json": "272befe36553e799b3aabd2109c0e25a1e1f9f3ec5779a4e67c336489b879b96"
+      },
+      "stdout_sha256": "c133e0302c3fe114c6452efe4e62c6bad6bf5eaa94d3cd5a346ed2b92c4960b8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_either",
+      "exit_code": 0,
+      "input_sha256": "c150556bd1a5c758b184d62500108cb653da45456592f400679d00383ac8ad3b",
+      "stages_sha256": {
+        "Procedure_P_either.parse.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_P_either.parse.json": "5503ba38fabb2eaabca1dce4447e62dd7f525fdc4fe8f3be801c8419a7f4257e",
+        "Procedure_P_either.names.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_P_either.names.json": "5503ba38fabb2eaabca1dce4447e62dd7f525fdc4fe8f3be801c8419a7f4257e",
+        "Procedure_P_either.original-after-explode.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_P_either.original-after-explode.json": "5503ba38fabb2eaabca1dce4447e62dd7f525fdc4fe8f3be801c8419a7f4257e",
+        "Procedure_P_either.exploded.ast": "4bdb7829bbcfbdf96bfb220c8f6ad0f910c49d2bdcee655e9c20e194ca8a4940",
+        "Procedure_P_either.exploded.json": "9e5165893fc45a990e7a97a2313e708cedfa63e30faf446eaade935c38b2c4ec"
+      },
+      "stdout_sha256": "addbcd6a8b4188ca3f0991eeb0d3afa23644a5159d0ca704eb0cdb0004fb87c3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_with",
+      "exit_code": 0,
+      "input_sha256": "648e9b473fb9bb839b193c01538d983dab0055c8cdb73776892045d05672f2c0",
+      "stages_sha256": {
+        "Procedure_P_with.parse.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_P_with.parse.json": "fadd51dc635f427a53f4e5e28ee277659655945bf7f835f24c15929fb9af07e5",
+        "Procedure_P_with.names.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_P_with.names.json": "fadd51dc635f427a53f4e5e28ee277659655945bf7f835f24c15929fb9af07e5",
+        "Procedure_P_with.original-after-explode.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_P_with.original-after-explode.json": "fadd51dc635f427a53f4e5e28ee277659655945bf7f835f24c15929fb9af07e5",
+        "Procedure_P_with.exploded.ast": "9ec09ddff7f3d0a40a05959ed6801291717ed1dab36551f599003b884335f46a",
+        "Procedure_P_with.exploded.json": "a85c87498f3085a9de509b34c17787045e603a94de067b4b55b2ac011515f639"
+      },
+      "stdout_sha256": "9906f85339bf3f520b556f49e0e6f6b045d360e1d5261348750c2fb2c869f991",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_local_update",
+      "exit_code": 0,
+      "input_sha256": "95f6dc7c52b296fba5b9e70961617f6b7d91d02152cce88da790ffb350355e6c",
+      "stages_sha256": {},
+      "stdout_sha256": "dc9d651ac14fa1bd95883c10f9e447ef540b46e8058336036441b2c77a7a22f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_parallel",
+      "exit_code": 0,
+      "input_sha256": "eb31223ce9d18920b0d67befa490e73ec13880a4b1223d5eb43b4d3d2eca9b5f",
+      "stages_sha256": {
+        "Procedure_P_parallel.parse.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_P_parallel.parse.json": "d0d0dc4be7ea6df58cf0700db7dc2accb6b607963e6fff1c4129e009340d2016",
+        "Procedure_P_parallel.names.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_P_parallel.names.json": "d0d0dc4be7ea6df58cf0700db7dc2accb6b607963e6fff1c4129e009340d2016",
+        "Procedure_P_parallel.original-after-explode.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_P_parallel.original-after-explode.json": "d0d0dc4be7ea6df58cf0700db7dc2accb6b607963e6fff1c4129e009340d2016",
+        "Procedure_P_parallel.exploded.ast": "fcf924a15563d16765c8b6b5220f139ca0e79270f70e599f78fa53e5338f592c",
+        "Procedure_P_parallel.exploded.json": "1a0bd8af5d2ca3a3b09f44bc503bf2ff013419926c0a1ccad56a575952a8f66e"
+      },
+      "stdout_sha256": "5a5bfea3059beb0bf85258a028e4ef64d405fc6fedf1b28fa59a62113c90df9e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_initial_expr",
+      "exit_code": 0,
+      "input_sha256": "472fb10b995f25c1f2f8ce41e3a1ad534fa9521306df4cdfa4ddbe9b186d914c",
+      "stages_sha256": {
+        "Procedure_P_initial_expr.parse.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_P_initial_expr.parse.json": "9179e3d2ff520fb7fb257145e8de51fc1c1e6691bcd5cfbb6395f6fdb09f1e96",
+        "Procedure_P_initial_expr.names.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_P_initial_expr.names.json": "9179e3d2ff520fb7fb257145e8de51fc1c1e6691bcd5cfbb6395f6fdb09f1e96",
+        "Procedure_P_initial_expr.original-after-explode.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_P_initial_expr.original-after-explode.json": "9179e3d2ff520fb7fb257145e8de51fc1c1e6691bcd5cfbb6395f6fdb09f1e96",
+        "Procedure_P_initial_expr.exploded.ast": "a787e7b034a220142ab6970748f0fd5620add4126fc859f71f8ffc8fb0d070f3",
+        "Procedure_P_initial_expr.exploded.json": "8cddd2f3806fbdf7a342879e7685a8f9b2c461d1bf4969571af7f614550d8492"
+      },
+      "stdout_sha256": "cbb9708f1916676c9f1d374a9407db34d6a96067732a2d0e942df67dc88c6e15",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_arity_low",
+      "exit_code": 0,
+      "input_sha256": "896afc405d8e9d0927814b6b5b25a60c8270a550ad87c76e69c8e283c9bd5e40",
+      "stages_sha256": {
+        "Procedure_P_arity_low.parse.ast": "844fc7166205408babc85b2c774525af6083590f75b4a99a67e37047efcc1519",
+        "Procedure_P_arity_low.parse.json": "4ae5dbbb8efdb4c3cc0a858c79de465e2b2e127b6a723e5dda9b7278b87a99d8",
+        "Procedure_P_arity_low.names.ast": "844fc7166205408babc85b2c774525af6083590f75b4a99a67e37047efcc1519",
+        "Procedure_P_arity_low.names.json": "4ae5dbbb8efdb4c3cc0a858c79de465e2b2e127b6a723e5dda9b7278b87a99d8"
+      },
+      "stdout_sha256": "dbeaac4de0269a4c24d78e594766f174c7b39c93ef7b1192d3a010cf6d20f2d0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_arity_high",
+      "exit_code": 0,
+      "input_sha256": "11f999e933dcc9a0e587a549481df68a5c3fff8353c78df552d0c95fe74330d9",
+      "stages_sha256": {
+        "Procedure_P_arity_high.parse.ast": "fc6543495e17d03b25143a47ed397d310b16214498740db65194b5e85c05a5d8",
+        "Procedure_P_arity_high.parse.json": "c4f0b8275bf3d1714313d7d777198dd4479ad5d0b23a646c0d2a9ca1bd7e6ac8",
+        "Procedure_P_arity_high.names.ast": "fc6543495e17d03b25143a47ed397d310b16214498740db65194b5e85c05a5d8",
+        "Procedure_P_arity_high.names.json": "c4f0b8275bf3d1714313d7d777198dd4479ad5d0b23a646c0d2a9ca1bd7e6ac8"
+      },
+      "stdout_sha256": "424cd753e97c98bd7d5757523900f50b00bc8d79bdb1855d90f06b04921a5942",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_unknown",
+      "exit_code": 0,
+      "input_sha256": "1dcb6dbd52e7eb2ba92471367a4b4486bc48de32894e6fec2efbc8cb31bab6b0",
+      "stages_sha256": {
+        "Procedure_P_unknown.parse.ast": "070f82d93cd45c2915fd6ee22883ebae6d8c27135205b6bd6111f2458e13857b",
+        "Procedure_P_unknown.parse.json": "e6d47c072932085a209ffcb529fc541a8d7551af8b75c5b6e09916c7cb8f9bc0",
+        "Procedure_P_unknown.names.ast": "070f82d93cd45c2915fd6ee22883ebae6d8c27135205b6bd6111f2458e13857b",
+        "Procedure_P_unknown.names.json": "e6d47c072932085a209ffcb529fc541a8d7551af8b75c5b6e09916c7cb8f9bc0"
+      },
+      "stdout_sha256": "8504ed68a3f5b47c6c66f8b5909af89a07ecb720679ba4f9f3fcb079e985d901",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_return_main",
+      "exit_code": 0,
+      "input_sha256": "c2af3133b9c014305136793b680e469c143bea307d29ba0002978fc842427d2a",
+      "stages_sha256": {
+        "Procedure_P_return_main.parse.ast": "04fcecdbf45cd6b3331e9a9ebcab56f1708f76febbba32c1275f77f7f24016ae",
+        "Procedure_P_return_main.parse.json": "d6afd30dc9c2facb456c4194e556b62f89fb3159346a8fec2be69a79ca75551e",
+        "Procedure_P_return_main.names.ast": "04fcecdbf45cd6b3331e9a9ebcab56f1708f76febbba32c1275f77f7f24016ae",
+        "Procedure_P_return_main.names.json": "d6afd30dc9c2facb456c4194e556b62f89fb3159346a8fec2be69a79ca75551e"
+      },
+      "stdout_sha256": "19a0c5c1b9addcc6209bdd7484b58a082e550d62c60aedcff9999a98b9b28810",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_recursive",
+      "exit_code": 0,
+      "input_sha256": "c3f088bfda3d954b2d6d3b302480fc3c52ff32f3d06404c88e3b0963ed06e693",
+      "stages_sha256": {
+        "Procedure_P_recursive.parse.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_P_recursive.parse.json": "a6362ee3abbbdbefa0469a611754777632a649c1c1941f27bb0ae16aac528c57",
+        "Procedure_P_recursive.names.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_P_recursive.names.json": "a6362ee3abbbdbefa0469a611754777632a649c1c1941f27bb0ae16aac528c57",
+        "Procedure_P_recursive.original-after-explode.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_P_recursive.original-after-explode.json": "a6362ee3abbbdbefa0469a611754777632a649c1c1941f27bb0ae16aac528c57",
+        "Procedure_P_recursive.exploded.ast": "5f47733822a560cbfceae48406743dacfc1ea1286fe5dd67971dedeab12b31ec",
+        "Procedure_P_recursive.exploded.json": "fdb541fad8cb99a039f8b58bb78aa306acbae41c8d4dab47510be089654505b2"
+      },
+      "stdout_sha256": "c258e1e5aeb6f609a606049e4c5f779793324ed41bce77c21d4e7a5dca5d7000",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_tail_recursive",
+      "exit_code": 0,
+      "input_sha256": "79335ffd09ebf02003dcc1d459c460b767973d373e033a99a73e19c2eb7e20f5",
+      "stages_sha256": {
+        "Procedure_P_tail_recursive.parse.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_P_tail_recursive.parse.json": "b668a1f7ac424ba30b7799ba1616ae0e5389b053635732420dfdcebb332c8777",
+        "Procedure_P_tail_recursive.names.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_P_tail_recursive.names.json": "b668a1f7ac424ba30b7799ba1616ae0e5389b053635732420dfdcebb332c8777",
+        "Procedure_P_tail_recursive.original-after-explode.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_P_tail_recursive.original-after-explode.json": "b668a1f7ac424ba30b7799ba1616ae0e5389b053635732420dfdcebb332c8777",
+        "Procedure_P_tail_recursive.exploded.ast": "0a9db80fecf159a220316938c45033dae4679ce30f9ac3fc309e90da1c603537",
+        "Procedure_P_tail_recursive.exploded.json": "4b93b4b9907af80087725544c756b814428b82b1136656b9823a72a3ec7d4e8f"
+      },
+      "stdout_sha256": "8c51655aa3694ee1d39082ca206380e864be57359fa9ea9d00d9196727967f9e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_call_goto",
+      "exit_code": 0,
+      "input_sha256": "56ca5464f25513271987afbfc7de156ed4868dbfceec91318c91ef49ea84400f",
+      "stages_sha256": {
+        "Procedure_P_call_goto.parse.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_P_call_goto.parse.json": "16ef539c5b6bcab22887dc6dc9cffea8ad582653175c4ef7f73ef68bdc924c6c",
+        "Procedure_P_call_goto.names.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_P_call_goto.names.json": "16ef539c5b6bcab22887dc6dc9cffea8ad582653175c4ef7f73ef68bdc924c6c",
+        "Procedure_P_call_goto.original-after-explode.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_P_call_goto.original-after-explode.json": "16ef539c5b6bcab22887dc6dc9cffea8ad582653175c4ef7f73ef68bdc924c6c",
+        "Procedure_P_call_goto.exploded.ast": "3f5d499d40fafdbf385f52e42a3c99a472513803050a21a3d9d5431e4585cc61",
+        "Procedure_P_call_goto.exploded.json": "7946d213b0626e37c374a43a4e6e02475aa6b7bd2f92048da3bf20c855bc27aa"
+      },
+      "stdout_sha256": "f708227c91d77128b48cbccba153cc8649ab689a368a417adf9fb3c2e0625130",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_call_follows_assign",
+      "exit_code": 0,
+      "input_sha256": "f3299b6cbe5116051ed381df19026bf707800a00e02bb0b8723d42132a37a96a",
+      "stages_sha256": {
+        "Procedure_P_call_follows_assign.parse.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_P_call_follows_assign.parse.json": "5e0755e6e195fe4d8e7704a4ec078b9ccfe37ed864737ba0e4d5dc3f16cfe294",
+        "Procedure_P_call_follows_assign.names.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_P_call_follows_assign.names.json": "5e0755e6e195fe4d8e7704a4ec078b9ccfe37ed864737ba0e4d5dc3f16cfe294",
+        "Procedure_P_call_follows_assign.original-after-explode.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_P_call_follows_assign.original-after-explode.json": "5e0755e6e195fe4d8e7704a4ec078b9ccfe37ed864737ba0e4d5dc3f16cfe294",
+        "Procedure_P_call_follows_assign.exploded.ast": "0ef7979bba84b7ce8000991910de418df9661a3696c660e3947a4d144bb26b40",
+        "Procedure_P_call_follows_assign.exploded.json": "307ca2586f9ae2626f78037bd585def86a39a6e5eb49b54987ba32682652b044"
+      },
+      "stdout_sha256": "654942b83bd13ca149f64b0bac1638bb6ec34074776b4037de1c7f02831ce61f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_call_missing_follow_label",
+      "exit_code": 0,
+      "input_sha256": "cd6c8198dca9e4750f5745eae95e8c4bb6d8e3d5bfeda86e8795a607b25f283a",
+      "stages_sha256": {},
+      "stdout_sha256": "335c0f88e7628d10b3f494b9c30956cd2ac5fdb99bdf954951024df2e3a5ad50",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_auto",
+      "exit_code": 0,
+      "input_sha256": "6541a9b7a79e149fbf14025c9ed5000badefa8e33618c2e217112c44c7615b6e",
+      "stages_sha256": {
+        "Procedure_P_auto.parse.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_P_auto.parse.json": "25fa3ae7034746153e18bb7c988c899f0828317cd7f11d86ac3688ba7aa5d524",
+        "Procedure_P_auto.names.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_P_auto.names.json": "25fa3ae7034746153e18bb7c988c899f0828317cd7f11d86ac3688ba7aa5d524",
+        "Procedure_P_auto.original-after-explode.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_P_auto.original-after-explode.json": "25fa3ae7034746153e18bb7c988c899f0828317cd7f11d86ac3688ba7aa5d524",
+        "Procedure_P_auto.exploded.ast": "e7b31bafcf6d8da54655aea860cc7ff737142c2f0bc8214b4432684daad22744",
+        "Procedure_P_auto.exploded.json": "9d5b850fd9023b43a6b5166cf4633d4bebaad942e2417c7c60a96949e89cd421"
+      },
+      "stdout_sha256": "1d105daee2e53763b89468b860699df24d8b2b4e7e569302dfc10b38c12d59fc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_unused",
+      "exit_code": 0,
+      "input_sha256": "ef89a5082166aad9de8d10c6b239e66b028ef73660b3a3d06bc7926053e05173",
+      "stages_sha256": {
+        "Procedure_P_unused.parse.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_P_unused.parse.json": "897489f132ec04b2738bbafc3fbc6a5a01b5f9780578b0d32bca7b34752f44df",
+        "Procedure_P_unused.names.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_P_unused.names.json": "897489f132ec04b2738bbafc3fbc6a5a01b5f9780578b0d32bca7b34752f44df",
+        "Procedure_P_unused.original-after-explode.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_P_unused.original-after-explode.json": "897489f132ec04b2738bbafc3fbc6a5a01b5f9780578b0d32bca7b34752f44df",
+        "Procedure_P_unused.exploded.ast": "74cb7ab1b9614bb251ab9059a7d85451c810dcb3a9c434e98acaa0c3ebfbccd8",
+        "Procedure_P_unused.exploded.json": "7ea63184907a507d6d50481828d13b87787fcfa21bfdfb90d9b2145dfcc7c5eb"
+      },
+      "stdout_sha256": "454e6de2daf16600fa831e3ba269812d1bca31c5cc359326f686cb06d38e84b7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_unused_invalid",
+      "exit_code": 0,
+      "input_sha256": "beedecb50f73a5609ae45321ea3c7159a1538cff164a14ca0b03f9527ac60efb",
+      "stages_sha256": {
+        "Procedure_P_unused_invalid.parse.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_P_unused_invalid.parse.json": "bc258aa3099926f6c23432e62cd66932611937cb24a9bfad4dd903e0630ca38d",
+        "Procedure_P_unused_invalid.names.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_P_unused_invalid.names.json": "bc258aa3099926f6c23432e62cd66932611937cb24a9bfad4dd903e0630ca38d",
+        "Procedure_P_unused_invalid.original-after-explode.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_P_unused_invalid.original-after-explode.json": "bc258aa3099926f6c23432e62cd66932611937cb24a9bfad4dd903e0630ca38d",
+        "Procedure_P_unused_invalid.exploded.ast": "4938fb40e1df7e76ab20df139ee5dcf2a98c026a2714285cd3cb9905bc1c61e8",
+        "Procedure_P_unused_invalid.exploded.json": "018ae63ac07caf3d2ed22bcf5ebde942ee81ecc733d8a97381c0d3d64b0dc455"
+      },
+      "stdout_sha256": "81a93f37ef48e32e422819bdbf2b75312424a62fd32e0123833cf0d6a620cff6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_global_param_collision",
+      "exit_code": 0,
+      "input_sha256": "15f6a460343d494385f63287fe39236b38aa7817742be1fea2148556548f4b9c",
+      "stages_sha256": {},
+      "stdout_sha256": "79f6362c37f7b683915a568284bcc01d4fb778b1451c7e8a2e354241bc0f2b4b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_param_local_collision",
+      "exit_code": 0,
+      "input_sha256": "ca9d919abbaab972a228f4c155bf205dc4962198efe165b9bc574d371bc1a246",
+      "stages_sha256": {
+        "Procedure_P_param_local_collision.parse.ast": "2fdc65577c8a891151d362f6f1856a944a706be84c92c74400333b2f2a43d6cb",
+        "Procedure_P_param_local_collision.parse.json": "52cc60f4bc877315762c8b3f0f8ba23e34069b88cecafefb49dfe0c04fba9d3c"
+      },
+      "stdout_sha256": "d96eaba9164a6ebca185a39db3a4220d025061ace71c9c8465ae849314b3b225",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_duplicate_param",
+      "exit_code": 0,
+      "input_sha256": "632504cdf1f4738c2a7f614df7a64f164475f73375cb0402c5fe6dfca7e47fa9",
+      "stages_sha256": {
+        "Procedure_P_duplicate_param.parse.ast": "863043d5dbb65c7f88162c93873fe817e2ce9557d150d5953d4a738ec274632e",
+        "Procedure_P_duplicate_param.parse.json": "6fa1913aea51d0279d4fac8bca0363534da84da5773b483e44b86c502b5868a5"
+      },
+      "stdout_sha256": "d752659613ae450fd1b5f2ba2477ca5cf1d63a6e996583e6c91474ce6920bb4c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_reserved_stack",
+      "exit_code": 0,
+      "input_sha256": "efe4c26fcaeee008185eab6867d3179873b52c10d4a0ae84d45c7a89854ed648",
+      "stages_sha256": {
+        "Procedure_P_reserved_stack.parse.ast": "3746d30810a7f4208544fb762e5c67048733ee86e710daee9b7f144d74b3fde4",
+        "Procedure_P_reserved_stack.parse.json": "60614e7edb8a14f28e2685e70984da923363373228d7aaccc6d4069f2d476455"
+      },
+      "stdout_sha256": "849976b8865eba622aee0873c3ce45f5a1f068889a322d126a179e62db5599e1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_reserved_pc",
+      "exit_code": 0,
+      "input_sha256": "bcc9af1f24b96e1f1fe539f76a29badbeb186cbd69861200b306c8ceb4ff5706",
+      "stages_sha256": {
+        "Procedure_P_reserved_pc.parse.ast": "fc1e780f41d8170e91b781027c605b42fba15e1017c9889d5b25f7d8d81e6f20",
+        "Procedure_P_reserved_pc.parse.json": "6215b74ff2c4a3c030c66856f4be069b22097bb1830253dabdd55e592c1a6116"
+      },
+      "stdout_sha256": "c6306f3565ef2b86cefdb68ec19ba16fb8ae7bb3052d91acd355bb3e2e4ca212",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_operator_names",
+      "exit_code": 0,
+      "input_sha256": "6fa181d777b1261bc618ad86eed5b59decd7ca15d626ebb97ac8fc571804752b",
+      "stages_sha256": {
+        "Procedure_P_operator_names.parse.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_P_operator_names.parse.json": "21a3355a750f6d5aad6d79d184dfd32d55acbaaf60fce0c4d92967d36e2bb8a3",
+        "Procedure_P_operator_names.names.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_P_operator_names.names.json": "21a3355a750f6d5aad6d79d184dfd32d55acbaaf60fce0c4d92967d36e2bb8a3",
+        "Procedure_P_operator_names.original-after-explode.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_P_operator_names.original-after-explode.json": "21a3355a750f6d5aad6d79d184dfd32d55acbaaf60fce0c4d92967d36e2bb8a3",
+        "Procedure_P_operator_names.exploded.ast": "6552703822409298f3c782e0fed7ee3c19dec1aee4a588b238a67403a27bc213",
+        "Procedure_P_operator_names.exploded.json": "63568d4fc9f1bda31f101957cde8d545411370df1141d501eb8802cada2c77e6"
+      },
+      "stdout_sha256": "ba68fc22e9c9f04935f29acdd2d561969dd1673e6bdbff906e4d7fdec2a6d57d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_proc_label_collision",
+      "exit_code": 0,
+      "input_sha256": "0f46aeaad1654fd701a2f1a225d2d4604fb8d70c41ce50da83f806b1cf0c4dfd",
+      "stages_sha256": {
+        "Procedure_P_proc_label_collision.parse.ast": "eabfc579e91233bd7a6949b1efc993b35ad98b931241b9c0bd5979172da9b578",
+        "Procedure_P_proc_label_collision.parse.json": "a30501820d21a4e986016e89a81a740f37ea835407b749b9bcd901fa44126a02",
+        "Procedure_P_proc_label_collision.names.ast": "929f364acb89d50607dbb174ffa1c32f4b649a2367530d167bc9e506f8c5f199",
+        "Procedure_P_proc_label_collision.names.json": "bb6e48a031bac78f03a79cad9877d210ed4fdddfb967315bcf5fc2c11077484a",
+        "Procedure_P_proc_label_collision.original-after-explode.ast": "929f364acb89d50607dbb174ffa1c32f4b649a2367530d167bc9e506f8c5f199",
+        "Procedure_P_proc_label_collision.original-after-explode.json": "bb6e48a031bac78f03a79cad9877d210ed4fdddfb967315bcf5fc2c11077484a",
+        "Procedure_P_proc_label_collision.exploded.ast": "714b2ff1538e407e3875cb9b05bed7131cb63d6f45f5ec520317efc7536f7078",
+        "Procedure_P_proc_label_collision.exploded.json": "9e673a3a9a9bb45329eb8c5efcc187e7ac032ec24a14e09f43af63b3b8c4d3fd"
+      },
+      "stdout_sha256": "898a836150e78bbbbb1f5c46f3656fc3c74dde246ec21363b48ad909878f118e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_cross_goto",
+      "exit_code": 0,
+      "input_sha256": "5087a6c03ae6261d4ea510c9ddb7b6538f4a3bcb3123efa7dfa69ea70c51a838",
+      "stages_sha256": {
+        "Procedure_P_cross_goto.parse.ast": "476dea04cbc8754dec2e8f54d47a23ae8ddedbcaef761ad91e07b5ac666c12e4",
+        "Procedure_P_cross_goto.parse.json": "87674104c260690d9d7a9dbe6a903141695f35cac1a8fdb36951dc5e57f483bc"
+      },
+      "stdout_sha256": "c275452e99f3aa772e9b0e16fd41dbeb53b05a265fbb51366050d81fa155328a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_source_assert",
+      "exit_code": 0,
+      "input_sha256": "66bdd0dd6c703abbc59e25900d8bce16b8cc06c30c1dabdca0c9204a0f43d392",
+      "stages_sha256": {
+        "Procedure_P_source_assert.parse.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_P_source_assert.parse.json": "347c1485f7fa667c8a4795d54a4d329c16b4ffd4c0b1ac8c8fd3fc167e60434f",
+        "Procedure_P_source_assert.names.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_P_source_assert.names.json": "347c1485f7fa667c8a4795d54a4d329c16b4ffd4c0b1ac8c8fd3fc167e60434f",
+        "Procedure_P_source_assert.original-after-explode.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_P_source_assert.original-after-explode.json": "347c1485f7fa667c8a4795d54a4d329c16b4ffd4c0b1ac8c8fd3fc167e60434f",
+        "Procedure_P_source_assert.exploded.ast": "92c7f1574e57e24da27c4ff49ceba1bd2da23b05040e38ffe22804dac39f416c",
+        "Procedure_P_source_assert.exploded.json": "969e97d03ca5d615db0eda9f6be65014aead169d3241bafb1c3a40cc067afec9"
+      },
+      "stdout_sha256": "7da4e74c621af2b893d2aa66da50ca4b7f4e3447dc497f619f43ae0af0cc2c98",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_param_read_main",
+      "exit_code": 0,
+      "input_sha256": "89b94c0e322fecd99841f62205f2df9813c636c9142c719c8b19c8c46b10ee2c",
+      "stages_sha256": {
+        "Procedure_P_param_read_main.parse.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_P_param_read_main.parse.json": "549b0db37708e41d3877562e1a0b707fec91dc1b2b32e0db234f7ceb9617ca12",
+        "Procedure_P_param_read_main.names.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_P_param_read_main.names.json": "549b0db37708e41d3877562e1a0b707fec91dc1b2b32e0db234f7ceb9617ca12",
+        "Procedure_P_param_read_main.original-after-explode.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_P_param_read_main.original-after-explode.json": "549b0db37708e41d3877562e1a0b707fec91dc1b2b32e0db234f7ceb9617ca12",
+        "Procedure_P_param_read_main.exploded.ast": "e362e847f6ac5b07eb8b6ac744727c426347e4a4fa22b161afd607dff0f2f555",
+        "Procedure_P_param_read_main.exploded.json": "60aebce777d2e57b8d4f8333ffbc2eeb3d19381aabf152d3cb0ab3df7f1a2422"
+      },
+      "stdout_sha256": "bf4401c300c304b983a307c12bd82d31f1a6e9ad5981d799aca3dcac5ec8148f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_P_local_read_main",
+      "exit_code": 0,
+      "input_sha256": "63e40907be9a3479f9979c889d6ba37ffcfabe6d9be68cf57933dab692a20955",
+      "stages_sha256": {
+        "Procedure_P_local_read_main.parse.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_P_local_read_main.parse.json": "34a7623c0addb9f6421dc5eb6caa8d80566c53d758b5490023773f5240543c5b",
+        "Procedure_P_local_read_main.names.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_P_local_read_main.names.json": "34a7623c0addb9f6421dc5eb6caa8d80566c53d758b5490023773f5240543c5b",
+        "Procedure_P_local_read_main.original-after-explode.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_P_local_read_main.original-after-explode.json": "34a7623c0addb9f6421dc5eb6caa8d80566c53d758b5490023773f5240543c5b",
+        "Procedure_P_local_read_main.exploded.ast": "450d917862fb2b90d2acb59e417d56bc6ba3d90a66f49a99aa57d7f0715293b2",
+        "Procedure_P_local_read_main.exploded.json": "e98e0305644391c49b64a2d627c6c2b968d54b9f1ec06dba763909de6c319808"
+      },
+      "stdout_sha256": "b5cba59ea026a487b7c62474c6b8f5540f418c903e96f0192472cd4b9fca944b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_simple",
+      "exit_code": 0,
+      "input_sha256": "f9734ce265271947f3fa46e9386b7b5601e5cf6e173d688d931c34d8c530c307",
+      "stages_sha256": {
+        "Procedure_C_simple.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_C_simple.parse.json": "b39733ee7022a136165e469df58bc9394a3c7a539bc0ea4524b442de7b915d47",
+        "Procedure_C_simple.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_C_simple.names.json": "b39733ee7022a136165e469df58bc9394a3c7a539bc0ea4524b442de7b915d47",
+        "Procedure_C_simple.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "Procedure_C_simple.original-after-explode.json": "b39733ee7022a136165e469df58bc9394a3c7a539bc0ea4524b442de7b915d47",
+        "Procedure_C_simple.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "Procedure_C_simple.exploded.json": "1b71628214ecd89cb8d92fde0831e196fbae676300531417faf0da5f624b6a35"
+      },
+      "stdout_sha256": "4422c9bd9b16a536711a705ec5dd491789e328560bebbb7b602a9fb18807b87a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_no_params",
+      "exit_code": 0,
+      "input_sha256": "6f8dbd78ff1bee5179eeda9e8de8fadea790249d645ff978ccec45f6ca82b348",
+      "stages_sha256": {
+        "Procedure_C_no_params.parse.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_C_no_params.parse.json": "8057aa1753f35e63ce38e68ce883708fde185db0d7841e68d27fea4774b4a54a",
+        "Procedure_C_no_params.names.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_C_no_params.names.json": "8057aa1753f35e63ce38e68ce883708fde185db0d7841e68d27fea4774b4a54a",
+        "Procedure_C_no_params.original-after-explode.ast": "8e4d86194867fe7e3bad0dea1fc669ac4872984619a893d019aa4382a3818a38",
+        "Procedure_C_no_params.original-after-explode.json": "8057aa1753f35e63ce38e68ce883708fde185db0d7841e68d27fea4774b4a54a",
+        "Procedure_C_no_params.exploded.ast": "7cf6d0cc6db844dd24391bcbd26822fee4e186bc449dca7854247f31942b61fe",
+        "Procedure_C_no_params.exploded.json": "2445cdc894b4f2b9195b62189fc2d30e17680ff077eee430155d5919acb07b00"
+      },
+      "stdout_sha256": "93829a683afef54728fb1928f57ae3fb1fd4029636706ee20050e00019bdedb1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_default_param",
+      "exit_code": 0,
+      "input_sha256": "a45a826db78accfae0658805f451ed86e98a3e6ea729be07344565882d4d3b27",
+      "stages_sha256": {
+        "Procedure_C_default_param.parse.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_C_default_param.parse.json": "ecc377fe1afbaf959b838927ecb809f8c56c53fad56b2d4856c884ab8f525441",
+        "Procedure_C_default_param.names.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_C_default_param.names.json": "ecc377fe1afbaf959b838927ecb809f8c56c53fad56b2d4856c884ab8f525441",
+        "Procedure_C_default_param.original-after-explode.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "Procedure_C_default_param.original-after-explode.json": "ecc377fe1afbaf959b838927ecb809f8c56c53fad56b2d4856c884ab8f525441",
+        "Procedure_C_default_param.exploded.ast": "a5bac4fba317d1f467c8a0a2e5a0c507edf694725db8a0f05fa91ad0630e517e",
+        "Procedure_C_default_param.exploded.json": "486766442d8ce00c88ee107be97d23263bd2fe5c159dbbc0cdc4a87ea2145c23"
+      },
+      "stdout_sha256": "30494c7d9850d6496bcc665a8f7612e6315b0633c4b4bd974de05c2932d258b1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_local",
+      "exit_code": 0,
+      "input_sha256": "4019fd6eb1b3e2054968391e800e77a40a0486593e421734e2ad8e1dddf04b2c",
+      "stages_sha256": {
+        "Procedure_C_local.parse.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_C_local.parse.json": "37253364bc47de9d86725cad07e38254b0b718178ddeae36f4ec32df7f8b3b8a",
+        "Procedure_C_local.names.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_C_local.names.json": "37253364bc47de9d86725cad07e38254b0b718178ddeae36f4ec32df7f8b3b8a",
+        "Procedure_C_local.original-after-explode.ast": "c863b537ba07ca63436aeaf700adff0e50703ba5f65401eb89ec30bf0000be6c",
+        "Procedure_C_local.original-after-explode.json": "37253364bc47de9d86725cad07e38254b0b718178ddeae36f4ec32df7f8b3b8a",
+        "Procedure_C_local.exploded.ast": "667a8a2330b3e3977d7a00b89c5d772d9f72f29fe9e48c7a4df01bf212e3ea6d",
+        "Procedure_C_local.exploded.json": "cbf91e34f38e1077c1e3edd458fb01405b51a3b36ad9d136cfe738dea2a8d984"
+      },
+      "stdout_sha256": "78c2cf9e88e1b3273596c4e5cb17e36de618e7012e6fe1103477b1f517538de3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_local_from_param",
+      "exit_code": 0,
+      "input_sha256": "31a7aca69b59ce829308f4794dbcd966f3ce35a75e086ebf5dc4388e45d275ce",
+      "stages_sha256": {
+        "Procedure_C_local_from_param.parse.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_C_local_from_param.parse.json": "109fa0735993f42e1272fad38ae0fb6e74fcab507c9e0af6b937e2e217af65f1",
+        "Procedure_C_local_from_param.names.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_C_local_from_param.names.json": "109fa0735993f42e1272fad38ae0fb6e74fcab507c9e0af6b937e2e217af65f1",
+        "Procedure_C_local_from_param.original-after-explode.ast": "a44cf815db740bb3b5f1d621ebef4577999219bcdcf953614cba9f2c424abc75",
+        "Procedure_C_local_from_param.original-after-explode.json": "109fa0735993f42e1272fad38ae0fb6e74fcab507c9e0af6b937e2e217af65f1",
+        "Procedure_C_local_from_param.exploded.ast": "cec923a232d7576dbcc82a6a79a5f827f4939e7187ee1a4a96a5c293612a2421",
+        "Procedure_C_local_from_param.exploded.json": "b7e21347156764edf81a1779f841b5e7c8a8412890c9e8e679b5048b7a09f48c"
+      },
+      "stdout_sha256": "0c4164b8fdd282b488e63810a62463ff9f659c7e041ed127220b76b1c9ddb880",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_default_local",
+      "exit_code": 0,
+      "input_sha256": "eec21cc5aef79883c81cb455140958af8e5ca1df52b54e9af9513da0e23a09a9",
+      "stages_sha256": {
+        "Procedure_C_default_local.parse.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_C_default_local.parse.json": "6c70f929ad70ffffec77e66dc0d409fab20b185d3a7b5acf6a00e4736781586f",
+        "Procedure_C_default_local.names.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_C_default_local.names.json": "6c70f929ad70ffffec77e66dc0d409fab20b185d3a7b5acf6a00e4736781586f",
+        "Procedure_C_default_local.original-after-explode.ast": "0265159bb9279559e8c3bd41dfa6c70c20a14b858025020e14267e924c2639d1",
+        "Procedure_C_default_local.original-after-explode.json": "6c70f929ad70ffffec77e66dc0d409fab20b185d3a7b5acf6a00e4736781586f",
+        "Procedure_C_default_local.exploded.ast": "c735b8889a4936767f43c0fe6cd72d9fbebe5a74a748af445488497803db3e03",
+        "Procedure_C_default_local.exploded.json": "5b2147775dfbd316970b2ea48c823cceee2096e038fdbb0459177232162219cf"
+      },
+      "stdout_sha256": "4a6e3e6124de0bc7a745270595a9a6ff026d2d02ca990d01c81cce053d58c547",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_two_params",
+      "exit_code": 0,
+      "input_sha256": "205a8a50de0731ec7516c42360f6125e7bfa376f5bcb912a3a86c886ea68c882",
+      "stages_sha256": {
+        "Procedure_C_two_params.parse.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_C_two_params.parse.json": "f8f10ee1c4ee84a2fce6e7d1314762888636ee6807d61f71a960e857f346c59a",
+        "Procedure_C_two_params.names.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_C_two_params.names.json": "f8f10ee1c4ee84a2fce6e7d1314762888636ee6807d61f71a960e857f346c59a",
+        "Procedure_C_two_params.original-after-explode.ast": "501fda594b410bd6cf409a468096ff824293fac9fc3225ddd8db0352e56ef2e3",
+        "Procedure_C_two_params.original-after-explode.json": "f8f10ee1c4ee84a2fce6e7d1314762888636ee6807d61f71a960e857f346c59a",
+        "Procedure_C_two_params.exploded.ast": "d48c72f4d3a18a4d7e11b433cc5d7f2624f51150968ffe48ffc6542eff81a218",
+        "Procedure_C_two_params.exploded.json": "a5b3e43374e04853d091fb6811b79cf9a9e1a5391123a726145564486880fde0"
+      },
+      "stdout_sha256": "48b811b8c2ee251b102411f228f5cc50288b52bd356a4d34e18525dde9d3bc42",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_repeat",
+      "exit_code": 0,
+      "input_sha256": "fbd8cdec601b8ff1e7fe257d4a4f0ad52661ea63089f3fcccafbc9ceb1a29daf",
+      "stages_sha256": {
+        "Procedure_C_repeat.parse.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_C_repeat.parse.json": "49773e576677d968b0c196b1265b60e1032493afa862fc2d550a6efa350010e6",
+        "Procedure_C_repeat.names.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_C_repeat.names.json": "49773e576677d968b0c196b1265b60e1032493afa862fc2d550a6efa350010e6",
+        "Procedure_C_repeat.original-after-explode.ast": "15a2dc21ec64b7db4713ee6fe73b754487f210b19d64902c408fd4c104477588",
+        "Procedure_C_repeat.original-after-explode.json": "49773e576677d968b0c196b1265b60e1032493afa862fc2d550a6efa350010e6",
+        "Procedure_C_repeat.exploded.ast": "f10c7bb0f086eb3d43b37cdb0463fac9d3423b3152c144a55ccc1217160c0f74",
+        "Procedure_C_repeat.exploded.json": "12b65f760dc08d3e61fe2cef4e293353016d1748932bdfd86a74389f06af23d5"
+      },
+      "stdout_sha256": "0f6276e070b54889e74fc3fc0bd6df3cd400d6724dd19881c10c7a99015de551",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_return_same_label",
+      "exit_code": 0,
+      "input_sha256": "02cb3a09ce363da5de7cbc2036102cfb36a2b540c23f14ab98e7e2cb2ce8c592",
+      "stages_sha256": {
+        "Procedure_C_return_same_label.parse.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_C_return_same_label.parse.json": "668994de1d42a85a521f03cfac9da1f7a7d8817b2453663dae2d70c19bc97fae",
+        "Procedure_C_return_same_label.names.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_C_return_same_label.names.json": "668994de1d42a85a521f03cfac9da1f7a7d8817b2453663dae2d70c19bc97fae",
+        "Procedure_C_return_same_label.original-after-explode.ast": "b22aaf7246925e1d272d489a84101ecc8ca10845e663116502e3774347888649",
+        "Procedure_C_return_same_label.original-after-explode.json": "668994de1d42a85a521f03cfac9da1f7a7d8817b2453663dae2d70c19bc97fae",
+        "Procedure_C_return_same_label.exploded.ast": "3f5d499d40fafdbf385f52e42a3c99a472513803050a21a3d9d5431e4585cc61",
+        "Procedure_C_return_same_label.exploded.json": "5f9fd5265c1d9b730144c59de39ba0c649d50cc956cc8ddfc15751945061ea19"
+      },
+      "stdout_sha256": "ca97692b4a338d56a0684b867f8cb8600be747ba46eabfde6485756d57f07878",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_implicit_return",
+      "exit_code": 0,
+      "input_sha256": "8f727b649daada826365f5e2a818ad40757ff79154b5ebecc59129f6c98ce8c1",
+      "stages_sha256": {
+        "Procedure_C_implicit_return.parse.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_C_implicit_return.parse.json": "8bd0ef50c53ae62d124408c82eaa89f2428df0e1bb76999138fe2c88ba32d9aa",
+        "Procedure_C_implicit_return.names.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_C_implicit_return.names.json": "8bd0ef50c53ae62d124408c82eaa89f2428df0e1bb76999138fe2c88ba32d9aa",
+        "Procedure_C_implicit_return.original-after-explode.ast": "e63de3ed14f0566fb1c74275bf0122b8a5efbdbad93258be04fb55742ebcbbd7",
+        "Procedure_C_implicit_return.original-after-explode.json": "8bd0ef50c53ae62d124408c82eaa89f2428df0e1bb76999138fe2c88ba32d9aa",
+        "Procedure_C_implicit_return.exploded.ast": "7b1cc908b99cbe69c20f06f32c607757aba761e59319d57fdd4b189299e3b36a",
+        "Procedure_C_implicit_return.exploded.json": "b717cb6f1b00e7bcd12e723090379e1efab712cba41b06e1310302f66b5eedb5"
+      },
+      "stdout_sha256": "cbaaf3c136d10f6a6de23a7da6564d84c6babc9bffe202cf6572b36283d90490",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_return_only",
+      "exit_code": 0,
+      "input_sha256": "84887edcd51611c573bd9f5f2de15cc4d97fe81624539b5638327c0caf21ef67",
+      "stages_sha256": {
+        "Procedure_C_return_only.parse.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_C_return_only.parse.json": "1e55181c9d15288814ee0e3100df3ce26a948a9e4216cd73b021c508f2fffd18",
+        "Procedure_C_return_only.names.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_C_return_only.names.json": "1e55181c9d15288814ee0e3100df3ce26a948a9e4216cd73b021c508f2fffd18",
+        "Procedure_C_return_only.original-after-explode.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "Procedure_C_return_only.original-after-explode.json": "1e55181c9d15288814ee0e3100df3ce26a948a9e4216cd73b021c508f2fffd18",
+        "Procedure_C_return_only.exploded.ast": "6ce4e28b3a5d1c6218a53ff5c61a2b55340491712b7edc1d0d22732323d450ee",
+        "Procedure_C_return_only.exploded.json": "720b3230b02aa998f8eef97bf5a4d04afc7336797b171c36a981137ec064cfbc"
+      },
+      "stdout_sha256": "96f1248488d7e8c494a15ab83d71bc62c44ffee299ca5b05022fe0e880988848",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_call_to_done",
+      "exit_code": 0,
+      "input_sha256": "c6858f5f5708b54e2d59259ea1d2a2563b09cc663c5fef5707dd2783fecf5f11",
+      "stages_sha256": {
+        "Procedure_C_call_to_done.parse.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_C_call_to_done.parse.json": "838009eeb91810479b7e11cc406163ca2debdeab00e81308957837a25b4556be",
+        "Procedure_C_call_to_done.names.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_C_call_to_done.names.json": "838009eeb91810479b7e11cc406163ca2debdeab00e81308957837a25b4556be",
+        "Procedure_C_call_to_done.original-after-explode.ast": "c5072f827f98764dda9450d1e25caf31e518be834b11067a6ad6a0ed1d22de5e",
+        "Procedure_C_call_to_done.original-after-explode.json": "838009eeb91810479b7e11cc406163ca2debdeab00e81308957837a25b4556be",
+        "Procedure_C_call_to_done.exploded.ast": "bc9c9cdc39894cea43177af91b7299c742886c388cd340df356567def3204a0e",
+        "Procedure_C_call_to_done.exploded.json": "3e45c42eaea51c6af1298b1b79071b61080fa7f4f37e91058fcf83ffd786b4c5"
+      },
+      "stdout_sha256": "a58af44dcd44dee80db3f8b9eba157ef3bfbea36db0ecfa32a0dab6bd0f80bd6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_loop",
+      "exit_code": 0,
+      "input_sha256": "a80fbd51123f8679b040b94581068c82ef62500eaf89e1d9666e9454b2a40be4",
+      "stages_sha256": {
+        "Procedure_C_loop.parse.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_C_loop.parse.json": "17ab2bef5129ec4c9b388be951dd6b6c5f177c841d65a6069e0e20e195b5b915",
+        "Procedure_C_loop.names.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_C_loop.names.json": "17ab2bef5129ec4c9b388be951dd6b6c5f177c841d65a6069e0e20e195b5b915",
+        "Procedure_C_loop.original-after-explode.ast": "763bece3df71d43bb945052e363d340e47bc9f5470306eed81e58d85c3ffaf93",
+        "Procedure_C_loop.original-after-explode.json": "17ab2bef5129ec4c9b388be951dd6b6c5f177c841d65a6069e0e20e195b5b915",
+        "Procedure_C_loop.exploded.ast": "c3625021ab3de793921b60a4c49e78d05ccc583932d2626d56ce4d7c113924c9",
+        "Procedure_C_loop.exploded.json": "9dc36f66563dac9694c0964af999c2aa712bcc21ac8266c2b5e933113d7bbdae"
+      },
+      "stdout_sha256": "93111abb33720e119e74ad3ebfa250b1100406d904cb4d0a140f8d22ae50600e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_branch",
+      "exit_code": 0,
+      "input_sha256": "d9c8b9ab607a4869a0ba23edb28b3cd7fe0226091fb30e3d30323b4dd5cfa8f3",
+      "stages_sha256": {
+        "Procedure_C_branch.parse.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_C_branch.parse.json": "2cdcce54234a98e734adcba67ff957190661132e8148c02d3015e0434486cb3a",
+        "Procedure_C_branch.names.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_C_branch.names.json": "2cdcce54234a98e734adcba67ff957190661132e8148c02d3015e0434486cb3a",
+        "Procedure_C_branch.original-after-explode.ast": "23f0ddbe15afdb9881eb01250277b8009c5ed060a28e02573db430aefadaeb3e",
+        "Procedure_C_branch.original-after-explode.json": "2cdcce54234a98e734adcba67ff957190661132e8148c02d3015e0434486cb3a",
+        "Procedure_C_branch.exploded.ast": "0a9e6e737bb95d61ccda3dd488c0bb0d0e2d34a5ab4538291530bd62372bec2c",
+        "Procedure_C_branch.exploded.json": "27b8f4eeecb9c379e719e60ef137eaf5107e76451adce40d9b76fddec24714cf"
+      },
+      "stdout_sha256": "373ce8f1c9699191c6ea1fadb2bf773b00d6e3124df4812b201d04bc59616501",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_either",
+      "exit_code": 0,
+      "input_sha256": "482b63908b803749be71ec12235bbe8500b940d86773cb78e3302dd948aab580",
+      "stages_sha256": {
+        "Procedure_C_either.parse.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_C_either.parse.json": "6abab8ad8e1d98e924bc56f081a9fdee4ceaf5f32c454fb24dd9960189f85dd4",
+        "Procedure_C_either.names.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_C_either.names.json": "6abab8ad8e1d98e924bc56f081a9fdee4ceaf5f32c454fb24dd9960189f85dd4",
+        "Procedure_C_either.original-after-explode.ast": "73f5904a966c3b088dd84e7a22209f90351087fb1ee53c8a992fbc7cb3d58d3d",
+        "Procedure_C_either.original-after-explode.json": "6abab8ad8e1d98e924bc56f081a9fdee4ceaf5f32c454fb24dd9960189f85dd4",
+        "Procedure_C_either.exploded.ast": "4bdb7829bbcfbdf96bfb220c8f6ad0f910c49d2bdcee655e9c20e194ca8a4940",
+        "Procedure_C_either.exploded.json": "587d298755a6e8844943a6979a99feeee351851a7be9a9e4ce87c2a79c1fc3fd"
+      },
+      "stdout_sha256": "d99db513e3cf868388c88e608caed949459245663a40a7ce74c0c0dfbdd3aaaf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_with",
+      "exit_code": 0,
+      "input_sha256": "0441d3cd495fb32fef42cebf24398275e2f3b76c0460af7829e324e3f714afe4",
+      "stages_sha256": {
+        "Procedure_C_with.parse.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_C_with.parse.json": "d164f549cbd0377366c034db622d3b419a6c1b70688085a0b88332b6eeefd643",
+        "Procedure_C_with.names.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_C_with.names.json": "d164f549cbd0377366c034db622d3b419a6c1b70688085a0b88332b6eeefd643",
+        "Procedure_C_with.original-after-explode.ast": "d67d8a69bf5d04e301c64a29cd8b65ebb5b66e806918a7e914419ed153f8a6f7",
+        "Procedure_C_with.original-after-explode.json": "d164f549cbd0377366c034db622d3b419a6c1b70688085a0b88332b6eeefd643",
+        "Procedure_C_with.exploded.ast": "9ec09ddff7f3d0a40a05959ed6801291717ed1dab36551f599003b884335f46a",
+        "Procedure_C_with.exploded.json": "a5b74d7e8cdcbebd62b0fd7a9309d0b4da673930f9b74e7dafd29d633c460c2f"
+      },
+      "stdout_sha256": "a13bfe69dc4a24246c6a9f9b5eab374f877e9fd0396a0b0745e1b03dcd542765",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_local_update",
+      "exit_code": 0,
+      "input_sha256": "b23f3d33473d1701e2656f20b0498ff77d8fcf300fbeb7e4718eb39fa7a0acf0",
+      "stages_sha256": {},
+      "stdout_sha256": "dc9d651ac14fa1bd95883c10f9e447ef540b46e8058336036441b2c77a7a22f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_parallel",
+      "exit_code": 0,
+      "input_sha256": "07c72dce943537710191c3b1a5c0066f2b3599a485751e242203b09ef8a57260",
+      "stages_sha256": {
+        "Procedure_C_parallel.parse.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_C_parallel.parse.json": "606062a0daca6577d80949b961ff9ef163c09486f3812e260e888b88f7464d58",
+        "Procedure_C_parallel.names.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_C_parallel.names.json": "606062a0daca6577d80949b961ff9ef163c09486f3812e260e888b88f7464d58",
+        "Procedure_C_parallel.original-after-explode.ast": "96b1c8d10009b80c8f0e2e77522d528f0e1e04364a504aa29230fec6bc97a9a0",
+        "Procedure_C_parallel.original-after-explode.json": "606062a0daca6577d80949b961ff9ef163c09486f3812e260e888b88f7464d58",
+        "Procedure_C_parallel.exploded.ast": "fcf924a15563d16765c8b6b5220f139ca0e79270f70e599f78fa53e5338f592c",
+        "Procedure_C_parallel.exploded.json": "11cfc50dc8b8d1d4ad1673ddcf20cc585eef36a0fd5a2ceede8eb486d8d28733"
+      },
+      "stdout_sha256": "d66742e211188c2bce2afda5b175416a7b8af514cee3f122314347ec1806bed4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_initial_expr",
+      "exit_code": 0,
+      "input_sha256": "b8fe83f1d49a105f5db3a12f9cfba60efeee188898b1626ce823c3158865322e",
+      "stages_sha256": {
+        "Procedure_C_initial_expr.parse.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_C_initial_expr.parse.json": "1e9941b3271b93089b4f635f4c777e5a5afae5305ef47b4699257683233bffa2",
+        "Procedure_C_initial_expr.names.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_C_initial_expr.names.json": "1e9941b3271b93089b4f635f4c777e5a5afae5305ef47b4699257683233bffa2",
+        "Procedure_C_initial_expr.original-after-explode.ast": "dc57f0f8c6555035c99e2d76e1c8bf5a4bd697523e0fb477c7dc432186300998",
+        "Procedure_C_initial_expr.original-after-explode.json": "1e9941b3271b93089b4f635f4c777e5a5afae5305ef47b4699257683233bffa2",
+        "Procedure_C_initial_expr.exploded.ast": "a787e7b034a220142ab6970748f0fd5620add4126fc859f71f8ffc8fb0d070f3",
+        "Procedure_C_initial_expr.exploded.json": "d4d31c563149a6706d62b7dd6023b313cafc8fc8cd0391687461e4e08bb527de"
+      },
+      "stdout_sha256": "d02eb6789701df85ebea99ffb8ddddd3ec1d363262e6a60546e1dfaf5af3e9a3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_arity_low",
+      "exit_code": 0,
+      "input_sha256": "33078220fa86423e7d09bc30b2140ee6a5555e5eed2ef20e51877f639b4677df",
+      "stages_sha256": {
+        "Procedure_C_arity_low.parse.ast": "844fc7166205408babc85b2c774525af6083590f75b4a99a67e37047efcc1519",
+        "Procedure_C_arity_low.parse.json": "57115853e9939f631a11d96166d2c4e97a166d48d62c00b77a9f9d411e97b73a",
+        "Procedure_C_arity_low.names.ast": "844fc7166205408babc85b2c774525af6083590f75b4a99a67e37047efcc1519",
+        "Procedure_C_arity_low.names.json": "57115853e9939f631a11d96166d2c4e97a166d48d62c00b77a9f9d411e97b73a"
+      },
+      "stdout_sha256": "37319170235797608a01bd37379751f0329c035dc2dffa7e6ff037d85ce468e5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_arity_high",
+      "exit_code": 0,
+      "input_sha256": "9229caf8e6fddbe2ec278f5777b0b3f7802c116c1c2e6df62ffa63ed29a6223e",
+      "stages_sha256": {
+        "Procedure_C_arity_high.parse.ast": "fc6543495e17d03b25143a47ed397d310b16214498740db65194b5e85c05a5d8",
+        "Procedure_C_arity_high.parse.json": "22ffb00704242b66c5db74835fb010f56d7ddebff538894d5683d2a41d8d39ec",
+        "Procedure_C_arity_high.names.ast": "fc6543495e17d03b25143a47ed397d310b16214498740db65194b5e85c05a5d8",
+        "Procedure_C_arity_high.names.json": "22ffb00704242b66c5db74835fb010f56d7ddebff538894d5683d2a41d8d39ec"
+      },
+      "stdout_sha256": "de4b3e31920a2f8699125cef207a0a5a78532db0843323ee9daa3c22846a4f81",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_unknown",
+      "exit_code": 0,
+      "input_sha256": "495f14bad5c5b0554b9702ac98a2d1cba87e80e9b10c623bc487e5cd22252546",
+      "stages_sha256": {
+        "Procedure_C_unknown.parse.ast": "070f82d93cd45c2915fd6ee22883ebae6d8c27135205b6bd6111f2458e13857b",
+        "Procedure_C_unknown.parse.json": "8bf31cfa383aa3822191d96ef2dc8f0b4bf069a90e8ccbd2055afb24d5306242",
+        "Procedure_C_unknown.names.ast": "070f82d93cd45c2915fd6ee22883ebae6d8c27135205b6bd6111f2458e13857b",
+        "Procedure_C_unknown.names.json": "8bf31cfa383aa3822191d96ef2dc8f0b4bf069a90e8ccbd2055afb24d5306242"
+      },
+      "stdout_sha256": "b68286aabae549f4324d6bcd1c12c8dec7c70ddaa4b6b2a8c337894c9e2b0700",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_return_main",
+      "exit_code": 0,
+      "input_sha256": "58ef87b7ba5f96d58ace6b07c8604f7cfda5be5b6503529a8866fc7303db01b3",
+      "stages_sha256": {
+        "Procedure_C_return_main.parse.ast": "04fcecdbf45cd6b3331e9a9ebcab56f1708f76febbba32c1275f77f7f24016ae",
+        "Procedure_C_return_main.parse.json": "6ccef57626f493b639a6431159912e46af588f97ecd74561f1bdbfa2ae85025a",
+        "Procedure_C_return_main.names.ast": "04fcecdbf45cd6b3331e9a9ebcab56f1708f76febbba32c1275f77f7f24016ae",
+        "Procedure_C_return_main.names.json": "6ccef57626f493b639a6431159912e46af588f97ecd74561f1bdbfa2ae85025a"
+      },
+      "stdout_sha256": "3583570c309856c74a24882cfa922cb536bbc2f9b69d11ad76def283be88dfa8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_recursive",
+      "exit_code": 0,
+      "input_sha256": "2f105408ffdc8fac7ddc8498d5d6fe21dc8e19758e7738a9912903fcce6015e9",
+      "stages_sha256": {
+        "Procedure_C_recursive.parse.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_C_recursive.parse.json": "cf162d6dddd31a168e0ce7f7fe24619a5916949b05bb9fdc789971cd5f4895f7",
+        "Procedure_C_recursive.names.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_C_recursive.names.json": "cf162d6dddd31a168e0ce7f7fe24619a5916949b05bb9fdc789971cd5f4895f7",
+        "Procedure_C_recursive.original-after-explode.ast": "df7c1dc9c428993bb527af467ce7c9b00802ba0642dbd5da1445e70a3b778b96",
+        "Procedure_C_recursive.original-after-explode.json": "cf162d6dddd31a168e0ce7f7fe24619a5916949b05bb9fdc789971cd5f4895f7",
+        "Procedure_C_recursive.exploded.ast": "5f47733822a560cbfceae48406743dacfc1ea1286fe5dd67971dedeab12b31ec",
+        "Procedure_C_recursive.exploded.json": "861447f37f44455c482c83754704b07ff5602e452770baebc6bb045cecf37c17"
+      },
+      "stdout_sha256": "d66c4a2d1cfbc07eb82ef4c491afddef85ad6406d4897ae5053fe0a0b8e5e471",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_tail_recursive",
+      "exit_code": 0,
+      "input_sha256": "9a1b028b3de2ffea15a034a380e2f6ab1f1d3ab5491470d1a870b098102a3f14",
+      "stages_sha256": {
+        "Procedure_C_tail_recursive.parse.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_C_tail_recursive.parse.json": "dc1a066ee0f46f220b50f20ee78b78a57cd6c1ebe0161de59a6f30b3df26b245",
+        "Procedure_C_tail_recursive.names.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_C_tail_recursive.names.json": "dc1a066ee0f46f220b50f20ee78b78a57cd6c1ebe0161de59a6f30b3df26b245",
+        "Procedure_C_tail_recursive.original-after-explode.ast": "22c27c30b5f09bb3f30ca962a91f475be729e8aa32ac7fa349d4c3352f06df53",
+        "Procedure_C_tail_recursive.original-after-explode.json": "dc1a066ee0f46f220b50f20ee78b78a57cd6c1ebe0161de59a6f30b3df26b245",
+        "Procedure_C_tail_recursive.exploded.ast": "0a9db80fecf159a220316938c45033dae4679ce30f9ac3fc309e90da1c603537",
+        "Procedure_C_tail_recursive.exploded.json": "c7b234d1ab2ea2f3ac31c84c9cc1ec15551256e751df7e2e7145849e67df7fe3"
+      },
+      "stdout_sha256": "0498ea432374dffe61e24418938857ba64985ed1a968289658df8f102ec15d58",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_call_goto",
+      "exit_code": 0,
+      "input_sha256": "47f134fc5ce51ad70006777fee2c38dcd961f1cec9df01f8624278a7f747c3b9",
+      "stages_sha256": {
+        "Procedure_C_call_goto.parse.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_C_call_goto.parse.json": "5754232e34f71ec9986243cc7a161d55d3f43b05567da0c3b48d5d65958d986e",
+        "Procedure_C_call_goto.names.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_C_call_goto.names.json": "5754232e34f71ec9986243cc7a161d55d3f43b05567da0c3b48d5d65958d986e",
+        "Procedure_C_call_goto.original-after-explode.ast": "52fe468e42e095adb68eb436256c70ee7684dbbb0f7da490847a14bc3cf656e4",
+        "Procedure_C_call_goto.original-after-explode.json": "5754232e34f71ec9986243cc7a161d55d3f43b05567da0c3b48d5d65958d986e",
+        "Procedure_C_call_goto.exploded.ast": "3f5d499d40fafdbf385f52e42a3c99a472513803050a21a3d9d5431e4585cc61",
+        "Procedure_C_call_goto.exploded.json": "bb5410e5118d39560f4c4c7c4e35067d4f304437f3870299e302d68477fb1338"
+      },
+      "stdout_sha256": "018695945296c14ff0820c4f41bbd6c78f79d62f082e01ab7ef55d25588cbae8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_call_follows_assign",
+      "exit_code": 0,
+      "input_sha256": "33529b4b393b969e45b6dba0f928b978599ab7f8b46760a582dfd2c0f3a278c4",
+      "stages_sha256": {
+        "Procedure_C_call_follows_assign.parse.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_C_call_follows_assign.parse.json": "2ce87284e58c67d7e1af94de1d05e4f2f9c0e4b9250518db33f281d464ff2096",
+        "Procedure_C_call_follows_assign.names.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_C_call_follows_assign.names.json": "2ce87284e58c67d7e1af94de1d05e4f2f9c0e4b9250518db33f281d464ff2096",
+        "Procedure_C_call_follows_assign.original-after-explode.ast": "17862f1d9ae690788e3b812451aef888a07b4846eda56175592fcd64629e9708",
+        "Procedure_C_call_follows_assign.original-after-explode.json": "2ce87284e58c67d7e1af94de1d05e4f2f9c0e4b9250518db33f281d464ff2096",
+        "Procedure_C_call_follows_assign.exploded.ast": "0ef7979bba84b7ce8000991910de418df9661a3696c660e3947a4d144bb26b40",
+        "Procedure_C_call_follows_assign.exploded.json": "f08360caad105112b84ef1eb16c67a87bf64585c1f82a8697937f2cf2a6ab25e"
+      },
+      "stdout_sha256": "77a63123c65952a5c6b40a3415deda8e992a5c6f272fced2ad0644e5a5e8708a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_call_missing_follow_label",
+      "exit_code": 0,
+      "input_sha256": "2bb38602b59ba8061824c6a4b03d977a96cf05173e372066ef61294e8b538941",
+      "stages_sha256": {},
+      "stdout_sha256": "335c0f88e7628d10b3f494b9c30956cd2ac5fdb99bdf954951024df2e3a5ad50",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_auto",
+      "exit_code": 0,
+      "input_sha256": "17f90bceee7365237f1aa4d6a6356c9ea98f43973de9b18199487ccfe9db8718",
+      "stages_sha256": {
+        "Procedure_C_auto.parse.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_C_auto.parse.json": "a1c808b3f79ab026235aff5266d8845e55a11b8baa014da53ccf9c44d1f7ee65",
+        "Procedure_C_auto.names.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_C_auto.names.json": "a1c808b3f79ab026235aff5266d8845e55a11b8baa014da53ccf9c44d1f7ee65",
+        "Procedure_C_auto.original-after-explode.ast": "650b83e87817c9062254e037a25e82cb203af6d4ac0543b51950c2193441a647",
+        "Procedure_C_auto.original-after-explode.json": "a1c808b3f79ab026235aff5266d8845e55a11b8baa014da53ccf9c44d1f7ee65",
+        "Procedure_C_auto.exploded.ast": "e7b31bafcf6d8da54655aea860cc7ff737142c2f0bc8214b4432684daad22744",
+        "Procedure_C_auto.exploded.json": "75b7be7f65261eda1a9ef7ab3e10f658b509c458e8245ab9a1e720b351b04e4d"
+      },
+      "stdout_sha256": "4b3737bcb5ef5470301488f51a4850a38592c5d65e973de4d97b03fce993d983",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_unused",
+      "exit_code": 0,
+      "input_sha256": "b571518598ba433eb39ce453921be769c0d33813475172571459d8b955485f67",
+      "stages_sha256": {
+        "Procedure_C_unused.parse.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_C_unused.parse.json": "e50df6389f6b7bd96309b111bf295e1cd217f2a0ffbd2842852b96fa4995348b",
+        "Procedure_C_unused.names.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_C_unused.names.json": "e50df6389f6b7bd96309b111bf295e1cd217f2a0ffbd2842852b96fa4995348b",
+        "Procedure_C_unused.original-after-explode.ast": "dcfe842b55ffb40b08319bbf4f3b8a6a5361183a694e82a0ac0db87a805d1a2b",
+        "Procedure_C_unused.original-after-explode.json": "e50df6389f6b7bd96309b111bf295e1cd217f2a0ffbd2842852b96fa4995348b",
+        "Procedure_C_unused.exploded.ast": "74cb7ab1b9614bb251ab9059a7d85451c810dcb3a9c434e98acaa0c3ebfbccd8",
+        "Procedure_C_unused.exploded.json": "247346b58068ff16a7389f38b0b1688715f46062ad2c3d6849af8f7eb457a74d"
+      },
+      "stdout_sha256": "aae6da6623b49b81e4c17a8a12391cf414346efb3b5d9699e92db2fcd9c2dd09",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_unused_invalid",
+      "exit_code": 0,
+      "input_sha256": "a23016a29f9fbcd8318a7fb5efd882a98733545f41fe9eaafddee863f544e410",
+      "stages_sha256": {
+        "Procedure_C_unused_invalid.parse.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_C_unused_invalid.parse.json": "32335d87429d3a031016f3a6158f346927b811f256f989a2e92d56e365cfed7c",
+        "Procedure_C_unused_invalid.names.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_C_unused_invalid.names.json": "32335d87429d3a031016f3a6158f346927b811f256f989a2e92d56e365cfed7c",
+        "Procedure_C_unused_invalid.original-after-explode.ast": "15af9f586cf2f8da542096402adb8b0e48470f3e2b9bd35f4d7cba83a96ab6ff",
+        "Procedure_C_unused_invalid.original-after-explode.json": "32335d87429d3a031016f3a6158f346927b811f256f989a2e92d56e365cfed7c",
+        "Procedure_C_unused_invalid.exploded.ast": "4938fb40e1df7e76ab20df139ee5dcf2a98c026a2714285cd3cb9905bc1c61e8",
+        "Procedure_C_unused_invalid.exploded.json": "f30165a10627b62781e2e9c26e7cb7279d892888c3b0089fca433fe7e94d5487"
+      },
+      "stdout_sha256": "c02557deeebedb83a7b8298af36ee7929e42e58e90050ef4a18f433687595fd3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_global_param_collision",
+      "exit_code": 0,
+      "input_sha256": "00f29c3c6a17abccbf9adbee49a010f61a1801ffa7f69092123d457275808829",
+      "stages_sha256": {},
+      "stdout_sha256": "79f6362c37f7b683915a568284bcc01d4fb778b1451c7e8a2e354241bc0f2b4b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_param_local_collision",
+      "exit_code": 0,
+      "input_sha256": "d1282a1cbea9670ca2099c97a0da681ee822324e91eb144eab616eeac81db5f4",
+      "stages_sha256": {
+        "Procedure_C_param_local_collision.parse.ast": "2fdc65577c8a891151d362f6f1856a944a706be84c92c74400333b2f2a43d6cb",
+        "Procedure_C_param_local_collision.parse.json": "41e6030491176999327e2349ac216cae41a5f78448d61df916a1d7170ca80bdf"
+      },
+      "stdout_sha256": "1bc982e072ec5319fdae13f90f92c68503c462ac8c4e2be1b7a79ab04b50d112",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_duplicate_param",
+      "exit_code": 0,
+      "input_sha256": "6d905fc65cd0f23e97adbeda3e33fc25e718d42ddced9f2068350b6419d30de3",
+      "stages_sha256": {
+        "Procedure_C_duplicate_param.parse.ast": "863043d5dbb65c7f88162c93873fe817e2ce9557d150d5953d4a738ec274632e",
+        "Procedure_C_duplicate_param.parse.json": "0d243297d09a49311bb77fa9d832b65f675a43c78f6e7b265ee85691b97433c6"
+      },
+      "stdout_sha256": "6e91009ed9c5e4babf70881e8f2f7bcb9637bce151703c104b15f9afa9a9663a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_reserved_stack",
+      "exit_code": 0,
+      "input_sha256": "ca337f884f541a58349ce40dde5d2ba51edcd3ffb262d8a9878e64fbb787f864",
+      "stages_sha256": {
+        "Procedure_C_reserved_stack.parse.ast": "3746d30810a7f4208544fb762e5c67048733ee86e710daee9b7f144d74b3fde4",
+        "Procedure_C_reserved_stack.parse.json": "94136c5cc29ac96fd733b1cec8a1f42204c4e3fff45ebe04a340ca358f3b3eaf"
+      },
+      "stdout_sha256": "57a900e72696df73cca1693bd9b985a067241e61529da44d3329daab5e362fe2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_reserved_pc",
+      "exit_code": 0,
+      "input_sha256": "cd132b8d790cc00bf19ff0ea194a7d97e3c1a696cf9347f636214cedbe083a30",
+      "stages_sha256": {
+        "Procedure_C_reserved_pc.parse.ast": "fc1e780f41d8170e91b781027c605b42fba15e1017c9889d5b25f7d8d81e6f20",
+        "Procedure_C_reserved_pc.parse.json": "6bad6291934b192da6848af1daa4e59d96d18fe969fcdb30b2d18318c06ebe42"
+      },
+      "stdout_sha256": "e3812da92a713990c7fd1af0c7469da57ed6026dfa45341133038f3a321f0282",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_operator_names",
+      "exit_code": 0,
+      "input_sha256": "c3641fe1c92033639fe7ff3dbd89059f5c7ddbc25a56dc3976e8a4c50ca6a04a",
+      "stages_sha256": {
+        "Procedure_C_operator_names.parse.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_C_operator_names.parse.json": "af33eec2fb2fdfa4c19ec91a4f18b357762cd97339a8f15a3b4deb1bb670ff91",
+        "Procedure_C_operator_names.names.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_C_operator_names.names.json": "af33eec2fb2fdfa4c19ec91a4f18b357762cd97339a8f15a3b4deb1bb670ff91",
+        "Procedure_C_operator_names.original-after-explode.ast": "2d2ed4be5547222809c1cf58e338f235299ecb40218aa88968c0a90d158faf69",
+        "Procedure_C_operator_names.original-after-explode.json": "af33eec2fb2fdfa4c19ec91a4f18b357762cd97339a8f15a3b4deb1bb670ff91",
+        "Procedure_C_operator_names.exploded.ast": "6552703822409298f3c782e0fed7ee3c19dec1aee4a588b238a67403a27bc213",
+        "Procedure_C_operator_names.exploded.json": "b978a7b2c0bf96a42790db27f3bc79a8f35874e056a399de5bc6ea8ca2ae4d2d"
+      },
+      "stdout_sha256": "90bb22076b62497293aa40c80d28e35c9dd1aacca27b294f10d8e9c55dab944d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_proc_label_collision",
+      "exit_code": 0,
+      "input_sha256": "49a745e6b2db0f831b1fac2f9a86cd9174129db44de556c5a9d1cfaf83749172",
+      "stages_sha256": {
+        "Procedure_C_proc_label_collision.parse.ast": "eabfc579e91233bd7a6949b1efc993b35ad98b931241b9c0bd5979172da9b578",
+        "Procedure_C_proc_label_collision.parse.json": "696c6926ef7158b8ce14934ee73efac59f7f76425b0066918b1364e1b39b14cd",
+        "Procedure_C_proc_label_collision.names.ast": "929f364acb89d50607dbb174ffa1c32f4b649a2367530d167bc9e506f8c5f199",
+        "Procedure_C_proc_label_collision.names.json": "f79e507defe5b1571d5fdb4bab5cb15b3bee24060fbc732f36d18dd89bc32b9a",
+        "Procedure_C_proc_label_collision.original-after-explode.ast": "929f364acb89d50607dbb174ffa1c32f4b649a2367530d167bc9e506f8c5f199",
+        "Procedure_C_proc_label_collision.original-after-explode.json": "f79e507defe5b1571d5fdb4bab5cb15b3bee24060fbc732f36d18dd89bc32b9a",
+        "Procedure_C_proc_label_collision.exploded.ast": "714b2ff1538e407e3875cb9b05bed7131cb63d6f45f5ec520317efc7536f7078",
+        "Procedure_C_proc_label_collision.exploded.json": "dc0895732cec7752f83f64fc8ccd30d5e906f3c4f5d5a19137627770e3c85c56"
+      },
+      "stdout_sha256": "478c59397c3faf6e069bcd330038d268f6adee24b153b58d8d578681eddecbcc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_cross_goto",
+      "exit_code": 0,
+      "input_sha256": "5c262065d364a87b83978ee0ab7d80b87912b6a77de8d8a8fdbdc50268d07798",
+      "stages_sha256": {
+        "Procedure_C_cross_goto.parse.ast": "476dea04cbc8754dec2e8f54d47a23ae8ddedbcaef761ad91e07b5ac666c12e4",
+        "Procedure_C_cross_goto.parse.json": "be9eaebb2dcf0c1fcf42e33657ea935b683b8921f27f52b569b533636712cdb7"
+      },
+      "stdout_sha256": "09be09b299efd6e1426c93c1e0fcf2c751d74a66def5550da3fea93bb882d285",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_source_assert",
+      "exit_code": 0,
+      "input_sha256": "f20336e6db2bfea14a0cb541b9e4c98b81c7c8ed0bbd5145d3601abd71221ed8",
+      "stages_sha256": {
+        "Procedure_C_source_assert.parse.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_C_source_assert.parse.json": "cd4b7eeb3a666bd14728f7d54e2076cca787d9df9e7afdd7a460a0e2f9f7fc2a",
+        "Procedure_C_source_assert.names.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_C_source_assert.names.json": "cd4b7eeb3a666bd14728f7d54e2076cca787d9df9e7afdd7a460a0e2f9f7fc2a",
+        "Procedure_C_source_assert.original-after-explode.ast": "f2ab4ca5f86c3eee8a00ee0bd55019d3be272bd9bd04e8dfa18d3ab15822bc09",
+        "Procedure_C_source_assert.original-after-explode.json": "cd4b7eeb3a666bd14728f7d54e2076cca787d9df9e7afdd7a460a0e2f9f7fc2a",
+        "Procedure_C_source_assert.exploded.ast": "92c7f1574e57e24da27c4ff49ceba1bd2da23b05040e38ffe22804dac39f416c",
+        "Procedure_C_source_assert.exploded.json": "06c4214147b79823979998b2c55848862525b9b4802fddb30232f8cc75a7300d"
+      },
+      "stdout_sha256": "43279dcbc9ce43c39bc73759ad55cadfeaf0fe04a4b415336690a145a8a3df59",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_param_read_main",
+      "exit_code": 0,
+      "input_sha256": "e12ac10545b33c299f1103e13aed9c2205a7105ae481bf1d77537c123978361c",
+      "stages_sha256": {
+        "Procedure_C_param_read_main.parse.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_C_param_read_main.parse.json": "e1b5e11f2df8a1ef8f5c9296477ded879b9fee78563a55733b6a3952beeca29f",
+        "Procedure_C_param_read_main.names.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_C_param_read_main.names.json": "e1b5e11f2df8a1ef8f5c9296477ded879b9fee78563a55733b6a3952beeca29f",
+        "Procedure_C_param_read_main.original-after-explode.ast": "f1296951756c66a90666e9768e2d2498b1b94978baf2b222ea4090f1db06e2e6",
+        "Procedure_C_param_read_main.original-after-explode.json": "e1b5e11f2df8a1ef8f5c9296477ded879b9fee78563a55733b6a3952beeca29f",
+        "Procedure_C_param_read_main.exploded.ast": "e362e847f6ac5b07eb8b6ac744727c426347e4a4fa22b161afd607dff0f2f555",
+        "Procedure_C_param_read_main.exploded.json": "65ba92be497611ace419670c310a788b681611312fa1dc37757b0dd0927f9c50"
+      },
+      "stdout_sha256": "7814d95d12c622363bf7e952af28ced6904f707578a26ceb94a3f6986a1b7056",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "Procedure_C_local_read_main",
+      "exit_code": 0,
+      "input_sha256": "3c73d19020dbbd0e3e8150fc0c101da9c6a714133181b83eb21aa5c67df1b505",
+      "stages_sha256": {
+        "Procedure_C_local_read_main.parse.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_C_local_read_main.parse.json": "52279edec7bc468c97f7a38e214b8719e599abafb638dbcf8a1156588813b5b9",
+        "Procedure_C_local_read_main.names.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_C_local_read_main.names.json": "52279edec7bc468c97f7a38e214b8719e599abafb638dbcf8a1156588813b5b9",
+        "Procedure_C_local_read_main.original-after-explode.ast": "cd52aba6c4022517a4a1473df8ba96e759a1cec2b175db5212ab4e2c36d0f4c2",
+        "Procedure_C_local_read_main.original-after-explode.json": "52279edec7bc468c97f7a38e214b8719e599abafb638dbcf8a1156588813b5b9",
+        "Procedure_C_local_read_main.exploded.ast": "450d917862fb2b90d2acb59e417d56bc6ba3d90a66f49a99aa57d7f0715293b2",
+        "Procedure_C_local_read_main.exploded.json": "9276259c0f62859c12ebae6491bd02790d4251d42281fefdf2b6073d02d9fba4"
+      },
+      "stdout_sha256": "484591700245634b05b3163b86bc5b7ba5c3fe2054f4a8a7bccd61b1a8662ad4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_basic",
+      "exit_code": 0,
+      "input_sha256": "fb4f98b849c8a5221872b34bfad85d522d205bffb344eebfb4f8ad782025600b",
+      "stages_sha256": {
+        "ProcedureCrc_C_basic.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_basic.parse.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_basic.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_basic.names.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_basic.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_basic.original-after-explode.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_basic.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_basic.exploded.json": "cd1b437babb5ce73ae2b3db3b1f8f1659a99e3dcdae3f0c0c09aad5a43f96cc6"
+      },
+      "stdout_sha256": "ad54b5f57fc4cc8fd009a3947c13ce858b2897f9362e03f186811f2d20f1a68b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_zero_slots",
+      "exit_code": 0,
+      "input_sha256": "0d54387027a73425f7a832c3ee26c1c58119cb3198ff2463a8ae8fa653bd64ac",
+      "stages_sha256": {
+        "ProcedureCrc_C_zero_slots.parse.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_C_zero_slots.parse.json": "83a7923e7595a7a959c312ca2995ea5230c63808ade0e2ae70b795292e712aed",
+        "ProcedureCrc_C_zero_slots.names.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_C_zero_slots.names.json": "83a7923e7595a7a959c312ca2995ea5230c63808ade0e2ae70b795292e712aed",
+        "ProcedureCrc_C_zero_slots.original-after-explode.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_C_zero_slots.original-after-explode.json": "83a7923e7595a7a959c312ca2995ea5230c63808ade0e2ae70b795292e712aed",
+        "ProcedureCrc_C_zero_slots.exploded.ast": "a82fe4e33fb9b1ca8e6db4838a79b8dd5eabf0d6d005cc4d43cf72cf82e82785",
+        "ProcedureCrc_C_zero_slots.exploded.json": "7639ce3a18e2e7aea83236556ebf42b69bd7b636f31c1f35aa66d29f4112be78"
+      },
+      "stdout_sha256": "c94c7293bc8dec85087e16c9a9252809f28da7da6a37f4e1b29fc25216a0acc3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_zero_params_local",
+      "exit_code": 0,
+      "input_sha256": "040a9b3d085f975d5ab01ccc807f4aba72e60f2dd1cef24cb5e5113675299261",
+      "stages_sha256": {
+        "ProcedureCrc_C_zero_params_local.parse.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_C_zero_params_local.parse.json": "02c831f98850a43a243fcecc8d5aa00728e49ac24facb1aabae25773ea7793ac",
+        "ProcedureCrc_C_zero_params_local.names.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_C_zero_params_local.names.json": "02c831f98850a43a243fcecc8d5aa00728e49ac24facb1aabae25773ea7793ac",
+        "ProcedureCrc_C_zero_params_local.original-after-explode.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_C_zero_params_local.original-after-explode.json": "02c831f98850a43a243fcecc8d5aa00728e49ac24facb1aabae25773ea7793ac",
+        "ProcedureCrc_C_zero_params_local.exploded.ast": "901de56daed06bd3df44f59e46fa1e751f1917812c5ac34c77f5a6f6bc2692d8",
+        "ProcedureCrc_C_zero_params_local.exploded.json": "e8c6f89a3c826aa19f86bde2838a2b2d5c8d343fcd088a9be7e8b0ecda8ce100"
+      },
+      "stdout_sha256": "8bbf30bcd1ff91dc6d8e6ac959ea7da2900fc770b8b7197e4b9cead4d2174d76",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_two_params_swap",
+      "exit_code": 0,
+      "input_sha256": "5286c6bb6f2b212d228b919c6c9412514655e284a06edda7a079881bc592fbad",
+      "stages_sha256": {
+        "ProcedureCrc_C_two_params_swap.parse.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_C_two_params_swap.parse.json": "a73730ca51a57972959f11482d3d1eac3d43e78b16cb41b0554d905b5015506c",
+        "ProcedureCrc_C_two_params_swap.names.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_C_two_params_swap.names.json": "a73730ca51a57972959f11482d3d1eac3d43e78b16cb41b0554d905b5015506c",
+        "ProcedureCrc_C_two_params_swap.original-after-explode.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_C_two_params_swap.original-after-explode.json": "a73730ca51a57972959f11482d3d1eac3d43e78b16cb41b0554d905b5015506c",
+        "ProcedureCrc_C_two_params_swap.exploded.ast": "b2240630fdef4128d5f1a5bd05d15d89101b1aa288d8eead46be3eaaace4d39a",
+        "ProcedureCrc_C_two_params_swap.exploded.json": "9376d1dc473cc3085cbdd272ed352b0ef754116c2775e84f5bc615e9a063283d"
+      },
+      "stdout_sha256": "f7f61191b4d228a895f7cc35e5fc07fe8304f481a65dc025b449e5a4fb207f7a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_local_from_param",
+      "exit_code": 0,
+      "input_sha256": "efbff0264199eb712553ffccfde40c45faea19d9a0840baf872d06b327eb4773",
+      "stages_sha256": {
+        "ProcedureCrc_C_local_from_param.parse.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_local_from_param.parse.json": "05960b3c3c3315d9b67e467ed544df165cb26223300185e830bb2182ee2421c8",
+        "ProcedureCrc_C_local_from_param.names.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_local_from_param.names.json": "05960b3c3c3315d9b67e467ed544df165cb26223300185e830bb2182ee2421c8",
+        "ProcedureCrc_C_local_from_param.original-after-explode.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_local_from_param.original-after-explode.json": "05960b3c3c3315d9b67e467ed544df165cb26223300185e830bb2182ee2421c8",
+        "ProcedureCrc_C_local_from_param.exploded.ast": "ea94fa1649d35d91c4a57f22b0fc4da21baf18ab8450bd9f7b72c3b8ce02cd3f",
+        "ProcedureCrc_C_local_from_param.exploded.json": "77b471ea9c609a3ad20ddbe39e31df0cb16e55204c4c67551f6c38465830d3dd"
+      },
+      "stdout_sha256": "6ed1d7e8ead873248709c85a48f12c15658b7e4a1bf743d0d4d0df31b0b4ab33",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_two_locals_chain",
+      "exit_code": 0,
+      "input_sha256": "1aff57b87ec5b491a398062a6f0c9b5dc7e83c95b911ddcf929f015f97cdc3a2",
+      "stages_sha256": {
+        "ProcedureCrc_C_two_locals_chain.parse.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_C_two_locals_chain.parse.json": "d83331877485a2e0400477ffb7d190dcdea88175d66d31b4c5fd150fc06bb8b5",
+        "ProcedureCrc_C_two_locals_chain.names.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_C_two_locals_chain.names.json": "d83331877485a2e0400477ffb7d190dcdea88175d66d31b4c5fd150fc06bb8b5",
+        "ProcedureCrc_C_two_locals_chain.original-after-explode.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_C_two_locals_chain.original-after-explode.json": "d83331877485a2e0400477ffb7d190dcdea88175d66d31b4c5fd150fc06bb8b5",
+        "ProcedureCrc_C_two_locals_chain.exploded.ast": "2ed921b3dc09c8bc7cc6eca505f945ce87d0d8df958876c8155791c76679be10",
+        "ProcedureCrc_C_two_locals_chain.exploded.json": "1984626ab6156fea3246bf5a4697f8ba2fbfa7308650316d535abef968f7ad2b"
+      },
+      "stdout_sha256": "53e8ebf59661966b4418490a6b9fab60cafb991d1a8414c31a71f8be9e27a6e8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_default_param",
+      "exit_code": 0,
+      "input_sha256": "04109e498bf01b3e94d657c66f4d165053f6fe6e64afbf6319208f44956e1034",
+      "stages_sha256": {
+        "ProcedureCrc_C_default_param.parse.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_C_default_param.parse.json": "1f90f4bd0e92dbcaf6732f987809d1aa028880559acae94db391742e1e87f8c3",
+        "ProcedureCrc_C_default_param.names.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_C_default_param.names.json": "1f90f4bd0e92dbcaf6732f987809d1aa028880559acae94db391742e1e87f8c3",
+        "ProcedureCrc_C_default_param.original-after-explode.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_C_default_param.original-after-explode.json": "1f90f4bd0e92dbcaf6732f987809d1aa028880559acae94db391742e1e87f8c3",
+        "ProcedureCrc_C_default_param.exploded.ast": "a5bac4fba317d1f467c8a0a2e5a0c507edf694725db8a0f05fa91ad0630e517e",
+        "ProcedureCrc_C_default_param.exploded.json": "748e5f758e72c6c342012c90e2c818d17ad45053a79fa979e84306b1f18bacf9"
+      },
+      "stdout_sha256": "f6bdc63fd77451f8cf669da627338fef8a50581bf0119d33b75f2888dfa14d5c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_default_local",
+      "exit_code": 0,
+      "input_sha256": "6c6ca8aeff89fa588653df70c38faf9f3895765e729b083eaf5a7cd40a8b8d12",
+      "stages_sha256": {
+        "ProcedureCrc_C_default_local.parse.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_C_default_local.parse.json": "2a6f7dce3520dc44f4e5f633bc0f266271aad0b7f6f68e518f6b66e4c8f8b905",
+        "ProcedureCrc_C_default_local.names.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_C_default_local.names.json": "2a6f7dce3520dc44f4e5f633bc0f266271aad0b7f6f68e518f6b66e4c8f8b905",
+        "ProcedureCrc_C_default_local.original-after-explode.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_C_default_local.original-after-explode.json": "2a6f7dce3520dc44f4e5f633bc0f266271aad0b7f6f68e518f6b66e4c8f8b905",
+        "ProcedureCrc_C_default_local.exploded.ast": "d8d1514c31bde9634ab692c1526df57bafba11ba9603fa9b4b5c5aaf8d7e03f0",
+        "ProcedureCrc_C_default_local.exploded.json": "0fd69ae0194f097fd95411f06e302be0f3a033f9c3ec4120dffa6950351c016b"
+      },
+      "stdout_sha256": "521a2cc7da4c60da3566196ea79e7b4225de986afa8360516ec830972791a1db",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_call_after_assign",
+      "exit_code": 0,
+      "input_sha256": "55c98ab2837dfb87c85a5e56c9e8de4a003929be9eaaa721a45e697e39250972",
+      "stages_sha256": {
+        "ProcedureCrc_C_call_after_assign.parse.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_C_call_after_assign.parse.json": "3f6715b296e6a1753e1845e06d0f86766c8a7b1813c2964b402e2fb8240a0ddb",
+        "ProcedureCrc_C_call_after_assign.names.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_C_call_after_assign.names.json": "3f6715b296e6a1753e1845e06d0f86766c8a7b1813c2964b402e2fb8240a0ddb",
+        "ProcedureCrc_C_call_after_assign.original-after-explode.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_C_call_after_assign.original-after-explode.json": "3f6715b296e6a1753e1845e06d0f86766c8a7b1813c2964b402e2fb8240a0ddb",
+        "ProcedureCrc_C_call_after_assign.exploded.ast": "8e840ef28ae0692962d7b61b47b7f7093cead3e3525d8685a9740e8d75ebc2ac",
+        "ProcedureCrc_C_call_after_assign.exploded.json": "6fc94aa5fee37215a7207bb53a29d27304964945431cd1c0cc623ac7532e2a5b"
+      },
+      "stdout_sha256": "614678797a98850b0a7dab98281709a83ba19002e838c24a08a6d135038c4eca",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_repeat_calls",
+      "exit_code": 0,
+      "input_sha256": "e7858dec3344d5384a021b44d62bf9164ba9ca2b056ce5d2c3397a02061b38be",
+      "stages_sha256": {
+        "ProcedureCrc_C_repeat_calls.parse.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_C_repeat_calls.parse.json": "2b717ade50fc8914529295a07a820c18002b9df41237d219f5b08a524709b641",
+        "ProcedureCrc_C_repeat_calls.names.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_C_repeat_calls.names.json": "2b717ade50fc8914529295a07a820c18002b9df41237d219f5b08a524709b641",
+        "ProcedureCrc_C_repeat_calls.original-after-explode.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_C_repeat_calls.original-after-explode.json": "2b717ade50fc8914529295a07a820c18002b9df41237d219f5b08a524709b641",
+        "ProcedureCrc_C_repeat_calls.exploded.ast": "43faf79b951849ebcf08337c4a3a4a3d4b21ac2ebda742afe5b566d1977c21b7",
+        "ProcedureCrc_C_repeat_calls.exploded.json": "152839d112c295c334236177c7277bdf64cb47ee1bdf6a555fb747d26e730105"
+      },
+      "stdout_sha256": "d70cf0fd6b6254ba3a3a0f1c7b233be96f2d4060f75bda8a3b294de1a6fe3d27",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_call_goto",
+      "exit_code": 0,
+      "input_sha256": "6c7a4cb05a06704c04d83730d1af7bf6d00143985c2610adb8ac4a737f8fb148",
+      "stages_sha256": {
+        "ProcedureCrc_C_call_goto.parse.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_C_call_goto.parse.json": "5a845778118b6469b8781d620ca82e1038fc62a709802ec332757508c9efd7a0",
+        "ProcedureCrc_C_call_goto.names.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_C_call_goto.names.json": "5a845778118b6469b8781d620ca82e1038fc62a709802ec332757508c9efd7a0",
+        "ProcedureCrc_C_call_goto.original-after-explode.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_C_call_goto.original-after-explode.json": "5a845778118b6469b8781d620ca82e1038fc62a709802ec332757508c9efd7a0",
+        "ProcedureCrc_C_call_goto.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_call_goto.exploded.json": "4a9bb2f146b3fb6f3e3356342a1482185deff96b7055bc07f6bb3144f4289347"
+      },
+      "stdout_sha256": "dbe9eec67a06af94d69def7aaeebdb166b5e0444d50785271cee4aef05b2064a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_return_only",
+      "exit_code": 0,
+      "input_sha256": "74a0e6fd14c6918d2038d811f34b2b9823481df81ff02a1a610f15c66d428969",
+      "stages_sha256": {
+        "ProcedureCrc_C_return_only.parse.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_C_return_only.parse.json": "b086a453b221150849a3a6c321b4d0d776ac7ccfb104be8ccdc6b4d7532adadc",
+        "ProcedureCrc_C_return_only.names.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_C_return_only.names.json": "b086a453b221150849a3a6c321b4d0d776ac7ccfb104be8ccdc6b4d7532adadc",
+        "ProcedureCrc_C_return_only.original-after-explode.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_C_return_only.original-after-explode.json": "b086a453b221150849a3a6c321b4d0d776ac7ccfb104be8ccdc6b4d7532adadc",
+        "ProcedureCrc_C_return_only.exploded.ast": "6ce4e28b3a5d1c6218a53ff5c61a2b55340491712b7edc1d0d22732323d450ee",
+        "ProcedureCrc_C_return_only.exploded.json": "f3a4bae71bbea49e6f160687104da3e585c6fa9621f7f9cebc7d6a1bc535fa24"
+      },
+      "stdout_sha256": "a56dc1d72cabef3b95a044e6f5d5315f73bbd44cedf26d1531eea979899c7a54",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_unused_pure",
+      "exit_code": 0,
+      "input_sha256": "3f1e4b8dc26cc63ebf6ff3f71792f489af79002d25047f96603f24f0fd0774e2",
+      "stages_sha256": {
+        "ProcedureCrc_C_unused_pure.parse.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_C_unused_pure.parse.json": "462ff6160ac72f2ff73b09c778eda6a084b593f8d0383325bc3573221d7aa6f7",
+        "ProcedureCrc_C_unused_pure.names.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_C_unused_pure.names.json": "462ff6160ac72f2ff73b09c778eda6a084b593f8d0383325bc3573221d7aa6f7",
+        "ProcedureCrc_C_unused_pure.original-after-explode.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_C_unused_pure.original-after-explode.json": "462ff6160ac72f2ff73b09c778eda6a084b593f8d0383325bc3573221d7aa6f7",
+        "ProcedureCrc_C_unused_pure.exploded.ast": "d8b7f8afc9e1f4dee1bb65254b1f54e6cdc21bc571e0518ceb4a9ab902a8a0fe",
+        "ProcedureCrc_C_unused_pure.exploded.json": "94dede3f2ed0a4505b394313936dd7af550a9b10e2f2f5fcc23f3d1f34da46ce"
+      },
+      "stdout_sha256": "792fbfc891a69d9706ccf06ff8b9354f1690e62417f359f5aaf14709bc41031e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_if_call",
+      "exit_code": 0,
+      "input_sha256": "a520046136673b4c895a3ce425dc08f0815055f59feef59c68cb03b8cd5c17a7",
+      "stages_sha256": {
+        "ProcedureCrc_C_if_call.parse.ast": "6d523404318cc76963c813339b5f18ccddfba2e27d577f9c40c353bfec28a510",
+        "ProcedureCrc_C_if_call.parse.json": "1f12c86f35152dbfb49ed974fd33ca3f9204011416553caad2853598fc69b1ee",
+        "ProcedureCrc_C_if_call.names.ast": "6d523404318cc76963c813339b5f18ccddfba2e27d577f9c40c353bfec28a510",
+        "ProcedureCrc_C_if_call.names.json": "1f12c86f35152dbfb49ed974fd33ca3f9204011416553caad2853598fc69b1ee",
+        "ProcedureCrc_C_if_call.original-after-explode.ast": "bd4c6cd4a7530b92b1248c2a33fbf92b479f602b8faf626555cccc8aa80f3764",
+        "ProcedureCrc_C_if_call.original-after-explode.json": "bb53732a3f01c02633fdc918451ad61306c8796440b7bcba7df465999acf4497",
+        "ProcedureCrc_C_if_call.exploded.ast": "12409bd5fbcde58828f7941330d77252dda5f587d40d1331d3a956d2e8d180b1",
+        "ProcedureCrc_C_if_call.exploded.json": "ec885459faba68df3b7859acf9a7388e727ec46d1356c3d2a7235a786f4c31e5"
+      },
+      "stdout_sha256": "a74289667742ac3acac4fa7e1dba0eea8cffd2a36f488d21bb6b40c252f6bb73",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_with_call",
+      "exit_code": 0,
+      "input_sha256": "44484f034f81265912a6493a4b91c9e9ca98f7cb5267037069c61bfa5d444f6d",
+      "stages_sha256": {
+        "ProcedureCrc_C_with_call.parse.ast": "f6e1acdc6a01d9083fe6bd272f9d784b5e89985fa48454b60688376f3c31f854",
+        "ProcedureCrc_C_with_call.parse.json": "558e24fdc9e27eed15e535de3a88f9ad80e8ca92da91a6f8c4f2fd1a9fd41980",
+        "ProcedureCrc_C_with_call.names.ast": "f6e1acdc6a01d9083fe6bd272f9d784b5e89985fa48454b60688376f3c31f854",
+        "ProcedureCrc_C_with_call.names.json": "558e24fdc9e27eed15e535de3a88f9ad80e8ca92da91a6f8c4f2fd1a9fd41980",
+        "ProcedureCrc_C_with_call.original-after-explode.ast": "e88182ae7d8d68425f0e8997e452fc7861a51b3b2fbb750ea9d089a3f2ae137f",
+        "ProcedureCrc_C_with_call.original-after-explode.json": "e7679ac9c2b7d5d7e43f1b744e73383ac56ed31636f4985d08967d56910c2f9b",
+        "ProcedureCrc_C_with_call.exploded.ast": "814bdeed0199baebc57a38722ff474b9075741d30bdc943858fa67707020f120",
+        "ProcedureCrc_C_with_call.exploded.json": "627cc038a585705f1d85916a99385cf5b7f989d1fcc6a07d2913a4eec52441ef"
+      },
+      "stdout_sha256": "db0b8cecd72954fadad60ba86fe026b59c1bd260f449652304277a9b9a914fc3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_either_call",
+      "exit_code": 0,
+      "input_sha256": "37796b1aaac5553a32fb24817ac9e466b32afe0b8232e44064026601075774df",
+      "stages_sha256": {
+        "ProcedureCrc_C_either_call.parse.ast": "29eaa76d2b7e22919ce9da817bc65b7a7cffb92631fca8b58f4fdb5b0eadc821",
+        "ProcedureCrc_C_either_call.parse.json": "cba516df88ab0b807cce958ae3569e4d9597c40ed8b0d2c48e78377c920d8886",
+        "ProcedureCrc_C_either_call.names.ast": "29eaa76d2b7e22919ce9da817bc65b7a7cffb92631fca8b58f4fdb5b0eadc821",
+        "ProcedureCrc_C_either_call.names.json": "cba516df88ab0b807cce958ae3569e4d9597c40ed8b0d2c48e78377c920d8886",
+        "ProcedureCrc_C_either_call.original-after-explode.ast": "eb92ca539c4582b07051e2df369b0df2c9a79787f05a169217b7db3f07e53521",
+        "ProcedureCrc_C_either_call.original-after-explode.json": "b953005c6d61d015bb5cc454975fcb5e8881a796f8bb7f6ac61a9deb43171651",
+        "ProcedureCrc_C_either_call.exploded.ast": "8769e26b501d6b33c7258bfc72c421709c5b0b5e4dcf46c09b34860edf14aa9a",
+        "ProcedureCrc_C_either_call.exploded.json": "99bdb3e965ce56eeec4237629a2f7249be24c70b62a25103b5074a0c604d408a"
+      },
+      "stdout_sha256": "6507eb50eadfdaeb9b502022c86bbbe822b8dbcf7484e5f987b97bc9d518ad5a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_lf_comments",
+      "exit_code": 0,
+      "input_sha256": "c17f4a363107a60bc9a86dccc02b89a2dc75ff4a5da81d6bfd03c305b6bbba20",
+      "stages_sha256": {
+        "ProcedureCrc_C_lf_comments.parse.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_lf_comments.parse.json": "3dd3c11169488d2d70c3c84721aef2fdfb14181eae2f3815df44584212985571",
+        "ProcedureCrc_C_lf_comments.names.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_lf_comments.names.json": "3dd3c11169488d2d70c3c84721aef2fdfb14181eae2f3815df44584212985571",
+        "ProcedureCrc_C_lf_comments.original-after-explode.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_C_lf_comments.original-after-explode.json": "3dd3c11169488d2d70c3c84721aef2fdfb14181eae2f3815df44584212985571",
+        "ProcedureCrc_C_lf_comments.exploded.ast": "ea94fa1649d35d91c4a57f22b0fc4da21baf18ab8450bd9f7b72c3b8ce02cd3f",
+        "ProcedureCrc_C_lf_comments.exploded.json": "35e85efa50379542ee9daa2e6561fbe531934bd9da550684256edd39a6276a84"
+      },
+      "stdout_sha256": "320de7f909c699eb6098a5c750cbfd165774b2e425e1fa4704d4ea6b4ce1ba92",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_crlf",
+      "exit_code": 0,
+      "input_sha256": "0487f09185257b7080a816da04d6d6e7b3af2fb33b951b860f5887285a5d7f66",
+      "stages_sha256": {
+        "ProcedureCrc_C_crlf.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_crlf.parse.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_crlf.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_crlf.names.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_crlf.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_crlf.original-after-explode.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_crlf.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_crlf.exploded.json": "cd1b437babb5ce73ae2b3db3b1f8f1659a99e3dcdae3f0c0c09aad5a43f96cc6"
+      },
+      "stdout_sha256": "ad54b5f57fc4cc8fd009a3947c13ce858b2897f9362e03f186811f2d20f1a68b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_tabs",
+      "exit_code": 0,
+      "input_sha256": "349f5520a269da5da2ba4b29aed7a52ac921a9149ac0337dcdb9b68000750157",
+      "stages_sha256": {
+        "ProcedureCrc_C_tabs.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_tabs.parse.json": "8cc123df87bc5f482c8c0f7fbf5f8d3c230fe62b3fbf28d5fa00b514f82968cf",
+        "ProcedureCrc_C_tabs.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_tabs.names.json": "8cc123df87bc5f482c8c0f7fbf5f8d3c230fe62b3fbf28d5fa00b514f82968cf",
+        "ProcedureCrc_C_tabs.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_tabs.original-after-explode.json": "8cc123df87bc5f482c8c0f7fbf5f8d3c230fe62b3fbf28d5fa00b514f82968cf",
+        "ProcedureCrc_C_tabs.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_tabs.exploded.json": "ceb3796ba58430ae31e028916736e876739a706c5c7f3f330da985d06fb77931"
+      },
+      "stdout_sha256": "7c698c157fcaa68d07b74c3a8fd8994fa3edd34634bfb584e29d71bc52611905",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_fair",
+      "exit_code": 0,
+      "input_sha256": "31a669d9095cf727f1a837f5e64c31676a9a818903c6b40a167cff73d16d6c6f",
+      "stages_sha256": {
+        "ProcedureCrc_C_fair.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_fair.parse.json": "840a29e5e5cf05df8283294d7f7c8cef54381129fbc73872e2ff660bd4f6f9fb",
+        "ProcedureCrc_C_fair.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_fair.names.json": "840a29e5e5cf05df8283294d7f7c8cef54381129fbc73872e2ff660bd4f6f9fb",
+        "ProcedureCrc_C_fair.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_fair.original-after-explode.json": "840a29e5e5cf05df8283294d7f7c8cef54381129fbc73872e2ff660bd4f6f9fb",
+        "ProcedureCrc_C_fair.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_fair.exploded.json": "819c79a02731e14ec922fefcb2f868f62242f49330d112899f1b6a4065a70be3"
+      },
+      "stdout_sha256": "3301c82af1e8cdf56db0674927132841f33259b898b7207f23d12b0bdeb4a845",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_option_wf",
+      "exit_code": 0,
+      "input_sha256": "d5f797ecf709aeeca5b88232eb190a4050598fb0ab9114ff78bebe7118601fa0",
+      "stages_sha256": {
+        "ProcedureCrc_C_option_wf.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_option_wf.parse.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_option_wf.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_option_wf.names.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_option_wf.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_C_option_wf.original-after-explode.json": "1a74cb4e80dded0a22790eec8f98355e5ac7d6694fa48cb229516cb2219b0176",
+        "ProcedureCrc_C_option_wf.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_C_option_wf.exploded.json": "cd1b437babb5ce73ae2b3db3b1f8f1659a99e3dcdae3f0c0c09aad5a43f96cc6"
+      },
+      "stdout_sha256": "d1817f084c4b031bf6446329eeea7691fcdcb78d163353c9b4e3fd8344c0e5c8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_unknown_call",
+      "exit_code": 0,
+      "input_sha256": "3478ce0dbf6a7a207091f3badbde287756b6471501cb87459191a6d3ad357ef6",
+      "stages_sha256": {
+        "ProcedureCrc_C_unknown_call.parse.ast": "67bbf368eae74d4935ab35b21960d72c26b35d767057f292bcf4008b6b278a52",
+        "ProcedureCrc_C_unknown_call.parse.json": "bc1b46f6b3f4778dd6e70196b5b73dcac3ea6dd8befedfbf1d6372a54ac5c880",
+        "ProcedureCrc_C_unknown_call.names.ast": "67bbf368eae74d4935ab35b21960d72c26b35d767057f292bcf4008b6b278a52",
+        "ProcedureCrc_C_unknown_call.names.json": "bc1b46f6b3f4778dd6e70196b5b73dcac3ea6dd8befedfbf1d6372a54ac5c880"
+      },
+      "stdout_sha256": "f0fb97beaa1dfdf238e46dc094b98ae5a94a1d1394f430b9c62cb037b51582c1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_wrong_arity",
+      "exit_code": 0,
+      "input_sha256": "08c5fdad0582af752f13a324b638af626d5ca34fc6f03ad3dfbe76eff74fb19e",
+      "stages_sha256": {
+        "ProcedureCrc_C_wrong_arity.parse.ast": "10ab067db19acc62ab06072b3ceabda0f74069f14820a2c7fa14d04769965d93",
+        "ProcedureCrc_C_wrong_arity.parse.json": "6164c55a5ddd60aa6c8819990a6bde370c83736e16d727975fbfc195f496a143",
+        "ProcedureCrc_C_wrong_arity.names.ast": "10ab067db19acc62ab06072b3ceabda0f74069f14820a2c7fa14d04769965d93",
+        "ProcedureCrc_C_wrong_arity.names.json": "6164c55a5ddd60aa6c8819990a6bde370c83736e16d727975fbfc195f496a143"
+      },
+      "stdout_sha256": "f9ed1918af72fcc6aef7bc8344ac19b940a8fdb337f42024b230c387acbee23c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_C_no_param_self_tail",
+      "exit_code": 0,
+      "input_sha256": "0090eceffb267da89c63dcab45a557638f6ac3f0e16fedca8a8c577f142075fb",
+      "stages_sha256": {
+        "ProcedureCrc_C_no_param_self_tail.parse.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_C_no_param_self_tail.parse.json": "f9d4a52a6dd64024f7cadc10e7024763ef78e6304c182979ad54734ba0b891fe",
+        "ProcedureCrc_C_no_param_self_tail.names.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_C_no_param_self_tail.names.json": "f9d4a52a6dd64024f7cadc10e7024763ef78e6304c182979ad54734ba0b891fe",
+        "ProcedureCrc_C_no_param_self_tail.original-after-explode.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_C_no_param_self_tail.original-after-explode.json": "f9d4a52a6dd64024f7cadc10e7024763ef78e6304c182979ad54734ba0b891fe",
+        "ProcedureCrc_C_no_param_self_tail.exploded.ast": "1415b5dd45cd927886b8d801d139eafce42482cdf038191955a0408ea146c053",
+        "ProcedureCrc_C_no_param_self_tail.exploded.json": "cd2b1c0f42d568e966be18c125ff5f2d7176a3996a122cb45a629f5d046cfbff"
+      },
+      "stdout_sha256": "1e4822e9d299ae99ab2c8c20410f4172260c5b86ee8cc3ebaeed504017d8ecdb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_basic",
+      "exit_code": 0,
+      "input_sha256": "61c4d95c55282cc3a8a04f4cefc37d68cc6885853a5449c970262ec44736ebd6",
+      "stages_sha256": {
+        "ProcedureCrc_P_basic.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_basic.parse.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_basic.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_basic.names.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_basic.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_basic.original-after-explode.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_basic.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_basic.exploded.json": "8e1046a9dbbe247a1754e31236b8743ebe3a315663bb0327a32778503d04cac8"
+      },
+      "stdout_sha256": "a36165ce2e4f5acaaa4885c606a4648c679e97e4c2fe636ff3d3ce217b8d69d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_zero_slots",
+      "exit_code": 0,
+      "input_sha256": "5a1ac982737a3dd99592f94e4f85b50642e4de86c57e424d8e8867e65594e310",
+      "stages_sha256": {
+        "ProcedureCrc_P_zero_slots.parse.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_P_zero_slots.parse.json": "5e8a3b93952221ec9f6fdc7eccb8ac165109c89198e3933b970d6e150df7847e",
+        "ProcedureCrc_P_zero_slots.names.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_P_zero_slots.names.json": "5e8a3b93952221ec9f6fdc7eccb8ac165109c89198e3933b970d6e150df7847e",
+        "ProcedureCrc_P_zero_slots.original-after-explode.ast": "8637d939bffa64889a71e1fcb759f487379b6849f18ee128e45ce945be00e3d1",
+        "ProcedureCrc_P_zero_slots.original-after-explode.json": "5e8a3b93952221ec9f6fdc7eccb8ac165109c89198e3933b970d6e150df7847e",
+        "ProcedureCrc_P_zero_slots.exploded.ast": "a82fe4e33fb9b1ca8e6db4838a79b8dd5eabf0d6d005cc4d43cf72cf82e82785",
+        "ProcedureCrc_P_zero_slots.exploded.json": "f63b358632044c681d36eaacde254816979007a6bc05deeaeba5226266222a19"
+      },
+      "stdout_sha256": "dcbd4d3335f9978fece1b6432f098058743c6b0d49349f93e4f14208cc884db6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_zero_params_local",
+      "exit_code": 0,
+      "input_sha256": "2e38462e9ab8e3461a2f79918a67b571bee81cce6a82609858fac2d043a10d1c",
+      "stages_sha256": {
+        "ProcedureCrc_P_zero_params_local.parse.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_P_zero_params_local.parse.json": "c2eac536de36ca2c174e7412a5b4cddd8112e30221e4e3bab0645bc700d23275",
+        "ProcedureCrc_P_zero_params_local.names.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_P_zero_params_local.names.json": "c2eac536de36ca2c174e7412a5b4cddd8112e30221e4e3bab0645bc700d23275",
+        "ProcedureCrc_P_zero_params_local.original-after-explode.ast": "a32b1cd4b0a28f52171c5b168e97daa1bbe0752bd1ea733e1f6dc7ac1ee857ed",
+        "ProcedureCrc_P_zero_params_local.original-after-explode.json": "c2eac536de36ca2c174e7412a5b4cddd8112e30221e4e3bab0645bc700d23275",
+        "ProcedureCrc_P_zero_params_local.exploded.ast": "901de56daed06bd3df44f59e46fa1e751f1917812c5ac34c77f5a6f6bc2692d8",
+        "ProcedureCrc_P_zero_params_local.exploded.json": "2442bab5c56a079432e0c92cd069c5136f49bded5c271e9e13a5c317bd350a8c"
+      },
+      "stdout_sha256": "6074c683c185d5eb4ac76a8e347902e074b15503d1947f46ad9bea44ca641ec4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_two_params_swap",
+      "exit_code": 0,
+      "input_sha256": "6fad4992c4a25a8db25183736031137f495a573181a7f7046bdfc186c9c652b9",
+      "stages_sha256": {
+        "ProcedureCrc_P_two_params_swap.parse.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_P_two_params_swap.parse.json": "b056c14e2fcb3d3c083fbe14bfc074a76a8b01026c85604a23693bab43585fbf",
+        "ProcedureCrc_P_two_params_swap.names.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_P_two_params_swap.names.json": "b056c14e2fcb3d3c083fbe14bfc074a76a8b01026c85604a23693bab43585fbf",
+        "ProcedureCrc_P_two_params_swap.original-after-explode.ast": "a80214a66b6b4e946f01adf111ed50bc343b1d90c7935dee0a2889a56363cb80",
+        "ProcedureCrc_P_two_params_swap.original-after-explode.json": "b056c14e2fcb3d3c083fbe14bfc074a76a8b01026c85604a23693bab43585fbf",
+        "ProcedureCrc_P_two_params_swap.exploded.ast": "b2240630fdef4128d5f1a5bd05d15d89101b1aa288d8eead46be3eaaace4d39a",
+        "ProcedureCrc_P_two_params_swap.exploded.json": "d989ccf7d3bbe6f36297b45f4e1fee9d13fcca7106de2b3edce380f37bd18caf"
+      },
+      "stdout_sha256": "d77b28b7ab7166c7977775e1abe66b30e1aa38a41e968197dfea22638577ba2a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_local_from_param",
+      "exit_code": 0,
+      "input_sha256": "b87cdfe4cd53385ee4772c6365e0a60fa62d8e9d0797cef5e5dc13510bc00d80",
+      "stages_sha256": {
+        "ProcedureCrc_P_local_from_param.parse.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_local_from_param.parse.json": "b35ef03962746818517783dfa9754daa51f6b879ea86c4b2ad342d1454d4bb85",
+        "ProcedureCrc_P_local_from_param.names.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_local_from_param.names.json": "b35ef03962746818517783dfa9754daa51f6b879ea86c4b2ad342d1454d4bb85",
+        "ProcedureCrc_P_local_from_param.original-after-explode.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_local_from_param.original-after-explode.json": "b35ef03962746818517783dfa9754daa51f6b879ea86c4b2ad342d1454d4bb85",
+        "ProcedureCrc_P_local_from_param.exploded.ast": "ea94fa1649d35d91c4a57f22b0fc4da21baf18ab8450bd9f7b72c3b8ce02cd3f",
+        "ProcedureCrc_P_local_from_param.exploded.json": "a0ace5a3032e1db313fba169847298078236b4ef7a3a91cece81c2bfdbd01a07"
+      },
+      "stdout_sha256": "e0afb7a437045039984028bf4ae0fca547187de97514cafc33533143e57b4d73",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_two_locals_chain",
+      "exit_code": 0,
+      "input_sha256": "d0e3510e97f3244b9237d8ff43df0f309225da13776e54e8fa0fc16643c78938",
+      "stages_sha256": {
+        "ProcedureCrc_P_two_locals_chain.parse.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_P_two_locals_chain.parse.json": "bcd562dc43889669c843ab2ec5a8c84b4b7c0f5653ef045af7f9020e8c45a9e9",
+        "ProcedureCrc_P_two_locals_chain.names.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_P_two_locals_chain.names.json": "bcd562dc43889669c843ab2ec5a8c84b4b7c0f5653ef045af7f9020e8c45a9e9",
+        "ProcedureCrc_P_two_locals_chain.original-after-explode.ast": "2518a1b1f38c620849d7075d00376bf4111f5a4d3389ba57119fbf44bb79a3b9",
+        "ProcedureCrc_P_two_locals_chain.original-after-explode.json": "bcd562dc43889669c843ab2ec5a8c84b4b7c0f5653ef045af7f9020e8c45a9e9",
+        "ProcedureCrc_P_two_locals_chain.exploded.ast": "2ed921b3dc09c8bc7cc6eca505f945ce87d0d8df958876c8155791c76679be10",
+        "ProcedureCrc_P_two_locals_chain.exploded.json": "98208c453ca9f1a33dfe70dd2857e604638bd8db3c6c12c4206ea661d77a07d8"
+      },
+      "stdout_sha256": "e19df258297b0f9daf2de3714aeb569b8bc0052161d440479fbb916d3cd33081",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_default_param",
+      "exit_code": 0,
+      "input_sha256": "ba3bb77be4f2dbbdbc21a6dbe5ade450727c03756e048fcda81a787e051c7368",
+      "stages_sha256": {
+        "ProcedureCrc_P_default_param.parse.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_P_default_param.parse.json": "63be8ac8ba8839136c19b5ada148e55ceda2ec4b0cfeca0b675fe402df40ea91",
+        "ProcedureCrc_P_default_param.names.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_P_default_param.names.json": "63be8ac8ba8839136c19b5ada148e55ceda2ec4b0cfeca0b675fe402df40ea91",
+        "ProcedureCrc_P_default_param.original-after-explode.ast": "34455be0326f105402c4d469b98e4ae3b1fa32a69cb536ab0539f9b16e53fb4b",
+        "ProcedureCrc_P_default_param.original-after-explode.json": "63be8ac8ba8839136c19b5ada148e55ceda2ec4b0cfeca0b675fe402df40ea91",
+        "ProcedureCrc_P_default_param.exploded.ast": "a5bac4fba317d1f467c8a0a2e5a0c507edf694725db8a0f05fa91ad0630e517e",
+        "ProcedureCrc_P_default_param.exploded.json": "cb914d3c6631ce7f95b9606e48a70a5b25c73bdcaa88dd44f21f35356ef6ece3"
+      },
+      "stdout_sha256": "82f38f16d47375e0ea2958a50160c64fa24ed70f31f465dd2ae02d401bee5fe1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_default_local",
+      "exit_code": 0,
+      "input_sha256": "71c77fb443796afd3f1e2eb923366140ffc8cebfae3a49fd3d7e5da9edb93ae6",
+      "stages_sha256": {
+        "ProcedureCrc_P_default_local.parse.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_P_default_local.parse.json": "ade25a84ffc6b30793ab91e5e58a06160c3d6b99850b49e9d4db21d05c8fb67f",
+        "ProcedureCrc_P_default_local.names.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_P_default_local.names.json": "ade25a84ffc6b30793ab91e5e58a06160c3d6b99850b49e9d4db21d05c8fb67f",
+        "ProcedureCrc_P_default_local.original-after-explode.ast": "18c0ec8ccea6ae9e9d32e5ed40a72706b44d20bc1eddd0807e5e72b96b44ba4a",
+        "ProcedureCrc_P_default_local.original-after-explode.json": "ade25a84ffc6b30793ab91e5e58a06160c3d6b99850b49e9d4db21d05c8fb67f",
+        "ProcedureCrc_P_default_local.exploded.ast": "d8d1514c31bde9634ab692c1526df57bafba11ba9603fa9b4b5c5aaf8d7e03f0",
+        "ProcedureCrc_P_default_local.exploded.json": "cd6e33f8205978abf04873674d5bca3108193678eba95a3a998e944b49661ca4"
+      },
+      "stdout_sha256": "d24d7d3774c4310d213d33e0b78e46aa1483b1816c1eb42292eb0b0aa00a1ff5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_call_after_assign",
+      "exit_code": 0,
+      "input_sha256": "558357779fa4dba2df4ad1e75f44a30ea6cc4fcc8fab336faa5d5995c3096249",
+      "stages_sha256": {
+        "ProcedureCrc_P_call_after_assign.parse.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_P_call_after_assign.parse.json": "aceaa4af30a730e060ff8cd859a09916cbe6e1d5f9eff7fde9d8e371d30044fa",
+        "ProcedureCrc_P_call_after_assign.names.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_P_call_after_assign.names.json": "aceaa4af30a730e060ff8cd859a09916cbe6e1d5f9eff7fde9d8e371d30044fa",
+        "ProcedureCrc_P_call_after_assign.original-after-explode.ast": "d5668d513a3de731370f9d2fada7a8cf043cd49c119a3b0c65c90d9c4b919f12",
+        "ProcedureCrc_P_call_after_assign.original-after-explode.json": "aceaa4af30a730e060ff8cd859a09916cbe6e1d5f9eff7fde9d8e371d30044fa",
+        "ProcedureCrc_P_call_after_assign.exploded.ast": "8e840ef28ae0692962d7b61b47b7f7093cead3e3525d8685a9740e8d75ebc2ac",
+        "ProcedureCrc_P_call_after_assign.exploded.json": "a197a1ebe596047bd157462baf16bc3c13a19d50a752444961dab2597f38e77e"
+      },
+      "stdout_sha256": "611e90036b3b836267043e548c76ac7c9bd4a7d2c20feae7b3b7c008b0a5d5b8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_repeat_calls",
+      "exit_code": 0,
+      "input_sha256": "e896432ca6f254c4bb0a681cadf75c37035fe685e4b04639daea51c27f2343c4",
+      "stages_sha256": {
+        "ProcedureCrc_P_repeat_calls.parse.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_P_repeat_calls.parse.json": "4de67338151487e3943b9acb2596d199b0147a088d8c828f70791f8731483d27",
+        "ProcedureCrc_P_repeat_calls.names.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_P_repeat_calls.names.json": "4de67338151487e3943b9acb2596d199b0147a088d8c828f70791f8731483d27",
+        "ProcedureCrc_P_repeat_calls.original-after-explode.ast": "ff2b051fb9b781348717fbeefcffedcd6c88f9686061a80daabda915dc4456c0",
+        "ProcedureCrc_P_repeat_calls.original-after-explode.json": "4de67338151487e3943b9acb2596d199b0147a088d8c828f70791f8731483d27",
+        "ProcedureCrc_P_repeat_calls.exploded.ast": "43faf79b951849ebcf08337c4a3a4a3d4b21ac2ebda742afe5b566d1977c21b7",
+        "ProcedureCrc_P_repeat_calls.exploded.json": "c7efda57b23a285ec57e672af35b5dd91412e620a77a68b501f9ea7b26912d6e"
+      },
+      "stdout_sha256": "de05a7c7e459ec23888ed48caaf5cafaf7d0fdaf6db65291f80ddb8826454537",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_call_goto",
+      "exit_code": 0,
+      "input_sha256": "c7c8cbdfd02b8f8190d19470e93d43546eabe90766bc6c5aeed1f800ea60eba7",
+      "stages_sha256": {
+        "ProcedureCrc_P_call_goto.parse.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_P_call_goto.parse.json": "19ad75b6f29f35e43081eb15c9335d4cfae0ed555d07e36e5a786596ae234bd8",
+        "ProcedureCrc_P_call_goto.names.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_P_call_goto.names.json": "19ad75b6f29f35e43081eb15c9335d4cfae0ed555d07e36e5a786596ae234bd8",
+        "ProcedureCrc_P_call_goto.original-after-explode.ast": "aa457c9a3c68aa7d6fa5808bb39dc5ec50ecc2d11c3df32d1b6beb41e5d4d98f",
+        "ProcedureCrc_P_call_goto.original-after-explode.json": "19ad75b6f29f35e43081eb15c9335d4cfae0ed555d07e36e5a786596ae234bd8",
+        "ProcedureCrc_P_call_goto.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_call_goto.exploded.json": "4e3c8e255490393f2355c2fc70325a5a5df2badb0c2445dd5f4bff82bc91787e"
+      },
+      "stdout_sha256": "6c5a3c02e397144534cee597a045d2596ba4309769be52bd0c45dfb01123f356",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_return_only",
+      "exit_code": 0,
+      "input_sha256": "d16cfe5e84239fff800e40f95780e0a573d09423d89f97b10d1b49f6b88bf822",
+      "stages_sha256": {
+        "ProcedureCrc_P_return_only.parse.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_P_return_only.parse.json": "a72794bfdda7d46074e9321894255d03dbbc34e21e170737e4fd1773df4eb4ea",
+        "ProcedureCrc_P_return_only.names.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_P_return_only.names.json": "a72794bfdda7d46074e9321894255d03dbbc34e21e170737e4fd1773df4eb4ea",
+        "ProcedureCrc_P_return_only.original-after-explode.ast": "280ac19ae6bdf83e739cbec39c3174801219b9c27cd0af3ebecb4e6b402b8426",
+        "ProcedureCrc_P_return_only.original-after-explode.json": "a72794bfdda7d46074e9321894255d03dbbc34e21e170737e4fd1773df4eb4ea",
+        "ProcedureCrc_P_return_only.exploded.ast": "6ce4e28b3a5d1c6218a53ff5c61a2b55340491712b7edc1d0d22732323d450ee",
+        "ProcedureCrc_P_return_only.exploded.json": "d33310d6981743b081584d7132710cc2f78a4d76d7d8cd2fce512961df186989"
+      },
+      "stdout_sha256": "00da295ae45f6deb631dee4e34c9ae870d6895b0eb652ad37456de3e8f2c17f8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_unused_pure",
+      "exit_code": 0,
+      "input_sha256": "f63cbd1c6165fa6a703d19e1623d7d9dbac27c1f907d178c5710ee6614853fcb",
+      "stages_sha256": {
+        "ProcedureCrc_P_unused_pure.parse.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_P_unused_pure.parse.json": "cacc6cf4a50bc1c39a04b79f2b96ecc346b0a2c000e0110767fd921580b78946",
+        "ProcedureCrc_P_unused_pure.names.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_P_unused_pure.names.json": "cacc6cf4a50bc1c39a04b79f2b96ecc346b0a2c000e0110767fd921580b78946",
+        "ProcedureCrc_P_unused_pure.original-after-explode.ast": "9ad66b9597e2b075513a5b61a2de1c7df5228d6e87bb05ad180c94a4b889ca1a",
+        "ProcedureCrc_P_unused_pure.original-after-explode.json": "cacc6cf4a50bc1c39a04b79f2b96ecc346b0a2c000e0110767fd921580b78946",
+        "ProcedureCrc_P_unused_pure.exploded.ast": "d8b7f8afc9e1f4dee1bb65254b1f54e6cdc21bc571e0518ceb4a9ab902a8a0fe",
+        "ProcedureCrc_P_unused_pure.exploded.json": "0e9571c387e04f6f5570ed8346a48686a839ff619ef7ec9ef185789ee2dc27bc"
+      },
+      "stdout_sha256": "dc0e7046b2df3f00c7c476e88ebe37fa8d30e7e8320b286cc9f7fdde7fd39855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_if_call",
+      "exit_code": 0,
+      "input_sha256": "ea7f350de64d1c7b812b7c006a2294bed8ca9f71eb903abcf3d21d1b8fb811ab",
+      "stages_sha256": {
+        "ProcedureCrc_P_if_call.parse.ast": "6d523404318cc76963c813339b5f18ccddfba2e27d577f9c40c353bfec28a510",
+        "ProcedureCrc_P_if_call.parse.json": "863e093901947ad28ceafce9c5d575bdb8b8fa1b6c98ea10809de0eae86bf799",
+        "ProcedureCrc_P_if_call.names.ast": "6d523404318cc76963c813339b5f18ccddfba2e27d577f9c40c353bfec28a510",
+        "ProcedureCrc_P_if_call.names.json": "863e093901947ad28ceafce9c5d575bdb8b8fa1b6c98ea10809de0eae86bf799",
+        "ProcedureCrc_P_if_call.original-after-explode.ast": "bd4c6cd4a7530b92b1248c2a33fbf92b479f602b8faf626555cccc8aa80f3764",
+        "ProcedureCrc_P_if_call.original-after-explode.json": "71d172ac15ea8c7aedf26c0f639dc96f1d39d90ac758d4ff877035b437d71269",
+        "ProcedureCrc_P_if_call.exploded.ast": "12409bd5fbcde58828f7941330d77252dda5f587d40d1331d3a956d2e8d180b1",
+        "ProcedureCrc_P_if_call.exploded.json": "39bd16b633c478f1b6a79d4ee48f1d41007210defd92442c84d6136404413ce4"
+      },
+      "stdout_sha256": "7318a11be67037060b00da2059700926a01c26966e2aa3ba25502b31d6eb842e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_with_call",
+      "exit_code": 0,
+      "input_sha256": "2f6e266d646f40f9ea6fe12673180543e4f73c36e25bf6c1176ab6adb13ee780",
+      "stages_sha256": {
+        "ProcedureCrc_P_with_call.parse.ast": "f6e1acdc6a01d9083fe6bd272f9d784b5e89985fa48454b60688376f3c31f854",
+        "ProcedureCrc_P_with_call.parse.json": "beea4ed7317b53c1693f6f382db6017df127cb1fd3f1e8e8f817785130668e5a",
+        "ProcedureCrc_P_with_call.names.ast": "f6e1acdc6a01d9083fe6bd272f9d784b5e89985fa48454b60688376f3c31f854",
+        "ProcedureCrc_P_with_call.names.json": "beea4ed7317b53c1693f6f382db6017df127cb1fd3f1e8e8f817785130668e5a",
+        "ProcedureCrc_P_with_call.original-after-explode.ast": "e88182ae7d8d68425f0e8997e452fc7861a51b3b2fbb750ea9d089a3f2ae137f",
+        "ProcedureCrc_P_with_call.original-after-explode.json": "87aa563a65e770cdfdc6dfcde1182b23e6964e57c0f93b4e94d12900b5d75b37",
+        "ProcedureCrc_P_with_call.exploded.ast": "814bdeed0199baebc57a38722ff474b9075741d30bdc943858fa67707020f120",
+        "ProcedureCrc_P_with_call.exploded.json": "1771b4582f1873b3e01a32ad38ade0fe0b70f5b5b5ba049a26d1229d1b83f495"
+      },
+      "stdout_sha256": "81f512adef502fae4196ccae62aeae2fd85bf390efd94a9fb64020a94af3be54",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_either_call",
+      "exit_code": 0,
+      "input_sha256": "53f848e20cb8da04aca0d5c29639916e15f663d82a82bf98e40dc26c1534b69d",
+      "stages_sha256": {
+        "ProcedureCrc_P_either_call.parse.ast": "29eaa76d2b7e22919ce9da817bc65b7a7cffb92631fca8b58f4fdb5b0eadc821",
+        "ProcedureCrc_P_either_call.parse.json": "84186ca9b1c0d532e06ae4ed27b6f4f3b5b41a44c9cb782f61b0d13ecd6e2d28",
+        "ProcedureCrc_P_either_call.names.ast": "29eaa76d2b7e22919ce9da817bc65b7a7cffb92631fca8b58f4fdb5b0eadc821",
+        "ProcedureCrc_P_either_call.names.json": "84186ca9b1c0d532e06ae4ed27b6f4f3b5b41a44c9cb782f61b0d13ecd6e2d28",
+        "ProcedureCrc_P_either_call.original-after-explode.ast": "eb92ca539c4582b07051e2df369b0df2c9a79787f05a169217b7db3f07e53521",
+        "ProcedureCrc_P_either_call.original-after-explode.json": "b1321d5f7acbbc85fb14ee78b9a09741d9fdb7c14ddf6feea388b664d6a8287c",
+        "ProcedureCrc_P_either_call.exploded.ast": "8769e26b501d6b33c7258bfc72c421709c5b0b5e4dcf46c09b34860edf14aa9a",
+        "ProcedureCrc_P_either_call.exploded.json": "710be3ca6975776db3d35dd540ea7a183ea64c328fd24d8e177efbaaae6339c9"
+      },
+      "stdout_sha256": "031a717b2857e8f90b1ab876015aa1337599111e1d4cbe64090690e0a04a74c4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_lf_comments",
+      "exit_code": 0,
+      "input_sha256": "5818fcd15b37d19c6c5928294d3203e95fc2ea3ec94ba19241e9d3c9b1011303",
+      "stages_sha256": {
+        "ProcedureCrc_P_lf_comments.parse.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_lf_comments.parse.json": "bc6075825bf642f07a5cee36442bffa897c7c8c0fd53a5b3dd30212210480ca4",
+        "ProcedureCrc_P_lf_comments.names.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_lf_comments.names.json": "bc6075825bf642f07a5cee36442bffa897c7c8c0fd53a5b3dd30212210480ca4",
+        "ProcedureCrc_P_lf_comments.original-after-explode.ast": "079deb0492fbf25dbe140384c9bbeebc3bdfd89ed228c4ea2afdd69b3a6a0e3e",
+        "ProcedureCrc_P_lf_comments.original-after-explode.json": "bc6075825bf642f07a5cee36442bffa897c7c8c0fd53a5b3dd30212210480ca4",
+        "ProcedureCrc_P_lf_comments.exploded.ast": "ea94fa1649d35d91c4a57f22b0fc4da21baf18ab8450bd9f7b72c3b8ce02cd3f",
+        "ProcedureCrc_P_lf_comments.exploded.json": "b32f1d92ecd5a431105cf0eb937891aaf9813bed00095918e67ec05a6dbf5621"
+      },
+      "stdout_sha256": "d97aa0bbb7c3ce1b8def3fb10d4ca391c10db53acafe7698216af56f714ec22b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_crlf",
+      "exit_code": 0,
+      "input_sha256": "fd0b55e144a31811d72077e687b5b2cbb42329262bb0d60537389f382810e81a",
+      "stages_sha256": {
+        "ProcedureCrc_P_crlf.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_crlf.parse.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_crlf.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_crlf.names.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_crlf.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_crlf.original-after-explode.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_crlf.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_crlf.exploded.json": "8e1046a9dbbe247a1754e31236b8743ebe3a315663bb0327a32778503d04cac8"
+      },
+      "stdout_sha256": "a36165ce2e4f5acaaa4885c606a4648c679e97e4c2fe636ff3d3ce217b8d69d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_tabs",
+      "exit_code": 0,
+      "input_sha256": "b52cfab80859197c5620b04b1d0fc93dfeff83872c2ee10ddf558e2e4b6e54b5",
+      "stages_sha256": {
+        "ProcedureCrc_P_tabs.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_tabs.parse.json": "20e58dad2fec39a2d8c5036be684badeae03120f16456072d255a0a6fdffc004",
+        "ProcedureCrc_P_tabs.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_tabs.names.json": "20e58dad2fec39a2d8c5036be684badeae03120f16456072d255a0a6fdffc004",
+        "ProcedureCrc_P_tabs.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_tabs.original-after-explode.json": "20e58dad2fec39a2d8c5036be684badeae03120f16456072d255a0a6fdffc004",
+        "ProcedureCrc_P_tabs.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_tabs.exploded.json": "623006b12da78b5c785cfcd29e03739a6f456a4e1eb1f6a2fd60149112e2f0cb"
+      },
+      "stdout_sha256": "2cdd5231a04f54ebe3a9e8f38f17cb28ef6d53313a16b639c59ea68eb3cfcbdf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_fair",
+      "exit_code": 0,
+      "input_sha256": "d21d9e2750db693faeb61032b461f6750c61b8bdc056967a626c9d93d803e7c3",
+      "stages_sha256": {
+        "ProcedureCrc_P_fair.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_fair.parse.json": "46d002ea6a2d6b71b252cc6acde9cf76617d36fb9369733b611f9bac46f1bdb9",
+        "ProcedureCrc_P_fair.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_fair.names.json": "46d002ea6a2d6b71b252cc6acde9cf76617d36fb9369733b611f9bac46f1bdb9",
+        "ProcedureCrc_P_fair.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_fair.original-after-explode.json": "46d002ea6a2d6b71b252cc6acde9cf76617d36fb9369733b611f9bac46f1bdb9",
+        "ProcedureCrc_P_fair.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_fair.exploded.json": "eb9ef48c68ccb9221523dc93dec97ae262af65c1c9a9bd16e6c8af9f20d79f57"
+      },
+      "stdout_sha256": "4dbd0d0a6c43c1f222eeef21b1d3f0e4fd05c4d9bde5418e9a77f18872edef70",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_option_wf",
+      "exit_code": 0,
+      "input_sha256": "3878b5562f2b2ae458de1fed44c22a31b6de8167039ae2810d32583e4fb6c92b",
+      "stages_sha256": {
+        "ProcedureCrc_P_option_wf.parse.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_option_wf.parse.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_option_wf.names.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_option_wf.names.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_option_wf.original-after-explode.ast": "a5a3fe9428826bd73ebda3217cfc9e2ede821e20d00701093fcf216c3f8d0331",
+        "ProcedureCrc_P_option_wf.original-after-explode.json": "4f0eb3db15f53dad40d048ecbf2eb6d96acbf02e7143e2829ba76ccb080840cf",
+        "ProcedureCrc_P_option_wf.exploded.ast": "d415500317d25ce9a2ddccac94f22fadd217fc17bfc69b3feeb79e76eeec5b30",
+        "ProcedureCrc_P_option_wf.exploded.json": "8e1046a9dbbe247a1754e31236b8743ebe3a315663bb0327a32778503d04cac8"
+      },
+      "stdout_sha256": "a707b0f521b877ff22b41f30b38a5b813044b59bc7ffb41e864aef27542e5bd6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_unknown_call",
+      "exit_code": 0,
+      "input_sha256": "dbe6a9bde97daa94f7bf3f54af199ca5e8d9e05931071538a091484d5983da9a",
+      "stages_sha256": {
+        "ProcedureCrc_P_unknown_call.parse.ast": "67bbf368eae74d4935ab35b21960d72c26b35d767057f292bcf4008b6b278a52",
+        "ProcedureCrc_P_unknown_call.parse.json": "d0d0d6113dc8dd3492631d8eba127ef09095ec822109377244f982d7fb891729",
+        "ProcedureCrc_P_unknown_call.names.ast": "67bbf368eae74d4935ab35b21960d72c26b35d767057f292bcf4008b6b278a52",
+        "ProcedureCrc_P_unknown_call.names.json": "d0d0d6113dc8dd3492631d8eba127ef09095ec822109377244f982d7fb891729"
+      },
+      "stdout_sha256": "55a8aa02619325ff2c03c36d58fe672136510749addb712d4ffbec5a29cdf4df",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_wrong_arity",
+      "exit_code": 0,
+      "input_sha256": "aa7499d5ebc14dc7609d3916399185dd896dfc3748aa7107ad859d6dd153f39b",
+      "stages_sha256": {
+        "ProcedureCrc_P_wrong_arity.parse.ast": "10ab067db19acc62ab06072b3ceabda0f74069f14820a2c7fa14d04769965d93",
+        "ProcedureCrc_P_wrong_arity.parse.json": "71f35be8319196acd43536918a92663fe70c8ddcc11d13182fdff3265825759d",
+        "ProcedureCrc_P_wrong_arity.names.ast": "10ab067db19acc62ab06072b3ceabda0f74069f14820a2c7fa14d04769965d93",
+        "ProcedureCrc_P_wrong_arity.names.json": "71f35be8319196acd43536918a92663fe70c8ddcc11d13182fdff3265825759d"
+      },
+      "stdout_sha256": "242a0fd57781a1cc53514fade7e479beac87e313b2dca04ad6abccbc5839eacf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "ProcedureCrc_P_no_param_self_tail",
+      "exit_code": 0,
+      "input_sha256": "1f8c20c428f149436638a1ed7da8765332676f8d3df50d4f33abc3f505c4a0c9",
+      "stages_sha256": {
+        "ProcedureCrc_P_no_param_self_tail.parse.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_P_no_param_self_tail.parse.json": "0b5a64a6786c0140cf6e686531dea4a36e74a2061a9d3fc542abe12bcf211443",
+        "ProcedureCrc_P_no_param_self_tail.names.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_P_no_param_self_tail.names.json": "0b5a64a6786c0140cf6e686531dea4a36e74a2061a9d3fc542abe12bcf211443",
+        "ProcedureCrc_P_no_param_self_tail.original-after-explode.ast": "944f7752b3dfbaa4999a469148d2d728465d049c9b06e82ca68634c1dbc0996e",
+        "ProcedureCrc_P_no_param_self_tail.original-after-explode.json": "0b5a64a6786c0140cf6e686531dea4a36e74a2061a9d3fc542abe12bcf211443",
+        "ProcedureCrc_P_no_param_self_tail.exploded.ast": "1415b5dd45cd927886b8d801d139eafce42482cdf038191955a0408ea146c053",
+        "ProcedureCrc_P_no_param_self_tail.exploded.json": "575ea02c5c72b54fdb946dfc83cecd85e1d7db408caf19e624a2edbe6bb1981e"
+      },
+      "stdout_sha256": "d1731ea675a434e31c18cc21d56b8067850c47cf4be839303ed9920ea1672b9f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

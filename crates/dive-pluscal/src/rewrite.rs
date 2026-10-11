@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Checksum contract requested for a rewritten document.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChecksumPolicy {
-    /// Require proved post-translation/Explode AST and body checksums.
+    /// Require proved original post-translation header AST and body checksums.
     /// Unimplemented AST shapes are refused, never silently downgraded.
     #[default]
     Full,

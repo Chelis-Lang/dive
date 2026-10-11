@@ -2210,3 +2210,12 @@ lookup rather than substituting an earlier assignment's new value. The
 CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
 Reference-invalid artifacts and fixture filename failures stay visible without
 admission or proof credit. Neither profile silently repairs the reference output.
+
+D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
+labelled sequential procedure can now use Full editing. The pinned original
+header AST retains top-level calls but shared If/With/Either branch vectors are
+mutated by Explode; these six new shapes remain named checksum refusals. Two
+retained local_update controls are primary missing-label errors while raw native
+lowering admits them; neither receives compatible artifact credit here. Read
+[the procedure checksum guide](pluscal-procedure-checksums.md) for exact scope,
+D-020 fair-header CRC limits and strict #124 pending replay.
