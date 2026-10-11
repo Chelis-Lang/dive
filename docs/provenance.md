@@ -569,3 +569,11 @@ of the reference option parser. Captures: `crates/dive-pluscal/source-option-acc
 | --- | --- | --- | --- |
 | Native process option AST checksum (`dive-pluscal/translate/checksum.rs`) | `pcal.ParseAlgorithm.getAlgorithm` 377–394 (declared fairness precedes wf/sf defaults), `InnerAddLabels`, `AST.Process.toString`, `AST.Multiprocess.toString`, `PcalTranslate.Explode`; pinned `94d0c50` | MIT | Exact native post-translation bytes/CRC on retained source/option pairs; generator fairness suppression remains separate, all unproved source-option contexts refuse |
 | Source-option preflight (`dive-pluscal/translate/mod.rs`) | `pcal.ParseAlgorithm.ProcessOptions`, `FindToken`; `pcal.trans.performTranslation`; `pcal.Validator.validate` | MIT | Conservative detection/refusal, not a port of option-comment parsing; retained original ignored-option wrong artifacts and configured/unconfigured primary evidence |
+
+Original-source PlusCal option preflight matches the pinned translator
+`pcal.trans`/`ProcessOptions` reading source context before output replacement.
+The native callback-free declaration span is shared with the high-level rewrite
+facade before `mask_previous`; no Java executes in the product. The minimal
+old-output fairness-loss control is retained in
+`conformance/probes/pluscal-source-option-masking/`; full option parsing remains
+pending.

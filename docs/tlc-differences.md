@@ -1898,8 +1898,9 @@ Ordinary periodic checking and full family certification remain unfinished.
 **D-008 finite-process Full reports.** Declared-fairness finite process records
 now have proved native post-translation AST/CRC derivation, separately checked
 from admitted generated modules. Raw multiline process checksum matching does
-not lift the generator's layout refusal. Non-default process options, name
-rewrites and procedure/macro ASTs remain named Full refusals. Both profiles
+not lift the generator's layout refusal. Supported explicit process fairness and
+automatic labels have the separate [option contract](pluscal-process-checksum-options.md);
+source-option declarations, name rewrites and procedure/macro ASTs remain named Full refusals. Both profiles
 report nonproof editing results. See [process checksum examples](pluscal-process-checksums.md).
 D-020's fair-header-only source detection weakness remains explicit and unchanged.
 
@@ -1909,27 +1910,6 @@ rule is now matched; this restores artifact fidelity in both profiles, without
 a new divergence or proof claim. Opposite process modifiers and default-value
 name conflicts have separate captured dispositions.
 
-## D-021: PlusCal checksums need the generation options
-
-Translate a finite process with `pcal.trans -wf`: its header has two CRCs but does
-not retain `-wf`. In the retained P_plain_weak example, the algorithm CRC is
-`247b4187`. A fresh unconfigured Validator reports `PCAL_DIVERGENCE_EXISTS`,
-while the same Validator configured with `-wf` reports `NO_DIVERGENCE`. Strong
-fairness and automatic/custom label cases retain the same context limitation.
-
-A source comment such as `\* PlusCal options (-wf)` can instead provide this
-context. Native's first option producer ignored it and admitted weak/strong
-outputs missing fairness; both failures remain in the evidence. Native now
-refuses unproved source declarations before returning an artifact or CRC in both
-profiles. Supply supported settings explicitly and configure validation with the
-same settings. Attached keyword/punctuation forms ignored by the reference have
-separate controls; malformed declaration contexts may be conservatively refused.
-
-Status: measured interoperability candidate; no corrected default or model
-proof. `--compat=tlc` retains reference-compatible explicit settings, not a new
-checksum scheme. D-020's fair-header-only weakness still applies. All primary
-outputs and original failures are in `crates/dive-pluscal/source-option-acceptance/`.
-
 Pure operator-formal forwarding now has bounded explicit-final TLC admission;
 this resolves a native refusal rather than adding a result-changing default.
 Known user targets preserve caller scopes and are inspected even when unused;
@@ -1937,6 +1917,8 @@ opaque/native/recursive/higher-order and configured-origin-ambiguous targets
 remain refused. Clean accepted INSTANCE operator-formal controls are separate
 from older exported temporal-expression failures2213. Full periodic/corpus/family
 parity is unclaimed; see [the operator guide](temporal-operators.md).
+
+## D-021: PlusCal checksums need the generation options
 
 ```tla
 ---- MODULE OptionCRC ----
@@ -1985,3 +1967,12 @@ and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
 for all primary/configured/unconfigured/native-before-guard evidence. General
 source-option parsing, scoped serialization, exact formatting and file writes
 remain pending rather than inferred from this bounded increment.
+
+D-021 original-source control: a declaration inside a previous translation
+block is still read by the pinned translator. The retained native producer
+masked it first and admitted both Full and body-only output without requested
+weak fairness. High-level native rewriting now refuses before masking; the
+minimal source and both failed outputs are in
+`conformance/probes/pluscal-source-option-masking/`. Issue #182 remains open
+for source-option parsing and precedence; no stronger checksum default is
+adopted.

@@ -5,17 +5,17 @@
   "source_sha256": {
     "crates/dive-check/src/capture/pure.rs": "7609a8061525a8f64bece6c69df2f35f9d6164f18853ffbffb0e7bfd7d3453ef",
     "crates/dive-api/tests/material_capture.rs": "7ec0877aa600d513a5a1ae97440f7155dcef525282038f68094c9141dbcb5d7a",
-    "scripts/check-material-capture.py": "a3eb24facf4e2469abac66cd6636e56420776976ede0068c7c1c7c3652f288cc",
+    "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
-    "docs/material-capture.md": "e668e8b0ae11f3ee21abb9c95d3ecbef90c7f9a0685cce821ab9c142ca713cb9",
+    "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
     "docs/user/temporal.md": "7cfc3a164171042f58808807c7b7cbd166d6ef70d0572e3d58d68257894fe925",
-    "docs/provenance.md": "caa94e5cbc79e40f7b0ea7b41fac5008115d6ef51539c10e592edb16b53bd5b9",
-    "docs/divergences.md": "2c5775cb550150ba55dd7cf067c01eddee1ee629adb7fd22299a73b154976d21",
-    "docs/tlc-differences.md": "ed06c60d9f9639e621db845dbbcab824fca2311dd7becad1572350c34a4b67e0",
+    "docs/provenance.md": "f0dbf91ee0ea66f4413824ba6b210333f9d8aa788daee698bab3dcb0de90bfcd",
+    "docs/divergences.md": "667b76b7d77f9d2d6cf2332988aa86cc7673e7f449b3bd2a3ef70c7fb857572c",
+    "docs/tlc-differences.md": "1c2e22888f8ec9ca5bbf6be2e1dd3f4489b90bd2613877443005317491c3f1b0",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "4051acc29dae872723db893b33b41fcad2a85e2050b9b8de3f9aa8264ac95547",
-    "conformance/parity-features.json": "c3d9c624e84601f601b8c19f265155e88c6957c58b2088bdf444c41aebb0469a",
-    "CHANGELOG.md": "b391758a772a5f9a31079b764e0b3d594d1d706f8d4e739da8214c3573e0acb6",
-    "AGENTS.md": "b5ba249960cfdc485ccf70d825edddc6a6963cd666ba953765561b02335e6678",
+    "conformance/parity-features.json": "bc45a7c20235d92db6b3070bd07abd8e8391c354635647362af741dfff05a227",
+    "CHANGELOG.md": "aa924f0dee9bf413de990599901e8171407b958ad369cf99e2f30ba5c39a1334",
+    "AGENTS.md": "83af23f94b4935c1341d6f542a4c262ef21a80b8d0668c83a619eff2322ddada",
     ".github/workflows/ci.yml": "e88094c58d25239e30c901b0976b296cbbada2300063db1e96022e5a65531855",
     "conformance/probes/material-capture/make-general.py": "1053910425d010d8499d8cda673709aca1ac46bd28ab2fd069ca06246602d79e",
     "conformance/probes/material-capture/selection-general.json": "34a9d409c9092ba1efd72140b5310597ee532aa18e44950829a215580de249c7",
@@ -3058,5 +3058,5 @@
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stdout": "001f3729c7144bd8b836cfebc2c18858f0d85612edc0a97fe752972a13ca9f63",
     "conformance/probes/material-capture/development-clippy-controls/native-current/MatNestedFails-1/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "current_integration_scope": "Current combined source integrity only; prior source/raw producer receipts remain independently archived. Fresh final combined controls pending; no retagged observations or family certification."
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

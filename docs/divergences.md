@@ -640,16 +640,6 @@ admission and finite model/witness stages remain separate. Unproved process
 options/calls/name scopes stay Full refusals in both profiles. D-020 remains
 reference reproduction only; no stronger checksum default or family certificate.
 
-## D-021: PlusCal checksum validation needs option context (candidate)
-
-The pinned translator's header does not retain command-line fairness/label
-settings. A fresh Validator may report PCAL_DIVERGENCE_EXISTS until configured
-with those same settings. Source option comments supply context to the reference;
-native currently refuses them before generation/CRC rather than ignore them. No
-new default checksum scheme is adopted. The six paired Validator controls, four
-source declarations and 20 spacing cases are retained in
-`crates/dive-pluscal/source-option-acceptance/`. See the user log D-021.
-
 Pure operator-formal forwarding now has bounded explicit-final TLC admission;
 this resolves a native refusal rather than adding a result-changing default.
 Known user targets preserve caller scopes and are inspected even when unused;
@@ -679,3 +669,9 @@ label settings now have stage-separated raw/full controls; procedure/macro ASTs,
 scoped renaming and source-option declarations remain named Full refusals.
 F-034/F-035 are still partial; CRC derivation, artifact admission and finite
 model/witness checks do not certify the whole translator or liveness.
+
+D-021 native masking repair: original bounded source declarations are checked
+before hiding previous translation output. Full and body-only high-level
+rewriting refuse them by name, including modified-block grants. The retained
+missing-fairness reproduction and current source-span regression are distinct
+from reference CRC/Validator limitations. See the user log and issue #182.

@@ -189,7 +189,8 @@ raw multiline checksum captures remain separate from this new admission evidence
 
 Finite processes with declared fairness now have a separately proved Full
 serialization contract; see [runnable process examples](pluscal-process-checksums.md).
-Unproved process fairness/automatic-label options and scoped call/name contexts
+Proved explicit process fairness/automatic-label options have the separate
+contract below; unproved source-option declarations and scoped call/name contexts
 remain Full refusals. CRC equality is still neither integrity nor model proof.
 
 Source `PlusCal options (...)` declarations currently return a named unsupported

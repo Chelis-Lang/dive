@@ -91,6 +91,20 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
         Ok(selection) => selection,
         Err(error) => return failure(file, request, "selection", &error),
     };
+    // The pinned translator reads declarations in the original file, including
+    // old output. Masking first can silently discard requested fairness.
+    if let Some(span) = dive_pluscal::source_option_declaration_span(source) {
+        return failure(
+            file,
+            request,
+            "source-options",
+            &Diagnostic {
+                code: Code::Unsupported,
+                span,
+                message: "unsupported PlusCal source option declaration; pass proved settings explicitly through the CLI/API".to_owned(),
+            },
+        );
+    }
     let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
     let generated = translate_source(file, &masked, &request.translation);
     if !generated.accepted() {

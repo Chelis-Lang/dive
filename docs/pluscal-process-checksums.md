@@ -69,8 +69,9 @@ println!("{}", report.to_json());
 ```
 
 Declared process fairness and `L:+`/`L:-` label modifiers are serialized in lexical
-order within their owner. Unproved CLI fairness overrides and automatic-label
-normalization remain named checksum refusals. General renaming, definitions,
+order within their owner. Proved explicit fairness and automatic-label settings
+are documented in [the option guide](pluscal-process-checksum-options.md);
+unproved source-option declarations remain named refusals. General renaming, definitions,
 macros, procedures and branch-internal labels also refuse; no placeholder Full
 checksum is invented. Multiline process expressions may have exact raw AST
 serialization while generation still refuses their unproved layout. Raw checksum

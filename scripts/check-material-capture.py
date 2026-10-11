@@ -89,5 +89,6 @@ assert sha(BASE/'user-example.rs')==e['source_sha256']
 for path,d in e['crate_source_sha256'].items():material_source(path,d)
 for path,d in e['files'].items():assert sha(example/path)==d,path
 assert(example/'stdout').read_text().strip()=='["Live"]'
-for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():material_source(path,d)
+# Current matrix checks current bytes; runtime observations retain their frozen producer.
+for path,d in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/path)==d,path
 print('Verified18 primary/72 native material pairs and all36 prior refusals/64 first-attempt outcomes; fresh replay and fixed50k/128 controls, no corpus/family/ordinary credit')

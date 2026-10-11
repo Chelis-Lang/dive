@@ -152,10 +152,10 @@ workspace feature unification cannot hide a violation (ADR 0016 §2).
 ## Gates
 
 Run the gate locally before pushing. CI's required `Workspace gate` aggregates
-`Workspace checks` and all four `Workspace tests` partitions. Every prerequisite
+`Workspace checks` and all eight `Workspace tests` partitions. Every prerequisite
 must succeed; failed, cancelled or skipped jobs fail the required check. The
 combined jobs run the same full gate below, with tests partitioned using
-`--profile ci --partition hash:N/4` for N = 1, 2, 3, 4.
+`--profile ci --partition hash:N/8` for N = 1 through 8.
 `scripts/check-test-partitions.py` verifies their disjoint union equals the full
 workspace suite. Test and job time limits remain unchanged:
 

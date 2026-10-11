@@ -135,3 +135,9 @@ and exact stores (288 runs), with 12 strict independently valid witnesses and
 Forty-four forged reports and 12 header/body/source corruptions are rejected or
 retain the explicitly recorded D-020 weakness. Sixteen runnable CLI/Rust guide
 controls and 32 named source-context surface refusals have separate receipts.
+
+Recognized source-option declarations are inspected in the original bounded
+file, including an existing translation block, before native rewriting masks
+old output. Both checksum policies refuse that unproved context, even with
+`--replace-modified`. This prevents silently losing requested fairness; it
+does not restrict the separate supplied-body editing contract.

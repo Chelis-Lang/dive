@@ -79,3 +79,8 @@ For pure operator formals through `tlc_temporal::check_final`, use the runnable
 `Evaluator::scope_operator_analysis` exposes a callback-free known user scope for
 analysis only; its unknown formals cannot be forced or certify a model. Actual
 applications use real arguments and fresh independent witness replay.
+
+For stored concrete values and original claim names in final checking, use the
+compiled examples in [material captures](../material-capture.md) and
+[property origins](../tlc-property-origins.md). Their ownership, ordering and
+work/depth admission checks are separate from finite graph construction.

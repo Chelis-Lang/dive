@@ -5,6 +5,13 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/temporal-operators'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+# Runtime observations below belong to the immutable operator producer.
+OPERATOR_HISTORY=ROOT/'conformance/probes/native-parity-integration/history/temporal-operator-runtime-source-authority'
+OPERATOR_PRODUCER=load(OPERATOR_HISTORY/'record.json')
+assert OPERATOR_PRODUCER['source_commit']=='7683204a1ab328ffc2dabb9b932f5c545e129b79'
+def operator_source(path,digest):
+ assert OPERATOR_PRODUCER['source_sha256'][path]==digest,path
+ assert hashlib.sha256(gzip.decompress((OPERATOR_HISTORY/'sources'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 selection=load(BASE/'selection.json');instance=load(BASE/'selection-instance.json')
 assert len(selection)==14 and len(instance)==4
@@ -51,7 +58,7 @@ current=BASE/'native-current';m=load(current/'capture.json')
 assert m['source_and_binary_unchanged']is True and m['capture_source_sha256']==sha(BASE/'capture-native.py')
 assert m['selections_sha256']=={f:sha(BASE/f)for f in ['selection.json','selection-instance.json']}
 assert [(x['model'],x['requested_workers'])for x in m['rows']]==[(x['name'],w)for x in all_cases for w in [1,3,4,8]]
-for path,digest in m['source_sha256'].items():assert sha(ROOT/path)==digest,path
+for path,digest in m['source_sha256'].items():operator_source(path,digest)
 fields={r['name']:r['fields']for file in ['capture.json','capture-instance-projection.json']for r in load(BASE/file)['rows']}
 counts={}
 for row in m['rows']:
@@ -86,7 +93,7 @@ assert counts=={'success':36,'liveness-violation':28,'unsupported':8},counts
 example=BASE/'user-example-controls';e=load(example/'receipt.json')
 assert e['compile_exit']==e['run_exit']==0 and e['source_and_binary_unchanged']is True
 assert sha(BASE/'user-example.rs')==e['source_sha256']
-for path,digest in e['crate_source_sha256'].items():assert sha(ROOT/path)==digest,path
+for path,digest in e['crate_source_sha256'].items():operator_source(path,digest)
 for path,digest in e['files'].items():assert sha(example/path)==digest,path
 assert(example/'stdout').read_text().strip()=='["Live"]'
 # The whole140 census belongs to the previous9b producer, never the current one.

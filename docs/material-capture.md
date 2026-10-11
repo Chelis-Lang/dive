@@ -93,8 +93,10 @@ product limits remain independently enforced as documented in the
 
 A deferred set stays deferred even if its elements were previously cached.
 Intervals, products and other computed set representations are not stored Enum/Raw
-captures in this increment. Opaque operator/formal captures, configured value
-overrides of definitions, unresolved context operators, `Unbound`/`Unevaluable`
+captures in this increment. Known nonrecursive user operator captures have a
+separate bounded proof in [the operator guide](temporal-operators.md). Opaque
+operator/formal captures, configured value overrides of definitions, unresolved
+context operators, `Unbound`/`Unevaluable`
 leaves, impure/live/runtime-name-producing operators and unknown IDs remain
 refused. Constructing or hashing a composite value can already run deferred
 provider code before admission; this change guarantees no additional provider
@@ -116,8 +118,12 @@ The pre-order-guard 72 positive rows and interrupted 931-test gate are retained
 as blocked development evidence, alongside the public same-owned-string
 `CHOOSE` counterexample; they receive no current producer credit.
 Earlier 32 original and 4 supplementary native refusals, and the first partially successful 64-row
-attempt remain separate historical evidence. The previous whole-corpus census
-is still **6 agreements / 134 unsupported**; this selected increment does not
-claim a fresh corpus gain, ordinary periodic scheduling or full temporal-family
-certification. Developer source/evidence: `conformance/probes/material-capture/`
+attempt remain separate historical evidence. The earlier baseline census was **6 agreements / 134 unsupported**. A complete
+frozen material-producer census selected all 140 small-tier models with the
+unchanged 600-second per-model bound: **46 agreements, 92 unsupported and 2
+timeouts, with no disagreements**. Both timeouts and the nonzero harness exit
+remain recorded; the original launcher-receipt mismatch has a separate closed
+consumer addendum. That census belongs to the material producer, before the
+operator integration, and cannot certify this combined source. Ordinary periodic
+scheduling and full temporal-family certification remain pending. Developer source/evidence: `conformance/probes/material-capture/`
 and `crates/dive-check/src/capture/pure.rs`.

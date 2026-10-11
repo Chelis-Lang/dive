@@ -177,6 +177,17 @@ fn error(
     }
 }
 
+/// Find a reference-style source option declaration before hiding old output.
+///
+/// This callback-free preflight recognizes keyword/spacing context only; it
+/// does not parse option arguments or certify a valid declaration. Callers must
+/// enforce their document byte limit first. Native generation refuses this
+/// unproved context rather than silently erase its fairness or label settings.
+#[must_use]
+pub fn source_option_declaration_span(source: &str) -> Option<Span> {
+    source_options_span(source)
+}
+
 fn source_options_span(source: &str) -> Option<Span> {
     for (start, _) in source.match_indices("PlusCal") {
         if start > 0

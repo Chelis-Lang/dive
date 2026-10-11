@@ -1,14 +1,18 @@
 # Changelog
-- Bounded finite-process Full checksums now retain explicit fairness and
-  automatic-label option context, with typed options in replacement reports.
-  Source option comments remain named refusals; duplicate CLI fairness flags
-  are rejected before loading. Pinned Validator context limitations are documented.
-
 
 All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- High-level PlusCal rewriting refuses unproved source-option declarations in
+  the original file before masking old translation blocks, preventing silent
+  loss of requested fairness under either checksum policy.
+
+- Bounded finite-process Full checksums now retain explicit fairness and
+  automatic-label option context, with typed options in replacement reports.
+  Source option comments remain named refusals; duplicate CLI fairness flags
+  are rejected before loading. Pinned Validator context limitations are documented.
 
 - Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
   conjuncts, with complete generated-module syntax-tree regressions.

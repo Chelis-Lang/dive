@@ -1,0 +1,21 @@
+{
+  "native_sha256": "972104782466db0e129571874570fac7286b5f8a3c7745d332862565da8075de",
+  "source_sha256": "8a8f549a58fc3016cefa23f126469e05d6575cc2d6cbde6ee0fff8b23542041b",
+  "primary_exit": 0,
+  "primary_weak_fairness_present": true,
+  "native": [
+    {
+      "policy": "full",
+      "exit": 0,
+      "accepted": true,
+      "weak_fairness_present": false
+    },
+    {
+      "policy": "tla",
+      "exit": 0,
+      "accepted": true,
+      "weak_fairness_present": false
+    }
+  ],
+  "family_certified": false
+}
