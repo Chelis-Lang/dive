@@ -1510,7 +1510,9 @@ impl<S: Keyed> Search<'_, '_, S> {
                 if let Some(mut s) = stop {
                     let left = (count - i - 1) + next.len();
                     let mut stats = self.stats(left as u64);
-                    if let Some(ordinal) = resume {
+                    if let Some(ordinal) = resume
+                        && self.disk.is_none()
+                    {
                         let r = self.replay_after(&self.set, s0, ordinal, level, &BTreeSet::new());
                         stats.distinct += r.distinct;
                         stats.left_on_queue += r.queued;
@@ -1610,6 +1612,16 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         unseen: &BTreeSet<S::Key>,
     ) -> Replayed {
+        if self.disk.is_some() {
+            // Defensive admission for every caller, including future pool
+            // integrations: never use Boolean resident membership on disk.
+            return Replayed {
+                error: Some(Verdict::Unsupported {
+                    feature: "disk seen-state invariant-error call-stack replay".into(),
+                }),
+                ..Replayed::default()
+            };
+        }
         let m = self.m;
         let ev = &m.evaluator;
         // TLC prints the replay's `Print` output again; dive does not.
@@ -2276,6 +2288,30 @@ fn search_in<S: Keyed>(
     let _ = m.take_output();
     let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
+        result if s.disk.is_some() && resumes(&stop.verdict) => {
+            // TLC call-stack replay can inspect/enqueue later successors. The
+            // resident reference set is empty on disk runs, and neither its
+            // Boolean membership nor a fresh scan is a disk replay authority.
+            notes.push(format!(
+                "The search reached {:?}; disk invariant-error call-stack replay is not implemented. Counts and any retained trace describe the original stopping prefix only, not TLC's completed error replay or a certificate.",
+                stop.verdict
+            ));
+            let diagnostic = match result {
+                Ok(trace) => trace,
+                Err(message) => {
+                    notes.push(format!(
+                        "The diagnostic error trace could not be reconstructed: {message}"
+                    ));
+                    None
+                }
+            };
+            (
+                Verdict::Unsupported {
+                    feature: "disk seen-state invariant-error call-stack replay".into(),
+                },
+                diagnostic,
+            )
+        }
         _ if unproved_initial_replay => {
             notes.push(format!("The search reached {:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification.", stop.verdict));
             (

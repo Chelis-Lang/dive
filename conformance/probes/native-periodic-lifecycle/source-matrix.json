@@ -18,7 +18,7 @@
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "6a091503c04b82c168323f1684f96f0097ded2c36160bcbb595d8547ba861e71"
+    "conformance/parity-features.json": "fae013a3a2235436df378d1f9799d2ad2c708af80d1608f9247f7a6345a91a1f"
   },
   "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

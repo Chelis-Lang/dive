@@ -2,7 +2,7 @@
   "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "c0da499fcba3afeff4e2d9ddec3dee9cc78a3217eb53f5262b9bcd9c16236baa",
-    "crates/dive-check/src/engine.rs": "2e67f2fdd37432c0c39475f77f6dd9a4e368dba123488a7928e30f89bb7f6d79",
+    "crates/dive-check/src/engine.rs": "c8ffc3c203340d463808ef5c449950c8fd941827b78e03a84b03eb3a12b0bbb3",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e",
     "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
@@ -14,7 +14,7 @@
     "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
     "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
     "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
-    "conformance/parity-features.json": "6a091503c04b82c168323f1684f96f0097ded2c36160bcbb595d8547ba861e71"
+    "conformance/parity-features.json": "fae013a3a2235436df378d1f9799d2ad2c708af80d1608f9247f7a6345a91a1f"
   },
   "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

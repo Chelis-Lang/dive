@@ -1182,7 +1182,7 @@ mod seen_tests {
             let error = String::from_utf8_lossy(&errors);
             assert!(!error.contains("cannot read"), "{error}");
             assert!(
-                error.contains("requires --seen-disk-entries")
+                error.contains("--seen-directory and seen limits require --seen-disk-entries")
                     || error.contains("DIVE-S0700")
                     || error.contains("is not implemented"),
                 "{error}"

@@ -6,8 +6,8 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "90ff4229c7af1cb77bd4f0362d917a6dc85273b4f31a789f02364e7e9245ec58",
     "AGENTS.md": "9796024aa315a129fdf015a72d93ba173a78de9d336543f0961857d76aa40d3c",
-    "CHANGELOG.md": "eb1d1344076fc2c0da9a51ebf5e9834d203fa9c85f781d90f386cc369f31c919",
-    "conformance/parity-features.json": "6a091503c04b82c168323f1684f96f0097ded2c36160bcbb595d8547ba861e71",
+    "CHANGELOG.md": "eed2988d963cbed5a059efa07e0e40344317c59c665567fd39ab86d60f1b9790",
+    "conformance/parity-features.json": "fae013a3a2235436df378d1f9799d2ad2c708af80d1608f9247f7a6345a91a1f",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
     "conformance/probes/material-capture/binaries-current.json": "e91d3eac273b37d0eb6186f609c261db34a1bc6a3f2e95fe92d1b3feaae1d30a",
@@ -3054,7 +3054,7 @@
     "docs/divergences.md": "a1a92f0f3b90977ca1fcf76d25c3b3c825ef2d79d56addebece0af9d9a2adff8",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
     "docs/provenance.md": "3b18a3081f585404e6ff0bfcf1003d939557689d1cf1219886226914a9002a87",
-    "docs/tlc-differences.md": "e9b2dc0aa174bce365f2490757be718de7eede9d82c4a98ffb4ea8e4474d55f1",
+    "docs/tlc-differences.md": "5104fab6e68d82799a9811c930fec4a0ea6d55487c9f847ad456599b7d9f298f",
     "docs/user/temporal.md": "840e869be09f9aa1eb8d501b2fe929195a643879121ce378a819c5ccc2e1ed2f",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"

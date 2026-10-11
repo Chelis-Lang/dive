@@ -59,7 +59,7 @@
     "crates/dive-api/src/tlc_temporal.rs": "01cc114e46c925713d99b2b10f8d5090c2e1997238edc8ce435813f9eef6c064",
     "crates/dive-api/src/tlc_temporal_admission.rs": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36",
     "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
-    "crates/dive-cli/src/main.rs": "fccfc331c69df46ab1e866c23ce7d5059a556c0ec7cf090b0400899bbbca616b",
+    "crates/dive-cli/src/main.rs": "afd16f424cdcb84b69cc40fd06ab58fb61f8b6b2de999bd873a088a29795a1d8",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
     "crates/dive-conformance/src/dive.rs": "8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8",
     "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",

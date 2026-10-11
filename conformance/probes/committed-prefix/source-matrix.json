@@ -25,6 +25,6 @@
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
     "AGENTS.md": "9796024aa315a129fdf015a72d93ba173a78de9d336543f0961857d76aa40d3c",
     ".github/workflows/ci.yml": "90ff4229c7af1cb77bd4f0362d917a6dc85273b4f31a789f02364e7e9245ec58",
-    "conformance/parity-features.json": "6a091503c04b82c168323f1684f96f0097ded2c36160bcbb595d8547ba861e71"
+    "conformance/parity-features.json": "fae013a3a2235436df378d1f9799d2ad2c708af80d1608f9247f7a6345a91a1f"
   }
 }

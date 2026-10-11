@@ -203,3 +203,74 @@ fn capture_and_dfid_refuse_before_assumption_work() {
         assert_eq!(result.stage, "preflight");
     }
 }
+
+#[test]
+fn invariant_error_replay_refuses_disk_membership_without_resident_fallback() {
+    let file = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/disk-seen/ReplayMembership/ReplayMembership.tla");
+    let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
+    assert!(analysis.accepted());
+    let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+    let cfg =
+        dive_config::parse(&std::fs::read_to_string(file.with_extension("cfg")).expect("cfg"))
+            .into_config()
+            .expect("configuration");
+    for mut options in [CheckOptions::tlc(0, 7), CheckOptions::dive(7)] {
+        for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+            options.store = store;
+            options.sequential = true;
+            let memory = check(&ir, &cfg, &options);
+            assert!(matches!(
+                memory.verdict,
+                Verdict::EvaluationError {
+                    site: dive_check::ErrorSite::Invariant,
+                    ..
+                }
+            ));
+            let stats = memory.stats.expect("original memory counters");
+            assert_eq!(
+                (stats.generated, stats.distinct, stats.left_on_queue),
+                (3, 3, 1)
+            );
+            assert_eq!(
+                memory
+                    .counterexample
+                    .as_ref()
+                    .expect("original error trace")
+                    .states
+                    .len(),
+                2
+            );
+            for width in [1, 4, 8] {
+                for chaos in [None, Some(0), Some(7)] {
+                    let mut disk = options.clone();
+                    disk.workers = width;
+                    disk.sequential = false;
+                    disk.chaos = chaos;
+                    disk.seen_disk = Some(SeenOptions::default());
+                    let result = check(&ir, &cfg, &disk);
+                    assert!(
+                        matches!(result.verdict, Verdict::Unsupported { ref feature }
+                        if feature == "disk seen-state invariant-error call-stack replay")
+                    );
+                    // These are admitted-prefix facts, not completed replay counts.
+                    assert_eq!(result.stats, memory.stats);
+                    assert_eq!(
+                        format!("{:?}", result.counterexample),
+                        format!("{:?}", memory.counterexample)
+                    );
+                    assert_eq!(result.output, memory.output);
+                    assert!(result.notes.iter().any(|n| n.contains("EvaluationError")
+                        && n.contains("Invariant")
+                        && n.contains("stopping prefix")));
+                    let usage = result.seen.expect("disk cleanup evidence");
+                    assert_eq!(usage.admitted_keys, 3);
+                    assert!(usage.first_failure.is_none());
+                    assert!(usage.after_cleanup.expect("close").cleanup_completed);
+                    assert_eq!(result.workers.requested, width);
+                    assert_eq!(result.workers.used, 1);
+                }
+            }
+        }
+    }
+}

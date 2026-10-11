@@ -88,8 +88,24 @@ fn run(
     entries: u64,
     profile: dive_eval::Profile,
 ) -> (crate::CheckResult, PathBuf) {
+    run_named(
+        "EarlyInvariant",
+        dive_store::StoreMode::Fingerprint,
+        mutation,
+        entries,
+        profile,
+    )
+}
+
+fn run_named(
+    name: &str,
+    store: dive_store::StoreMode,
+    mutation: Option<(u64, Mutation)>,
+    entries: u64,
+    profile: dive_eval::Profile,
+) -> (crate::CheckResult, PathBuf) {
     let file = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/disk-seen/EarlyInvariant/EarlyInvariant.tla");
+        .join(format!("tests/fixtures/disk-seen/{name}/{name}.tla"));
     let analysis = dive_sema::analyze_file(&file, &dive_sema::Options::default()).expect("source");
     let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
     let cfg =
@@ -103,6 +119,7 @@ fn run(
         crate::CheckOptions::dive(7)
     };
     options.workers = 8;
+    options.store = store;
     let mut disk = SeenOptions {
         directory: Some(parent.clone()),
         ..SeenOptions::default()
@@ -257,4 +274,104 @@ fn required_collision_summary_is_fallible_and_not_silently_omitted() {
     assert!(run.set.close().is_err());
     assert!(run.set.stats().cleanup_completed);
     std::fs::remove_dir(parent).expect("parent");
+}
+
+#[test]
+fn invariant_error_replay_keeps_original_error_and_late_cleanup_failure() {
+    for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+        for store in [
+            dive_store::StoreMode::Fingerprint,
+            dive_store::StoreMode::Exact,
+        ] {
+            let (result, parent) = run_named(
+                "ReplayMembership",
+                store,
+                Some((u64::MAX, Mutation::CleanupBlocker)),
+                16,
+                profile,
+            );
+            assert!(matches!(result.verdict, Verdict::ResourceLimit { .. }));
+            assert!(
+                result
+                    .notes
+                    .iter()
+                    .any(|n| n.contains("EvaluationError") && n.contains("Invariant"))
+            );
+            assert_eq!(
+                result
+                    .counterexample
+                    .expect("diagnostic error word")
+                    .states
+                    .len(),
+                2
+            );
+            let stats = result.stats.expect("original stopping prefix");
+            assert_eq!(
+                (stats.generated, stats.distinct, stats.left_on_queue),
+                (3, 3, 1)
+            );
+            let usage = result.seen.expect("usage");
+            assert!(matches!(usage.deciding_event_before_failure,
+                Some(Verdict::Unsupported { ref feature })
+                    if feature == "disk seen-state invariant-error call-stack replay"));
+            let failure = usage.first_failure.expect("late cleanup cause");
+            assert_eq!(failure.phase, SeenPhase::Cleanup);
+            assert_eq!(failure.error.operation, Operation::Cleanup);
+            assert!(
+                !usage
+                    .after_cleanup
+                    .expect("partial cleanup")
+                    .cleanup_completed
+            );
+            let directory = directory(&parent);
+            assert_eq!(
+                std::fs::read(directory.join("caller-added-file")).expect("caller file"),
+                b"keep"
+            );
+            std::fs::remove_file(directory.join("caller-added-file")).expect("test cleanup");
+            std::fs::remove_dir(directory).expect("private directory");
+            std::fs::remove_dir(parent).expect("parent");
+        }
+    }
+}
+
+#[test]
+fn invariant_error_replay_never_reads_future_keys_but_preserves_prior_read_fault() {
+    for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+        for store in [
+            dive_store::StoreMode::Fingerprint,
+            dive_store::StoreMode::Exact,
+        ] {
+            for (generated, should_fail) in [(3, true), (4, false)] {
+                let (result, parent) = run_named(
+                    "ReplayMembership",
+                    store,
+                    Some((generated, Mutation::TruncateIndex)),
+                    16,
+                    profile,
+                );
+                let usage = result.seen.expect("usage");
+                if should_fail {
+                    assert!(matches!(result.verdict, Verdict::ResourceLimit { .. }));
+                    let failure = usage.first_failure.expect("ordered prior read failure");
+                    assert_eq!(failure.phase, SeenPhase::Insertion);
+                    assert_eq!(failure.generated, Some(3));
+                    assert_eq!(failure.predecessor, Some(0));
+                    assert_eq!(failure.successor_ordinal, Some(0));
+                    assert_eq!(failure.error.operation, Operation::Corruption);
+                    assert!(!result.notes.iter().any(|n| n.contains("invariant-error")));
+                } else {
+                    assert!(
+                        matches!(result.verdict, Verdict::Unsupported { ref feature }
+                        if feature == "disk seen-state invariant-error call-stack replay")
+                    );
+                    assert!(usage.first_failure.is_none());
+                    assert_eq!(usage.admitted_keys, 3);
+                    assert!(result.notes.iter().any(|n| n.contains("EvaluationError")));
+                }
+                assert!(usage.after_cleanup.expect("cleanup").cleanup_completed);
+                std::fs::remove_dir(parent).expect("empty parent");
+            }
+        }
+    }
 }

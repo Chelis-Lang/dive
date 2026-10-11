@@ -93,7 +93,9 @@ and OS page cache remain outside this policy. You may separately opt into
 this combination nor any one flag is a total-memory budget. Inserts do not fsync
 data and have no crash durability or restart/import guarantee.
 
-Only explicit `INIT`/`NEXT` configurations are admitted. Configured `PROPERTY`
+Only successful explicit `INIT`/`NEXT` binding is admitted for search. Missing
+or invalid roles preserve ordinary binder ordering and can emit startup output;
+they do not carry a blanket no-effects guarantee. Configured `PROPERTY`
 and `SPECIFICATION` roles refuse before startup effects, including safety-only
 `SPECIFICATION`; callback-free role decomposition remains pending.
 Graph/source capture, temporal checking,
@@ -106,3 +108,19 @@ Random/VIEW or trace representation admission and grants no family certification
 See [the storage library](disk-seen-library.md),
 [ADR0068](../decisions/0068-fallible-disk-seen-safety.md) and the current
 [source-bound study](../../conformance/probes/fallible-seen-engine/README.md).
+
+
+An invariant that raises an evaluation error on a successor currently returns
+`unsupported: disk seen-state invariant-error call-stack replay`. TLC resumes
+past that successor during call-stack replay; the disk route has no proved
+positioned read/replay authority yet. The original error remains in `notes` and
+any concrete word is diagnostic evidence, not a completed certificate. Reported
+counters describe only admitted keys and the initial stop; they are not TLC's
+completed error-replay counters. Use the resident counterpart for this case.
+
+The minimal retained case starts from `x = 0` or `x = 2`, visits `x = 1` before
+an already-seen `x = 2`, and divides by zero in its invariant at `x = 1`.
+Pinned TLC and the resident reference report 3 generated, 3 distinct and 1 queued.
+The preserved failed disk epoch reported 4 distinct and 2 queued. Current disk
+checking explicitly refuses that boundary; it never consults an empty resident
+set as an answer. [Source and original raw observations](../../conformance/probes/fallible-seen-engine/invariant-replay-before/).

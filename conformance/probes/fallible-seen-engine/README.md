@@ -32,3 +32,18 @@ checkpoint/recovery refuse the combination before endpoint work. Caller-provided
 bound models can already contain earlier startup output; capture/DFID perform no
 new assumption or search work. Callback-free role decomposition and immutable
 concurrent disk read views remain future increments.
+
+
+The first full engine gate (`b07aaa1164d04ccb6a15f29df5b6046ab599443b`)
+closed all eight stages with 1,264/1,265 tests passing and zero skipped; its new
+CLI orphan-policy assertion mismatched the actual plural diagnostic, and two
+current source maps retained stale documentation hashes. Full failed logs/source
+remain separate from the next corrected epoch. The CLI test now checks the exact
+measured plural message; no usage exit, no-output or pre-file assertion changes.
+
+[Invariant replay before repair](invariant-replay-before/) records a distinct
+observed gap: clean primary/resident3 distinct/1 queued versus disk4/2.
+Current disk mode refuses the actual invariant-error replay boundary by name,
+preserves its original error and diagnostic word, and audits cleanup. The
+ordinary memory path and its call-stack replay remain unchanged; no supported
+matrix case is removed to conceal this refusal.

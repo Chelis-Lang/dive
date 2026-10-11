@@ -100,7 +100,7 @@ and a corresponding certification schema before the label can change.
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs) |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
+| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); default seen/candidate/graph/SCC retention remains resident; opt-in disk safety membership is partial |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending; [bounded Full checksum editing](pluscal-rewriting.md), broader AST checksum scopes/file format pending |
@@ -663,3 +663,6 @@ widths separately from actual inline execution. PROPERTY/SPECIFICATION role
 decomposition, parallel read views, capture/temporal routing and disk seen-state
 recovery remain pending. Candidate/graph/reconstruction retention and OS page
 cache remain outside these bounds; F-031 remains partial/audit-required.
+
+Disk invariant-error call-stack replay remains a named refusal; its retained error
+word and initial counts do not receive completed replay or certificate credit.

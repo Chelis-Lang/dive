@@ -78,3 +78,17 @@ future increments. The crate graph and independent validator boundary do not
 change. `dive-trace` continues to validate concrete words without disk/checker
 state. User commands, Rust example and current limits are maintained in
 [the safety guide](../user/disk-seen-safety.md).
+
+
+## Invariant-error replay boundary (2026-10-11)
+
+The immutable first engine epoch exposed a separate replay authority gap:
+`ReplayMembership` gives 3 generated/3 distinct/1 queued in clean TLC and the
+resident counterpart, but 4 distinct/2 queued when replay reads the empty
+resident reference on a disk run. Preserve the failed source/raw/gate epoch.
+Disk invariant-evaluation errors now refuse their call-stack replay by name,
+retaining the original error in notes and the original stopping prefix/diagnostic
+word. Memory replay is unchanged. Positioned fallible replay reads and exact
+TLC error-counter continuation remain a future increment; no refusal earns
+agreement. Missing/invalid ordinary roles preserve existing binder effect order,
+separate from explicitly rejected configured role/mode combinations.

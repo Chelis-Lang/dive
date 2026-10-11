@@ -104,8 +104,9 @@ or fingerprint and grants no additional archive or total-memory proof.
 
 [`dive_store::seen::DiskSeen`](disk-seen-library.md) retains full fingerprint or
 canonical exact keys on disk with fallible operations and explicit owned cleanup.
-This library is not yet a `dive check` option. Ordinary seen sets still remain
-resident; frontier/predecessor flags do not imply a seen-set or total RAM budget.
+The original library-only receipt is separate from the later opt-in safety
+route below. Default ordinary seen sets remain resident; frontier/predecessor
+flags alone do not imply a seen-set or total RAM budget.
 
 
 ## Transient disk seen-state membership
