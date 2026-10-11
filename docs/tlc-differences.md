@@ -2210,3 +2210,26 @@ lookup rather than substituting an earlier assignment's new value. The
 CLI/API examples and remaining recursive/action/temporal/name/procedure refusals.
 Reference-invalid artifacts and fixture filename failures stay visible without
 admission or proof credit. Neither profile silently repairs the reference output.
+### Configuration-owned periodic diagnostic limitation (#197)
+
+`_PERIODIC Hook` is now selectable through a separate bounded Rust factory, preserving the original pre-constant body. Ordinary CLI scheduling remains unsupported. A constant-valued periodic role throws a real `ClassCastException` in the pin; native diagnostic binding refuses it by name rather than inventing a TLC code. The complete 26-row selection plus 12 startup/precedence rows show unused `PrintT` startup before name/arity failures and symbolic constant startup work that TLC permits. The guarded native factory refuses these before output under its unchanged inspection/startup policies, so those rows are refusals, not TLC-error agreement. [User contract and executable example](configured-periodic-snapshot.md); [ADR 0057](decisions/0057-configured-periodic-snapshot.md). No ordinary-schedule or family certification is granted.
+
+### Opt-in stored trace transport (#190)
+
+Trace version 1 remains the default and retains the measured 36 original/108
+altered shape failures above. Version 2 (`--trace-format representation-v2`)
+uses checked stored representation for admitted forward mixed record/tuple sets
+and nonliteral tuple/record functions. It recomputes construction witnesses under
+the bound profile; normalized/order/literal claims never substitute for semantic
+Init/Next/ending validation. The transport does not alter comparison semantics,
+reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
+and unproved witness shapes remain explicit transport refusals. The
+[guide and schema](trace-representation.md) specify limits and migration.
+Historical shape failures remain excluded from certificate credit. The separate
+current v2 selection proves 72 independently valid words and 216 semantic mutant
+rejections; 24 matching legacy mixed-value shape failures stay explicit. The
+Model-based writer checks existing name tokens before emission, and fresh owned
+constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
+interval encoding controls retain the concrete violation but emit no transport
+or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
+this does not certify arbitrary stored representations.

@@ -109,3 +109,10 @@ Treat that report as an unvalidated witness; checking counts or a displayed
 trace do not confer independent validation. See [the measured selection and
 refusals](../../conformance/probes/view-concrete-normalization/README.md) and
 [follow-up #190](https://github.com/Chelis-Lang/dive/issues/190).
+
+For admitted compound counterexamples, explicitly select
+`--trace-format representation-v2`; the embedded document changes version while
+checker semantics/profile/counts stay unchanged. Inspect `trace_encoding` and
+validate the word independently. Legacy version1 remains default. See the
+[stored trace transport guide](../trace-representation.md) for schema, refusals,
+known legacy failures and runnable Rust/CLI examples.

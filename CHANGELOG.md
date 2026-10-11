@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The project will follow
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
+- Opt-in `--trace-format representation-v2` preserves admitted stored mixed
+  sets and nonliteral tuple/record functions with checked construction witnesses.
+  Legacy version1 stays default; transport is not a semantic certificate and
+  provider/symbolic/unproved shapes retain explicit bounded refusals.
 
 - Closed pure ordinary VIEW/RandomElement checking seeds from the transformed
   FP64 value while retaining concrete witnesses for independent replay. Stored
@@ -19,6 +23,8 @@ All notable changes to this project are documented here. The project will follow
   from ordinary scheduling and checker verdicts.
 
 
+
+- Add a bounded configuration-owned periodic snapshot Rust diagnostic with prebinding startup admission, original role/body identities and exact ordinary-check refusal. It grants no ordinary schedule or temporal proof.
 
 - Bounded pure supplied periodic expressions compose at real native pauses, retaining original comparison/evaluation errors. Configured `_PERIODIC` and ordinary temporal CLI remain refused; see `docs/periodic-hook.md`.
 - Native commit-boundary lifecycle diagnostics use real borrowed dispatch authority, internal clock/controller polling and actual EOF final SCCs. No ordinary temporal verdict is enabled; see `docs/native-periodic-lifecycle.md`.

@@ -71,6 +71,8 @@ enum CfgConst<'a> {
 
 /// The binder's state.
 pub(crate) struct Binder<'a> {
+    /// Diagnostic binding only: retain the configured pre-constant periodic body.
+    pub(crate) periodic_snapshot: bool,
     pub(crate) t: Tables,
     pub(crate) cfg: &'a ModelConfig,
     pub(crate) opts: &'a BindOptions,
@@ -107,6 +109,7 @@ impl<'a> Binder<'a> {
         names: Arc<Interner>,
     ) -> R<Self> {
         Ok(Self {
+            periodic_snapshot: false,
             t: Tables::new(ir)?,
             cfg,
             opts,

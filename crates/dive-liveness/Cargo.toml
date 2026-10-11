@@ -14,10 +14,10 @@ dive-eval.workspace = true
 dive-value.workspace = true
 dive-model.workspace = true
 dive-check.workspace = true
+dive-config.workspace = true
 
 [dev-dependencies]
 dive-sema.workspace = true
-dive-config.workspace = true
 serde_json.workspace = true
 dive-trace.workspace = true
 dive-store.workspace = true

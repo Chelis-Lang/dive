@@ -442,8 +442,10 @@ impl Set {
     }
 
     /// Whether TLC would treat the set as normalized (always, except for a `Raw` set
-    /// that no normalizing operation has touched).
-    pub(crate) fn is_tlc_normalized(&self) -> bool {
+    /// that no normalizing operation has touched). This reads representation only;
+    /// it neither enumerates nor changes the set. It is not a validation certificate.
+    #[must_use]
+    pub fn is_tlc_normalized(&self) -> bool {
         match self.0.repr {
             SetRepr::Raw(_) => self.0.tlc_norm.load(AtomicOrdering::Acquire),
             _ => true,
