@@ -7,7 +7,7 @@
     ".github/workflows/ci.yml": "30272e583e255d83a3ce3cefce1d866cc5f7e71fc58a4acf9f2c96c74895f8f2",
     "AGENTS.md": "392bd031945748191ac3a457e816b3ab6388d542ec52dfc75674ab95b5765c50",
     "CHANGELOG.md": "7ab2548dba33406117c02e4d4afa83b5c7bb5e3d8660745133c950d9c1877202",
-    "conformance/parity-features.json": "35001ddf3ba45fb516ac1f37579f72e5f8f5c46304783a67cd5f88680ef4a6ce",
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
     "conformance/probes/material-capture/binaries-current.json": "e91d3eac273b37d0eb6186f609c261db34a1bc6a3f2e95fe92d1b3feaae1d30a",

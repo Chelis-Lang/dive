@@ -39,7 +39,7 @@
     ".github/workflows/ci.yml": "30272e583e255d83a3ce3cefce1d866cc5f7e71fc58a4acf9f2c96c74895f8f2",
     "AGENTS.md": "392bd031945748191ac3a457e816b3ab6388d542ec52dfc75674ab95b5765c50",
     "CHANGELOG.md": "7ab2548dba33406117c02e4d4afa83b5c7bb5e3d8660745133c950d9c1877202",
-    "conformance/parity-features.json": "35001ddf3ba45fb516ac1f37579f72e5f8f5c46304783a67cd5f88680ef4a6ce",
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/native-checkpoint/current-integration-source.json": "f8dc112ba5109e3d9f96ffe2cef8738d42b3bc4dd28655663331b73c301d9360",

@@ -18,7 +18,7 @@
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "35001ddf3ba45fb516ac1f37579f72e5f8f5c46304783a67cd5f88680ef4a6ce"
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

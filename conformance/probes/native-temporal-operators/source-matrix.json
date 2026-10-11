@@ -10,7 +10,7 @@
     "CHANGELOG.md": "7ab2548dba33406117c02e4d4afa83b5c7bb5e3d8660745133c950d9c1877202",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
-    "conformance/parity-features.json": "35001ddf3ba45fb516ac1f37579f72e5f8f5c46304783a67cd5f88680ef4a6ce",
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51",
     "conformance/probes/native-temporal-operators/DELIVERY.md": "e68adec63c2831be25073886c810abebc945aca9f03f2723361376bb90db9a60",
     "conformance/probes/native-temporal-operators/DESIGN.md": "83bdc655995e985d6d6d0302d605c75fca6764d2ba689b5c726939843aca56c0",
     "conformance/probes/native-temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",

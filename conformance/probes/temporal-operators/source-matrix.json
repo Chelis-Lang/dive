@@ -16,7 +16,7 @@
     ".github/workflows/ci.yml": "30272e583e255d83a3ce3cefce1d866cc5f7e71fc58a4acf9f2c96c74895f8f2",
     "AGENTS.md": "392bd031945748191ac3a457e816b3ab6388d542ec52dfc75674ab95b5765c50",
     "CHANGELOG.md": "7ab2548dba33406117c02e4d4afa83b5c7bb5e3d8660745133c950d9c1877202",
-    "conformance/parity-features.json": "35001ddf3ba45fb516ac1f37579f72e5f8f5c46304783a67cd5f88680ef4a6ce",
+    "conformance/parity-features.json": "c981fd551a483b1b061b9836cd5a268cf898c8d988bdaaa9ae81d5a399743d51",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
