@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Strict independent whole-word replay admits proved tuple-only `Tail`,
+  concatenation and `SubSeq` operands while retaining string-history and
+  variable-stack refusals; includes a runnable CLI/Cargo guide.
 - Trace JSON documentation now distinguishes tagged value kinds and document
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
