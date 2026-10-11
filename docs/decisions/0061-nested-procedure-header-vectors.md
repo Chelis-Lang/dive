@@ -27,11 +27,22 @@ expressions, saved frames, quoted continuations, Head(stack) slots and Tail(stac
 Continuation labels come from source label groups and ownership, including Done,
 Error and loop-body successors. Branch needsGoto propagation follows the pinned
 If/Either/With cases. The generator's assignment sorting is applied to the
-synthetic simultaneous call assignment before header serialization.
+synthetic simultaneous call assignment only when that assignment is visited.
+`ExplodeWhile` mutates a shared tail even when `IsTRUE` discards it from the
+generated root; those tail frames retain Explode creation order. IsTRUE requires
+one logical token line, including line breaks within intervening comments.
 
 Charge source-vector work, generated assignment/frame names and continuation
 bytes before allocation. Keep existing global node/depth/output ceilings and
-writer byte checks; no quota increase. Unsupported virtual elsif transfer chains,
+writer byte checks; no quota increase. Work units are conservative translation
+reservation units, not exact allocator calls or evaluator instructions. A call
+reserves parameter-count + local-count + four units before expansion; each unit
+bounds at most four typed Node/Assignment/RHS/vector-container structures. A return
+uses the same local/parameter policy. UpdatePC, cloned names, continuation bytes,
+pending/group copies, control vectors and plan entries are separately reserved.
+The callee entry is scanned/owned once. A transfer-span index reserves its arena
+scan, owned spans and comparison-sort work once; each elsif uses a bounded indexed
+lookup instead of cloning or scanning the procedure arena again. Unsupported virtual elsif transfer chains,
 branch labels, call graphs, recursion, multiple/process-owned procedures,
 renaming and other unproved checksum combinations remain named refusals.
 No crate edges, raw generator behavior or checksum defaults change.
@@ -44,3 +55,15 @@ Reference-invalid artifacts receive no public admission or model credit. D-020's
 fair-header-only CRC qualification and #124's strict saved-frame replay guard
 remain. Canonical witness checks cannot certify TLC-profile replay. Families
 F-034/F-035 remain partial.
+
+## Retained repair epochs
+
+The first623 producer passed its declared180 raw and360 public rows, but separate
+four-row While-tail controls exposed two wrong stored AST CRCs (four public
+profile disagreements). Eight token-line controls exposed two related CRC
+mismatches and four source shapes with generated CST mismatches (twelve public
+profile disagreements). Its incomplete gate is explicitly interrupted, not passed.
+Those inputs, original binaries, raw failures and the complete gate inventory
+remain immutable. The additional studies retain their separate selections; no
+old disposition was relabelled or dropped. The token-line predicate existed in
+the parent source, but that ancestry is not a runtime attribution to main.

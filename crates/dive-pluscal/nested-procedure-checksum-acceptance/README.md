@@ -20,3 +20,10 @@ Finite count/witness, guide, checksum-corruption and forged-report controls are
 separate scripts. Strict saved-frame replay uncertainty remains #124; separately
 labelled canonical replay cannot certify TLC-mode witnesses. F-034/F-035 remain
 partial. No generated oracle goldens are edited.
+
+Separate `while-tail/` four-row and `while-lines/` eight-row studies preserve
+pre-repair623 raw and public failures, including unvisited frame sorting and
+same-line versus split/comment logical-token-line TRUE optimization. Original180
+selection/primary files remain unchanged. The interrupted first full gate never
+earns a passed-gate claim; the repaired source requires a complete fresh gate
+and all original/runtime and added-study controls.

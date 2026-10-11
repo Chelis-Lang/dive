@@ -2226,3 +2226,12 @@ uses typed shared header vectors for proved If/With/Either/While transfers. The
 errors/invalid outputs; no reference defect is silently repaired. Broader call
 scopes and strict #124 saved-frame replay remain qualified. See
 [the user guide](pluscal-nested-procedure-checksums.md).
+
+The bounded nested-procedure checksum implementation retains a failed development
+producer that sorted shared call frames even after `while TRUE` discarded their
+generated tail. The repaired path preserves pinned creation order for that tail.
+Separately, TLC optimizes `(TRUE)` only when its tokens occupy one logical line;
+line breaks in a comment between tokens prevent that optimization. Native output
+must retain the conditional path in that spelling. The smallest paired C/P
+controls and original mismatches are in the nested-procedure checksum study;
+these are fidelity repairs, not new result-changing defaults or full parity.

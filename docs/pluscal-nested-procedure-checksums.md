@@ -66,7 +66,13 @@ empty opposite If branches; nested controls and nested controls inside labelled
 While bodies. Direct top-level transfers and direct unlabelled While transfers
 retain source header nodes. Argument/local expression slices preserve the
 reference logical token lines. Parameter/frame simultaneous assignments use
-reference ordering; restores remain separate assignments.
+reference ordering; restores remain separate assignments. A `while TRUE` or
+same-line `while (TRUE)` discards the generated tail but can still mutate its
+stored header: an unvisited call frame keeps creation order. A parenthesized TRUE condition split across lines, including a newline
+inside an intervening comment, is
+not the reference's single-token-line TRUE optimization. Its conditional tail
+is generated and sorted. This preserves reference source behavior, not a claim
+that these predicates differ mathematically.
 
 Full still refuses recursive/multiple/process-owned procedures, unproved scoped
 renaming, macro/DEFINE combinations, automatic procedure labels, modifiers,
@@ -76,7 +82,12 @@ are checksum-stage restrictions: raw translation may support more. No CRC is
 invented for an unsupported request, including a fair algorithm.
 
 Existing parser node/depth, normalization work, action and 4 MiB output ceilings
-remain. Typed synthetic frame work is charged before allocating assignments;
+remain. The conservative translation work policy reserves parameter-count +
+local-count + four units before each call expansion (or the same slot policy for
+a return), with at most four typed structures per unit. Callee-entry scanning,
+source/group copies, child control vectors, indexed transfer lookup and owned
+names/continuations are also reserved. These units are neither allocator calls
+nor evaluator instructions. Typed frame work is charged before allocation;
 exhaustion returns Resource without a replacement or partial CRC. Matching a
 `--fair algorithm` CRC still means matching the reference hash of `fair`, not
 source identity (D-020).

@@ -4,7 +4,7 @@ import gzip,hashlib,json
 root=Path(__file__).resolve().parent
 sha=lambda data:hashlib.sha256(data).hexdigest()
 count=0;streams=0
-for folder in ['']:
+for folder in ['', 'while-tail', 'while-lines']:
  base=root/folder;manifest=json.loads((base/'primary/manifest.json').read_text())
  assert manifest['oracle_sha256']=='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
  for row in manifest['rows']:
@@ -22,5 +22,5 @@ for folder in ['']:
     else:assert sha(gzip.decompress((base/'primary'/meta['path']).read_bytes()))==meta['sha256']
     streams+=1
   count+=1
-assert count==180
-print('Verified180 primary observations, all primary artifacts and',streams,'raw streams; no artifact/model/family certification implied.')
+assert count==192
+print('Verified192 primary observations (original180 plus separate4+8 controls), all primary artifacts and',streams,'raw streams; no artifact/model/family certification implied.')

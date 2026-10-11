@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{Body, Expr, Procedure, StatementKind, StmtId},
+    ast::{Body, Expr, Procedure, Span, StatementKind, StmtId},
 };
 use std::collections::BTreeMap;
 
@@ -39,6 +39,7 @@ struct Builder<'a> {
     byte_limit: usize,
     depth_limit: usize,
     procedure_entry: String,
+    transfer_spans: Vec<Span>,
 }
 impl Builder<'_> {
     fn charge(&mut self, nodes: usize, bytes: usize) -> Result<(), TranslationError> {
@@ -115,7 +116,12 @@ impl Builder<'_> {
             rhs: Rhs::Quoted(next.into()),
         }]))
     }
-    fn call(&mut self, args: &[Expr], next: &str) -> Result<Vec<Node>, TranslationError> {
+    fn call(
+        &mut self,
+        args: &[Expr],
+        next: &str,
+        generated: bool,
+    ) -> Result<Vec<Node>, TranslationError> {
         let p = self.procedure;
         if args.len() != p.parameters.len() {
             return Err(unsupported(p.span, "procedure argument count"));
@@ -150,8 +156,11 @@ impl Builder<'_> {
                 rhs: Rhs::Source(Some(*argument)),
             });
         }
-        // GenAssign mutates the shared synthetic assignment via SortSass.
-        assignments.sort_by(|a, b| a.variable.cmp(&b.variable));
+        // GenAssign sorts only assignments it actually visits. ExplodeWhile
+        // mutates shared tail vectors even when IsTRUE discards that tail.
+        if generated {
+            assignments.sort_by(|a, b| a.variable.cmp(&b.variable));
+        }
         let mut nodes = vec![Node::Assign(assignments)];
         for local in &p.variables {
             nodes.push(Node::Assign(vec![Assignment {
@@ -204,6 +213,7 @@ impl Builder<'_> {
         ids: &[StmtId],
         next: &str,
         shared: bool,
+        generated: bool,
         depth: usize,
     ) -> Result<(Vec<Node>, bool), TranslationError> {
         if depth > self.depth_limit {
@@ -228,7 +238,7 @@ impl Builder<'_> {
                 needs = false;
                 if shared {
                     nodes.pop();
-                    nodes.extend(self.call(arguments, next)?);
+                    nodes.extend(self.call(arguments, next, generated)?);
                 }
             }
             StatementKind::Return => {
@@ -252,7 +262,11 @@ impl Builder<'_> {
                         }) = self.parsed.statement(previous)
                         {
                             nodes.pop();
-                            nodes.extend(self.call(arguments, label.text.trim_matches('"'))?);
+                            nodes.extend(self.call(
+                                arguments,
+                                label.text.trim_matches('"'),
+                                generated,
+                            )?);
                         } else {
                             nodes.push(self.update(label.text.trim_matches('"'))?);
                         }
@@ -266,20 +280,22 @@ impl Builder<'_> {
                 otherwise,
             } => {
                 if branches.len() != 1 {
-                    if self.parsed.statements.iter().any(|child| {
-                        child.span.start >= s.span.start
-                            && child.span.end <= s.span.end
-                            && matches!(
-                                child.kind,
-                                StatementKind::Call { .. }
-                                    | StatementKind::Return
-                                    | StatementKind::Goto(_)
-                            )
-                    }) {
+                    // The transfer index is reserved and constructed once.
+                    // Do not rescan the whole arena for each no-transfer elsif.
+                    self.charge(1, 0)?;
+                    let index = self
+                        .transfer_spans
+                        .partition_point(|span| span.start < s.span.start);
+                    if self
+                        .transfer_spans
+                        .get(index)
+                        .is_some_and(|span| span.end <= s.span.end)
+                    {
                         return Err(unsupported(s.span, "nested transfer with elsif checksum"));
                     }
                     return Ok((nodes, true));
                 }
+                self.charge(6, 0)?; // two child vectors, flags and plan entries
                 let mut outputs = Vec::new();
                 let mut flags = Vec::new();
                 let then = self.flatten(&branches[0].body.statements)?;
@@ -289,7 +305,7 @@ impl Builder<'_> {
                     .transpose()?
                     .unwrap_or_default();
                 for child in [&then, &other] {
-                    let (output, flag) = self.sequence(child, next, true, depth + 1)?;
+                    let (output, flag) = self.sequence(child, next, true, generated, depth + 1)?;
                     outputs.push(output);
                     flags.push(flag);
                 }
@@ -302,11 +318,12 @@ impl Builder<'_> {
                 }
             }
             StatementKind::Either(blocks) => {
+                self.charge(blocks.len().saturating_mul(3), 0)?;
                 let mut outputs = Vec::new();
                 let mut flags = Vec::new();
                 for block in blocks {
                     let child = self.flatten(&block.statements)?;
-                    let (output, flag) = self.sequence(&child, next, true, depth + 1)?;
+                    let (output, flag) = self.sequence(&child, next, true, generated, depth + 1)?;
                     outputs.push(output);
                     flags.push(flag);
                 }
@@ -319,8 +336,9 @@ impl Builder<'_> {
                 }
             }
             StatementKind::With { body, .. } => {
+                self.charge(1, 0)?;
                 let child = self.flatten(&body.statements)?;
-                let (output, flag) = self.sequence(&child, next, true, depth + 1)?;
+                let (output, flag) = self.sequence(&child, next, true, generated, depth + 1)?;
                 needs = flag;
                 self.plan.blocks.insert((id.0, 0), output);
             }
@@ -332,6 +350,7 @@ impl Builder<'_> {
         &mut self,
         labelled: &[(String, Vec<StmtId>)],
         continuation: &str,
+        generated: bool,
         depth: usize,
     ) -> Result<(), TranslationError> {
         for (index, (label, ids)) in labelled.iter().enumerate() {
@@ -340,7 +359,7 @@ impl Builder<'_> {
                 .map_or(continuation, |g| g.0.as_str());
             let first = ids.first().and_then(|id| self.parsed.statement(*id));
             if let Some(crate::ast::Statement {
-                kind: StatementKind::While { body, .. },
+                kind: StatementKind::While { body, test },
                 ..
             }) = first
             {
@@ -348,11 +367,17 @@ impl Builder<'_> {
                 let inner_next = inner.first().map_or(label.as_str(), |g| g.0.as_str());
                 // The outer unlabDo vector is copied. Child control objects
                 // are shared, so only their nested vectors become overlays.
-                self.sequence(&unlabelled, inner_next, false, depth + 1)?;
-                self.labelled(&inner, label, depth + 1)?;
-                self.sequence(&ids[1..], next, false, depth + 1)?;
+                self.sequence(&unlabelled, inner_next, false, generated, depth + 1)?;
+                self.labelled(&inner, label, generated, depth + 1)?;
+                self.sequence(
+                    &ids[1..],
+                    next,
+                    false,
+                    generated && !super::lower::truth(self.parsed, *test, false),
+                    depth + 1,
+                )?;
             } else {
-                self.sequence(ids, next, false, depth + 1)?;
+                self.sequence(ids, next, false, generated, depth + 1)?;
             }
         }
         Ok(())
@@ -381,7 +406,40 @@ pub(super) fn build(
         byte_limit: options.max_output_bytes.min(4_194_304),
         depth_limit: options.parser.max_depth.min(256),
         procedure_entry: String::new(),
+        transfer_spans: Vec::new(),
     };
+    // Reserve the complete scan, owned spans and comparison-sort work before
+    // allocating the index. Work units are a conservative translation policy,
+    // not a count of machine instructions or exact Rust allocator calls.
+    let arena = parsed.statements.len();
+    builder.charge(arena, 0)?;
+    let transfers = parsed
+        .statements
+        .iter()
+        .filter(|s| {
+            matches!(
+                s.kind,
+                StatementKind::Call { .. } | StatementKind::Return | StatementKind::Goto(_)
+            )
+        })
+        .count();
+    let sort_depth = usize::try_from(transfers.bit_width()).unwrap_or(usize::MAX);
+    builder.charge(
+        transfers.saturating_mul(sort_depth.saturating_add(1)),
+        transfers.saturating_mul(std::mem::size_of::<Span>()),
+    )?;
+    builder.transfer_spans = parsed
+        .statements
+        .iter()
+        .filter(|s| {
+            matches!(
+                s.kind,
+                StatementKind::Call { .. } | StatementKind::Return | StatementKind::Goto(_)
+            )
+        })
+        .map(|s| s.span)
+        .collect();
+    builder.transfer_spans.sort_by_key(|span| span.start);
     let (_, proc_groups) = builder.groups(&procedure.body)?;
     let entry = &proc_groups
         .first()
@@ -389,8 +447,8 @@ pub(super) fn build(
         .0;
     builder.charge(1, entry.len())?;
     builder.procedure_entry.clone_from(entry);
-    builder.labelled(&proc_groups, "Error", 0)?;
+    builder.labelled(&proc_groups, "Error", true, 0)?;
     let (_, main_groups) = builder.groups(main)?;
-    builder.labelled(&main_groups, "Done", 0)?;
+    builder.labelled(&main_groups, "Done", true, 0)?;
     Ok(builder.plan)
 }

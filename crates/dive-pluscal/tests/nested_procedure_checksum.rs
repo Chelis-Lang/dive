@@ -115,3 +115,35 @@ fn typed_nested_expansion_obeys_preallocation_and_final_byte_bounds()
     }
     Ok(())
 }
+
+#[test]
+fn while_tail_generation_visit_and_token_lines_match_primary()
+-> Result<(), Box<dyn std::error::Error>> {
+    let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("nested-procedure-checksum-acceptance");
+    for study in ["while-tail", "while-lines"] {
+        let root = base.join(study);
+        let manifest: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
+            root.join("primary/manifest.json"),
+        )?)?;
+        let rows = manifest["rows"].as_array().ok_or("missing rows")?;
+        assert_eq!(rows.len(), if study == "while-tail" { 4 } else { 8 });
+        for row in rows {
+            let id = row["id"].as_str().ok_or("missing id")?;
+            let source = std::fs::read_to_string(root.join(format!("cases/{id}.tla")))?;
+            let selected = select_rewrite(&source, &RewriteOptions::default())?;
+            let actual = algorithm_checksum_at(
+                &source,
+                selected.algorithm.start..selected.algorithm.end,
+                &TranslationOptions::default(),
+            )?;
+            assert_eq!(
+                actual.serialized_ast,
+                std::fs::read_to_string(root.join(format!("primary/{id}.translated.ast")))?,
+                "{id}"
+            );
+            assert_eq!(actual.checksum, row["stages"]["translated"]["crc"], "{id}");
+            assert_eq!(row["sany"]["accepted"], true, "{id}");
+        }
+    }
+    Ok(())
+}

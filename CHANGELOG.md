@@ -7,7 +7,9 @@ All notable changes to this project are documented here. The project will follow
 
 - Full PlusCal editing derives exact header AST/CRC for proved nested sequential
   procedure If/With/Either/While transfers, with bounded typed expansion and
-  separate artifact/model/replay qualifications (ADR 0061).
+  separate artifact/model/replay qualifications (ADR 0061). Unvisited While TRUE
+  tail assignments preserve reference creation order; split/comment token-line
+  conditions retain the conditional translation path.
 - Bounded Full PlusCal editing now derives exact header AST checksums for one
   disjoint labelled sequential procedure, with ordinary calls/returns and
   call-goto. Nested transfers and wider ownership remain named checksum

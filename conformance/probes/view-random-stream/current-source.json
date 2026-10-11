@@ -293,7 +293,7 @@
     "crates/dive-pluscal/src/translate/emit.rs": "c23830a145bef284147023d8f5977971f8c5090643d37bfc8b7dc209f8e2dd0b",
     "crates/dive-pluscal/src/translate/fairness.rs": "99e97afd07ddc9ed928b32f1b01da73df3e20bc2139242539e09a0e885907ffe",
     "crates/dive-pluscal/src/translate/labels.rs": "358e48d9c744ebb8ab5391ae3e8c6cd95c4ceed8989f79fd5f7235af204e0280",
-    "crates/dive-pluscal/src/translate/lower.rs": "4b49750a2ba9dd62c1e817ff280ea99c0818b73ebdbf39e48e1ba7e67a8cd579",
+    "crates/dive-pluscal/src/translate/lower.rs": "7c4fc118e142898634715e56654b7b1ea3400cf49b620ccd91978a4e13c4f593",
     "crates/dive-pluscal/src/translate/macros.rs": "be5e3866d31b23690bffb3a4ee139fa050ab33c7f8a22d73861d1bd5e0450d26",
     "crates/dive-pluscal/src/translate/mod.rs": "49f460149ee0d8cf33289d90ea89da1a1ab78f5e2d1b06d01bd6ca602cfd437f",
     "crates/dive-pluscal/src/translate/options.rs": "e86267ff380b9ae4abe0e04dc1e4c61c8afa80b5bce9a2565f5ed1a151b3b357",

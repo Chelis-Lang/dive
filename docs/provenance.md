@@ -693,3 +693,10 @@ The lifecycle foundation retains the separately captured controller, runtime-rat
 `dive-pluscal` LOCAL and function definition placement matches the pinned MIT `pcal/PcalTLAGen.java` methods `GenVarsAndDefs` and `addExprToTLA`, and `AST.java` `Uniprocess`/`Multiprocess` definition serialization at `94d0c5070852b37b801bb8998c436383ab7ee37b`. Opaque declaration text and order, LOCAL visibility and function-domain positions remain reference-equivalent. Bounded domain/body dependency checks and action/temporal admission are native policy. Stage probes are development tools.
 
 | `dive-pluscal` typed nested procedure header view (`translate/checksum_transfers.rs`, `checksum.rs`) | tlaplus `pcal/PcalTranslate.java` `CopyAndExplodeLastStmt`, `ExplodeLabeledStmt`, `ExplodeWhile`, `ExplodeCall`, `ExplodeReturn`, `UpdatePC`; `PCalTLAGen.GenAssign/SortSass`; `AST.Assign/SingleAssign` and `TLAExpr.toString`; commit `94d0c50` | MIT | Typed shared child-vector mutation only; outer source vectors remain copied/preserved. Clean original-after-generation CRC authority is separate from direct exploded ownership. ADR 0061; complete 180-row declared selection |
+
+Nested procedure header continuation also matches pinned `PcalTranslate.IsTRUE`
+(single logical token line), `ExplodeWhile` tail mutation/discard, and
+`PCalTLAGen.GenAssign` sorting only for actually generated assignments. Separate
+192 primary rows (original180 plus4+8 token-line/tail controls) retain original
+failed native producer results. Native work reservation/indexing is a bounded
+implementation policy, not ported evaluator complexity or allocation counts.
