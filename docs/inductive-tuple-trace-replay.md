@@ -79,9 +79,12 @@ prefix cannot justify an assignment on an unvisited branch.
 
 The public independent enabledness and lasso predicate APIs may receive arbitrary
 states without a validated predecessor chain. They do **not** inherit this
-whole-word history proof. An `UNCHANGED vars` alias currently remains unproved even when `vars`
-is a fixed tuple; issue #215 tracks that continuation. Conditional tuple
-permutations cannot establish preservation of each individual variable.
+whole-word history proof. The fixed-projection continuation follows `UNCHANGED vars` through nested
+fixed tuple aliases and lazy parameters, LET and substitution contexts.
+A variable must occupy an established fixed projection; finding it somewhere
+in every conditional branch is insufficient. Conditional tuple permutations,
+opaque slots and recursive aliases remain refused. See [ADR 0071](decisions/0071-fixed-tuple-projection-replay.md)
+for the rule. Focused controls pass; fresh runtime qualification is pending.
 General runtime-name provenance and all procedure stack histories remain unproved; issue #124 stays open. Canonical-profile
 behavior and TLC-compatible evaluation remain available under their existing
 settings. This is an admission improvement, not a new result-changing default.

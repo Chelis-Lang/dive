@@ -19,8 +19,8 @@
     "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
     "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
     "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
-    "AGENTS.md": "64195ca32fcc676c363f223aa31bfea1c73e409f530a0a604dc507b4939f1375",
-    ".github/workflows/ci.yml": "637864331eba8c2a6498a61b9b0510317b3a6c6f5b5aef6856de04ce36e4fdc5",
+    "AGENTS.md": "e7f756878be479a5c991ae1233178ebbf24fe8522c3d232fe1b2fb58f7abfd9d",
+    ".github/workflows/ci.yml": "4727a423f32a836d95f2b5def053b032fc182db97122d176ad16172733f17105",
     "conformance/parity-features.json": "696e32524af15fdc10bc1e1eee999d0e69590fdef81c45a7ff7244f2392c2a5d"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."

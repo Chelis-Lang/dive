@@ -408,7 +408,7 @@
     "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
     "crates/dive-trace/tests/exists.rs": "af4980283af5bbe7596244c31ad47bb4a4622038c808ff5e7a5d78fff425ec46",
     "crates/dive-trace/tests/lasso_claims.rs": "07c6d2f39cf44051e2e58f252940dff9ed8056cd06a905dfaeb8b1bdcdd07262",
-    "crates/dive-trace/tests/runtime_names.rs": "5c601fef01f1160d42ba0d39f4d7a908dc05ec595c6baf9073aab9a063d586d2",
+    "crates/dive-trace/tests/runtime_names.rs": "f50e3dfbc76e5250b6385dc648585b2f38494f6dd878e268ded35bcaf3b935f2",
     "crates/dive-trace/tests/temporal.rs": "519ecad7adaf2d301d0e7f4b0c0af801c42cdaed3455d1e40813d836f877dd16",
     "crates/dive-trace/tests/view_random_stream.rs": "3fc37e507e595edb704f7e1da1e2bbd7822938fb4f00dea7d81b4260e0f367d0",
     "crates/dive-value/Cargo.toml": "36d929ff3ae5d7928dbf54cd5e4e2431f3d016652016a9d7553cc2acc17ea950",
@@ -441,7 +441,7 @@
     "xtask/src/features.rs": "4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5",
     "xtask/src/layering.rs": "1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97",
     "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9",
-    ".github/workflows/ci.yml": "637864331eba8c2a6498a61b9b0510317b3a6c6f5b5aef6856de04ce36e4fdc5",
+    ".github/workflows/ci.yml": "4727a423f32a836d95f2b5def053b032fc182db97122d176ad16172733f17105",
     "scripts/check-view-random-stream.py": "33685188da1046cb16a3408215b07d2845568f250c1a1225ae179b09b1dd7b1d",
     "conformance/probes/view-random-stream/README.md": "00efa718f5c4a40e6b122f0d2103476f8022245d4917e58af00c3a5c48b1ec5f",
     "conformance/probes/view-random-stream/capture_native.py": "55d0942a14ee19f5598142236fbcf27c1f570233d7367bd3fac6bbf1349bc03d"

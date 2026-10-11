@@ -16,8 +16,8 @@
     "docs/periodic-hook.md": "450b0f1e3bf7dd0581bd76221ad25e10827f89f49e8d7da502bad5e265430a93",
     "docs/decisions/0054-bounded-pure-periodic-hook.md": "1daa8e349aed1007ce0c449acefa577730f5d8de34c52364fad835ffd3cebcc2",
     "scripts/check-periodic-hook.py": "4993ca336f96384d54ed5891143a5517e9153b76d9197d6ddb7bfb9417d38d43",
-    "AGENTS.md": "64195ca32fcc676c363f223aa31bfea1c73e409f530a0a604dc507b4939f1375",
-    ".github/workflows/ci.yml": "637864331eba8c2a6498a61b9b0510317b3a6c6f5b5aef6856de04ce36e4fdc5",
+    "AGENTS.md": "e7f756878be479a5c991ae1233178ebbf24fe8522c3d232fe1b2fb58f7abfd9d",
+    ".github/workflows/ci.yml": "4727a423f32a836d95f2b5def053b032fc182db97122d176ad16172733f17105",
     "conformance/parity-features.json": "696e32524af15fdc10bc1e1eee999d0e69590fdef81c45a7ff7244f2392c2a5d"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
