@@ -1,0 +1,52 @@
+{
+  "ending": {
+    "kind": "invariant",
+    "name": "Inv"
+  },
+  "format": "dive-trace",
+  "length": 4,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "n": 99,
+        "x": 0
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 41 of module CpView>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 0,
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 41 of module CpView>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 0,
+        "x": 2
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 9 to line 5, col 41 of module CpView>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 0,
+        "x": 3
+      }
+    }
+  ],
+  "variables": [
+    "x",
+    "n"
+  ],
+  "version": 1
+}

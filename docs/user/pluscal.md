@@ -43,11 +43,30 @@ proof. Read the [one-process guide](../pluscal-process-procedures.md),
 [fair procedure guide](../pluscal-procedure-fairness.md) for executable C/P and
 Rust examples, ownership, ordering, quotas and pending strict witness replay.
 
-General scoped renaming, sequential procedure modifiers, historical translator flags,
-format-width, file rewriting/checksums and TLC mapping-file parity are unfinished
-in this guide's source. Reference-produced but SANY-invalid text cannot become
-an admitted public artifact. The lower-level source parser/raw translator is a
-separate contract, not a replacement for enclosing-module admission.
+Bounded in-memory translation-block editing is also available:
+
+```sh
+dive translate docs/user/examples/Algorithm.tla --rewrite --compat=tlc --output json
+```
+
+For admitted sequential shapes, the default Full policy derives the algorithm
+AST checksum and generated-body checksum. An explicit `--checksums tla` request
+selects body-only editing and labels TLC mode `tlc+overrides`. The replacement
+module is returned in JSON; the command does not write the source file. Read
+[the editing contract](../pluscal-rewriting.md) and
+[nested checksum expressions](../pluscal-checksum-expressions.md) for supported
+shapes, stale-block handling, budgets and executable Rust examples. A matching
+checksum alone is not an artifact or model proof; accepted artifacts also pass
+native enclosing-module analysis.
+
+General scoped renaming, sequential procedure modifiers, historical translator
+flags, exact formatter output, filesystem writes and TLC mapping-file parity
+remain unfinished. Full checksum derivation has a narrower scope than raw
+translation: process/procedure/macro and unproved layout/name-fix shapes may
+translate successfully while an editing request explicitly refuses. It never
+silently falls back to body-only editing. Reference-produced but SANY-invalid
+text cannot become an admitted public artifact. The lower-level source parser/raw
+translator is a separate contract, not a replacement for enclosing-module admission.
 
 Rust callers use `TranslationRequest`, `translate_file` or `translate_source`;
 `TranslationReport` provides `accepted()`, `exit_code()` and `to_json()`.
@@ -63,6 +82,7 @@ dive translate docs/user/examples/MultipleCallExample.tla --compat=tlc --output 
 dive translate docs/user/examples/FairCall.tla --compat=tlc --output json
 ```
 
-Both return admitted in-memory artifacts. Inspect `module_source` and the
-nonproof fields before using the result. File rewriting and checksum
-interoperability are separate unfinished features.
+Both return admitted in-memory translation artifacts. Inspect `module_source`
+and the nonproof fields before using the result. These process/procedure examples
+do not establish Full editing admission; the bounded editing contract above
+reports its own supported scope.

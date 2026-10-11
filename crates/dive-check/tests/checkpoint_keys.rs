@@ -182,7 +182,7 @@ fn native_override_authority_and_substitutions_preserve_pre_effect_refusals() {
             "View == T!ToString(x)",
             "Perms == T!Permutations({A,B})",
             "",
-            false,
+            true,
         ),
         (
             "standard-local-closure",

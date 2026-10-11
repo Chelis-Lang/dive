@@ -1,0 +1,4 @@
+     Locking 45 packages to highest Rust 1.99.0 compatible versions
+   Compiling full-rewrite-publication-guide v0.0.0 (/private/tmp/dive-full-runtime-cst-final-full-guide/caller)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.12s
+     Running `/Users/jeff/code/dive-pluscal-rewrite-target/debug/full-rewrite-publication-guide`

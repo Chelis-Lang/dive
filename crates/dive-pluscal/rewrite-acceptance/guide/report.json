@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "script_sha256": "cbbb7470a9fbc47e80534765155e2ea8e6dab87df24d756d9e457195a764d7fb",
+  "guide_sha256": "1779c4c337d353010a01bf5d0897908bd6909acbcbb3afd5b308a170a6678137",
+  "native_sha256": "9cb449e855cce094c696590477f69ba6613134b5704de1df621ef19cf37c6fbe",
+  "controls": 11,
+  "family_certified": false,
+  "rows": [
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "result": "replacement",
+      "source_sha256": "68667fd42005d4a5284bf157ec176a51e22c1d492b42fd1137c0585228877252",
+      "capture": {
+        "stdout": {
+          "path": "P.dive.stdout.gz",
+          "sha256": "c0ea9f02ef4f25252ba6a64656708e0d7c635eda7ec1e3a490e4c2c4e872d32e"
+        },
+        "stderr": {
+          "path": "P.dive.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "result": "replacement",
+      "source_sha256": "68667fd42005d4a5284bf157ec176a51e22c1d492b42fd1137c0585228877252",
+      "capture": {
+        "stdout": {
+          "path": "P.tlc.stdout.gz",
+          "sha256": "f5cc8725ce66e1257765a57747abf0146fa29629ff6a30663604841f86927154"
+        },
+        "stderr": {
+          "path": "P.tlc.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "syntax": "P",
+      "flags": [
+        "--rewrite"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "c0a6af899aff2f7db11cbe61810388a85f6c8a8da435fcb92f449b0461fc8a8b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "syntax": "P",
+      "flags": [
+        "--rewrite",
+        "--checksums",
+        "full"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "c0a6af899aff2f7db11cbe61810388a85f6c8a8da435fcb92f449b0461fc8a8b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "syntax": "P",
+      "flags": [
+        "--rewrite",
+        "--checksums",
+        "tla",
+        "--write"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "eddc25ebb064e5bbc9d3b1e2e2bf7fd5c8adf256e0c851f24c28f2ce58e9d457"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "result": "replacement",
+      "source_sha256": "d9c8c66a2fc0cb2411a6f23fc618c5138427c675d569d54f038074fb917aecac",
+      "capture": {
+        "stdout": {
+          "path": "C.dive.stdout.gz",
+          "sha256": "ae567778b8a4859e9ec4d5d29e02069f587e9887cb69717f52273c77f611c76b"
+        },
+        "stderr": {
+          "path": "C.dive.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "result": "replacement",
+      "source_sha256": "d9c8c66a2fc0cb2411a6f23fc618c5138427c675d569d54f038074fb917aecac",
+      "capture": {
+        "stdout": {
+          "path": "C.tlc.stdout.gz",
+          "sha256": "921fe70372a48cc11ad20eeca7a940ab94f707ca8ab5de94d575296c9340573f"
+        },
+        "stderr": {
+          "path": "C.tlc.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "syntax": "C",
+      "flags": [
+        "--rewrite"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "c0a6af899aff2f7db11cbe61810388a85f6c8a8da435fcb92f449b0461fc8a8b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "syntax": "C",
+      "flags": [
+        "--rewrite",
+        "--checksums",
+        "full"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "c0a6af899aff2f7db11cbe61810388a85f6c8a8da435fcb92f449b0461fc8a8b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "syntax": "C",
+      "flags": [
+        "--rewrite",
+        "--checksums",
+        "tla",
+        "--write"
+      ],
+      "result": "unsupported-no-write",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "eddc25ebb064e5bbc9d3b1e2e2bf7fd5c8adf256e0c851f24c28f2ce58e9d457"
+    },
+    {
+      "kind": "compiled-guide-rust",
+      "program_sha256": "c0875bfc510224d90ff823bc2dfa2f7825b339093d74cec141b575aaf3894a14",
+      "library_sha256": "1f37079e2995419ed1e2b788d864a246a1c5a0588b09096b2a41476e5e903815",
+      "stdout_sha256": "611b591fb1f11bdde1b35a7c760ff134cf181fa3715e71e1dd65b2ce29278703"
+    }
+  ]
+}

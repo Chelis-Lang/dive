@@ -391,12 +391,14 @@ unused-standard-body refusal are preserved in
 
 ### D-008 progress: native PlusCal artifact admission
 
+
 The bounded [native macro translator](pluscal-macros.md) retains all invalid
 primary outputs as diagnostic evidence. Under D-008, public CLI/API module
 admission rejects them in both profiles and never grants artifact/proof credit.
 Lexical macro substitution itself remains reference-compatible; general binders,
 procedure interactions and name rewrites remain explicit refusals. No new
 capture-avoidance or Unicode-string default is adopted.
+
 
 
 The recursive procedure selection adds a D-008 artifact-admission case: a
@@ -515,6 +517,7 @@ admission remain; no aggregate memory bound or periodic-family claim is added.
 See [the user guide](tlc-temporal-if.md) and
 `conformance/probes/tlc-temporal-if-final/`.
 
+
 D-008 now includes native single finite process procedure ownership (ADR 0044).
 No result-changing default is introduced: all owned call/return generation is
 matched to the pinned reference. Explicit source `stack` stays unsubstituted;
@@ -573,9 +576,40 @@ VIEW/symmetry witnesses retain their existing semantics. See
 [the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
 and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
 
+## D-020: fair-algorithm checksum collision (candidate)
+
+The pinned PlusCal translator computes `7c28162a` for every tested `--fair`
+algorithm, because its ternary checksum expression hashes only `"fair"` and
+omits the normalized AST. Changing `x=0` to `x=9` without changing the translation
+leaves `Validator` reporting `NO_DIVERGENCE`. C/P primary bodies still have different
+TLA CRCs. No native corrected default is adopted. Bounded sequential full AST
+serialization now reproduces the reference CRC, with `fair_header_crc_only=true`
+reporting this weakness. `algorithm_checksum_verified` means verified reference
+CRC derivation, not source identity or proof. Unproved AST shapes remain named
+refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-020 in the
+[user log](tlc-differences.md), D-008 for separate artifact admission, and
+`crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
+source-edit controls.
+
 Bounded final scope evidence (#134) now distinguishes configured names from
 local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
 Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+
+D-007 native recovery admits pure runtime string/name constructors, preserving
+saved encounter order and the typed actual inline fallback under TLC value or
+exploration order. Canonical order may use the deterministic pool. Effects,
+checker/register reads and independent TLC name-history witness proof remain
+explicitly unsupported; no archive certificate or total-memory claim is added.
+See `conformance/probes/native-checkpoint-runtime-names/README.md` and
+`docs/native-checkpoint.md#pure-strings-and-recovery-encounter-order`.
+
+D-008 checksum continuation retains strict generated-operator CST comparison,
+including an initially missing empty-Else TRUE conjunct now reproduced exactly.
+Multiline CRC derivation does not lift the named multiline-generation refusal;
+empty-Then layout also refuses explicitly. All 320 primary controls and original
+failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
+remains compatibility reproduction only; no stronger checksum default.

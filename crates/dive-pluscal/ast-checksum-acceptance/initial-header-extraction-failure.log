@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/capture.py", line 43, in <module>
+    main(p.parse_args())
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/capture.py", line 35, in main
+    if translated and 'translated' in stages:assert primary_crc and primary_crc[1].decode()==stages['translated']['crc'],ident
+AssertionError: P_skip

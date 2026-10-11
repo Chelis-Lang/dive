@@ -1,0 +1,24 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-checkpoint-runtime-strings-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-runtime-strings-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.79s
+     Running tests/native_checkpoint_runtime_effects.rs (/Users/jeff/code/dive-checkpoint-runtime-strings-target/debug/deps/native_checkpoint_runtime_effects-19227cda29046d3d)
+
+running 1 test
+test mixed_effects_refuse_before_work_output_or_archive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s
+
+     Running tests/native_checkpoint_runtime_names.rs (/Users/jeff/code/dive-checkpoint-runtime-strings-target/debug/deps/native_checkpoint_runtime_names-90e4b0b47c2b7ae5)
+
+running 8 tests
+test choose_tlc ... ok
+test choose_dive ... ok
+test sequence_dive ... ok
+test sequence_tlc ... ok
+test string_dive ... ok
+test string_tlc ... ok
+test symmetry_view_dive ... ok
+test symmetry_view_tlc ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 118.75s
+

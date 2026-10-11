@@ -103,8 +103,8 @@ and a corresponding certification schema before the label can change.
 | F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending |
-| F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111 |
+| F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending; [bounded Full checksum editing](pluscal-rewriting.md), broader AST checksum scopes/file format pending |
+| F-035 | Public Rust APIs and cargo-test integration | partial | 9 | [temporal.rs](../crates/dive-api/tests/temporal.rs), [simulation API](../crates/dive-api/tests/simulate.rs); #111; [bounded Full checksum editing](pluscal-rewriting.md), broader AST checksum scopes/file format pending |
 | F-036 | Complete corpus, harness and release certification | partial | 1 | [conformance-corpora.md](conformance-corpora.md) |
 | F-037 | Global TLC profile and approved better defaults | partial | 9 | [tlc-differences.md](tlc-differences.md) |
 
@@ -594,3 +594,27 @@ the deterministic worker pool, with width/chaos and cross-width concrete-result
 controls and inline-equivalent native counter stopping prefixes. This remains
 staged evidence: runtime/temporal/graph/spill recovery, broader persistence
 interactions and full certification remain pending.
+
+### Bounded Full PlusCal checksum derivation
+
+[Block rewriting](pluscal-rewriting.md) now supports Full requests for a proved
+bounded sequential post-translation AST subset. Native serialized bytes are
+compared with corresponding clean primary AST captures; parsed/name-fixed hashes
+are separate development evidence. Full CRC derivation, literal supplied-body
+editing bytes, SANY/Validator artifact admission and finite model/witness checks
+remain separate dispositions. The `--fair` CRC weakness is reproduced, flagged
+and never treated as source identity. Unproved AST shapes/name fixes, exact
+generator formatting/file writes/maps and full F-034/F-035 certification remain
+pending; both families stay partial/audit-required. The complete study is in
+`crates/dive-pluscal/ast-checksum-acceptance/`, including initial failed controls.
+
+### Nesting and expression-layout checksum continuation
+
+The raw serializer accounts for all 320 retained sources: 224 exact pinned
+post-translation AST matches, 14 named refusals and 82 primary rejections.
+`elsif` and multiple-With generation admission is separate from multiline AST
+derivation, whose native generator still refuses by name. Empty-Else TRUE
+fidelity retains the original operator-CST failure and paired controls.
+See [the runnable scope guide](pluscal-checksum-expressions.md) and
+`crates/dive-pluscal/checksum-expression-acceptance/`. The family remains
+partial/audit-required; no source-integrity or complete translator certification.

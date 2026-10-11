@@ -9,7 +9,7 @@
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "6e365423f8584c49024207d3660782f79ef408956570fd494d8ff5dee58f8781"
+    "conformance/parity-features.json": "6575647d851a8cb85b596e900a96b9e49510e12b356cf4c40af5d989377f0292"
   },
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
@@ -19,5 +19,5 @@
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification"
+  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification."
 }

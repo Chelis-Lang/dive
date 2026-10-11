@@ -6,8 +6,8 @@
   },
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
-  "current_source_qualification": "Current combined-source integrity after direct temporal IF, transient checkpoint storage, process procedure fairness and CI integration. Immutable producer outcomes remain attached to their archived sources; this map supplies no new runtime or full-family parity credit.",
+  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification.",
+  "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
   "schema_version": 1,
   "scope": "Current integrated-source integrity; historical final producer outcomes remain bound to preserved sources and are not recertified by this matrix.",
   "scoped_final_parent_history": {
@@ -19,11 +19,11 @@
   "source_sha256": {
     "crates/dive-api/src/check.rs": "d00b22ba80f1ce56be58da8f1be8bfb4a6b4136cfa21ef6683fa99bcf961d630",
     "crates/dive-api/src/check_tlc_temporal.rs": "27d670e05f77b00b0a6725ae65bba7c7da1a77d525ba7ca1779246f1655852a2",
-    "crates/dive-api/src/lib.rs": "7e1e90f04ac38eba01a13c0a26a603f4a7c14090a3383148f01458580fcaa6ed",
+    "crates/dive-api/src/lib.rs": "003292a8e8f6aa73e7f3f0f9e5f955a6095d79129bc26ab0629b0ea796275b16",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
     "crates/dive-api/src/tlc_temporal_admission.rs": "263c5d553c2f45552a299b9da48375b9870b9cbc6865b2dd20fd8f1952d67a29",
     "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
-    "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+    "crates/dive-cli/src/main.rs": "aeb9609d19ea071cc12a44c2d5877854e76376dfc974858bfd00aab5c0c595e9",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07",
     "crates/dive-conformance/src/dive.rs": "8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8",
     "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
@@ -44,5 +44,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "e8777f165520187b2454402363ed6a8d5a464a973c38df49bcc1b2ddcd407e8c",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged."
 }

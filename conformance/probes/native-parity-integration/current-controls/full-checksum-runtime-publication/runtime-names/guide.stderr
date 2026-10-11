@@ -1,0 +1,6 @@
+     Locking 45 packages to highest Rust 1.99.0 compatible versions
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api)
+   Compiling runtime-name-publication-guide v0.0.0 (/private/tmp/dive-full-runtime-cst-final-runtime-names/caller)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 17.61s
+     Running `/Users/jeff/code/dive-pluscal-rewrite-target/debug/runtime-name-publication-guide`

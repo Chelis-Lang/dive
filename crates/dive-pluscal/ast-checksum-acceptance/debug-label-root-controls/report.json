@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "selected": 12,
+  "family_certified": false,
+  "script_sha256": "964ebd64577e0cdf24fb75150078dcc72ac73d84f6635e0e6d1d1e39d9d39ab5",
+  "jar_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "native_sha256": "870a7c02431c46820482c94e971767bc430e2b58d597a18008d148ca5a395156",
+  "rows": [
+    {
+      "id": "C_root_0",
+      "label_root": "Root_",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "62ac01b70bc2a2a0191e05b8689deb41f5fce108e1fb8aaee1f489b443ff1755"
+    },
+    {
+      "id": "C_root_1",
+      "label_root": "1",
+      "primary_translated": false,
+      "native_outcome": "rejected",
+      "source_sha256": "f51f81cf36cad5484767f5913d3484feeb567067348c4359e1d65ff36c23a498"
+    },
+    {
+      "id": "C_root_2",
+      "label_root": "x",
+      "primary_translated": true,
+      "native_outcome": "named-refusal",
+      "source_sha256": "73d0cfb73416f6fd1df486fe32052a1fe4445bcd96277d2f1d9c6ee004c68f59"
+    },
+    {
+      "id": "C_root_3",
+      "label_root": "L",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "1b6cb4c3e2b2e08c08cc570391b694fb763381951cf804b57e885df37eaea558"
+    },
+    {
+      "id": "C_root_4",
+      "label_root": "defaultInitValue",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "099d655e9dce5b8088dc9c3614c46bec9da1d50cc8b13d51dc2e48ab9a677606"
+    },
+    {
+      "id": "C_root_5",
+      "label_root": "Done",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "b7274bad3df39fbf48de194cdc8d6f9769c70b58791de112f6cbe07dbe3a7311"
+    },
+    {
+      "id": "P_root_0",
+      "label_root": "Root_",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "4413c2b409272054d568dc3aa0ec0c7f1ea5745d299f66ded62f0491c14192e6"
+    },
+    {
+      "id": "P_root_1",
+      "label_root": "1",
+      "primary_translated": false,
+      "native_outcome": "rejected",
+      "source_sha256": "7fff5e72d05d4e5645b83885a16e13f57a1b338a38d580d7394fac066ed8475b"
+    },
+    {
+      "id": "P_root_2",
+      "label_root": "x",
+      "primary_translated": true,
+      "native_outcome": "named-refusal",
+      "source_sha256": "f4f9705c1ad0a7c79bcb6e21abbafb113be3e4c2cef4baebe890e696fcaa2f7c"
+    },
+    {
+      "id": "P_root_3",
+      "label_root": "L",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "b3dbcc7ab846dbac1b0026a2fdc497a765b8704c5299bac9b7b3b2b9230df023"
+    },
+    {
+      "id": "P_root_4",
+      "label_root": "defaultInitValue",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "51879e25eeea26dd303bd1e551c41b1faccc47a073d483fff39e1d74b744cff7"
+    },
+    {
+      "id": "P_root_5",
+      "label_root": "Done",
+      "primary_translated": true,
+      "native_outcome": "exact-derived-option-ast",
+      "source_sha256": "c78007756cc7cbaba51f415dcb450f4fd95255b74e15e3f146f84af9fd8a6301"
+    }
+  ]
+}

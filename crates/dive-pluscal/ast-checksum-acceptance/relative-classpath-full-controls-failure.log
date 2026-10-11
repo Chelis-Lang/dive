@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/full-controls.py", line 70, in <module>
+    run(p.parse_args())
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/full-controls.py", line 48, in run
+    q=subprocess.run([str(a.java),'-cp',str(a.validator)+':'+str(a.jar),'pcal.ChecksumProbe','validate',str(file)],cwd=work,capture_output=True,timeout=30);assert q.returncode==0 and b'NO_DIVERGENCE' in q.stdout,(ident,q.stdout,q.stderr);validation=save(out,ident+'.'+profile+'.validator',q);file.write_text(source);native_accept+=1
+AssertionError: ('P_skip', b'', b'Error: Could not find or load main class pcal.ChecksumProbe\nCaused by: java.lang.ClassNotFoundException: pcal.ChecksumProbe\n')
