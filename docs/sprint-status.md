@@ -70,7 +70,10 @@ actuals remain named refusals. See the [operator guide](temporal-operators.md),
 [material guide](material-capture.md) for executable CLI/Rust examples.
 
 Sequential multiline generation and finite-process Full checksum contexts
-preserve explicit fairness and automatic-label settings. Validation checks
+preserve explicit fairness and automatic-label settings. Bounded source-declared
+options resolve before rewriting masks an old translation; declarations inside
+that old block and unproved option contexts remain named refusals. See
+[source options](pluscal-source-options.md). Validation checks
 complete operator structure and the generated module, but does not prove the
 model or provide exact translator formatting. The
 [process-option guide](pluscal-process-checksum-options.md) and

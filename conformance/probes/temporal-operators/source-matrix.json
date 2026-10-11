@@ -13,8 +13,8 @@
   "schema_version": 1,
   "scope": "Bounded known-user operator/formal forwarding with callback-free mandatory scoped capture projection and independent word/witness replay;18 clean primary/72 native outcomes,14 supported temporal projections; separate9b material140 census46/92/2, no ordinary/family/aggregate-memory upgrade",
   "source_sha256": {
-    ".github/workflows/ci.yml": "47854f1912e22ac580780e9e1acf31c6b0e7f6d62b0994690476e6476ec0a56c",
-    "AGENTS.md": "9b8082f037c29ef9bf8da65d06ecd60ecbbd89c0976780c07c5a7da0f71f103b",
+    ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+    "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
     "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
     "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",

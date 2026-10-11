@@ -4,8 +4,8 @@
   "schema_version": 1,
   "scope": "Callback-free stored material captures with same-run ordering, namespace and scoped actualOPEN proof; 18primary/72native and immutable blocked histories, fixed50k/128 limits; no ordinary/family/corpus gain",
   "source_sha256": {
-    ".github/workflows/ci.yml": "47854f1912e22ac580780e9e1acf31c6b0e7f6d62b0994690476e6476ec0a56c",
-    "AGENTS.md": "9b8082f037c29ef9bf8da65d06ecd60ecbbd89c0976780c07c5a7da0f71f103b",
+    ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+    "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
     "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
     "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
