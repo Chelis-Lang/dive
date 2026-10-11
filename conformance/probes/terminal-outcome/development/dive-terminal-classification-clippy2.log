@@ -1,0 +1,19 @@
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-eval)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error: this function has too many lines (106/100)
+   --> crates/dive-liveness/src/phase_execution.rs:909:5
+    |
+909 | /     fn lifecycle_final(
+910 | |         &mut self,
+911 | |         state: &mut crate::periodic_lifecycle::State,
+912 | |         end: &capture::ExplorationEnd,
+913 | |     ) -> Result<(), Error> {
+    | |__________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#too_many_lines
+    = note: `-D clippy::too-many-lines` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::too_many_lines)]`
+
+error: could not compile `dive-liveness` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

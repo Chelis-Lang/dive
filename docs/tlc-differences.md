@@ -1903,3 +1903,27 @@ liveness successor records after its error winner, while native diagnostics
 contain only the earlier actually committed prefix. No ordinary queue/count/graph
 or clock parity follows. The [guide](stopped-periodic-service.md) distinguishes
 actual method returns, CLI exits, callback failures and joins.
+
+
+## Terminal finalization and postcondition order (#228, ADR0080)
+
+The bounded [Rust terminal guide](terminal-outcome.md) exposes actual private
+capture/resource completion, OOS/PEM final checks, independently replayed words
+and subsequent direct post errors. `ModelChecker.modelCheck` runs finalCheck
+before normal `Tool.checkPostCondition`; `LiveWorker.printTrace` also calls
+`checkPostConditionWithCounterExample`, ignoring returned errors while getter
+exceptions can abort rendering. The complete24 minimal pinned rows distinguish
+2405/CLI10, ignored2405 then2116/CLI13, cached-role GENERAL1000/CLI255 and the
+candidate getter exception/CLI1 with no method return. These are measured
+ordering contracts, not a newly declared TLC defect or approved default change.
+The unchanged8820 wrong post-before-final observation and all84/84/84/96
+reference development/selection epochs remain in
+[the acceptance evidence](../conformance/probes/terminal-outcome/README.md).
+
+Only direct bounded scalar/Boolean posts are admitted; calls, effects, configured
+constants, constructors and unproved partial-render/getter exceptions refuse.
+Current final records require original source/commit fingerprint alignment,
+per-node write coverage and actual tableau done authority under existing graph
+budgets. Completion remains diagnostic: ordinary clock/queue/error/count,
+no-action and checkpoint composition are unfinished. No Holds, model-proof or
+family credit is claimed; F-023 remains missing/audit-required.

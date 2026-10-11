@@ -1381,7 +1381,7 @@ pub(crate) struct Outcome {
 /// TLC's `checkPostCondition` after a complete search (`ModelChecker.java:283-288`,
 /// `Tool.checkPostConditionWithContext`): each postcondition in order, in the
 /// empty context; the first that is not `TRUE` decides.
-fn postconditions(m: &Model) -> Option<Verdict> {
+pub(crate) fn postconditions(m: &Model) -> Option<Verdict> {
     let list = match &m.postconditions {
         Ok(list) => list,
         Err(e) => {

@@ -1,0 +1,506 @@
+[
+  {
+    "id": "safe-w1-observed",
+    "case": "safe",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w1-cli",
+    "case": "safe",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-w4-observed",
+    "case": "safe",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w4-cli",
+    "case": "safe",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-w8-observed",
+    "case": "safe",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-w8-cli",
+    "case": "safe",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "final-violation-w1-observed",
+    "case": "final-violation",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "final-violation-w1-cli",
+    "case": "final-violation",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "final-violation-w4-observed",
+    "case": "final-violation",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "final-violation-w4-cli",
+    "case": "final-violation",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "final-violation-w8-observed",
+    "case": "final-violation",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "final-violation-w8-cli",
+    "case": "final-violation",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "post-true-w1-observed",
+    "case": "post-true",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "post-true-w1-cli",
+    "case": "post-true",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "post-true-w4-observed",
+    "case": "post-true",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "post-true-w4-cli",
+    "case": "post-true",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "post-true-w8-observed",
+    "case": "post-true",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "post-true-w8-cli",
+    "case": "post-true",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "post-false-w1-observed",
+    "case": "post-false",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "post-false-w1-cli",
+    "case": "post-false",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "post-false-w4-observed",
+    "case": "post-false",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "post-false-w4-cli",
+    "case": "post-false",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "post-false-w8-observed",
+    "case": "post-false",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "post-false-w8-cli",
+    "case": "post-false",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "post-division-w1-observed",
+    "case": "post-division",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "post-division-w1-cli",
+    "case": "post-division",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "post-division-w4-observed",
+    "case": "post-division",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "post-division-w4-cli",
+    "case": "post-division",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "post-division-w8-observed",
+    "case": "post-division",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "post-division-w8-cli",
+    "case": "post-division",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "post-nonbool-w1-observed",
+    "case": "post-nonbool",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "post-nonbool-w1-cli",
+    "case": "post-nonbool",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "post-nonbool-w4-observed",
+    "case": "post-nonbool",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "post-nonbool-w4-cli",
+    "case": "post-nonbool",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "post-nonbool-w8-observed",
+    "case": "post-nonbool",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "post-nonbool-w8-cli",
+    "case": "post-nonbool",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "source-invariant-post-false-w1-observed",
+    "case": "source-invariant-post-false",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "source-invariant-post-false-w1-cli",
+    "case": "source-invariant-post-false",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "source-invariant-post-false-w4-observed",
+    "case": "source-invariant-post-false",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "source-invariant-post-false-w4-cli",
+    "case": "source-invariant-post-false",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "source-invariant-post-false-w8-observed",
+    "case": "source-invariant-post-false",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "source-invariant-post-false-w8-cli",
+    "case": "source-invariant-post-false",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-nonempty-w1-observed",
+    "case": "noactions-nonempty",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-nonempty-w1-cli",
+    "case": "noactions-nonempty",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-nonempty-w4-observed",
+    "case": "noactions-nonempty",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-nonempty-w4-cli",
+    "case": "noactions-nonempty",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-nonempty-w8-observed",
+    "case": "noactions-nonempty",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-nonempty-w8-cli",
+    "case": "noactions-nonempty",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-w1-observed",
+    "case": "noactions-empty",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-w1-cli",
+    "case": "noactions-empty",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-w4-observed",
+    "case": "noactions-empty",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-w4-cli",
+    "case": "noactions-empty",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-w8-observed",
+    "case": "noactions-empty",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-w8-cli",
+    "case": "noactions-empty",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-post-false-w1-observed",
+    "case": "noactions-empty-post-false",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-post-false-w1-cli",
+    "case": "noactions-empty-post-false",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-post-false-w4-observed",
+    "case": "noactions-empty-post-false",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-post-false-w4-cli",
+    "case": "noactions-empty-post-false",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-post-false-w8-observed",
+    "case": "noactions-empty-post-false",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-post-false-w8-cli",
+    "case": "noactions-empty-post-false",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-temporal-w1-observed",
+    "case": "noactions-empty-temporal",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-temporal-w1-cli",
+    "case": "noactions-empty-temporal",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-temporal-w4-observed",
+    "case": "noactions-empty-temporal",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-temporal-w4-cli",
+    "case": "noactions-empty-temporal",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "noactions-empty-temporal-w8-observed",
+    "case": "noactions-empty-temporal",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "noactions-empty-temporal-w8-cli",
+    "case": "noactions-empty-temporal",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-post-false-w1-observed",
+    "case": "empty-init-post-false",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-post-false-w1-cli",
+    "case": "empty-init-post-false",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-post-false-w4-observed",
+    "case": "empty-init-post-false",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-post-false-w4-cli",
+    "case": "empty-init-post-false",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "empty-init-post-false-w8-observed",
+    "case": "empty-init-post-false",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "empty-init-post-false-w8-cli",
+    "case": "empty-init-post-false",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-post-false-w1-observed",
+    "case": "next-division-post-false",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-post-false-w1-cli",
+    "case": "next-division-post-false",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-post-false-w4-observed",
+    "case": "next-division-post-false",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-post-false-w4-cli",
+    "case": "next-division-post-false",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "next-division-post-false-w8-observed",
+    "case": "next-division-post-false",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "next-division-post-false-w8-cli",
+    "case": "next-division-post-false",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-hook-w1-observed",
+    "case": "safe-false-hook",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-hook-w1-cli",
+    "case": "safe-false-hook",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-hook-w4-observed",
+    "case": "safe-false-hook",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-hook-w4-cli",
+    "case": "safe-false-hook",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-hook-w8-observed",
+    "case": "safe-false-hook",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-hook-w8-cli",
+    "case": "safe-false-hook",
+    "width": 8,
+    "mode": "cli"
+  }
+]

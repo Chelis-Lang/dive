@@ -1,0 +1,7 @@
+Parsing file /private/tmp/dive-terminal-outcome-primary-candidate1/noactions-empty-post-false-w8-observed/Terminal.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-1804293987655051848/Naturals.tla (jar:file:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Terminal
+Linting of module Terminal
+Starting... (2026-10-11 22:46:52)
+EVENT	tool-actions:0

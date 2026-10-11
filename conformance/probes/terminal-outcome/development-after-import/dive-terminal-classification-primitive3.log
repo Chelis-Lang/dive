@@ -1,0 +1,25 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error[E0603]: struct import `Limits` is private
+    --> crates/dive-liveness/src/phase_execution.rs:3030:76
+     |
+3030 |             crate::tlc_tableau::project_formula(&formula, crate::tlc_plan::Limits::default())
+     |                                                                            ^^^^^^ private struct import
+     |
+note: the struct import `Limits` is defined here...
+    --> crates/dive-liveness/src/tlc_plan.rs:11:61
+     |
+  11 | use crate::formula::{Atom, AtomKind, Formula, FormulaError, Limits, Node};
+     |                                                             ^^^^^^
+note: ...and refers to the struct `Limits` which is defined here
+    --> crates/dive-liveness/src/formula.rs:212:1
+     |
+ 212 | pub struct Limits {
+     | ^^^^^^^^^^^^^^^^^ you could import this directly
+help: consider importing this struct instead
+     |
+3030 -             crate::tlc_tableau::project_formula(&formula, crate::tlc_plan::Limits::default())
+3030 +             crate::tlc_tableau::project_formula(&formula, crate::formula::Limits::default())
+     |
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `dive-liveness` (lib test) due to 1 previous error

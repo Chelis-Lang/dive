@@ -23,6 +23,32 @@ pub enum Origin {
     /// Mandatory final selection after genuine successful safety EOF.
     Eof(dive_check::Stats),
 }
+/// Source-owned terminal classification. These outcomes describe the bounded
+/// diagnostic transaction; none establishes ordinary TLC scheduling or Holds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Terminal {
+    /// Actual request candidate reconstructed and independently replayed twice.
+    RequestWitness,
+    /// Final candidate after admitted graph completion, independently replayed twice.
+    EofWitness,
+    /// Actual complete safety/product graph and every final PEM selected without
+    /// a candidate. Ordinary clock/queue equivalence remains unproved.
+    FinalSelectionsComplete,
+    /// Actual deferred postcondition failure after all final selections passed.
+    PostconditionFailure {
+        /// Original deciding TLC message code when the existing class provides it.
+        code: Option<u32>,
+    },
+    /// Actual prejoin source-stop transaction retained after real joins.
+    OrderedSourceStop {
+        /// Original logical source identity.
+        source: u64,
+        /// Original eligible deciding error class.
+        kind: dive_check::capture::WorkerStop,
+    },
+    /// Earlier admission, request, resource or execution stop; no final proof.
+    Incomplete,
+}
 /// Privately admitted actual witness; callers cannot supply its validation flags.
 #[derive(Clone, Debug)]
 pub struct Witness {
@@ -69,8 +95,15 @@ impl Witness {
 pub struct Report<R = periodic_snapshot::Run> {
     run: R,
     witness: Option<Witness>,
+    terminal: Terminal,
 }
 impl<R> Report<R> {
+    /// Classification derived only from this owned producer and fresh replay.
+    /// No caller graph, copied success or absence of a witness can create it.
+    #[must_use]
+    pub fn terminal(&self) -> &Terminal {
+        &self.terminal
+    }
     /// Actual run, preserving ordered failures, partial passes, options and counters.
     #[must_use]
     pub fn run(&self) -> &R {
@@ -401,12 +434,51 @@ fn check_owned_mode<S: Owned>(
         S::bind(ir.clone(), cfg).map(|fresh| fresh.model().clone())
     });
     match result {
-        Ok(witness) => Ok(Report { run, witness }),
+        Ok(witness) => {
+            let lifecycle = S::lifecycle(&run);
+            let terminal = classify(lifecycle, witness.as_ref());
+            Ok(Report {
+                run,
+                witness,
+                terminal,
+            })
+        }
         Err(error) => Err(Box::new(Failure {
             error,
             run: Some(Box::new(run)),
         })),
     }
+}
+
+fn classify(run: &periodic_lifecycle::Run, witness: Option<&Witness>) -> Terminal {
+    if let Some(witness) = witness {
+        return match witness.origin() {
+            Origin::Request(_) => Terminal::RequestWitness,
+            Origin::Eof(_) => Terminal::EofWitness,
+        };
+    }
+    if let Some(stopped) = run.stopped_service()
+        && stopped.joined_stats().is_some()
+    {
+        return Terminal::OrderedSourceStop {
+            source: stopped.source(),
+            kind: stopped.kind(),
+        };
+    }
+    if let Some(result) = run.postcondition_failure() {
+        return Terminal::PostconditionFailure {
+            code: result.verdict.tlc().map(|class| class.code),
+        };
+    }
+    if run.backend().complete().is_some()
+        && run
+            .finalization()
+            .is_some_and(periodic_lifecycle::Finalization::all_checked)
+        && run.postconditions_passed()
+    {
+        return Terminal::FinalSelectionsComplete;
+    }
+    Terminal::Incomplete
 }
 
 fn admit(

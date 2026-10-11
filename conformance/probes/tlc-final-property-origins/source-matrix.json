@@ -4,7 +4,7 @@
   "scope": "Additive bounded final temporal identity fields, source-bound primary/native/example controls; unchanged witness/default/limits/ordinary contract; all family statuses partial",
   "source_sha256": {
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
-    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
+    "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
     "crates/dive-liveness/src/phase_l.rs": "d0a8635f992be8c0e4074745d7e668b18616e44b80eca3f62e8629707bbbb4e3",
     "crates/dive-model/src/bind.rs": "3d2d73ad25247ea2c5f64f650371ae8e48c360b4db425cceba84adccac341de0",
     "crates/dive-model/src/lib.rs": "e8e06232e2dbfffa5a7add765e9f31313eff1a9568d2f77b15651aa8e70abda9",
@@ -14,15 +14,15 @@
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "scripts/check-tlc-final-scopes.py": "670faf49e11ce31ca8fbf08f4f828a24aec3a92d8f612abf635fd6d6e9cbb988",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "c28dcb0c600e37213ac00daf38eb1bfeb7a36700818567bb318f2f14d3169799",
-    "docs/provenance.md": "e2305ea74d0c82ea6e75995297eaf348b7ef8594fe9df4fcab699c57013e804c",
+    "docs/user/temporal.md": "a5386b51f79de1a9c8152281047fae3295306c0633a8c1d2e4b0f2799fbaad31",
+    "docs/provenance.md": "eb75c7f6da5d4aefaf2256001926b9743f4f51920b87f7b981777aec7e73ecfa",
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
-    "docs/tlc-differences.md": "186c213628d907b749c0fd1b629a02ccfe75d181a04691d60290dbdde6af9ec5",
+    "docs/tlc-differences.md": "956986b1c64f5be8e5579f0cbbdad8a2ac5fe358924c5f44da0360433c184adc",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
-    "CHANGELOG.md": "4395aa1f1c2b2b3818ba96c7b0591acf26378e6d562bd9751ffb55600cf87cfb",
-    "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
-    ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",
+    "conformance/parity-features.json": "8d16448338aa8f14ab07eb423f358b8f7010d59c5ddb660ac28572834064aafe",
+    "CHANGELOG.md": "ea78457c45d62744e9c2a06b80c0cd422523be28ef3872d830951c7ccd0723a2",
+    "AGENTS.md": "ac76daf170d920063fa658d98c9e5478adfe3aaa03abd6099ddc93402f507548",
+    ".github/workflows/ci.yml": "568a0b8ee5b348ba162b9f3bc43b92356e6e80574eda23ce0037591fc313fa3e",
     "conformance/probes/tlc-final-property-origins/SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
     "conformance/probes/tlc-final-property-origins/SccInspector.java": "51f13e335d269a23f9f263d8bce5060862891929ec184e6e40a11aef8bacd83c",
     "conformance/probes/tlc-final-property-origins/capture-native.py": "f815169bcb507a758f87f71c215980dc5147aecd92ed73b1072370adaff9c054",
@@ -324,5 +324,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
+  "current_integration_scope": "Terminal graph/final/post composition source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

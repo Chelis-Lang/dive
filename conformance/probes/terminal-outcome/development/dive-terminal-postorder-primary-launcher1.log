@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/dive-terminal-postorder-primary.py", line 5, in <module>
+    selection=[dict(id=f'{case}-w{w}-{mode}',case=case,width=w,mode=mode)for case in cases for w in [1,4,8]for mode in ['observed','cli']];(b/'selection.json').write_text(json.dumps(selection,indent=2)+'\n');rows=[]
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1275, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors) as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dive-terminal-outcome-terminal-postorder-primary/selection.json'

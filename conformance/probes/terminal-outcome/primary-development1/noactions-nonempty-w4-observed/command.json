@@ -1,0 +1,8 @@
+[
+  "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+  "-Xmx512m",
+  "-cp",
+  "/tmp/dive-terminal-outcome-primary-candidate1:/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+  "TerminalOutcomeProbe",
+  "4"
+]

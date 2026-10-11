@@ -35,3 +35,7 @@ Concrete temporal state representation: [Stored successor values](../stored-succ
 
 - [Stopped-worker periodic diagnostics in Rust](../stopped-periodic-service.md):
   original source winner, private transaction facts and separate diagnostic faults.
+
+- [Terminal outcomes and final/post composition in Rust](../terminal-outcome.md):
+  actual graph completion, independently replayed words and bounded direct posts;
+  ordinary scheduling remains unsupported.
