@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "f0a503bc35748d1ae3584c49b64dfb8f6df9689966334fe0fe62d7c070616e52",
+  "capture_sha256": "4a7f8e301b857e8b187dfe526fe888038c9cf54edeaa9d831b9b5d4547816e42",
+  "adapter_sha256": {
+    "MarkerOptionProbe.class": "925184fe76aae4c5588f2ca03f68a7529233de60409804892b201552e47738d8",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 6,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "MarkerSingle_C_fair_split",
+      "flags": [],
+      "input_sha256": "9d313d15df8fcd8aacb5010fce933d025984db09bf3557f0171c20a04c0b326d",
+      "syntax": "C",
+      "shape": "fair-split",
+      "output_sha256": "3ff02dec4f4498761f9e54850c6e96152e9a982fff46cea858b06658162ce141",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_split.primary.stdout.gz",
+          "sha256": "a6ed74c7e3fb8e32364f7163cbb3916d62472ad2e789207e8e3f7fc21344fdb2"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_split.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_split.stages.stdout.gz",
+          "sha256": "796b75f8fc2e90aca423cd2eec0e3273ce24205375455c4cf85e783e5220c3c7"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_split.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "e7af844377d2f13f028a9955aa2007e4e9c69271bc994830d277ed45141e9f5b"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "e7af844377d2f13f028a9955aa2007e4e9c69271bc994830d277ed45141e9f5b"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "e7af844377d2f13f028a9955aa2007e4e9c69271bc994830d277ed45141e9f5b"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_split.sany.stdout.gz",
+          "sha256": "db682cf3c171dc8820885e5deb94e852b54b58de54bc391a44bdda364a00e15b"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_split.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_C_fair_split.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MarkerSingle_C_fair_tabs",
+      "flags": [],
+      "input_sha256": "c47fc0465251b4a3f63da7f4e26c14299bb49bbfb24e18d2970b26f84c0adff5",
+      "syntax": "C",
+      "shape": "fair-tabs",
+      "output_sha256": "ff9afe8ecbdb31b6d165013f2a8dda67372089fdd45fcd29b8080b453c95d90c",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_tabs.primary.stdout.gz",
+          "sha256": "21e7b2369e459473d76f0c9a85e9103e7c192d1d9c6dee665a90d82466de03b6"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_tabs.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_tabs.stages.stdout.gz",
+          "sha256": "4fc6db8df1024614a9930579d3ca7b8610a99ec2da48e0df5abf5194756d4d57"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_tabs.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "ef94c51519e51cf92d52bba6de1b675814c54fcb75125ec9959d0a5706731e73"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "ef94c51519e51cf92d52bba6de1b675814c54fcb75125ec9959d0a5706731e73"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "ef94c51519e51cf92d52bba6de1b675814c54fcb75125ec9959d0a5706731e73"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_tabs.sany.stdout.gz",
+          "sha256": "12287210ca6f9821756447ae0cc98eb1e3812a8eae6223139921733e9ae79cc6"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_tabs.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_C_fair_tabs.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MarkerSingle_C_fair_spaces",
+      "flags": [],
+      "input_sha256": "9729c01c40721e2fa4f5c450f5ee6c4b72738e3b5ded949179a58cf953882f2b",
+      "syntax": "C",
+      "shape": "fair-spaces",
+      "output_sha256": "c4603ac494f83a6e0c577c84612d2a7388c38aea6399d78c47791d671898a7ab",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_spaces.primary.stdout.gz",
+          "sha256": "ba8a93ec2321f72ed06b348c9077096b1e51321ccfa940a4446c238c27b4d8b3"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_spaces.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_spaces.stages.stdout.gz",
+          "sha256": "a5cbf22abca01dc98972e3120e77c5cddc2c698601ff9d2ec7ddc1c7351b7639"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_spaces.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "30575b4e40f21f5bd6ceae5c8f641ec17b8f4b04f7034d2400f168ad1c2610e3"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "30575b4e40f21f5bd6ceae5c8f641ec17b8f4b04f7034d2400f168ad1c2610e3"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "30575b4e40f21f5bd6ceae5c8f641ec17b8f4b04f7034d2400f168ad1c2610e3"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_C_fair_spaces.sany.stdout.gz",
+          "sha256": "88535913bd456156ec2929fff698622b87c46e322d57129dc9114392339444ba"
+        },
+        "stderr": {
+          "path": "MarkerSingle_C_fair_spaces.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_C_fair_spaces.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MarkerSingle_P_fair_split",
+      "flags": [],
+      "input_sha256": "b471851541b96985f57868ec4e1dd9fd4092206bd127a3e9c7e5f61447bee658",
+      "syntax": "P",
+      "shape": "fair-split",
+      "output_sha256": "87ce5b0f72ff72c7ca2d1f4de0313fcc7aa6e3bc71c2b82256fc44e096d10dfb",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_split.primary.stdout.gz",
+          "sha256": "51fb4113d21904ad975694ae9c44178bdc615db4555c3e3670999c1e420f88fe"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_split.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_split.stages.stdout.gz",
+          "sha256": "3d3b752f48a66011d10e737bed3ede234b9186d6725a3e9693cacef8243de8e9"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_split.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "9be7a554c7ac66476fe43b3055af4542df8b0045f24ef004c25bb3a07840c4a3"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "9be7a554c7ac66476fe43b3055af4542df8b0045f24ef004c25bb3a07840c4a3"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "9be7a554c7ac66476fe43b3055af4542df8b0045f24ef004c25bb3a07840c4a3"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_split.sany.stdout.gz",
+          "sha256": "0e0162d932168b258bbec107f10cf412fac6edb4ff3effda32eb7f2202a5d3b6"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_split.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_P_fair_split.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MarkerSingle_P_fair_tabs",
+      "flags": [],
+      "input_sha256": "d11623b99ec41c11d7d186464e100ee60fce68feffc3854d02879992a3fb6dca",
+      "syntax": "P",
+      "shape": "fair-tabs",
+      "output_sha256": "e5438a80a35bc197a449e61f7a192c11a3c2aecf429f3fd436baee2cf4453119",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_tabs.primary.stdout.gz",
+          "sha256": "39bab7fb0e8027334ab43268fb041b8fefca7ea0852413b8ca74fa7b4fec411b"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_tabs.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_tabs.stages.stdout.gz",
+          "sha256": "e52b691fbe105c872eafd3cf1778b1276142adfb49e0cb2f2cb44c15bd4ed5b8"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_tabs.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "c4ea8fe6ab3a9284a058a878ee07046e76241b0a02ae50779c4319b5af6c003f"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "c4ea8fe6ab3a9284a058a878ee07046e76241b0a02ae50779c4319b5af6c003f"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "c4ea8fe6ab3a9284a058a878ee07046e76241b0a02ae50779c4319b5af6c003f"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_tabs.sany.stdout.gz",
+          "sha256": "2eb11d6bd23dceba79df2974548ed423749cecf861746a3cc8ba72b804b5ae82"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_tabs.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_P_fair_tabs.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MarkerSingle_P_fair_spaces",
+      "flags": [],
+      "input_sha256": "431dd514dd3fde2c34bc7f844ff3b6055c36767380dabdff06ca831210c772ad",
+      "syntax": "P",
+      "shape": "fair-spaces",
+      "output_sha256": "c7878d048dd79d2f51e4e84f72492644c187ecc64d7a9eb3d17ed9f90f13287c",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_spaces.primary.stdout.gz",
+          "sha256": "b6934538daec84c48a2d5b102c0d6ee6d6603e8ee1fb301201bfec55f6d9e9b3"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_spaces.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "7c28162a",
+        "2e10f188"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_spaces.stages.stdout.gz",
+          "sha256": "b9389f09fff11c367e70a88d88a9aab4b9ff9e2f84b9e605da87467990edda00"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_spaces.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "05d06f9d598695928639e71e2aad93bf185cb548e3f7d5ff6a09ecd3ffa5a8f3"
+        },
+        "names": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "05d06f9d598695928639e71e2aad93bf185cb548e3f7d5ff6a09ecd3ffa5a8f3"
+        },
+        "translated": {
+          "crc": "7c28162a",
+          "ast_sha256": "3485713fe074a45e6ebdb4339433c27eb6693670992d52c500c598fd0b44f0c5",
+          "json_sha256": "05d06f9d598695928639e71e2aad93bf185cb548e3f7d5ff6a09ecd3ffa5a8f3"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MarkerSingle_P_fair_spaces.sany.stdout.gz",
+          "sha256": "4e646f0a6782aa7ab4fe3cf4d5a02e64040d0fb724f8d9335bdf29ddfc6bc6a3"
+        },
+        "stderr": {
+          "path": "MarkerSingle_P_fair_spaces.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MarkerSingle_P_fair_spaces.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

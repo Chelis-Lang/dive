@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "selected": 2,
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "InvokedMacroApiRewrite",
+      "flags": [],
+      "origin": "exact-existing-api-rewrite-regression",
+      "input_sha256": "3a2c5268f3e922195b0407650fb86034c2975c94722ca87bada8d1e3d782e7c1"
+    },
+    {
+      "id": "DefineBlockApiRewrite",
+      "flags": [],
+      "origin": "exact-existing-api-rewrite-regression",
+      "input_sha256": "0d35c016927355687a46868fe135f6a4bd22ca65aeb35344fc72b3a6cabd0a99"
+    }
+  ]
+}

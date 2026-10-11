@@ -78,7 +78,19 @@ fn modified_missing_full_and_ambiguous_contracts_refuse() -> Result<(), Box<dyn 
     ));
     assert!(native.is_ok() && primary.is_ok());
     assert_eq!(structure(&native.syntax()), structure(&primary.syntax()));
-    let unsupported = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
+    let unused_macro = source.replace("begin L:", "macro M() begin skip; end macro; begin L:");
+    let macro_plan = rewrite_document(&unused_macro, "x == 1", &RewriteOptions::default())?;
+    let macro_checksum = macro_plan
+        .algorithm_checksum
+        .ok_or("missing macro checksum")?;
+    assert_eq!(macro_checksum.checksum, "dbedd2a2");
+    assert_eq!(
+        macro_checksum.serialized_ast,
+        include_str!(
+            "../macro-checksum-acceptance/regression/primary/UnusedMacroRewrite.translated.ast"
+        )
+    );
+    let unsupported = source.replace("begin L:", "define F == 1 end define; begin L:");
     assert!(
         rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
             .is_err_and(|error| error.code == Code::Unsupported)

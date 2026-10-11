@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "selected": 2,
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "UnusedMacroRewrite",
+      "flags": [],
+      "origin": "exact-existing-low-level-rewrite-regression",
+      "input_sha256": "b9790bcc60940d813d4ccc5e38cda31a00e557beac89317738dd06e3c41317ca"
+    },
+    {
+      "id": "DefineBlockRewrite",
+      "flags": [],
+      "origin": "exact-existing-low-level-rewrite-regression",
+      "input_sha256": "01ebd6e993b79a4b40d33c89d0fe21375a764dcb3f4234886386662d6f5a8724"
+    }
+  ]
+}

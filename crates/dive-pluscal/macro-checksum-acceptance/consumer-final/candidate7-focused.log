@@ -1,0 +1,41 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-macro-checksum-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-macro-checksum-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.12s
+     Running tests/pluscal_declaration_order.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/pluscal_declaration_order-2f7b6a9a34dc64d5)
+
+running 3 tests
+test generated_declarations_precede_trailing_definitions ... ok
+test closing_line_context_matches_reference_admission ... ok
+test marker_order_and_lexical_boundaries_match_primary ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+     Running tests/rewrite.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/rewrite-cc08d59abf99e680)
+
+running 4 tests
+test original_source_options_refuse_before_masking_previous_translation ... ok
+test failed_generation_and_bad_old_checksum_do_not_return_replacement ... ok
+test explicit_partial_replacement_is_admitted_without_proof ... ok
+test full_integrity_rejects_algorithm_and_body_changes_without_a_grant ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/macro_checksum.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/macro_checksum-265400f067aa4aff)
+
+running 4 tests
+test owned_region_failure_and_global_token_budget_never_guess_end ... ok
+test decorated_embedded_comments_keep_original_bytes_and_standalone_eof ... ok
+test macro_checksum_never_returns_partial_output_under_limits ... ok
+test exact_macro_ast_bytes_and_uncredited_reference_failures ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/rewrite.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/rewrite-016d4648b90a6dbc)
+
+running 3 tests
+test exact_line_checksum_and_prefix_suffix_replacement ... ok
+test source_body_normalization_and_output_limits_are_explicit ... ok
+test modified_missing_full_and_ambiguous_contracts_refuse ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

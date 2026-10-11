@@ -12,8 +12,11 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Supported lossless values retain their exact
-representations in the document. TLC dumpTrace JSON is also an accepted input
+are not completed by guessing. The tagged value format distinguishes sets,
+sequences, records, functions, strings and model values. It does not preserve
+every TLC construction flag or function representation; decoding applies
+construction/comparability rules. Serialization alone never proves that the
+word can be replayed. TLC dumpTrace JSON is also an accepted input
 format within the validator's documented boundary.
 
 Rust applications can validate their own observed state sequence:
@@ -39,7 +42,7 @@ Validation distinguishes valid, invalid and explicitly refused. Named random
 replay restrictions, unavailable finite deadlock/ENABLED covers, effects and
 unknown closing evidence do not become `valid`. Supply the original seed/fp and
 profile when required. The in-memory lasso back edge is zero-based; checker
-summary `back_to` display is one-based. Prefer the lossless trace document to
+summary `back_to` display is one-based. Prefer the tagged trace document to
 reconstructing a lasso from the displayed state list.
 
 See the [API rustdoc](../../crates/dive-api/src/trace.rs),

@@ -42,6 +42,13 @@ impl Expanded {
     pub(super) const fn declared_macros(&self) -> bool {
         self.declared_macros
     }
+    /// Whether tokens belong to a substituted expression rather than a source slice.
+    /// Diagnostic token spans still identify their original argument/definition;
+    /// they do not describe the pinned expression's logical serialization lines.
+    pub(super) fn substituted(&self, expression: Expr) -> bool {
+        self.expressions
+            .contains_key(&(expression.span.start, expression.span.end))
+    }
     pub(super) fn macro_origin(
         &self,
         id: StmtId,

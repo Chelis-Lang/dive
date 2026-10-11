@@ -17,7 +17,7 @@
 //! ```
 //!
 //! - `variables` lists the specification's variables. Every state assigns
-//!   exactly these, as values in dive's lossless JSON form
+//!   exactly these, as values in dive's tagged JSON form
 //!   ([`crate::value_json`]).
 //! - `states[k].action` labels the step into state `k`: `null` for the
 //!   initial state, and optional elsewhere. `name` is the action's name as
@@ -505,7 +505,9 @@ impl TraceDoc {
 
     /// Writes the document in dive's format. A document read from TLC's
     /// format keeps TLC's lossy values, so only a [`Source::Dive`] document
-    /// round-trips exactly; [`crate::Trace::to_doc`] writes exact values.
+    /// preserves its stored JSON rows exactly. Converting those rows back to
+    /// concrete values remains subject to [`crate::value_json`]'s representation
+    /// and mixed-set admission limits; document round-trip is not semantic proof.
     #[must_use]
     pub fn to_json(&self) -> J {
         let states: Vec<J> = self
