@@ -152,7 +152,7 @@ impl Trace {
                 m.insert(
                     name.clone(),
                     if encoding == TraceEncoding::RepresentationV2 {
-                        crate::value_repr::to_json(v, ctx)?
+                        crate::value_repr::to_json_with_names(v, &model.names, ctx)?
                     } else {
                         value_json::to_json(v, ctx)?
                     },

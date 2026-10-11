@@ -659,3 +659,10 @@ and Raw normalized flags through the existing constructors, under Quiet marker
 suppression. They do not authorize trusted-storage flags or change canonical
 keys. The first frozen 249f gate passed all 1,156 tests and every other stage but
 failed Clippy helper placement; the unchanged failed epoch is retained separately.
+
+The stored transport's final encoder admission uses fresh owned reconstruction
+through the same checked reader, with a bounded original-Atom resolver and shared
+normalization reservation; receiving Model tokens are checked separately. The
+green92e full gate and its later nested-Raw writer/reader counterexample are retained
+in `conformance/probes/trace-representation-v2/before-decoder-admission-gate/`.
+No value/storage/comparison algorithm is replaced by the admission correction.

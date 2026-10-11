@@ -104,3 +104,13 @@ before output; it is not silently reinterpreted. Successful value encoding is
 structurally readable with the same admitted names/table and profile, within
 the same bounds. A different receiving name table/profile may refuse, and
 independent Init/Next/ending replay remains a separate obligation.
+
+Before output, the encoder reconstructs fresh owned values using the original
+immutable Atom tokens and checks exact stored shape. Byte/node admission and the
+combined encoder/reconstruction normalization reservation precede reconstruction.
+Constructor-side changes to nested Raw markers cause explicit refusal; borrowed
+source markers remain unchanged. The Model-based writer additionally requires
+every string, model atom and record field spelling **and token** to match the
+supplied Model's interner, without installing names. The low-level value writer
+checks its coherent source-token resolver; a different receiving table may refuse.
+These checks establish structural admission only, never Init/Next/ending truth.

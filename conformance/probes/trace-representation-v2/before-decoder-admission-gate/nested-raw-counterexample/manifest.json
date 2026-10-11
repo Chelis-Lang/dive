@@ -1,0 +1,29 @@
+{
+  "producer_commit": "92e576b81f17c2fcd860a3c51c8dc42f1389513d",
+  "consumer": "standalone compiled API probe after completed full gate",
+  "files_sha256": {
+    "stdout": "ff0bef18ba338092f188d8db2d4b5f7fbc5de1870ba00593375951fbe27f5d93",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe.rs": "05feb3696bd7aa622642c773e9cb0311588afd0ce7e8d92a63129702b3b3ee78",
+    "probe": "122c0b52835642ec74863648db3f861f49a9a59504a59436debee74f62b70b2d",
+    "compile.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "linked_inputs_sha256": {
+    "/Users/jeff/code/dive-trace-representation-target/debug/libdive_trace.rlib": "26475e78be63cfc530197d701dcab071d219b7746bf077826a173a52925512a6",
+    "/Users/jeff/code/dive-trace-representation-target/debug/deps/libdive_value-a717d30bc6dbf995.rlib": "01bbf0905122c6e3baaf3cf18538dce347f9e63eb25fa71a4ed3d7653f390f6d"
+  },
+  "command": [
+    "rustc",
+    "--edition=2024",
+    "/Users/jeff/code/dive-trace-representation-artifacts/nested-raw-constructor-probe/probe.rs",
+    "-L",
+    "dependency=/Users/jeff/code/dive-trace-representation-target/debug/deps",
+    "--extern",
+    "dive_trace=/Users/jeff/code/dive-trace-representation-target/debug/libdive_trace.rlib",
+    "--extern",
+    "dive_value=/Users/jeff/code/dive-trace-representation-target/debug/deps/libdive_value-a717d30bc6dbf995.rlib",
+    "-o",
+    "/Users/jeff/code/dive-trace-representation-artifacts/nested-raw-constructor-probe/probe"
+  ]
+}

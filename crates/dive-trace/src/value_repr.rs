@@ -6,7 +6,9 @@
 //! literal bit or normalized flag is accepted as a semantic certificate. Deferred
 //! and symbolic sets remain unsupported; this does not change value comparisons.
 
-use dive_value::{Ctx, FcnKind, Interner, SetKind, Value, ValueOrder};
+use std::collections::BTreeMap;
+
+use dive_value::{Atom, Ctx, FcnKind, Interner, SetKind, Value, ValueOrder};
 use serde_json::{Value as J, json};
 
 /// Maximum stored nodes in one transported value.
@@ -29,6 +31,8 @@ struct Budget {
     nodes: usize,
     bytes: usize,
     work: usize,
+    atoms: BTreeMap<String, Atom>,
+    tokens: BTreeMap<u32, String>,
 }
 impl Budget {
     fn node(&mut self, depth: usize) -> Result<(), String> {
@@ -65,6 +69,27 @@ impl Budget {
         }
         Ok(())
     }
+    fn atom(&mut self, atom: &Atom) -> Result<(), String> {
+        self.text(atom.as_str())?;
+        if self
+            .atoms
+            .get(atom.as_str())
+            .is_some_and(|a| a.tok() != atom.tok())
+            || self
+                .tokens
+                .get(&atom.tok())
+                .is_some_and(|s| s != atom.as_str())
+        {
+            return Err("stored source atoms do not share one coherent token table".into());
+        }
+        self.atoms
+            .entry(atom.as_str().to_owned())
+            .or_insert_with(|| atom.clone());
+        self.tokens
+            .entry(atom.tok())
+            .or_insert_with(|| atom.as_str().to_owned());
+        Ok(())
+    }
     fn text(&mut self, text: &str) -> Result<(), String> {
         self.charge(text.len().saturating_mul(6))
     }
@@ -94,8 +119,51 @@ fn order_name(order: ValueOrder) -> &'static str {
 /// # Errors
 /// Unsupported shapes, bounded traversal, or no proved normalization witness.
 pub fn to_json(v: &Value, ctx: Ctx) -> Result<J, String> {
-    let out = write(v, ctx, &mut Budget::default(), 0, true)?;
+    encode(v, ctx, None)
+}
+
+pub(crate) fn to_json_with_names(v: &Value, names: &Interner, ctx: Ctx) -> Result<J, String> {
+    encode(v, ctx, Some(names))
+}
+
+fn encode(v: &Value, ctx: Ctx, receiving: Option<&Interner>) -> Result<J, String> {
+    let mut budget = Budget::default();
+    let out = write(v, ctx, &mut budget, 0, true)?;
     preflight(&out, &mut Budget::default(), 0)?;
+    if let Some(names) = receiving {
+        for atom in budget.atoms.values() {
+            if names
+                .get(atom.as_str())
+                .is_none_or(|a| a.tok() != atom.tok())
+            {
+                return Err(format!(
+                    "stored atom `{}` token does not match receiving model",
+                    atom.as_str()
+                ));
+            }
+        }
+    }
+    // Fresh owned reconstruction uses the source's immutable atoms, never caller
+    // callbacks or input-installed names. Comparison markers on borrowed source
+    // operands remain untouched. Share the normalization reservation across probes.
+    let mut reservation = Budget {
+        work: budget.work,
+        ..Budget::default()
+    };
+    reserve_normalization(&out, &mut reservation)?;
+    let mut reconstruction = Budget::default();
+    let restored = read(
+        &out,
+        &|text| budget.atoms.get(text).cloned(),
+        ctx,
+        &mut reconstruction,
+        0,
+    )?;
+    let mut expected = out.clone();
+    remove_witnesses(&mut expected);
+    if shape(&restored, ctx)? != expected {
+        return Err("stored transport reconstruction changes representation".into());
+    }
     Ok(out)
 }
 
@@ -132,11 +200,11 @@ fn write(
             json!({"int":s})
         }
         Value::Str(a) => {
-            budget.text(a.as_str())?;
+            budget.atom(a)?;
             J::String(a.as_str().into())
         }
         Value::Model(a) => {
-            budget.text(a.as_str())?;
+            budget.atom(a)?;
             json!({"model":a.as_str()})
         }
         Value::Fcn(f) => {
@@ -153,7 +221,7 @@ fn write(
             } else if let Some(fields) = f.as_record() {
                 let mut items = Vec::with_capacity(fields.len());
                 for (a, x) in fields {
-                    budget.text(a.as_str())?;
+                    budget.atom(a)?;
                     items.push(json!([
                         a.as_str(),
                         write(x, ctx, budget, depth + 1, proofs)?
@@ -296,7 +364,31 @@ fn witness(values: &[Value], ctx: Ctx) -> Result<Vec<usize>, String> {
 /// Malformed tags, foreign names/order, forged flags/witnesses or resource limits.
 pub fn from_json(j: &J, names: &Interner, ctx: Ctx) -> Result<Value, String> {
     preflight(j, &mut Budget::default(), 0)?;
-    read(j, names, ctx, &mut Budget::default(), 0)
+    reserve_normalization(j, &mut Budget::default())?;
+    read(j, &|text| names.get(text), ctx, &mut Budget::default(), 0)
+}
+
+fn reserve_normalization(j: &J, budget: &mut Budget) -> Result<(), String> {
+    match j {
+        J::Object(o) => {
+            if matches!(
+                o.get("repr").and_then(J::as_str),
+                Some("set" | "raw-set" | "fcn" | "record-fcn" | "record")
+            ) {
+                charge_items(items(j)?, budget, 1)?;
+            }
+            for value in o.values() {
+                reserve_normalization(value, budget)?;
+            }
+        }
+        J::Array(a) => {
+            for value in a {
+                reserve_normalization(value, budget)?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
 }
 fn preflight(j: &J, budget: &mut Budget, depth: usize) -> Result<(), String> {
     if depth > MAX_DEPTH * 4 {
@@ -341,10 +433,8 @@ fn items(j: &J) -> Result<&[J], String> {
         .map(Vec::as_slice)
         .ok_or("stored value items must be an array".into())
 }
-fn atom(names: &Interner, text: &str) -> Result<dive_value::Atom, String> {
-    names
-        .get(text)
-        .ok_or_else(|| format!("stored value name `{text}` is not in receiving model"))
+fn atom(names: &impl Fn(&str) -> Option<Atom>, text: &str) -> Result<Atom, String> {
+    names(text).ok_or_else(|| format!("stored value name `{text}` is not in receiving model"))
 }
 fn pair(j: &J) -> Result<(&J, &J), String> {
     match j.as_array().map(Vec::as_slice) {
@@ -358,7 +448,7 @@ fn pair(j: &J) -> Result<(&J, &J), String> {
 )]
 fn read(
     j: &J,
-    names: &Interner,
+    names: &impl Fn(&str) -> Option<Atom>,
     ctx: Ctx,
     budget: &mut Budget,
     depth: usize,
@@ -387,7 +477,12 @@ fn read(
                     .as_str()
                     .ok_or("stored decimal integer must be text")?,
             )?;
-            let v = crate::value_json::from_json(j, names, ctx)?;
+            let v = crate::value_json::parse_int(
+                j["int"]
+                    .as_str()
+                    .ok_or("stored decimal integer must be text")?,
+                ctx,
+            )?;
             if !matches!(v, Value::BigInt(_)) {
                 return Err("stored decimal integer tag requires canonical large integer".into());
             }

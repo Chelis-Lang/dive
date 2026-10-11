@@ -141,7 +141,7 @@ pub fn from_json(j: &J, names: &Interner, ctx: Ctx) -> Result<Value, String> {
 }
 
 /// An integer written as a decimal string, in the run's integer mode.
-fn parse_int(s: &str, ctx: Ctx) -> Result<Value, String> {
+pub(crate) fn parse_int(s: &str, ctx: Ctx) -> Result<Value, String> {
     let (neg, digits) = match s.strip_prefix('-') {
         Some(d) => (true, d),
         None => (false, s),

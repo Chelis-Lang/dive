@@ -40,3 +40,10 @@ excluding unrelated plaintext historical acceptance snapshots; the original
 producer. A later encoder-shape hardening recomputes ordinary function and Raw
 constructor shape before emitting v2, refusing trusted noncanonical tags/flags.
 Neither the failed gate nor its source is retagged as the corrected producer.
+
+`before-decoder-admission-gate/` separately preserves the green 92e full gate
+(1,157 passed, zero skipped, all eight stages) and the later compiled nested-Raw
+counterexample: encoder success followed by same-context decoder refusal in both
+profiles. A corrected encoder uses owned reconstruction plus exact shape before
+emission. Outer Model-based writer controls also reject unknown or mismatched
+Atom tokens without interning; neither earlier execution is retagged as the fix.

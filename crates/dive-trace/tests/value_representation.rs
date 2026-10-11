@@ -298,3 +298,109 @@ fn encoder_refuses_trusted_noncanonical_function_and_raw_flags() {
         }
     }
 }
+
+#[test]
+fn encoder_refuses_nested_marker_changes_before_output() {
+    let names = Interner::new();
+    for ctx in [Ctx::tlc(), Ctx::dive()] {
+        let a = Value::set_raw(vec![Value::Int(2), Value::Int(1)], ctx);
+        let b = Value::set_raw(vec![Value::Int(3)], ctx);
+        let nested =
+            codec::probe_raw_set(vec![a.clone(), b.clone()], ctx, true).expect("quiet parent");
+        for child in [&a, &b] {
+            let Value::Set(s) = child else { unreachable!() };
+            assert!(!s.is_tlc_normalized());
+        }
+        assert!(value_repr::to_json(&nested, ctx).is_err());
+        for child in [&a, &b] {
+            let Value::Set(s) = child else { unreachable!() };
+            assert!(!s.is_tlc_normalized());
+        }
+        let ordinary = Value::set_raw(vec![a, b], ctx);
+        let Value::Set(s) = &ordinary else {
+            unreachable!()
+        };
+        s.elements(ctx).expect("ordinary normalization");
+        let doc = value_repr::to_json(&ordinary, ctx).expect("ordinary stored markers");
+        assert!(value_repr::from_json(&doc, &names, ctx).is_ok());
+    }
+}
+
+#[test]
+fn outer_model_writer_checks_name_tokens_without_interning() {
+    use dive_trace::{Ending, Trace, TraceEncoding};
+    let source =
+        "---- MODULE BoundNames ----\nVARIABLE x\nInit == x = \"known\"\nNext == x' = x\n====\n";
+    for tlc in [true, false] {
+        let analysis =
+            dive_sema::analyze_source("BoundNames.tla", source, &dive_sema::Options::default());
+        let ir = std::sync::Arc::new(dive_ir::lower(&analysis).expect("lower"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\n")
+            .into_config()
+            .expect("cfg");
+        let model = dive_model::bind(
+            ir,
+            &cfg,
+            &if tlc {
+                dive_model::BindOptions::tlc()
+            } else {
+                dive_model::BindOptions::dive()
+            },
+        )
+        .expect("bind");
+        let known = model.names.get("known").expect("known");
+        let count = model.names.len();
+        let foreign = Interner::new();
+        for n in 0..=known.tok() {
+            foreign.intern(&format!("unused-{n}"));
+        }
+        let foreign_known = foreign.intern("known");
+        assert_ne!(known.tok(), foreign_known.tok());
+        let ctx = model.evaluator.options().ctx;
+        let trace = |v| Trace {
+            states: vec![vec![Some(v)].into()],
+            labels: vec![None],
+            ending: Ending::Behavior,
+            length: Some(1),
+            properties: vec![],
+        };
+        for value in [
+            Value::string(&foreign, "unknown"),
+            Value::model(&foreign, "unknown"),
+            Value::Str(foreign_known.clone()),
+            Value::Model(foreign_known.clone()),
+            Value::record(vec![(foreign_known, Value::Int(1))], ctx).expect("record"),
+        ] {
+            assert!(
+                trace(value)
+                    .to_doc_with_encoding(&model, TraceEncoding::RepresentationV2)
+                    .is_err()
+            );
+            assert_eq!(model.names.len(), count);
+        }
+        let foreign_fields = Value::record(
+            vec![
+                (foreign.intern("z-unknown"), Value::Int(1)),
+                (foreign.intern("a-unknown"), Value::Int(1)),
+            ],
+            ctx,
+        )
+        .expect("foreign fields");
+        let error = trace(foreign_fields)
+            .to_doc_with_encoding(&model, TraceEncoding::RepresentationV2)
+            .expect_err("unknown fields");
+        assert!(error.contains("a-unknown"));
+        assert_eq!(model.names.len(), count);
+        for value in [
+            Value::Str(known.clone()),
+            Value::Model(known.clone()),
+            Value::record(vec![(known, Value::Int(1))], ctx).expect("own record"),
+        ] {
+            let doc = trace(value)
+                .to_doc_with_encoding(&model, TraceEncoding::RepresentationV2)
+                .expect("own tokens");
+            assert!(Trace::decode(&model, &doc).is_ok());
+            assert_eq!(model.names.len(), count);
+        }
+    }
+}
