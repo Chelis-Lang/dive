@@ -142,7 +142,7 @@ fn tuple_guard_does_not_trust_pure_native_string_constructors() {
 
 #[test]
 fn trace_supplied_tuple_shapes_do_not_prove_variable_stack_history() {
-    let source = "---- MODULE StackReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s\nInit == x=0 /\\ s=<<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
+    let source = "---- MODULE StackReplay ----\nEXTENDS Naturals, Sequences\nVARIABLES x,s\nInit == x = 0 /\\ s = <<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
     let analysis =
         dive_sema::analyze_source("StackReplay.tla", source, &dive_sema::Options::default());
     assert!(analysis.accepted());
