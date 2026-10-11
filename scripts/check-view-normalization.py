@@ -23,14 +23,37 @@ assert lead['key_function_source_equal'] is True and lead['reference_exit'] == 2
 assert [row['workers'] for row in lead['rows']] == [1, 4, 8]
 for row in lead['rows']:
     assert row['exit'] == 12 and row['counterexample_validation'] is None
-history = BASE / 'before/current-authority'
-original = json.loads((history / 'index.json').read_text())
-for name, digest in original['changed_source_sha256'].items():
-    assert sha(gzip.decompress((history / 'changed-source' / (name + '.gz')).read_bytes())) == digest, name
-for row in original['matrices']:
-    matrix = history / row['before_matrix']
-    assert sha(matrix.read_bytes()) == row['before_sha256'], matrix
-    before = json.loads(matrix.read_text())
-    for name, digest in row['changed_source_sha256'].items():
-        assert before['source_sha256'][name] == digest, name
+for directory, parent in (
+    ('current-authority', 'd67e8d76388c050d8928533ca3b2d7d5572f6733'),
+    ('fe35-current-authority', 'fe35c73f5c5d658a402dd41f264e43bb7887a591'),
+):
+    history = BASE / 'before' / directory
+    original = json.loads((history / 'index.json').read_text())
+    assert original['parent_commit'] == parent
+    for name, digest in original['changed_source_sha256'].items():
+        assert sha(gzip.decompress((history / 'changed-source' / (name + '.gz')).read_bytes())) == digest, name
+    for row in original['matrices']:
+        matrix = history / row['before_matrix']
+        assert sha(matrix.read_bytes()) == row['before_sha256'], matrix
+        before = json.loads(matrix.read_text())
+        for name, digest in row['changed_source_sha256'].items():
+            assert before['source_sha256'][name] == digest, name
+for directory, codes in (
+    ('incomplete-primary', (1000, 2109)),
+    ('incomplete-wellformed-primary', (2102, 2109)),
+):
+    capture = json.loads((BASE / directory / 'capture.json').read_text())
+    assert capture['oracle_sha256'] == '7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
+    assert [row['exit'] for row in capture['rows']] == [255, 75]
+    assert len(capture['rows']) == len(codes)
+    for row, code in zip(capture['rows'], codes):
+        location = BASE / directory / ('init' if row['initial'] else 'next')
+        for name, field in (
+            ('IncompleteView.tla', 'source_sha256'),
+            ('IncompleteView.cfg', 'config_sha256'),
+            ('stdout', 'stdout_sha256'),
+            ('stderr', 'stderr_sha256'),
+        ):
+            assert sha((location / name).read_bytes()) == row[field]
+        assert f'STARTMSG {code}:1' in (location / 'stdout').read_text()
 print('verified clean255 vs unvalidated native12 and exact original changed source/matrix authority; current runtime controls are separate')

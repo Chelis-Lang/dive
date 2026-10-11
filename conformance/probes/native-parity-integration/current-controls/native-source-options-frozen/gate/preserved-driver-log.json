@@ -1,0 +1,5 @@
+{
+  "archive": "dive-native-source-options-combined-gate-driver.log.gz",
+  "uncompressed_sha256": "6d214476ed1e493d55f1f08d4aeef7c804a72b6794e398858f909bed840a4ccd",
+  "reason": "Preserve exact original raw log, including trailing blank line, in a lossless archive."
+}

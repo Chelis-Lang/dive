@@ -132,3 +132,12 @@ operator-formal INSTANCE cases and previous temporal-expression2213 cases remain
 distinct. Diagnostic null-liveness helper failures retain no field/error credit.
 See `docs/temporal-operators.md` and the source-bound paired controls; no new
 ordinary scheduling, family, corpus or aggregate-memory claim is made.
+
+## Native actual addendum (2026-10-11)
+
+The retained native actual slice admits only authoritative Len/Head/Cardinality
+with pure constant/state arguments. Planner and independent Word prove the
+original scopes separately; runtime stored-input admission refuses deferred
+callbacks and invalid namespaces/order under fixed50k/128 structural bounds.
+No ordinary schedule, default, graph-memory guarantee or family certification
+is implied. See `docs/native-temporal-operators.md`.

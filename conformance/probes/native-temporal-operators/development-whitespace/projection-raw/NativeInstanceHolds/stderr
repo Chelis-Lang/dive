@@ -1,0 +1,35 @@
+Parsing file /Users/jeff/code/dive-native-operator-work/conformance/probes/native-temporal-operators/models/NativeInstanceHolds/NativeInstanceHolds.tla
+***Parse Error***
+Was expecting "==== or more Module body"
+Encountered "TRUE" at line 4, column 11 and token "<" 
+
+Residual stack trace follows:
+Module definition starting at line 1, column 1.
+
+
+Fatal errors while parsing TLA+ spec in file NativeInstanceHolds
+
+In module NativeInstanceHolds
+
+Could not parse module NativeInstanceHolds from file NativeInstanceHolds.tla
+*** Errors: 1
+
+In module NativeInstanceHolds
+
+Could not parse module NativeInstanceHolds from file NativeInstanceHolds.tla
+
+
+
+Starting... (2026-10-11 04:50:38)
+failure_code	3002
+Exception in thread "main" util.Assert$TLCRuntimeException: Parsing or semantic analysis failed.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processSpec(SpecProcessor.java:448)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:199)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at tlc2.tool.liveness.IfIdentityProbe.run(IfIdentityProbe.java:112)
+	at tlc2.tool.liveness.IfIdentityProbe.main(IfIdentityProbe.java:100)

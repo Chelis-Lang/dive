@@ -44,3 +44,16 @@ profile/elapsed metadata, assert retain profile labels separately, and retain
 all concrete witness and changed-state assertions. Reset counts stay distinct
 from retain counts. Archives remain trusted local continuation data, not
 independent reachability certificates.
+
+## Incomplete-state diagnostic boundary
+
+Both `incomplete-wellformed-primary` cases leave `y` unassigned under VIEW.
+Pinned TLC refuses Init with EC2102/exit255 and Next with EC2109/exit75.
+The native assignment test requires that refusal before key normalization at
+both profiles, stores, widths and scheduling controls.
+
+The separate `incomplete-primary` experiment uses the reverse mixed set while
+leaving `y` unassigned. Init printing instead throws EC1000/exit255; Next emits
+EC2109/exit75 and its mixed value can also fail trace formatting. These raw
+streams remain unproved diagnostic interactions. Assignment admission is not
+a claim of exact mixed-state printing or error-class conformance.

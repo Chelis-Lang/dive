@@ -4,19 +4,29 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
+  scoped constant/state calls with independent word/witness checks and
+  callback-free stored-input admission. Configured/opaque/effectful and
+  unsupported state-storage/error boundaries remain explicit; final TLC
+  scheduling remains separately scoped.
 
 - Normalize every concrete variable before evaluating VIEW, including ignored
   variables and runs without symmetry. Unproved TLC normalization failures
   explicitly refuse instead of reporting a model verdict with unprintable
   states (#188). Preserve concrete parallel/recovered witnesses.
 
-- High-level PlusCal rewriting refuses unproved source-option declarations in
-  the original file before masking old translation blocks, preventing silent
-  loss of requested fairness under either checksum policy.
+- High-level PlusCal rewriting checks original source-option declarations before
+  masking old translation blocks and refuses deciding declarations overlapping
+  old output, preventing silent loss of requested fairness under either policy.
 
+
+- Bounded PlusCal source fairness/label options now resolve requested and effective
+  settings with original declaration spans for native generation and Full CRC.
+  Unknown, malformed and conflicting contexts are refused; deciding declarations
+  inside previous translation blocks cannot be silently masked.
 - Bounded finite-process Full checksums now retain explicit fairness and
   automatic-label option context, with typed options in replacement reports.
-  Source option comments remain named refusals; duplicate CLI fairness flags
+  Unproved source option contexts remain named refusals; duplicate CLI fairness flags
   are rejected before loading. Pinned Validator context limitations are documented.
 
 

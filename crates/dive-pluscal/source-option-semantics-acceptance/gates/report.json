@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "script_sha256": "3427b4eceade483cdc24e4e24706cc271edec3f4e64f4c2ffb5cfa2568844ffb",
+  "compile_jobs": 2,
+  "test_threads": 2,
+  "status": "passed",
+  "rows": [
+    {
+      "stage": "fmt",
+      "exit_code": 0,
+      "seconds": 3.0743641250000002,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "validation-python",
+      "exit_code": 0,
+      "seconds": 0.44621912500000027,
+      "log_sha256": "603a3bd18c683368e0b298af62ead62d7a254a22083250e2fc2bc8fa47a90ff0"
+    },
+    {
+      "stage": "frontend-python",
+      "exit_code": 0,
+      "seconds": 4.9509855,
+      "log_sha256": "2eebd3f2d9c4ac1fad5fee4de2843dc8577b53c9b0d7cad28904f823f9f7ac2e"
+    },
+    {
+      "stage": "parity-ledger",
+      "exit_code": 0,
+      "seconds": 1.3663278329999997,
+      "log_sha256": "218abb29a5af839875a1ca1491a536f98ed474581856c33ddc54c1ffeb486c4a"
+    },
+    {
+      "stage": "parity-ledger-tests",
+      "exit_code": 0,
+      "seconds": 0.7630679580000006,
+      "log_sha256": "d212c15d6f77749687f144169b0898c92175d35faf117efe336c513e503decc5"
+    },
+    {
+      "stage": "clippy",
+      "exit_code": 0,
+      "seconds": 58.770388416,
+      "log_sha256": "1c14a2fa77ee5385f8b5c90468fd796d4cb22e097baf6b870d5893f1e05a862a"
+    },
+    {
+      "stage": "nextest",
+      "exit_code": 0,
+      "seconds": 395.322352208,
+      "log_sha256": "deb6884702bd9a83c17de6bd378026a9aa35cebf05a7350ee9d86d9ab38bf8dc"
+    },
+    {
+      "stage": "doctests",
+      "exit_code": 0,
+      "seconds": 29.680804291000015,
+      "log_sha256": "112483d26f2a92580db53c67d2612ad38ec3158904e3d7a60a950c9ce060b99c"
+    },
+    {
+      "stage": "rustdoc",
+      "exit_code": 0,
+      "seconds": 60.266756875000056,
+      "log_sha256": "f558887007a9c9d35ec982fc278ee3594818cd34837798ed8468b9aeb8398d89"
+    },
+    {
+      "stage": "layering",
+      "exit_code": 0,
+      "seconds": 18.823717708000004,
+      "log_sha256": "f39fcb94821bda20b929bc4f28f0d22ca19cae4d3dda388e831543c586312a9d"
+    },
+    {
+      "stage": "trace-standalone",
+      "exit_code": 0,
+      "seconds": 22.502409791000105,
+      "log_sha256": "1e926cabdae77a253549771472b4f3865c3b1164aaa68e6bdb99d32db5c75e4a"
+    },
+    {
+      "stage": "deny",
+      "exit_code": 0,
+      "seconds": 1.3005194159999292,
+      "log_sha256": "7cc0e1f7ed26fe3d9f44f3ff7936324dbedce046ff0ee64c4a6e20dff9c357c6"
+    }
+  ]
+}

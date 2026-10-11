@@ -6,8 +6,13 @@ mod fairness;
 mod labels;
 mod lower;
 mod macros;
+mod options;
 mod procedures;
 mod process;
+pub use options::{
+    SourceOptionArgument, SourceOptionDeclaration, TranslationContext, resolve_translation_options,
+    source_options_span,
+};
 
 use crate::{Code, Diagnostic, Options, ast::Span};
 use serde::{Deserialize, Serialize};
@@ -159,6 +164,8 @@ pub struct Translation {
     pub configuration: String,
     /// Admitted process declarations; empty for sequential translation.
     pub processes: Vec<ProcessTranslation>,
+    /// Requested and effective source/CLI settings used for this artifact.
+    pub option_context: TranslationContext,
 }
 
 fn error(
@@ -177,48 +184,14 @@ fn error(
     }
 }
 
-/// Find a reference-style source option declaration before hiding old output.
+/// Find the reference-style source option header before hiding old output.
 ///
-/// This callback-free preflight recognizes keyword/spacing context only; it
-/// does not parse option arguments or certify a valid declaration. Callers must
-/// enforce their document byte limit first. Native generation refuses this
-/// unproved context rather than silently erase its fairness or label settings.
+/// This callback-free alias preserves the original header diagnostic extent.
+/// It does not parse arguments or certify admission. Resolved declarations carry
+/// the full extent used for overlap checks; callers enforce their byte limit.
 #[must_use]
 pub fn source_option_declaration_span(source: &str) -> Option<Span> {
     source_options_span(source)
-}
-
-fn source_options_span(source: &str) -> Option<Span> {
-    for (start, _) in source.match_indices("PlusCal") {
-        if start > 0
-            && !source[..start]
-                .chars()
-                .next_back()
-                .is_some_and(char::is_whitespace)
-        {
-            continue;
-        }
-        let rest = &source[start + 7..];
-        if !rest.starts_with(char::is_whitespace) {
-            continue;
-        }
-        let next = rest.trim_start();
-        let Some(tail) = next.strip_prefix("options") else {
-            continue;
-        };
-        if tail
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_alphanumeric() || c == '_')
-        {
-            continue;
-        }
-        return Some(Span {
-            start,
-            end: start + 7 + rest.len() - next.len() + 7,
-        });
-    }
-    None
 }
 
 /// Translates a bounded sequential or disjoint finite-process current C/P algorithm.
@@ -258,18 +231,15 @@ pub fn translate_at(
                             diagnostic,
                         }
                     })?;
-                if let Some(span) = source_options_span(source) {
-                    return Err(error(
-                        TranslationStage::Normalization, Code::Unsupported, span,
-                        "unsupported PlusCal source option declaration; pass proved settings explicitly through the CLI/API",
-                    ));
-                }
+                let context = resolve_translation_options(source, options)?;
+                let options = &context.effective;
                 let mut parsed = macros::expand(parsed, options)?;
                 let mut translate = || {
                     let inserted = labels::normalize(&mut parsed, options)?;
                     let model = lower::normalize(&parsed, options)?;
                     let mut artifact = emit::generate(&parsed, &model, options)?;
                     artifact.inserted_labels = inserted;
+                    artifact.option_context = context.clone();
                     Ok(artifact)
                 };
                 translate().map_err(|mut failure: TranslationError| {

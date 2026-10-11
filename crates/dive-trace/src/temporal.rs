@@ -204,6 +204,12 @@ impl Word<'_> {
             args,
         } = &node.expr
         {
+            if self
+                .native_parameter(scope, *local, args, depth + 1, &mut 0)?
+                .is_some()
+            {
+                return self.atom(expr, scope);
+            }
             let (def, called) = self.parameter_call(scope, *local, args, depth + 1, &mut 0)?;
             return self.eval(self.model.ir.def(def).body, &called, depth + 1);
         }
@@ -563,14 +569,30 @@ impl Word<'_> {
         steps: &mut usize,
     ) -> Result<(), TemporalError> {
         *steps = steps.saturating_add(1);
-        let (def, analysis) = self
-            .model
-            .evaluator
-            .scope_operator_analysis(scope, operator)
+        let mut remaining = 100_000_usize.saturating_sub(*steps);
+        let native =
+            self.model
+                .evaluator
+                .scope_native_operator_analysis(scope, operator, &mut remaining);
+        *steps = 100_000 - remaining;
+        let (def, analysis) = if native
             .map_err(|e| TemporalError::Unsupported(e.to_string()))?
-            .ok_or_else(|| {
-                TemporalError::Unsupported("opaque/recursive/higher-order operator capture".into())
-            })?;
+            .is_some()
+        {
+            (None, scope.clone())
+        } else {
+            let (def, analysis) = self
+                .model
+                .evaluator
+                .scope_operator_analysis(scope, operator)
+                .map_err(|e| TemporalError::Unsupported(e.to_string()))?
+                .ok_or_else(|| {
+                    TemporalError::Unsupported(
+                        "opaque/recursive/higher-order operator capture".into(),
+                    )
+                })?;
+            (Some(def), analysis)
+        };
         let mut remaining = 100_000_usize.saturating_sub(*steps);
         let captures = self
             .model
@@ -583,7 +605,55 @@ impl Word<'_> {
         for (body, captured) in captures {
             self.forwarded_context(body, &captured, depth + 1, steps)?;
         }
-        self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1, steps)
+        if let Some(def) = def {
+            self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1, steps)?;
+        }
+        Ok(())
+    }
+
+    // Independently prove the original scoped native call, never a planner
+    // annotation or an invented native user body.
+    fn native_parameter(
+        &self,
+        scope: &Scope,
+        local: dive_ir::LocalRef,
+        args: &[Arg],
+        depth: usize,
+        steps: &mut usize,
+    ) -> Result<Option<Level>, TemporalError> {
+        let mut remaining = 100_000_usize.saturating_sub(*steps);
+        let native = self.model.evaluator.scope_native_operator_analysis(
+            scope,
+            &OpRef::Param(local),
+            &mut remaining,
+        );
+        *steps = 100_000 - remaining;
+        let Some(native) = native.map_err(|e| TemporalError::Unsupported(e.to_string()))? else {
+            return Ok(None);
+        };
+        if i32::try_from(args.len()).ok() != Some(native.java_arity()) {
+            return Err(TemporalError::Unsupported(
+                "native operator argument arity".into(),
+            ));
+        }
+        self.operator_context(&OpRef::Param(local), scope, depth + 1, steps)?;
+        let mut level = Level::Constant;
+        for arg in args {
+            let Arg::Expr { expr, .. } = arg else {
+                return Err(TemporalError::Unsupported(
+                    "native higher-order argument".into(),
+                ));
+            };
+            self.forwarded_context(*expr, scope, depth + 1, steps)?;
+            let actual = self.scoped_level(*expr, scope, depth + 1, steps)?;
+            if actual > Level::State {
+                return Err(TemporalError::Unsupported(
+                    "native action/temporal argument".into(),
+                ));
+            }
+            level = level.max(actual);
+        }
+        Ok(Some(level))
     }
 
     fn parameter_call(
@@ -727,6 +797,12 @@ impl Word<'_> {
                 }
                 match op {
                     OpRef::Param(local) => {
+                        if self
+                            .native_parameter(&sc, local, args, depth + 1, steps)?
+                            .is_some()
+                        {
+                            continue;
+                        }
                         let (def, called) =
                             self.parameter_call(&sc, local, args, depth + 1, steps)?;
                         todo.push((ir.def(def).body, called, depth + 1));
@@ -821,10 +897,46 @@ impl Word<'_> {
             TemporalError::Unsupported("missing scoped temporal expression".into())
         })?;
         match &node.expr {
+            Expr::Prime(body) => {
+                return Ok(
+                    if self.scoped_level(*body, scope, depth + 1, steps)? == Level::Constant {
+                        Level::Constant
+                    } else {
+                        Level::Action
+                    },
+                );
+            }
+
+            Expr::Builtin {
+                op:
+                    dive_ir::BuiltinOp::Always
+                    | dive_ir::BuiltinOp::Eventually
+                    | dive_ir::BuiltinOp::LeadsTo,
+                ..
+            }
+            | Expr::Always(_)
+            | Expr::Eventually(_)
+            | Expr::LeadsTo(_, _)
+            | Expr::WhilePlus(_, _)
+            | Expr::Wf { .. }
+            | Expr::Sf { .. }
+            | Expr::TemporalQuant { .. } => return Ok(Level::Temporal),
+            Expr::Builtin {
+                op: dive_ir::BuiltinOp::Prime | dive_ir::BuiltinOp::Unchanged,
+                ..
+            }
+            | Expr::Var { primed: true, .. }
+            | Expr::Unchanged(_)
+            | Expr::StepAngle { .. }
+            | Expr::StepBox { .. } => return Ok(Level::Action),
+
             Expr::Apply {
                 callee: OpRef::Param(local),
                 args,
             } => {
+                if let Some(level) = self.native_parameter(scope, *local, args, depth + 1, steps)? {
+                    return Ok(level);
+                }
                 let (def, called) = self.parameter_call(scope, *local, args, depth + 1, steps)?;
                 return self.scoped_level(ir.def(def).body, &called, depth + 1, steps);
             }
@@ -1162,6 +1274,12 @@ impl Word<'_> {
                         }
                     }
                     OpRef::Param(local) => {
+                        if self
+                            .native_parameter(&scope, local, args, depth + 1, steps)?
+                            .is_some()
+                        {
+                            continue;
+                        }
                         let (def, called) =
                             self.parameter_call(&scope, local, args, depth + 1, steps)?;
                         todo.push((ir.def(def).body, called, depth + 1));

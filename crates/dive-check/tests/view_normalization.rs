@@ -101,3 +101,47 @@ fn compound_and_approved_canonical_view_controls_keep_concrete_counts() {
         }
     }
 }
+
+#[test]
+fn incomplete_view_states_stop_before_concrete_key_normalization() {
+    for initial in [true, false] {
+        let init = if initial {
+            "x = 0 /\\ s = {2,1}"
+        } else {
+            "x = 0 /\\ y = 0 /\\ s = {}"
+        };
+        let source = format!(
+            "---- MODULE IncompleteView ----\nEXTENDS Naturals,TLC\nVARIABLES x,y,s\nInit == {init}\nNext == x' = 1 /\\ s' = {{2,1}}\nProjection == x\n====\n"
+        );
+        let analysis = dive_sema::analyze_source(
+            "IncompleteView.tla",
+            &source,
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("valid incomplete-state IR"));
+        let cfg =
+            dive_config::parse("INIT Init\nNEXT Next\nVIEW Projection\nCHECK_DEADLOCK FALSE\n")
+                .into_config()
+                .expect("cfg");
+        for profile in [dive_eval::Profile::Tlc, dive_eval::Profile::Dive] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                for width in [1, 4, 8] {
+                    for chaos in [None, Some(19)] {
+                        let mut options = CheckOptions::tlc(0, 7);
+                        options.profile = profile;
+                        options.eval = dive_eval::Options::for_profile(profile);
+                        options.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+                        options.store = store;
+                        options.workers = width;
+                        options.chaos = chaos;
+                        let result = dive_check::check(&ir, &cfg, &options);
+                        assert!(
+                            matches!(&result.verdict, Verdict::NotCompletelySpecified { initial: got, variables, .. } if *got == initial && variables == &["y"]),
+                            "{result:?}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

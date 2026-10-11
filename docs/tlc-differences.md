@@ -1969,8 +1969,9 @@ preserved before the native source-context guard.
 For proved finite process shapes, dive derives Full CRCs from the exact explicit
 CLI/API options and reports `translation_options` on every replacement request.
 The API has one fairness enum; the CLI rejects repeated/conflicting fairness
-flags before loading. Native generation and Full derivation refuse unproved
-source-option declarations by name. Store/replay explicit settings with the
+flags before loading. Native generation and Full derivation admit only the proved source fairness/label
+subset documented in [source options](pluscal-source-options.md); unknown,
+malformed, conflicting and other unproved source contexts refuse by name. Store/replay explicit settings with the
 artifact and configure reference validation consistently. An unconfigured
 Validator result never proves the source was edited.
 
@@ -1983,7 +1984,7 @@ witness validation stay separate (D-008).
 
 See [runnable option examples and limits](pluscal-process-checksum-options.md)
 and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
-for all primary/configured/unconfigured/native-before-guard evidence. General
+for all primary/configured/unconfigured/native-before-guard evidence. Broader
 source-option parsing, scoped serialization, exact formatting and file writes
 remain pending rather than inferred from this bounded increment.
 
@@ -1995,3 +1996,47 @@ minimal source and both failed outputs are in
 `conformance/probes/pluscal-source-option-masking/`. Issue #182 remains open
 for source-option parsing and precedence; no stronger checksum default is
 adopted.
+
+### Bounded pure native operator arguments
+
+The explicit final TLC mode now accepts Len/Head/Cardinality operator actuals
+within its bounded pure constant/state slice. TLC13 and dive13 agree on the
+minimal `Use(F(_)) == []<>F(x); Live == Use(Head)` with `x=<<FALSE>>`.
+Configured/opaque/effectful targets still refuse. Concrete normalized set states,
+unknown deciding runtime error classes and ordinary periodic scheduling remain
+limitations. See [the guide](native-temporal-operators.md) and the complete
+20-control probe selection; this is bounded support, not family certification.
+
+for broader source-option parsing and precedence; the bounded proved subset
+is documented in [source options](pluscal-source-options.md). No stronger
+checksum default is adopted.
+
+
+### D-021 retained source-option errors and partial application
+
+The pinned translator also continues after some source-option errors. In the
+minimal C and P process controls, `PlusCal options (-wf, -sf)` prints an
+`Unrecoverable error`, exits **0**, writes a translation, and keeps the first
+weak-fairness setting. `PlusCal options (-unknown)` likewise exits 0 and writes
+a translation after reporting an unknown option. An unterminated declaration
+can accidentally consume a later `)` from the algorithm and apply a setting.
+The initial missing-label study and the corrected explicit-label study are both
+retained in `crates/dive-pluscal/source-option-semantics-acceptance/prestudy/`;
+the latter has 16 clean primary runs and carries no native conformance credit.
+
+The bounded native continuation refuses malformed, unknown or conflicting source
+options before artifact/CRC generation instead of silently accepting partial
+application. This is an explicit bounded unsupported disposition, **not** a
+new corrected checksum or fairness default. A source declaration overriding
+CLI fairness is intended reference behavior and is tested separately. Artifact
+acceptance still requires enclosing-module analysis; zero from the translator
+never proves model correctness or a usable artifact (D-008).
+
+The #188 investigation also retains incomplete VIEW states under
+`conformance/probes/view-concrete-normalization/incomplete-primary/`. Leaving
+`y` unassigned while storing `{<<1>>, [a |-> 1,b |-> 1]}` makes Init diagnostic
+printing throw EC1000/exit255; incomplete Next reports EC2109/exit75. The
+well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
+for Next. Mixed-value diagnostic printing remains unproved: rejecting an
+incomplete state before keying does not establish its exact printer/error
+counterpart, and no malformed-input-wide conformance is claimed.

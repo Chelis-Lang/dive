@@ -580,3 +580,12 @@ old-output fairness-loss control is retained in
 `conformance/probes/pluscal-source-option-masking/`; full option parsing remains
 pending.
 
+| Bounded native temporal operator actuals | pinned `Tool.getOpContext`, `OpLambdaValue`, `Liveness.astToLive`, native `Sequences.Len/Head` and `FiniteSets.Cardinality`; commit94d0c50 | MIT | Metadata authority and actual scoped native dispatch; independent bounded admission/Word implementation. Raw20-selection reference failures remain separate; no new schedule/default. |
+
+`conformance/probes/pluscal-source-option-masking/`; broader option parsing
+remains pending. The bounded continuation below preserves the public header-span
+alias while using full resolved extents for overlap admission.
+
+| Implementation | Reference | License | Evidence and limits |
+| --- | --- | --- | --- |
+| `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |

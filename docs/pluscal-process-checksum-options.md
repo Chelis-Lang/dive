@@ -138,6 +138,12 @@ controls and 32 named source-context surface refusals have separate receipts.
 
 Recognized source-option declarations are inspected in the original bounded
 file, including an existing translation block, before native rewriting masks
-old output. Both checksum policies refuse that unproved context, even with
+old output. Both checksum policies refuse a deciding declaration overlapping
+old output, even with
 `--replace-modified`. This prevents silently losing requested fairness; it
 does not restrict the separate supplied-body editing contract.
+
+The source-declaration continuation in [PlusCal source options](pluscal-source-options.md)
+proves a bounded fairness/label subset and keeps requested/effective context
+separate. Historical source-comment refusals and wrong-fairness captures above
+remain evidence of earlier producers, rather than current positive credit.

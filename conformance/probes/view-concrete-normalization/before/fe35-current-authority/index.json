@@ -1,0 +1,155 @@
+{
+  "parent_commit": "fe35c73f5c5d658a402dd41f264e43bb7887a591",
+  "scope": "Exact preceding main source/matrix authority. Fresh current runtime controls recorded separately; historical runs are unchanged.",
+  "matrices": [
+    {
+      "matrix": "conformance/probes/native-checkpoint/current-integration-source.json",
+      "before_matrix": "matrices/native-checkpoint/current-integration-source.json",
+      "before_sha256": "334021d6c48db1228017adc3a014311d01ece08d772ff2b4115bf1f9d6ab229a",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd"
+      }
+    },
+    {
+      "matrix": "conformance/probes/predecessor-spill/current-integration-source.json",
+      "before_matrix": "matrices/predecessor-spill/current-integration-source.json",
+      "before_sha256": "788847b2df9dadf4da1525dadadd74ca8fdcba835815ea44a8d7893f3835f387",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-phase-execution/source-matrix.json",
+      "before_matrix": "matrices/tlc-phase-execution/source-matrix.json",
+      "before_sha256": "8c58a3dd508585a827864ed2c995807c0461ee0de456ec364df1ff52de61797a",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-phase-l-graph/source-matrix.json",
+      "before_matrix": "matrices/tlc-phase-l-graph/source-matrix.json",
+      "before_sha256": "b9b27b05fc8d75c0051be3c67c2dae9f1470b5e3ce7e6a8b713e47024cd96f8f",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "before_matrix": "matrices/tlc-planning/combined-context-tableau-source-matrix.json",
+      "before_sha256": "10e31f57edd4c4cb25b9d11d53213126bdd99c6f3cb8f6a28250e806c002e934",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-temporal-if-final/source-matrix.json",
+      "before_matrix": "matrices/tlc-temporal-if-final/source-matrix.json",
+      "before_sha256": "e16e4fb44598d99b189ec5fc69bbd89957fc929ce3935c733ae3263509eb14e8",
+      "changed_source_sha256": {
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-final-scopes/source-matrix.json",
+      "before_matrix": "matrices/tlc-final-scopes/source-matrix.json",
+      "before_sha256": "abd2a3f02b103eb92bcc6661fa87b04f85bd07e9fb8b00a576db9bb4207e1ad2",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/native-temporal-operators/source-matrix.json",
+      "before_matrix": "matrices/native-temporal-operators/source-matrix.json",
+      "before_sha256": "7a5042cb249692b3554bd868d2f289aeabe286fb7b070f195827069edae81c1a",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/temporal-operators/source-matrix.json",
+      "before_matrix": "matrices/temporal-operators/source-matrix.json",
+      "before_sha256": "3e35022bcca1feaf426862b389a93485772278ea36933c4e812254f6b1ccad9a",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/material-capture/source-matrix.json",
+      "before_matrix": "matrices/material-capture/source-matrix.json",
+      "before_sha256": "c044193f53dbc1a2008964182aae82b3f0e1155728fffcc04fd7f5d7c2afdc3b",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/native-parity-integration/current-source.json",
+      "before_matrix": "matrices/native-parity-integration/current-source.json",
+      "before_sha256": "0e36d34461a26c133d3eaa2c8fdd914b8b7b315df69ec1cf4de6d84a22dcc690",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
+        "docs/tlc-parity.md": "fbcf3628d2fff1ee0e5aa30b3c77c1b623fdcc0fb05551e32f074afd9ac58e49"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-final-property-origins/source-matrix.json",
+      "before_matrix": "matrices/tlc-final-property-origins/source-matrix.json",
+      "before_sha256": "20572164aa62f73fdd66c104edc2a93051c43c2f6f684f55ba5d0a2e8f8cf46d",
+      "changed_source_sha256": {
+        ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+        "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+        "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
+        "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+        "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+        "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4"
+      }
+    }
+  ],
+  "changed_source_sha256": {
+    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+    "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
+    "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
+    "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+    ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
+    "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
+    "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
+    "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
+    "docs/tlc-parity.md": "fbcf3628d2fff1ee0e5aa30b3c77c1b623fdcc0fb05551e32f074afd9ac58e49"
+  }
+}
