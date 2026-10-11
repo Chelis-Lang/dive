@@ -1393,8 +1393,12 @@ analysis conservatively includes operators with both tuple and string forms.
 Whole-word replay can now discharge that guard for independently proved
 tuple-only `Tail`, concatenation and `SubSeq` operands, without evaluating
 their arguments or using witness values as type evidence. Strings, mixed
-branches, nested name constructors and variable procedure stacks retain the
-refusal. See [the admitted slice and its limits](tuple-only-trace-replay.md).
+branches and nested name constructors retain the refusal. A separately bounded
+[source-wide tuple-history proof](inductive-tuple-trace-replay.md) can admit
+some variable sequence histories; general saved-frame provenance remains
+unproved. Fixed tuple aliases through `UNCHANGED vars` are a separate pending
+projection proof (#215); conditional tuple permutations cannot establish
+per-variable preservation. See [the literal operand slice](tuple-only-trace-replay.md).
 
 
 Finite safety simulation also refuses TLC runtime-name models before sampling

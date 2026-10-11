@@ -776,3 +776,7 @@ open-addressed disk indexing, private ownership, bounded rehash/audit and
 first-error poisoning are dive designs (ADR 0063). Fingerprint gap uses existing
 `collision::closer`/subset authority; bounded pair work refuses explicitly.
 No ordinary engine or checkpoint admission is established by this library.
+The independent tuple-history admission (ADR 0067) is a bounded Rust logical
+proof of necessary Init facts and all-branches Next preservation. It ports no
+checker enumeration algorithm and uses neither supplied witness states nor
+TLC's encounter-order side effects as type evidence.

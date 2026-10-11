@@ -88,6 +88,7 @@ struct Cover {
 struct TupleProof<'a> {
     model: &'a Model,
     fuel: usize,
+    variables: &'a BTreeSet<VarId>,
 }
 impl TupleProof<'_> {
     fn value(value: &Value) -> bool {
@@ -126,6 +127,24 @@ impl TupleProof<'_> {
         ev.scope_enter(scope, id)
             .is_ok_and(|sc| self.tuple(body, &sc))
     }
+    // Resolve only authoritative configured native metadata. This never
+    // evaluates a constant/provider or transfers a user operator's context.
+    fn configured_native(&mut self, id: dive_ir::ConstId) -> Option<StdOp> {
+        if self.fuel == 0 {
+            return None;
+        }
+        self.fuel -= 1;
+        let ev = &self.model.evaluator;
+        let ConstBinding::Def(id) = ev.constant_binding(id)? else {
+            return None;
+        };
+        let id = ev.redirected(id);
+        let def = self.model.ir.defs().get(id.index())?;
+        if def.recursive || ev.is_value_override(id) {
+            return None;
+        }
+        def.std
+    }
     fn tuple(&mut self, expr: ExprId, scope: &Scope) -> bool {
         if self.fuel == 0 {
             return false;
@@ -137,6 +156,7 @@ impl TupleProof<'_> {
         };
         match &node.expr {
             Expr::Tuple(_) => true,
+            Expr::Var { var, primed: false } => self.variables.contains(var),
             Expr::If { then, other, .. } => self.tuple(*then, scope) && self.tuple(*other, scope),
             Expr::Local(slot) => self.slot(ev.scope_slot(scope, *slot)),
             Expr::SubstRef { decl, .. } => self.slot(ev.scope_subst_slot(scope, *decl)),
@@ -146,7 +166,20 @@ impl TupleProof<'_> {
                 None => false,
             },
             Expr::Def(d) => self.definition(*d, scope),
-            Expr::Prime(body) => self.tuple(*body, scope),
+            Expr::Prime(body) => {
+                // Current-state hypotheses cannot prove a future-state shape:
+                // s' = s' is not tuple preservation. Closed literal proofs
+                // still work, with the remaining original budget.
+                let empty = BTreeSet::new();
+                let mut future = TupleProof {
+                    model: self.model,
+                    fuel: self.fuel,
+                    variables: &empty,
+                };
+                let result = future.tuple(*body, scope);
+                self.fuel = future.fuel;
+                result
+            }
             Expr::Let { body, .. } => ev
                 .scope_let(scope, expr)
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
@@ -155,13 +188,28 @@ impl TupleProof<'_> {
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
             Expr::Apply { callee, args } => {
                 let op = match callee {
+                    OpRef::Const(id) => self.configured_native(*id),
                     OpRef::Std(op) => Some(*op),
                     OpRef::Def(id) => {
                         let id = ev.redirected(*id);
                         if ev.is_value_override(id) {
                             None
                         } else {
-                            self.model.ir.defs().get(id.index()).and_then(|d| d.std)
+                            let Some(def) = self.model.ir.defs().get(id.index()) else {
+                                return false;
+                            };
+                            if def.recursive {
+                                return false;
+                            }
+                            if def.std.is_none() {
+                                if self.variables.is_empty() {
+                                    return false;
+                                }
+                                return ev
+                                    .scope_apply(scope, id, args)
+                                    .is_ok_and(|entered| self.tuple(def.body, &entered));
+                            }
+                            def.std
                         }
                     }
                     _ => None,
@@ -177,7 +225,43 @@ impl TupleProof<'_> {
 /// the proof nor scope construction evaluates the arguments; opaque shapes
 /// refuse. Callers must still run their independent scoped purity walk.
 pub(crate) fn native_tuple_only(model: &Model, op: StdOp, args: &[Arg], scope: &Scope) -> bool {
-    TupleProof { model, fuel: 256 }.native(op, args, scope)
+    TupleProof {
+        model,
+        fuel: 256,
+        variables: &BTreeSet::new(),
+    }
+    .native(op, args, scope)
+}
+
+/// Private shape rule used only after a whole-model inductive history proof.
+/// Public existence decisions deliberately keep the empty variable set.
+pub(crate) fn tuple_with_variables(
+    model: &Model,
+    expr: ExprId,
+    scope: &Scope,
+    variables: &BTreeSet<VarId>,
+) -> bool {
+    TupleProof {
+        model,
+        fuel: 256,
+        variables,
+    }
+    .tuple(expr, scope)
+}
+
+pub(crate) fn native_with_variables(
+    model: &Model,
+    op: StdOp,
+    args: &[Arg],
+    scope: &Scope,
+    variables: &BTreeSet<VarId>,
+) -> bool {
+    TupleProof {
+        model,
+        fuel: 256,
+        variables,
+    }
+    .native(op, args, scope)
 }
 
 struct Search<'a> {
@@ -916,6 +1000,7 @@ mod tuple_shape_tests {
         let mut proof = TupleProof {
             model: &model,
             fuel: 256,
+            variables: &BTreeSet::new(),
         };
         assert!(!proof.tuple(bad, &scope));
         assert!(!proof.definition(DefId(u32::MAX), &scope));
@@ -925,6 +1010,7 @@ mod tuple_shape_tests {
         let mut exhausted = TupleProof {
             model: &model,
             fuel: 0,
+            variables: &BTreeSet::new(),
         };
         assert!(!exhausted.tuple(model.ir.def(pair).body, &scope));
     }

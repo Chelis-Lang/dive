@@ -17,6 +17,8 @@ All notable changes to this project are documented here. The project will follow
   later bounded nested continuation above lifts only its proved shapes. Wider
   ownership remains unsupported; artifact admission and model proofs stay separate.
 
+- Independent whole-word replay can prove bounded tuple-preserving variable
+  histories from Init and every Next branch; unknown history remains refused.
 - Strict independent whole-word replay admits proved tuple-only `Tail`,
   concatenation and `SubSeq` operands while retaining string-history and
   variable-stack refusals; includes a runnable CLI/Cargo guide.
