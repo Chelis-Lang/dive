@@ -16,12 +16,12 @@
     "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
-    "docs/user/temporal.md": "554aea95b5e98b3f4b6f96966d713031ca238d09c5b758f9cbc4a17c7543f94c",
-    "docs/provenance.md": "9b778358fbafd1af886fc915fb427da31f818efda8afa04619cb8c4f7dc02833",
+    "docs/user/temporal.md": "9821312418f079df1f67f6c643af43d34ea1bddbda0efc8bdb913478b07cbd67",
+    "docs/provenance.md": "c9045b657e613a321c6cfbbb28ea2ca460ac9a169ecf4998030b9e92a917edef",
     "docs/divergences.md": "ea5ac5ca388b749b8a48abd18770163537a22e7472de8d14f0a62d684d624481",
-    "docs/tlc-differences.md": "63dfb3bd92ef5cdc70b3197a2f46ea62f6ae02fd1640ff11b6bc38debea721be",
+    "docs/tlc-differences.md": "f14b48b1395fb703bdac50df6d71927a4c0107989c8c533ed839f773077103b2",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f"
   },
   "scoped_final_parent_history": {
@@ -33,5 +33,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

@@ -1,0 +1,73 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "rows": [
+    {
+      "label": "violating",
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-XX:ActiveProcessorCount=2",
+        "-cp",
+        "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-request-service-paired-property-primary/violating/meta",
+        "-config",
+        "Service.cfg",
+        "Service"
+      ],
+      "exit": 13,
+      "expected": 13,
+      "sha256": {
+        "Service.tla": "6accb96182a4bbd3c53f1cf92a96cc486a853e88da2d1950f66bb4e09b335b60",
+        "Service.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "stdout": "d9592e40ec487c67eb94ce6d55e90e5b58f7f215fcf746865bbe05f5c1f12499",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "holding",
+      "command": [
+        "/Users/jeff/code/dive-periodic-snapshot-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-XX:ActiveProcessorCount=2",
+        "-cp",
+        "/Users/jeff/code/dive-periodic-snapshot-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-workers",
+        "1",
+        "-fp",
+        "0",
+        "-seed",
+        "0",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-request-service-paired-property-primary/holding/meta",
+        "-config",
+        "Service.cfg",
+        "Service"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "sha256": {
+        "Service.tla": "6784ce62343d93e0b23c03c1ad2210ebbe009188daaa3f91c08d2c1f3b8ea855",
+        "Service.cfg": "9356d07f5a8e8b20049605c25dfa1b389e600c4057e08e01ff529082e1762fbc",
+        "stdout": "7d6fb0910a35bfefe9d4fb502fbd19799a7e80d9e8dcef51ddbfecad535372e4",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "scope": "Clean primary paired semantic property controls, final-only workers1; no ordinary request timing or native verification credit"
+}

@@ -90,3 +90,5 @@ The [configuration-owned periodic snapshot](../configured-periodic-snapshot.md) 
 `PeriodicSnapshot::execute_requests` exposes producer-clock expansion request diagnostics; [Cargo example and receipt contract](../producer-progress-requests.md). It adds no ordinary model verdict or schedule proof.
 
 [Committed request prefixes](../committed-periodic-prefix.md) use `PeriodicSnapshot::execute_requests` with producer-owned claims and actual source publication. The Cargo example retains completed safety counters and typed nonproof receipts; ordinary temporal checking remains unsupported.
+
+[`Snapshot::execute_service`](../request-owned-periodic-service.md) is an additive request-owned Rust diagnostic with actual post-append counters, optional graph source and separate hook evaluations. TLC evaluator-option consistency is required; this is not an ordinary checker result.

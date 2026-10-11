@@ -11,19 +11,19 @@
     "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "256a8a6c7bc48426ad57d4787e88efab36ee92776a13ca9a66462c16261da98d",
-    "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
-    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
-    "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "8f0faeff0c78c7186c47a5dc3144cd66ea9a5877b1cbb1af7ff84e46cd0804aa",
+    "crates/dive-liveness/src/periodic_snapshot.rs": "6b1ef7febf1db66b0a22597af46e82b866ab301bb09cabb123c75f2190797bfa",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
+    "crates/dive-liveness/src/periodic_hook.rs": "45c5f06d3193178a7873e4fdbb68892345a487589c8a0a02615bd7010f7aac60",
     "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/progress_requests.rs": "8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4",
     "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",
     "scripts/check-progress-queue.py": "d8e045fea93ec8e042fc58fe4a8e53a3be9284ba8a72b5ad4b1e0fd58b39f8ff",
-    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
-    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1",
-    "crates/dive-check/tests/observer_barrier.rs": "d68c58d1cd1b68f0d4bca0f0e46120610d76df04de8e2985f2097802b1a1524e"
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
+    "crates/dive-check/tests/observer_barrier.rs": "d00f316fbc1ba2e1a2c1cb270333f008b742e7c59b94f0887866090d1dbbd061"
   },
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

@@ -155,8 +155,21 @@ pub struct Run {
     pub(crate) final_checks: Vec<FinalCheck>,
     pub(crate) eof: Option<Stats>,
     pub(crate) hook_evaluations: Vec<crate::periodic_hook::Evaluation>,
+    pub(crate) request_services: Vec<crate::periodic_service::Invocation>,
+    pub(crate) service_evaluations: Vec<crate::periodic_service::Evaluation>,
 }
 impl Run {
+    /// Request-owned services after actual prefix append. Empty services retain
+    /// no invented source; these never establish ordinary temporal verdicts.
+    #[must_use]
+    pub fn request_services(&self) -> &[crate::periodic_service::Invocation] {
+        &self.request_services
+    }
+    /// Actual configured-hook calls in request service, separate from ordinal calls.
+    #[must_use]
+    pub fn service_evaluations(&self) -> &[crate::periodic_service::Evaluation] {
+        &self.service_evaluations
+    }
     /// Source-owned graph/partial-check evidence and actual deciding stop.
     #[must_use]
     pub fn backend(&self) -> &periodic_backend::Run {
@@ -239,6 +252,11 @@ pub fn execute(
 }
 
 pub(crate) struct State {
+    pub request_service: bool,
+    pub initial_stats: Option<Stats>,
+    pub graph_source: Option<u64>,
+    pub request_services: Vec<crate::periodic_service::Invocation>,
+    pub service_evaluations: Vec<crate::periodic_service::Evaluation>,
     pub options: Options,
     pub requests: Option<dive_check::progress::Options>,
     pub requests_cancelled: bool,
@@ -276,6 +294,11 @@ impl State {
         }
         let start = time_millis()?;
         Ok(Self {
+            request_service: false,
+            initial_stats: None,
+            graph_source: None,
+            request_services: Vec::new(),
+            service_evaluations: Vec::new(),
             options,
             requests: None,
             requests_cancelled: false,

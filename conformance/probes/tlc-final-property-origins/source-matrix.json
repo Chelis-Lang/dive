@@ -4,7 +4,7 @@
   "scope": "Additive bounded final temporal identity fields, source-bound primary/native/example controls; unchanged witness/default/limits/ordinary contract; all family statuses partial",
   "source_sha256": {
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
-    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-model/src/bind.rs": "c776bf58522bc1817a28e05f631372cc172f8b998859ee341833497f899f9c7f",
     "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",
@@ -14,15 +14,15 @@
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "scripts/check-tlc-final-scopes.py": "670faf49e11ce31ca8fbf08f4f828a24aec3a92d8f612abf635fd6d6e9cbb988",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "554aea95b5e98b3f4b6f96966d713031ca238d09c5b758f9cbc4a17c7543f94c",
-    "docs/provenance.md": "9b778358fbafd1af886fc915fb427da31f818efda8afa04619cb8c4f7dc02833",
+    "docs/user/temporal.md": "9821312418f079df1f67f6c643af43d34ea1bddbda0efc8bdb913478b07cbd67",
+    "docs/provenance.md": "c9045b657e613a321c6cfbbb28ea2ca460ac9a169ecf4998030b9e92a917edef",
     "docs/divergences.md": "ea5ac5ca388b749b8a48abd18770163537a22e7472de8d14f0a62d684d624481",
-    "docs/tlc-differences.md": "63dfb3bd92ef5cdc70b3197a2f46ea62f6ae02fd1640ff11b6bc38debea721be",
+    "docs/tlc-differences.md": "f14b48b1395fb703bdac50df6d71927a4c0107989c8c533ed839f773077103b2",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1",
-    "CHANGELOG.md": "bdfaca20e50986372adebfae12f8d3cb665ba2a28b6709859c80ff55df5d1b6d",
-    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
-    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
+    "CHANGELOG.md": "5c9c8c2d260f4385bba36192ad5fe2f4efb871a43957801fbba052e8dd0389ad",
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
     "conformance/probes/tlc-final-property-origins/SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
     "conformance/probes/tlc-final-property-origins/SccInspector.java": "51f13e335d269a23f9f263d8bce5060862891929ec184e6e40a11aef8bacd83c",
     "conformance/probes/tlc-final-property-origins/capture-native.py": "f815169bcb507a758f87f71c215980dc5147aecd92ed73b1072370adaff9c054",
@@ -324,5 +324,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

@@ -12,10 +12,10 @@
     "crates/dive-liveness/tests/temporal_operators.rs": "3e78bc3a46a3b15ca03232377f320505d528c214947f511fd3ab4d304f4aa43e"
   },
   "source_sha256": {
-    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
-    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
-    "CHANGELOG.md": "bdfaca20e50986372adebfae12f8d3cb665ba2a28b6709859c80ff55df5d1b6d",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    "CHANGELOG.md": "5c9c8c2d260f4385bba36192ad5fe2f4efb871a43957801fbba052e8dd0389ad",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
@@ -3145,13 +3145,13 @@
     "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "ea5ac5ca388b749b8a48abd18770163537a22e7472de8d14f0a62d684d624481",
-    "docs/provenance.md": "9b778358fbafd1af886fc915fb427da31f818efda8afa04619cb8c4f7dc02833",
+    "docs/provenance.md": "c9045b657e613a321c6cfbbb28ea2ca460ac9a169ecf4998030b9e92a917edef",
     "docs/temporal-operators.md": "107543cf79d996b9671c6c5b82705e8745c3beda9d7ea94040a1a33cdf7d0101",
-    "docs/tlc-differences.md": "63dfb3bd92ef5cdc70b3197a2f46ea62f6ae02fd1640ff11b6bc38debea721be",
-    "docs/user/rust-api.md": "15a3049ad40cf2ff146278c137c011bc75aec8ed9996407db122a6eefb53d36c",
-    "docs/user/temporal.md": "554aea95b5e98b3f4b6f96966d713031ca238d09c5b758f9cbc4a17c7543f94c",
+    "docs/tlc-differences.md": "f14b48b1395fb703bdac50df6d71927a4c0107989c8c533ed839f773077103b2",
+    "docs/user/rust-api.md": "a75c93e8e70c579707f24497b619c861dc475e374a417575b813e8b2c36c6290",
+    "docs/user/temporal.md": "9821312418f079df1f67f6c643af43d34ea1bddbda0efc8bdb913478b07cbd67",
     "scripts/check-material-capture.py": "61a9244a12241707d82bed553afbf4c46007fa9a3c80791874e6ad0a6370ad5a",
     "scripts/check-temporal-operators.py": "57621d5c2cff4c2c8b73f49afc7861f7a99d15fb4c473cf373f68119f433f29c"
   },
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

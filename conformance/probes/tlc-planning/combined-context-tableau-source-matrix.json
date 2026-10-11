@@ -1,6 +1,6 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
   "historical_integrations": [
@@ -102,7 +102,7 @@
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+    "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",

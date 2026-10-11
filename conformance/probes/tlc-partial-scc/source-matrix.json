@@ -1,14 +1,14 @@
 {
   "scope": "Current bounded partial SCC source contract; all reference prefix projections remain explicit diagnostic fields, not ordinary schedule/model proof.",
   "source_sha256": {
-    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/tests/partial_execution.rs": "de72ece9ad941246b71a153cd5aa3783c919d917971bf7a009ed23f1431b4bc1",
     "crates/dive-liveness/tests/tlc_partial_scc.rs": "cbe25041e2ec98c10930865d7d7159d46ba712fe864d8316f97413f773fcbf93",
     "scripts/check-tlc-partial-scc.py": "b7769f1b04e16a50f940e96617a6ae79e9e0bf78c111a1959ae587a18625f7bd",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1"
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db"
   },
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

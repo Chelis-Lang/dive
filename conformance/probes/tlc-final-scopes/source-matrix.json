@@ -13,14 +13,14 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "428c9a8fdade17613fa746fd9b48e683033f3f6e2f678d0aaf7f9b3f4cf7b339",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "docs/provenance.md": "9b778358fbafd1af886fc915fb427da31f818efda8afa04619cb8c4f7dc02833",
+    "docs/provenance.md": "c9045b657e613a321c6cfbbb28ea2ca460ac9a169ecf4998030b9e92a917edef",
     "docs/divergences.md": "ea5ac5ca388b749b8a48abd18770163537a22e7472de8d14f0a62d684d624481",
-    "docs/tlc-differences.md": "63dfb3bd92ef5cdc70b3197a2f46ea62f6ae02fd1640ff11b6bc38debea721be",
-    "docs/user/temporal.md": "554aea95b5e98b3f4b6f96966d713031ca238d09c5b758f9cbc4a17c7543f94c",
-    "CHANGELOG.md": "bdfaca20e50986372adebfae12f8d3cb665ba2a28b6709859c80ff55df5d1b6d",
-    "AGENTS.md": "a7444348bf864c1b7af78a32dfc5262f8a93f339b701a6659b483411cc9ba9e3",
-    ".github/workflows/ci.yml": "94872c8b168bef8b12d9344ea9f332a8bf1a14361593d1efa342035e46311cdf",
-    "conformance/parity-features.json": "ced90563efcba0b9c6341edd634458f96b78e98da4c057d312390314004386f1",
+    "docs/tlc-differences.md": "f14b48b1395fb703bdac50df6d71927a4c0107989c8c533ed839f773077103b2",
+    "docs/user/temporal.md": "9821312418f079df1f67f6c643af43d34ea1bddbda0efc8bdb913478b07cbd67",
+    "CHANGELOG.md": "5c9c8c2d260f4385bba36192ad5fe2f4efb871a43957801fbba052e8dd0389ad",
+    "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
+    ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
+    "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
     "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -741,5 +741,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

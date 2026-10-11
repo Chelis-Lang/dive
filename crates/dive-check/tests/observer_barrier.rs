@@ -483,3 +483,82 @@ fn observer_failure_after_prefix_append_retains_actual_queue_and_counters() {
         ));
     }
 }
+
+#[test]
+fn deciding_graph_callback_before_append_prevents_request_owned_service() {
+    struct BeforeAppend {
+        faulted: bool,
+        services: usize,
+        eof: bool,
+    }
+    impl SourceObserver for BeforeAppend {
+        fn requires_dispatch_pause(&self) -> bool {
+            true
+        }
+        fn progress_requests(&self) -> Option<dive_check::progress::Options> {
+            Some(dive_check::progress::Options {
+                interval: std::time::Duration::from_millis(1),
+                force: true,
+            })
+        }
+        fn source(&mut self, _: CommittedSource<'_>) -> Result<(), String> {
+            Err("unpaused callback refused".into())
+        }
+        fn paused_source(
+            &mut self,
+            source: CommittedSource<'_>,
+            _: &capture::DispatchPause<'_>,
+        ) -> Result<(), String> {
+            assert!(source.barrier.frontier_append_pending());
+            self.faulted = true;
+            Err("actual graph callback fault before physical frontier append".into())
+        }
+        fn expansion_quiescent(
+            &mut self,
+            receipt: capture::ExpansionQuiescence,
+            _: &capture::DispatchPause<'_>,
+        ) -> Result<(), String> {
+            assert!(
+                !self.faulted,
+                "request service must not run after deciding preappend fault"
+            );
+            assert!(receipt.committed().is_empty());
+            self.services += 1;
+            Ok(())
+        }
+        fn exploration_complete(&mut self, _: &capture::ExplorationEnd) -> Result<(), String> {
+            self.eof = true;
+            Ok(())
+        }
+    }
+    for width in [1, 3, 4, 8] {
+        let opts = CheckOptions {
+            workers: width,
+            chaos: Some(7),
+            ..CheckOptions::tlc(0, 0)
+        };
+        let m = model(
+            "---- MODULE Barrier ----\nEXTENDS Naturals\nVARIABLE x\nInit == x=0\nNext == x' \\in 1..128\nInv == TRUE\n====\n",
+            &opts,
+        );
+        let mut o = BeforeAppend {
+            faulted: false,
+            services: 0,
+            eof: false,
+        };
+        let Exploration::Stopped(stop) =
+            capture::explore_observed_with_evidence(&m, &opts, capture::Limits::default(), &mut o)
+                .expect("actual shared commit path")
+        else {
+            panic!("must stop before append")
+        };
+        assert!(o.faulted);
+        assert_eq!(o.services, 1);
+        assert!(!o.eof);
+        assert_eq!(stop.workers.used, width);
+        assert_eq!(stop.stats.expect("actual prefix").generated, 129);
+        assert!(
+            matches!(stop.verdict,dive_check::Verdict::Unsupported {ref feature}if feature.contains("before physical frontier append"))
+        );
+    }
+}

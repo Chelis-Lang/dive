@@ -1,6 +1,6 @@
 {
   "base_commit": "1cf68fda3f614534bbd39202149bfbdf255d443c",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "schema_version": 1,
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
@@ -12,7 +12,7 @@
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
     "crates/dive-eval/src/next.rs": "aa9ab114ebbbbbbc51d6ed08ddbf6ece74db5091314fde05a69c29e126b6ee20",
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
-    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+    "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",

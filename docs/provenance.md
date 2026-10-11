@@ -519,3 +519,5 @@ for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
 preserved as an observer limitation, without tableau write-authority credit.
 Worker/controller outcomes and native owned publication remain separately
 measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
+
+| Request-owned service (#208, ADR0065) | Pin94d0c50 `ModelChecker.doPeriodicWork`, real `StateQueue.suspendAll/resumeAll`, owned configured PERIODIC body and real Worker graph writes | MIT | 18 empty + 9 written controlled method observations; failed query/setup/EOF-race epochs preserved. Native post-append request transaction is bounded diagnostic architecture, not ordinary schedule/count/model-proof parity. |

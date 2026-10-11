@@ -8,14 +8,14 @@
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
-    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
+    "crates/dive-liveness/src/lib.rs": "095a1fd80ff33d6da05c7064ca1a7f564836bdb700eb3b66432afa73ec4cf7b3",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
-    "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
+    "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
   },
   "historical_execution_slice": "execution",
-  "current_integration_scope": "Current prefix source integrity only. Preserved before-prefix matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
+  "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "scoped_final_parent_history": {
