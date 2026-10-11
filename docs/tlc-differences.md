@@ -2233,3 +2233,13 @@ constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
 interval encoding controls retain the concrete violation but emit no transport
 or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
 this does not certify arbitrary stored representations.
+
+
+D-008 bounded native PlusCal procedure-checksum continuation: one explicitly
+labelled sequential procedure can now use Full editing. The pinned original
+header AST retains top-level calls but shared If/With/Either branch vectors are
+mutated by Explode; these six new shapes remain named checksum refusals. Two
+retained local_update controls are primary missing-label errors while raw native
+lowering admits them; neither receives compatible artifact credit here. Read
+[the procedure checksum guide](pluscal-procedure-checksums.md) for exact scope,
+D-020 fair-header CRC limits and strict #124 pending replay.

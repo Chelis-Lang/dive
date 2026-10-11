@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Bounded Full PlusCal editing now derives exact header AST checksums for one
+  disjoint labelled sequential procedure, with ordinary calls/returns and
+  call-goto. Nested transfers and wider ownership remain named checksum
+  refusals; artifact admission, CRC derivation and model proofs stay separate.
+
 - Trace JSON documentation now distinguishes tagged value kinds and document
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
