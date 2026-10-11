@@ -1,0 +1,128 @@
+RUN cargo fmt --all --check
+RESULT 0 /tmp/dive-temporal-if-publication-gate-0.log
+RUN cargo clippy --workspace --all-targets --locked -- -D warnings
+RESULT 0 /tmp/dive-temporal-if-publication-gate-1.log
+RUN cargo nextest run --workspace --locked --profile ci
+RESULT 100 /tmp/dive-temporal-if-publication-gate-2.log
+ing_garbage_never_panics
+        PASS [   0.011s] (880/950) dive-value::codec deferred_sets_are_written_as_their_elements
+        PASS [   0.657s] (881/950) dive-value::codec encodings_are_prefix_free
+        PASS [   0.039s] (882/950) dive-value::codec frontier_admission_never_invokes_nested_deferred_callbacks
+        PASS [   0.913s] (883/950) dive-value::codec frontier_bound_admits_lossless_values_without_underestimating
+        PASS [   0.015s] (884/950) dive-value::codec huge_intervals_have_constant_size_keys
+        PASS [   0.673s] (885/950) dive-value::codec lossless_round_trip_preserves_representation
+        PASS [   0.020s] (886/950) dive-value::codec representations_with_equal_values_share_a_key
+        PASS [   0.062s] (887/950) dive-value::codec unknown_tokens_are_errors
+        PASS [   0.067s] (888/950) dive-value::codec unnormalized_sets_keep_tlc_semantics
+        PASS [   0.045s] (889/950) dive-value::layout clones_share_structure
+        PASS [   0.010s] (890/950) dive-value::layout values_are_compact_and_thread_safe
+        PASS [   0.027s] (891/950) dive-value::limits huge_intervals_are_compared_without_materializing
+        PASS [  18.584s] (892/950) dive-value::limits large_lazy_sets_are_streamed_for_hash_and_fingerprint
+        PASS [   0.029s] (893/950) dive-value::limits nonenumerable_function_set_diagnostics_do_not_reenter_the_same_expansion
+        PASS [   0.016s] (894/950) dive-value::limits recursive_operations_handle_the_documented_depth
+        PASS [   0.574s] (895/950) dive-value::limits recursive_operations_refuse_deep_values_with_an_error
+        PASS [  46.833s] (896/950) dive-store::state_fingerprint fingerprint_and_exact_membership_agree_on_a_large_sample
+        PASS [   0.035s] (897/950) dive-value::limits symbolic_function_emptiness_preserves_size_hash_equality_and_fingerprints
+        PASS [   0.044s] (898/950) dive-value::limits unknown_domain_is_not_inferred_nonempty_from_failed_enumeration
+        PASS [   0.038s] (899/950) dive-value::properties both_orders_build_the_same_sets
+        PASS [   0.130s] (900/950) dive-value::properties big_mode_is_mathematical
+        PASS [   0.348s] (901/950) dive-value::properties canonical_order_is_total_and_agrees_with_eq
+        PASS [   0.499s] (902/950) dive-value::properties hash_agrees_with_eq
+        PASS [   0.326s] (903/950) dive-value::properties normalization_is_idempotent_and_order_independent
+        PASS [   0.749s] (904/950) dive-value::properties lazy_membership_equals_enumerated_membership
+        PASS [   0.097s] (905/950) dive-value::properties set_algebra_laws
+        PASS [   0.509s] (906/950) dive-value::properties order_is_total_and_agrees_with_eq
+        PASS [   0.245s] (907/950) dive-value::properties tlc_checked_ops_agree_with_total_order
+        PASS [   0.031s] (908/950) dive-value::review_adversarial apply_tuple_at_i64_min_does_not_panic_issue_overflow
+        PASS [   0.017s] (909/950) dive-value::review_adversarial bigint_domain_is_an_integer_issue_non_int_domain
+        PASS [   0.039s] (910/950) dive-value::review_adversarial canonical_profile_comparability_differs_from_tlc_issue_d009_claim
+        PASS [   0.050s] (911/950) dive-value::review_adversarial cmp_with_equal_iff_eq_issue_unnormalizable_raw_sets
+        PASS [   0.211s] (912/950) dive-value::properties tlc_overflow_is_exact
+        PASS [   0.029s] (913/950) dive-value::review_adversarial debug_formatting_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.042s] (914/950) dive-value::review_adversarial deferred_sets_order_is_allocation_dependent_issue_nondeterminism
+        PASS [   0.324s] (915/950) dive-value::review_adversarial compare_deeply_nested_values_issue_stack_overflow
+        PASS [   0.044s] (916/950) dive-value::review_adversarial enumeration_error_must_not_depend_on_who_enumerated_first_issue_cache
+        PASS [   0.041s] (917/950) dive-value::review_adversarial eq_is_reflexive_across_copies_issue_unnormalizable_raw_sets
+        PASS [   0.385s] (918/950) dive-value::review_adversarial fingerprint_deeply_nested_value_issue_stack_overflow
+        PASS [   0.054s] (919/950) dive-value::review_adversarial fp64_state_fingerprints_match_tlc_in_all_64_bits
+        PASS [   1.171s] (920/950) dive-value::review_adversarial drop_deeply_nested_value_issue_stack_overflow
+        PASS [   0.014s] (921/950) dive-value::review_adversarial hashing_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.015s] (922/950) dive-value::review_adversarial interval_domain_function_vs_record_matches_tlc
+        PASS [   0.038s] (923/950) dive-value::review_adversarial member_with_mismatched_ctx_order_issue_silent_false
+        PASS [   0.027s] (924/950) dive-value::review_adversarial non_canonical_bigint_issue_public_variants
+        PASS [   0.040s] (925/950) dive-value::review_adversarial rust_eq_on_a_raw_set_must_not_change_membership_issue_normalize_side_effect
+        PASS [   0.034s] (926/950) dive-value::review_adversarial rust_eq_on_an_incomparable_raw_set_must_not_normalize_nested_sets_issue_32
+        PASS [   0.020s] (927/950) dive-value::review_adversarial rust_eq_on_large_intervals_materializes_issue_hash_enumerates
+        PASS [   0.014s] (928/950) dive-value::review_adversarial seq_of_empty_equals_its_enumeration_issue_hash
+        PASS [   0.013s] (929/950) dive-value::review_adversarial string_domain_function_is_not_a_record_literal_issue_fcnrcd_vs_record
+        PASS [   0.045s] (930/950) dive-value::tlc_differential canonical_order_differs_from_tlc_somewhere
+        PASS [   0.023s] (931/950) dive-value::tlc_differential choose_depends_on_interning_only_in_tlc_order
+        PASS [   0.073s] (932/950) dive-value::tlc_differential errors_match_tlc
+        PASS [   0.029s] (933/950) dive-value::tlc_differential fp64_matches_tlc_dump_dot_in_all_64_bits
+        PASS [   0.011s] (934/950) dive-value::tlc_differential membership_after_tlc_normalization_matches_tlc
+        PASS [   0.021s] (935/950) dive-value::tlc_differential outcomes_match_tlc
+        PASS [   0.034s] (936/950) dive-value::tlc_differential printed_values_match_tlc
+        PASS [   0.017s] (937/950) dive-value::tlc_differential trace_states_match_tlc
+        PASS [   0.029s] (938/950) xtask::bin/xtask features::tests::default_features_enable_the_enumerator
+        PASS [   0.017s] (939/950) xtask::bin/xtask features::tests::default_features_off_is_clean
+        PASS [   0.029s] (940/950) xtask::bin/xtask features::tests::explicit_feature_is_caught
+        PASS [   0.035s] (941/950) xtask::bin/xtask features::tests::feature_of_an_intermediate_crate_is_caught
+        PASS [   0.043s] (942/950) xtask::bin/xtask features::tests::inactive_optional_and_dev_dependencies_do_not_count
+        PASS [   0.029s] (943/950) xtask::bin/xtask features::tests::renamed_dependencies_resolve_by_package_name
+        PASS [   0.034s] (944/950) xtask::bin/xtask features::tests::root_feature_table_is_caught
+        PASS [   0.022s] (945/950) xtask::bin/xtask features::tests::transitive_through_model_is_caught
+        PASS [   0.019s] (946/950) xtask::bin/xtask features::tests::weak_dependency_features_need_the_dependency
+        PASS [   0.015s] (947/950) xtask::bin/xtask layering::tests::every_edge_targets_a_listed_crate
+        PASS [   0.015s] (948/950) xtask::bin/xtask layering::tests::permitted_graph_is_acyclic
+        PASS [   0.011s] (949/950) xtask::bin/xtask layering::tests::trace_validator_is_independent_of_checker
+        PASS [   5.809s] (950/950) dive-value::review_adversarial fuzz::no_panics_and_consistent
+────────────
+     Summary [1466.477s] 950 tests run: 948 passed (8 slow), 2 failed, 0 skipped
+        FAIL [   1.494s] (156/950) dive-api::tlc_temporal_if complete_current_source_raw_and_user_example_guard
+  stdout ───
+
+    running 1 test
+    test complete_current_source_raw_and_user_example_guard ... FAILED
+
+    failures:
+
+    failures:
+        complete_current_source_raw_and_user_example_guard
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 1.44s
+
+  stderr ───
+    Traceback (most recent call last):
+      File "/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-api/../../scripts/check-tlc-temporal-if-final.py", line 67, in <module>
+        for path,d in nm['source_sha256'].items():assert sha(ROOT/path)==d,path
+    AssertionError: crates/dive-pluscal/examples/translate.rs
+
+    thread 'complete_current_source_raw_and_user_example_guard' (113309190) panicked at crates/dive-api/tests/tlc_temporal_if.rs:291:5:
+    assertion failed: std::process::Command::new("python3").arg("-I").arg(script).status().expect("source/evidence checker").success()
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   1.091s] (613/950) dive-liveness::tlc_temporal_if complete_raw_capture_history_and_source_guard
+  stdout ───
+
+    running 1 test
+    test complete_raw_capture_history_and_source_guard ... FAILED
+
+    failures:
+
+    failures:
+        complete_raw_capture_history_and_source_guard
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 1.07s
+
+  stderr ───
+    Traceback (most recent call last):
+      File "/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-liveness/../../scripts/check-tlc-temporal-if.py", line 35, in <module>
+        for path,digest in json.loads((BASE/'source-matrix.json').read_text())['source_sha256'].items():assert sha(ROOT/path)==digest,path
+    AssertionError: conformance/parity-features.json
+
+    thread 'complete_raw_capture_history_and_source_guard' (113480938) panicked at crates/dive-liveness/tests/tlc_temporal_if.rs:577:5:
+    assertion failed: std::process::Command::new("python3").arg("-I").arg(script).status().expect("checker").success()
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+error: test run failed
+
