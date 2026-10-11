@@ -51,6 +51,22 @@ use, and attach no counterexample certificate. A full trace which happens to
 validate independently does not prove it matches TLC's printing. No new default
 full-witness override was adopted. Draws before random Init likewise remain
 outside a fresh-Init independent certificate unless their exact prefix is known.
+The detector is source-wide and may conservatively refuse an initial-successor
+violation because of an unused random definition. This is not a claim that every
+first-successor TLC trace is incomplete.
+
+The original `f9262d19900f58fbeb875e4651b6bdd944e1e35d` full gate is retained
+under `before/f926-failed-gate/`: 1049/1054 passed, five failed, zero skipped.
+Its standalone campaign had 132 valid originals, 48 unsupported originals and
+180 changed-Init controls rejected. The 48 originals comprise 12 each for
+two draws, a discarded random branch, random Init and conditional random Init.
+The latter two refusals exposed a startup-root regression: the nested zero-arity
+`Sequences.SelectSeq` LET `F` captures `Test(_)` and is not evaluated independently
+at startup. The repaired proof inspects actual top-level startup roots; all
+existing random Init, seed/polynomial and redraw controls remain strict.
+Those original observations remain historical and are not retagged as the
+corrected producer's results. Missing traces and standalone Unsupported originals
+never constitute full conformance agreement or an independently validated witness.
 
 `run_primary.py` captures clean single-worker seeds0/7/14 for 18 startup, Init,
 branch, call and binding variants. The direct-source counterpart is captured

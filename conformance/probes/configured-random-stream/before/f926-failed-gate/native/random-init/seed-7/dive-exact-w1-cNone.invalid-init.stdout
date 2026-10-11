@@ -1,0 +1,1 @@
+{"command":"validate-trace","failure":{"check":"init","detail":"the initial predicate line 6, col 9 to line 6, col 26 of module Stream is false in the first state","state":0},"length":4,"notes":[],"result":"invalid","schema_version":1}

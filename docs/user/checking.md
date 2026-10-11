@@ -43,9 +43,15 @@ A random violation on the first successor of an initial state
 currently returns `unsupported` with its observed stopping-prefix statistics.
 TLC's initial-predecessor printing path can keep an already-consumed stream and
 omit the final state; dive has not proved that replay contract. The report contains
-no counterexample certificate. This conservative boundary applies in both profiles;
+no counterexample certificate. The conservative source-wide random detector can
+also refuse this boundary when an unused definition contains a random call.
+This boundary applies in both profiles;
 a new full-witness override has not been adopted. Startup draws before random Init can likewise
 prevent reconstruction; a seed alone never creates an independent certificate.
+The standalone validator also refuses unproved draw positions for multiple draws
+or conditionally discarded random branches. A matching concrete value does not
+establish where the generator consumed its stream. A checker violation whose
+witness is missing or independently `unsupported` never counts as full agreement.
 Configured `Randomization` replacements, VIEW/SYMMETRY with randomness, graph
 capture, temporal random checking and seeded native recovery remain explicitly
 refused. The callback-free configured-target scan remains conservative across

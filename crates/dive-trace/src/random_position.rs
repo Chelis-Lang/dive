@@ -30,12 +30,17 @@ pub(crate) fn aligned(model: &Model, pred: &Pred, st: &St, initial: bool) -> boo
             d.std.is_none()
                 && d.params.is_empty()
                 && d.level == Level::Constant
-                && (d.effects.contains(Effects::IMPURE) || !proof.bound_pure(d.body))
+                && (d.effects.contains(Effects::IMPURE)
+                    || (matches!(d.scope, dive_ir::DefScope::TopLevel)
+                        && !proof.bound_pure(d.body)))
         })
     {
-        // Constant definitions and assumptions can advance the startup
+        // Top-level constant definitions and assumptions can advance the startup
         // stream before Init. Configured calls can hide those draws from
         // source effect metadata; no fresh-stream certificate is then made.
+        // A nested zero-arity LET captures its enclosing operator's parameters;
+        // it is not independently evaluated during startup. In particular,
+        // Sequences.SelectSeq's local F is not an opaque startup operation.
         return false;
     }
     proof

@@ -23,3 +23,11 @@ These cases must return unsupported when their draw position is unproved,
 even when a predicate matches by coincidence. They complement the positive
 controls for straight-line assignments and unprimed guards, with seed and
 polynomial mutations that must be rejected.
+
+`native-before-stream/` retains complete supplied trace inputs from the frozen
+admission-era native producer `475ef10` (source and executable digests in its
+index). They are not TLC goldens or independent certificates. The checker now
+refuses the unproved initial-predecessor printing contract; the independent
+validator must still refuse these supplied originals for their unproved draw
+positions. The test separately checks the named checker refusal and preserves
+the original validator assertions. The pinned TLC captures above remain unchanged.
