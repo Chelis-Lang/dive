@@ -93,3 +93,56 @@ if EPOCH.exists():
             assert model['outcome']=='agree' and {r['workers']for r in model['runs']}=={1,4,8}
             assert all(r['outcome']=='agree' and not r['diffs']for r in model['runs'])
     print('Verified fixed projection qualification and original procedure study without broadening family status')
+
+# Audited after the full gate: embedded non-Rust inputs were absent from the
+# original selected source archive. Preserve that gap and qualify the supplement
+# separately; do not assign it an earlier production/runtime timestamp.
+import posixpath
+import re
+SUPPLEMENT = EPOCH.parent / 'embedded-input-supplement'
+assert hashlib.sha256((SUPPLEMENT / 'index.json').read_bytes()).hexdigest() == '67ee13539e1be9068974accf9fab7b10b0ba8c1c5ad17bcfa09d0fcf839e6dbc', 'Post-gate Git-qualified input index changed'
+supplement = json.loads((SUPPLEMENT / 'index.json').read_text())
+assert supplement['producer'] == implemented['producer']
+assert not supplement['family_certified'] and supplement['dynamic_includes'] == 0
+assert supplement['original_source_index_sha256'] == hashlib.sha256(epoch_read('source-index.json')).hexdigest()
+compiled = {rel: digest for rel, digest in frozen_source['source_sha256'].items()
+            if rel.endswith('.rs') and (re.match(r'^crates/[^/]+/(src|tests|examples|benches)/', rel)
+                or rel.startswith('xtask/src/') or re.match(r'^crates/[^/]+/build\.rs$', rel))}
+assert supplement['compiled_rust_source_sha256'] == compiled
+expected = []
+for rel in sorted(compiled):
+    text = epoch_read('source/' + rel).decode()
+    matches = list(re.finditer(r'\b(include_str|include_bytes|include)!\s*\(\s*"([^"\\]+)"\s*\)', text))
+    assert len(matches) == len(list(re.finditer(r'\b(?:include_str|include_bytes|include)!\s*\(', text))), rel
+    for match in matches:
+        target = posixpath.normpath(str(Path(rel).parent / match.group(2)))
+        assert not target.startswith('../')
+        data = gzip.decompress((SUPPLEMENT / 'inputs' / (target + '.gz')).read_bytes())
+        digest = hashlib.sha256(data).hexdigest()
+        expected.append({'source': rel, 'macro': match.group(1), 'literal': match.group(2),
+                         'target': target, 'sha256': digest})
+        if target in frozen_source['source_sha256']:
+            assert frozen_source['source_sha256'][target] == digest
+assert supplement['references'] == expected
+assert len(expected) == 67 and len(compiled) == 446
+assert supplement['input_sha256'] == {r['target']: r['sha256'] for r in expected}
+assert len(supplement['input_sha256']) == 62
+assert supplement['original_source_map_missing'] == sorted(set(supplement['input_sha256']) - set(frozen_source['source_sha256']))
+assert len(supplement['original_source_map_missing']) == 33
+assert supplement['files_sha256'] == {'inputs/' + p + '.gz': hashlib.sha256((SUPPLEMENT / 'inputs' / (p + '.gz')).read_bytes()).hexdigest() for p in supplement['input_sha256']}
+gap = json.loads((SUPPLEMENT / 'original-archive-gap.json').read_text())
+assert gap['producer'] == implemented['producer'] and gap['original_gate_results_unchanged']
+assert gap['missing_from_original_source_map'] == supplement['original_source_map_missing']
+assert gap['missing_from_selected_archive'] == sorted(set(supplement['input_sha256']) - set(implemented['portable_compile_source_sha256']))
+print('Verified post-gate supplement: 67 literal includes, 62 inputs; original archive gap retained')
+
+controls_dir = EPOCH.parent / 'embedded-input-controls'
+controls_index = json.loads((controls_dir / 'index.json').read_text())
+assert controls_index['producer'] == implemented['producer'] and not controls_index['new_runtime_credit']
+for rel, digest in controls_index['files_sha256'].items():
+    assert hashlib.sha256((controls_dir / rel).read_bytes()).hexdigest() == digest
+controls = json.loads(gzip.decompress((controls_dir / 'receipt.json.gz').read_bytes()))
+assert controls['producer'] == implemented['producer'] and controls['restored_verifier_exit'] == 0
+assert {row['label'] for row in controls['controls']} == {'missing-embedded-input', 'rehashed-forged-input', 'omitted-include-site', 'concealed-original-gap', 'retagged-producer'}
+assert all(row['exit'] != 0 for row in controls['controls'])
+assert controls['index_sha256'] == hashlib.sha256((SUPPLEMENT / 'index.json').read_bytes()).hexdigest()

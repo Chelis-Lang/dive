@@ -27,3 +27,12 @@ The archive retains 68 original primary/native consumers, 24 fixed-alias
 consumers, six conditional controls, 816 original width/replay controls,
 288 new alias width/replay controls, 192 procedure study consumers and all
 37 conformance models at 1, 4 and 8 workers. Family statuses remain unchanged.
+
+The evidence archive preserves a selected source subset, rather than a hermetic
+build environment. A post-gate audit found 33 embedded fixture inputs missing
+from its original source map. The separately Git-qualified
+`embedded-input-supplement/` retains that gap and all 62 literal embedded inputs
+(67 include sites). It does not retag the original gate or add runtime credit.
+The reader derives the include inventory from archived Rust and verifies every
+input against the qualified index. Toolchain and Cargo dependencies still come
+from the recorded pins.

@@ -44,3 +44,12 @@ two scheduling seeds. A real false-proof mutation admits a conditional tuple
 permutation; the focused negative catches it. The original generated procedure
 study admits 32/32 strict words at this producer; this is separately
 measured and does not establish general saved-stack authority.
+
+The evidence archive preserves a selected source subset, rather than a hermetic
+build environment. A post-gate audit found 33 embedded fixture inputs missing
+from its original source map. The separately Git-qualified
+`embedded-input-supplement/` retains that gap and all 62 literal embedded inputs
+(67 include sites). It does not retag the original gate or add runtime credit.
+The reader derives the include inventory from archived Rust and verifies every
+input against the qualified index. Toolchain and Cargo dependencies still come
+from the recorded pins.
