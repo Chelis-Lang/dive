@@ -73,8 +73,11 @@ Stored scalar and composite action/constant captures are described in the
 recursive admission limits and deferred/provider refusals.
 
 Pure user operator formals in bounded explicit final TLC mode retain local and
-INSTANCE scopes; see [operator arguments](../temporal-operators.md). Native,
-configured-origin-ambiguous, recursive and opaque targets remain named refusals.
+INSTANCE scopes; see [operator arguments](../temporal-operators.md). Direct pure
+`Len`, `Head`, and `Cardinality` actuals also work within the bounded final TLC
+contract; the [native operator guide](../native-temporal-operators.md) provides
+CLI examples and a Cargo-owned Rust example. Configured-origin-ambiguous,
+recursive, opaque and other native targets remain named refusals.
 
 
 Configured native random replacements are refused before graph capture, including
@@ -83,3 +86,7 @@ actual constant bindings and native redirects; its earlier construction/startup
 is outside the capture guard. Pure captures remain available. Pinned final/TLC
 selection retains its existing pre-binding effect admission. See the
 [configured RNG repair and backend evidence](../../conformance/probes/configured-random-admission/README.md).
+
+Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
+[Pure native temporal operator arguments](../native-temporal-operators.md), with
+executable CLI/Rust examples and retained refusal boundaries.

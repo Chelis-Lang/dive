@@ -84,3 +84,7 @@ For stored concrete values and original claim names in final checking, use the
 compiled examples in [material captures](../material-capture.md) and
 [property origins](../tlc-property-origins.md). Their ownership, ordering and
 work/depth admission checks are separate from finite graph construction.
+
+Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
+[Pure native temporal operator arguments](../native-temporal-operators.md), with
+executable CLI/Rust examples and retained refusal boundaries.

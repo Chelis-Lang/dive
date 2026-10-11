@@ -138,26 +138,43 @@ fn argument(model: &Model, arg: &Arg, scope: &Scope, depth: u32, budget: &mut us
 }
 
 fn operator(model: &Model, op: &OpRef, scope: &Scope, depth: u32, budget: &mut usize) -> bool {
-    depth <= 128
-        && *budget > 0
-        && model
+    if depth > 128 || *budget == 0 {
+        return false;
+    }
+    if model
+        .evaluator
+        .scope_native_operator_analysis(scope, op, budget)
+        .is_ok_and(|native| native.is_some())
+    {
+        return model
             .evaluator
-            .scope_operator_analysis(scope, op)
-            .is_ok_and(|known| {
-                known.is_some_and(|(def, captured)| {
-                    model
-                        .evaluator
-                        .scope_operator_captures(&captured, budget)
-                        .is_ok_and(|captures| {
-                            captures.is_some_and(|captures| {
-                                captures.into_iter().all(|(body, scope)| {
-                                    expression(model, body, &scope, depth + 1, budget)
-                                })
+            .scope_operator_captures(scope, budget)
+            .is_ok_and(|captures| {
+                captures.is_some_and(|captures| {
+                    captures
+                        .into_iter()
+                        .all(|(body, scope)| expression(model, body, &scope, depth + 1, budget))
+                })
+            });
+    }
+    model
+        .evaluator
+        .scope_operator_analysis(scope, op)
+        .is_ok_and(|known| {
+            known.is_some_and(|(def, captured)| {
+                model
+                    .evaluator
+                    .scope_operator_captures(&captured, budget)
+                    .is_ok_and(|captures| {
+                        captures.is_some_and(|captures| {
+                            captures.into_iter().all(|(body, scope)| {
+                                expression(model, body, &scope, depth + 1, budget)
                             })
                         })
-                        && expression(model, model.ir.def(def).body, &captured, depth + 1, budget)
-                })
+                    })
+                    && expression(model, model.ir.def(def).body, &captured, depth + 1, budget)
             })
+        })
 }
 
 #[allow(
@@ -230,25 +247,36 @@ fn expression(model: &Model, expr: ExprId, scope: &Scope, depth: u32, budget: &m
             OpRef::Def(def) => definition(model, *def, scope, args, depth, budget),
             OpRef::Const(c) => constant(model, *c, scope, args, depth, budget),
             OpRef::Param(local) => {
+                let Ok(native) = model
+                    .evaluator
+                    .scope_native_operator_analysis(scope, callee, budget)
+                else {
+                    return false;
+                };
+                if native.is_some_and(|op| i32::try_from(args.len()).ok() != Some(op.java_arity()))
+                {
+                    return false;
+                }
                 operator(model, callee, scope, depth + 1, budget)
                     && args.iter().all(|arg| {
                         matches!(arg, Arg::Expr { .. })
                             && argument(model, arg, scope, depth + 1, budget)
                     })
-                    && model
-                        .evaluator
-                        .scope_apply_param(scope, *local, args)
-                        .is_some_and(|called| {
-                            called.is_ok_and(|(def, called)| {
-                                expression(
-                                    model,
-                                    model.ir.def(def).body,
-                                    &called,
-                                    depth + 1,
-                                    budget,
-                                )
-                            })
-                        })
+                    && (native.is_some()
+                        || model
+                            .evaluator
+                            .scope_apply_param(scope, *local, args)
+                            .is_some_and(|called| {
+                                called.is_ok_and(|(def, called)| {
+                                    expression(
+                                        model,
+                                        model.ir.def(def).body,
+                                        &called,
+                                        depth + 1,
+                                        budget,
+                                    )
+                                })
+                            }))
             }
             OpRef::Subst(_) | OpRef::Unbound(_) => false,
             OpRef::Std(op) => {

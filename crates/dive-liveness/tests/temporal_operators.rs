@@ -123,6 +123,12 @@ fn tableau_text(t: &Tableau, i: usize) -> String {
 fn exact_operator_fields() {
     complete_fields("temporal-operators", "capture.json", 10, 2);
     complete_fields(
+        "native-temporal-operators",
+        "capture-projection.json",
+        17,
+        3,
+    );
+    complete_fields(
         "temporal-operators",
         "capture-instance-projection.json",
         4,
@@ -155,6 +161,12 @@ fn complete_fields(
             &dive_sema::Options::default(),
         )
         .expect("file");
+        if family == "native-temporal-operators" && !analyzed.accepted() {
+            assert!(name == "NativeLenActionRefusal" || name == "NativeWrongArity");
+            assert_ne!(row["exit"], 0, "retained primary semantic rejection");
+            refused += 1;
+            continue;
+        }
         assert!(analyzed.accepted(), "{name} SANY-compatible input");
         let ir = std::sync::Arc::new(dive_ir::lower(&analyzed).expect("IR"));
         let config = std::fs::read_to_string(dir.join(format!("{name}.cfg"))).expect("config");
@@ -162,6 +174,21 @@ fn complete_fields(
         let model =
             dive_model::bind(ir, &config, &dive_model::BindOptions::tlc()).expect("binding");
         let projection = dive_liveness::tlc_plan::lower_model(&model, Limits::default());
+        if family == "native-temporal-operators" && row["exit"] != 0 {
+            refused += 1;
+            if name == "NativePrintUnused" {
+                assert!(
+                    projection.is_ok(),
+                    "unused native effect leaves no temporal obligation; facade pre-bind refusal is separate"
+                );
+            } else {
+                assert!(
+                    projection.is_err(),
+                    "{name} explicitly unsupported or invalid reference source"
+                );
+            }
+            continue;
+        }
         if name.contains("Effect") {
             refused += 1;
             assert!(projection.is_err(), "{name} actual reference failure");
