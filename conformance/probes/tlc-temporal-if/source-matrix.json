@@ -1,6 +1,6 @@
 {
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Current combined source integrity for material captures, property origins, multiline generation, finite-process Full checksum derivation and corrected recovery scheduling. Frozen producer evidence remains separate; combined full-gate and runtime controls pending. No family certification.",
+  "current_integration_scope": "Current combined source integrity only; prior source/raw producer receipts remain independently archived. Fresh final combined controls pending; no retagged observations or family certification.",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "parent": "03f11881b",
   "schema_version": 1,
@@ -12,7 +12,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "conformance/parity-features.json": "398edd3079395620b649eaaaad9ff1f63c983625f2645921f603cb1d2d5f04af",
+    "conformance/parity-features.json": "c3d9c624e84601f601b8c19f265155e88c6957c58b2088bdf444c41aebb0469a",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",

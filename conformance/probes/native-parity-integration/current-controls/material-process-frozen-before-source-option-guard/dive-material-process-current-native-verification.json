@@ -1,0 +1,1386 @@
+{
+  "source_commit": "68783d541c97e2ef481344a50d81db1869870128",
+  "fresh_binary_producer": {
+    "source_commit": "68783d541c97e2ef481344a50d81db1869870128",
+    "profile": "dev (line tables only)",
+    "binary_sha256": {
+      "dive": "61b270ed2ca44aae73805bf69c2bee694090b630fe74e5129c13fa470f31a3c1",
+      "dive-conformance": "a21ac36e9956c31e9f1f7052429c1714157ad20cfef391533519a5c6ec75df0d",
+      "editor": "36185c1b2dc16f4e843e8faafea42594b518e036d00a3df0fe6b6db5542dff81",
+      "cst": "b232f6c8af2dc2866b1201afdcf43a9916a5d85aa81de2f36573c67f6ab9ef33"
+    },
+    "scope": "Fresh isolated combined binary producer; timings are not performance claims."
+  },
+  "complete_native_rows": 144,
+  "ignored_comparison_fields": [
+    "elapsed_ms",
+    "file",
+    "config"
+  ],
+  "exact_explanatory_text_changes": [
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 1,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 3,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 4,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 8,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 1,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 3,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 4,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 8,
+      "field": "frontier_storage.scope",
+      "before": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces and graphs are not measured or bounded",
+      "after": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded"
+    }
+  ],
+  "rows": [
+    {
+      "kind": "material",
+      "model": "MatStringFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "95f61c303acf767b9b217394118738d9a8a7c8d7edceb5d3afd66893bc22e880"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "a5dac920867a1fc478073ce84ffe0822a9b559249904fc36365309727464eb3d"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d26e2e587007d1d2a435f2c1e34ef28c06fb8fc1fdd82ccf2dcee16c7c41048a"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f6db699bc25c2f062dccbbeec2d194376766458e595ec998070ecbd788376197"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1f3b2bba2c61023ee60509bf9e1ffb6962a3b18f9b1ed5d5095008c0c0a5d47e"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "8133ff1d571cd46beb867c1366ac252ee392d2af6b295a2405723263470f88ae"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e28f4f02d1756c6c03e0ce29937ba33d497c334c7e0c249f474e21c8c67a5e6b"
+    },
+    {
+      "kind": "material",
+      "model": "MatStringHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7aa1b24bebb7df6c01957590405dffeb98807a3099ca793c99e3eed00ec5e78d"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "56de910dc6d9fbda6025afffc118511d0214d5abe4075002978eb70870efb90e"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b4ae0fbf14ea1c2d487a2d9fefcb8e47932a736e60872fc766ee4ee6c11faf31"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f5ba9b5bcc32462ed2577d526e338ff0f55f601fa354c61c35c0c8b55c854fe0"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d20ce58f7ebc88ec59f9af7ae98f65bcdc6fc110de4cdd51ae656818d9abb35f"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e51c1926f28b56bd2d862ebb3ecd95c86d0a9beee04519cc1341ce222aa54047"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1fb7f04b7065c0237daea788b434dc0efca595c48acb5ce7ea07c0a632de500a"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "44975460b1d16122e1a03002fbc2c536d6fd9e8a20c18b4cbcd2f8d8d34af8d8"
+    },
+    {
+      "kind": "material",
+      "model": "MatModelHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "3aac1fb2d7a875c1b1b9ecd4ef296cd2638cb88a569a79732423890ef7be9a4f"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b91acdcb84cf3b759e973e5949b83c20a7f471a048eaf0160ba26f2cbc2836e4"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "804a7345d3f28d49fb87eb38825c70f40172f7f9ced79a175f7fefe0f6a21004"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "678f00df8cef50a54ae358b3c5ba15d3b0dedc5fe1b16523c45ff64aba4ad775"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "6862d6ee730e831bf35a78bb8b28c3e8e8bc1557c0fa7a7934563ad83166337f"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f8d657f857182032f749fdb7e49768bbba5caae89993a564ae80986da7518add"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "bcb19761a1d385e391922e506a5eb351140452d8d1fffc1d41fe1f6e7cb8e8fd"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e819a672cff665969f54012354e4a5f1d937bc5fcedfb139c1c6128796dff310"
+    },
+    {
+      "kind": "material",
+      "model": "MatEnumSetHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "8efa2ad856fa85526d85a1376d5ae22d4152c41a5aa55188adf44445eb60099a"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "15e560e33daa560b092e0fe527e11a80a404ed60e041ec030d93e00fbe50c458"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7211aaa1d3c31e2a73ed820b22e1fb5d9ab106e0c5bfe78226dab2b1030b94ab"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "073791a4a724843f9204c0574dd6f959fdb5b9a823ec8dd03cf67341ca1698ad"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1e7035ac40adae3dba0b2608924e525e6ca0cd092ac1c9c9ec6ada38a0c841fb"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "79c86d28e3b09eb9b376b70a057474739a338b1d53f0e8a0364d93fb41e7faea"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4d066c0e106eb880b8dd4ef978b560b438f02cced9c88ec744e39ec552c50c26"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "47c99aa54e32c03b18239ecf4cabba62e3dd0fc77718f82725433a4a93c55137"
+    },
+    {
+      "kind": "material",
+      "model": "MatTupleHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "39d7db68d68acaa104e1222eafafe6d99b3e3acd05eda1c56b73fe8a97858def"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7ac94304d746acb9d561bd7a39f2f122bb883cfb8e1b04920f224e2f35bbe6b0"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "a9ddd652d0082952e42c639a2c0f799066acbb5f867fcc4bead029403acbe9b4"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "dc96ba06ee55857e98cda45f71594bbc1f7a75ecd837c02f36760e0960473495"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "90e4f2b9dcc3964c83c1c5e9848d0183436381fefe453b6ebde01d50a7f5d56d"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1da8a28de9539e3382d5340881872421ef6b9f62f6403849bc1c0adc63299f27"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "5b33a5052a1696e6ff407847e2ac0d600d527738db2a2534dc41b98be25fe094"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "ae1b5c61327e6c5fb8b03366a4bea4fabb9e4ffaafe4ac5faff440679578d299"
+    },
+    {
+      "kind": "material",
+      "model": "MatRecordHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9aba1bd7be6baec68ddd2d3f0ddde98dad727f4859e44ac5bf290039233c7c50"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b762324178cf0415bae80c82554563a0f88162aa3d3474c1da30a2b29dbecbc8"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "454812b21ce62d8171bb4f41e13fd31d2988c3446b3c0c75e2dba47fa66c954c"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "102b300f255b2967dd0a83821439e9bb1091fce87df5a9085c7037598fbe4cd8"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9ba46f058736976f2d3890b03d0d30d2f273a5dbf9a8c0441771d0db7e14e471"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "46a9753064ff32e5b1606f23e6fb7eff01838440c733fe2097ed3f49e171cb94"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "c9d0bffea784c17e39571cef3af6941606eb4f33cf6e2a03aaf8eea383b575dd"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b6ad7ca476c26e33cc032eccccda5091cc10681fb9d8780e39ac824af696d742"
+    },
+    {
+      "kind": "material",
+      "model": "MatFunctionHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7d4a2248a660e8b957b37ad39a6b91285b6edff69583acb2c05fc2dac5e40ded"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4263cb4023a88314f5518840f21f8915c9560480c7fa35b6c1e97e30010da055"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f73f33fddfa2ccce58cef1171d85b58237fe3232ec2402e78dada8f27885bdba"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9fd582185adf4d15a03cded2b1b47df091a2bc54e27950c2a16e7121c56a4d98"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "dc85c96f29278f4f262e8afac8000d55bfdbde4adbe6477f7fd7befde0c14487"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7ac045dc40006109340bbee9382f69b49655d97169315bb1b95663f3bd27ff8c"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7e00ede82e83cdd512c7870600083703f395904c1f5576a000004a79a60fffcc"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9c0e0228ab12f8027fa2d4d30fd3cded857812108eaa898490423a3a28a5358c"
+    },
+    {
+      "kind": "material",
+      "model": "MatCapturedSetHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "717ac432e441c4985179d0b18d69f9d611443fd9805ad3a2037ed022c316216d"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d605a5f2c50a86179302c90a62d64ece4cd77f5ed46eb49c1db8167a1d312be1"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "40ccb0144aa0d3604bbb8b2b9770a66f961a6b6c015bb2d3f6ecee544844419b"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "269333443685ae35af691da056d4174a212539f833d9a75d56517ae37276444e"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "580c890bd2d46caaa433aa6460e4580f61a375d30a71a901d93b802d0e5a8ae1"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "6f8c95e5e07064fc963462562f422348721266623dc5ecfe5875d29f9398d565"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "bb270e33c6703bdbab9c486f878f7a866d088745ff2cdecd5e59c2f73d8b0c36"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e5b35f69fb89d782ba737fb2c32cd9ee5b903ca0d9056c3a88b22f6094200717"
+    },
+    {
+      "kind": "material",
+      "model": "MatNestedHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "99ba6576334216c961acf75cb9d3313790099f8226843b62b6645b3fbd6f55cb"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1ec0cd2eb512f960ec8f4766409b1b77b36772fbacc74852f441ae185d384943"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d335c85dcfb04a7362d8f5954252ebc09bbeb4d0d0e82d66e6ede0aa4e7c8671"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1725b8988f3819238409a41138b527f20a6ea514b918bbdb467dc20d3d0545aa"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "de4d150ecc648ecb578d5a8bf9ff3e0983652a6d56a947e15df6528ee92e9311"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f0ebc8590c121741f64d505f81c23b7a6fe1cac3b072f1065bba8c9113261f73"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9d245687a05e0a25de026b76bd41c6bdb2bcd5c48d9ea0b84179e7b03c9f0e05"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "6adf399aa226e8593d53390a54c4e0f65cf177e4f1c665412fbdaacc7e46159d"
+    },
+    {
+      "kind": "general",
+      "model": "MatGeneralFunctionHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d50870ebe8414042697263bcde1b1d1c634c25ed71343677911fb2779b5ce614"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "c2599f81758d32b1af62f9c714d52c6fafb90b5095c3d8be936a83caf49da7d3"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "0092b3d37a2deb836550a43c242bf4d96f1f85e74540cf47f4347ec68fc883f9"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "14562c12dbc8817f79949ecd4afec4ffacf2020398e6bfb8dc6055dcc8b3fc36"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "21a4b522fb9150ef32dcb505780508d611a85880f2ed4bd0bbb7f598d192abc2"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "218378c808ae296074674ba91541f8447aa281d7c2444ae94d9175270a54c6dc"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7bd3b3de00e16d8a8232746b5106eac65d7770de8283d0fa4dc09ac867e627cf"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e6acef88e3e899c365337fda7c641bd85eda2b8534417687be925b19196c309a"
+    },
+    {
+      "kind": "origins",
+      "model": "TfAliasHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "68c01f33f5bb594a3907800a47901643cf34f994e117b30a7fcfaa07327dceeb"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4cb509d85c6190d1b142ad58876c47e7e9588d3c78912c9eead47499d2e5232c"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "5c6a37b9928ec2495436d3e27646ec5d588d8c52f27e27e2af81a63a307a53c1"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4db9a9d04de9ae1bec720cde7da1701951be9349622c08d186fe544c3b6e77de"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4d19b131c5e44d35c4c5982afaf1aa62f4fd66ebcee822a0d75a122f1854a2ce"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "fb28eb6fe6df6043d4aadcf2051c35d3e29d5c62cae6574621f9b9e1b24df7b8"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "86de9f16b23e88edc84013bbc33db6a1536d36917b6b1ed411b198399fb56f6c"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "42f9a434960053cc2c39d98797bca2b50949f8dd94a367c4e4acd6c1f61d3f4d"
+    },
+    {
+      "kind": "origins",
+      "model": "TfBooleanHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9f94944175c18c8c13d2adb66e64246e64675598e44a91a949f8ace9f1e60d99"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f3fc08d7ac3de132c41837546d0f519b2176449d391c528e75a82dd5e7b86b35"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "a084a9ce6361b66031b076b7492cb308267e4a54c44a88819afea450e0148daf"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "67e426cc2f61a86fd19c7621d3a788f3791df5113402c80d41c4138921cf5dcf"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "35ca3c05ae4184b9786f2c16d847326a7e13984f3648d6ca03b059293a87d247"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7bb34c4943a5de376fa511be48c9dcf5588001b23a046abc9887178a03d0eafa"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9a0d9a3e463eb37065827703222e13728928b683791c47baab81fcf35af71fdc"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "ed3f9d3cd40b1aec8b75a140cf5686872e32f0cf400fcbdd712f0aac4e23fe1b"
+    },
+    {
+      "kind": "origins",
+      "model": "TfClaimPairHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "731045b7ad3229a2e45c0a06028517b9001ca75a1c2703492aae6bf49305c5e8"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 1,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "02463a73115f0054e1db20f6a6ed7f0b080af18643e81d3644e5d0a81bb07108"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 3,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "6b5de6f471cfe3be91502f925e2ce5f8a2112f7eaf8a29dc1efc8093ced024de"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 4,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "21f3111018eab196b645e0d97401de915788a722d44eede8f6539efee84f5dc3"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledFails",
+      "workers": 8,
+      "exit": 12,
+      "verdict": "invariant-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "c008ea015c71494497d2bc1ed177ef7b65a4950af4f064289412f2570d6bbc82"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "fdc57a091d2a3dbbb38db8dda5323c165e826c432457dad7415b951d3bf35a04"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "cea5cf805c520caaf2a9ba7ba254734ad210a2d780d08aa4282af23f45c892da"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b04a5905bb94745d3e65b034269bcfee29942742b17735c470add96ebbcb1d82"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "0a2f798517d3f14b32e5b85022198af6553bcd335517516747758186e59bf965"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1f2e3f3bb1b047f6744c628c0ef4f7d5f7ad9f2afbc7917fa5fd52680391e5fd"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "4021b9a0a052117f7d93beddb769a58a90af63d6ffe363edb0cedafd5d828581"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "369f5fe5cc461d773a207ca14366fefe60e5496e07c3fcefe2874b80ad37bb3f"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "c84e98848e32cef11f847e5737a126bf638715eeb10325d4a904b95b82865c34"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "a76ddac50fd34df5a915616cf45517e30d7af03e856563c45009b9592c339f50"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "5820e33db39960b2a285be8304f258f2dbcebdbb3a44eb5c2e8fa54fd337480c"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e8242d5fe8625251f6116f372bc88e3854c785ff51c3fb6f2066ba37f6318a82"
+    },
+    {
+      "kind": "origins",
+      "model": "TfEnabledLiveHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "46fc8636342da0778c8f604faa9fa6707d4a20c1e185e01f52603933103dbef9"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "0a4ccac43035a9f2d81c6e7e8b18f5845b2f9d78498951059bd6a27bb69bc614"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "ae500afc093a7a5492a0b9e409efb5390b8a4b8d85e92b3ed7da32d6e27d8049"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "f04aa783a4e3b9ecaa77915ed7f5d3eca767ba1f3dc2eae0a700f65cb2f4a8e7"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "c3076a5254b20461982d9853d7743468ed261d826ea75f7a1d7fe43b9ce4f070"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "58d7a52ce868da0547163b272204a0b3f03fa1679156676af59e894c41044123"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "1e9459369bab57a892418df6b3ea8d5a4da4b2c1058f25ebdf072aecde94cd78"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "577cb1a643a9a9df12a334869a9165c8ac0b108f69301b0e285e6e19845afb24"
+    },
+    {
+      "kind": "origins",
+      "model": "TfIdentityHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "861d8b83391260f455baba387f3750aebdabc1d9a32ecf02f6cf9b27b9476026"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b4e60b04692bbd84767a86270b6f5582eced04f5d8a76b45d39c483035a1e002"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "10b2e9d6a5d99bf474e701987ba01a72ca0ba50152c4fd51a7e6efd404633505"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "9b3c90cfba48f81992dd3b4a4e5ccd82277efb5aad553cc8fe87c6fc96a4f267"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "892c265761e1f186427893150e264bbdc79756a9e60fdfb28f4eb4aa12982664"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "654a26e948e2a2f70ee2b863801de78942550079edc6902439a6acbb02fd4c90"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "7a227082bbedb0e370cb0b24eb707721b35386cd1115b089b5167839a00b61bc"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "240e6cb3205d54202c71752f89c5d60f33d892a63b53d82ba217b77eaa8a316f"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceBodyHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "b15a253beaed617fc259b6ee3a9bb676a06d609a08ade5d2698383ee602da78d"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceFails",
+      "workers": 1,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "74b996164478952fb581fcd353a28511be1952cbc69b345b67c1063a0b30da14"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceFails",
+      "workers": 3,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e2bd3f4ea3370444c09b5ea16420a8f629c653bda7989bba0db80c832c3e7eed"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceFails",
+      "workers": 4,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "8e45ff9fdc6b9414675521e8d4ad50330381473469920103bab6e79cb9df56a3"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceFails",
+      "workers": 8,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "fd50d29ca0155a553122d49ab40c98b23ea61130277ead129cea24f8f678dd93"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceHolds",
+      "workers": 1,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "35994b2ddb6b67bccaa259a3ba16307178dd8b2351835cbff613c799c4d9923a"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceHolds",
+      "workers": 3,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "6bfa11f26165f40ca8ce6ec6eaf70952d4c4e85f3e484cea97f268b1a19b65e8"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceHolds",
+      "workers": 4,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "00f9949f6285fb7f3676f0675cc9a5e83cf3567e31d4f0891cb6961029e7c78e"
+    },
+    {
+      "kind": "origins",
+      "model": "TfInstanceHolds",
+      "workers": 8,
+      "exit": 3,
+      "verdict": "unsupported",
+      "semantic_document_equal": true,
+      "stdout_sha256": "3fe0215e081ca90fe176979a9b05b19c19e3ff3fdf1146c33425e755b1ef1881"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedFails",
+      "workers": 1,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "bfc6940b7a7d77a1a0666fc1f578e959c1545872fc38bc5725cbb5883b9d528f"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedFails",
+      "workers": 3,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "8579bdd1ea35cac5eabda4fa032f47a6074170000ac8a34521cd8ec757cc139e"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedFails",
+      "workers": 4,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "8c477b382f3151013f39ed36d933dce46c5daaf5edf3d17abaf05f681a11d8b2"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedFails",
+      "workers": 8,
+      "exit": 13,
+      "verdict": "liveness-violation",
+      "semantic_document_equal": true,
+      "stdout_sha256": "e06d459498442648f642a4b0abb54004f2405ed4df45645aa9ee6eff46f5be0f"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedHolds",
+      "workers": 1,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "cae980faeb81d2f9aab271a08ccecb7b13dff427c045dad7c96f2f877c51422f"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedHolds",
+      "workers": 3,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d85d9f77860ab78f6015779efe7729638255f18fc8f7a2ac05f8586b767298d3"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedHolds",
+      "workers": 4,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "085c5b2006771da524ae4c2383d5a47527d24f5316e0ee339ff603e9f7d59c81"
+    },
+    {
+      "kind": "origins",
+      "model": "TfNestedHolds",
+      "workers": 8,
+      "exit": 0,
+      "verdict": "success",
+      "semantic_document_equal": true,
+      "stdout_sha256": "d4f7e666510f1da12e95bdde39e60679ec1982adb95dc2dd3f22f2b0c50f414f"
+    }
+  ],
+  "family_certified": false,
+  "scope": "Fresh complete selected native outcomes and all semantic fields equal. An explicit shipped storage-scope explanation update is checked for exact old/new text; no statistics, verdict, diagnostic code, trace, option or identity-vector differences are excused. Bounded final-only evidence, not ordinary scheduling or full parity."
+}

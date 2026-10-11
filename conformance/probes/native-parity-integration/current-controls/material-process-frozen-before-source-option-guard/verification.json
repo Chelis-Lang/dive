@@ -1,0 +1,23 @@
+{
+  "source_commit": "b8fb13cdab443e7ad0206a467d9a392075f31397",
+  "binary_sha256": "e779ccf8f9ed5e3c293fe7c143a29b838b48b791b97d568283c0f41f32ae682a",
+  "rows": [
+    {
+      "case": "weak",
+      "exit_code": 0,
+      "primary_requested_fairness": true,
+      "native_missing_requested_fairness": true,
+      "stdout_sha256": "16f5f7d754fc4876d3f9995388953beef6258a102812d01d413af916c3ce5fc3",
+      "source_sha256": "b6a0c46e3d8b767cdf3699ed5ea5014545ca44957587329d4b4d60b881cf4c44"
+    },
+    {
+      "case": "strong",
+      "exit_code": 0,
+      "primary_requested_fairness": true,
+      "native_missing_requested_fairness": true,
+      "stdout_sha256": "02d7cfa1bed819550e543077ed5beeb368c0fc54f046f6e0179305a5729fdf5b",
+      "source_sha256": "05f7f0b17f1555ec6b2774928cbae76920a3e79db6eda2b398b1c65792650c31"
+    }
+  ],
+  "family_certified": false
+}
