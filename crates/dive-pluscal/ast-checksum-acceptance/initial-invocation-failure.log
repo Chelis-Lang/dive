@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/capture.py", line 43, in <module>
+    main(p.parse_args())
+  File "/Users/jeff/code/dive-pluscal-ast-checksum-work/crates/dive-pluscal/ast-checksum-acceptance/capture.py", line 10, in main
+    assert sha(a.jar)==PIN
+AssertionError

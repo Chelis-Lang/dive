@@ -1808,11 +1808,13 @@ an admitted algorithm-equivalence claim: `trans.performTranslation` and
 `Validator` hash `"fair"` alone because of Java ternary-expression precedence.
 
 **Status: measured upstream candidate; no native correction adopted.** Native
-block rewriting offers explicit `--checksums tla`, which disables algorithm CRC
-and verifies only the generated body. Full AST checksum requests are refused
-until the normalized/name-fixed serializer is independently proved. That partial
-policy is also an explicit override under `--compat=tlc`; it does not claim to
-reproduce or fix full algorithm checking. A future corrected option would require
+block rewriting derives the reference CRC for its proved bounded sequential
+post-translation AST subset, including this weakness, flagged as
+`fair_header_crc_only=true`. `algorithm_checksum_verified` and `algorithm_matched`
+mean reference CRC derivation/equality, not source identity or proof. Other AST
+shapes remain named full-checksum refusals. Explicit `--checksums tla` disables
+algorithm CRC and verifies only the generated body; that partial policy is
+reported as an override under `--compat=tlc`. A future corrected option would require
 a named TLC counterpart and its own approved default decision.
 
 All six primary sources/artifacts and four unchanged-body source-edit controls

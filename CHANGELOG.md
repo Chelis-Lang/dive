@@ -34,9 +34,14 @@ All notable changes to this project are documented here. The project will follow
   failures, typed TLC errors and source-order fallback before graph work.
 
 
+- Full reference AST/body CRC derivation for a proved bounded sequential PlusCal
+  subset. Default rewrite requests expose exact serialized AST evidence; unproved
+  shapes refuse by name. Fair-header CRCs retain the upstream weakness explicitly
+  and all generation remains nonproof. See `docs/pluscal-rewriting.md`.
+
 - Bounded in-memory PlusCal block replacement through `dive translate --rewrite`
   and Rust APIs. Explicit `--checksums tla` records body CRC and disables unproved
-  algorithm checking; modified bodies need `--replace-modified`. Full AST CRC
+  algorithm checking; modified bodies need `--replace-modified`. Other AST shapes
   and file writes remain named unsupported. See `docs/pluscal-rewriting.md`.
 
 - Native process-owned procedure fairness for bounded finite callers: reachable

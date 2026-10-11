@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 /// Checksum contract requested for a rewritten document.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChecksumPolicy {
-    /// Require normalized/name-fixed AST and body checksums; currently refused.
+    /// Require proved post-translation/Explode AST and body checksums.
+    /// Unimplemented AST shapes are refused, never silently downgraded.
     #[default]
     Full,
     /// Explicitly disable algorithm CRC and record the exact generated-body CRC.
@@ -34,15 +35,18 @@ impl Default for RewriteOptions {
         }
     }
 }
-/// Evidence about the previous translation body, not the algorithm or a proof.
+/// Recorded body/algorithm CRC evidence, not source identity or a proof.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PreviousChecksum {
     /// Recorded hexadecimal CRC, if the recognized header supplies one.
     pub recorded: Option<String>,
-    /// Recorded algorithm CRC, retained as explicitly unverified evidence.
+    /// Recorded algorithm CRC; body-only editing never verifies this field.
     pub algorithm_recorded: Option<String>,
     /// Whether a recognized old header deliberately disables algorithm CRC.
     pub algorithm_disabled: bool,
+    /// Reference CRC equality, only for a proved full-checksum request.
+    /// Equality does not establish source identity, especially for fair headers.
+    pub algorithm_matched: Option<bool>,
     /// CRC of the original body lines, without newline bytes.
     pub computed: String,
     /// Exact case-sensitive match, as in pinned Java; absence is unverified.
@@ -73,10 +77,13 @@ pub struct RewritePlan {
     pub replacement: String,
     /// Complete resulting document; this does not itself mean TLA acceptance.
     pub module_source: String,
-    /// CRC of generated body lines; no algorithm CRC is claimed.
+    /// CRC of generated body lines, excluding line-ending bytes.
     pub translation_checksum: String,
-    /// Always false for the current explicitly partial checksum contract.
+    /// Whether the algorithm checksum was derived from a proved reference AST.
+    /// The recorded `--fair` CRC weakness remains visible in `algorithm_checksum`.
     pub algorithm_checksum_verified: bool,
+    /// Exact serialized AST evidence; absent for explicit body-only requests.
+    pub algorithm_checksum: Option<crate::AlgorithmChecksum>,
     /// Selection and previous body verification evidence.
     pub selection: RewriteSelection,
     /// Whether unchanged source newline bytes were normalized.
@@ -131,13 +138,17 @@ fn lines(source: &str) -> Vec<Line<'_>> {
 /// This integrity checksum is not a cryptographic hash or semantic validation.
 #[must_use]
 pub fn translation_checksum(body: &str) -> String {
+    crc32_iter(lines(body).iter().flat_map(|line| line.text.bytes()))
+}
+pub(crate) fn crc32(bytes: &[u8]) -> String {
+    crc32_iter(bytes.iter().copied())
+}
+fn crc32_iter(bytes: impl Iterator<Item = u8>) -> String {
     let mut crc = u32::MAX;
-    for line in lines(body) {
-        for byte in line.text.bytes() {
-            crc ^= u32::from(byte);
-            for _ in 0..8 {
-                crc = (crc >> 1) ^ (0xedb8_8320_u32 & 0_u32.wrapping_sub(crc & 1));
-            }
+    for byte in bytes {
+        crc ^= u32::from(byte);
+        for _ in 0..8 {
+            crc = (crc >> 1) ^ (0xedb8_8320_u32 & 0_u32.wrapping_sub(crc & 1));
         }
     }
     format!("{:x}", !crc)
@@ -149,7 +160,7 @@ fn marker(line: &str, which: &str) -> bool {
         && words.next() == Some("TRANSLATION")
 }
 // The recognized partial contract is deliberately narrower than arbitrary Java
-// regex matches. Full headers retain unverified algorithm evidence separately.
+// regex matches. Algorithm evidence is compared only by a full AST request.
 struct Header<'a> {
     algorithm: Option<&'a str>,
     translation: Option<&'a str>,
@@ -321,6 +332,7 @@ pub fn select_rewrite(
                 }),
                 Some(body),
                 Some(PreviousChecksum {
+                    algorithm_matched: None,
                     recorded,
                     algorithm_recorded,
                     algorithm_disabled,
@@ -449,23 +461,35 @@ pub fn mask_previous(source: &str, previous: Option<Span>) -> String {
 /// module semantic admission belong to the caller and are never implied here.
 ///
 /// # Errors
-/// Explicit full-AST checksum refusal, changed/unverified body, or resource limit.
-#[allow(
-    clippy::too_many_lines,
-    reason = "source replacement and previous integrity proof remain ordered and bounded"
-)]
+/// Unproved full-AST shape, changed/unverified checksum, or resource limit.
 pub fn rewrite_document(
     source: &str,
     body: &str,
     options: &RewriteOptions,
 ) -> Result<RewritePlan, Diagnostic> {
-    if options.checksums == ChecksumPolicy::Full {
-        return Err(failure(
-            Code::Unsupported,
-            Span::default(),
-            "normalized/name-fixed algorithm AST checksum is not implemented",
-        ));
-    }
+    rewrite_document_with_translation_options(
+        source,
+        body,
+        options,
+        &crate::TranslationOptions::default(),
+    )
+}
+/// Build a replacement with the exact label/options context used by generation.
+/// Full checksums are available only for the independently proved AST subset.
+/// A supplied body is never an admitted artifact or model proof by itself.
+///
+/// # Errors
+/// Named unsupported AST shape, modified/unverified integrity or byte limits.
+#[allow(
+    clippy::too_many_lines,
+    reason = "source replacement and both integrity contracts remain ordered and bounded"
+)]
+pub fn rewrite_document_with_translation_options(
+    source: &str,
+    body: &str,
+    options: &RewriteOptions,
+    translation: &crate::TranslationOptions,
+) -> Result<RewritePlan, Diagnostic> {
     if body.len() > options.max_bytes {
         return Err(failure(
             Code::Resource,
@@ -473,7 +497,29 @@ pub fn rewrite_document(
             "PlusCal rewrite body byte limit reached",
         ));
     }
-    let selection = select_rewrite(source, options)?;
+    let mut selection = select_rewrite(source, options)?;
+    let algorithm_checksum = if options.checksums == ChecksumPolicy::Full {
+        let masked = mask_previous(source, selection.previous);
+        let result = crate::algorithm_checksum_at(
+            &masked,
+            selection.algorithm.start..selection.algorithm.end,
+            translation,
+        )
+        .map_err(|error| error.diagnostic)?;
+        if let Some(old) = &mut selection.checksum {
+            old.algorithm_matched = Some(old.algorithm_recorded.as_ref() == Some(&result.checksum));
+            if old.algorithm_matched == Some(false) && !options.replace_modified {
+                return Err(failure(
+                    Code::Unsupported,
+                    selection.previous.unwrap_or_default(),
+                    "existing algorithm checksum is modified, missing or disabled; explicit replacement is required",
+                ));
+            }
+        }
+        Some(result)
+    } else {
+        None
+    };
     if selection.checksum.as_ref().is_some_and(|c| !c.matched) && !options.replace_modified {
         return Err(failure(
             Code::Unsupported,
@@ -497,8 +543,12 @@ pub fn rewrite_document(
         })
     };
     let checksum = translation_checksum(body);
+    let algorithm_value = algorithm_checksum.as_ref().map_or_else(
+        || "\\in STRING".to_owned(),
+        |checksum| format!("= \"{}\"", checksum.checksum),
+    );
     let checksum_header = format!(
-        "\\* BEGIN TRANSLATION (chksum(pcal) \\in STRING /\\ chksum(tla) = \"{checksum}\")"
+        "\\* BEGIN TRANSLATION (chksum(pcal) {algorithm_value} /\\ chksum(tla) = \"{checksum}\")"
     );
     let (header, end_marker) = if let Some(previous) = selection.previous {
         let old_lines = lines(&source[previous.start..previous.end]);
@@ -524,10 +574,10 @@ pub fn rewrite_document(
                     &format!("= \"{checksum}\""),
                 );
             }
-            if old.algorithm.is_some() {
+            if old.algorithm.is_some() || algorithm_checksum.is_some() {
                 text.replace_range(
                     old.algorithm_value.start..old.algorithm_value.end,
-                    "\\in STRING",
+                    &algorithm_value,
                 );
             }
             text
@@ -608,7 +658,8 @@ pub fn rewrite_document(
         replacement,
         module_source,
         translation_checksum: checksum,
-        algorithm_checksum_verified: false,
+        algorithm_checksum_verified: algorithm_checksum.is_some(),
+        algorithm_checksum,
         selection,
         newlines_normalized: options.normalize_newlines,
     })

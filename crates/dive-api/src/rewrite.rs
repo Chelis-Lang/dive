@@ -10,7 +10,7 @@ use std::{io::Read as _, path::Path};
 pub struct RewriteRequest {
     /// Native PlusCal generation and enclosing-module resolution.
     pub translation: TranslationRequest,
-    /// Source edit policy; default requires currently unimplemented full AST CRC.
+    /// Source edit policy; default requires a proved post-translation AST CRC.
     pub editing: RewriteOptions,
 }
 /// Stage-separated replacement report; it never certifies a checked model.
@@ -43,7 +43,7 @@ fn report(
     stage: &str,
     details: Value,
 ) -> RewriteReport {
-    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"pending":["normalized-name-fixed-algorithm-checksum","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
+    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
@@ -69,7 +69,8 @@ fn failure(
     )
 }
 /// Generate, replace and validate a module in memory. Nothing is written to disk.
-/// Full normalized AST checksum requests are refused. Translation-only CRC is
+/// Full post-translation/Explode AST checksum requests refuse unproved AST shapes.
+/// Translation-only CRC is
 /// an explicit opt-in, including under compatibility (`tlc+overrides`). Existing
 /// unverified/modified bodies require another explicit replacement grant.
 ///
@@ -86,19 +87,6 @@ fn failure(
 /// ```
 #[must_use]
 pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> RewriteReport {
-    if request.editing.checksums == ChecksumPolicy::Full {
-        return failure(
-            file,
-            request,
-            "checksum-policy",
-            &Diagnostic {
-                code: Code::Unsupported,
-                span: dive_pluscal::ast::Span::default(),
-                message: "normalized/name-fixed algorithm AST checksum is not implemented"
-                    .to_owned(),
-            },
-        );
-    }
     let selection = match dive_pluscal::rewrite::select_rewrite(source, &request.editing) {
         Ok(selection) => selection,
         Err(error) => return failure(file, request, "selection", &error),
@@ -128,7 +116,12 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
     if request.translation.compat_tlc {
         editing.normalize_newlines = true;
     }
-    let plan = match dive_pluscal::rewrite::rewrite_document(source, body, &editing) {
+    let plan = match dive_pluscal::rewrite::rewrite_document_with_translation_options(
+        source,
+        body,
+        &editing,
+        &request.translation.limits,
+    ) {
         Ok(plan) => plan,
         Err(error) => return failure(file, request, "replacement", &error),
     };
@@ -147,7 +140,7 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
         request,
         0,
         "replacement-analysis",
-        json!({"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"algorithm_checksum_verified":false,"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
+        json!({"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
     )
 }
 /// Read a bounded UTF-8 module and return its in-memory replacement plan.

@@ -594,3 +594,16 @@ the deterministic worker pool, with width/chaos and cross-width concrete-result
 controls and inline-equivalent native counter stopping prefixes. This remains
 staged evidence: runtime/temporal/graph/spill recovery, broader persistence
 interactions and full certification remain pending.
+
+### Bounded Full PlusCal checksum derivation
+
+[Block rewriting](pluscal-rewriting.md) now supports Full requests for a proved
+bounded sequential post-translation AST subset. Native serialized bytes are
+compared with corresponding clean primary AST captures; parsed/name-fixed hashes
+are separate development evidence. Full CRC derivation, literal supplied-body
+editing bytes, SANY/Validator artifact admission and finite model/witness checks
+remain separate dispositions. The `--fair` CRC weakness is reproduced, flagged
+and never treated as source identity. Unproved AST shapes/name fixes, exact
+generator formatting/file writes/maps and full F-034/F-035 certification remain
+pending; both families stay partial/audit-required. The complete study is in
+`crates/dive-pluscal/ast-checksum-acceptance/`, including initial failed controls.
