@@ -70,7 +70,7 @@ fn metadata(v: &serde_json::Value, store: Store, compat_tlc: bool) {
     clippy::too_many_lines,
     reason = "complete source-specific profile recovery and witness matrix"
 )]
-fn run(name: &str, compat_tlc: bool) {
+fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: usize) {
     let file = Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
         "../../conformance/probes/native-checkpoint-runtime-names/specs/{name}/{name}.tla"
     ));
@@ -93,11 +93,42 @@ fn run(name: &str, compat_tlc: bool) {
     )
     .expect("independent model");
     let dir = directory();
-    let mut serial = 0;
-    let mut semantic_reference = None;
-    for store in [Store::Fingerprint, Store::Exact] {
-        let mut reference = None;
-        for workers in [1, 4, 8] {
+    // Preserve the original store/width position: it selects the same four
+    // frontier/predecessor spill families even across independently run tests.
+    let mut serial = usize::from(selected_store == Store::Exact) * 6
+        + [1, 4, 8]
+            .iter()
+            .position(|width| *width == selected_workers)
+            .expect("selected matrix width")
+            * 2;
+    // References must span stores and widths, not restart inside the split
+    // wrapper. These are actual full runs of the same source/profile at width1.
+    let fingerprint_reference = check_file(&CheckRequest {
+        store: Store::Fingerprint,
+        workers: Some(1),
+        ..base.clone()
+    })
+    .expect("full fingerprint reference")
+    .to_json();
+    assert_eq!(fingerprint_reference["verdict"], "invariant-violation");
+    metadata(&fingerprint_reference, Store::Fingerprint, compat_tlc);
+    let mut semantic_reference = Some(cross_store(observable(fingerprint_reference.clone())));
+    for store in [selected_store] {
+        let store_reference = if store == Store::Fingerprint {
+            fingerprint_reference.clone()
+        } else {
+            check_file(&CheckRequest {
+                store,
+                workers: Some(1),
+                ..base.clone()
+            })
+            .expect("full store reference")
+            .to_json()
+        };
+        assert_eq!(store_reference["verdict"], "invariant-violation");
+        metadata(&store_reference, store, compat_tlc);
+        let mut reference = Some(observable(store_reference));
+        for workers in [selected_workers] {
             for chaos in [None, Some(19)] {
                 let family = serial % 4;
                 let req = CheckRequest {
@@ -234,13 +265,70 @@ fn run(name: &str, compat_tlc: bool) {
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+// Partition independently by store/width; every original chaos/boundary and
+// report/replay assertion remains in run. CI timeout bounds are unchanged.
 macro_rules! controls {
-    ($($test:ident => ($source:literal,$tlc:expr)),* $(,)?) => {$(#[test] fn $test(){run($source,$tlc);})*};
+    ($($test:ident => ($source:literal,$tlc:expr,$store:expr,$workers:expr)),* $(,)?) => {$(#[test] fn $test(){run($source,$tlc,$store,$workers);})*};
 }
 controls! {
-    string_dive => ("RuntimeStrings",false), string_tlc => ("RuntimeStrings",true),
-    duplicates_dive => ("RuntimeDuplicates",false), duplicates_tlc => ("RuntimeDuplicates",true),
-    choose_dive => ("RuntimeChoose",false), choose_tlc => ("RuntimeChoose",true),
-    sequence_dive => ("RuntimeSequence",false), sequence_tlc => ("RuntimeSequence",true),
-    symmetry_view_dive => ("RuntimeSymView",false), symmetry_view_tlc => ("RuntimeSymView",true),
+    string_dive_fingerprint_w1 => ("RuntimeStrings", false, Store::Fingerprint, 1),
+    string_dive_fingerprint_w4 => ("RuntimeStrings", false, Store::Fingerprint, 4),
+    string_dive_fingerprint_w8 => ("RuntimeStrings", false, Store::Fingerprint, 8),
+    string_dive_exact_w1 => ("RuntimeStrings", false, Store::Exact, 1),
+    string_dive_exact_w4 => ("RuntimeStrings", false, Store::Exact, 4),
+    string_dive_exact_w8 => ("RuntimeStrings", false, Store::Exact, 8),
+    string_tlc_fingerprint_w1 => ("RuntimeStrings", true, Store::Fingerprint, 1),
+    string_tlc_fingerprint_w4 => ("RuntimeStrings", true, Store::Fingerprint, 4),
+    string_tlc_fingerprint_w8 => ("RuntimeStrings", true, Store::Fingerprint, 8),
+    string_tlc_exact_w1 => ("RuntimeStrings", true, Store::Exact, 1),
+    string_tlc_exact_w4 => ("RuntimeStrings", true, Store::Exact, 4),
+    string_tlc_exact_w8 => ("RuntimeStrings", true, Store::Exact, 8),
+    duplicates_dive_fingerprint_w1 => ("RuntimeDuplicates", false, Store::Fingerprint, 1),
+    duplicates_dive_fingerprint_w4 => ("RuntimeDuplicates", false, Store::Fingerprint, 4),
+    duplicates_dive_fingerprint_w8 => ("RuntimeDuplicates", false, Store::Fingerprint, 8),
+    duplicates_dive_exact_w1 => ("RuntimeDuplicates", false, Store::Exact, 1),
+    duplicates_dive_exact_w4 => ("RuntimeDuplicates", false, Store::Exact, 4),
+    duplicates_dive_exact_w8 => ("RuntimeDuplicates", false, Store::Exact, 8),
+    duplicates_tlc_fingerprint_w1 => ("RuntimeDuplicates", true, Store::Fingerprint, 1),
+    duplicates_tlc_fingerprint_w4 => ("RuntimeDuplicates", true, Store::Fingerprint, 4),
+    duplicates_tlc_fingerprint_w8 => ("RuntimeDuplicates", true, Store::Fingerprint, 8),
+    duplicates_tlc_exact_w1 => ("RuntimeDuplicates", true, Store::Exact, 1),
+    duplicates_tlc_exact_w4 => ("RuntimeDuplicates", true, Store::Exact, 4),
+    duplicates_tlc_exact_w8 => ("RuntimeDuplicates", true, Store::Exact, 8),
+    choose_dive_fingerprint_w1 => ("RuntimeChoose", false, Store::Fingerprint, 1),
+    choose_dive_fingerprint_w4 => ("RuntimeChoose", false, Store::Fingerprint, 4),
+    choose_dive_fingerprint_w8 => ("RuntimeChoose", false, Store::Fingerprint, 8),
+    choose_dive_exact_w1 => ("RuntimeChoose", false, Store::Exact, 1),
+    choose_dive_exact_w4 => ("RuntimeChoose", false, Store::Exact, 4),
+    choose_dive_exact_w8 => ("RuntimeChoose", false, Store::Exact, 8),
+    choose_tlc_fingerprint_w1 => ("RuntimeChoose", true, Store::Fingerprint, 1),
+    choose_tlc_fingerprint_w4 => ("RuntimeChoose", true, Store::Fingerprint, 4),
+    choose_tlc_fingerprint_w8 => ("RuntimeChoose", true, Store::Fingerprint, 8),
+    choose_tlc_exact_w1 => ("RuntimeChoose", true, Store::Exact, 1),
+    choose_tlc_exact_w4 => ("RuntimeChoose", true, Store::Exact, 4),
+    choose_tlc_exact_w8 => ("RuntimeChoose", true, Store::Exact, 8),
+    sequence_dive_fingerprint_w1 => ("RuntimeSequence", false, Store::Fingerprint, 1),
+    sequence_dive_fingerprint_w4 => ("RuntimeSequence", false, Store::Fingerprint, 4),
+    sequence_dive_fingerprint_w8 => ("RuntimeSequence", false, Store::Fingerprint, 8),
+    sequence_dive_exact_w1 => ("RuntimeSequence", false, Store::Exact, 1),
+    sequence_dive_exact_w4 => ("RuntimeSequence", false, Store::Exact, 4),
+    sequence_dive_exact_w8 => ("RuntimeSequence", false, Store::Exact, 8),
+    sequence_tlc_fingerprint_w1 => ("RuntimeSequence", true, Store::Fingerprint, 1),
+    sequence_tlc_fingerprint_w4 => ("RuntimeSequence", true, Store::Fingerprint, 4),
+    sequence_tlc_fingerprint_w8 => ("RuntimeSequence", true, Store::Fingerprint, 8),
+    sequence_tlc_exact_w1 => ("RuntimeSequence", true, Store::Exact, 1),
+    sequence_tlc_exact_w4 => ("RuntimeSequence", true, Store::Exact, 4),
+    sequence_tlc_exact_w8 => ("RuntimeSequence", true, Store::Exact, 8),
+    symmetry_view_dive_fingerprint_w1 => ("RuntimeSymView", false, Store::Fingerprint, 1),
+    symmetry_view_dive_fingerprint_w4 => ("RuntimeSymView", false, Store::Fingerprint, 4),
+    symmetry_view_dive_fingerprint_w8 => ("RuntimeSymView", false, Store::Fingerprint, 8),
+    symmetry_view_dive_exact_w1 => ("RuntimeSymView", false, Store::Exact, 1),
+    symmetry_view_dive_exact_w4 => ("RuntimeSymView", false, Store::Exact, 4),
+    symmetry_view_dive_exact_w8 => ("RuntimeSymView", false, Store::Exact, 8),
+    symmetry_view_tlc_fingerprint_w1 => ("RuntimeSymView", true, Store::Fingerprint, 1),
+    symmetry_view_tlc_fingerprint_w4 => ("RuntimeSymView", true, Store::Fingerprint, 4),
+    symmetry_view_tlc_fingerprint_w8 => ("RuntimeSymView", true, Store::Fingerprint, 8),
+    symmetry_view_tlc_exact_w1 => ("RuntimeSymView", true, Store::Exact, 1),
+    symmetry_view_tlc_exact_w4 => ("RuntimeSymView", true, Store::Exact, 4),
+    symmetry_view_tlc_exact_w8 => ("RuntimeSymView", true, Store::Exact, 8),
 }

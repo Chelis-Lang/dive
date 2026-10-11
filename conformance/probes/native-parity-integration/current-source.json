@@ -1,8 +1,8 @@
 {
-  "schema_version": 1,
   "family_certified": false,
-  "scope": "Combined source integrity for material captures, property origins, multiline generation and bounded finite-process Full checksum serialization. Frozen producer results remain separate; fresh combined runtime and full-gate checks pending. No family certification.",
   "historical_slices_sha256": "b1ca2df73d320a161db5796c71b30fbb06f754438de968803c30b58bc78e5fad",
+  "schema_version": 1,
+  "scope": "Combined source integrity for material captures, property origins, multiline generation and bounded finite-process Full checksum serialization. Frozen producer results remain separate; fresh combined runtime and full-gate checks pending. No family certification.",
   "source_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
     ".github/workflows/ci.yml": "6939b08fb58706678039c2c8f222fbe081945267460bc5075daa52fa0d248ea5",
