@@ -114,7 +114,7 @@ See the [full final contract](tlc-final-api.md),
 [raw/source evidence](../conformance/probes/tlc-temporal-if-final/).
 Full temporal families and ordinary periodic schedules remain partial.
 
-The unchanged 140-model small corpus on this current-source increment still has
+The frozen temporal-IF producer's 140-model small-corpus study has
 6 agreements and 134 named refusals, with no disagreements or timeouts. All 138
 actual native invocations are retained; two worker-introspective models refuse
 before invocation. This is no corpus-coverage gain over the pure state-IF slice.
@@ -123,3 +123,20 @@ native model ran; that complete failed report is retained separately and earns
 no semantic disagreement or agreement credit. The full gate also preserved its
 initial stale CLI refusal expectation for `IfTableau`; the corrected positive
 is paired with an explicit exported-forwarding CLI refusal at every width.
+
+
+## Published integration verification
+
+The combined conditional/scoped final implementation passed all 957 workspace
+Rust tests, with none skipped, and every local gate stage. Fresh CLI checks at
+1, 3, 4 and 8 workers reproduced all 120 selected IF outcomes: 80 completed
+final outcomes and 40 named refusals. Both the IF and scoped-property Rust
+examples compiled and ran through Cargo against the same frozen source.
+
+All 21 CM1 and 16 validation smoke models agree at 1, 4 and 8 workers, including
+the smoke selection's unchanged 30-second CI limit. The
+[source-bound receipt](../conformance/probes/native-parity-integration/current-controls/scoped-temporal-publication/verification.json)
+retains every current result and the earlier failed source-binding gate.
+These selected final-only checks do not certify periodic scheduling or a full
+feature family. The historical 140-model census above was not rerun on this
+combined source and earns no new corpus-coverage credit.

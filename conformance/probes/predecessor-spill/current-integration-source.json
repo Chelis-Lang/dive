@@ -1,6 +1,6 @@
 {
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Combined spill publication, process procedure fairness and scoped temporal IF/LET/DNF/ENABLED integration; current integrity only, immutable producer proofs separate",
+  "current_integration_scope": "Published combined scoped temporal, pure conditional and spill/fairness source; fresh957-test receipt retained separately from historical producer campaigns; no periodic/full-family certification",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "historical_integration_sources": [
     {

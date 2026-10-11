@@ -7,7 +7,7 @@
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "scripts/check-tlc-temporal-if.py": "c173f5b64971e22df42e963154b8fdc4639abd53a515543608e9a59196578b5d",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
-    "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
+    "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "conformance/parity-features.json": "6e365423f8584c49024207d3660782f79ef408956570fd494d8ff5dee58f8781"
   },

@@ -1,7 +1,7 @@
 {
   "base_commit": "fb11b981",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Combined spill publication, process procedure fairness and scoped temporal IF/LET/DNF/ENABLED integration; current integrity only, immutable producer proofs separate",
+  "current_integration_scope": "Published combined scoped temporal, pure conditional and spill/fairness source; fresh957-test receipt retained separately from historical producer campaigns; no periodic/full-family certification",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "evidence_scope": "Current native admission controls, no new oracle or full family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",

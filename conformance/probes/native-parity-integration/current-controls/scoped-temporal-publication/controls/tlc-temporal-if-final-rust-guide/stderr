@@ -1,0 +1,45 @@
+     Locking 45 packages to highest Rust 1.99.0 compatible versions
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling serde_core v1.0.229
+   Compiling num-traits v0.2.19
+   Compiling syn v3.0.7
+   Compiling rowan v0.16.1
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-syntax)
+   Compiling serde v1.0.229
+   Compiling num-integer v0.1.47
+   Compiling serde_derive v1.0.229
+   Compiling num-bigint v0.5.1
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-sema)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-ir)
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-eval)
+   Compiling zmij v1.0.23
+   Compiling libc v0.2.190
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-config)
+   Compiling serde_json v1.0.152
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-stdlib)
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling digest v0.11.3
+   Compiling cpufeatures v0.3.1
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-store)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-sim)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-api)
+   Compiling tlc-temporal-if-final-publication-guide v0.0.0 (/private/tmp/dive-scoped-temporal-publication-controls/tlc-temporal-if-final-rust-guide)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 43.47s
+     Running `/Users/jeff/code/dive-temporal-if-final-target/debug/tlc-temporal-if-final-publication-guide`

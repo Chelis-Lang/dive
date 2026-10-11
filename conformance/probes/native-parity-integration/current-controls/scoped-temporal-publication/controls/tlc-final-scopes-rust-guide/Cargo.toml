@@ -1,0 +1,13 @@
+[package]
+name="tlc-final-scopes-publication-guide"
+version="0.0.0"
+edition="2024"
+publish=false
+[dependencies]
+dive-api={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-api"}
+dive-check={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-check"}
+dive-sema={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-sema"}
+dive-ir={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-ir"}
+dive-config={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-config"}
+dive-liveness={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-liveness"}
+dive-trace={path="/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-trace"}
