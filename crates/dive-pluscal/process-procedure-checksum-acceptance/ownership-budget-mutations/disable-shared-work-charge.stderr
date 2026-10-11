@@ -1,0 +1,17 @@
+    Blocking waiting for file lock on package cache
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-definition-forms-work/crates/dive-pluscal)
+warning: field `work_limit` is never read
+  --> crates/dive-pluscal/src/translate/checksum_transfers.rs:45:5
+   |
+39 | struct Builder<'a> {
+   |        ------- field in this struct
+...
+45 |     work_limit: usize,
+   |     ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `dive-pluscal` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.24s
+     Running tests/process_procedure_checksum.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/process_procedure_checksum-d41b4e360e920d50)
+error: test failed, to rerun pass `-p dive-pluscal --test process_procedure_checksum`

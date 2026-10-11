@@ -2565,3 +2565,20 @@ inline fallback, Print-dependent error-replay refusal and independent trace
 requirements remain unchanged. This is a native limitation, not a new reference
 bug or semantic default. [CLI/Rust contract](user/disk-seen-safety.md) and
 [ADR0075](decisions/0075-source-owned-pure-safety-role-admission.md).
+
+D-008 process-owned procedure checksum continuation (ADR0079): the stored
+original header gives each process its own called-procedure vector. Calling a
+procedure from a process does not append the call to the last procedure header,
+as sequential main does. Parameter/local/frame fields remain unindexed in this
+header; generated runtime state is separately indexed by process ID. The bounded
+native Full scope has one unfair finite process and one disjoint labelled
+procedure; broader fairness/scoped/multiple-owner contexts refuse explicitly.
+
+A clean minimal C/P `procedure First(a=0) ... process Worker=1 ...
+with a=2 do call First(a)` example generates TLA with duplicate operator `a`.
+Pinned SANY rejects both outputs. The complete242 selection retains both raw
+artifacts, their original/header/direct-exploded stages and SANY errors; the
+native scoped-name guard returns a named refusal and grants no successful Full
+replacement. No new default correction is made. Exact CRC, CST/SANY/Validator,
+finite model results and canonical/strict replay remain separate obligations.
+Read [the runnable process/procedure checksum guide](pluscal-process-procedure-checksums.md).

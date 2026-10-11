@@ -2,7 +2,7 @@
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "scope": "Current source only; actual capture is explicit-checkpoint diagnostic, not ordinary clock or proof. Prior current matrices/source preserved in historical-before-backend.",
   "source_sha256": {
-    "conformance/parity-features.json": "f53277956784642fc913c81b4653c3e4c6cd2926d06b636f507b34c794dac436",
+    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634",
     "crates/dive-api/examples/periodic_backend.rs": "cc6b0d65ab2dafcf3e4aa3a0e7e50e32d87f0bfda18ca13d749e6e4e58d6d2b2",
     "crates/dive-check/src/capture.rs": "218e6e995792f35999017fe88332952ee1ce9b2517865e983b4b4e6aa077f736",
     "crates/dive-check/src/engine.rs": "d012b31d2e95f05e0a83b67e2599eab11084a500fbd0554289cf252ceecaf038",

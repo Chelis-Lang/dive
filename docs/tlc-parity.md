@@ -716,3 +716,10 @@ selection retains resident-success/refused differences without parity credit.
 This extends opt-in inline evidence only: disk parallel/capture/recovery and
 aggregate-memory bounds remain pending. F-031 stays partial/audit-required.
 Current source qualification is in progress.
+
+The bounded process-owned procedure checksum continuation (#225/ADR0079)
+keeps F-034/F-035 partial: one unfair finite process/one disjoint labelled
+procedure, source header ownership distinct from indexed runtime state, complete
+242 capture selection and explicit scoped/fair/mixed/ref-invalid boundaries.
+Raw derivation, public artifacts, finite models and strict replay have separate
+obligations; see `docs/pluscal-process-procedure-checksums.md`.

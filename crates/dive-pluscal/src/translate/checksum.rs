@@ -16,7 +16,8 @@ use serde::{Deserialize, Serialize};
 /// This is serialization evidence, not TLA admission or a model proof.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AlgorithmChecksum {
-    /// Pinned `AST.toString()` bytes after admitted normalization/translation.
+    /// Pinned `AST.toString()` bytes of the original stored AST after generation.
+    /// The separately exploded `xast` is not this algorithm-header CRC authority.
     pub serialized_ast: String,
     /// Pinned CRC, including the recorded `--fair` precedence limitation.
     pub checksum: String,
@@ -86,13 +87,6 @@ fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), Transla
     if parsed.algorithm.procedures.is_empty() {
         return Ok(());
     }
-    let Body::Sequential(_) = &parsed.algorithm.body else {
-        return Err(unsupported(
-            parsed.algorithm.span,
-            "procedure/process checksum ownership",
-        ));
-    };
-
     for procedure in &parsed.algorithm.procedures {
         let (_, labelled) = groups(parsed, &procedure.body)?;
         for (_, ids) in labelled {
@@ -265,11 +259,12 @@ impl Writer {
             .position(|p| p.name.text == procedure.name.text)
             .ok_or_else(|| unsupported(procedure.span, "missing called-vector source owner"))?;
         let own_count = self.header.body_called.get(owner).map_or(0, Vec::len);
-        let last = parsed
-            .algorithm
-            .procedures
-            .last()
-            .is_some_and(|p| p.name.text == procedure.name.text);
+        let last = matches!(parsed.algorithm.body, Body::Sequential(_))
+            && parsed
+                .algorithm
+                .procedures
+                .last()
+                .is_some_and(|p| p.name.text == procedure.name.text);
         self.push("<<")?;
         let mut first = true;
         let count = own_count.saturating_add(if last {
@@ -644,7 +639,42 @@ impl Writer {
         self.quoted_labels(labels, '-')?;
         self.push(", plusLabels |->")?;
         self.quoted_labels(labels, '+')?;
-        self.push(", proceduresCalled |-><<>>,")?;
+        self.push(", proceduresCalled |-><<")?;
+        let owner = if self.header.process_called.is_empty() {
+            None
+        } else if let Body::Processes(processes) = &parsed.algorithm.body {
+            processes.iter().position(|p| p.span == process.span)
+        } else {
+            None
+        };
+        if let Some(owner) = owner {
+            let count = self.header.process_called[owner].len();
+            for index in 0..count {
+                if index != 0 {
+                    self.push(", ")?;
+                }
+                let target = self.header.process_called[owner][index];
+                let name = parsed
+                    .algorithm
+                    .procedures
+                    .get(target)
+                    .ok_or_else(|| {
+                        unsupported(process.span, "missing process called-vector target")
+                    })?
+                    .name
+                    .text
+                    .as_str();
+                self.push("\"")?;
+                self.push(name)?;
+                self.push("\"")?;
+            }
+        } else if !self.header.process_called.is_empty() {
+            return Err(unsupported(
+                process.span,
+                "missing process called-vector owner",
+            ));
+        }
+        self.push(">>,")?;
         self.newline()?;
         self.push(" eqOrIn |-> ")?;
         self.push(if process.id.kind == BindingKind::Equal {
@@ -1127,15 +1157,34 @@ fn checksum_inline(
     let options = &context.effective;
     let algorithm = &parsed.algorithm;
     if !algorithm.procedures.is_empty() {
-        if !matches!(algorithm.body, Body::Sequential(_))
-            || algorithm.definitions.is_some()
+        if algorithm.definitions.is_some()
             || !algorithm.macros.is_empty()
             || options.insert_missing_labels
         {
             return Err(unsupported(
                 algorithm.span,
-                "checksum requires explicitly labelled sequential procedures without definitions/macros",
+                "checksum requires explicitly labelled procedures without definitions/macros",
             ));
+        }
+        if let Body::Processes(processes) = &algorithm.body {
+            if algorithm.procedures.len() != 1 || processes.len() != 1 {
+                return Err(unsupported(
+                    algorithm.span,
+                    "one process and one procedure checksum ownership",
+                ));
+            }
+            if algorithm.fairness != Fairness::Unfair
+                || processes[0].fairness != Fairness::Unfair
+                || !matches!(
+                    options.fairness,
+                    FairnessOption::Declared | FairnessOption::None
+                )
+            {
+                return Err(unsupported(
+                    algorithm.span,
+                    "process/procedure fairness checksum ownership",
+                ));
+            }
         }
         if parsed
             .statements

@@ -289,7 +289,7 @@
     "crates/dive-pluscal/src/lib.rs": "4d104f846390bfc110a23d6d475eda88021d249f08a2f6f363f1fe8d3f578c64",
     "crates/dive-pluscal/src/parser.rs": "c53e548baf64a00dc7c87ad7bdc257c66204e1040d02d80dda64337aa6848a55",
     "crates/dive-pluscal/src/rewrite.rs": "6ed2e5c0f320d9852387a477a07525cc1362342490226bb727a06baf3b1f82d5",
-    "crates/dive-pluscal/src/translate/checksum.rs": "e089dca02953939bb47d4b50452c2dccfb1027cc07d5a0915afa53eed4b8d69d",
+    "crates/dive-pluscal/src/translate/checksum.rs": "af8985e85160b7b4dc477c1dc936e834c07351555df7a1ac91e070c638e7b92b",
     "crates/dive-pluscal/src/translate/emit.rs": "c23830a145bef284147023d8f5977971f8c5090643d37bfc8b7dc209f8e2dd0b",
     "crates/dive-pluscal/src/translate/fairness.rs": "99e97afd07ddc9ed928b32f1b01da73df3e20bc2139242539e09a0e885907ffe",
     "crates/dive-pluscal/src/translate/labels.rs": "358e48d9c744ebb8ab5391ae3e8c6cd95c4ceed8989f79fd5f7235af204e0280",

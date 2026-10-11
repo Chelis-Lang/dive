@@ -879,3 +879,12 @@ unchanged; requested widths still disclose actual inline execution. This adds no
 semantic default, parallel disk/recovery/capture support or family credit.
 [Executable CLI/Rust guide](user/disk-seen-safety.md); current qualification is in
 progress and every declared refused row remains selected.
+
+D-008's process-owned procedure Full-checksum continuation (#225/ADR0079)
+separates original stored header ownership from process-indexed runtime slots.
+One unfair finite process/one disjoint labelled procedure has bounded native
+serialization; general process/fairness/scoped checksum contexts remain named
+refusals. The clean C/P With binder `a` shadowing procedure parameter `a`
+generates SANY-invalid duplicate operators; no successful artifact or CRC is
+credited from those invalid references. Strict #124 frame replay is unchanged.
+See `docs/pluscal-process-procedure-checksums.md` for the exact stage contract.

@@ -23,7 +23,7 @@
     "docs/stopped-periodic-service.md": "20c5da0b3b25a19d22146529a33397ba8158debbd9692de2b0b5f0f25bf4407f",
     "docs/decisions/0078-stopped-queue-worker-errors.md": "f97601475dd216826786389b58ca785b8d65554822428880af49df89ddc62d09",
     "scripts/check-stopped-periodic-service.py": "c20d27a36b96ab7a89ede010df134a329ad4782d2a2485c03809be5b17274cb1",
-    "conformance/parity-features.json": "f53277956784642fc913c81b4653c3e4c6cd2926d06b636f507b34c794dac436",
+    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634",
     "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
     ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e"
   },

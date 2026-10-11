@@ -937,3 +937,23 @@ commit/tree objects establish the selected Git blob identities without requiring
 an unsquashed producer object in a future clone. This is selected-input provenance,
 not a hermetic build or independent semantic certificate. Runtime/gate histories
 and metadata-only current authority stay separate in the role study.
+
+## Process-owned procedure Full headers (#225)
+
+`translate/checksum_transfers.rs` follows pinned `ParseAlgorithm.GetProcedure`
+(694/720) and `GetProcess` (737/755): each process resets and stores its own
+proceduresCalled vector, while sequential main aliases LAST. Original parsed
+source spans identify each owner; vectors retain encounter order and duplicate
+suppression with shared preallocation charges. `PcalTranslate.ExplodeMultiprocess`
+(383 onward), `CopyAndExplodeLastStmt`/`ExplodeCall`/`ExplodeCallReturn`/`UpdatePC`
+and `PCalTLAGen.GenAssign` match original stored shared-vector mutation, while
+`AST.Multiprocess`, `Procedure`, `Process` and `VectorToSeqString` define exact
+header serialization. `PCalTLAGen.GenCall`/`GenReturn`/`GenInit` separately own
+process-indexed state generation; no header indexing or runtime unrolling is
+added. Source commit `94d0c5070852b37b801bb8998c436383ab7ee37b`, MIT.
+
+The complete declared242 study separates clean primary generation/original
+post-generation AST/CRC from direct exploded xast. Only one unfair finite process
+and one disjoint labelled procedure are lifted; fairness/scoped/multiple/option
+boundaries remain explicit. See ADR0079 and the executable user guide. Java is
+development-only. Artifact and strict saved-frame replay credit remain separate.

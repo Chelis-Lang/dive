@@ -30,6 +30,12 @@ All notable changes to this project are documented here. The project will follow
 
 - Add a bounded producer-owned temporal candidate Rust API: original source values and product selection are reconstructed privately, then freshly rebound for independent in-memory and serialized JSON replay. No caller witness/Valid authority, ordinary schedule verdict or model-completion credit.
 
+- Bounded Full PlusCal checksums support one unfair finite process calling one
+  disjoint labelled procedure. Source-owned process call vectors stay separate
+  from sequential LAST aliases and indexed runtime state (ADR0079). Global
+  resource limits, invalid-reference admission and strict saved-frame replay
+  boundaries remain unchanged; runnable C/P and Cargo examples document them.
+
 - Bounded Full PlusCal checksums admit source-finite self/mutual sequential
   procedure graphs and preserve pinned top-level/shared nested CallReturn
   headers (ADR0077). Unchanged shared resource limits and explicit artifact

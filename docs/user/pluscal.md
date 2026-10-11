@@ -143,7 +143,7 @@ Full editing also supports bounded [disjoint sequential procedure headers](../pl
 with globally disjoint parameter/local names. The [acyclic call continuation](../pluscal-acyclic-procedure-checksums.md) also supports bounded procedure-body calls. Target-specific
 frames and return slots remain separate from the reference header's shared
 last-declaration call vector. The guide includes executable C/P and Cargo-owned
-Rust examples. Process-owned and scoped checksum shapes remain explicit refusals; no artifact checksum certifies a model
+Rust examples. Broader process-owned and scoped checksum shapes remain explicit refusals; no artifact checksum certifies a model
 or a strict saved-frame witness.
 
 
@@ -152,4 +152,11 @@ adds bounded self/mutual source call graphs, parameters/locals and tail-call hea
 mutations. It includes executable C/P and Cargo examples. This finite serialization
 does not unroll execution or prove termination. Primary-invalid zero-parameter
 self-tail artifacts and strict saved-frame replay remain uncredited; broader
-process/scoped Full checksum contexts still refuse by name.
+process/scoped Full checksum contexts outside the bounded continuation still refuse by name.
+
+[Finite-process procedure Full checksums](../pluscal-process-procedure-checksums.md)
+now admit one explicitly labelled unfair finite process and one disjoint procedure.
+The original header process vector is distinct from sequential LAST aliases and
+process-indexed runtime slots. Executable C/P CLI/Cargo examples describe exact
+limits, fairness/scoped/multiple-owner refusals and unchanged strict saved-frame
+qualification; CRC equality never certifies a model.

@@ -205,3 +205,8 @@ for verifier in ("verify.py", "verify-delivery.py"):
 # Recursive checksum derivation keeps selected source, closed runtime and failure epochs portable.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/recursive-procedure-checksum-acceptance" / verifier)], check=True)
+
+# Bounded finite-process procedure header reference epochs remain separate.
+subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/process-procedure-checksum-acceptance/verify.py")], check=True)
+for verifier in ["verify-delivery.py", "test-delivery.py"]:
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/process-procedure-checksum-acceptance" / verifier)], check=True)

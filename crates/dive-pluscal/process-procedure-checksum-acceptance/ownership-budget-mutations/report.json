@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "selected": 4,
+  "script_sha256": "693ca341b1d6f7253afd151d497a11b7e105486c5a7643d2a02d9bf50f319525",
+  "restored_source_sha256": {
+    "checksum.rs": "6348ec85a36bab69d45407c5eb436dac166c043fcb5364af38ce9576d9ff97a2",
+    "checksum_transfers.rs": "895cc12c11b3148fa6bab116713377ad87e10f65d1078f6da3e932cad84795b7"
+  },
+  "family_certified": false,
+  "rows": [
+    {
+      "mutation": "omit-process-called",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "dive-pluscal",
+        "--test",
+        "process_procedure_checksum",
+        "process_original_header_bytes_and_crc_match_every_admitted_row",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "source_sha256": {
+        "checksum.rs": "1a8605572f72f44af6c65b37bb6e35dd43c14e2fae3295e61ac43debebf3ce70",
+        "checksum_transfers.rs": "895cc12c11b3148fa6bab116713377ad87e10f65d1078f6da3e932cad84795b7"
+      },
+      "stdout_sha256": "032088b3d361ce1f97b8c356f1f8cabac13eb7bc63d8fcfb66e00b42452b0dfd",
+      "stderr_sha256": "6807e9bbd79cff2df981a8a84bb88da34d2bfbb637a0a9a8568433f499685100",
+      "outcome": "original-regression-detected"
+    },
+    {
+      "mutation": "leak-process-into-LAST",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "dive-pluscal",
+        "--test",
+        "process_procedure_checksum",
+        "process_original_header_bytes_and_crc_match_every_admitted_row",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "source_sha256": {
+        "checksum.rs": "0b085a2dfac745a61023b7479faad511cfab7674d1951a629f07908ee6480e6b",
+        "checksum_transfers.rs": "229190fb3e49238563f139966f185ce299e84a31179b81d39f0d9cf363b94cbb"
+      },
+      "stdout_sha256": "c31ff995d187cabd009e86ced69fb7be8c1f934af836116f26ae565e68e7655d",
+      "stderr_sha256": "ac5087754b526daee5c714809874a0f160cb3ee4b8e6d357e4b00e59e629fa47",
+      "outcome": "original-regression-detected"
+    },
+    {
+      "mutation": "disable-shared-work-charge",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "dive-pluscal",
+        "--test",
+        "process_procedure_checksum",
+        "process_calls_share_the_existing_expansion_and_output_bounds",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 101,
+      "source_sha256": {
+        "checksum.rs": "6348ec85a36bab69d45407c5eb436dac166c043fcb5364af38ce9576d9ff97a2",
+        "checksum_transfers.rs": "792ec43e9cb448ea097b341ab04d8be4a5fa8d4aae7930e95d22ea909aec4a08"
+      },
+      "stdout_sha256": "ddd04f510101209a79b297097ccda625dc355a2613d8492a3f1197367dac5b67",
+      "stderr_sha256": "aecccf6b702fae94bf2cbc7b50bfd8ac9003d159a5bc5f51655ebcf082b6bec0",
+      "outcome": "original-regression-detected"
+    },
+    {
+      "mutation": "restored",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "dive-pluscal",
+        "--test",
+        "process_procedure_checksum",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit_code": 0,
+      "source_sha256": {
+        "checksum.rs": "6348ec85a36bab69d45407c5eb436dac166c043fcb5364af38ce9576d9ff97a2",
+        "checksum_transfers.rs": "895cc12c11b3148fa6bab116713377ad87e10f65d1078f6da3e932cad84795b7"
+      },
+      "stdout_sha256": "6ef74c06a666b20f70a21dafce2d7e6c56df111b4edf110d9197c8fe76e8d4dc",
+      "stderr_sha256": "ce4a42e02003f8d90537e8c3200b91941614441d5a2b425df8a10c696979ec87",
+      "outcome": "restored-positive-pass"
+    }
+  ]
+}
