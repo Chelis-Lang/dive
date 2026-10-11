@@ -73,6 +73,10 @@ impl Hooks for Backend {
     }
 }
 fn main() -> Result<(), String> {
+    assert_eq!(
+        periodic::calculate_runtime_ratio(0.2, 0, 120_000, 60_000, 0),
+        Ok(0.1)
+    );
     let mut policy = Policy {
         check_liveness: true,
         runtime_ratio: 0.2,
@@ -110,3 +114,19 @@ checkpoint persistence, worker-width invariance and ordinary temporal verdicts
 remain integration obligations. Growth must match the actual node-pointer table
 and its recorded check-size snapshot; neither file bytes nor product/placeholder
 identity counts establish that authority. Follow [the parity plan](design/tlc-parity-plan.md).
+
+## Runtime fraction arithmetic
+
+`periodic::calculate_runtime_ratio(previous, start_time, now, interval, elapsed)`
+calculates the pinned fraction from explicit millisecond observations. For a
+previous fraction of 0.2, start 0, current time 120000, interval 60000 and no new
+liveness work, it returns 0.1. The Cargo example above asserts that result.
+
+The function retains Java long wrapping before conversion to double, NaN and
+infinity propagation, and the positive-zero clamp. Negative elapsed time returns
+`RatioError::NegativeElapsed`; it never becomes a successful checker outcome.
+The [196 actual updater observations](../conformance/probes/runtime-ratio/README.md)
+and three assertion controls retain every original result. This numeric helper
+does not obtain a clock sample or establish its authority. Actual ordinary
+scheduling, graph-growth/quiescence, checkpoints and final verdict integration
+remain separate work under #189.

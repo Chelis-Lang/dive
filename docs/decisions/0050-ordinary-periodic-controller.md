@@ -39,3 +39,12 @@ contract. The reference projection does not certify actual checkpoint bytes or
 wall-clock math. F-023 remains missing/audit-required for the ordinary backend;
 F-019 through F-022 remain partial. Bounded partial SCC diagnostics must not be
 promoted into Holds results or ordinary schedule certification.
+
+## Arithmetic addendum
+
+A separately supplied numeric helper now matches 196 calls of the actual pinned
+`updateRuntimeRatio`, including Java long wrapping and double NaN/zero behavior.
+The real reference clock read is bracketed; all captured brackets were zero
+milliseconds. Three negative delta assertion controls remain qualified by Java
+assertion enablement; native negative inputs refuse. This does not promote
+caller timestamps into clock authority or enable ordinary checker verdicts.

@@ -88,6 +88,7 @@ jobs:
           python3 -I scripts/check-phase-l-graph.py
           python3 -I scripts/check-phase-execution.py
           python3 -I scripts/check-periodic-controller.py
+          python3 -I scripts/check-runtime-ratio.py
           python3 -I scripts/check-tlc-final.py
           python3 -I scripts/check-state-if-planning.py
           python3 -I scripts/check-predecessor-spill.py

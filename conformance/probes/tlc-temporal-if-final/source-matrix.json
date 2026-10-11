@@ -41,7 +41,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "conformance/parity-features.json": "3a402fd2fd486bb9824966954a77493e912752ad5b9446a3732cc3499aa42368",
+    "conformance/parity-features.json": "f8445d1f2446cdcd5776c70696b960c9a6f13f12db525fb877abdae8eb97d7b6",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
@@ -53,7 +53,7 @@
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "docs/divergences.md": "2e10f18939b3f05574c8a1aa7f8297b198dc6b9ef72fa09d1aee22dab8587201",
-    "docs/provenance.md": "99ab7906b47d75fd3b9b95a4af7a375c6cd77e0c4f9e5d268062eb1c266509e8",
+    "docs/provenance.md": "092064d7da8bf6cf63c3ded31097a5ebda03bb3ea1f37d05a0958ab6418e1968",
     "docs/tlc-differences.md": "401397e212682551cab9361234b14e73a8b9c61be9f3769ef4146b6b64afec2c",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",

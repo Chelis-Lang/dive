@@ -46,6 +46,48 @@ pub enum Error<E> {
     ClockWentBackwards,
 }
 
+/// Invalid elapsed time supplied to the runtime-ratio arithmetic primitive.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum RatioError {
+    /// Negative elapsed liveness time; the pinned updater asserts this condition.
+    NegativeElapsed,
+}
+
+/// Calculate TLC's runtime fraction from explicit millisecond observations.
+///
+/// Preserve Java signed-long wrapping before conversion to double, its positive
+/// zero clamp and NaN propagation. This arithmetic primitive does not sample a
+/// clock, certify its origin or establish an ordinary checking schedule.
+/// `progress_interval` is the signed Java integer interval in milliseconds.
+///
+/// # Errors
+/// Negative elapsed liveness time is refused explicitly.
+#[allow(
+    clippy::cast_precision_loss,
+    reason = "the pinned updater explicitly converts Java long arithmetic to double"
+)]
+pub fn calculate_runtime_ratio(
+    previous: f64,
+    start_time: i64,
+    now: i64,
+    progress_interval: i32,
+    elapsed: i64,
+) -> Result<f64, RatioError> {
+    if elapsed < 0 {
+        return Err(RatioError::NegativeElapsed);
+    }
+    let interval = i64::from(progress_interval);
+    let total = now
+        .wrapping_sub(start_time)
+        .wrapping_sub(interval)
+        .wrapping_sub(elapsed);
+    let product = total as f64 * previous;
+    // f64::max suppresses NaN; Java Math.max must preserve it and clamp -0 to +0.
+    let absolute = if product <= 0.0 { 0.0 } else { product };
+    let denominator = total.wrapping_add(interval).wrapping_add(elapsed);
+    Ok((elapsed as f64 + absolute) / denominator as f64)
+}
+
 /// Backend operations in the order dictated by the pinned TLC controller.
 ///
 /// Implementations must retain concrete source/graph authority. In particular,

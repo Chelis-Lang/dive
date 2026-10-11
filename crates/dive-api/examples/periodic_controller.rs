@@ -35,6 +35,10 @@ impl Hooks for Backend {
     }
 }
 fn main() -> Result<(), String> {
+    assert_eq!(
+        periodic::calculate_runtime_ratio(0.2, 0, 120_000, 60_000, 0),
+        Ok(0.1)
+    );
     let mut policy = Policy {
         check_liveness: true,
         runtime_ratio: 0.2,

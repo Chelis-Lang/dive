@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
+  observations, including wrapping and NaN/zero behavior. It remains separate
+  from ordinary scheduling and checker verdicts.
 
 - Bounded partial temporal SCC/source-checkpoint diagnostics retain written-record authority and candidate fields under shared graph limits; successful partial checks never certify temporal completion.
 - Fixed-arity `Append` operator arguments in explicit bounded final TLC checking,
