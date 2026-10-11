@@ -695,7 +695,9 @@ claims and derived role names stay separate; no new default is adopted.
 
 ## D-014: Periodic liveness checking has a replayable schedule
 
-**Status:** planned, owner-approved default. `--lncheck=deterministic` checks at the documented level boundaries in ADR 0018. `--compat=tlc` retains TLC's wall-clock scheduling for `--lncheck=default`; `--lncheck=final` checks the complete graph and remains the golden setting.
+**Status:** ordinary scheduling remains planned, with an owner-approved deterministic default. The approved `--lncheck=deterministic` interface will check at the documented level boundaries in ADR 0018. The TLC counterpart will retain wall-clock scheduling for `--lncheck=default`. Explicit bounded final checking is separate; this planned schedule does not run through the ordinary strict checker yet.
+
+The [periodic backend controller](ordinary-periodic-controller.md) now implements the pinned callback order. All 296 controlled pinned-method observations retain queue suspension, force state, deciding codes and PERIODIC effect order. This is a backend building block: clock-ratio math, graph-growth authority, quiescence and checkpoint persistence remain pending, and no ordinary model verdict is enabled.
 
 **Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
 

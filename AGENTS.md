@@ -187,6 +187,7 @@ python3 -I scripts/check-temporal-action-order.py
 python3 -I scripts/check-phase-l.py
 python3 -I scripts/check-phase-l-graph.py
 python3 -I scripts/check-phase-execution.py
+python3 -I scripts/check-periodic-controller.py
 python3 -I scripts/check-tlc-final.py
 
 python3 -I scripts/check-state-if-planning.py

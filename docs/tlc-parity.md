@@ -639,3 +639,11 @@ contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
 public admission, Validator and finite-model evidence remain separate. See
 [the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
 partial and audit-required; no certification or denominator change.
+
+## Periodic backend callback boundary
+
+The [periodic controller](ordinary-periodic-controller.md) retains all296 actual
+pinned method observations for callback order, force state, deciding code and
+PERIODIC effect position. Supplied callbacks do not establish graph growth or
+checkpoint persistence. Clock-ratio arithmetic and ordinary checker integration
+remain pending; F-023 stays missing/audit-required and no certification total changes.

@@ -16,6 +16,12 @@ All notable changes to this project are documented here. The project will follow
   normalized sets nested in tuples, records and general functions. Callback-free
   namespace/order checks and unchanged cumulative work/depth bounds precede
   fingerprinting; cached deferred providers still refuse.
+
+- A periodic backend controller preserves pinned queue/force/PERIODIC/checkpoint
+  callback order, with all 296 selected Java observations and typed backend
+  failures. It does not enable ordinary temporal verdicts or certify clock math
+  and checkpoint persistence.
+
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and
