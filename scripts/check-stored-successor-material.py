@@ -5,6 +5,11 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/stored-successor-material'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+PRODUCER=load(BASE/'source-manifest.json')['source_sha256']
+def successor_source(path,digest):
+ if sha(ROOT/path)==digest:return
+ assert PRODUCER[path]==digest,path
+ assert hashlib.sha256(gzip.decompress((BASE/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 selection=load(BASE/'selection.json');assert len(selection)==14
 refs={}
@@ -35,7 +40,7 @@ for p,h in load(BASE/'historical-current-authorities/index.json')['artifact_sha2
 current=BASE/'native-current';c=load(current/'capture.json');assert c['source_and_binary_unchanged']is True
 assert c['selections_sha256']=={'selection.json':sha(BASE/'selection.json')}
 assert c['capture_source_sha256']==sha(BASE/'capture-native.py')
-for p,h in c['source_sha256'].items():assert sha(ROOT/p)==h,p
+for p,h in c['source_sha256'].items():successor_source(p,h)
 assert [(r['model'],r['requested_workers'])for r in c['rows']]==[(r['name'],w)for r in selection for w in [1,3,4,8]]
 kind={r['name']:r['kind']for r in selection};counts={}
 for r in c['rows']:
@@ -65,3 +70,9 @@ for r in c['rows']:
 assert counts=={'success':28,'liveness-violation':28},counts
 
 print('Verified14 primary0/13 rows,14 exact projection rows,56 historical refusals and56 current final outcomes; no ordinary/family credit')
+
+regression=BASE/'native-established-regression'
+receipt=load(regression/'check-receipt.json');assert receipt['exit']==0
+for p,h in receipt['artifact_sha256'].items():assert sha(regression/p)==h,p
+import subprocess
+assert subprocess.run(['python3','-I',str(regression/'check-current-source.py')],cwd=ROOT).returncode==0

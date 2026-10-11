@@ -27,7 +27,7 @@ cargo run -p dive-cli -- check \
   --compat=tlc --lncheck=final --lasso=tlc --workers=4 --seed=0 --fp=0 --output=json
 ```
 
-Exit13 reports a liveness violation. Schema2 includes actual counters, requested
+Exit 13 reports a liveness violation. Schema 2 includes actual counters, requested
 and used workers, configured/expanded/derived property names, final-only schedule
 and an independently validated counterexample. Changing `Live` to
 `[]<>(Cardinality(x) = 1)` gives a bounded completed success. ResourceLimit,
@@ -62,14 +62,14 @@ add zero callbacks. Invalid state namespaces or storage order return DIVE-L0041;
 opaque successor sets return DIVE-L0042. A malformed bound model still refuses
 through the shared context authority first.
 
-The existing Session ceiling remains8,000,000 cumulative material-value visits
-and depth256; each function-domain key and child counts. Caller-supplied limits
-are retained. The context/native-operator walk's50,000/depth128 is separate and
+The existing Session ceiling remains 8,000,000 cumulative material-value visits
+and depth 256; each function-domain key and child counts. Caller-supplied limits
+are retained. The context/native-operator walk's 50,000/depth 128 is separate and
 unchanged: it is not an extra global limit on stored successor states. These are
 work/retention ceilings, not aggregate byte or memory guarantees.
 
 The [paired controls](../conformance/probes/stored-successor-material/README.md)
-retain seven clean pinned0/13 pairs and all56 original named native refusals.
+retain seven clean pinned 0/13 pairs and all 56 original named native refusals.
 Fresh source-bound results must remain separate from historical censuses and
 ordinary-schedule/family certification. Independent periodic words and fresh
 memory/JSON replay cover closing edges and altered property/initial/ending controls.

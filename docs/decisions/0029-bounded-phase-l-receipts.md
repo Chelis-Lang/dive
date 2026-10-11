@@ -142,12 +142,12 @@ callbacks and invalid namespaces/order under fixed50k/128 structural bounds.
 No ordinary schedule, default, graph-memory guarantee or family certification
 is implied. See `docs/native-temporal-operators.md`.
 
-## Addendum2026-10-11: callback-free stored successor values
+## Addendum 2026-10-11: callback-free stored successor values
 
 Accept authoritative Set.stored_elements (Enum/Raw, even normalized) and stored
-Fcn entries, retaining cumulative8m/depth256 Session accounting. Validate model
+Fcn entries, retaining cumulative 8m/depth 256 Session accounting. Validate model
 context, string/model namespace and non-tuple storage order before fingerprint or
-comparison. Cached Deferred providers remain refused; no extra50k global state
-walk is added. Context/native50k/128 stays separate. See the stored-state user
+comparison. Cached Deferred providers remain refused; no extra 50k global state
+walk is added. Context/native 50k/128 stays separate. See the stored-state user
 guide and complete paired before/after evidence; no ordinary schedule or family
 certification follows from this bounded representation change.
