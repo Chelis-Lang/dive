@@ -61,3 +61,11 @@ cases and their assertions remain; 336 smaller tests replace 34 large matrices.
 This improves work distribution across the existing eight CI jobs without
 changing production behavior, test bounds, or any conformance requirement.
 The original 1,346-test epoch above remains tied to its original source.
+
+The subsequent frozen test producer `d21ea2c6` passed the complete local gate:
+all 64 CI Python commands and eight Rust stages, with 1,648 tests and zero skips.
+Its [separate retained epoch](../conformance/probes/ci-storage-matrices/epochs/d21ea2c699c6514f61038c6fe8205219b83fa2f5/index.json)
+contains source, logs and independent readback controls. Production Rust,
+Cargo/toolchain inputs and all literal fixture sites match the original runtime
+producer. The 41 existing runtime campaigns retain `05b3a1ef`; splitting tests
+does not re-execute or retag those campaigns.

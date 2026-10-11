@@ -20,3 +20,20 @@ disjoint and cover every non-ignored workspace test. This is CI scheduling
 maintenance; it does not expand supported model-checking behavior or parity.
 The earlier 1,346-test qualification retains its own producer and receipt;
 the new inventory contains 1,648 tests because 302 test groupings were split.
+
+## Closed local qualification
+
+Test producer `d21ea2c6` passed all 64 literal Python commands in its frozen
+CI plus eight Rust gate stages: 1,648 tests passed with zero skips, followed
+by doctests, warning-denied documentation, layering, standalone trace and
+dependency checks. [The retained qualification](epochs/d21ea2c699c6514f61038c6fe8205219b83fa2f5/index.json)
+contains the selected 855-input source packet and hashed command logs. An
+independent readback compares captured bytes with Git, checks the full matrix
+inventory and rejects eight rehashed semantic corruptions.
+
+Production Rust, Cargo/toolchain inputs and all 70 literal include sites
+remain identical to runtime producer `05b3a1ef`; only the three named test
+files differ. The existing model runs retain that original producer. This
+test qualification makes no fresh runtime, family-parity or hermetic-build claim.
+The auxiliary focused Clippy log and unformatted split receipt are explicitly
+preparatory; the frozen full gate and final source packet qualify this source.
