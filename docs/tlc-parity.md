@@ -595,4 +595,62 @@ controls and inline-equivalent native counter stopping prefixes. This remains
 staged evidence: runtime/temporal/graph/spill recovery, broader persistence
 interactions and full certification remain pending.
 
+### Bounded Full PlusCal checksum derivation
+
+[Block rewriting](pluscal-rewriting.md) now supports Full requests for a proved
+bounded sequential post-translation AST subset. Native serialized bytes are
+compared with corresponding clean primary AST captures; parsed/name-fixed hashes
+are separate development evidence. Full CRC derivation, literal supplied-body
+editing bytes, SANY/Validator artifact admission and finite model/witness checks
+remain separate dispositions. The `--fair` CRC weakness is reproduced, flagged
+and never treated as source identity. Unproved AST shapes/name fixes, exact
+generator formatting/file writes/maps and full F-034/F-035 certification remain
+pending; both families stay partial/audit-required. The complete study is in
+`crates/dive-pluscal/ast-checksum-acceptance/`, including initial failed controls.
+
+### Nesting and expression-layout checksum continuation
+
+The raw serializer accounts for all 320 retained sources: 224 exact pinned
+post-translation AST matches, 14 named refusals and 82 primary rejections.
+`elsif` and multiple-With generation admission is separate from multiline AST
+derivation, whose native generator still refuses by name. Empty-Else TRUE
+fidelity retains the original operator-CST failure and paired controls.
+See [the runnable scope guide](pluscal-checksum-expressions.md) and
+`crates/dive-pluscal/checksum-expression-acceptance/`. The family remains
+partial/audit-required; no source-integrity or complete translator certification.
+
+Bounded sequential non-junction multiline PlusCal generation is now tracked in
+`docs/pluscal-multiline.md` and its complete capture. Raw AST CRC, generated
+operator trees/admission and finite model/witness evidence remain separate.
+F-034/F-035 remain partial and audit-required; all unproved contexts refuse.
+
+Explicit finite-process fairness/automatic-label Full checksum settings now have
+separate pinned parser/name/translated AST, public module admission, configured
+Validator and finite safety/witness evidence. Source option comments remain
+named unsupported after retained ignored-option failures; unconfigured reference
+validation is qualified as D-021, with D-020 unchanged. See
+[the runnable CLI/API contract](pluscal-process-checksum-options.md).
+F-034/F-035 remain partial and audit-required; no denominator/certification change.
+
+Source-option context continuation (#182) uses the shared bounded first-declaration
+resolver for generation and Full checksum serialization, preserving requested and
+effective settings plus original spans. Unknown/malformed/conflicting option
+contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
+public admission, Validator and finite-model evidence remain separate. See
+[the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
+partial and audit-required; no certification or denominator change.
+
+## Periodic backend callback boundary
+
+The [periodic controller](ordinary-periodic-controller.md) retains all296 actual
+pinned method observations for callback order, force state, deciding code and
+PERIODIC effect position. Supplied callbacks do not establish graph growth or
+checkpoint persistence. The separate numeric helper matches196 actual updater observations; clock
+authority and ordinary checker integration remain pending; F-023 stays missing/audit-required and no certification total changes.
+
+Pure VIEW normalization repair (#188) keeps F-016 partial: every concrete
+variable is normalized before projection, while unproved mixed-value errors
+refuse explicitly. The [retained study](../conformance/probes/view-concrete-normalization/README.md)
+separates original incorrect native verdicts, current recovery/witness controls
+and incomplete-state diagnostic limits. This adds evidence, not certification.
 The source-qualified [periodic backend](periodic-backend.md) now derives pointer-table growth and per-OOS last-check snapshots from actual commits, with private joined-wave facts and first-candidate stopping. Thirty-two clean primary projections match at1/3/4/8 workers; four actual Java IO failures remain uncredited reference errors. These explicit-prefix diagnostics do not implement an ordinary clock schedule, Java queue suspension or a temporal verdict. F-023 stays missing/audit-required; no family or corpus certification gain.

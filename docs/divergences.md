@@ -730,6 +730,20 @@ See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
 
+D-009 trace transport boundary (#190): default legacy version 1 retains the
+known mixed-set shape failures. Opt-in `--trace-format representation-v2`
+preserves admitted forward stored sets and nonliteral tuple/record functions
+through checked constructor witnesses and independent replay. This changes no
+comparison, construction or Random/VIEW shape policy. A transported word is not
+a certificate. Reverse construction, arbitrary deferred/symbolic values and
+trusted-storage tuple bit loss (#195) is repaired by explicitly versioned structural storage format 2; older ambiguous archives refuse. See
+[the schema and bounded CLI/API guide](trace-representation.md).
+
+D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
+provides actual fallible disk fingerprint/exact membership with bounded
+workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
+seen-memory CLI budgets remain pending; the library is not a full storage-family
+certificate. See `docs/user/disk-seen-library.md`.
 ## Supplied pure periodic expressions (bounded diagnostic limitation)
 
 ADR0054 adds a pure supplied-expression API at native dispatch pauses. Ordinary configured `_PERIODIC` binding and checkpoints stay refused. TRUE never means Holds; false/evaluation stops preserve original errors and no EOF credit. This changes no default/TLC semantic option and earns no family certification. See [the guide](periodic-hook.md) and [complete59 controls](../conformance/probes/periodic-hook/README.md).

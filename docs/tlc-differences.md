@@ -2137,6 +2137,65 @@ See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
 
+## Incomplete VIEW diagnostic limits (#188)
+
+The #188 investigation also retains incomplete VIEW states under
+`conformance/probes/view-concrete-normalization/incomplete-primary/`. Leaving
+`y` unassigned while storing `{<<1>>, [a |-> 1,b |-> 1]}` makes Init diagnostic
+printing throw EC1000/exit255; incomplete Next reports EC2109/exit75. The
+well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
+for Next. Mixed-value diagnostic printing remains unproved: rejecting an
+incomplete state before keying does not establish its exact printer/error
+counterpart, and no malformed-input-wide conformance is claimed.
+
+
+### Opt-in stored trace transport (#190)
+
+Trace version 1 remains the default and retains the measured 36 original/108
+altered shape failures above. Version 2 (`--trace-format representation-v2`)
+uses checked stored representation for admitted forward mixed record/tuple sets
+and nonliteral tuple/record functions. It recomputes construction witnesses under
+the bound profile; normalized/order/literal claims never substitute for semantic
+Init/Next/ending validation. The transport does not alter comparison semantics,
+reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
+and unproved witness shapes remain explicit transport refusals. The
+[guide and schema](trace-representation.md) specify limits and migration.
+Historical shape failures remain excluded from certificate credit. The separate
+current v2 selection proves 72 independently valid words and 216 semantic mutant
+rejections; 24 matching legacy mixed-value shape failures stay explicit. The
+Model-based writer checks existing name tokens before emission, and fresh owned
+constructor reconstruction may refuse unsupported nested Raw shapes. Twelve
+interval encoding controls retain the concrete violation but emit no transport
+or certificate. See the [source-bound receipt](../conformance/probes/trace-representation-v2/current/receipt.json);
+this does not certify arbitrary stored representations.
+
+### Native tuple-function storage repair (#195)
+
+This was a dive defect, not a TLC defect. For `s=[i \in 1..1 |-> 1]`, the
+pinned TLC run reports `Attempted to apply function with integer domain to the
+non-integer argument "a"` when Next evaluates `s["a"]`. The old frontier/recovery
+path instead reported a tuple-index error because it discarded the representation
+bit. Both had one generated/distinct state, depth one and TLC exit 75; the clean
+message stream carries EC1000 then 2103. Memory and predecessor-only storage
+already retained the correct function diagnostic.
+
+Structural storage format 2 now retains this distinction, including nested
+functions, in both profiles. CP01/FQ01/FI01 imports explicitly refuse; users must
+recreate old archives. This is not a result-changing default or a new divergence:
+mathematical canonical keys and fingerprints are unchanged. Native error metadata
+still reports `verified: false` for this ported diagnostic site; representation
+matching does not certify every error class. Independent transported-witness
+checks remain separate. See [the full evidence](../conformance/probes/storage-tuple-function/README.md).
+
+### Disk seen-state retention is a library increment
+
+D-007 now has an additive Rust disk-membership library, described in
+[the user guide](user/disk-seen-library.md). It preserves full fingerprints or
+canonical exact bytes and reports storage failures explicitly. This is not yet
+an ordinary checker flag: seen sets remain resident during `dive check`. Its
+physical entry count does not certify a discovery prefix, and bounded collision
+summary refusal cannot be counted as completed safety. Frontier/predecessor
+budgets, recovery and total-memory qualifications remain unchanged.
 The bounded [periodic backend diagnostic](periodic-backend.md) exposes source-qualified graph growth, actual pool-prefix facts and first-candidate stopping. It still refuses to claim ordinary periodic scheduling or Holds. TLC uses pointer-table buckets and records processed OOS sizes even after a found violation; four measured thrown-check faults retain old snapshots. These reference quirks and native limitations are preserved in [the complete controls](../conformance/probes/periodic-backend/README.md), without native IO-error agreement credit.
 
 
