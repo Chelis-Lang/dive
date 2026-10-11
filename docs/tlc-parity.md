@@ -679,3 +679,10 @@ artifacts without positive artifact credit. Source recursion is not runtime
 unrolling/termination proof. F-034/F-035 remain partial and audit-required;
 strict saved-frame replay #124 is unchanged. See
 [the maintained guide](pluscal-recursive-procedure-checksums.md).
+
+The bounded process-owned procedure checksum continuation (#225/ADR0079)
+keeps F-034/F-035 partial: one unfair finite process/one disjoint labelled
+procedure, source header ownership distinct from indexed runtime state, complete
+242 capture selection and explicit scoped/fair/mixed/ref-invalid boundaries.
+Raw derivation, public artifacts, finite models and strict replay have separate
+obligations; see `docs/pluscal-process-procedure-checksums.md`.

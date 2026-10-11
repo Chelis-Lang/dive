@@ -32,6 +32,8 @@ pub(super) struct Plan {
     /// Source-owned edges, without the LAST declaration's main-header alias.
     pub body_called: Vec<Vec<usize>>,
     pub main_called: Vec<usize>,
+    /// `GetProcess` resets the parser's called vector independently of LAST.
+    pub process_called: Vec<Vec<usize>>,
 }
 type Groups = Vec<(String, Vec<StmtId>)>;
 struct Builder<'a> {
@@ -310,6 +312,15 @@ impl Builder<'_> {
         self.plan.body_called = (0..parsed.algorithm.procedures.len())
             .map(|_| Vec::new())
             .collect();
+        if let Body::Processes(processes) = &parsed.algorithm.body {
+            self.charge(
+                processes.len(),
+                processes
+                    .len()
+                    .saturating_mul(std::mem::size_of::<Vec<usize>>()),
+            )?;
+            self.plan.process_called = (0..processes.len()).map(|_| Vec::new()).collect();
+        }
         self.charge(parsed.statements.len().saturating_mul(2), 0)?;
         let calls = parsed
             .statements
@@ -352,17 +363,46 @@ impl Builder<'_> {
         let owner = index
             .checked_sub(1)
             .filter(|&i| span.end <= procedures[i].body.span.end);
-        let count = owner.map_or(self.plan.main_called.len(), |i| {
-            self.plan.body_called[i].len()
-        });
+        // Calls outside a procedure belong to their process body, never to
+        // LAST's sequential-main alias. Reserve owner discovery before work.
+        let process = if owner.is_none() {
+            if let Body::Processes(processes) = &self.parsed.algorithm.body {
+                self.charge(processes.len(), 0)?;
+                let Body::Processes(processes) = &self.parsed.algorithm.body else {
+                    return Err(unsupported(span, "missing process called-vector owner"));
+                };
+                Some(
+                    processes
+                        .iter()
+                        .position(|p| {
+                            p.body.span.start <= span.start && span.end <= p.body.span.end
+                        })
+                        .ok_or_else(|| unsupported(span, "missing process called-vector owner"))?,
+                )
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        let count = match (owner, process) {
+            (Some(i), _) => self.plan.body_called[i].len(),
+            (_, Some(i)) => self.plan.process_called[i].len(),
+            _ => self.plan.main_called.len(),
+        };
         self.charge(count, 0)?;
-        let called = owner.map_or(&self.plan.main_called, |i| &self.plan.body_called[i]);
+        let called = match (owner, process) {
+            (Some(i), _) => &self.plan.body_called[i],
+            (_, Some(i)) => &self.plan.process_called[i],
+            _ => &self.plan.main_called,
+        };
         let duplicate = called.contains(&target);
         if !duplicate {
             self.charge(1, std::mem::size_of::<usize>())?;
-            match owner {
-                Some(i) => self.plan.body_called[i].push(target),
-                None => self.plan.main_called.push(target),
+            match (owner, process) {
+                (Some(i), _) => self.plan.body_called[i].push(target),
+                (_, Some(i)) => self.plan.process_called[i].push(target),
+                _ => self.plan.main_called.push(target),
             }
         }
         Ok(())
@@ -411,12 +451,15 @@ impl Builder<'_> {
                 }
             }
         }
-        // Writer emits source-owned vectors, then distinct main targets only
-        // on LAST. Reserve those comparisons without confusing them with edges.
+        // Writer searches source owners, then emits their owned vectors. Only
+        // sequential LAST merges main targets. Reserve all owner/comparison
+        // searches without confusing header aliases with graph edges.
         let last = self.plan.body_called.last().map_or(0, Vec::len);
+        let processes = self.plan.process_called.len();
         self.charge(
             owners
                 .saturating_mul(owners)
+                .saturating_add(processes.saturating_mul(processes))
                 .saturating_add(last.saturating_mul(self.plan.main_called.len())),
             0,
         )?;
@@ -712,12 +755,6 @@ pub(super) fn build(
     if parsed.algorithm.procedures.is_empty() {
         return Ok(Plan::default());
     }
-    let Body::Sequential(main) = &parsed.algorithm.body else {
-        return Err(unsupported(
-            parsed.algorithm.span,
-            "procedure/process checksum ownership",
-        ));
-    };
     let mut builder = Builder {
         parsed,
         procedure_owner: None,
@@ -789,7 +826,17 @@ pub(super) fn build(
         builder.labelled(&proc_groups, "Error", true, 0)?;
     }
     builder.procedure_owner = None;
-    let (_, main_groups) = builder.groups(main)?;
-    builder.labelled(&main_groups, "Done", true, 0)?;
+    match &parsed.algorithm.body {
+        Body::Sequential(main) => {
+            let (_, main_groups) = builder.groups(main)?;
+            builder.labelled(&main_groups, "Done", true, 0)?;
+        }
+        Body::Processes(processes) => {
+            for process in processes {
+                let (_, process_groups) = builder.groups(&process.body)?;
+                builder.labelled(&process_groups, "Done", true, 0)?;
+            }
+        }
+    }
     Ok(builder.plan)
 }

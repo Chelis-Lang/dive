@@ -1,0 +1,145 @@
+{
+  "first_selection_sha256": "208e6ad7a10169cb0a6bd4b35bb188a5e02e060cca70c7026e91b6bfeacc34dc",
+  "corrected_selection_sha256": "15df1a68682418f3c157e233b4cf4d3ad22fa2c56c1d175b87d9478a53670911",
+  "original_capture_report_sha256": "7c31de3c302d9ccdfd5dc4c9c5324b04c88525865d379fc3c92a0ba70b177e6f",
+  "corrected_source_count": 15,
+  "selected": 242,
+  "native_source_edits": false,
+  "rows": [
+    {
+      "id": "ProcessHeader_C_constant_swap_parameters",
+      "original_sha256": "24fa96dd31243741493a766ced776ea0f0b6b48d2dde8e8259a3bb2434b36b4a",
+      "corrected_sha256": "761a33a9ddce72f870a6217667a6f1a7d776a0bbb0be699f5277ede1766bf127",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_self_tail",
+      "original_sha256": "d3700f5adfa7a26d5ff1b4966c24712aa245f1ccd47d4a8910e54ccd7e42e6dc",
+      "corrected_sha256": "f780d2d1b1a1980208406ac1a9a2286624524c603db7572f42c60d4c83df5922",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_recursive_base",
+      "original_sha256": "31476a6570e1543c570fe48c184d0cf8f3bc51300b6491c5b9264c790c472c4f",
+      "corrected_sha256": "0a3cf5938db95f60ea9883085ce7cbae241bc8f4129e331cda316fb964150e15",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_nested_if",
+      "original_sha256": "d5fbd8269e30ea575fcbd6754803dc7f8bb13d68f59ec50c3af97bff2d0d3123",
+      "corrected_sha256": "3f6ae2907d4b16ea78074734bb8f9086c47baa262e8be6de17ce46852e8f6c3a",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_nested_with",
+      "original_sha256": "a2a1ccd2ee52dec1b9108bfa29f1592c8c77ab371809c833fc8a0bfec322a3f8",
+      "corrected_sha256": "b2f51d6007709d676073a0c0ec4458db5bdcf493ea93d19372187b491c2c6dcd",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_nested_either",
+      "original_sha256": "a1aba1f9f439d0b9741f2e6c98d9a80b37cdf4a9e32769a3c8abda2c60c728d5",
+      "corrected_sha256": "7ac80ec7030ef3fe6c04517995f1d21a0f3e108ed7696aaa53fd33d303a66aab",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_constant_while_false",
+      "original_sha256": "7bf14cd34a6106e45c64a9cd6ccbd1ba2eb4a764fed4b476ce7fbbdf3c3773d3",
+      "corrected_sha256": "6f91a894629b906bbf38c9203a518cdfa49e5f91044356c26b134c8a053def95",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_swap_parameters",
+      "original_sha256": "2f6d405a0b0f5f27fb2cdc0b3588c70cf442a2fcd6c7d86ad0f539388867884c",
+      "corrected_sha256": "e7b5561030a9beac9775ac86fda64ace2a7c6062eafcbf20420e281e2b6a5262",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_self_tail",
+      "original_sha256": "2b1e2647419801a66ed90861b5669ccdeecbbdba29de25a92016abb440a98854",
+      "corrected_sha256": "24218522b17c2688e7241e2c6b321819a9b168d8facac7528e7bac6e67a2e68f",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_recursive_base",
+      "original_sha256": "b6a49728eace5e4caa8d3cfbc46aea23bdeb6e2bdef67a50f83ac6e1e0817284",
+      "corrected_sha256": "58f4f523bb7fc73e16617fc4574f0a3965851821de417d23246e721cef6b8367",
+      "replacement_from": "} R:return;",
+      "replacement_to": "}; R:return;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_nested_if",
+      "original_sha256": "292038cd252d15584a7127b671f1d0041e556a912c5d2a9df7ef98877aabf8a1",
+      "corrected_sha256": "4d447995233f19725c52f0cf0595853d305a0415213432f600a52fee1cf4ca85",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_nested_with",
+      "original_sha256": "e613d0b6261f30c18130f1497eb2e69f404acf22c426dbe71af0121b2ba33acb",
+      "corrected_sha256": "84842c972bb32eae540362c69d27f72e058e0ef6d7a6e0c88a745c4aad3a1f96",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_nested_either",
+      "original_sha256": "77797457c347883f58da19104512b240867a461a2b3e402a97ec492a8787c63b",
+      "corrected_sha256": "e5367c20ac692051b44f55006b6e0e337058a69ce4d975a1005b4331e6bc0786",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_member_while_false",
+      "original_sha256": "e09590e8fc8ff1bb8a90083ef31234a534068377ba17222938f547b230529981",
+      "corrected_sha256": "4d4bbafb98c8c71728dea57c4e60ea1c334ec89ab5deda9eca2ec52c7af9925b",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    },
+    {
+      "id": "ProcessHeader_C_boundary_scoped_capture",
+      "original_sha256": "01bbd977be5ce54bcb59049453cf93cee275073e3beac619664178989521e99c",
+      "corrected_sha256": "0447a668da05b600d1ba7991b0acb1e6eae0e0923faa9fa2459372fc49037b4a",
+      "replacement_from": "} E:skip;",
+      "replacement_to": "}; E:skip;",
+      "original_primary_error_retained": true,
+      "native_credit": false
+    }
+  ]
+}
