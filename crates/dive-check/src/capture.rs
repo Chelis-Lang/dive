@@ -616,6 +616,13 @@ fn explore_inner(
     if model.view.is_some() || model.symmetry.is_some() {
         return refuse("graph capture with VIEW or SYMMETRY".into());
     }
+    match engine::bound_configured_random(model) {
+        Ok(true) => {
+            return refuse("graph capture with configured native random replacements".into());
+        }
+        Err(error) => return refuse(format!("graph capture invalid native authority: {error}")),
+        Ok(false) => {}
+    }
     if engine::uses_random(&model.ir) {
         return refuse("graph capture with random operators".into());
     }

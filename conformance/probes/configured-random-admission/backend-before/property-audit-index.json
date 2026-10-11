@@ -1,0 +1,152 @@
+{
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "native_commit": "4ecaa79d33a47e54126feaf171a854a2c77b641b",
+  "native_sha256": "4120ada7c18bccd7c9f4c582b5da8f72b87261a480cb9adcdcad47e561a62bb8",
+  "runs": {
+    "FinalConfigured-primary": {
+      "exit": 13,
+      "args": [
+        "java@pinned-jre",
+        "-cp",
+        "jar@7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "tlc2.TLC",
+        "-tool",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-workers",
+        "1",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-configured-primary-FinalConfigured",
+        "-config",
+        "FinalConfigured.cfg",
+        "FinalConfigured.tla"
+      ]
+    },
+    "SafeFinal-primary": {
+      "exit": 0,
+      "args": [
+        "java@pinned-jre",
+        "-cp",
+        "jar@7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+        "tlc2.TLC",
+        "-tool",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-workers",
+        "1",
+        "-lncheck",
+        "final",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-configured-primary-SafeFinal",
+        "-config",
+        "SafeFinal.cfg",
+        "SafeFinal.tla"
+      ]
+    },
+    "SafeFinal-short-dive": {
+      "args": [
+        "check",
+        "SafeFinal.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit": 0
+    },
+    "SafeFinal-short-tlc": {
+      "args": [
+        "check",
+        "SafeFinal.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "short",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "exit": 12
+    },
+    "SafeFinal-tlc-dive": {
+      "args": [
+        "check",
+        "SafeFinal.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit": 3
+    },
+    "SafeFinal-tlc-tlc": {
+      "args": [
+        "check",
+        "SafeFinal.tla",
+        "--lncheck",
+        "final",
+        "--lasso",
+        "tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ],
+      "exit": 3
+    }
+  },
+  "first_primary_assumption": "<>n=3 permits indefinite stutter without fairness; original failed exit0 assertion/raw retained separately, no primary edited.",
+  "files": {
+    "SafeFinal-tlc-tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "FinalConfigured.tla": "656e4262147d10173fcdcf2e35b70cfbf1aafeaa3d52a70650657d5c7b9a8cf1",
+    "SafeFinal-short-dive.stdout": "5bef052c2fb45f6ac645182650cf777b5dc399bd030e531ec2e5976e84ca0d89",
+    "SafeFinal-short-dive.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafeFinal-tlc-tlc.stdout": "80d24b0a674c0eb54969fe33cfda2c99bb3775235d99eadb0d6ff831837134f3",
+    "SafeFinal.cfg": "747d10658cc2256f404b344201f269deb665623ac09db32407cf9a144c1c2763",
+    "SafeFinal-short-tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafeFinal.tla": "f52ca33dd617d1e482a61a4a4338ba19d107446f0d1b6b4aad693752d320871b",
+    "SafeFinal-primary.stdout": "6c4d97a6bc00e86df4e4d9ae412e0938af55ac985ca97fef333ba94091a2d4e6",
+    "SafeFinal-tlc-dive.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "FinalConfigured-primary.stdout": "6b6c4149e7d0ea7d24539815f5cf2d7586fddbb5887167c7ec3a9aa0d32d15ea",
+    "FinalConfigured.cfg": "747d10658cc2256f404b344201f269deb665623ac09db32407cf9a144c1c2763",
+    "FinalConfigured-primary.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafeFinal-primary.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "SafeFinal-tlc-dive.stdout": "2824e56eae575fae16e98a33907b7f39d05087267ff57410bb948546422a6c7f",
+    "SafeFinal-short-tlc.stdout": "069fd3e7e6b193a0815f9306c2ad5bd11295bae89be2ae3dbae6c9ba2a71689c"
+  }
+}

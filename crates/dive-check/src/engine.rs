@@ -246,24 +246,99 @@ fn search_counters(host: &RunHost) {
 
 /// Whether the specification refers to a random operator, so that expanded
 /// states need their own random stream.
+fn random_op(op: dive_ir::StdOp) -> bool {
+    use dive_ir::StdOp;
+    matches!(
+        op,
+        StdOp::TlcRandomElement
+            | StdOp::RandomizationRandomSubset
+            | StdOp::RandomizationRandomSetOfSubsets
+            | StdOp::RandomizationRandomSubsetSet
+    )
+}
+
 pub(crate) fn uses_random(ir: &dive_ir::Ir) -> bool {
-    use dive_ir::{OpRef, StdOp};
-    let random = |op: StdOp| {
-        matches!(
-            op,
-            StdOp::TlcRandomElement
-                | StdOp::RandomizationRandomSubset
-                | StdOp::RandomizationRandomSetOfSubsets
-                | StdOp::RandomizationRandomSubsetSet
-        )
-    };
+    use dive_ir::OpRef;
     ir.nodes().iter().any(|n| {
         n.expr.op_refs().into_iter().any(|r| match r {
-            OpRef::Std(op) => random(*op),
-            OpRef::Def(d) => ir.def(*d).std.is_some_and(random),
+            OpRef::Std(op) => random_op(*op),
+            OpRef::Def(d) => ir.def(*d).std.is_some_and(random_op),
             _ => false,
         })
     })
+}
+
+// Called only after typed IR admission. Source nodes do not reference a
+// native replacement selected solely by the cfg. Binding resolves RHS names
+// through contexts, then installs source native overrides by definition name
+// (SpecProcessor.processModuleOverrides). Match both authorities without
+// evaluating any body. All matching aliases/modules are conservative here:
+// a malformed or shadowed cfg may be refused before its binding diagnostic.
+pub(crate) fn uses_configured_random(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    uses_random(ir) || configured_random_target(ir, cfg)
+}
+
+// The target alone is an independent admission authority. A visible random
+// node does not prove the selected replacement has the inline/per-state
+// stream routes needed by the current engine (#180).
+pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::ModelConfig) -> bool {
+    cfg.constants.iter().any(|entry| {
+        let dive_config::ConstantEntry::Substitution { target, .. } = entry else {
+            return false;
+        };
+        ir.modules().iter().any(|module| {
+            module.context.iter().any(|(name, symbol)| {
+                name == &target.text
+                    && matches!(symbol, dive_ir::Symbol::Def(id)
+                            if ir.def(*id).std.is_some_and(random_op))
+            })
+        }) || ir.defs().iter().any(|def| {
+            def.source.is_none() && def.name == target.text && def.std.is_some_and(random_op)
+        })
+    })
+}
+
+// A supplied bound model no longer carries its source cfg. Inspect admitted
+// constant bindings and actual redirects without invoking any expression or
+// lazy callback. Unused native imports alone must not refuse pure captures.
+pub(crate) fn bound_configured_random(model: &Model) -> Result<bool, String> {
+    // The shared capture entry admission already verifies full model context.
+    // Keep the helper defensive against any future caller as well.
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| e.to_string())?;
+    let native = |id: dive_ir::DefId| -> Result<bool, String> {
+        if model.ir.defs().get(id.index()).is_none() {
+            return Err("DIVE-EVAL-C001: invalid configured native definition".into());
+        }
+        let id = model.evaluator.redirected(id);
+        let def = model
+            .ir
+            .defs()
+            .get(id.index())
+            .ok_or_else(|| "DIVE-EVAL-C001: invalid redirected native definition".to_owned())?;
+        Ok(def.std.is_some_and(random_op))
+    };
+    for (index, _) in model.ir.consts().iter().enumerate() {
+        let index = u32::try_from(index)
+            .map_err(|_| "DIVE-EVAL-C005: constant index overflow".to_owned())?;
+        if let Some(dive_eval::ConstBinding::Def(id)) =
+            model.evaluator.constant_binding(dive_ir::ConstId(index))
+            && native(id)?
+        {
+            return Ok(true);
+        }
+    }
+    for (index, _) in model.ir.defs().iter().enumerate() {
+        let index = u32::try_from(index)
+            .map_err(|_| "DIVE-EVAL-C005: definition index overflow".to_owned())?;
+        let id = dive_ir::DefId(index);
+        if model.evaluator.redirected(id) != id && native(id)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 /// TLC's level of a state at BFS level `n` (initial states are level 1).

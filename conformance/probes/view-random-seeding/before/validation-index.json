@@ -1,0 +1,84 @@
+{
+  "native_source_commit": "d1102e5d6eb66898259f061949ab031ab6cfa334",
+  "native_sha256": "bcbd0c2fd63008f142929f00bb93fb2006a79cacd574bc5ba25dce0931277b2b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "commands": {
+    "tlc": {
+      "args": [
+        "/Users/jeff/code/dive-checkpoint-random-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/Users/jeff/code/dive-checkpoint-random-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-workers",
+        "1",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-random-view-seeding-before/meta",
+        "-config",
+        "RandomView.cfg",
+        "RandomView.tla"
+      ],
+      "exit": 12
+    },
+    "native": {
+      "args": [
+        "/Users/jeff/code/dive-cleanup-evidence-20261010/checkpoint-runtime-names/dive",
+        "check",
+        "RandomView.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit": 12
+    },
+    "native-validation": {
+      "args": [
+        "/Users/jeff/code/dive-cleanup-evidence-20261010/checkpoint-runtime-names/dive",
+        "validate-trace",
+        "RandomView.tla",
+        "--config",
+        "RandomView.cfg",
+        "--trace",
+        "native.trace.json",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json"
+      ],
+      "exit": 3
+    },
+    "tlc-validation": {
+      "args": [
+        "/Users/jeff/code/dive-cleanup-evidence-20261010/checkpoint-runtime-names/dive",
+        "validate-trace",
+        "RandomView.tla",
+        "--config",
+        "RandomView.cfg",
+        "--trace",
+        "tlc.trace.json",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--output",
+        "json"
+      ],
+      "exit": 3
+    }
+  }
+}

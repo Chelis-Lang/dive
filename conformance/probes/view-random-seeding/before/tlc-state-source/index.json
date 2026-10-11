@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "source_path": "tlatools/org.lamport.tlatools/src/tlc2/tool/TLCStateMutExt.java",
+  "sha256": "0b28a80e68830edd2097865391a452357a54ae1385c6b5fb44536c7758b89d39",
+  "gzip": "TLCStateMutExt.java.gz",
+  "gzip_sha256": "3e468065b25ad4e8ad04449471d528bde78ef14cecdf9d5e9414744c6c64d632",
+  "scope": "transformed-fingerprint RNG behavior source evidence; no implementation or independent replay claim"
+}
