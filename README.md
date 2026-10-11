@@ -29,6 +29,7 @@ issues, provenance and conformance evidence.
 - [`docs/tlc-parity.md`](docs/tlc-parity.md): the pinned feature ledger and remaining path to full TLC parity.
 - [`docs/tlc-differences.md`](docs/tlc-differences.md): where dive differs from TLC and why, with `--compat=tlc` restoring TLC's exact behaviour.
 - [`docs/temporal-api.md`](docs/temporal-api.md): final temporal checking for Rust callers.
+- [`docs/tuple-only-trace-replay.md`](docs/tuple-only-trace-replay.md): strict independent replay of proved tuple sequence calls and remaining namespace limits.
 - [`crates/dive-sim/README.md`](crates/dive-sim/README.md): seeded finite simulation and its current limits.
 - [`docs/pluscal-rewriting.md`](docs/pluscal-rewriting.md): bounded in-memory block replacement and explicit translation-body checksums.
 - [`docs/decisions/`](docs/decisions/): architecture decision records.

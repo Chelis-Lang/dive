@@ -96,6 +96,7 @@ jobs:
           python3 -I scripts/check-view-normalization.py
           python3 -I scripts/check-view-random-stream.py
           python3 -I scripts/check-trace-representation.py
+          python3 -I scripts/check-tuple-only-replay.py
           python3 -I scripts/check-native-parity-integration.py
           python3 -I scripts/check-tlc-final.py
           python3 -I scripts/check-tlc-final-safety.py
