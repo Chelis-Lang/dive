@@ -1,9 +1,9 @@
 # Fallible disk seen-state library
 
 `dive-store` has an additive private-file library for fingerprint or exact
-canonical keys. It is not yet an option for `dive check`; the checker continues
-to retain its seen-state sets in memory. Frontier and predecessor byte budgets
-keep their existing separate scope.
+canonical keys. An explicit [ordinary safety route](disk-seen-safety.md) now
+admits it with reported inline fallback. The default checker retains its
+seen-state sets in memory. Frontier and predecessor budgets keep separate scope.
 
 Run the Cargo example:
 
@@ -65,11 +65,13 @@ Checksums detect accidental corruption and provide no archive authenticity or
 independent search proof.
 
 The first library permits coordinated exclusive calls. Parallel read views,
-ordinary BFS admission, semantic stopping-prefix integration, recovery and
-combined seen/frontier/predecessor budgets are later increments. See
+recovery and graph routing remain pending. Ordinary inline safety admission
+and separately budgeted seen/frontier/predecessor combinations use the explicit
+[engine contract](disk-seen-safety.md). See
 [ADR 0063](../decisions/0063-fallible-disk-seen-state-library.md).
 
 The [source-bound control study](../../conformance/probes/fallible-seen-store/README.md)
 records full key identity, rehash, poisoned-error and owned-cleanup controls, the
 actual Cargo example and current engine regression gates. It supplies library
-evidence; it does not turn this API into a checker storage option or checkpoint.
+evidence; the later engine increment supplies its own evidence and option contract. It
+does not establish checkpoint support.

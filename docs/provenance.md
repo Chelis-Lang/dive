@@ -816,3 +816,28 @@ they are native admission controls, not Java runtime instructions or allocation
 measurements. No Java runtime is delegated to. See ADR 0069 and the complete
 98-row declared study; raw original-header bytes are not exploded-xast, artifact
 or model-proof credit.
+| Source-qualified periodic backend (#189) | `LiveCheck.doLiveCheck`/`check`/`check0`, `LiveWorker.call`, `DiskGraph.size`, `TableauDiskGraph.size`, `NodePtrTable`/`TableauNodePtrTable` registration and `AbstractDiskGraph.recordSize`/`makeNodePtrTbl`; pin94d0c50 | MIT | Actual32 source-growth projections, four controlled thrown-check failures and complete pointer/snapshot/threshold controls. Native private model-owned checkpoints, cumulative original work bounds and independent witness mutants; no ordinary clock/queue-suspension or model-proof claim. ADR0051 |
+
+
+| Native periodic lifecycle (#189) | ModelChecker.doPeriodicWork/updateRuntimeRatio; StateQueue suspendAll/resumeAll/finishAll and actual DiskStateQueue selected thread controls; pin94d0c50 | MIT |296 controller,196 updater and96 selected queue controls retain separate producers; native borrowed pool authority and internal source-commit timer/EOF SCC seam are diagnostic, not ordinary scheduler equivalence. ADR0052 |
+
+| `dive-liveness::periodic_hook` and lifecycle hook composition | `tlc2.tool.ModelChecker.doPeriodicWork` (hook after liveness before checkpoint/resume), `Tool.eval(SemanticNode)` (Context.Empty/Empty states/Clear), `BoolValue.equals`; pin94d0c50 | MIT | Complete59 actual method projections; supplied pure Pred composition only, configured snapshot binding and ordinary scheduling unclaimed |
+
+| Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
+
+The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
+for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
+preserved as an observer limitation, without tableau write-authority credit.
+Worker/controller outcomes and native owned publication remain separately
+measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
+
+## Fallible seen-state ordinary safety admission (ADR0068)
+
+`dive-check/src/seen.rs` and the optional inline `Search` key path preserve the
+existing pinned `Worker.addElement`/`DoInitFunctor.addElement` ordering,
+`ModelChecker.reportSuccess` conditional fingerprint estimates and concrete
+predecessor replay at MIT pin94d0c50. Native disk failures/owned cleanup are
+explicit native policy, not Java I/O-error equivalence. Unchanged canonical
+bytes and fingerprint keyers are borrowed once; no Boolean disk adapter or
+future candidate bulk resolve is introduced. Independent concrete replay does
+not read checker stores. Graph, recovery and parallel read views remain refused.

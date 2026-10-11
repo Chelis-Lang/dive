@@ -88,6 +88,9 @@ where
         ctx: Ctx,
     ) -> Result<Self::Key, StoreError>;
 
+    /// Borrows the unchanged full identity for the fallible disk store.
+    fn disk_key(key: &Self::Key) -> dive_store::seen::Key<'_>;
+
     /// Copies a graph identity key without evaluating the specification.
     fn duplicate_key(key: &Self::Key) -> Self::Key;
 
@@ -134,6 +137,10 @@ impl Keyed for FpSet {
         }
     }
 
+    fn disk_key(key: &u64) -> dive_store::seen::Key<'_> {
+        dive_store::seen::Key::Fingerprint(*key)
+    }
+
     fn duplicate_key(key: &u64) -> u64 {
         *key
     }
@@ -168,6 +175,10 @@ impl Keyed for ExactSet {
         let mut buf = Vec::new();
         state_key(vals, ctx, &mut buf)?;
         Ok(buf.into_boxed_slice())
+    }
+
+    fn disk_key(key: &Box<[u8]>) -> dive_store::seen::Key<'_> {
+        dive_store::seen::Key::Exact(key)
     }
 
     fn duplicate_key(key: &Box<[u8]>) -> Box<[u8]> {
@@ -971,6 +982,7 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
     pub(crate) ctx: Ctx,
     pub(crate) keyer: &'a S::Keyer,
     pub(crate) set: S,
+    disk: Option<crate::seen::Run>,
     pub(crate) log: PredecessorLog,
     pub(crate) generated: u64,
     pub(crate) depth: u64,
@@ -981,6 +993,26 @@ pub(crate) struct Search<'a, 'obs, S: Keyed> {
 }
 
 impl<S: Keyed> Search<'_, '_, S> {
+    fn seen_len(&self) -> u64 {
+        self.disk
+            .as_ref()
+            .map_or_else(|| self.set.len(), crate::seen::Run::semantic_entries)
+    }
+
+    fn insert_key(
+        &mut self,
+        key: S::Key,
+        parent: Option<StateId>,
+        ordinal: u64,
+    ) -> Result<bool, Verdict> {
+        if let Some(disk) = &mut self.disk {
+            disk.insert(S::disk_key(&key), self.generated, parent, ordinal)
+                .map_err(|error| crate::seen::verdict(&error))
+        } else {
+            Ok(self.set.insert(key))
+        }
+    }
+
     /// Native transaction state is only present on admitted pure safety runs.
     pub(crate) fn has_checkpoint(&self) -> bool {
         self.checkpoint.is_some()
@@ -1164,7 +1196,11 @@ impl<S: Keyed> Search<'_, '_, S> {
             };
             let graph_key = self.capture.as_ref().map(|_| S::duplicate_key(&key));
             let checkpoint_key = self.checkpoint.as_ref().map(|_| S::duplicate_key(&key));
-            if self.set.insert(key) {
+            let inserted = match self.insert_key(key, parent.map(|(_, id)| id), succ.ordinal) {
+                Ok(inserted) => inserted,
+                Err(verdict) => return Some((verdict, false, false)),
+            };
+            if inserted {
                 let Ok(ordinal) = u32::try_from(succ.ordinal) else {
                     return Some((
                         Verdict::InternalError {
@@ -1213,7 +1249,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             if let Err(verdict) = next.push(t.clone(), id) {
                 return Some((verdict, false, false));
             }
-            let mut stats = self.stats(self.set.len());
+            let mut stats = self.stats(self.seen_len());
             stats.initial_generated = self.generated;
             if let Some(observer) = &mut self.observer
                 && let Err(message) = observer.initial(id, &t, succ.ordinal, stats)
@@ -1330,7 +1366,7 @@ impl<S: Keyed> Search<'_, '_, S> {
             // checking), and the depth is 1 once a state was generated
             // (fixtures `ErInit*`, `ErInvInitState`, `ErConstrInitState`).
             // After a violation it prints none.
-            let mut stats = self.stats(self.set.len());
+            let mut stats = self.stats(self.seen_len());
             stats.depth = u64::from(self.generated > 0);
             return Some((s, stats));
         }
@@ -1474,7 +1510,9 @@ impl<S: Keyed> Search<'_, '_, S> {
                 if let Some(mut s) = stop {
                     let left = (count - i - 1) + next.len();
                     let mut stats = self.stats(left as u64);
-                    if let Some(ordinal) = resume {
+                    if let Some(ordinal) = resume
+                        && self.disk.is_none()
+                    {
                         let r = self.replay_after(&self.set, s0, ordinal, level, &BTreeSet::new());
                         stats.distinct += r.distinct;
                         stats.left_on_queue += r.queued;
@@ -1574,6 +1612,16 @@ impl<S: Keyed> Search<'_, '_, S> {
         level: u64,
         unseen: &BTreeSet<S::Key>,
     ) -> Replayed {
+        if self.disk.is_some() {
+            // Defensive admission for every caller, including future pool
+            // integrations: never use Boolean resident membership on disk.
+            return Replayed {
+                error: Some(Verdict::Unsupported {
+                    feature: "disk seen-state invariant-error call-stack replay".into(),
+                }),
+                ..Replayed::default()
+            };
+        }
         let m = self.m;
         let ev = &m.evaluator;
         // TLC prints the replay's `Print` output again; dive does not.
@@ -1675,7 +1723,7 @@ impl<S: Keyed> Search<'_, '_, S> {
     pub(crate) fn stats(&self, left_on_queue: u64) -> Stats {
         Stats {
             generated: self.generated,
-            distinct: self.set.len(),
+            distinct: self.seen_len(),
             left_on_queue,
             depth: self.depth,
             initial_generated: self.initial_generated,
@@ -1754,6 +1802,7 @@ impl<S: Keyed> Search<'_, '_, S> {
 
 /// What the engine hands back.
 pub(crate) struct Outcome {
+    pub seen: Option<crate::SeenUsage>,
     pub graph: Option<BehaviorGraph>,
     pub frontier: crate::FrontierUsage,
     pub predecessor: crate::result::PredecessorUsage,
@@ -1950,6 +1999,7 @@ fn search_in<S: Keyed>(
         Err(feature) => {
             workers.used = 0;
             return Outcome {
+                seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -1969,6 +2019,7 @@ fn search_in<S: Keyed>(
         Ok(k) => k,
         Err(message) => {
             return Outcome {
+                seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -1985,6 +2036,7 @@ fn search_in<S: Keyed>(
     };
     let Some(seeder) = StateFingerprinter::tlc(opts.fp_index, &tlc_order) else {
         return Outcome {
+            seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
@@ -2005,6 +2057,7 @@ fn search_in<S: Keyed>(
     };
     let Some(view_seeder) = StateFingerprinter::tlc(opts.fp_index, &[0]) else {
         return Outcome {
+            seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier: crate::FrontierUsage::default(),
@@ -2020,6 +2073,39 @@ fn search_in<S: Keyed>(
             workers,
         };
     };
+    if opts.seen_disk.is_some() {
+        workers.used = 1;
+        workers.sequential = true;
+        workers.reason = Some("disk seen-state retention uses inline search until immutable disk read views are proved".into());
+    }
+    let disk = match opts
+        .seen_disk
+        .as_ref()
+        .map(|request| crate::seen::Run::open(opts.store, request))
+        .transpose()
+    {
+        Ok(disk) => disk,
+        Err(error) => {
+            workers.used = 0;
+            return Outcome {
+                seen: Some(crate::seen::SeenUsage::creation_failure(
+                    opts.seen_disk.as_ref(),
+                    &error,
+                )),
+                predecessor: crate::result::PredecessorUsage::default(),
+                graph: None,
+                frontier: crate::FrontierUsage::default(),
+                verdict: crate::seen::verdict(&error),
+                stats: None,
+                tlc_prints_stats: false,
+                counterexample: None,
+                collision: None,
+                output: m.take_output(),
+                notes,
+                workers,
+            };
+        }
+    };
     let mut s = Search {
         m,
         host,
@@ -2029,6 +2115,7 @@ fn search_in<S: Keyed>(
         ctx: opts.eval.ctx,
         keyer: &keyer,
         set: S::fresh(dive_store::shard_bits_for(workers.used)),
+        disk,
         log: PredecessorLog::new(
             opts.predecessor_memory_bytes,
             opts.predecessor_directory.as_deref(),
@@ -2105,7 +2192,7 @@ fn search_in<S: Keyed>(
         }
     };
     let mut frontier = crate::frontier::evidence(&accounting);
-    let stop = if frontier.failures.is_empty() {
+    let mut stop = if frontier.failures.is_empty() {
         stop
     } else {
         frontier.deciding_event_before_failure = Some(stop.as_ref().map_or_else(
@@ -2122,8 +2209,27 @@ fn search_in<S: Keyed>(
         })
     };
     let mut output = m.take_output();
+    let collision = if stop.is_none() {
+        if let Some(disk) = &mut s.disk {
+            match disk.collision(opts.store, stats.distinct, stats.generated) {
+                Ok(collision) => collision,
+                Err(error) => {
+                    stop = Some(Stop {
+                        verdict: crate::seen::verdict(&error),
+                        in_init: false,
+                        path: None,
+                        then: None,
+                    });
+                    None
+                }
+            }
+        } else {
+            s.set.collision(stats.distinct, stats.generated)
+        }
+    } else {
+        None
+    };
     let Some(stop) = stop else {
-        let collision = s.set.collision(stats.distinct, stats.generated);
         // checkPostCondition runs after the complete search, with the
         // final counters visible through TLCGet.
         for (counter, value) in [
@@ -2137,25 +2243,29 @@ fn search_in<S: Keyed>(
         }
         let verdict = postconditions(m).unwrap_or(Verdict::Success);
         output.extend(m.take_output());
-        return finalize_predecessor(
-            &mut s.log,
-            Outcome {
-                predecessor: crate::result::PredecessorUsage::default(),
-                graph: s.capture.take().map(Collector::finish),
-                frontier,
-                collision: if verdict == Verdict::Success {
-                    collision
-                } else {
-                    None
+        return crate::seen::finish(
+            &mut s.disk,
+            finalize_predecessor(
+                &mut s.log,
+                Outcome {
+                    seen: None,
+                    predecessor: crate::result::PredecessorUsage::default(),
+                    graph: s.capture.take().map(Collector::finish),
+                    frontier,
+                    collision: if verdict == Verdict::Success {
+                        collision
+                    } else {
+                        None
+                    },
+                    verdict,
+                    stats: Some(stats),
+                    tlc_prints_stats: true,
+                    counterexample: None,
+                    output,
+                    notes,
+                    workers,
                 },
-                verdict,
-                stats: Some(stats),
-                tlc_prints_stats: true,
-                counterexample: None,
-                output,
-                notes,
-                workers,
-            },
+            ),
         );
     };
     // TLCTrace's initial-predecessor fast path reuses the original state's
@@ -2178,6 +2288,30 @@ fn search_in<S: Keyed>(
     let _ = m.take_output();
     let deciding_event = format!("{:?}", stop.verdict);
     let (verdict, counterexample) = match cx {
+        result if s.disk.is_some() && resumes(&stop.verdict) => {
+            // TLC call-stack replay can inspect/enqueue later successors. The
+            // resident reference set is empty on disk runs, and neither its
+            // Boolean membership nor a fresh scan is a disk replay authority.
+            notes.push(format!(
+                "The search reached {:?}; disk invariant-error call-stack replay is not implemented. Counts and any retained trace describe the original stopping prefix only, not TLC's completed error replay or a certificate.",
+                stop.verdict
+            ));
+            let diagnostic = match result {
+                Ok(trace) => trace,
+                Err(message) => {
+                    notes.push(format!(
+                        "The diagnostic error trace could not be reconstructed: {message}"
+                    ));
+                    None
+                }
+            };
+            (
+                Verdict::Unsupported {
+                    feature: "disk seen-state invariant-error call-stack replay".into(),
+                },
+                diagnostic,
+            )
+        }
         _ if unproved_initial_replay => {
             notes.push(format!("The search reached {:?}; its first-successor random trace has an unproved TLC replay/printing contract (D-002). Statistics record that stopping prefix, not a completed certification.", stop.verdict));
             (
@@ -2209,6 +2343,7 @@ fn search_in<S: Keyed>(
     let mut final_outcome = finalize_predecessor(
         &mut s.log,
         Outcome {
+            seen: None,
             predecessor: crate::result::PredecessorUsage::default(),
             graph: None,
             frontier,
@@ -2227,7 +2362,7 @@ fn search_in<S: Keyed>(
     if !final_outcome.predecessor.failures.is_empty() {
         final_outcome.predecessor.deciding_event_before_failure = Some(deciding_event);
     }
-    final_outcome
+    crate::seen::finish(&mut s.disk, final_outcome)
 }
 
 /// Close storage only after replay, retaining the deciding event on failure.
@@ -2273,6 +2408,7 @@ mod predecessor_tests {
         let outcome = finalize_predecessor(
             &mut log,
             Outcome {
+                seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),
@@ -2317,6 +2453,7 @@ mod predecessor_tests {
         let outcome = finalize_predecessor(
             &mut log,
             Outcome {
+                seen: None,
                 predecessor: crate::result::PredecessorUsage::default(),
                 graph: None,
                 frontier: crate::FrontierUsage::default(),

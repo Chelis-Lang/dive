@@ -352,6 +352,11 @@ pub use dive_syntax;
 /// Re-exported so API users can work with the semantic model directly.
 pub use dive_sema;
 
+/// Bounded transient disk seen-state safety options.
+pub use dive_check::SeenOptions;
+/// Limits for full disk keys, entries, probes and collision summaries.
+pub use dive_store::seen::Limits as SeenLimits;
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -6,6 +6,10 @@ use dive_store::StoreMode;
 /// How to run a check.
 #[derive(Clone, Debug)]
 pub struct CheckOptions {
+    /// Opt-in transient fallible disk seen-state retention (ADR 0068).
+    /// None preserves the resident reference. Disk runs use an explicitly
+    /// reported inline fallback; this is not a total-memory or recovery budget.
+    pub seen_disk: Option<crate::SeenOptions>,
     /// Opt-in encoded resident budget per current/next frontier queue. TLC uses
     /// its disk queue; `None` keeps the in-memory equivalence reference. This
     /// bounds frontier bytes only, not seen sets, candidates, traces or graphs.
@@ -69,6 +73,7 @@ impl CheckOptions {
     #[must_use]
     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
         Self {
+            seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
             predecessor_memory_bytes: None,
@@ -90,6 +95,7 @@ impl CheckOptions {
     #[must_use]
     pub const fn dive(seed: i64) -> Self {
         Self {
+            seen_disk: None,
             frontier_memory_bytes: None,
             frontier_directory: None,
             predecessor_memory_bytes: None,

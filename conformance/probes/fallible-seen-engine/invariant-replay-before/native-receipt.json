@@ -1,0 +1,103 @@
+{
+  "producer": "b07aaa1164d04ccb6a15f29df5b6046ab599443b",
+  "compiled_by": "immutable fullgate nextest workspace inventory",
+  "binary_sha256": "2238db242ab2d971d1af2a636e3febc7130b495eef296d034d4ee10224c482b0",
+  "rows": [
+    {
+      "command": [
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/dive-b07-debug",
+        "check",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/ReplayMembership/ReplayMembership.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--store",
+        "fp",
+        "--workers",
+        "1",
+        "--sequential",
+        "--output",
+        "json"
+      ],
+      "case": "fp-False",
+      "exit": 76,
+      "stdout_sha256": "0f3627760f32779bf4919719268044d651cac0559d24cab1cb15162bbf2c9432",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/dive-b07-debug",
+        "check",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/ReplayMembership/ReplayMembership.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--store",
+        "fp",
+        "--workers",
+        "1",
+        "--sequential",
+        "--output",
+        "json",
+        "--seen-disk-entries",
+        "1000"
+      ],
+      "case": "fp-True",
+      "exit": 76,
+      "stdout_sha256": "7868cce74c7f3febf6aa95b2549c4f0f1f581e830adb2bd5375a18c13b3d50f5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/dive-b07-debug",
+        "check",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/ReplayMembership/ReplayMembership.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--store",
+        "exact",
+        "--workers",
+        "1",
+        "--sequential",
+        "--output",
+        "json"
+      ],
+      "case": "exact-False",
+      "exit": 76,
+      "stdout_sha256": "2d9f3e0eea8945a9ca32b8d8035aceb367a6c0058c8d50433336b076206e1149",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/dive-b07-debug",
+        "check",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-engine-development/invariant-replay-before/ReplayMembership/ReplayMembership.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--store",
+        "exact",
+        "--workers",
+        "1",
+        "--sequential",
+        "--output",
+        "json",
+        "--seen-disk-entries",
+        "1000"
+      ],
+      "case": "exact-True",
+      "exit": 76,
+      "stdout_sha256": "4bb2161c742b9e500c520480907cb0f732d63e8f4be0a9851eef530f220521a9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

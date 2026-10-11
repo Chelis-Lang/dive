@@ -158,6 +158,9 @@ pub fn check(ir: &Arc<Ir>, cfg: &ModelConfig, options: &CheckOptions, request: &
             receipt: None,
         };
     }
+    if options.seen_disk.is_some() {
+        return Result { check: crate::bare(Verdict::Unsupported { feature: "disk seen-state retention with native checkpoint/recovery is not implemented".into() }, options, ir), receipt: None };
+    }
     let started = std::time::Instant::now();
     let run = || {
         let mut session = match Session::prepare(ir, cfg, options, request) {

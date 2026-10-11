@@ -36,3 +36,6 @@ Concrete temporal state representation: [Stored successor values](../stored-succ
 - [Source-owned periodic backend diagnostic](../periodic-backend.md): pointer growth, explicit partial requests and real native-source stopping; no ordinary clock schedule or model-proof claim.
 
 - [Native clock/dispatch lifecycle diagnostic](../native-periodic-lifecycle.md): real pauses, internal timer observations and EOF checks; ordinary scheduling and model proof remain unsupported.
+
+- [Opt-in disk seen-state safety checking](disk-seen-safety.md): explicit bounded
+  retention, inline fallback, typed failure/cleanup facts and executable Rust example.

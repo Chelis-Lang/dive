@@ -873,6 +873,9 @@ fn context_stop(model: &Model, opts: &CheckOptions) -> Option<Exploration> {
             verdict, opts, &model.ir,
         ))));
     }
+    if opts.seen_disk.is_some() {
+        return Some(stopped(Verdict::Unsupported { feature: "disk seen-state retention with behavior graph/source capture is not implemented".into() }, model, opts));
+    }
     None
 }
 

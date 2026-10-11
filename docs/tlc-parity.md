@@ -100,7 +100,7 @@ and a corresponding certification schema before the label can change.
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs); [strict tuple-only replay](tuple-only-trace-replay.md) and [bounded tuple-variable admission](inductive-tuple-trace-replay.md); general variable-stack namespace histories remain unproved |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
+| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); default seen/candidate/graph/SCC retention remains resident; opt-in disk safety membership is partial |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending; [bounded Full checksum editing](pluscal-rewriting.md), broader AST checksum scopes/file format pending |
@@ -667,3 +667,16 @@ global helpers and exact post-translation defs serialization. Declaration scope,
 AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
+The source-qualified [periodic backend](periodic-backend.md) now derives pointer-table growth and per-OOS last-check snapshots from actual commits, with private joined-wave facts and first-candidate stopping. Thirty-two clean primary projections match at1/3/4/8 workers; four actual Java IO failures remain uncredited reference errors. These explicit-prefix diagnostics do not implement an ordinary clock schedule, Java queue suspension or a temporal verdict. F-023 stays missing/audit-required; no family or corpus certification gain.
+
+
+The explicit disk seen-state safety route (#212, ADR0068) extends P7 with full
+fingerprint/exact key admission through fallible inline insertion and audited
+cleanup. It admits explicit INIT/NEXT configurations only and reports requested
+widths separately from actual inline execution. PROPERTY/SPECIFICATION role
+decomposition, parallel read views, capture/temporal routing and disk seen-state
+recovery remain pending. Candidate/graph/reconstruction retention and OS page
+cache remain outside these bounds; F-031 remains partial/audit-required.
+
+Disk invariant-error call-stack replay remains a named refusal; its retained error
+word and initial counts do not receive completed replay or certificate credit.
