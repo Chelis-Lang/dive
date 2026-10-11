@@ -38,19 +38,3 @@ All 752 selected profile rows remain accounted for: raw {"exact-raw-ast": 480, "
 The guide runs 13 executed CLI/API/Cargo controls. `checksum-corruption-controls/` retains six actual reference/native unchanged or corrupted checks; `comparison-negative-controls/` retains 15 false-proof/context/CRC mutations and 496 requested-context audits. `finite-models/` retains 24 primary models, 288 width/store/profile checks, 12 strict valid witnesses and 48 rejected mutants; named original replay refusals remain pending. Fairness model checking is not certified by INIT/NEXT safety checks.
 
 `executed-runners/*.txt` contains the byte-identical scripts that produced the recorded script digests. Portable replay scripts are distinct later consumers; use fresh `--out` directories and private caches, never overwrite recorded campaigns. The source was frozen but **uncommitted** while gates and consumers ran: `uncommitted-producer-source/` and its digest manifest preserve those exact inputs. The final commit is accepted only after checked production-input equality; no clean committed producer is retroactively claimed. The ancestor selection has CM1 20 and VTS16 at 1/4/8; current-main integration has its own independently required selection.
-
-## Current-source integration handoff
-
-`integration-history/` preserves the original parent source-option refusal test
-and current authority maps before the source-context merge. The exported
-callback-free `source_option_declaration_span` remains an alias with the original
-header-only diagnostic span. Resolved declarations retain their full extent for
-old-block overlap admission. The existing eight API masking assertions are
-unchanged; 20 retained scanner rows separately prove the header alias.
-
-The isolated integration passed 16 focused tests, targeted API/PlusCal clippy and
-24 current offline checks. These are focused controls, not a full combined gate
-or a fresh 752-row certification. The lead combines this production increment
-with the independent temporal-operator patch before running one frozen complete
-gate and new campaigns. See [fresh combined-source commands](integration-runners/README.md).
-The original producer receipts and failed before-map checks remain immutable.

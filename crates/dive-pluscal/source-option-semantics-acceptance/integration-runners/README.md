@@ -44,3 +44,26 @@ Run the current full local gate, all current offline source guards and current
 CM1/VTS subsets on the same combined producer. Its runtime/census/source receipt
 is separate from historical `550d959e` and the frozen original source-option
 producer. F-034/F-035 remain partial/audit-required.
+
+`verify.py` in this directory verifies the complete historical producer archive,
+26 unchanged build inputs, raw evidence and 412 focused integration inputs from
+separate archived bytes. The original top-level `verify.py` retains its original
+producer-only live-source assumptions; it must not be used to certify a combined
+checkout whose core and masking guards have changed. Neither archived readback
+is a fresh integrated runtime campaign.
+
+## Current-source integration handoff
+
+`integration-history/` preserves the original parent source-option refusal test
+and current authority maps before the source-context merge. The exported
+callback-free `source_option_declaration_span` remains an alias with the original
+header-only diagnostic span. Resolved declarations retain their full extent for
+old-block overlap admission. The existing eight API masking assertions are
+unchanged; 20 retained scanner rows separately prove the header alias.
+
+The isolated integration passed 16 focused tests, targeted API/PlusCal clippy and
+24 current offline checks. These are focused controls, not a full combined gate
+or a fresh 752-row certification. The lead combines this production increment
+with the independent temporal-operator patch before running one frozen complete
+gate and new campaigns. See [fresh combined-source commands](integration-runners/README.md).
+The original producer receipts and failed before-map checks remain immutable.
