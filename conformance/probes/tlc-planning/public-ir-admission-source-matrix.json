@@ -17,6 +17,12 @@
     "matrix_sha256": "08357c5a81b91e8b4242f628ea7c5e93c41d67f1daa75d2a653913a70a227502",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+    "matrix_sha256": "297d974cbc48954e423f21f4cc779a2137b5f7cba8c9d4790b6a1a8810dbdc2f",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {

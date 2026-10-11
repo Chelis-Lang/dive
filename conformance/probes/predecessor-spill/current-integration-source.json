@@ -16,6 +16,12 @@
     "matrix_sha256": "da78e5b914562f02c404cb77947543a6493d5297098a7f7e73bceaf337a01ce8",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/predecessor-spill/current-integration-source.json",
+    "matrix_sha256": "45f3aa8345c1b995367ef6befbe35e23d002d695c0555c5a0799f74519630733",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {
@@ -52,8 +58,8 @@
     "crates/dive-api/tests/symmetry_trace.rs": "ac3b5ff2758b1b124e421a8672d36e5b5e0ba7b8250d734ebd394ae8351ccfb4",
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/dfid.rs": "4e6b75ba922f6c8559f0643ae45252c31d7f6b8835bef7cc111191be537b9d15",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
-    "crates/dive-check/src/lib.rs": "3a924b12f02585c61f6c57739f0e473fb1adf5b6a9a6a116c37c0469b68c206f",
+    "crates/dive-check/src/engine.rs": "4484a0b15391f3e01d3f06fa058facf327d040b56f02d92f07040a70cc3e7f8d",
+    "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
     "crates/dive-check/src/options.rs": "02b241e295a338f801699ace3fd7f62c15c2ae06817abf10d00de47589b8071a",
     "crates/dive-check/src/result.rs": "873c1e2eb859b760465b82d26faf77d91572af59b5f3e69b72baad6194207e48",
     "crates/dive-cli/src/main.rs": "aeb9609d19ea071cc12a44c2d5877854e76376dfc974858bfd00aab5c0c595e9",

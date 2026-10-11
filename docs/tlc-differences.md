@@ -69,7 +69,7 @@ Scaling figures are in ADR 0015 ("Implementation and measurements (WP-D3)").
 | **Kind** | Same answer, better path (reporting); different answer only when you fix a seed |
 | **Default** | Fresh seed per run, as in TLC, but **the seed is always reported**; `--seed S` alone replays a run exactly, at any worker count |
 | **TLC behaviour** | TLC's seeding and TLC's draws, bit for bit, under `--compat=tlc` (given TLC's `-seed S` and `-fp N`) |
-| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. Under `--compat=tlc` the draws are TLC's bit for bit (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator replays the draws too: given the run's seed and polynomial (`dive validate-trace --seed S [--fp N]`; the conformance harness passes the goldens' `-seed 0 -fp 0`), it checks a counterexample's drawn values against the run's streams, and refuses by name a draw it cannot place (ADR 0016, amendment 2). |
+| **Status** | implemented and wired into checking, in both modes, and verified against TLC. `dive check` accepts `--seed`, always reports the seed (and the fingerprint polynomial), and draws `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` from the run's streams: the start-up stream for constant definitions, `ASSUME`s and `Init`, and a stream per expanded state. On admitted untransformed routes under `--compat=tlc`, draws match TLC; this is not a claim of exact trace printing at every random stopping boundary (fixtures `TmRandom` and `TmRandomStartup` in `crates/dive-check/tests/fixtures/tlc-module/`). Like TLC, dive rebuilds a counterexample from a fresh start-up stream; when draws before `Init` make that impossible, dive reports the violation without a trace, as TLC does, and says why. `RandomSubsetSet` is still refused by name. The independent trace validator replays the draws too: given the run's seed and polynomial (`dive validate-trace --seed S [--fp N]`; the conformance harness passes the goldens' `-seed 0 -fp 0`), it checks a counterexample's drawn values against the run's streams, and refuses by name a draw it cannot place (ADR 0016, amendment 2). |
 
 **What TLC does.** `RandomElement`, `RandomSubset` and `RandomSetOfSubsets` draw from an unseeded random source during model checking unless you pass `-seed`. A spec that uses them can produce a different state space on every run.
 
@@ -113,6 +113,38 @@ The operators choose with TLC's algorithms (which element, which subset); only t
 Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
 
 **Current dive limitation (#178).** A configured VIEW combined with any source-level random operator refuses before binding, output or search in both profiles. The scan includes unused definitions, native aliases and cfg-selected native replacement targets: this is a conservative temporary boundary, not a claim that every such definition executes. TLC seeds expansion from the transformed VIEW fingerprint; dive's unfinished path used the raw predecessor. On the minimal `V == n` probe at seed 7/fingerprint 0, both found four states and the same invariant violation, but TLC assigned `x` values `0, 78, 49, 21` while the old native path assigned `0, 80, 94, 100`. Matching counts concealed wrong concrete draws. SYMMETRY/random combinations also remain refused. The preserved [source, clean primary and native outputs](../conformance/probes/view-random-seeding/README.md) keep that defect separate from TLC's own limitations. Both old concrete traces receive an explicit independent-validator refusal; no independent certificate was demonstrated.
+
+**Configured random calls (#180).** The minimal model below selects a native
+operator through its configuration rather than a source call:
+
+```tla
+CONSTANT C(_)
+VARIABLES n, x
+Init == n=0 /\ x=0
+Next == n<3 /\ n'=n+1 /\ x'=C(1..100)
+Inv == x # 80
+```
+
+With `CONSTANT C <- RandomElement`, clean pinned TLC at `-seed 7 -fp 0 -workers 1`
+reports an invariant violation after two states. The old native route drew 74
+instead of 80 and missed that violation; `Inv == x # 74` instead produced a false
+native violation where TLC completed four states. The immediate admission repair
+and those exact false-answer controls remain [historical evidence](../conformance/probes/configured-random-admission/README.md).
+The ordinary `RandomElement` stream now follows the actual bound callee, with
+startup and per-predecessor streams and truthful inline worker reporting.
+Configured Randomization families and transformed/graph/recovery paths remain
+refused pending their own proofs.
+
+Clean TLC also exposes a replay limitation on that `x # 80` model: exit 12,
+generated/distinct/depth 2/2/2, but only the initial `x=0` state is printed. Its
+initial-predecessor fast path reuses the original state object;
+`TLCStateRandom.isInitializedFor` uses object identity and retains the consumed
+stream. With `Inv == n<3`, TLC prints all four states `x=0,80,94,100`. Both dive profiles
+currently refuse the first-successor random replay boundary, retaining only
+observed prefix statistics and no counterexample, rather than claiming that a
+truncated trace is valid or that a different full trace matches TLC. Both direct
+and configured clean calls are captured separately in the
+[bound-stream study](../conformance/probes/configured-random-stream/README.md).
 
 **Evidence.**
 - Harness review finding M5, probe P9, ADR 0010 §4.

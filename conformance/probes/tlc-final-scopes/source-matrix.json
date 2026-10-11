@@ -17,6 +17,12 @@
     "matrix_sha256": "1f6aeddc5abd2a1611ef9c7cc4bac31cb5fe37ad9c4edd318fbce23fca8c51a9",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "4e6de57d85d808c5299fe753586347b8f372fefe703479b083946a1e25d0a8d7",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {
     "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
@@ -30,7 +36,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "bf5208e4b9e82c528d519298320136bdaa1a438e139df5d49964f69d2c76a5ca",
     "AGENTS.md": "05b9e38f78d3539c2a9edb712f5643b0d96fb732c846e38ca6cceb555a9c12f5",
-    "CHANGELOG.md": "c4774e210fa1f33d04aac636ec0bacd99cc0d4e51914ba034f104cc3af1f4432",
+    "CHANGELOG.md": "6b3a6b7046dda9b3ed38e0b2e4c134e75d118b1484116f59e98b1fe39c33c328",
     "conformance/parity-features.json": "1066cc3859c71f23aa86c22c055ebd90ceb0eede12dfcf022502852eb42301df",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -755,9 +761,9 @@
     "crates/dive-liveness/tests/tlc_final_scopes.rs": "e1343c6c7a9d17aa8e79e4f4f58502134e437cfbf97cddf7624160e1beffac2c",
     "crates/dive-model/src/spec.rs": "0b23f75dae433b3689758fbcabc1b5246f89b5d0a38b0dec12ffb49763970275",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "docs/divergences.md": "a6523a346a9708b974f29c7f9b1a4cdf8fc9931cc3cc9976af53e007ec1c2ec0",
-    "docs/provenance.md": "83bbcbe4d13fb5685d62eca918573b5c2c4bb5135190d192303862655a72a478",
-    "docs/tlc-differences.md": "18296433128bd6e5b8c9d09ba61853822d9d99715e625047129d1608e4641d28",
+    "docs/divergences.md": "ae5bc2bcc7fb35424686d7db041a1cef086fc7d6c341054b3ebee2c37850686c",
+    "docs/provenance.md": "b6cea39230352faa8ee5734d4e9680d150ddb39ecf525b30333754c1a0f72b4f",
+    "docs/tlc-differences.md": "f3f348412cc9f3682a82fa0b240c8e92d731d39bed00ad2ef42091aedf3e8bb6",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/user/temporal.md": "5dd1757f7597b47c26ba0039bcea20aab594d6eba9636003242c2753b462e727",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",

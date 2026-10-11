@@ -1,0 +1,24 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 20.96s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-configured-random-stream-target/debug/deps/dive_check-a9e8475370aeaa66)
+
+running 1 test
+test engine::configured_stream_tests::actual_configured_target_matches_direct_draws_and_inline_order ... FAILED
+
+failures:
+
+---- engine::configured_stream_tests::actual_configured_target_matches_direct_draws_and_inline_order stdout ----
+
+thread 'engine::configured_stream_tests::actual_configured_target_matches_direct_draws_and_inline_order' (117130804) panicked at crates/dive-check/src/engine.rs:1986:21:
+assertion `left == right` failed: seed0 width1 x # 74
+  left: InvariantViolated { property: "Inv", initial: false }
+ right: Success
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    engine::configured_stream_tests::actual_configured_target_matches_direct_draws_and_inline_order
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.76s
+
+error: test failed, to rerun pass `-p dive-check --lib`

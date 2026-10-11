@@ -14,6 +14,22 @@ All notable changes to this project are documented here. The project will follow
   unsupported state-storage/error boundaries remain explicit; final TLC
   scheduling remains separately scoped.
 
+- Ordinary configured `RandomElement` safety checking uses actual bound native
+  authority for predecessor streams and reports real inline worker use. Independent
+  replay resolves constant targets and definition redirects; unproved startup,
+  strict first-successor printing, transformed-key, Randomization replacement,
+  graph/temporal and recovery paths retain explicit refusals (#180).
+
+- Refuse configured native random replacements before startup/output/search in
+  both profiles and all capture routes, including source-visible/configured
+  mixed calls. Preserve false-success and false-violation controls; direct RNG
+  calls and pure user replacements remain supported (#180).
+
+- Refuse configured VIEW with source-level random operators before binding/output
+  or safety search in both profiles, including native aliases, cfg-selected
+  native replacement targets and unused random definitions. Preserve the
+  equal-count/different-draw defect; pure VIEW and untransformed random checking
+  retain their supported implementations (#178).
 
 - High-level PlusCal rewriting checks original source-option declarations before
   masking old translation blocks and refuses deciding declarations overlapping
@@ -76,6 +92,12 @@ All notable changes to this project are documented here. The project will follow
   fresh replay controls. The later property-origin increment adds expanded Action
   names separately; ordinary schedules remain incomplete. See `docs/tlc-final-scopes.md`.
 
+- Scoped explicit final temporal checking preserves local LET derived role
+  names separately from formal argument forwarding, and exact cardinality-one
+  DNF shape. Caller contexts and original witness claims have pinned field and
+  fresh replay controls; expanded-action names and ordinary schedules remain
+  incomplete. See `docs/tlc-final-scopes.md`.
+
 - Explicit final/TLC checking admits proven direct temporal conditionals with
   pinned shared-guard tags, exact particles and independent counterexample replay.
   Compound guards and INSTANCE attribution have source-bound controls; forwarding,
@@ -95,6 +117,12 @@ All notable changes to this project are documented here. The project will follow
   prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in eight disjoint partitions, with
+
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
+
+- CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
   prerequisite fails, is cancelled or is skipped.
 
@@ -115,6 +143,7 @@ All notable changes to this project are documented here. The project will follow
   named refusals. Runnable CLI/API examples separate CRC equality, artifact
   admission and model proof. Singleton identity clauses now follow the
   reference five-unit UTF-16 spelling threshold; original CST failure retained.
+
 
 
 - Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
@@ -990,4 +1019,5 @@ All notable changes to this project are documented here. The project will follow
   final temporal-IF refusal or certify ordinary periodic scheduling (#170).
 
 - Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.
+
 

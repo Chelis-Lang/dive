@@ -600,3 +600,17 @@ Session bounds and separate50k/128 context bounds are unchanged. Pinned
 [stored-state guide](stored-successor-material.md) and
 [paired source/evidence](../conformance/probes/stored-successor-material/README.md).
 Ordinary schedules and whole-family parity remain partial.
+
+### Actual-bound RandomElement stream authority (2026-10-11)
+
+`dive-model::reach` and `dive-check::engine` match native target selection and
+`RandomEnumerableValues.TLCStateRandom.initialize/initializedFor` at pin
+`94d0c50`: startup uses the run seed, and expansion uses predecessor fingerprint
+XOR seed. Actual ConstBinding/redirect authority participates independently of
+source operator references. The bounded `dive-trace::random_position` proof is
+independent dive code; it resolves those targets without enumerating successors
+and refuses unknown startup/guard draw positions. `TLCTrace.printTrace` and
+`Tool.getState(TLCState,TLCState)` initial-object reuse is captured as a remaining
+strict trace-printing refusal, not ported or certified. Clean raw primary and
+current native producer identities are separated in
+`conformance/probes/configured-random-stream/`. Licence: MIT reference semantics.

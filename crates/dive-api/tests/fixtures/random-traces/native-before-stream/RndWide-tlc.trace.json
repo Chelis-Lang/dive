@@ -1,0 +1,32 @@
+{
+  "ending": {
+    "kind": "invariant",
+    "name": "Inv"
+  },
+  "format": "dive-trace",
+  "length": 2,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "n": 0,
+        "x": 0
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 5, col 28 to line 5, col 70 of module RndWide>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 5000,
+        "x": 891772693
+      }
+    }
+  ],
+  "variables": [
+    "x",
+    "n"
+  ],
+  "version": 1
+}

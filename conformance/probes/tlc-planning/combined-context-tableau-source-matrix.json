@@ -16,6 +16,12 @@
     "matrix_sha256": "c20212646f2a9d34c2fbe657706f99c7fd22bef78ad96e6e696db005cd53b563",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+    "matrix_sha256": "ef66e0bac16d9290ce15de9dd3296ac43bb9e077552986de8665bb61ff693945",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
@@ -134,7 +140,7 @@
     "conformance/probes/tlc-tableau/capture.py": "b5b80e2dc40103b16b8c0fa74bd68bb9c97cfccb3cc1d0204b03b000144b6439",
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+    "crates/dive-check/src/engine.rs": "4484a0b15391f3e01d3f06fa058facf327d040b56f02d92f07040a70cc3e7f8d",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-eval/src/context.rs": "c2b8224cc4e977f293cb10ade6c1b4173df01456807f5b3647ae7bddbf442ca9",
     "crates/dive-eval/src/scope.rs": "ba8245c216fc3e6330afb8ff0ce434af2429fe33d2d54aecb95e45767c26bd0d",

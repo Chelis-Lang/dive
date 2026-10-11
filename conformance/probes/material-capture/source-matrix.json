@@ -6,7 +6,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "bf5208e4b9e82c528d519298320136bdaa1a438e139df5d49964f69d2c76a5ca",
     "AGENTS.md": "05b9e38f78d3539c2a9edb712f5643b0d96fb732c846e38ca6cceb555a9c12f5",
-    "CHANGELOG.md": "c4774e210fa1f33d04aac636ec0bacd99cc0d4e51914ba034f104cc3af1f4432",
+    "CHANGELOG.md": "6b3a6b7046dda9b3ed38e0b2e4c134e75d118b1484116f59e98b1fe39c33c328",
     "conformance/parity-features.json": "1066cc3859c71f23aa86c22c055ebd90ceb0eede12dfcf022502852eb42301df",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
@@ -3051,10 +3051,10 @@
     "crates/dive-api/tests/material_capture.rs": "7ec0877aa600d513a5a1ae97440f7155dcef525282038f68094c9141dbcb5d7a",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "70dc38c2ee6513aac00019ad80b2eefe4f5fda7b738685793e77a16d3ca1676b",
-    "docs/divergences.md": "a6523a346a9708b974f29c7f9b1a4cdf8fc9931cc3cc9976af53e007ec1c2ec0",
+    "docs/divergences.md": "ae5bc2bcc7fb35424686d7db041a1cef086fc7d6c341054b3ebee2c37850686c",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
-    "docs/provenance.md": "83bbcbe4d13fb5685d62eca918573b5c2c4bb5135190d192303862655a72a478",
-    "docs/tlc-differences.md": "18296433128bd6e5b8c9d09ba61853822d9d99715e625047129d1608e4641d28",
+    "docs/provenance.md": "b6cea39230352faa8ee5734d4e9680d150ddb39ecf525b30333754c1a0f72b4f",
+    "docs/tlc-differences.md": "f3f348412cc9f3682a82fa0b240c8e92d731d39bed00ad2ef42091aedf3e8bb6",
     "docs/user/temporal.md": "5dd1757f7597b47c26ba0039bcea20aab594d6eba9636003242c2753b462e727",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"

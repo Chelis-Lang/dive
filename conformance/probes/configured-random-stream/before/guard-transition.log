@@ -1,0 +1,22 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-configured-random-stream-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.82s
+     Running tests/configured_random.rs (/Users/jeff/code/dive-configured-random-stream-target/debug/deps/configured_random-cf72135b4bc78b66)
+
+running 1 test
+test both_concrete_wrong_verdicts_refuse_before_any_search ... FAILED
+
+failures:
+
+---- both_concrete_wrong_verdicts_refuse_before_any_search stdout ----
+
+thread 'both_concrete_wrong_verdicts_refuse_before_any_search' (117313517) panicked at crates/dive-check/tests/configured_random.rs:40:21:
+CheckResult { frontier: FrontierUsage { memory_bytes_per_queue: None, max_record_bytes: None, peak_retained_bytes: 0, retained_bytes: 0, spilled_bytes: 0, deciding_event_before_failure: None, failures: [] }, predecessor: PredecessorUsage { storage: Usage { retained_bytes: 48, peak_retained_bytes: 48, written_bytes: 0, records: 4, spilled: false }, failures: [], deciding_event_before_failure: None, cleanup_completed: true }, verdict: Success, stats: Some(Stats { generated: 4, distinct: 4, left_on_queue: 0, depth: 4, initial_generated: 1 }), tlc_prints_stats: true, counterexample: None, collision: Some(Collision { optimistic: "0.0", actual: None }), store: Fingerprint, fp_index: Some(0), tlc_fingerprints: false, var_names: ["n", "x"], tlc_var_order: [0, 1], output: [], warnings: [], notes: [], workers: Workers { requested: 1, used: 1, sequential: true, reason: Some("sequential mode: the specification uses TLC!RandomElement (draws from the expanded state's random stream)") }, elapsed: 8.558417ms }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    both_concrete_wrong_verdicts_refuse_before_any_search
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p dive-check --test configured_random`

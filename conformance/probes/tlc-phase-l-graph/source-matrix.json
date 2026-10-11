@@ -17,6 +17,12 @@
     "matrix_sha256": "f092f0cef23794f55450c20e8b524ff2afde3a3fcf58c2f1be9024128f511714",
     "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
   },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-phase-l-graph/source-matrix.json",
+    "matrix_sha256": "85784cd4c48ba1cdf7ee5a4d5830318a090b95c5bacdc2ae5ed2691e118424d6",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "current_main_rng_previous_authority": {
@@ -43,7 +49,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
+    "crates/dive-check/src/engine.rs": "4484a0b15391f3e01d3f06fa058facf327d040b56f02d92f07040a70cc3e7f8d",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",

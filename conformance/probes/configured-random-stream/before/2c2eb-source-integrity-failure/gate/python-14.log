@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-configured-random-stream-work/scripts/check-native-parity-integration.py", line 34, in <module>
+    assert sha((ROOT / name).read_bytes()) == digest, name
+AssertionError: crates/dive-api/tests/trace_random.rs
