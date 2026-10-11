@@ -1,0 +1,370 @@
+//! Native actual admission is separate from independent word and witness truth.
+#![allow(
+    clippy::expect_used,
+    clippy::panic,
+    reason = "bounded adversarial fixture assertions"
+)]
+use dive_model::{BindOptions, Pred};
+use dive_value::Value;
+use std::sync::Arc;
+fn input(source: &str) -> Arc<dive_ir::Ir> {
+    let a = dive_sema::analyze_source("Native.tla", source, &dive_sema::Options::default());
+    assert!(a.accepted(), "{a:?}");
+    Arc::new(dive_ir::lower(&a).expect("IR"))
+}
+fn config() -> dive_config::ModelConfig {
+    dive_config::parse("INIT Init\nNEXT Next\n")
+        .into_config()
+        .expect("config")
+}
+#[test]
+fn native_words_are_independently_evaluated_at_every_closing_position() {
+    let mut cases = 0;
+    for (extends, op, atom) in [
+        ("Sequences", "Len", "F(x)=1"),
+        ("Sequences", "Head", "F(x)"),
+        ("FiniteSets", "Cardinality", "F(x)=1"),
+    ] {
+        let source = format!(
+            "---- MODULE Native ----\nEXTENDS {extends}\nVARIABLE x\nInit==x=TRUE\nNext==UNCHANGED x\nUse(F(_))==[]<>({atom})\nRelay(G(_))==Use(G)\nLive==Relay({op})\n====\n"
+        );
+        let ir = input(&source);
+        for (options, ctx) in [
+            (BindOptions::tlc(), dive_value::Ctx::tlc()),
+            (BindOptions::dive(), dive_value::Ctx::dive()),
+        ] {
+            let model = dive_model::bind(ir.clone(), &config(), &options).expect("bind");
+            let d = ir.root_def("Live").expect("property");
+            let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d).expect("scope"));
+            let plan = dive_liveness::plan::lower(
+                &model,
+                &pred,
+                dive_liveness::formula::Limits::default(),
+            )
+            .expect("plan");
+            for n in 1..=4 {
+                for mask in 0_usize..(1 << n) {
+                    let values: Vec<bool> = (0..n).map(|i| mask & (1 << i) != 0).collect();
+                    let states: Vec<dive_trace::State> = values
+                        .iter()
+                        .map(|b| {
+                            let x = match op {
+                                "Len" => Value::tuple(if *b { vec![1.into()] } else { vec![] }),
+                                "Head" => Value::tuple(vec![(*b).into()]),
+                                _ => Value::set(if *b { vec![1.into()] } else { vec![] }, ctx)
+                                    .expect("stored set"),
+                            };
+                            Arc::from([Some(x)])
+                        })
+                        .collect();
+                    for back in 0..n {
+                        cases += 1;
+                        let actual =
+                            dive_trace::temporal::evaluate_lasso(&model, &pred, &states, back)
+                                .expect("independent word");
+                        assert_eq!(actual, vec![values[back..].iter().any(|b| *b); n]);
+                        let bins: Vec<Vec<bool>> = (0..n)
+                            .map(|i| {
+                                let edge = dive_eval::St::action(
+                                    states[i].clone(),
+                                    states[if i + 1 == n { back } else { i + 1 }].clone(),
+                                );
+                                plan.atoms
+                                    .iter()
+                                    .map(|a| a.evaluate(&model, &edge).expect("atom"))
+                                    .collect()
+                            })
+                            .collect();
+                        assert_eq!(
+                            plan.formula
+                                .evaluate_word(&bins, &bins, back, 1_000_000)
+                                .expect("kernel"),
+                            actual
+                        );
+                    }
+                }
+            }
+        }
+    }
+    assert_eq!(cases, 588);
+}
+#[test]
+fn native_metadata_admission_refuses_unknown_configured_foreign_and_budget_inputs() {
+    use dive_ir::{OpRef, StdOp};
+    let source = "---- MODULE Native ----\nEXTENDS Sequences, TLC\nCONSTANT K(_)\nVARIABLE x\nInit==x=TRUE\nNext==UNCHANGED x\nGood(v)==v\nUse(F(_))==TRUE\n====\n";
+    let ir = input(source);
+    let base_cfg = dive_config::parse("INIT Init\nNEXT Next\nCONSTANT K <- Good\n")
+        .into_config()
+        .expect("base cfg");
+    let cfg = dive_config::parse("INIT Init\nNEXT Next\nCONSTANT K <- Len\n")
+        .into_config()
+        .expect("cfg");
+    for options in [BindOptions::tlc(), BindOptions::dive()] {
+        let model = dive_model::bind(ir.clone(), &base_cfg, &options).expect("model");
+        let def = ir.root_def("Use").expect("def");
+        let scope = model.evaluator.scope(def).expect("scope");
+        for op in [
+            StdOp::SequencesLen,
+            StdOp::SequencesHead,
+            StdOp::FiniteSetsCardinality,
+        ] {
+            assert_eq!(
+                model
+                    .evaluator
+                    .scope_native_operator_analysis(&scope, &OpRef::Std(op), &mut 50_000)
+                    .expect("native metadata"),
+                Some(op)
+            );
+            assert!(
+                model
+                    .evaluator
+                    .scope_native_operator_analysis(&scope, &OpRef::Std(op), &mut 0)
+                    .is_err()
+            );
+        }
+        for op in [
+            OpRef::Std(StdOp::TlcPrintT),
+            OpRef::Std(StdOp::SequencesTail),
+            OpRef::Builtin(dive_ir::BuiltinOp::Not),
+            OpRef::Def(def),
+        ] {
+            assert!(
+                model
+                    .evaluator
+                    .scope_native_operator_analysis(&scope, &op, &mut 50_000)
+                    .expect("typed refusal")
+                    .is_none()
+            );
+        }
+        assert!(
+            model
+                .evaluator
+                .scope_native_operator_analysis(
+                    &scope,
+                    &OpRef::Def(dive_ir::DefId(u32::MAX)),
+                    &mut 50_000
+                )
+                .is_err()
+        );
+        let foreign =
+            dive_model::bind(Arc::new(ir.as_ref().clone()), &base_cfg, &options).expect("foreign");
+        assert!(
+            model
+                .evaluator
+                .scope_native_operator_analysis(
+                    &foreign.evaluator.scope(def).expect("foreign scope"),
+                    &OpRef::Std(StdOp::SequencesLen),
+                    &mut 50_000
+                )
+                .is_err()
+        );
+        let configured = dive_model::bind(ir.clone(), &cfg, &options).expect("configured");
+        let scope = configured.evaluator.scope(def).expect("configured scope");
+        assert!(
+            configured
+                .evaluator
+                .scope_native_operator_analysis(
+                    &scope,
+                    &OpRef::Std(StdOp::SequencesLen),
+                    &mut 50_000
+                )
+                .expect("configured exclusion")
+                .is_none()
+        );
+        assert_eq!(configured.evaluator.take_output(), Vec::<String>::new());
+    }
+}
+#[derive(Debug)]
+struct Opaque(Arc<std::sync::atomic::AtomicUsize>);
+impl dive_value::DeferredSet for Opaque {
+    fn kind(&self) -> dive_value::DeferredKind {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        dive_value::DeferredKind::Filter
+    }
+    fn elements(&self, _: dive_value::Ctx) -> dive_value::Result<Vec<Value>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Ok(vec![1.into()])
+    }
+    fn member(&self, _: &Value, _: dive_value::Ctx) -> Option<dive_value::Result<bool>> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Some(Ok(true))
+    }
+    fn key(&self) -> Vec<Value> {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        vec![]
+    }
+}
+#[test]
+fn independent_native_word_refuses_providers_foreign_names_order_and_budget_before_callbacks() {
+    use dive_value::{Ctx, Interner};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let ir = input(
+        "---- MODULE Native ----\nEXTENDS FiniteSets\nVARIABLE x\nInit==x=TRUE\nNext==UNCHANGED x\nUse(F(_))==[]<>(F(x)=1)\nLive==Use(Cardinality)\n====\n",
+    );
+    for (options, ctx, wrong) in [
+        (BindOptions::tlc(), Ctx::tlc(), Ctx::dive()),
+        (BindOptions::dive(), Ctx::dive(), Ctx::tlc()),
+    ] {
+        let model = dive_model::bind(ir.clone(), &config(), &options).expect("model");
+        let d = ir.root_def("Live").expect("role");
+        let pred = Pred::new(ir.def(d).body, model.evaluator.scope(d).expect("scope"));
+        let calls = Arc::new(AtomicUsize::new(0));
+        let provider = Value::deferred(Arc::new(Opaque(calls.clone())), ctx);
+        let mut values = vec![
+            provider.clone(),
+            Value::set(vec![1.into()], wrong).expect("opposite order"),
+        ];
+        let foreign = Interner::new();
+        values.push(Value::set_raw(
+            vec![Value::Model(foreign.intern("foreign"))],
+            ctx,
+        ));
+        values.push(Value::set_raw((0..50_000).map(Value::Int).collect(), ctx));
+        for value in values {
+            let baseline = calls.load(Ordering::Relaxed);
+            let states: Vec<dive_trace::State> = vec![Arc::from([Some(value)])];
+            assert!(dive_trace::temporal::evaluate_lasso(&model, &pred, &states, 0).is_err());
+            assert_eq!(
+                calls.load(Ordering::Relaxed),
+                baseline,
+                "provider never consulted"
+            );
+        }
+        let nested = Value::tuple(vec![provider]);
+        let baseline = calls.load(Ordering::Relaxed);
+        let states: Vec<dive_trace::State> = vec![Arc::from([Some(nested)])];
+        assert!(dive_trace::temporal::evaluate_lasso(&model, &pred, &states, 0).is_err());
+        assert_eq!(
+            calls.load(Ordering::Relaxed),
+            baseline,
+            "constructor baseline separate from admission"
+        );
+    }
+}
+#[test]
+#[allow(
+    clippy::too_many_lines,
+    reason = "complete paired current selection and independent mutation controls"
+)]
+fn paired_native_final_controls_replay_fresh_memory_and_json() {
+    use dive_api::tlc_temporal::Outcome;
+    use dive_trace::{Ending, Validation};
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../conformance/probes/native-temporal-operators");
+    let rows: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(base.join("selection.json")).expect("selection"))
+            .expect("JSON");
+    let mut cases = 0;
+    for row in rows.as_array().expect("rows") {
+        if row["kind"] != "native-pure" {
+            continue;
+        }
+        let name = row["name"].as_str().expect("name");
+        let dir = base.join("models").join(name);
+        let a = dive_sema::analyze_file(
+            &dir.join(format!("{name}.tla")),
+            &dive_sema::Options::default(),
+        )
+        .expect("analysis");
+        assert!(a.accepted(), "{name}");
+        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+        let cfg = dive_config::parse(
+            &std::fs::read_to_string(dir.join(format!("{name}.cfg"))).expect("cfg"),
+        )
+        .into_config()
+        .expect("parse");
+        for profile in [
+            dive_check::CheckOptions::tlc(0, 0),
+            dive_check::CheckOptions::dive(0),
+        ] {
+            for width in [1, 3, 4, 8] {
+                cases += 1;
+                let options = dive_check::CheckOptions {
+                    workers: width,
+                    ..profile.clone()
+                };
+                let result = dive_api::tlc_temporal::check_final(
+                    &ir,
+                    &cfg,
+                    &options,
+                    dive_liveness::phase_graph::Limits::default(),
+                );
+                if options.profile == dive_eval::Profile::Dive {
+                    let refusal =
+                        result.expect_err("explicit final TLC selection retains profile admission");
+                    assert!(refusal.evidence.is_none());
+                    continue;
+                }
+                let report = result.expect(name);
+                if name.contains("Fails") {
+                    let Outcome::Violation(v) = report.outcome() else {
+                        panic!("{name} expected validated violation")
+                    };
+                    assert_eq!(v.validation().validation, Validation::Valid);
+                    assert_eq!(v.document().properties, vec!["Live"]);
+                    let fresh = dive_model::bind(
+                        ir.clone(),
+                        &cfg,
+                        &if options.profile == dive_eval::Profile::Tlc {
+                            BindOptions::tlc()
+                        } else {
+                            BindOptions::dive()
+                        },
+                    )
+                    .expect("fresh authority");
+                    let doc = v.document();
+                    assert_eq!(
+                        dive_trace::validate_doc(&fresh, doc, &[], None)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                    let bytes = serde_json::to_vec(&doc.to_json()).expect("serialized");
+                    let decoded = dive_trace::TraceDoc::from_json(
+                        &serde_json::from_slice(&bytes).expect("JSON"),
+                    )
+                    .expect("decoded");
+                    assert_eq!(
+                        dive_trace::validate_doc(&fresh, &decoded, &[], None)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                    let mut bad = doc.clone();
+                    bad.properties = vec!["Foreign".into()];
+                    assert_ne!(
+                        dive_trace::validate_doc(&fresh, &bad, &[], None)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                    let mut bad = doc.clone();
+                    bad.states[0] =
+                        serde_json::from_value(serde_json::json!({"x":99})).expect("mutant");
+                    assert_ne!(
+                        dive_trace::validate_doc(&fresh, &bad, &[], None)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                    let mut bad = doc.clone();
+                    bad.ending = Some(Ending::Lasso {
+                        back_to: usize::MAX,
+                    });
+                    assert_ne!(
+                        dive_trace::validate_doc(&fresh, &bad, &[], None)
+                            .0
+                            .validation,
+                        Validation::Valid
+                    );
+                } else {
+                    assert!(
+                        matches!(report.outcome(), Outcome::Holds(_) | Outcome::Safety(_)),
+                        "{name}"
+                    );
+                }
+            }
+        }
+    }
+    assert_eq!(cases, 96);
+}

@@ -59,7 +59,8 @@ module is returned in JSON; the command does not write the source file. Read
 [nested checksum expressions](../pluscal-checksum-expressions.md) and
 [multiline expressions](../pluscal-multiline.md) and
 [finite-process checksums](../pluscal-process-checksums.md) and
-[process option examples](../pluscal-process-checksum-options.md) for supported
+[process option examples](../pluscal-process-checksum-options.md) and
+[source-declared options](../pluscal-source-options.md) for supported
 shapes, stale-block handling, budgets and executable Rust examples. A matching
 checksum alone is not an artifact or model proof; accepted artifacts also pass
 native enclosing-module analysis.
@@ -95,6 +96,12 @@ reports its own supported scope.
 
 Recognized source-option declarations are inspected in the original bounded
 file, including an existing translation block, before native rewriting masks
-old output. Both checksum policies refuse that unproved context, even with
+old output. Both checksum policies refuse a deciding declaration overlapping
+old output, even with
 `--replace-modified`. This prevents silently losing requested fairness; it
 does not restrict the separate supplied-body editing contract.
+
+The bounded proved source fairness/label subset is resolved before generation
+and CRC derivation. Reports retain explicit requested settings, effective
+settings and original declaration spans; unknown, malformed and conflicting
+contexts return no artifact. See [runnable C/P and Rust source-option examples](../pluscal-source-options.md).

@@ -12,6 +12,7 @@ assert OPERATOR_PRODUCER['source_commit']=='7683204a1ab328ffc2dabb9b932f5c545e12
 def operator_source(path,digest):
  assert OPERATOR_PRODUCER['source_sha256'][path]==digest,path
  assert hashlib.sha256(gzip.decompress((OPERATOR_HISTORY/'sources'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
+
 PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 selection=load(BASE/'selection.json');instance=load(BASE/'selection-instance.json')
 assert len(selection)==14 and len(instance)==4

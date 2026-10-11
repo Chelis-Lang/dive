@@ -416,12 +416,28 @@ impl Lower<'_> {
         depth: usize,
     ) -> Result<(), PlanningError> {
         self.step()?;
-        let (def, analysis) = self
-            .model
-            .evaluator
-            .scope_operator_analysis(scope, operator)
+        let mut remaining = self.limits.expansion_steps.saturating_sub(self.steps);
+        let native =
+            self.model
+                .evaluator
+                .scope_native_operator_analysis(scope, operator, &mut remaining);
+        self.steps = self.limits.expansion_steps - remaining;
+        let (def, analysis) = if native
             .map_err(|e| self.refused(expr, e.to_string()))?
-            .ok_or_else(|| self.refused(expr, "opaque/recursive/higher-order operator capture"))?;
+            .is_some()
+        {
+            (None, scope.clone())
+        } else {
+            let (def, analysis) = self
+                .model
+                .evaluator
+                .scope_operator_analysis(scope, operator)
+                .map_err(|e| self.refused(expr, e.to_string()))?
+                .ok_or_else(|| {
+                    self.refused(expr, "opaque/recursive/higher-order operator capture")
+                })?;
+            (Some(def), analysis)
+        };
         let mut remaining = self.limits.expansion_steps.saturating_sub(self.steps);
         let captures = self
             .model
@@ -434,7 +450,49 @@ impl Lower<'_> {
         for (body, captured) in captures {
             self.forwarded_context(body, &captured, depth + 1)?;
         }
-        self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1)
+        if let Some(def) = def {
+            self.forwarded_context(self.model.ir.def(def).body, &analysis, depth + 1)?;
+        }
+        Ok(())
+    }
+
+    // Native actuals retain their original runtime call and scope; they do
+    // not acquire a synthetic user body or a temporal/action argument.
+    fn native_parameter(
+        &mut self,
+        expr: ExprId,
+        scope: &Scope,
+        local: dive_ir::LocalRef,
+        args: &[Arg],
+        depth: usize,
+    ) -> Result<Option<Level>, PlanningError> {
+        let mut remaining = self.limits.expansion_steps.saturating_sub(self.steps);
+        let native = self.model.evaluator.scope_native_operator_analysis(
+            scope,
+            &OpRef::Param(local),
+            &mut remaining,
+        );
+        self.steps = self.limits.expansion_steps - remaining;
+        let Some(native) = native.map_err(|e| self.refused(expr, e.to_string()))? else {
+            return Ok(None);
+        };
+        if i32::try_from(args.len()).ok() != Some(native.java_arity()) {
+            return Err(self.refused(expr, "native operator argument arity"));
+        }
+        self.operator_context(expr, &OpRef::Param(local), scope, depth + 1)?;
+        let mut level = Level::Constant;
+        for arg in args {
+            let Arg::Expr { expr: body, .. } = arg else {
+                return Err(self.refused(expr, "native higher-order argument"));
+            };
+            self.forwarded_context(*body, scope, depth + 1)?;
+            let actual = self.scoped_level(*body, scope, depth + 1)?;
+            if actual > Level::State {
+                return Err(self.refused(*body, "native action/temporal argument"));
+            }
+            level = level.max(actual);
+        }
+        Ok(Some(level))
     }
 
     fn parameter_call(
@@ -565,6 +623,12 @@ impl Lower<'_> {
                 }
                 match op {
                     OpRef::Param(local) => {
+                        if self
+                            .native_parameter(e, &sc, local, args, depth + 1)?
+                            .is_some()
+                        {
+                            continue;
+                        }
                         let (def, called) = self.parameter_call(e, &sc, local, args, depth + 1)?;
                         todo.push((ir.def(def).body, called, depth + 1));
                         continue;
@@ -634,6 +698,10 @@ impl Lower<'_> {
 
     // SANY's levels on a formal parameter assume a constant. Follow its actual
     // context before deciding whether an atom is constant, state or action.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "scoped actual levels require explicit structural and ownership refusal cases"
+    )]
     fn scoped_level(
         &mut self,
         expr: ExprId,
@@ -655,10 +723,46 @@ impl Lower<'_> {
             .get(expr.index())
             .ok_or_else(|| self.refused(expr, "missing scoped expression"))?;
         match &node.expr {
+            Expr::Prime(body) => {
+                return Ok(
+                    if self.scoped_level(*body, scope, depth + 1)? == Level::Constant {
+                        Level::Constant
+                    } else {
+                        Level::Action
+                    },
+                );
+            }
+
+            Expr::Builtin {
+                op:
+                    dive_ir::BuiltinOp::Always
+                    | dive_ir::BuiltinOp::Eventually
+                    | dive_ir::BuiltinOp::LeadsTo,
+                ..
+            }
+            | Expr::Always(_)
+            | Expr::Eventually(_)
+            | Expr::LeadsTo(_, _)
+            | Expr::WhilePlus(_, _)
+            | Expr::Wf { .. }
+            | Expr::Sf { .. }
+            | Expr::TemporalQuant { .. } => return Ok(Level::Temporal),
+            Expr::Builtin {
+                op: dive_ir::BuiltinOp::Prime | dive_ir::BuiltinOp::Unchanged,
+                ..
+            }
+            | Expr::Var { primed: true, .. }
+            | Expr::Unchanged(_)
+            | Expr::StepAngle { .. }
+            | Expr::StepBox { .. } => return Ok(Level::Action),
+
             Expr::Apply {
                 callee: OpRef::Param(local),
                 args,
             } => {
+                if let Some(level) = self.native_parameter(expr, scope, *local, args, depth + 1)? {
+                    return Ok(level);
+                }
                 let (def, called) = self.parameter_call(expr, scope, *local, args, depth + 1)?;
                 return self.scoped_level(ir.def(def).body, &called, depth + 1);
             }
@@ -944,6 +1048,12 @@ impl Lower<'_> {
                         def.std
                     }
                     OpRef::Param(local) => {
+                        if self
+                            .native_parameter(e, &scope, local, args, depth + 1)?
+                            .is_some()
+                        {
+                            continue;
+                        }
                         let (def, called) =
                             self.parameter_call(e, &scope, local, args, depth + 1)?;
                         todo.push((ir.def(def).body, called, depth + 1));
@@ -1063,6 +1173,9 @@ impl Lower<'_> {
             callee: OpRef::Param(local),
             args,
         } = &node.expr
+            && self
+                .native_parameter(expr, scope, *local, args, depth + 1)?
+                .is_none()
         {
             let (def, called) = self.parameter_call(expr, scope, *local, args, depth + 1)?;
             return self.expr(ir.def(def).body, &called, depth + 1);
