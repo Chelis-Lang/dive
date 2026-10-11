@@ -76,6 +76,7 @@ mod error;
 pub mod intern;
 pub mod level;
 mod model;
+mod periodic;
 mod reach;
 mod spec;
 pub mod symmetry;
@@ -91,6 +92,7 @@ use dive_ir::Ir;
 pub use bind::BindOptions;
 pub use error::{BindError, Ec, ErrorKind, Failure, Message};
 pub use model::{Init, Model, Named, Pred, Settings, Unsupported, UnsupportedKind};
+pub use periodic::{PeriodicSnapshot, bind_periodic_snapshot};
 
 /// The modules TLC's `-dumpTrace json <file>` loads in addition to the
 /// specification's own (`TLC.java` adds the `_JsonTrace` post-condition, and
@@ -109,7 +111,7 @@ pub const DUMP_TRACE_JSON_MODULES: &[&str] = &["_JsonTrace"];
 /// TLC's error for the model, with what TLC printed before it; or an
 /// unsupported feature or an internal error, which are never verdicts.
 pub fn bind(ir: Arc<Ir>, cfg: &ModelConfig, opts: &BindOptions) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, None)
+    bind_in(ir, cfg, opts, None, false).map(|(model, _)| model)
 }
 
 /// Binds a trusted native recovered ordered name table before evaluating constants.
@@ -125,7 +127,7 @@ pub fn bind_with_names(
     opts: &BindOptions,
     restored: &[String],
 ) -> Result<Model, Box<Failure>> {
-    bind_in(ir, cfg, opts, Some(restored))
+    bind_in(ir, cfg, opts, Some(restored), false).map(|(model, _)| model)
 }
 
 fn bind_in(
@@ -133,7 +135,8 @@ fn bind_in(
     cfg: &ModelConfig,
     opts: &BindOptions,
     restored: Option<&[String]>,
-) -> Result<Model, Box<Failure>> {
+    periodic_snapshot: bool,
+) -> Result<(Model, Option<periodic::Role>), Box<Failure>> {
     dive_eval::validate_ir(&ir).map_err(|error| {
         Box::new(Failure {
             error: BindError::unsupported(error.to_string()),
@@ -202,6 +205,7 @@ fn bind_in(
             output: Vec::new(),
         })
     })?;
+    b.periodic_snapshot = periodic_snapshot;
     let result = run(&mut b);
     b.drain_prints();
     match result {
@@ -213,8 +217,15 @@ fn bind_in(
     }
 }
 
-fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
+fn run(b: &mut bind::Binder<'_>) -> Result<(Model, Option<periodic::Role>), BindError> {
     b.process_spec()?;
+    // SpecProcessor snapshots defns immediately after processSpec, before
+    // constant definitions replace their entries with values.
+    let periodic_definition = b
+        .cfg
+        .periodic
+        .as_ref()
+        .and_then(|n| b.defns.get(&n.text).cloned());
     // Tool.getSymmetryPerms uses the definition table before constant
     // definitions become values (SpecProcessor.snapshot).
     let symmetry_definition = b
@@ -225,6 +236,14 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     b.build_evaluator()?;
     b.process_constant_defns()?;
     b.process_config()?;
+    let periodic = if b.periodic_snapshot {
+        Some(periodic::resolve(b, periodic_definition.as_ref())?)
+    } else {
+        None
+    };
+    if b.periodic_snapshot && !b.cfg.possible.is_empty() {
+        return Err(BindError::unsupported("_POSSIBLE"));
+    }
     let view = b.process_view()?;
     #[cfg(feature = "enumerate")]
     let (init_actions, actions) = (b.init_actions()?, b.expand_actions()?);
@@ -278,5 +297,5 @@ fn run(b: &mut bind::Binder<'_>) -> Result<Model, BindError> {
     model.sequential = sequential.reasons;
     model.sequential_names_only = sequential.names_only;
     model.runtime_name_order = sequential.runtime_names;
-    Ok(model)
+    Ok((model, periodic))
 }

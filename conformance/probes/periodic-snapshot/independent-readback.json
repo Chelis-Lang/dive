@@ -1,0 +1,21 @@
+{
+  "scope": "Actual FastTool snapshot/startup/empty-state body projections only; not ordinary checking.",
+  "ordinary_schedule_certified": false,
+  "model_proof": false,
+  "groups": [
+    {
+      "name": "original",
+      "rows": 26,
+      "files_verified": 107,
+      "capture_sha256": "1fef0401f48c9fab93bff90ae40f153b53f89122e9af9de2d6b69701a2cd398d",
+      "archive_sha256": "77f227e26c63c1ef7316e00c886733be6d60a5d71340d5dbe211bafbe8d044f0"
+    },
+    {
+      "name": "precedence",
+      "rows": 12,
+      "files_verified": 48,
+      "capture_sha256": "b22610afc468094966ac70e3b591f455868b64f5dea3e49fa0c1c42a4e91557f",
+      "archive_sha256": "9b17597426917d8460a442d383da9bf1b780abc5fc94f775402cea1cead88f37"
+    }
+  ]
+}

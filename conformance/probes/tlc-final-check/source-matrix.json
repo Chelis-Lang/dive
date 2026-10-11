@@ -3,7 +3,7 @@
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
   "scope": "Current integrated-source integrity; historical final producer outcomes remain bound to preserved sources and are not recertified by this matrix.; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    "crates/dive-liveness/src/lib.rs": "fbe7161e622411683358b7bf27fc8ea6dd6ff8e107d74cde50a18b2144709f20",
+    "crates/dive-liveness/src/lib.rs": "bb76e8ccf8687f202137002b133fcbfe675269a329556135226315a06ec21063",
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",

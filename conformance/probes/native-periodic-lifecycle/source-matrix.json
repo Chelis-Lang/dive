@@ -18,7 +18,7 @@
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "2ce9a8c29597fbb112db178c8819aa26e0e73db0ffe011bc172175b1252ac9df"
+    "conformance/parity-features.json": "51aba76eff5080f9706729dbff37e8a5cba73e5ab0cdb0f1ff501a1f54a5e59c"
   },
   "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification."
 }
