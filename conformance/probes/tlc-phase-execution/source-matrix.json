@@ -51,7 +51,7 @@
   "source_sha256": {
     "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+    "crates/dive-check/src/engine.rs": "14fdd34e4452b0c3b4530af0d55f90e6a7958c33082d13c7619617c7c2cf1d27",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
     "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",

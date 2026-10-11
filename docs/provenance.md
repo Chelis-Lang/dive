@@ -623,3 +623,17 @@ current native producer identities are separated in
 | Periodic backend controller (`dive-liveness/src/periodic.rs`) | `tlc2/tool/ModelChecker.java` `doPeriodicWork`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | All296 actual method callback/force/code/effect controls; controlled queue/SCC/checkpoint/ratio callbacks. Clock-ratio math, graph authority and ordinary verdicts remain unproved. |
 
 | Runtime-ratio arithmetic (`periodic::calculate_runtime_ratio`) | `ModelChecker.updateRuntimeRatio`, pinned `94d0c50`; actual method called with controlled initial fields | MIT | 196 complete numeric observations with raw double bits and real clock brackets, three negative assertion controls; no scheduling/clock-origin/model-proof credit |
+
+### VIEW-backed RandomElement authority (2026-10-11)
+
+`dive-check::Search::seed_state` and independent `dive-trace::Run` match pinned
+`RandomEnumerableValues.TLCStateRandom.initializedFor` and
+`TLCStateMut.fingerPrint` (`94d0c50`, MIT): state fingerprint applies concrete
+normalization and VIEW before stream selection. Concrete predecessor retention
+is unchanged. Callback-free bounded source and stored-value admission is native
+policy, not a Java error-class port or independent reachability certificate.
+The shared `dive-model::random_view` helper does not enumerate successors or
+invoke providers; trace replay stays independently built without enumeration.
+Original 84 diagnostic rows, wider seeds and shipping producer evidence remain
+separate under `conformance/probes/view-random-stream/`. Symmetry and other RNG
+families/recovery are excluded until their own contracts are proved.

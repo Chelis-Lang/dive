@@ -236,7 +236,11 @@
         "crates/dive-check/tests/view_random.rs",
         "conformance/probes/view-random-seeding/README.md",
         "crates/dive-check/tests/configured_random.rs",
-        "conformance/probes/configured-random-admission/README.md"
+        "conformance/probes/configured-random-admission/README.md",
+        "crates/dive-check/tests/view_random_stream.rs",
+        "crates/dive-trace/tests/view_random_stream.rs",
+        "crates/dive-model/tests/random_view_values.rs",
+        "conformance/probes/view-random-stream/README.md"
       ],
       "evidence_updates": [
         "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial.",

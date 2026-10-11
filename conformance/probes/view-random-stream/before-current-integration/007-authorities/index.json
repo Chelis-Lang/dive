@@ -1,0 +1,164 @@
+{
+  "parent_commit": "007152616d20fe774d43eca4abd17ea9a8cc82f6",
+  "qualification": "Original parent current-source metadata and exact changed source bytes. Runtime observations retain original epochs.",
+  "matrices": [
+    {
+      "path": "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "sha256": "4ed1bc5013373751752893fc746912d3e171a64949452842b7110702007571ce",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-phase-l-graph/source-matrix.json",
+      "sha256": "0b495777e791dfc4fe5fa3be8897bc2e97c5a8226aefdd5e0b7e631aa9452c6b",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef"
+      }
+    },
+    {
+      "path": "conformance/probes/predecessor-spill/current-integration-source.json",
+      "sha256": "65789cf632d468d3baaf491360de5add51a0cb59b06d72baeb84250ab57e2a83",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+        "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e"
+      }
+    },
+    {
+      "path": "conformance/probes/native-checkpoint/current-integration-source.json",
+      "sha256": "05921e8ad3798f05c8fa9eb5819a0022a240775c35f38eb65c705c508d7fd8c5",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+        "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
+        "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-state-if/source-matrix.json",
+      "sha256": "59d993cbdd0b0713495975d8caa7e487471304adff5d952fbffeb0f8bcaf550c",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if/source-matrix.json",
+      "sha256": "b5ff036f83e6878190bd086cdd17727769937bfeaea7298a0b58810e64e81eb7",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if-final/source-matrix.json",
+      "sha256": "45fdcd0257fca632e6cf8bbdce789d568fbf74390724a2161ffefe9250864a71",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-final-scopes/source-matrix.json",
+      "sha256": "35f82920d4ad914a0f0d11eb445b7748c02e3013a876eb9e3653672264561d0a",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-phase-execution/source-matrix.json",
+      "sha256": "be6d6d05b90ec52c4d521b7523b6ab650a84716da3d873f6de62c00182cd4048",
+      "changed_source_sha256": {
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-final-property-origins/source-matrix.json",
+      "sha256": "ec9d04192098e84923868c4d1c8d3c0d8f39a138d981cb00e762b4dac18cf405",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/material-capture/source-matrix.json",
+      "sha256": "cc40df83987393873f6f0a62e272df792bcdebb244be008dfcb45f9e65c74618",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/temporal-operators/source-matrix.json",
+      "sha256": "c26d9679c6c9536c838d839e89fb84f5bf85514f623b01abccb1a17418d37fd1",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/native-temporal-operators/source-matrix.json",
+      "sha256": "915baa2cbfc8d4a99ebd3a40084de8d1ab1a6fbc8ead54d256e20d0b0f2d0366",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+        "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
+        "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
+        "crates/dive-trace/src/random_position.rs": "b5294364c0297a4424e5339195b1808f55301606966ed98b1343424b47fa70cc",
+        "crates/dive-trace/src/validate.rs": "7ec8455a7e850754559f7ef01680fc4d51167472d9e8b4bdd402e6bc4e859d87",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/native-parity-integration/current-source.json",
+      "sha256": "2d6af8889d827b44afa1064c926e161bb33fb2f93f9c28029786f3bf19011883",
+      "changed_source_sha256": {
+        "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+        "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+        "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
+        "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
+        "crates/dive-trace/src/random_position.rs": "b5294364c0297a4424e5339195b1808f55301606966ed98b1343424b47fa70cc",
+        "crates/dive-trace/src/validate.rs": "7ec8455a7e850754559f7ef01680fc4d51167472d9e8b4bdd402e6bc4e859d87",
+        "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+        "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+        "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729"
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-partial-scc/source-matrix.json",
+      "sha256": "57bd9c4688e362c0db33595ecaf73eaf8410126418bba275607abfdf9467ccd4",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f"
+      }
+    }
+  ],
+  "source_sha256": {
+    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+    "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
+    "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
+    "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
+    "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+    "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+    "docs/tlc-differences.md": "3824ce1f107f9b44db4f6167662adf3379199e7b1968c4159481c19b47cc4729",
+    "CHANGELOG.md": "f8f786f946d314b6b4fc98fb0a47ddf493d9c4c6cc0f8fb07e16bed9a4fd34d0",
+    "crates/dive-trace/src/random_position.rs": "b5294364c0297a4424e5339195b1808f55301606966ed98b1343424b47fa70cc",
+    "crates/dive-trace/src/validate.rs": "7ec8455a7e850754559f7ef01680fc4d51167472d9e8b4bdd402e6bc4e859d87"
+  }
+}

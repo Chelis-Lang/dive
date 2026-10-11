@@ -254,3 +254,27 @@ configured checking-path flag is insufficient for an unconfigured caller
 predicate. Existing scoped walkers resolve redirects and retain their opaque
 context refusals. No caller may establish independent truth or disabledness
 by choosing an unproved runtime namespace.
+
+### Implementation addendum: pure VIEW random streams (2026-10-11)
+
+The first ordinary transformed stream slice permits closed pure VIEW expressions
+and pure startup/Init. The checker selects `Streams::state` with FP64 of the VIEW
+value after concrete deep normalization. The independent validator computes that
+fingerprint itself from supplied concrete states and evaluates Next as a
+predicate; it never re-enumerates successors. Both sides share only binding,
+value operations and a callback-free stored-shape admission helper.
+
+Admission is bounded to 16,384 visits and depth 64; explicit homogeneous atomic
+sets and literal tuples/records are admitted recursively. General functions need
+homogeneous atomic domains. Compound/mixed sets, nonliteral tuple/record shapes,
+providers and symbolic sets remain refused rather than infer safe JSON replay.
+The #190 decoder/normalization boundary remains open. Source walks retain bounds
+512 (closed VIEW/startup) and 4096 (actual native effects); opaque contexts and
+unused effectful/family definitions can conservatively refuse before binding.
+
+The global TLC counterpart is Java random seeded with transformed fingerprint
+XOR seed; default replayable streams retain the approved D-002 algorithm.
+Requested workers are separate from actual inline width 1. First-successor
+partial trace printing, startup draws, symmetry, Randomization families,
+graph/temporal randomness and seeded recovery remain outside this proof slice.
+No archive, complete family or shortest-trace certificate follows from admission.
