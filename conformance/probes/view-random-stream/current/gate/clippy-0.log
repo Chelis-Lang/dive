@@ -1,0 +1,56 @@
+    Checking serde_core v1.0.229
+    Checking libc v0.2.190
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking bitflags v2.13.2
+    Checking getrandom v0.3.4
+    Checking rand_core v0.9.5
+    Checking serde v1.0.229
+    Checking serde_json v1.0.151
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-ir)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-pluscal)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-eval)
+    Checking zerocopy v0.8.62
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-liveness)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sim)
+    Checking ppv-lite86 v0.2.21
+    Checking rand_chacha v0.9.0
+    Checking rand v0.9.5
+    Checking rand_xorshift v0.4.0
+    Checking regex-syntax v0.8.11
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-api)
+    Checking unarray v0.1.4
+    Checking errno v0.3.14
+    Checking proptest v1.11.0
+    Checking rustix v1.1.5
+    Checking terminal_size v0.4.4
+    Checking anstyle v1.0.14
+    Checking clap_lex v1.1.1
+    Checking clap_builder v4.6.7
+    Checking regex-lite v0.1.9
+    Checking clap v4.6.7
+    Checking condtype v1.3.0
+    Checking winnow v1.0.4
+    Checking divan v0.1.21
+    Checking toml_parser v1.1.4+spec-1.1.0
+    Checking signal-hook-registry v1.4.8
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking signal-hook v0.4.5
+    Checking toml v1.1.7+spec-1.1.0
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-value)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-conformance)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-bench)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-store)
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-syntax)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-config)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-cli)
+    Checking xtask v0.0.0 (/Users/jeff/code/dive-view-random-current-work/xtask)
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-sema)
+    Checking dive-compile v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-compile)
+    Checking dive-lsp v0.0.0 (/Users/jeff/code/dive-view-random-current-work/crates/dive-lsp)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 36.26s

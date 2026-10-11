@@ -1,0 +1,35 @@
+{
+  "producer_commit": "d749f9b06e7e727e4cb4e1b4231a12a5cddcd696",
+  "rows": [
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "dive-cli",
+        "-p",
+        "dive-conformance"
+      ],
+      "exit": 0,
+      "seconds": 68.164700417,
+      "sha256": "44d87019e2deb13b16081d873d7d75a545ca94322cd8b5384879ae5f28374529"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "dive-api",
+        "--example",
+        "view_random"
+      ],
+      "exit": 0,
+      "seconds": 41.725895333,
+      "sha256": "421e9cb17fb6bf43c38dc807e812e9bc3e24b893e76884f94ea1ad6c39922c22"
+    }
+  ]
+}

@@ -76,6 +76,7 @@ mod error;
 pub mod intern;
 pub mod level;
 mod model;
+pub mod random_view;
 mod reach;
 mod spec;
 pub mod symmetry;

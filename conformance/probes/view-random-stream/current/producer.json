@@ -1,0 +1,12 @@
+{
+  "source_commit": "d749f9b06e7e727e4cb4e1b4231a12a5cddcd696",
+  "source_tree": "bd0274afd400618f2921314e7d2743db1fdae39c",
+  "binary_sha256": "9c6b94b1c5d8a05f6af60b9626b969716f5c8fd43fb1d301c19d1e91744c46ea",
+  "binaries_sha256": {
+    "dive": "9c6b94b1c5d8a05f6af60b9626b969716f5c8fd43fb1d301c19d1e91744c46ea",
+    "dive-conformance": "25c6bac9b95e51618d5d69377b48a637538c4f65a64e60504e62b3375b3bdf83",
+    "view-random-guide": "7f901393b5fef4e43d963b31fa0ab412c60bd83161f46e2c2eb5a7decf984bc2"
+  },
+  "source_inputs_sha256": "229956e57be0c6616617fe3736c268013167d2c7060e80b1604e730efcd55ba0",
+  "qualification": "Exact frozen current producer, full1144/0skip gate complete; runtime campaign execution remains separate"
+}

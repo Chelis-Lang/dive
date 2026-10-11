@@ -9,6 +9,11 @@ All notable changes to this project are documented here. The project will follow
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
 
+- Closed pure ordinary VIEW/RandomElement checking seeds from the transformed
+  FP64 value while retaining concrete witnesses for independent replay. Stored
+  shape/work admission and existing startup, first-successor, symmetry,
+  Randomization-family, graph/temporal and RNG recovery refusals remain explicit.
+
 - Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
   observations, including wrapping and NaN/zero behavior. It remains separate
   from ordinary scheduling and checker verdicts.

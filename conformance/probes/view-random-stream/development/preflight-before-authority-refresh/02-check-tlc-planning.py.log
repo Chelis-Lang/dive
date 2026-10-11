@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-tlc-planning.py", line 111, in <module>
+    main()
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-tlc-planning.py", line 107, in main
+    assert sha(ROOT / path) == digest, path
+AssertionError: crates/dive-check/src/engine.rs

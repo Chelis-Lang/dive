@@ -1,0 +1,12 @@
+{
+  "uncommitted_prototype": true,
+  "parent_commit": "c7b22f3495aad154e6287558e3347068a1f88bf5",
+  "binary_sha256": "56b58dadecbf37063a41dbab6c6d8872f977d5557f587a327da7b6cdcde1c05a",
+  "changed_source_sha256": {
+    "crates/dive-check/src/engine.rs": "49c544196db84d1bad9102b7d8d37bc34731c7b616e3b712043798bcc4231268",
+    "crates/dive-check/src/lib.rs": "293ae68cd721b78fd0950462a6e574830487158e19b693607e5ca800b2c90897",
+    "crates/dive-trace/src/random_position.rs": "c27d46d114a51eb8a08d49271e892c8638b95a3d62bb5bd732555e79de134ad5",
+    "crates/dive-trace/src/validate.rs": "d517afd44aa96a3c9b45e0536bda8ebf280343d46eb623fae93bfa19e7295a3d"
+  },
+  "claim": "Diagnostic prototype only, no complete gate or shipping source identity."
+}

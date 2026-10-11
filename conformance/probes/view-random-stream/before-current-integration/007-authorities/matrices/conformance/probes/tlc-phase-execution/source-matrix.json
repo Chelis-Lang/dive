@@ -1,0 +1,75 @@
+{
+  "base_commit": "f3c00c9b702ad1c196367338325b98e1a3a322df",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "81dc3ee20aaabab36dd5c367f8fe9326aa3b58a03b168710a6847ea73930aaf5",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged.",
+  "configured_native_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "07ab4efb69a0d7c6f2a36185bcecdf8aabac21e7b0c33e323984968f696b6a2b",
+    "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
+  },
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "configured_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/configured-target-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "33c585c781f6db0e281382cf142cb699467a9d224c32569b1a3f46ccf5854050",
+    "source_archive": "conformance/probes/view-random-seeding/configured-target-before-authorities/sources"
+  },
+  "configured_stream_previous_authority": {
+    "matrix": "conformance/probes/configured-random-stream/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "9ab0f9951b8353c4ed3e622d6990e0dfd99703ec2876b9991d766974ccc98602",
+    "source_archive": "conformance/probes/configured-random-stream/before-authorities/sources"
+  },
+  "configured_stream_scope_addendum": "Actual-bound ordinary RandomElement stream selection and independent replay integrated; strict initial-predecessor printing and other configured RNG routes remain refused. This current source-integrity refresh does not recertify historical captures.",
+  "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "current_main_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/current-main-before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "b790cadff3dd0d16b4d64799fd43928776f2e241241f4f13710769027cd4a11b",
+    "source_archive": "conformance/probes/configured-random-admission/current-main-before-authorities/sources"
+  },
+  "current_main_rng_scope_addendum": "Current-main namespace/recovery/CI source integrated with conservative ordinary/capture configured-RNG admission; historical producer evidence and certification status remain unchanged.",
+  "current_scope_addendum": "Pure-runtime-name safety recovery source integration; historical producer captures and family-certification status remain unchanged.",
+  "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
+  "historical_execution_slice": "execution",
+  "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "runtime_name_recovery_previous_authority": {
+    "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "3eaf427c6de5f36515218c5617dea4c8aa4d360014240d081edaa8de8641a475",
+    "source_archive": "conformance/probes/native-checkpoint-runtime-names/before-authorities/sources"
+  },
+  "schema_version": 1,
+  "scope": "Combined ordered observed pool with bounded source waves and current checkpoint/admission; original execution source retained separately; no strict verdict certification; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "fe1d6102ace51b83e8607fcf3186fa4c799eceb70bf9752fbebafb1bd6d904b4",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "source_sha256": {
+    "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
+    "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
+    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+    "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
+    "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
+    "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",
+    "crates/dive-liveness/src/phase_execution.rs": "7508947abdfbc5751b14cb39a63a498869166970d3ae49a1053a3fb6bcd39f34",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
+    "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
+    "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"
+  },
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged",
+  "transient_recovery_integration": {
+    "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
+    "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification",
+    "source_parent": "d0d95389f413edb04b38392918f0c98585682724"
+  },
+  "view_normalization_scope_addendum": "2026-10-11: current integration of unconditional concrete normalization before pure VIEW. Exact preceding main maps/changed bytes retained at conformance/probes/view-concrete-normalization/before/fe35-current-authority; original producer runs remain historical, not retagged. No RNG or family certification.",
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
+    "matrix_sha256": "7f32282f10162cf35f56aaa9396f96089c1ca706037b77a5acb1cf71f025bac6",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  }
+}

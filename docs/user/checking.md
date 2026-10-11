@@ -24,12 +24,20 @@ selects inline checking. Simulation and checkpoint widths have separate limits.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
-VIEW with random operators currently returns `unsupported` before binding,
-output or search, even under `--compat=tlc`. The source-wide guard also detects
-unused definitions and native aliases, including native replacements selected
-only by `CONSTANT C <- RandomElement` or an instantiated context alias. The unfinished native seeding path could
-produce different concrete draws despite equal counts; see the preserved
-[example and evidence](../../conformance/probes/view-random-seeding/README.md).
+Ordinary `RandomElement` checking supports a closed pure VIEW and pure startup/Init.
+Expansion draws use the VIEW value's TLC fingerprint, while counterexamples retain
+concrete variable values. Direct calls and proved configured native replacements
+use the same authority. The [runnable paired example](../../conformance/probes/view-random-stream/README.md)
+shows the reported seed, polynomial, requested width and actual inline width.
+Unproved VIEW/startup contexts still return `unsupported` before binding, output
+or search. The conservative source walk includes unused definitions and native
+aliases, so importing unused Randomization bodies can also refuse this slice.
+Concrete values and the VIEW value must fit 16,384 stored-value visits and depth
+64: atoms, literal tuples/records, general functions with homogeneous atomic
+domains, and explicit homogeneous atomic sets. Compound/mixed sets, symbolic or
+deferred sets and nonliteral tuple/record representations remain named refusals;
+these extra shape limits do not widen the unresolved mixed-word certificate
+boundary in #190. No provider callback or comparison is used to grant admission.
 Pure VIEW and direct source-call random checking without VIEW remain available.
 VIEW normalizes all concrete variables before computing a visited key, even
 variables the projection ignores. If a value cannot be normalized on the
@@ -66,7 +74,7 @@ The standalone validator also refuses unproved draw positions for multiple draws
 or conditionally discarded random branches. A matching concrete value does not
 establish where the generator consumed its stream. A checker violation whose
 witness is missing or independently `unsupported` never counts as full agreement.
-Configured `Randomization` replacements, VIEW/SYMMETRY with randomness, graph
+Configured `Randomization` replacements, SYMMETRY with randomness, graph
 capture, temporal random checking and seeded native recovery remain explicitly
 refused. The callback-free configured-target scan remains conservative across
 matching modules and aliases.

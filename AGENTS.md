@@ -191,8 +191,6 @@ python3 -I scripts/check-temporal-action-order.py
 python3 -I scripts/check-phase-l.py
 python3 -I scripts/check-phase-l-graph.py
 python3 -I scripts/check-phase-execution.py
-python3 -I scripts/check-periodic-controller.py
-python3 -I scripts/check-runtime-ratio.py
 python3 -I scripts/check-tlc-final.py
 
 python3 -I scripts/check-state-if-planning.py
@@ -200,6 +198,8 @@ python3 -I scripts/check-predecessor-spill.py
 python3 -I scripts/check-native-checkpoint.py
 python3 -I scripts/check-native-parity-integration.py
 python3 -I scripts/check-view-normalization.py
+python3 -I scripts/check-view-random-stream.py
+python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo nextest run --workspace --locked          # or: cargo test --workspace
 cargo test --workspace --doc --locked

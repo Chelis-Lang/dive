@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-predecessor-spill.py", line 47, in <module>
+    for path, digest in current['source_sha256'].items(): assert sha(ROOT/path) == digest, path
+AssertionError: crates/dive-check/src/engine.rs

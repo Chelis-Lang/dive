@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-phase-l-graph.py", line 35, in <module>
+    for name,digest in matrix['source_sha256'].items():assert phase_l.sha(ROOT/name)==digest,name
+AssertionError: crates/dive-check/src/engine.rs

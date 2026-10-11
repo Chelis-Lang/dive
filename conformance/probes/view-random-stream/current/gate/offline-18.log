@@ -1,0 +1,3 @@
+verified 45 immutable slice source histories and distinct combined source hashes; no family certification
+verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants
+Verified frozen550 complete1076 zero-skip gate and524 explicit-option cases;640 complete CST/SANY/Validator pairs; no family certification

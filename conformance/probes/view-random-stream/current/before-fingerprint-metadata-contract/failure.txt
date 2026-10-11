@@ -1,0 +1,4 @@
+Frozen d749 first runtime consumer stopped at exact-store row after retaining earlier raw outputs:
+TypeError: NoneType object is not subscriptable
+assert j[options][seed]==seed and j[options][fingerprint][polynomial_index]==fp
+Exact-store options.fingerprint is documented null. Production/runtime code was not changed.

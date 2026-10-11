@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-view-random-current-work/scripts/check-native-temporal-operators.py", line 83, in <module>
+    for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+AssertionError: .github/workflows/ci.yml
