@@ -120,7 +120,7 @@ pub(super) fn check(ir: &Ir, cfg: &ModelConfig, maximum: usize) -> Result<(), &'
                     OpRef::Std(op) if !native(*op) => {
                         return Err("pre-bind native callback/runtime-name effects");
                     }
-                    OpRef::Param(_) | OpRef::Unbound(_) => {
+                    OpRef::Unbound(_) => {
                         return Err("pre-bind opaque operator capture");
                     }
                     _ => {}

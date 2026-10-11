@@ -49,12 +49,17 @@ Bounded in-memory translation-block editing is also available:
 dive translate docs/user/examples/Algorithm.tla --rewrite --compat=tlc --output json
 ```
 
-For admitted sequential shapes, the default Full policy derives the algorithm
-AST checksum and generated-body checksum. An explicit `--checksums tla` request
+For admitted sequential shapes, including bounded non-junction multiline
+expressions, and bounded finite processes with proved explicit fairness/automatic-label
+options, the default
+Full policy derives the algorithm AST checksum and generated-body checksum. An explicit `--checksums tla` request
 selects body-only editing and labels TLC mode `tlc+overrides`. The replacement
 module is returned in JSON; the command does not write the source file. Read
 [the editing contract](../pluscal-rewriting.md) and
-[nested checksum expressions](../pluscal-checksum-expressions.md) for supported
+[nested checksum expressions](../pluscal-checksum-expressions.md) and
+[multiline expressions](../pluscal-multiline.md) and
+[finite-process checksums](../pluscal-process-checksums.md) and
+[process option examples](../pluscal-process-checksum-options.md) for supported
 shapes, stale-block handling, budgets and executable Rust examples. A matching
 checksum alone is not an artifact or model proof; accepted artifacts also pass
 native enclosing-module analysis.
@@ -62,7 +67,8 @@ native enclosing-module analysis.
 General scoped renaming, sequential procedure modifiers, historical translator
 flags, exact formatter output, filesystem writes and TLC mapping-file parity
 remain unfinished. Full checksum derivation has a narrower scope than raw
-translation: process/procedure/macro and unproved layout/name-fix shapes may
+translation: procedure/macro ASTs, unproved source-option declarations and
+layout/name-fix shapes may
 translate successfully while an editing request explicitly refuses. It never
 silently falls back to body-only editing. Reference-produced but SANY-invalid
 text cannot become an admitted public artifact. The lower-level source parser/raw
@@ -86,3 +92,9 @@ Both return admitted in-memory translation artifacts. Inspect `module_source`
 and the nonproof fields before using the result. These process/procedure examples
 do not establish Full editing admission; the bounded editing contract above
 reports its own supported scope.
+
+Recognized source-option declarations are inspected in the original bounded
+file, including an existing translation block, before native rewriting masks
+old output. Both checksum policies refuse that unproved context, even with
+`--replace-modified`. This prevents silently losing requested fairness; it
+does not restrict the separate supplied-body editing contract.

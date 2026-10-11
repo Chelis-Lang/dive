@@ -69,6 +69,218 @@ pub enum SlotView {
 }
 
 impl Evaluator {
+    /// Resolves a known user operator for non-evaluating context analysis.
+    ///
+    /// Preserves its lexical parent and dynamic substitution context. Each
+    /// ordinary value formal is bound to [`SlotView::AnalysisBound`], which is
+    /// state-level for analysis and cannot be forced as a runtime value. This
+    /// does not prove purity: callers must inspect the returned body and scope.
+    /// Native, built-in, configured constant, unresolved, recursive, overridden
+    /// and higher-order targets return `None` without evaluation or callbacks.
+    /// A definition used by any configured operator constant is also refused,
+    /// even when explicitly passed, because captured bindings erase its origin.
+    /// Callers must also prove [`Self::scope_operator_captures`], including
+    /// unused lexical/dynamic operator arguments, under their own work budget.
+    /// Use [`Self::scope_apply_param`] with real arguments for execution.
+    ///
+    /// # Errors
+    /// An invalid definition, enclosing frame or foreign captured context.
+    pub fn scope_operator_analysis(
+        &self,
+        scope: &Scope,
+        operator: &OpRef,
+    ) -> Result<Option<(DefId, Scope)>> {
+        self.validate_scope(scope)?;
+        let value = match operator {
+            OpRef::Def(def) => {
+                self.admit_def(*def)?;
+                let target = self.core.redirect(*def);
+                self.admit_def(target)?;
+                self.admit_parent(scope, target)?;
+                self.core.op_value(&scope.env, operator)?
+            }
+            OpRef::Param(local) => {
+                let Some(frame) = scope.env.frame_up(local.up) else {
+                    return Ok(None);
+                };
+                let Some(Sv::Op(value)) = frame.slots.get(local.slot.index()) else {
+                    return Ok(None);
+                };
+                value.clone()
+            }
+            _ => return Ok(None),
+        };
+        self.operator_value_analysis(scope, value)
+    }
+
+    fn operator_value_analysis(
+        &self,
+        scope: &Scope,
+        value: crate::env::OpVal,
+    ) -> Result<Option<(DefId, Scope)>> {
+        let crate::env::OpVal::Def {
+            def,
+            parent,
+            dynamic,
+        } = value
+        else {
+            return Ok(None);
+        };
+        let target = self.admit_def(def)?;
+        // OpVal::Def does not retain configured-constant origin. Conservatively
+        // refuse every such target, including an explicitly passed same def.
+        if self.core.consts.iter().flatten().any(|binding| {
+            matches!(binding, crate::ConstBinding::Def(bound) if self.core.redirect(*bound) == def)
+        }) {
+            return Ok(None);
+        }
+        if target.recursive
+            || target.std.is_some()
+            || self.is_value_override(def)
+            || target.params.iter().any(|param| param.arity != 0)
+        {
+            return Ok(None);
+        }
+        let mut env = Env::new(
+            def,
+            target.depth,
+            target.frame.len(),
+            parent,
+            dynamic.unwrap_or_else(|| scope.env.dynamic.clone()),
+        );
+        for i in 0..target.params.len() {
+            env.bind(i, Sv::AnalysisBound);
+        }
+        Ok(Some((
+            def,
+            Scope {
+                owner: self.core.ir.clone(),
+                names: self.core.names.clone(),
+                context: Arc::downgrade(&self.core),
+                env,
+                wrapper: scope.wrapper,
+            },
+        )))
+    }
+
+    /// Projects every captured lazy expression and known user operator body.
+    ///
+    /// This performs no evaluation, normalization or callback. Returned bodies
+    /// retain lexical/dynamic ownership and analysis-only ordinary formals;
+    /// callers must independently prove each one, including unused captures.
+    /// Opaque functions/operators and configured/recursive/native targets return
+    /// `None`. Each context, substitution link and slot consumes `work` before
+    /// inspection or enqueue; retained context depth is capped at 128.
+    /// Stored values are not forced and this is not a value-purity certificate.
+    /// Dynamic `@` bindings conservatively refuse instead of hashing values.
+    ///
+    /// # Errors
+    /// Invalid ownership/reference or the supplied work/context depth bound.
+    pub fn scope_operator_captures(
+        &self,
+        scope: &Scope,
+        work: &mut usize,
+    ) -> Result<Option<Vec<(ExprId, Scope)>>> {
+        self.validate_scope(scope)?;
+        Self::operator_capture_step(work)?;
+        let mut captures = Vec::new();
+        let mut todo = vec![(scope.env.clone(), 0_usize)];
+        let mut frames = std::collections::HashSet::new();
+        let mut links = std::collections::HashSet::new();
+        // Retain every traversed owner for the walk: allocation addresses must
+        // not be recycled while they occur in identity keys.
+        let mut owners = Vec::new();
+        while let Some((env, depth)) = todo.pop() {
+            if depth > 128 {
+                return Err(EvalError::resource_limit("operator capture context depth"));
+            }
+            if env.dynamic.at.is_some() {
+                return Ok(None); // No Value hash/equality is capture authority.
+            }
+            Self::operator_capture_step(work)?;
+            owners.push(env.clone());
+            let context_scope = Scope {
+                env: env.clone(),
+                ..scope.clone()
+            };
+            let mut slots = Vec::new();
+            let dynamic_key = (
+                env.dynamic
+                    .subst
+                    .as_ref()
+                    .map_or(0, |head| Arc::as_ptr(head) as usize),
+                env.dynamic.cut,
+            );
+            let frame_key = (Arc::as_ptr(&env.frame) as usize, dynamic_key);
+            if !frames.contains(&frame_key) {
+                Self::operator_capture_step(work)?;
+                frames.insert(frame_key);
+                for slot in &env.frame.slots {
+                    Self::operator_capture_step(work)?;
+                    slots.push(slot);
+                }
+                if let Some(parent) = &env.frame.parent {
+                    Self::operator_capture_step(work)?;
+                    todo.push((
+                        Env {
+                            frame: parent.clone(),
+                            dynamic: env.dynamic.clone(),
+                        },
+                        depth + 1,
+                    ));
+                }
+            }
+            let mut link = env.dynamic.subst.as_deref();
+            while let Some(binding) = link {
+                let link_key = (std::ptr::from_ref(binding) as usize, dynamic_key);
+                if links.contains(&link_key) {
+                    break;
+                }
+                Self::operator_capture_step(work)?;
+                links.insert(link_key);
+                slots.push(&binding.val);
+                link = binding.next.as_deref();
+            }
+            for slot in slots {
+                Self::operator_capture_step(work)?;
+                let (expr, source) = match slot {
+                    Sv::Thunk(thunk) => {
+                        self.admit_expr(thunk.expr)?;
+                        (
+                            thunk.expr,
+                            Scope {
+                                env: thunk.env.clone(),
+                                ..scope.clone()
+                            },
+                        )
+                    }
+                    Sv::Op(operator) => {
+                        let Some((def, source)) =
+                            self.operator_value_analysis(&context_scope, operator.clone())?
+                        else {
+                            return Ok(None);
+                        };
+                        (self.core.ir.def(def).body, source)
+                    }
+                    Sv::Fcn(_) => return Ok(None),
+                    Sv::Unset | Sv::Val(_) | Sv::AnalysisBound => continue,
+                };
+                self.validate_scope(&source)?;
+                Self::operator_capture_step(work)?;
+                todo.push((source.env.clone(), depth + 1));
+                captures.push((expr, source));
+            }
+        }
+        Ok(Some(captures))
+    }
+
+    fn operator_capture_step(work: &mut usize) -> Result<()> {
+        *work = work
+            .checked_sub(1)
+            .ok_or_else(|| EvalError::resource_limit("operator capture work"))?;
+        Ok(())
+    }
+
     /// Enters an application of `def` to `args` in `scope`, as TLC's
     /// `getOpContext` does: each expression argument is bound lazily (a
     /// `LazyValue` over `scope`), each operator argument to the operator.
@@ -786,5 +998,90 @@ impl crate::core::Core {
             env1.dynamic.push(b.decl, val);
         }
         Ok(env1)
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "owned capture-identity fixtures")]
+mod operator_capture_tests {
+    use super::*;
+    use crate::env::OpVal;
+
+    #[test]
+    fn same_lexical_frame_is_inspected_under_each_dynamic_context() {
+        let analysis = dive_sema::analyze_source(
+            "CaptureIdentity.tla",
+            "---- MODULE CaptureIdentity ----\nEXTENDS TLC\nCONSTANT A(_)\nGood(v)==v\nEvil(v)==PrintT(v)\nProbe(v)==A(v)\nHolder(F(_),saved)==TRUE\nRoot(a,b)==TRUE\n====\n",
+            &dive_sema::Options::default(),
+        );
+        assert!(analysis.accepted());
+        let ir = Arc::new(dive_ir::lower(&analysis).expect("lower"));
+        let ev = Evaluator::new(crate::Model::new(ir.clone()), crate::Options::default())
+            .expect("evaluator");
+        let def = |name| ir.root_def(name).expect("definition");
+        let operator = |def| {
+            Sv::Op(OpVal::Def {
+                def,
+                parent: None,
+                dynamic: None,
+            })
+        };
+        let mut shared = ev.scope(def("Holder")).expect("holder").env;
+        shared.bind(0, operator(def("Probe")));
+        shared.bind(1, Sv::AnalysisBound);
+        let decl = ir
+            .decls()
+            .iter()
+            .position(|d| d.name.as_str() == "A")
+            .map(|i| dive_ir::DeclId(u32::try_from(i).expect("decl")))
+            .expect("A");
+        let contexts: Vec<_> = ["Good", "Evil"]
+            .into_iter()
+            .map(|name| {
+                let mut env = shared.clone();
+                env.dynamic.push(decl, operator(def(name)));
+                env
+            })
+            .collect();
+        assert!(Arc::ptr_eq(&contexts[0].frame, &contexts[1].frame));
+        let mut scope = ev.scope(def("Root")).expect("root");
+        for (i, env) in contexts.into_iter().enumerate() {
+            scope.env.bind(
+                i,
+                Sv::Thunk(Thunk::new(ir.def(def("Root")).body, env, false)),
+            );
+        }
+        let projected = ev
+            .scope_operator_captures(&scope, &mut 1_000)
+            .expect("ownership and work")
+            .expect("known user targets");
+        assert!(
+            projected
+                .iter()
+                .any(|(expr, _)| *expr == ir.def(def("Evil")).body)
+        );
+        let probe_contexts: Vec<_> = projected
+            .iter()
+            .filter(|(expr, _)| *expr == ir.def(def("Probe")).body)
+            .collect();
+        assert_eq!(probe_contexts.len(), 2);
+        let bindings: Vec<_> = probe_contexts
+            .iter()
+            .map(
+                |(_, context)| match context.env.dynamic.lookup(decl).expect("substitution") {
+                    Sv::Op(OpVal::Def { def, .. }) => *def,
+                    _ => def("Root"),
+                },
+            )
+            .collect();
+        assert!(bindings.contains(&def("Good")) && bindings.contains(&def("Evil")));
+        let mut at = scope.clone();
+        at.env.dynamic.at = Some(true.into());
+        assert!(
+            ev.scope_operator_captures(&at, &mut 1_000)
+                .expect("at refusal")
+                .is_none()
+        );
+        assert_eq!(ev.take_output(), Vec::<String>::new());
     }
 }

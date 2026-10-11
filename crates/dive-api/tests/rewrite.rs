@@ -126,3 +126,46 @@ fn full_integrity_rejects_algorithm_and_body_changes_without_a_grant() {
         assert!(!rewrite_source("R.tla", source, &request).accepted());
     }
 }
+
+#[test]
+fn original_source_options_refuse_before_masking_previous_translation() {
+    let source =
+        include_str!("../../../conformance/probes/pluscal-source-option-masking/before.tla");
+    let declaration = dive_pluscal::source_option_declaration_span(source)
+        .unwrap_or_else(|| unreachable!("retained reference-recognized declaration"));
+    assert_eq!(
+        &source[declaration.start..declaration.end],
+        "PlusCal options"
+    );
+    for compat_tlc in [false, true] {
+        for checksums in [ChecksumPolicy::Full, ChecksumPolicy::TranslationOnly] {
+            for replace_modified in [false, true] {
+                let request = RewriteRequest {
+                    translation: dive_api::TranslationRequest {
+                        compat_tlc,
+                        ..Default::default()
+                    },
+                    editing: RewriteOptions {
+                        checksums,
+                        replace_modified,
+                        ..Default::default()
+                    },
+                };
+                let report = rewrite_source("MaskedOptions.tla", source, &request);
+                let document = report.to_json();
+                assert!(!report.accepted());
+                assert_eq!(report.exit_code(), 3);
+                assert_eq!(document["result"], "unsupported");
+                assert_eq!(document["stage"], "source-options");
+                assert_eq!(document["model_proved"], false);
+                assert_eq!(document["exhaustive"], false);
+                assert_eq!(document["diagnostic"]["code"], "Unsupported");
+                assert_eq!(document["diagnostic"]["span"]["start"], declaration.start);
+                assert_eq!(document["diagnostic"]["span"]["end"], declaration.end);
+                assert!(document.get("artifact").is_none());
+                assert!(document.get("replacement").is_none());
+                assert!(document.get("algorithm_checksum_verified").is_none());
+            }
+        }
+    }
+}

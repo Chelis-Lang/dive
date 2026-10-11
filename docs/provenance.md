@@ -533,3 +533,48 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 | `dive-pluscal` empty-Else generation (`translate/emit.rs`) | `pcal.PcalTLAGen.GenIf` empty Else TRUE before identity updates; `ParseAlgorithm.GetIf`/`GetStmtSeq` P empty branches and C nonempty bodies; tlaplus `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Retained original operator-CST mismatch and complete paired empty/explicit-Skip/elsif controls. Empty Then generation remains explicitly unsupported. |
 
 | Native PlusCal value-expression parenthesization (`translate/emit.rs`) | Pinned `pcal.PcalTLAGen.NeedsParentheses`, commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | A top-level CASE arrow contains the reference greater-than trigger. C/P whole-module node/token CST controls retain parentheses so the CASE arm cannot absorb following action conjuncts. Original failed grouping controls and source remain archived; first-line scanning behavior is unchanged. |
+
+| Expanded temporal Action origins in `dive-model` and final-only API/JSON | `tlc2/tool/impl/SpecProcessor.java`, `processConfigProps`: unchanged `configName` passed into every implied-temporal `new Action`, independently of mutable derived `name`; pin `94d0c50` | MIT | Complete18 actual primary projections retain configured, expanded Action and derived role vectors separately;16 complete/2 exported-formal failures. Metadata only, unchanged witness/scheduling contract. |
+
+| `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
+
+| Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
+
+
+The finite-process checksum continuation ports `AST.Multiprocess.toString`,
+`AST.Process.toString` and `AST.VectorToSeqQuotedString` at the same `94d0c50`
+pin, with existing `VarDecl`/`LabeledStmt`/expression serialization. Native label
+ownership uses a bounded source-offset index rather than Java vector allocation
+order. Captured process modifiers, declarations, CRLF/tab/UTF-16 positions and
+post-Explode bytes are independently compared in
+`crates/dive-pluscal/process-checksum-acceptance/`. Runtime has no Java. Unproved
+options/scoped shapes refuse; raw CRC, artifact admission and model proof remain
+separate. D-020 is reproduced, not silently corrected.
+
+The source-backed singleton identity spelling additionally matches
+`PcalTLAGen.GenLabeledStmt`, `GenIf` and `GenEither` (same `94d0c50` pin):
+`UNCHANGED name` for Java UTF-16 length greater than five, equality otherwise.
+The original defaultInitValue whole-CST failure and length-five/six/branch
+controls remain retained. This is artifact fidelity, not a semantic divergence.
+
+Source option admission guard: pinned `pcal.trans.performTranslation / ParseAlgorithm.ProcessOptions` token context
+and `Validator.validate` reparsing options, commit `94d0c5070852b37b801bb8998c436383ab7ee37b`
+(MIT). Native recognizes a conservative context for named refusal, not execution
+of the reference option parser. Captures: `crates/dive-pluscal/source-option-acceptance/`.
+
+| Bounded pure operator-formal admission (`scope_operator_analysis`, scoped temporal/independent Word and finite/capture proof) | `tlc2.tool.impl.Tool.getOpContext`, operator-param lookup / `OpLambdaValue` captured Context; `Liveness.astToLive` application context; pin `94d0c50` | MIT | Callback-free known user-body proof retains captured lexical/dynamic scope; actual application remains scope_apply_param; constant-origin ambiguity and all opaque/native/recursive targets explicitly refuse. Exact primary/projection/word/witness controls: `conformance/probes/temporal-operators/README.md`; no ordinary scheduling claim |
+
+### Process checksum option context
+
+| Implementation | Reference | License | Evidence and limits |
+| --- | --- | --- | --- |
+| Native process option AST checksum (`dive-pluscal/translate/checksum.rs`) | `pcal.ParseAlgorithm.getAlgorithm` 377–394 (declared fairness precedes wf/sf defaults), `InnerAddLabels`, `AST.Process.toString`, `AST.Multiprocess.toString`, `PcalTranslate.Explode`; pinned `94d0c50` | MIT | Exact native post-translation bytes/CRC on retained source/option pairs; generator fairness suppression remains separate, all unproved source-option contexts refuse |
+| Source-option preflight (`dive-pluscal/translate/mod.rs`) | `pcal.ParseAlgorithm.ProcessOptions`, `FindToken`; `pcal.trans.performTranslation`; `pcal.Validator.validate` | MIT | Conservative detection/refusal, not a port of option-comment parsing; retained original ignored-option wrong artifacts and configured/unconfigured primary evidence |
+
+Original-source PlusCal option preflight matches the pinned translator
+`pcal.trans`/`ProcessOptions` reading source context before output replacement.
+The native callback-free declaration span is shared with the high-level rewrite
+facade before `mask_previous`; no Java executes in the product. The minimal
+old-output fairness-loss control is retained in
+`conformance/probes/pluscal-source-option-masking/`; full option parsing remains
+pending.
