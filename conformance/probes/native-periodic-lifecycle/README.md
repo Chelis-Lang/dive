@@ -18,3 +18,11 @@ observations form a distinct source epoch and never retag those observations.
 Current EOF derives pointer sizes before recording last-check snapshots, even
 when no timer ever ran. All candidates require fresh independent word/memory/JSON
 replay before future verdicts. Current Run never reports Holds or violation.
+
+`native-safe-resume` is a separate supplemental Cargo producer against unchanged
+114de32e9 crates, not part of its 984-test gate. Four selected widths exercise a
+successful forced timer callback and resume before real EOF, with no proof claim.
+`development-safe-resume-stuttering` preserves the incorrect no-fairness
+expectation and actual diagnostic candidate. `supplemental-clean-primary` retains
+both clean pinned final-only 0/13 model-semantics outcomes; no clock-schedule
+or exact partial-versus-final witness comparison is claimed.

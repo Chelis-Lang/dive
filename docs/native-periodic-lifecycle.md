@@ -155,3 +155,17 @@ check its temporal word and its in-memory and JSON trace independently. Wrong In
 a concrete closing edge for which Next is false, a wrong property claim, and a
 malformed ending remain separate negative controls. These selected replay results
 do not certify ordinary scheduling or automatically validate production candidates.
+
+A separate [Cargo control](../conformance/probes/native-periodic-lifecycle/native-safe-resume/src/main.rs)
+uses `[]<>(x >= 0)` over four concrete states. At 1, 3, 4 and 8 workers it
+records the successful forced-check hook, clears the force request, resumes
+dispatch, and reaches real safety EOF. Its output still says `model_proof=false`.
+Run it with:
+
+```sh
+cargo run --offline --locked --manifest-path conformance/probes/native-periodic-lifecycle/native-safe-resume/Cargo.toml
+```
+The original attempt expecting `[]<>(x = 3)` to hold without fairness is retained:
+stuttering before reaching 3 is a genuine counterexample. Clean final-only TLC
+runs exit 13 for that property and 0 for the nonnegative property; neither run
+proves native timer scheduling equivalence.

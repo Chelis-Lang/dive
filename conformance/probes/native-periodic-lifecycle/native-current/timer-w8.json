@@ -1,0 +1,51 @@
+{
+  "final_checks": [],
+  "graph_inspections": 49,
+  "invocations": [
+    {
+      "force": [
+        true,
+        true
+      ],
+      "generation": 1,
+      "outcome": "Ok(LivenessStopped(2116))",
+      "ratio_bits": [
+        0,
+        0
+      ],
+      "resume_requested": false,
+      "source": 0,
+      "stats": {
+        "depth": 1,
+        "distinct": 1,
+        "generated": 2,
+        "initial_generated": 1,
+        "queue": 0
+      },
+      "time_millis": 1791709155944,
+      "workers": 8
+    }
+  ],
+  "model_proof": false,
+  "name": "timer-w8",
+  "ordinary_schedule_certified": false,
+  "partial_candidate": true,
+  "safety_complete": false,
+  "safety_eof": null,
+  "stop": {
+    "code": "DIVE-L0054",
+    "stats": {
+      "depth": 1,
+      "distinct": 1,
+      "generated": 2,
+      "initial_generated": 1,
+      "queue": 0
+    },
+    "text": "source checkpoint found an unvalidated temporal candidate",
+    "workers": {
+      "requested": 8,
+      "sequential": false,
+      "used": 8
+    }
+  }
+}

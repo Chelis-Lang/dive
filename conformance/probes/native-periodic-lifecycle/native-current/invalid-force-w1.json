@@ -1,0 +1,21 @@
+{
+  "final_checks": [],
+  "graph_inspections": 0,
+  "invocations": [],
+  "model_proof": false,
+  "name": "invalid-force-w1",
+  "ordinary_schedule_certified": false,
+  "partial_candidate": false,
+  "safety_complete": false,
+  "safety_eof": null,
+  "stop": {
+    "code": "DIVE-L0051",
+    "stats": null,
+    "text": "phase-L graph inconsistency: use lifecycle force instead of repeated backend force",
+    "workers": {
+      "requested": 1,
+      "sequential": false,
+      "used": 0
+    }
+  }
+}

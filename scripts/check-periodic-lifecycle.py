@@ -71,6 +71,26 @@ if (BASE / 'native-current/manifest.json').exists():
             assert call['generation'] > 0 or call['workers'] == 1
         if 'default-refusal' in path:
             assert row['stop']['workers']['used'] == 0 and eof is None and not row['invocations']
+safe = BASE / 'native-safe-resume'
+if (safe / 'receipt.json').exists():
+    m = load(safe / 'receipt.json')
+    assert m['compile_exit'] == m['run_exit'] == 0 and not m['model_proof'] and not m['ordinary_schedule_certified']
+    for path, digest in m['artifact_sha256'].items(): assert sha((safe / path).read_bytes()) == digest, path
+    rows = [json.loads(line) for line in (safe / 'stdout').read_text().splitlines()]
+    assert len(rows) == 4
+    for row, width in zip(rows, [1,3,4,8]):
+        assert row['width'] == row['used'] == width and row['model_proof'] is False
+        assert row['force_before'] is True and row['force_after'] is False and row['resume_requested'] is True
+        assert row['first_outcome'] == 'Ok(Complete)' and row['safety_eof'] == dict(distinct=4, generated=5, queue=0)
+primary = BASE / 'supplemental-clean-primary'
+if (primary / 'capture.json').exists():
+    m = load(primary / 'capture.json')
+    assert m['oracle_sha256'] == pin and m['ordinary_schedule_certified'] is False
+    assert [(r['name'],r['exit'])for r in m['rows']] == [('Stuttering',13),('SafeResume',0)]
+    for row in m['rows']:
+        d = primary / row['name']
+        for path, digest in row['source_sha256'].items(): assert sha((d / path).read_bytes()) == digest,path
+        for stream in ['stdout','stderr']:assert sha((d / stream).read_bytes()) == row[stream + '_sha256']
 example = (ROOT / 'crates/dive-api/examples/periodic_lifecycle.rs').read_text().split('\n', 1)[1].rstrip()
 assert '```rust\n' + example + '\n```' in (ROOT / 'docs/native-periodic-lifecycle.md').read_text()
 print('Verified96 real selected queue controls, preserved failures and source epochs; native commit-clock/EOF diagnostics grant no ordinary proof')

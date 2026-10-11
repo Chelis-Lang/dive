@@ -1,0 +1,16 @@
+{
+  "credited": false,
+  "failure": "wrapper copied release/examples/periodic_backend instead of periodic_lifecycle; output guard rejected it",
+  "binary_sha256": {
+    "dive": "f3ed6db40c9a35b25c8aeb66e578fbb21bc83798b8bcf0cd7b0be1c3f3aae58e",
+    "dive-conformance": "e7389b3816e02a7cd7f18a97e42b0d33b926d627c1cd18eb7505c4ed2fdf8eaa",
+    "periodic-lifecycle-guide": "71216664df673c30f9b8790e0429c995d0bf260c22dfc3b8338c21e5ac7c6eaf"
+  },
+  "artifacts_sha256": {
+    "runtime-steps.json": "a543043986afadaae7d53b489852073fe1b0feb67e875bfbc241662cc6fc68cc",
+    "runtime.py": "8267a39f7fa61f436c20f8387bbb018de8a9051c726d0e2f9d0e3174fa4dc083",
+    "binary-build.log": "f747e84e0145b1c70245159504fa66ac98f24b9fd1975cef854370c4152cce7d",
+    "cargo-example-build.log": "d1119d6dbf0e69817103c3a57d7d787f0d46f8d45c4c3d3f3a1f93cf66e725f5",
+    "cargo-guide.log": "539a3ba4f25b4d66b479cc018af38ce797879165987d901b2317941dfd5ada66"
+  }
+}
