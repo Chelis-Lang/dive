@@ -1,0 +1,32 @@
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /Users/jeff/code/dive-pluscal-rewrite-target/debug/examples/acceptance.dSYM
+  |
+  = note: the example target `acceptance` in package `dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)` has the same output filename as the example target `acceptance` in package `dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-syntax)
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sema)
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-config)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-store)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-ir)
+   Compiling dive-compile v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-compile)
+   Compiling dive-lsp v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-lsp)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-eval)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-stdlib)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-conformance)
+   Compiling dive-bench v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-bench)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-cli)
+   Compiling xtask v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/xtask)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 55s

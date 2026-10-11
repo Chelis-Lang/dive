@@ -37,3 +37,10 @@ retains the existing 180-second bound on Linux. All original profile, chaos,
 pause, recovery-counter and witness assertions remain. PR #179’s initial timing
 failure and a mechanical equality check of the original assertion body are
 retained in `conformance/probes/native-parity-integration/current-controls/full-runtime-ci-before-scheduling-repair/`.
+
+Splitting a matrix must preserve comparison scope as well as assertions. Each
+runtime-name wrapper now obtains actual fingerprint and same-store reference
+runs at one worker, and retains the original store/width index for its spill
+family. The first split lost those shared comparisons; its interrupted source
+and gate remain in `current-controls/full-runtime-ci-split-before-reference-repair/`.
+The corrected matrix equality includes all 360 spill-family/boundary groups.

@@ -93,10 +93,41 @@ fn run(name: &str, compat_tlc: bool, selected_store: Store, selected_workers: us
     )
     .expect("independent model");
     let dir = directory();
-    let mut serial = 0;
-    let mut semantic_reference = None;
+    // Preserve the original store/width position: it selects the same four
+    // frontier/predecessor spill families even across independently run tests.
+    let mut serial = usize::from(selected_store == Store::Exact) * 6
+        + [1, 4, 8]
+            .iter()
+            .position(|width| *width == selected_workers)
+            .expect("selected matrix width")
+            * 2;
+    // References must span stores and widths, not restart inside the split
+    // wrapper. These are actual full runs of the same source/profile at width1.
+    let fingerprint_reference = check_file(&CheckRequest {
+        store: Store::Fingerprint,
+        workers: Some(1),
+        ..base.clone()
+    })
+    .expect("full fingerprint reference")
+    .to_json();
+    assert_eq!(fingerprint_reference["verdict"], "invariant-violation");
+    metadata(&fingerprint_reference, Store::Fingerprint, compat_tlc);
+    let mut semantic_reference = Some(cross_store(observable(fingerprint_reference.clone())));
     for store in [selected_store] {
-        let mut reference = None;
+        let store_reference = if store == Store::Fingerprint {
+            fingerprint_reference.clone()
+        } else {
+            check_file(&CheckRequest {
+                store,
+                workers: Some(1),
+                ..base.clone()
+            })
+            .expect("full store reference")
+            .to_json()
+        };
+        assert_eq!(store_reference["verdict"], "invariant-violation");
+        metadata(&store_reference, store, compat_tlc);
+        let mut reference = Some(observable(store_reference));
         for workers in [selected_workers] {
             for chaos in [None, Some(19)] {
                 let family = serial % 4;

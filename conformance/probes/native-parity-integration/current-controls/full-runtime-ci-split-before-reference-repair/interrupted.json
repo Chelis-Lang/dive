@@ -1,0 +1,80 @@
+{
+  "reason": "Split wrappers lost cross-store/cross-width baseline comparison; preserve original gate, restore independent baseline before full validation.",
+  "producer_commit": "8c9a4da232f909c07bceaaeb4a534b4564cfcb8c",
+  "processes": [
+    {
+      "pid": 38132,
+      "command": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python -I /tmp/dive-run-ci-gate.py full-runtime-ci-partition-repair"
+    },
+    {
+      "pid": 38287,
+      "command": "/Users/jeff/.cargo/bin/cargo-nextest nextest run --workspace --locked --profile ci"
+    },
+    {
+      "pid": 41483,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_scc-83f5431f8d1468ba --list --format terse --ignored"
+    },
+    {
+      "pid": 41481,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_scc-83f5431f8d1468ba --list --format terse"
+    },
+    {
+      "pid": 41472,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_planning-bf5c105489fdeb2a --list --format terse --ignored"
+    },
+    {
+      "pid": 41471,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_planning-bf5c105489fdeb2a --list --format terse"
+    },
+    {
+      "pid": 41470,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_final_scopes-ee9a9141dcf236d3 --list --format terse --ignored"
+    },
+    {
+      "pid": 41469,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_final_scopes-ee9a9141dcf236d3 --list --format terse"
+    },
+    {
+      "pid": 41465,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_final-6bb70728d294b252 --list --format terse --ignored"
+    },
+    {
+      "pid": 41464,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tlc_final-6bb70728d294b252 --list --format terse"
+    },
+    {
+      "pid": 41458,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tableau-9dc45eb467632c6d --list --format terse --ignored"
+    },
+    {
+      "pid": 41457,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/tableau-9dc45eb467632c6d --list --format terse"
+    },
+    {
+      "pid": 41454,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/state_if_planning-455a874df86d5373 --list --format terse --ignored"
+    },
+    {
+      "pid": 41453,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/state_if_planning-455a874df86d5373 --list --format terse"
+    },
+    {
+      "pid": 41449,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/recurrences-524b6f2daa6146e3 --list --format terse --ignored"
+    },
+    {
+      "pid": 41448,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/recurrences-524b6f2daa6146e3 --list --format terse"
+    },
+    {
+      "pid": 41445,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/product-01db6e1c106d6a95 --list --format terse --ignored"
+    },
+    {
+      "pid": 41444,
+      "command": "/Users/jeff/code/dive-pluscal-rewrite-target/debug/deps/product-01db6e1c106d6a95 --list --format terse"
+    }
+  ],
+  "gate_completed": false,
+  "family_certified": false
+}
