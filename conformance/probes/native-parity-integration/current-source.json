@@ -35,9 +35,9 @@
     "conformance/probes/tlc-phase-l-graph/source-matrix.json": "e0b87b142986308b458eb5e47f684effd33de2167b20bbf5855dcfc5219f6a81",
     "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "67f2cabd5d6563a2914f902afb8323b7cf971e4dc7eb178c1c0af7f0c7f0db96",
     "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "63acab18689323569f6ab3651a97a8c4eb95c33fbcd22e43db4ec3f08a881614",
-    "conformance/probes/tlc-state-if/source-matrix.json": "198af370366e2371a69b723d6467d35c074615f342264040e056de00d66fe8a9",
+    "conformance/probes/tlc-state-if/source-matrix.json": "c91c00284f290a8ab91cb855ee34caeffa6a4a50a26d32cb8d1df051499fd113",
     "conformance/probes/tlc-temporal-if-final/source-matrix.json": "5a915902d9884229410d6e4b34a6f8482664948fa5f73f413af49e060bda0395",
-    "conformance/probes/tlc-temporal-if/source-matrix.json": "e9d99a20b52feac343c00677b2ff0fe3bbc3f0d298d9c05fd40563b8fb41fab4"
+    "conformance/probes/tlc-temporal-if/source-matrix.json": "29e29ba2275578826626df95bd221ead969dda65583c2d4636f4991ab5c9d333"
   },
   "schema_version": 1,
   "scope": "Combined stored material, property origins and bounded user/native operator captures; multiline/process/explicit and bounded source-declared option Full checksum contexts. Source maps and historical observations remain distinct; no ordinary temporal or whole-family certification.",

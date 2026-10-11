@@ -139,6 +139,22 @@
         "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
         "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4"
       }
+    },
+    {
+      "matrix": "conformance/probes/tlc-state-if/source-matrix.json",
+      "before_matrix": "matrices/tlc-state-if/source-matrix.json",
+      "before_sha256": "198af370366e2371a69b723d6467d35c074615f342264040e056de00d66fe8a9",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
+    },
+    {
+      "matrix": "conformance/probes/tlc-temporal-if/source-matrix.json",
+      "before_matrix": "matrices/tlc-temporal-if/source-matrix.json",
+      "before_sha256": "e9d99a20b52feac343c00677b2ff0fe3bbc3f0d298d9c05fd40563b8fb41fab4",
+      "changed_source_sha256": {
+        "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03"
+      }
     }
   ],
   "changed_source_sha256": {
