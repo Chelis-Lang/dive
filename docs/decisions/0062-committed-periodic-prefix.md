@@ -37,3 +37,16 @@ fresh independent memory/JSON replay; unchanged validator work refusals remain
 negative controls. Clock timing and asynchronous ordinary stop/count parity remain
 unproved. Ordinary CLI/checkpoint/profile/effect refusals stay intact, as do all
 resource defaults. See the [executable contract](../committed-periodic-prefix.md).
+
+## Evidence clarification (2026-10-11)
+
+The selected SourceBarrier prefix is not an assertion that every selected source
+has been written at the current callback. Invocation source/statistics establish
+that current graph-through point; successful ExpansionQuiescence append receipt
+establishes the completed transaction. The primary adapter root-pointer query
+uses `-1`, which is valid for DiskGraph but not TableauDiskGraph; its tableau
+query result carries no write-authority credit. Preserve that observer flaw.
+
+Split the unchanged eight store/width baseline controls into separate tests so
+each fits the existing CI timeout. Per-case publication assertions strengthen
+the prior aggregate requirement; workload, bounds and comparisons are unchanged.

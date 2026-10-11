@@ -112,8 +112,12 @@ work. Actual expansion-pool width remains separately available from `pause.pool(
 
 A controller invocation exposes `publication().publication()` as either
 `RequestPrefix` or `OrderedWave`. For a request prefix,
-`published_prefix()` identifies its actual range and
-`prefix_predicate_workers()` identifies inline predicate width. The submitted
+`published_prefix()` identifies the **selected returned-prefix transaction**.
+At an individual callback, that selected range can extend past its current
+`Invocation.source()` and statistics: those identify the actual graph-through
+point. A deciding callback may stop before the selected range finishes or its
+frontier is appended. `prefix_predicate_workers()` identifies inline predicate
+width. The submitted
 range may still contain unclaimed/unreturned outputs: all pool threads have
 joined, but the whole submitted wave is not necessarily complete.
 
@@ -159,3 +163,15 @@ independent deciding witness admission. It cannot silently substitute final-only
 checking or these request diagnostics. See [ADR 0062](decisions/0062-committed-periodic-prefix.md),
 [complete source/reference evidence](../conformance/probes/committed-prefix/README.md)
 and [the parity plan](design/tlc-parity-plan.md).
+
+The original controlled primary adapter queries root pointers with tindex `-1`.
+That is the DiskGraph key; for a tableau graph it is an invalid index and its
+returned `-1` does **not** establish whether the actual product record was
+written. The raw query and Worker/controller/error observations are retained,
+with no tableau write-authority credit from that query. Later request-service
+captures use the original `(fingerprint, tableau index)` initial-node identities.
+
+The eight exact/fingerprint worker-width controls run as separate named tests,
+with unchanged finite workload and bounds. Each must exercise an actual prefix
+publication and match the whole-wave baseline. The original aggregate campaign
+remains preserved separately from these publication tests.

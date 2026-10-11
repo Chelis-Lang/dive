@@ -15,7 +15,7 @@
     "crates/dive-liveness/src/periodic_snapshot.rs": "f1a7f96715c006f73a756f06ccf91ef1e011df28ca5d1e2427ad060bae8bacfd",
     "crates/dive-liveness/src/phase_execution.rs": "098979d173eb87bf9530fae8e9e15450dc1b3821537b109d734cdba394af6998",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
-    "crates/dive-liveness/tests/periodic_snapshot.rs": "551dc8fe438ab026a810419e2b082e6050ba71d6c302368add110139df6d33d4",
+    "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/progress_requests.rs": "8af00b2814388ecd00a57191dfeb771c983c5132ce6357f5be0449ab3a6683b4",
     "docs/producer-progress-requests.md": "3c86960fa78819f6c13947abe377fef87a9a31a4c342981cfe32d109b89cd59c",
     "docs/decisions/0059-producer-progress-requests.md": "64979dd3f12ac27431c611c37a86966c81410b519d94cc5363754e6183e0bb76",

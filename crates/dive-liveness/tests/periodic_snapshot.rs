@@ -523,81 +523,113 @@ fn repeated_timer_claim_pauses_preserve_complete_safety_graph_and_ordinary_refus
     }
 }
 
-#[test]
-fn completed_prefixes_publish_exact_duplicate_graphs_under_actual_requests() {
+fn assert_completed_prefix_graph(store: dive_store::StoreMode, width: usize) {
     let source = "---- MODULE Bounded ----\nEXTENDS Naturals\nVARIABLE x\nInit == x \\in 0..8\nNext == x' \\in 0..512\nInv == x>=0\nLive == []<>(x>=0)\nHook == TRUE\n====\n";
     let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nPROPERTY Live\n_PERIODIC Hook\nCHECK_DEADLOCK FALSE\n")
         .into_config().expect("config");
     let mut published = 0;
-    for store in [
-        dive_store::StoreMode::Exact,
-        dive_store::StoreMode::Fingerprint,
-    ] {
-        for width in [1, 3, 4, 8] {
-            let options = dive_check::CheckOptions {
-                workers: width,
-                store,
-                chaos: Some(19),
-                ..dive_check::CheckOptions::tlc(0, 0)
-            };
-            let policy = periodic_lifecycle::Options {
-                progress_interval: i32::MAX,
-                ..periodic_lifecycle::Options::default()
-            };
-            let snapshot = periodic_snapshot::bind(lowered(source), &cfg).expect("snapshot");
-            let baseline = snapshot
-                .execute(&options, phase_graph::Limits::default(), policy)
-                .expect("whole waves");
-            let run = snapshot
-                .execute_requests(
-                    &options,
-                    phase_graph::Limits::default(),
-                    policy,
-                    dive_check::progress::Options {
-                        interval: std::time::Duration::from_millis(1),
-                        force: true,
-                    },
-                )
-                .expect("requests");
-            let actual = run
-                .lifecycle()
-                .backend()
-                .complete()
-                .expect("complete safety graph");
-            let expected = baseline
-                .lifecycle()
-                .backend()
-                .complete()
-                .expect("baseline graph");
-            assert_eq!(actual.capture.stats, expected.capture.stats);
-            assert_eq!(actual.capture.graph.states, expected.capture.graph.states);
-            assert_eq!(actual.capture.graph.edges, expected.capture.graph.edges);
-            assert_eq!(actual.capture.output, expected.capture.output);
-            assert_eq!(actual.capture.warnings, expected.capture.warnings);
-            for pause in run.lifecycle().expansion_pauses() {
-                let receipt = pause.receipt();
-                assert_eq!(pause.pool().0, width);
-                assert_eq!(receipt.frontier_appended(), receipt.committed());
-                for id in receipt.committed() {
-                    assert!(receipt.completed().contains(&id));
-                }
-                assert!(receipt.committed_stats().generated >= receipt.logical_stats().generated);
-                assert!(receipt.committed_stats().distinct >= receipt.logical_stats().distinct);
-                assert!(receipt.predicate_workers() <= 1);
-                if !receipt.committed().is_empty() {
-                    published += 1;
-                }
-                assert!(!receipt.model_proof());
-            }
-            record_requests(&format!("published-{store:?}-w{width}"), run.lifecycle());
+    let options = dive_check::CheckOptions {
+        workers: width,
+        store,
+        chaos: Some(19),
+        ..dive_check::CheckOptions::tlc(0, 0)
+    };
+    let policy = periodic_lifecycle::Options {
+        progress_interval: i32::MAX,
+        ..periodic_lifecycle::Options::default()
+    };
+    let snapshot = periodic_snapshot::bind(lowered(source), &cfg).expect("snapshot");
+    let baseline = snapshot
+        .execute(&options, phase_graph::Limits::default(), policy)
+        .expect("whole waves");
+    let run = snapshot
+        .execute_requests(
+            &options,
+            phase_graph::Limits::default(),
+            policy,
+            dive_check::progress::Options {
+                interval: std::time::Duration::from_millis(1),
+                force: true,
+            },
+        )
+        .expect("requests");
+    let actual = run
+        .lifecycle()
+        .backend()
+        .complete()
+        .expect("complete safety graph");
+    let expected = baseline
+        .lifecycle()
+        .backend()
+        .complete()
+        .expect("baseline graph");
+    assert_eq!(actual.capture.stats, expected.capture.stats);
+    assert_eq!(actual.capture.graph.states, expected.capture.graph.states);
+    assert_eq!(actual.capture.graph.edges, expected.capture.graph.edges);
+    assert_eq!(actual.capture.output, expected.capture.output);
+    assert_eq!(actual.capture.warnings, expected.capture.warnings);
+    for pause in run.lifecycle().expansion_pauses() {
+        let receipt = pause.receipt();
+        assert_eq!(pause.pool().0, width);
+        assert_eq!(receipt.frontier_appended(), receipt.committed());
+        for id in receipt.committed() {
+            assert!(receipt.completed().contains(&id));
         }
+        assert!(receipt.committed_stats().generated >= receipt.logical_stats().generated);
+        assert!(receipt.committed_stats().distinct >= receipt.logical_stats().distinct);
+        assert!(receipt.predicate_workers() <= 1);
+        if !receipt.committed().is_empty() {
+            published += 1;
+        }
+        assert!(!receipt.model_proof());
     }
+    record_requests(&format!("published-{store:?}-w{width}"), run.lifecycle());
     // This bounded real-timer campaign must exercise publication, rather than
     // count only its forced empty request. Exact pause timing is not asserted.
     assert!(
         published > 0,
         "no real returned-prefix publication exercised"
     );
+}
+
+#[test]
+fn completed_prefix_graph_exact_w1() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Exact, 1);
+}
+
+#[test]
+fn completed_prefix_graph_exact_w3() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Exact, 3);
+}
+
+#[test]
+fn completed_prefix_graph_exact_w4() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Exact, 4);
+}
+
+#[test]
+fn completed_prefix_graph_exact_w8() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Exact, 8);
+}
+
+#[test]
+fn completed_prefix_graph_fingerprint_w1() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Fingerprint, 1);
+}
+
+#[test]
+fn completed_prefix_graph_fingerprint_w3() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Fingerprint, 3);
+}
+
+#[test]
+fn completed_prefix_graph_fingerprint_w4() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Fingerprint, 4);
+}
+
+#[test]
+fn completed_prefix_graph_fingerprint_w8() {
+    assert_completed_prefix_graph(dive_store::StoreMode::Fingerprint, 8);
 }
 
 #[test]

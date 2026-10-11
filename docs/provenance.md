@@ -513,3 +513,9 @@ Ordinary schedules and whole-family parity remain partial.
 | Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
 
 | Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
+
+The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
+for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
+preserved as an observer limitation, without tableau write-authority credit.
+Worker/controller outcomes and native owned publication remain separately
+measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
