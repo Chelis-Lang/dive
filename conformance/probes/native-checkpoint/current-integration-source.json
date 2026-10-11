@@ -57,7 +57,7 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "295d1a3641f579ff2101114bce67b9e966a677b153b5a6ead6d8e994c4e23d17",
-    "crates/dive-check/src/engine.rs": "d012b31d2e95f05e0a83b67e2599eab11084a500fbd0554289cf252ceecaf038",
+    "crates/dive-check/src/engine.rs": "0d16dba7e8649989839be103d01b1149f9ca79384fbffce2fbe04960e373fba0",
     "crates/dive-check/src/lib.rs": "bead11282e3b776c2f158f1bf9d9dd0999e06631e0992aa084f387d1e2d54cbf",
     "crates/dive-cli/src/main.rs": "afd16f424cdcb84b69cc40fd06ab58fb61f8b6b2de999bd873a088a29795a1d8",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",

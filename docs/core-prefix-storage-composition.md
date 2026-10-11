@@ -111,3 +111,24 @@ examples. Independent replay remains separate from the checker’s enumerator.
 Neither a component pass nor a current source hash promotes a whole TLC feature
 family to certified parity. The receiving branch must rebuild and rerun its
 combined cases before these additions receive a shipping qualification.
+
+### Additional receiving source: finite process editing and terminal outcomes
+
+The source composition now also includes the bounded one-process/one-procedure
+Full checksum editing delivery (#225), with its original 0064 native producer
+and separate 022817 portable-reader qualification. All original source cases,
+invalid references and strict saved-stack refusals retain their separate results.
+The [user guide](pluscal-process-procedure-checksums.md) describes C/P and Rust
+editing without claiming a model proof.
+
+The owned terminal diagnostic (#228) retains the original396 producer, its
+1100-test gate,206 runtime rows and independently replayed words. Direct posts
+run only after actual final selection; original source stops remain distinct.
+The [terminal guide](terminal-outcome.md) describes final-selection completion,
+post errors and deciding witnesses, all without ordinary scheduling or Holds
+credit. Measured clock/ratio observations remain raw, including the receiving
+comparison failure; they are not schedule-equivalence evidence.
+
+These component deliveries are source-composed here. Fresh combined gate,
+runtime and public-guide qualification remain pending on this receiving branch.
+Their original native producers and failure histories have not been retagged.

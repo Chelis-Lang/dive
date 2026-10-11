@@ -181,3 +181,13 @@ original source winner and postjoin matching. Controlled method/CLI captures and
 fresh independent candidates are separate from native clock/count proof. Java
 after-error `doNextCheckLiveness` writes, complete ordinary queue/stop-prefix and
 checkpoint scheduling remain prerequisites; F-023 remains missing/audit-required.
+
+
+#228 now admits actual owned capture/resource/tableau completion before EOF
+selection and composes bounded direct posts after final success. Source/commit
+fingerprint alignment, write coverage and fresh deciding-word replay are required.
+The separate counterexample-render post path and its unproved getter exceptions
+remain explicit. See [the runnable diagnostic](../terminal-outcome.md). This is a
+core finalization prerequisite, not ordinary certification: asynchronous Java
+queue/clock/after-error graph/count, no-action and checkpoint contracts must
+still compose before ordinary admission. F-023 stays missing/audit-required.

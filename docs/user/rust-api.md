@@ -120,3 +120,10 @@ unsupported and both independent replay routes are required for an admitted word
 transaction to the optional configured-hook diagnostic. The original source
 result remains authoritative; no diagnostic receipt certifies ordinary scheduling
 or Holds. See the [Cargo example and exact contract](../stopped-periodic-service.md).
+
+
+The [terminal outcome diagnostic](../terminal-outcome.md) adds actual private
+graph finalization and final-before-post ordering to the owned candidate route.
+Inspect `terminal()` and `run().lifecycle().finalization()`; neither a complete
+selection nor absence of a word is a temporal Holds certificate. The runnable
+Cargo example documents post errors, render refusals and unchanged bounds.

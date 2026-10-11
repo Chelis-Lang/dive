@@ -211,6 +211,8 @@ python3 -I scripts/check-optional-periodic-hook.py
 python3 -I scripts/check-terminal-periodic-service.py
 python3 -I scripts/check-stopped-periodic-service.py
 
+
+python3 -I scripts/check-terminal-outcome.py
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py

@@ -1,0 +1,218 @@
+[
+  {
+    "id": "safe-true-post-w1-observed",
+    "case": "safe-true-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-true-post-w1-cli",
+    "case": "safe-true-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-true-post-w4-observed",
+    "case": "safe-true-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-true-post-w4-cli",
+    "case": "safe-true-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-true-post-w8-observed",
+    "case": "safe-true-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-true-post-w8-cli",
+    "case": "safe-true-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-true-post-w1-observed",
+    "case": "violation-true-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-true-post-w1-cli",
+    "case": "violation-true-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-true-post-w4-observed",
+    "case": "violation-true-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-true-post-w4-cli",
+    "case": "violation-true-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-true-post-w8-observed",
+    "case": "violation-true-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-true-post-w8-cli",
+    "case": "violation-true-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-post-w1-observed",
+    "case": "safe-false-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-post-w1-cli",
+    "case": "safe-false-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-post-w4-observed",
+    "case": "safe-false-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-post-w4-cli",
+    "case": "safe-false-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-false-post-w8-observed",
+    "case": "safe-false-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-false-post-w8-cli",
+    "case": "safe-false-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-false-post-w1-observed",
+    "case": "violation-false-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-false-post-w1-cli",
+    "case": "violation-false-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-false-post-w4-observed",
+    "case": "violation-false-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-false-post-w4-cli",
+    "case": "violation-false-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-false-post-w8-observed",
+    "case": "violation-false-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-false-post-w8-cli",
+    "case": "violation-false-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-scalar-post-w1-observed",
+    "case": "safe-scalar-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-scalar-post-w1-cli",
+    "case": "safe-scalar-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-scalar-post-w4-observed",
+    "case": "safe-scalar-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-scalar-post-w4-cli",
+    "case": "safe-scalar-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "safe-scalar-post-w8-observed",
+    "case": "safe-scalar-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "safe-scalar-post-w8-cli",
+    "case": "safe-scalar-post",
+    "width": 8,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-scalar-post-w1-observed",
+    "case": "violation-scalar-post",
+    "width": 1,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-scalar-post-w1-cli",
+    "case": "violation-scalar-post",
+    "width": 1,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-scalar-post-w4-observed",
+    "case": "violation-scalar-post",
+    "width": 4,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-scalar-post-w4-cli",
+    "case": "violation-scalar-post",
+    "width": 4,
+    "mode": "cli"
+  },
+  {
+    "id": "violation-scalar-post-w8-observed",
+    "case": "violation-scalar-post",
+    "width": 8,
+    "mode": "observed"
+  },
+  {
+    "id": "violation-scalar-post-w8-cli",
+    "case": "violation-scalar-post",
+    "width": 8,
+    "mode": "cli"
+  }
+]

@@ -1,0 +1,1 @@
+{"command":"validate-trace","failure":{"check":"ending","detail":"the model has no temporal property named `Unknown`","state":0},"length":2,"notes":[],"result":"invalid","schema_version":1}

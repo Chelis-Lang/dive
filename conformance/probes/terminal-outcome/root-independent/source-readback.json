@@ -1,0 +1,21 @@
+{
+  "compiled_producer": "3968821ee1dedf9a486896443a16f3af7e348570",
+  "git_selected_inputs_verified": 491,
+  "compiled_rust_sources_independently_selected": 408,
+  "literal_sites_independently_reconstructed": 55,
+  "literal_targets": 50,
+  "full_gate_commands": 49,
+  "nextest_passed": 1100,
+  "skipped": 0,
+  "runtime_commands": 21,
+  "native_rows": 206,
+  "binary_sha256": {
+    "terminal-outcome-runtime": "7df0e2f51517743d4214c9b41d0f7343b8d7d8ea38e663d9990d979cfc52058f",
+    "dive": "2cae3c461f20602448501d59ec2b3606b03b26096dd6d2de81d552724b03f583",
+    "terminal-outcome-guide": "aec53f06eeccf24e37f2cd56980179ec23b8c6de1211541ba224c7d46a61d159",
+    "dive-conformance": "07b9780a283ac323d5966eb3adaed1502fe7e24a207ff247012a7b4642e5ac3c"
+  },
+  "family_certified": false,
+  "ordinary_schedule_certified": false,
+  "scope": "Independent immutable Git/source, literal inventory, closed gate and frozen binary readback. Fresh independent runtime replay and final portable packet review remain separate."
+}

@@ -59,3 +59,7 @@ require a fresh combined build and campaign before shipping qualification:
 - [Pure disk safety properties](disk-seen-safety.md) describes admitted pure
   state/action properties and safety-only SPEC roles, with named pre-execution
   refusals for temporal or effectful roles.
+
+- [Terminal outcomes and final/post composition in Rust](../terminal-outcome.md):
+  actual graph completion, independently replayed words and bounded direct posts;
+  ordinary scheduling remains unsupported.

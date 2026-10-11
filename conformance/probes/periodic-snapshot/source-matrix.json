@@ -19,9 +19,9 @@
     "docs/configured-periodic-snapshot.md": "79bb84630f176ed4cef3c2707d9f093e470b245b79b4cd7f11e52e0b43ad095b",
     "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
     "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
-    "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
-    ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e",
-    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634"
+    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
+    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a",
+    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

@@ -129,3 +129,10 @@ The additive [exhausted-queue terminal Rust diagnostic](../terminal-periodic-ser
 The Rust [stopped-worker service diagnostic](../stopped-periodic-service.md)
 keeps original source errors separate from controller faults and successful EOF.
 It does not expose ordinary scheduling or temporal Holds.
+
+
+The [terminal outcome diagnostic](../terminal-outcome.md) adds actual private
+graph finalization and final-before-post ordering to the owned candidate route.
+Inspect `terminal()` and `run().lifecycle().finalization()`; neither a complete
+selection nor absence of a word is a temporal Holds certificate. The runnable
+Cargo example documents post errors, render refusals and unchanged bounds.

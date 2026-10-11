@@ -147,6 +147,7 @@ jobs:
           python3 -I scripts/check-optional-periodic-hook.py
           python3 -I scripts/check-terminal-periodic-service.py
           python3 -I scripts/check-stopped-periodic-service.py
+          python3 -I scripts/check-terminal-outcome.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions

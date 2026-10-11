@@ -1,0 +1,1 @@
+{"ending": {"kind": "stuttering"}, "format": "dive-trace", "length": 2, "properties": ["Live"], "states": [{"action": null, "values": {"x": 99}}, {"action": null, "values": {"x": 1}}], "variables": ["x"], "version": 1}

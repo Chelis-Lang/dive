@@ -4,7 +4,9 @@
 //! capture path uses the shared ordered safety engines. It retains every accepted
 //! generated edge, including duplicates, and adds explicit implicit stutters.
 
+mod post;
 mod pure;
+pub use post::DeferredPostconditions;
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -394,6 +396,10 @@ impl ExplorationStop<'_> {
 pub struct ExplorationEnd {
     stats: Stats,
     workers: Workers,
+    completion: GraphCompletion,
+    evaluator: dive_eval::Evaluator,
+    result: CheckResult,
+    deferred_admission: Option<Arc<()>>,
 }
 impl ExplorationEnd {
     /// Actual completed exploration counters.
@@ -405,6 +411,107 @@ impl ExplorationEnd {
     #[must_use]
     pub fn workers(&self) -> &Workers {
         &self.workers
+    }
+    /// Producer-checked retained graph shape, minted after graph/statistics
+    /// finalization. This is safety capture evidence, not a temporal proof.
+    #[must_use]
+    pub fn completion(&self) -> &GraphCompletion {
+        &self.completion
+    }
+    /// Original successful safety result after real joins and graph admission.
+    /// This remains safety evidence, not a temporal or postcondition verdict.
+    #[must_use]
+    pub fn safety_result(&self) -> &CheckResult {
+        &self.result
+    }
+}
+
+/// Actual retained safety graph completion. Public graph fields, copied
+/// statistics and a zero queue cannot construct this producer-owned receipt.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GraphCompletion {
+    states: usize,
+    edges: usize,
+    concrete_successors: usize,
+    roots: usize,
+    limits: Limits,
+}
+impl GraphCompletion {
+    fn finalize(graph: &BehaviorGraph, counters: Stats, limits: Limits) -> Result<Self, Verdict> {
+        let states = graph.states.len();
+        if states > limits.states || counters.generated > limits.generated {
+            return Err(limit("completion entries"));
+        }
+        if counters.distinct != u64::try_from(states).map_err(|_| bug("state count range"))?
+            || counters.left_on_queue != 0
+            || graph.edges.len() != states
+            || graph.concrete.len() != states
+            || (!graph.states.is_empty() && graph.roots.is_empty())
+        {
+            return Err(bug("incomplete graph/statistics at successful EOF"));
+        }
+        let mut previous = None;
+        for &root in &graph.roots {
+            if root >= states || previous.is_some_and(|p| p >= root) {
+                return Err(bug("invalid completed initial roots"));
+            }
+            previous = Some(root);
+        }
+        let mut edges = 0usize;
+        let mut concrete_successors = 0usize;
+        // The already-admitted retention limits bound this structural scan.
+        // No values are hashed, normalized, compared or evaluated here.
+        for (source, (row, concrete)) in graph.edges.iter().zip(&graph.concrete).enumerate() {
+            edges = edges
+                .checked_add(row.len())
+                .filter(|&n| n <= limits.edges)
+                .ok_or_else(|| limit("completion edges"))?;
+            concrete_successors = concrete_successors
+                .checked_add(concrete.len())
+                .ok_or_else(|| limit("completion concrete successors"))?;
+            if row.len()
+                != concrete
+                    .len()
+                    .checked_add(1)
+                    .ok_or_else(|| limit("completion row"))?
+                || row
+                    .last()
+                    .is_none_or(|e| e.to != source || e.ordinal.is_some() || e.label.is_some())
+            {
+                return Err(bug("missing completed source/stutter row"));
+            }
+            for (edge, original) in row.iter().zip(concrete) {
+                if edge.to >= states
+                    || edge.ordinal != Some(original.ordinal)
+                    || edge.label.as_deref() != Some(original.label.as_str())
+                {
+                    return Err(bug("inconsistent completed concrete transition"));
+                }
+            }
+        }
+        Ok(Self {
+            states,
+            edges,
+            concrete_successors,
+            roots: graph.roots.len(),
+            limits,
+        })
+    }
+    /// Retained representatives, generated edges plus implicit stutters,
+    /// original concrete successors, and distinct initial roots, respectively.
+    #[must_use]
+    pub fn entries(&self) -> (usize, usize, usize, usize) {
+        (
+            self.states,
+            self.edges,
+            self.concrete_successors,
+            self.roots,
+        )
+    }
+    /// Actual supplied capture entry limits; these are not aggregate byte bounds.
+    #[must_use]
+    pub fn limits(&self) -> Limits {
+        self.limits
     }
 }
 
@@ -660,6 +767,7 @@ pub struct BehaviorGraph {
 #[derive(Clone, Debug)]
 pub struct Complete {
     safety_result: Box<CheckResult>,
+    completion: GraphCompletion,
     /// Run settings, including the reported seed, profile and store mode.
     pub options: CheckOptions,
     /// The complete graph, including seen-state edges and implicit stutters.
@@ -678,6 +786,12 @@ pub struct Complete {
 }
 
 impl Complete {
+    /// Immutable producer completion fact, independent of later edits to the
+    /// publicly inspectable graph or counters. Edited fields cannot recertify it.
+    #[must_use]
+    pub fn completion(&self) -> &GraphCompletion {
+        &self.completion
+    }
     /// Actual ordinary safety-engine outcome, retained without reconstructing
     /// counts, diagnostics, stopping facts or worker metadata from the graph.
     /// This receipt does not certify any temporal obligation.
@@ -955,7 +1069,7 @@ pub fn explore_with_evidence(
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
-    let run = || explore_inner(model, opts, limits, false, None);
+    let run = || explore_inner(model, opts, limits, false, None, None);
     let mut result = run_on_thread(run)?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
@@ -1021,7 +1135,7 @@ pub fn explore_concrete_parallel_with_evidence(
         return Ok(Exploration::Stopped(Box::new(result)));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None))?;
+    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, None, None))?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
 }
@@ -1040,6 +1154,15 @@ pub fn explore_observed_with_evidence(
     limits: Limits,
     observer: &mut dyn SourceObserver,
 ) -> Result<Exploration, String> {
+    observed_admitted(model, opts, limits, observer, None)
+}
+fn observed_admitted(
+    model: &Model,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn SourceObserver,
+    deferred_admission: Option<Arc<()>>,
+) -> Result<Exploration, String> {
     if let Some(stopped) = context_stop(model, opts) {
         return Ok(stopped);
     }
@@ -1052,9 +1175,43 @@ pub fn explore_observed_with_evidence(
         }, model, opts));
     }
     let started = std::time::Instant::now();
-    let mut result = run_on_thread(|| explore_inner(model, opts, limits, true, Some(observer)))?;
+    let mut result = run_on_thread(|| {
+        explore_inner(
+            model,
+            opts,
+            limits,
+            true,
+            Some(observer),
+            deferred_admission,
+        )
+    })?;
     elapsed(&mut result, started.elapsed());
     Ok(result)
+}
+
+/// Observe an admitted owned model with its postconditions deferred. The private
+/// token supplies the model; no caller defer/EOF/graph flag is accepted. A final
+/// consumer must first complete temporal selection and then call
+/// [`DeferredPostconditions::evaluate`]. This diagnostic capture alone grants
+/// no ordinary success, postcondition pass or temporal proof.
+///
+/// # Errors
+/// The same original execution/context failures as observed capture.
+pub fn explore_observed_deferred_with_evidence(
+    token: &DeferredPostconditions,
+    opts: &CheckOptions,
+    limits: Limits,
+    observer: &mut dyn SourceObserver,
+) -> Result<Exploration, String> {
+    let mut model = token.model.clone();
+    model.postconditions = Ok(Vec::new());
+    observed_admitted(
+        &model,
+        opts,
+        limits,
+        observer,
+        Some(token.admission.clone()),
+    )
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
@@ -1119,6 +1276,7 @@ fn explore_inner(
     limits: Limits,
     parallel: bool,
     mut observer: Option<&mut dyn SourceObserver>,
+    deferred_admission: Option<Arc<()>>,
 ) -> Exploration {
     let refuse = |s: String| stopped(Verdict::Unsupported { feature: s }, model, opts);
     if opts.frontier_memory_bytes.is_some() {
@@ -1229,10 +1387,25 @@ fn explore_inner(
         }
         return Exploration::Stopped(Box::new(result));
     }
-    if let (Some(consumer), Some(stats)) = (observer, result.stats) {
+    let (Some(graph), Some(stats)) = (outcome.graph, result.stats) else {
+        result.verdict = bug("completed exploration did not return graph/statistics");
+        return Exploration::Stopped(Box::new(result));
+    };
+    let completion = match GraphCompletion::finalize(&graph, stats, limits) {
+        Ok(completion) => completion,
+        Err(verdict) => {
+            result.verdict = verdict;
+            return Exploration::Stopped(Box::new(result));
+        }
+    };
+    if let Some(consumer) = observer {
         let end = ExplorationEnd {
             stats,
             workers: result.workers.clone(),
+            completion: completion.clone(),
+            evaluator: model.evaluator.clone(),
+            result: result.clone(),
+            deferred_admission,
         };
         if let Err(message) = consumer.exploration_complete(&end) {
             result.verdict = Verdict::Unsupported {
@@ -1241,23 +1414,17 @@ fn explore_inner(
             return Exploration::Stopped(Box::new(result));
         }
     }
-    match (outcome.graph, result.stats) {
-        (Some(graph), Some(stats)) => Exploration::Complete(Box::new(Complete {
-            safety_result: Box::new(result.clone()),
-            options: opts.clone(),
-            graph,
-            stats,
-            collision: result.collision,
-            workers: result.workers,
-            output: result.output,
-            warnings: result.warnings,
-        })),
-        _ => stopped(
-            bug("completed exploration did not return graph/statistics"),
-            model,
-            opts,
-        ),
-    }
+    Exploration::Complete(Box::new(Complete {
+        completion,
+        safety_result: Box::new(result.clone()),
+        options: opts.clone(),
+        graph,
+        stats,
+        collision: result.collision,
+        workers: result.workers,
+        output: result.output,
+        warnings: result.warnings,
+    }))
 }
 
 fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration {
@@ -1269,6 +1436,63 @@ fn stopped(verdict: Verdict, model: &Model, opts: &CheckOptions) -> Exploration 
 #[cfg(test)]
 #[allow(clippy::panic, reason = "controlled internal thread failure")]
 mod evidence_controls {
+    use super::{BehaviorGraph, Edge, GraphCompletion, Limits};
+    use crate::Stats;
+    #[test]
+    fn completed_graph_requires_actual_rows_roots_stutters_and_statistics() {
+        let graph = BehaviorGraph {
+            states: vec![Vec::new().into()],
+            edges: vec![vec![Edge {
+                to: 0,
+                ordinal: None,
+                label: None,
+            }]],
+            concrete: vec![vec![]],
+            roots: vec![0],
+        };
+        let stats = Stats {
+            generated: 1,
+            distinct: 1,
+            initial_generated: 1,
+            depth: 1,
+            left_on_queue: 0,
+        };
+        let limits = Limits::default();
+        assert!(GraphCompletion::finalize(&graph, stats, limits).is_ok());
+        for edit in 0..7 {
+            let mut bad = graph.clone();
+            match edit {
+                0 => bad.edges.clear(),
+                1 => bad.edges[0].clear(),
+                2 => bad.edges[0][0].to = 1,
+                3 => bad.concrete.clear(),
+                4 => bad.roots.clear(),
+                5 => bad.roots.push(0),
+                _ => bad.roots[0] = 1,
+            }
+            assert!(GraphCompletion::finalize(&bad, stats, limits).is_err());
+        }
+        for stats in [
+            Stats {
+                distinct: 2,
+                ..stats
+            },
+            Stats {
+                left_on_queue: 1,
+                ..stats
+            },
+        ] {
+            assert!(GraphCompletion::finalize(&graph, stats, limits).is_err());
+        }
+        assert!(GraphCompletion::finalize(&graph, stats, Limits { edges: 0, ..limits }).is_err());
+        let empty = BehaviorGraph {
+            states: vec![],
+            edges: vec![],
+            concrete: vec![],
+            roots: vec![],
+        };
+        assert!(GraphCompletion::finalize(&empty, Stats::default(), limits).is_ok());
+    }
     #[test]
     fn panic_does_not_fabricate_a_zero_worker_stop() {
         let result = super::run_on_thread(|| panic!("controlled capture panic"));

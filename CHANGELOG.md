@@ -24,6 +24,13 @@ All notable changes to this project are documented here. The project will follow
   bounded procedure checksum editing, and inductive tuple replay with fresh
   release verification and maintained user/developer guides.
 
+- Add private actual graph/tableau/resource finalization and terminal outcomes to
+  the owned periodic candidate diagnostic. Final selection precedes direct posts;
+  counterexample render errors remain separate, and unproved getter/partial
+  paths refuse. Original source winners, bounds and independent memory/JSON replay
+  remain authoritative; ordinary scheduling and Holds are still unsupported.
+
+
 - Add a source-owned exhausted-queue terminal diagnostic before timer/pool joins. Request-lane setup/join failures retain actual initial or returned-prefix statistics. Genuine finished queues skip configured hooks; deciding final words reuse fresh independent replay. Ordinary checking and scheduling/count/model-proof claims stay refused.
 
 - Add source-owned optional periodic diagnostics: genuine configuration absence skips only the hook stage, while mandatory APIs, pre-startup guards and private independent candidate replay remain unchanged. No ordinary scheduling or model-proof credit.

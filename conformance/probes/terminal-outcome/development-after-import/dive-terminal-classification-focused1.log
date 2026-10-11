@@ -1,0 +1,33 @@
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+error[E0425]: cannot find value `end` in this scope
+   --> crates/dive-liveness/src/phase_execution.rs:516:34
+    |
+516 |             match token.evaluate(end) {
+    |                                  ^^^ not found in this scope
+
+error[E0425]: cannot find value `state` in this scope
+   --> crates/dive-liveness/src/phase_execution.rs:517:27
+    |
+517 |                 Ok(()) => state.postconditions_passed = true,
+    |                           ^^^^^ not found in this scope
+
+error[E0425]: cannot find value `state` in this scope
+   --> crates/dive-liveness/src/phase_execution.rs:519:21
+    |
+519 |                     state.postcondition_failure = Some(*failure.clone());
+    |                     ^^^^^ not found in this scope
+
+error[E0425]: cannot find value `state` in this scope
+   --> crates/dive-liveness/src/phase_execution.rs:524:13
+    |
+524 |             state.postconditions_passed = true;
+    |             ^^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `dive-liveness` (lib) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...

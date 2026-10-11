@@ -6,25 +6,25 @@
   "scope": "Source-owned exhausted-frontier terminal service before timer/pool joins, matching original admission and shared independent replay; no ordinary schedule/model proof",
   "history_manifest_sha256": "1cfd568cf56ab2e4d32352a19185c84f8f7295c49dbad81b1073d637b84f0d82",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "218e6e995792f35999017fe88332952ee1ce9b2517865e983b4b4e6aa077f736",
+    "crates/dive-check/src/capture.rs": "4510a435318598a71cd55d62e2e51ce9de39111936ab169c003d20985356bf4d",
     "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
     "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/tests/terminal_observer.rs": "8738435470a26b0135572d2b77fbc505f234a816590eff93268a9618c5489f7f",
-    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "8a1ca8bf07dee05d39bee30b8b3d166ed7c7a9f1a4710b8eb4775bd757cee3da",
+    "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "86538e58667e190d6b5653728a35c3fe11dc73125a0e811d9fdd4d57e11091cb",
     "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
     "crates/dive-liveness/src/periodic_terminal.rs": "b731180556a24830c4e7f62c6e89bdaf5ec1f9b2babd137323a9c0ea20882ba8",
     "crates/dive-liveness/src/lib.rs": "785bbceaa3c2ceb0f07e02ea31083e656b72a6cc71a787ae3b2070affad93a52",
-    "crates/dive-api/src/periodic_candidate.rs": "ae456c3a7ed91cb5e3f541a51bb217774793e71636952209b2905879375ad6c5",
+    "crates/dive-api/src/periodic_candidate.rs": "156e14b8b06829ffd17a340cd7f8d743dde8abac401677ae815809340542aad6",
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/terminal_periodic_candidate.rs": "cbcb588dc5221911c9027a97f5fba1cb71cf0a21b309ec250aad9c6a06d9711a",
     "crates/dive-api/examples/terminal_periodic_candidate.rs": "d8fe275873a33d7c394938d87f539f9b3a55e450736d26ee2ea61bf5c3d7643d",
     "docs/terminal-periodic-service.md": "a7bdc4caec747f08e74ad595f436241975abac9ca599ba84b3ec0f4717a4f3f2",
     "docs/decisions/0076-exhausted-queue-terminal-service.md": "c8ce234c0140fbf7fe144e2e45c381530d117cfaa6c880defea288764a57c4f0",
     "scripts/check-terminal-periodic-service.py": "18baaa526f71fc1513f0e39aa13ef2bd4ddd710de879dd6bf73c4ccbbef02fc1",
-    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634",
-    "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
-    ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e"
+    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
+    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
+    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

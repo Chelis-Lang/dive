@@ -6,7 +6,7 @@
   "scope": "Genuine optional configured role, original pre-startup admission and shared independent candidate replay; no ordinary checking promotion",
   "history_manifest_sha256": "3990162478ad3bfaecb8146bc83578b59aff9a69fa975ae216ff3b826db6a3b1",
   "source_sha256": {
-    "crates/dive-api/src/periodic_candidate.rs": "ae456c3a7ed91cb5e3f541a51bb217774793e71636952209b2905879375ad6c5",
+    "crates/dive-api/src/periodic_candidate.rs": "156e14b8b06829ffd17a340cd7f8d743dde8abac401677ae815809340542aad6",
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/optional_periodic_candidate.rs": "3d57f3266ff659986b003b50ea09d1f388445847a92dd05b8aea4103eb1baa27",
     "crates/dive-api/examples/optional_periodic_candidate.rs": "810f64b605e82167a8f6ddf71ff68aec4119247a109f7e06c99ba745f6b75dac",
@@ -20,9 +20,9 @@
     "docs/optional-periodic-hook.md": "579410a054dbb8212f757d12f46bdb320124121167e8c9318fbc7a7926515016",
     "docs/decisions/0074-optional-configured-periodic-hook.md": "993d14c3e88492456ec1452c88f08913e7ee69bb3d098d57f453cb8a4c2c321c",
     "scripts/check-optional-periodic-hook.py": "f10b54bf8570fd19f5abac4cdcfe974ce8c46cc8dfde8c0579964721799d296e",
-    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634",
-    "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
-    ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e"
+    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f",
+    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
+    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

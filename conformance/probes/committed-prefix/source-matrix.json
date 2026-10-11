@@ -10,22 +10,22 @@
     "crates/dive-store/tests/properties.rs": "b325b12a420349153c8630d79d6c786ec4a21d21b59f3cc785b6e4c930886972",
     "crates/dive-check/src/progress.rs": "b82fca9201f86013d9a4ef53940889ba70271db22d036309df8eb48158a6cc79",
     "crates/dive-check/src/pool.rs": "7afbf0776382618e9a658993133f6bf463b3bdad58660f9e15c278c0f46302f7",
-    "crates/dive-check/src/capture.rs": "218e6e995792f35999017fe88332952ee1ce9b2517865e983b4b4e6aa077f736",
+    "crates/dive-check/src/capture.rs": "4510a435318598a71cd55d62e2e51ce9de39111936ab169c003d20985356bf4d",
     "crates/dive-check/src/parallel.rs": "e3f0e7e7cf226acb960a20ad98ab8325e9ee4ca60a57b69f185f7c5b0cdb838d",
     "crates/dive-check/src/lib.rs": "bead11282e3b776c2f158f1bf9d9dd0999e06631e0992aa084f387d1e2d54cbf",
     "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
-    "crates/dive-liveness/src/periodic_lifecycle.rs": "8a1ca8bf07dee05d39bee30b8b3d166ed7c7a9f1a4710b8eb4775bd757cee3da",
+    "crates/dive-liveness/src/periodic_lifecycle.rs": "86538e58667e190d6b5653728a35c3fe11dc73125a0e811d9fdd4d57e11091cb",
     "crates/dive-liveness/src/periodic_snapshot.rs": "e2494c686324b3e8a39ef23964bfc82ae4d2094ebb33bf14e40d796465a2a83f",
-    "crates/dive-liveness/src/phase_execution.rs": "a214a32d831b11c9e49ed9d9f2f03ecc37dfb417aa6d94c526b78f2179d05073",
+    "crates/dive-liveness/src/phase_execution.rs": "cd28d1a469a0e1a7ac53ab18beaf0aeac810c5e24786d1f6e759451b3c58eff5",
     "crates/dive-liveness/src/periodic_hook.rs": "88b69794b01f78f07c3af8d552fa6c10fa5bf8205c70ec731da793280aa969e1",
     "crates/dive-liveness/tests/periodic_snapshot.rs": "64a6ca77fe2b0a6374777135517e9ba445011c0e88099d27ab2e6ad51bd5afa2",
     "crates/dive-api/examples/committed_prefix.rs": "221374a0fe9dd7603ddc0d854125ed8e3ca5ae3a4fee779d16d4e068126014eb",
     "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "361d07e7cbcad020199d259725681a2b1438c710f7754b5d60c3e943f3b1990d",
-    ".github/workflows/ci.yml": "1282422f4d6fc6880240f7a3caef233895f3de236cfbe0b8339ae72f823d194e",
-    "conformance/parity-features.json": "6c584003fd1a1ab0070064190df5ed8c5e353cfe072197c7d5d45ff4c2806634"
+    "AGENTS.md": "b8ac2d2bb06de0d53fb421fd7abcac3923f969b4158e26196195bfe90483b2ae",
+    ".github/workflows/ci.yml": "4cd353f4d555155bb2c0f5c61f34264cb42b1068ca18dc294b4f5e0e3fe5199a",
+    "conformance/parity-features.json": "7d2569cd8e9cb7a4f373bbb8a5933c4795a17e9387eccb4ba09a9349d08ef23f"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

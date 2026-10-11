@@ -1,0 +1,1191 @@
+{
+  "scope": "Declared206 native default-library terminal/legacy outcomes including real short-circuit post pass/error paths; no ordinary schedule/Holds/family credit",
+  "runner_sha256": "b29743bcf82961ae6423b0bb09541ffd0d8ff1972df45cc820679a03ce3b9721",
+  "rows": [
+    {
+      "id": "eof-w1",
+      "kind": "eof",
+      "width": 1
+    },
+    {
+      "id": "holds-no-proof-w1",
+      "kind": "holds-no-proof",
+      "width": 1
+    },
+    {
+      "id": "safe-false-w1",
+      "kind": "safe-false",
+      "width": 1
+    },
+    {
+      "id": "safe-integer-w1",
+      "kind": "safe-integer",
+      "width": 1
+    },
+    {
+      "id": "safe-division-w1",
+      "kind": "safe-division",
+      "width": 1
+    },
+    {
+      "id": "false-hook-w1",
+      "kind": "false-hook",
+      "width": 1
+    },
+    {
+      "id": "integer-hook-w1",
+      "kind": "integer-hook",
+      "width": 1
+    },
+    {
+      "id": "division-hook-w1",
+      "kind": "division-hook",
+      "width": 1
+    },
+    {
+      "id": "failed-init-w1",
+      "kind": "failed-init",
+      "width": 1
+    },
+    {
+      "id": "failed-next-w1",
+      "kind": "failed-next",
+      "width": 1
+    },
+    {
+      "id": "capture-limit-w1",
+      "kind": "capture-limit",
+      "width": 1
+    },
+    {
+      "id": "conjunction-w1",
+      "kind": "conjunction",
+      "width": 1
+    },
+    {
+      "id": "empty-init-w1",
+      "kind": "empty-init",
+      "width": 1
+    },
+    {
+      "id": "absent-unforced-w1",
+      "kind": "absent-unforced",
+      "width": 1
+    },
+    {
+      "id": "absent-forced-w1",
+      "kind": "absent-forced",
+      "width": 1
+    },
+    {
+      "id": "eof-w3",
+      "kind": "eof",
+      "width": 3
+    },
+    {
+      "id": "holds-no-proof-w3",
+      "kind": "holds-no-proof",
+      "width": 3
+    },
+    {
+      "id": "safe-false-w3",
+      "kind": "safe-false",
+      "width": 3
+    },
+    {
+      "id": "safe-integer-w3",
+      "kind": "safe-integer",
+      "width": 3
+    },
+    {
+      "id": "safe-division-w3",
+      "kind": "safe-division",
+      "width": 3
+    },
+    {
+      "id": "false-hook-w3",
+      "kind": "false-hook",
+      "width": 3
+    },
+    {
+      "id": "integer-hook-w3",
+      "kind": "integer-hook",
+      "width": 3
+    },
+    {
+      "id": "division-hook-w3",
+      "kind": "division-hook",
+      "width": 3
+    },
+    {
+      "id": "failed-init-w3",
+      "kind": "failed-init",
+      "width": 3
+    },
+    {
+      "id": "failed-next-w3",
+      "kind": "failed-next",
+      "width": 3
+    },
+    {
+      "id": "capture-limit-w3",
+      "kind": "capture-limit",
+      "width": 3
+    },
+    {
+      "id": "conjunction-w3",
+      "kind": "conjunction",
+      "width": 3
+    },
+    {
+      "id": "empty-init-w3",
+      "kind": "empty-init",
+      "width": 3
+    },
+    {
+      "id": "absent-unforced-w3",
+      "kind": "absent-unforced",
+      "width": 3
+    },
+    {
+      "id": "absent-forced-w3",
+      "kind": "absent-forced",
+      "width": 3
+    },
+    {
+      "id": "eof-w4",
+      "kind": "eof",
+      "width": 4
+    },
+    {
+      "id": "holds-no-proof-w4",
+      "kind": "holds-no-proof",
+      "width": 4
+    },
+    {
+      "id": "safe-false-w4",
+      "kind": "safe-false",
+      "width": 4
+    },
+    {
+      "id": "safe-integer-w4",
+      "kind": "safe-integer",
+      "width": 4
+    },
+    {
+      "id": "safe-division-w4",
+      "kind": "safe-division",
+      "width": 4
+    },
+    {
+      "id": "false-hook-w4",
+      "kind": "false-hook",
+      "width": 4
+    },
+    {
+      "id": "integer-hook-w4",
+      "kind": "integer-hook",
+      "width": 4
+    },
+    {
+      "id": "division-hook-w4",
+      "kind": "division-hook",
+      "width": 4
+    },
+    {
+      "id": "failed-init-w4",
+      "kind": "failed-init",
+      "width": 4
+    },
+    {
+      "id": "failed-next-w4",
+      "kind": "failed-next",
+      "width": 4
+    },
+    {
+      "id": "capture-limit-w4",
+      "kind": "capture-limit",
+      "width": 4
+    },
+    {
+      "id": "conjunction-w4",
+      "kind": "conjunction",
+      "width": 4
+    },
+    {
+      "id": "empty-init-w4",
+      "kind": "empty-init",
+      "width": 4
+    },
+    {
+      "id": "absent-unforced-w4",
+      "kind": "absent-unforced",
+      "width": 4
+    },
+    {
+      "id": "absent-forced-w4",
+      "kind": "absent-forced",
+      "width": 4
+    },
+    {
+      "id": "eof-w8",
+      "kind": "eof",
+      "width": 8
+    },
+    {
+      "id": "holds-no-proof-w8",
+      "kind": "holds-no-proof",
+      "width": 8
+    },
+    {
+      "id": "safe-false-w8",
+      "kind": "safe-false",
+      "width": 8
+    },
+    {
+      "id": "safe-integer-w8",
+      "kind": "safe-integer",
+      "width": 8
+    },
+    {
+      "id": "safe-division-w8",
+      "kind": "safe-division",
+      "width": 8
+    },
+    {
+      "id": "false-hook-w8",
+      "kind": "false-hook",
+      "width": 8
+    },
+    {
+      "id": "integer-hook-w8",
+      "kind": "integer-hook",
+      "width": 8
+    },
+    {
+      "id": "division-hook-w8",
+      "kind": "division-hook",
+      "width": 8
+    },
+    {
+      "id": "failed-init-w8",
+      "kind": "failed-init",
+      "width": 8
+    },
+    {
+      "id": "failed-next-w8",
+      "kind": "failed-next",
+      "width": 8
+    },
+    {
+      "id": "capture-limit-w8",
+      "kind": "capture-limit",
+      "width": 8
+    },
+    {
+      "id": "conjunction-w8",
+      "kind": "conjunction",
+      "width": 8
+    },
+    {
+      "id": "empty-init-w8",
+      "kind": "empty-init",
+      "width": 8
+    },
+    {
+      "id": "absent-unforced-w8",
+      "kind": "absent-unforced",
+      "width": 8
+    },
+    {
+      "id": "absent-forced-w8",
+      "kind": "absent-forced",
+      "width": 8
+    },
+    {
+      "id": "string-w4",
+      "kind": "string",
+      "width": 4
+    },
+    {
+      "id": "tuple-w4",
+      "kind": "tuple",
+      "width": 4
+    },
+    {
+      "id": "record-w4",
+      "kind": "record",
+      "width": 4
+    },
+    {
+      "id": "set-w4",
+      "kind": "set",
+      "width": 4
+    },
+    {
+      "id": "default-profile-w4",
+      "kind": "default-profile",
+      "width": 4
+    },
+    {
+      "id": "effectful-startup-w4",
+      "kind": "effectful-startup",
+      "width": 4
+    },
+    {
+      "id": "state-hook-w4",
+      "kind": "state-hook",
+      "width": 4
+    },
+    {
+      "id": "missing-hook-w4",
+      "kind": "missing-hook",
+      "width": 4
+    },
+    {
+      "id": "arity-hook-w4",
+      "kind": "arity-hook",
+      "width": 4
+    },
+    {
+      "id": "constant-hook-w4",
+      "kind": "constant-hook",
+      "width": 4
+    },
+    {
+      "id": "worker-evaluation-absent-forcefalse-w1",
+      "kind": "evaluation",
+      "width": 1,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-true-forcefalse-w1",
+      "kind": "evaluation",
+      "width": 1,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-false-forcefalse-w1",
+      "kind": "evaluation",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcefalse-w1",
+      "kind": "invariant",
+      "width": 1,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-true-forcefalse-w1",
+      "kind": "invariant",
+      "width": 1,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-false-forcefalse-w1",
+      "kind": "invariant",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-action-absent-forcefalse-w1",
+      "kind": "action",
+      "width": 1,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-action-true-forcefalse-w1",
+      "kind": "action",
+      "width": 1,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-action-false-forcefalse-w1",
+      "kind": "action",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-absent-forcefalse-w1",
+      "kind": "incomplete",
+      "width": 1,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-true-forcefalse-w1",
+      "kind": "incomplete",
+      "width": 1,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-false-forcefalse-w1",
+      "kind": "incomplete",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-absent-forcefalse-w1",
+      "kind": "deadlock",
+      "width": 1,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-true-forcefalse-w1",
+      "kind": "deadlock",
+      "width": 1,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-false-forcefalse-w1",
+      "kind": "deadlock",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcetrue-w1",
+      "kind": "invariant",
+      "width": 1,
+      "hook": "absent",
+      "forced": true
+    },
+    {
+      "id": "worker-invariant-false-forcetrue-w1",
+      "kind": "invariant",
+      "width": 1,
+      "hook": "false",
+      "forced": true
+    },
+    {
+      "id": "worker-prefix-evaluation-false-forcefalse-w1",
+      "kind": "prefix-evaluation",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-prefix-invariant-false-forcefalse-w1",
+      "kind": "prefix-invariant",
+      "width": 1,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-absent-forcefalse-w3",
+      "kind": "evaluation",
+      "width": 3,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-true-forcefalse-w3",
+      "kind": "evaluation",
+      "width": 3,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-false-forcefalse-w3",
+      "kind": "evaluation",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcefalse-w3",
+      "kind": "invariant",
+      "width": 3,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-true-forcefalse-w3",
+      "kind": "invariant",
+      "width": 3,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-false-forcefalse-w3",
+      "kind": "invariant",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-action-absent-forcefalse-w3",
+      "kind": "action",
+      "width": 3,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-action-true-forcefalse-w3",
+      "kind": "action",
+      "width": 3,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-action-false-forcefalse-w3",
+      "kind": "action",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-absent-forcefalse-w3",
+      "kind": "incomplete",
+      "width": 3,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-true-forcefalse-w3",
+      "kind": "incomplete",
+      "width": 3,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-false-forcefalse-w3",
+      "kind": "incomplete",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-absent-forcefalse-w3",
+      "kind": "deadlock",
+      "width": 3,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-true-forcefalse-w3",
+      "kind": "deadlock",
+      "width": 3,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-false-forcefalse-w3",
+      "kind": "deadlock",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcetrue-w3",
+      "kind": "invariant",
+      "width": 3,
+      "hook": "absent",
+      "forced": true
+    },
+    {
+      "id": "worker-invariant-false-forcetrue-w3",
+      "kind": "invariant",
+      "width": 3,
+      "hook": "false",
+      "forced": true
+    },
+    {
+      "id": "worker-prefix-evaluation-false-forcefalse-w3",
+      "kind": "prefix-evaluation",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-prefix-invariant-false-forcefalse-w3",
+      "kind": "prefix-invariant",
+      "width": 3,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-absent-forcefalse-w4",
+      "kind": "evaluation",
+      "width": 4,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-true-forcefalse-w4",
+      "kind": "evaluation",
+      "width": 4,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-false-forcefalse-w4",
+      "kind": "evaluation",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcefalse-w4",
+      "kind": "invariant",
+      "width": 4,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-true-forcefalse-w4",
+      "kind": "invariant",
+      "width": 4,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-false-forcefalse-w4",
+      "kind": "invariant",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-action-absent-forcefalse-w4",
+      "kind": "action",
+      "width": 4,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-action-true-forcefalse-w4",
+      "kind": "action",
+      "width": 4,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-action-false-forcefalse-w4",
+      "kind": "action",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-absent-forcefalse-w4",
+      "kind": "incomplete",
+      "width": 4,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-true-forcefalse-w4",
+      "kind": "incomplete",
+      "width": 4,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-false-forcefalse-w4",
+      "kind": "incomplete",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-absent-forcefalse-w4",
+      "kind": "deadlock",
+      "width": 4,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-true-forcefalse-w4",
+      "kind": "deadlock",
+      "width": 4,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-false-forcefalse-w4",
+      "kind": "deadlock",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcetrue-w4",
+      "kind": "invariant",
+      "width": 4,
+      "hook": "absent",
+      "forced": true
+    },
+    {
+      "id": "worker-invariant-false-forcetrue-w4",
+      "kind": "invariant",
+      "width": 4,
+      "hook": "false",
+      "forced": true
+    },
+    {
+      "id": "worker-prefix-evaluation-false-forcefalse-w4",
+      "kind": "prefix-evaluation",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-prefix-invariant-false-forcefalse-w4",
+      "kind": "prefix-invariant",
+      "width": 4,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-absent-forcefalse-w8",
+      "kind": "evaluation",
+      "width": 8,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-true-forcefalse-w8",
+      "kind": "evaluation",
+      "width": 8,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-evaluation-false-forcefalse-w8",
+      "kind": "evaluation",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcefalse-w8",
+      "kind": "invariant",
+      "width": 8,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-true-forcefalse-w8",
+      "kind": "invariant",
+      "width": 8,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-false-forcefalse-w8",
+      "kind": "invariant",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-action-absent-forcefalse-w8",
+      "kind": "action",
+      "width": 8,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-action-true-forcefalse-w8",
+      "kind": "action",
+      "width": 8,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-action-false-forcefalse-w8",
+      "kind": "action",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-absent-forcefalse-w8",
+      "kind": "incomplete",
+      "width": 8,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-true-forcefalse-w8",
+      "kind": "incomplete",
+      "width": 8,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-incomplete-false-forcefalse-w8",
+      "kind": "incomplete",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-absent-forcefalse-w8",
+      "kind": "deadlock",
+      "width": 8,
+      "hook": "absent",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-true-forcefalse-w8",
+      "kind": "deadlock",
+      "width": 8,
+      "hook": "true",
+      "forced": false
+    },
+    {
+      "id": "worker-deadlock-false-forcefalse-w8",
+      "kind": "deadlock",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-invariant-absent-forcetrue-w8",
+      "kind": "invariant",
+      "width": 8,
+      "hook": "absent",
+      "forced": true
+    },
+    {
+      "id": "worker-invariant-false-forcetrue-w8",
+      "kind": "invariant",
+      "width": 8,
+      "hook": "false",
+      "forced": true
+    },
+    {
+      "id": "worker-prefix-evaluation-false-forcefalse-w8",
+      "kind": "prefix-evaluation",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "worker-prefix-invariant-false-forcefalse-w8",
+      "kind": "prefix-invariant",
+      "width": 8,
+      "hook": "false",
+      "forced": false
+    },
+    {
+      "id": "post-candidate-w1",
+      "kind": "post-candidate",
+      "requested_width": 1
+    },
+    {
+      "id": "post-final-error-w1",
+      "kind": "post-final-error",
+      "requested_width": 1
+    },
+    {
+      "id": "post-cached-pass-w1",
+      "kind": "post-cached-pass",
+      "requested_width": 1
+    },
+    {
+      "id": "post-cached-candidate-w1",
+      "kind": "post-cached-candidate",
+      "requested_width": 1
+    },
+    {
+      "id": "post-budget-w1",
+      "kind": "post-budget",
+      "requested_width": 1
+    },
+    {
+      "id": "post-init-w1",
+      "kind": "post-init",
+      "requested_width": 1
+    },
+    {
+      "id": "post-source-w1",
+      "kind": "post-source",
+      "requested_width": 1
+    },
+    {
+      "id": "post-unbounded-w1",
+      "kind": "post-unbounded",
+      "requested_width": 1
+    },
+    {
+      "id": "post-effect-w1",
+      "kind": "post-effect",
+      "requested_width": 1
+    },
+    {
+      "id": "post-candidate-w3",
+      "kind": "post-candidate",
+      "requested_width": 3
+    },
+    {
+      "id": "post-final-error-w3",
+      "kind": "post-final-error",
+      "requested_width": 3
+    },
+    {
+      "id": "post-cached-pass-w3",
+      "kind": "post-cached-pass",
+      "requested_width": 3
+    },
+    {
+      "id": "post-cached-candidate-w3",
+      "kind": "post-cached-candidate",
+      "requested_width": 3
+    },
+    {
+      "id": "post-budget-w3",
+      "kind": "post-budget",
+      "requested_width": 3
+    },
+    {
+      "id": "post-init-w3",
+      "kind": "post-init",
+      "requested_width": 3
+    },
+    {
+      "id": "post-source-w3",
+      "kind": "post-source",
+      "requested_width": 3
+    },
+    {
+      "id": "post-unbounded-w3",
+      "kind": "post-unbounded",
+      "requested_width": 3
+    },
+    {
+      "id": "post-effect-w3",
+      "kind": "post-effect",
+      "requested_width": 3
+    },
+    {
+      "id": "post-candidate-w4",
+      "kind": "post-candidate",
+      "requested_width": 4
+    },
+    {
+      "id": "post-final-error-w4",
+      "kind": "post-final-error",
+      "requested_width": 4
+    },
+    {
+      "id": "post-cached-pass-w4",
+      "kind": "post-cached-pass",
+      "requested_width": 4
+    },
+    {
+      "id": "post-cached-candidate-w4",
+      "kind": "post-cached-candidate",
+      "requested_width": 4
+    },
+    {
+      "id": "post-budget-w4",
+      "kind": "post-budget",
+      "requested_width": 4
+    },
+    {
+      "id": "post-init-w4",
+      "kind": "post-init",
+      "requested_width": 4
+    },
+    {
+      "id": "post-source-w4",
+      "kind": "post-source",
+      "requested_width": 4
+    },
+    {
+      "id": "post-unbounded-w4",
+      "kind": "post-unbounded",
+      "requested_width": 4
+    },
+    {
+      "id": "post-effect-w4",
+      "kind": "post-effect",
+      "requested_width": 4
+    },
+    {
+      "id": "post-candidate-w8",
+      "kind": "post-candidate",
+      "requested_width": 8
+    },
+    {
+      "id": "post-final-error-w8",
+      "kind": "post-final-error",
+      "requested_width": 8
+    },
+    {
+      "id": "post-cached-pass-w8",
+      "kind": "post-cached-pass",
+      "requested_width": 8
+    },
+    {
+      "id": "post-cached-candidate-w8",
+      "kind": "post-cached-candidate",
+      "requested_width": 8
+    },
+    {
+      "id": "post-budget-w8",
+      "kind": "post-budget",
+      "requested_width": 8
+    },
+    {
+      "id": "post-init-w8",
+      "kind": "post-init",
+      "requested_width": 8
+    },
+    {
+      "id": "post-source-w8",
+      "kind": "post-source",
+      "requested_width": 8
+    },
+    {
+      "id": "post-unbounded-w8",
+      "kind": "post-unbounded",
+      "requested_width": 8
+    },
+    {
+      "id": "post-effect-w8",
+      "kind": "post-effect",
+      "requested_width": 8
+    },
+    {
+      "id": "post-true-safe-w1",
+      "kind": "post-true-safe",
+      "requested_width": 1
+    },
+    {
+      "id": "post-true-violation-w1",
+      "kind": "post-true-violation",
+      "requested_width": 1
+    },
+    {
+      "id": "post-false-safe-w1",
+      "kind": "post-false-safe",
+      "requested_width": 1
+    },
+    {
+      "id": "post-false-violation-w1",
+      "kind": "post-false-violation",
+      "requested_width": 1
+    },
+    {
+      "id": "post-scalar-safe-w1",
+      "kind": "post-scalar-safe",
+      "requested_width": 1
+    },
+    {
+      "id": "post-scalar-violation-w1",
+      "kind": "post-scalar-violation",
+      "requested_width": 1
+    },
+    {
+      "id": "post-true-safe-w3",
+      "kind": "post-true-safe",
+      "requested_width": 3
+    },
+    {
+      "id": "post-true-violation-w3",
+      "kind": "post-true-violation",
+      "requested_width": 3
+    },
+    {
+      "id": "post-false-safe-w3",
+      "kind": "post-false-safe",
+      "requested_width": 3
+    },
+    {
+      "id": "post-false-violation-w3",
+      "kind": "post-false-violation",
+      "requested_width": 3
+    },
+    {
+      "id": "post-scalar-safe-w3",
+      "kind": "post-scalar-safe",
+      "requested_width": 3
+    },
+    {
+      "id": "post-scalar-violation-w3",
+      "kind": "post-scalar-violation",
+      "requested_width": 3
+    },
+    {
+      "id": "post-true-safe-w4",
+      "kind": "post-true-safe",
+      "requested_width": 4
+    },
+    {
+      "id": "post-true-violation-w4",
+      "kind": "post-true-violation",
+      "requested_width": 4
+    },
+    {
+      "id": "post-false-safe-w4",
+      "kind": "post-false-safe",
+      "requested_width": 4
+    },
+    {
+      "id": "post-false-violation-w4",
+      "kind": "post-false-violation",
+      "requested_width": 4
+    },
+    {
+      "id": "post-scalar-safe-w4",
+      "kind": "post-scalar-safe",
+      "requested_width": 4
+    },
+    {
+      "id": "post-scalar-violation-w4",
+      "kind": "post-scalar-violation",
+      "requested_width": 4
+    },
+    {
+      "id": "post-true-safe-w8",
+      "kind": "post-true-safe",
+      "requested_width": 8
+    },
+    {
+      "id": "post-true-violation-w8",
+      "kind": "post-true-violation",
+      "requested_width": 8
+    },
+    {
+      "id": "post-false-safe-w8",
+      "kind": "post-false-safe",
+      "requested_width": 8
+    },
+    {
+      "id": "post-false-violation-w8",
+      "kind": "post-false-violation",
+      "requested_width": 8
+    },
+    {
+      "id": "post-scalar-safe-w8",
+      "kind": "post-scalar-safe",
+      "requested_width": 8
+    },
+    {
+      "id": "post-scalar-violation-w8",
+      "kind": "post-scalar-violation",
+      "requested_width": 8
+    }
+  ],
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "production_commit": "3968821ee1dedf9a486896443a16f3af7e348570"
+}
