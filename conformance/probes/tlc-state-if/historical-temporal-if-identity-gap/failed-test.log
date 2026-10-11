@@ -1,0 +1,26 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.17s
+     Running tests/tlc_state_if.rs (/Users/jeff/code/dive-final-state-if-target/debug/deps/tlc_state_if-a458a3fe85c49944)
+
+running 3 tests
+test conditional_planning_errors_remain_before_any_graph_or_workers ... ok
+test conditional_effects_dynamic_captures_and_limits_never_gain_proof ... ok
+test pure_if_final_words_counts_and_all_independent_mutations ... FAILED
+
+failures:
+
+---- pure_if_final_words_counts_and_all_independent_mutations stdout ----
+
+thread 'pure_if_final_words_counts_and_all_independent_mutations' (110368484) panicked at crates/dive-api/tests/tlc_state_if.rs:248:9:
+assertion `left == right` failed: IfTableau initial particle consistency
+  left: "15040402659625261443:4"
+ right: "15040402659625261443:3"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pure_if_final_words_counts_and_all_independent_mutations
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s
+
+error: test failed, to rerun pass `-p dive-api --test tlc_state_if`

@@ -1,0 +1,22 @@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file /Users/jeff/code/dive-temporal-if-work/conformance/probes/tlc-temporal-if/models/TiMulti/TiMulti.tla
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-67751201356086598/Integers.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Integers.tla)
+Parsing file /private/var/folders/yz/99pk93ns5gsfbk64n228b3t80000gn/T/tlc-67751201356086598/Naturals.tla (jar:file:/Users/jeff/code/dive-temporal-if-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar!/tla2sany/StandardModules/Naturals.tla)
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module TiMulti
+Linting of module TiMulti
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2026-10-10 23:25:57)
+@!@!@ENDMSG 2185 @!@!@
+Exception in thread "main" java.lang.NullPointerException: Cannot enter synchronized block because "tlc2.TLCGlobals.mainChecker" is null
+	at tlc2.tool.liveness.LiveCheck$TableauLiveChecker.printErrorTrace(LiveCheck.java:798)
+	at tlc2.tool.liveness.LiveCheck$TableauLiveChecker.addNextState(LiveCheck.java:791)
+	at tlc2.tool.liveness.LiveCheck.addNextState(LiveCheck.java:128)
+	at tlc2.tool.liveness.FinalProbe.run(FinalProbe.java:73)
+	at tlc2.tool.liveness.FinalProbe.main(FinalProbe.java:38)

@@ -65,6 +65,9 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
             let json = violation.document().to_json();
             println!("{json}");
         }
+        Outcome::Safety(safety) => {
+            println!("Safety-only: {}", safety.result().verdict.kind());
+        }
         Outcome::Holds(evidence) => {
             println!("Checked {} states", evidence.execution.capture.stats.distinct);
         }
@@ -73,7 +76,7 @@ fn check() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Use `CheckOptions::tlc(seed, polynomial)` and fingerprint storage. The selected
+Use `CheckOptions::tlc(polynomial, seed)` and fingerprint storage. The selected
 polynomial and seed are explicit; worker width does not change the supported
 selected result. The receipt records actual requested/used workers, concrete
 safety counters and the checked OOS/PEM groups separately from temporal work.
@@ -195,7 +198,7 @@ The first unchanged 140-model small Examples run on the frozen CLI source
 produced **140 named refusals and no agreements**, with all 138 started
 subprocesses retained. It earns no general corpus credit. The focused eight
 positive models pass at 1, 3, 4 and 8 workers, but most corpus specifications
-still encounter conservative scope/effect admission, state conditionals or
+still encounter conservative scope/effect admission or
 unimplemented witness recovery. Safety-only models currently refuse an empty
 temporal OOS list; a future real safety route must preserve their actual
 counters and independently validated witnesses. See
@@ -215,3 +218,92 @@ concurrent expanded source units independently of requested/actual pool width.
 Malformed public IR preserves the shared `DIVE-EVAL-C001`–`C007` diagnostic
 before option dispatch or host creation; bound-model metadata admission is
 also checked before planning/replay. No opaque callback runs to guess validity.
+
+## Safety-only route
+
+The explicit `--compat=tlc --lncheck final --lasso tlc` mode also accepts a
+supported model with **no implied temporal obligations**. That decision comes
+from fresh source/configuration binding, not an empty property list or a JSON
+route tag. Initial properties, invariants, implied action properties, state/action
+constraints and deadlock checking are still ordinary safety obligations.
+
+```sh
+dive check conformance/probes/tlc-final-safety/models/SafetyHold/SafetyHold.tla --config conformance/probes/tlc-final-safety/models/SafetyHold/SafetyHold.cfg --compat=tlc --lncheck final --lasso tlc --workers 4 --seed 0 --fp 0 --output json
+```
+
+Rust callers receive `tlc_temporal::Outcome::Safety`, whose private receipt
+retains the actual safety engine `CheckResult`. Inspect `result().verdict` before
+claiming success. `Ok(report)` can carry a resource stop or named refusal.
+`safety.limits()` returns the exact caller-provided `Limits`, retained privately by
+the producer. `safety.validation()` and `safety.document()` expose independently replayed
+finite counterexamples; they are absent when no witness was selected.
+
+The CLI uses the final facade's unchanged default entry/work limits: 1,000,000
+retained graph representatives, 8,000,000 retained generated/implicit-stutter edges, 32,000,000
+generated candidates and 65,536 successors per source. Source waves remain
+bounded at eight concurrently expanded sources, with at most 64 requested
+workers. Rust callers can supply their own existing `Limits`; the safety receipt
+retains those actual values rather than advertising CLI defaults. Temporal
+phase-L/tableau/product limits are retained as supplied, but this route does not
+consume them to construct a temporal product; shared pre-binding and worker
+admission still apply. These are count ceilings, not aggregate heap/byte budgets. Conservative
+source quotas can stop before global ceilings. Ordinary engine insertion precedes
+graph admission: with a graph-state bound of three on the infinite counter,
+the resource stop truthfully records four distinct states (the deciding inserted
+state is counted). This does not complete capture or bound the entire seen-set
+heap. Exceeding any ceiling is a real
+resource outcome with actual stopping evidence, never completed exploration.
+
+The schema-2 `execution` object names `stage: "safety"`,
+`route: "bounded-safety-only"`, `temporal_obligations: 0`,
+`temporal_certificate: false` and `product_constructed: false`.
+`options.temporal_bounds` serializes the actual producer-retained limits,
+including non-default Rust caller bounds; it never substitutes the CLI defaults.
+`capture_completed` is true only when actual safety exploration finishes with
+success. A supported finite violation carries its original finite ending and
+requires fresh in-memory and lossless JSON replay against a separately bound
+model. Refused or invalid replay cannot issue violation credit. The harness
+independently derives the route from the actual model before comparing results;
+ordinary schema-1 handling is unchanged. Initial invariant/property failures can
+stop during inline initial-state enumeration, before the requested pool starts;
+the report then truthfully records one used initialization worker, a sequential
+initial stage and its actual reason. Later pool outcomes report the actual pool
+width rather than inventing work at the requested width.
+
+VIEW, symmetry, randomness, effectful/opaque startup/captured operators, host
+hooks and transient disk storage remain explicitly staged refusals in this first
+route. Implied initial properties combined with state constraints, and implied
+action properties combined with state/action constraints, are conservatively
+refused before pool work: independent replay does not yet reproduce the earlier
+TLC stopping order on out-of-model states. No tableau, OOS, SCC or temporal
+acceptance proof is inferred from a safety receipt.
+
+The original 140-refusal small-model census is preserved unchanged. New native
+safety controls and any subsequent full census identify their own source/binary
+and retain every refusal, error and limit. They do not rewrite that historical
+result or supply general liveness parity.
+
+A subsequent unchanged 140-model census on the frozen safety-route source has
+**5 full agreements and 135 named refusals**, with 138 actual subprocesses,
+no disagreement or timeout, and actual harness exit 0. DieHard's seven-state
+finite witness was independently validated. This observation is retained in
+[the complete source-bound study](../conformance/studies/tlc-final-safety-current/full-small-study/README.md);
+it does not certify temporal products, periodic scheduling or whole semantic
+families. The failed launcher setup is separately preserved and executed zero
+native checker subprocesses.
+
+Pure state conditional predicates now use the corrected shared TLC-shaped
+planner through final execution and fresh replay. See the
+[conditional guide](tlc-state-if.md) for runnable CLI/Rust examples and exact
+remaining restrictions. Earlier complete small-model reports remain unchanged
+and source-qualified; this increment supplies selected controls, not new broad
+corpus or family certification.
+
+Direct temporal conditionals now use pinned shared-guard tags and exact numbered
+particles through final execution and fresh replay. The
+[temporal conditional guide](tlc-temporal-if.md) supplies runnable CLI/Rust
+examples and complete selected controls. Upstream-refused temporal argument
+forwarding into IF-bearing bodies and accepting-sink early witnesses remain
+named unsupported boundaries, including unused forwarding calls in admission.
+All existing bounds, effect/context checks and ordinary-schedule restrictions
+remain in force.

@@ -39,3 +39,40 @@ development failures. CI checks the complete raw/source bytes. Phase-L tests
 require the deciding constant error before any worker, fingerprint or predicate
 work. Successful state-IF phase-L admission remains conservative; this does not
 certify strict integrated liveness, all source-conversion paths or the family.
+
+## Addendum: pure conditional final execution (2026-10-10, #168)
+
+The corrected TLC-shaped planner already performs pinned conditional conversion
+and scope-proves every retained atom with the unchanged formula/binding bounds.
+Phase-L now uses that authority instead of reclassifying state IF atoms with its
+older blanket syntax refusal. No planner algorithm, ordinary evaluator default,
+resource threshold or periodic scheduling contract changes in this increment.
+
+Actual process/LiveCheck fields, original final checks and fresh independent
+entry/closing/property mutants accompany the supported final-only controls.
+Original conservative observations and planning/runtime failures stay visible;
+unverified deciding error classes earn no agreement credit. Effects, opaque
+captures and malformed contexts are still refused through shared admission.
+See [user guide](../tlc-state-if.md) and `conformance/probes/tlc-state-if/`.
+
+## Addendum: shared temporal IF guard identity (2026-10-10, #170)
+
+The pinned IF constructor reuses the converted guard in both branches. The
+subsequent tag pass assigns on every visit, so earlier references use the last
+assigned tag and unused tag slots remain. The bounded importer now retains
+this arena identity and charges each earlier-reference update as work. Distinct
+objects are not merged by expression/truth equality. All selected normalized
+and numbered-particle fields plus independent words are preserved; runtime
+admission remains staged until actual stopping/witness controls are proven.
+
+### 2026-10-10: proven direct temporal-IF final admission (#170)
+
+The source-only shared-tag repair is followed by actual explicit final execution
+and fresh independent memory/JSON witnesses. Direct temporal IF now admits;
+whole-arena temporal-argument forwarding into IF-bearing bodies remains staged
+because clean pin2213 rejects selected examples. The existing arena/structural
+admission bounds remain unchanged. Accepting-sink early source stops remain
+refused rather than converted to completed final verdicts. Thirty complete raw
+controls, 120 native width outcomes and independent word/closing mutations retain
+all failures and configured/derived claim identities. No ordinary periodic or
+full-family contract is asserted.

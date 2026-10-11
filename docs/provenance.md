@@ -433,6 +433,30 @@ Pre-bind source admission also resolves configuration names through every
 `Tables.op_defs` / `SpecProcessor.processConfigSpec`'s resolved-target semantics.
 The retained local `Hidden == PrintT(TRUE)` context-alias negative control returns
 before binding, zero used workers and no graph evidence.
+
+The explicit final-mode safety-only route reuses the actual ordered ordinary
+safety engine (`ModelChecker.doInit`, `Worker.doNext`/`ModelChecker.modelCheck`)
+inside existing capture ceilings. Routing is derived from the freshly bound
+`SpecProcessor.getImpliedTemporals` counterpart, never a supplied JSON claim or
+zero-OOS projection. No new graph/SCC algorithm or result-changing default is
+introduced. The original safety `CheckResult` is retained privately; finite
+witnesses are replayed using `dive-trace` without successor enumeration. Nine
+clean pinned controls, original constant-Next configuration rejection and
+bounded native stops are retained under `conformance/probes/tlc-final-safety`.
+
+| Pure state conditional final admission (#168) | Pinned `Liveness.astToLive`/`processLiveness`, `LNStateAST.eval`, `LiveCheck.addInitState`/`addNextState` and original `finalCheck` at revision `94d0c50` | MIT | Uses inherited exact conversion and scoped predicate authority; removes only the stale Phase-L syntax refusal. Complete raw fields/words, failures and independent closing/claim mutants retained under `conformance/probes/tlc-state-if/`; ordinary periodic/family parity unclaimed. |
+
+| `dive-liveness::tlc_plan` shared predicate occurrence import (#170) | pinned `Liveness.astToLiveAppl` `OPCODE_ite`, `parseLiveness`/`processLiveness`; `LNState.tagExpr` and `LNAction.tagExpr`, revision `94d0c50` | MIT | Same input-object identity and last-visit tag retained; no expression-truth deduplication. Complete raw tag/stage/OOS/particle controls and independent words remain diagnostic; staged final admission unchanged. |
+
+Direct temporal-IF final admission (#170) retains the existing shared
+`Liveness.astToLiveAppl` conversion and `LNState.tagExpr` last-visit identities,
+`TBGraph` ordered particles/edges, `LiveCheck.finalCheck` selected components and
+lassos. Independent `dive-trace` memory/JSON replay still certifies every concrete
+word separately; neither normalization equality nor backend flags certify it.
+All30 actual captures and120 native outcomes are in
+`conformance/probes/tlc-temporal-if-final/`; clean source-prefix/refused controls
+receive no matching-error or ordinary-schedule credit.
+
 ## Native checkpoint composition with transient storage
 
 The recovery engine streams saved frontier suffix states into the existing native
@@ -453,3 +477,21 @@ keep original parallel source/raw evidence separate from current storage control
 | Native component | Pinned reference | License | Adaptation and evidence boundary |
 | --- | --- | --- | --- |
 | `dive-pluscal` caller reachability and fairness generation (`translate/fairness.rs`, process/procedure context in `process.rs` and `procedures.rs`, Spec emission in `emit.rs`) | `pcal.ParseAlgorithm.GetCall`, `pcal.PcalFixIDs.FixMultiprocess`, `pcal.PcalTLAGen.GenSpec`, `FormulaPair`, `ProcessFairness`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Syntactic call order and declaration-ordered closure adapted to bounded sparse traversal, per-caller WF/SF and +/- ownership, UTF-16 significant junction grouping. Complete clean primary captures, SANY/operator-CST and finite counts/replay remain separate stages. Quotas and conservative disjointness are native design; no scoped renaming, sequential-modifier or liveness-execution certification. |
+
+### Scoped final attribution and cardinality-one DNF (#134)
+
+`dive-model/src/spec.rs::Binder::props` matches pinned94d0c50
+`SpecProcessor.processConfigProps`: a zero-arity LET OpDef changes the derived
+name; formal LazyValue forwarding preserves it. Expression and caller scope
+remain unchanged. `dive-liveness/src/tlc_plan.rs::Builder::dnf` matches
+`LNConj.toDNF` cardinality-one `new LNConj(nes)` including singleton LNDisj
+factors. Both MIT source rules have exact field-level raw controls in
+`conformance/probes/tlc-final-scopes/`; original failed observations are retained.
+Expanded original Action names remain reference-only, not inferred native data.
+
+`dive-liveness/src/plan.rs` TLC-shape directly syntactic `~ENABLED A` matches
+`Liveness.astToLiveAppl` OPCODE_lnot's state-level fallback: the original source
+predicate is one atom, evaluated by negating the existing pure bounded action
+search. The default formula kernel and independent Word implementation stay
+unchanged. Complete positive/negative fields and periodic/closing controls
+retain the old extra-negation mismatch; this is normalization fidelity only.

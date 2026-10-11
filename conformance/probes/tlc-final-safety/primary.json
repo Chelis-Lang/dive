@@ -1,0 +1,246 @@
+{
+  "oracle": "tlc-2026.10.06.014338",
+  "reason": "Bounded final-mode ordinary safety route; nine clean primary captures, original constant-Next rejection preserved separately",
+  "flags": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final"
+  },
+  "selection": [
+    "SafetyAction",
+    "SafetyConstrainedAction",
+    "SafetyConstrainedInitial",
+    "SafetyDeadlock",
+    "SafetyHold",
+    "SafetyIf",
+    "SafetyInitial",
+    "SafetyInvariant",
+    "SafetyPropertyInitial"
+  ],
+  "rows": [
+    {
+      "model": "SafetyAction",
+      "exit": 13,
+      "code": 2112,
+      "statistics": {
+        "generated": 2,
+        "distinct": 2,
+        "left_on_queue": 0
+      },
+      "depth": 2,
+      "trace_length": 2,
+      "files": {
+        "models/SafetyAction/SafetyAction.cfg": "9acefc7ddd66acdae19c51976291b15780b035d81dccf071b1437bc8813f821f",
+        "models/SafetyAction/SafetyAction.tla": "9ca607164128cc468bfe5f8db9263cec5ecfb5ca82db8e5594ef2588febe2476",
+        "raw/tlc-2026.10.06.014338/SafetyAction.command": "2f459602ffb49bd6bf329603aeded56e95008f4dfb2c49ed6835b8f28267114c",
+        "raw/tlc-2026.10.06.014338/SafetyAction.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+        "raw/tlc-2026.10.06.014338/SafetyAction.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyAction.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyAction.sany.stdout": "1d6236bb2f31a2fe1c3c9ca9282ab58008622c07ba62ff1c5e24032354a7293c",
+        "raw/tlc-2026.10.06.014338/SafetyAction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyAction.stdout": "4661d0f3704a5518dfad374720e7516686897fa5c4d703afec66d9c78a2f3d81",
+        "raw/tlc-2026.10.06.014338/SafetyAction.trace.command": "7163a52942a458318f2925e0fe05b84c22f428ca8192e38f20a3e7e173a12eba",
+        "raw/tlc-2026.10.06.014338/SafetyAction.trace.json": "9da7944b8e4b9f28cc9e3731e881f837cc618a8a9fc98aa6bb7e7b310ff77863"
+      }
+    },
+    {
+      "model": "SafetyConstrainedAction",
+      "exit": 13,
+      "code": 2112,
+      "statistics": {
+        "generated": 2,
+        "distinct": 1,
+        "left_on_queue": 0
+      },
+      "depth": 1,
+      "trace_length": 2,
+      "files": {
+        "models/SafetyConstrainedAction/SafetyConstrainedAction.cfg": "778335269a8140b78401e892b4212fd36864374e410801537f6b5b41fd81e882",
+        "models/SafetyConstrainedAction/SafetyConstrainedAction.tla": "ad66866ae25b7c1abbc2156f1d4981d4729ffaa5565c6478710c03a5d55902e2",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.command": "ed0a935a00bd22602757419882292f56e4fd33100042f1c27f130fafab8fa733",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.sany.stdout": "1f348c0c29c28eaa7efeafae4a59e70d78ccc439d7d88fe6f02c3e2d90eabf37",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.stdout": "9551da29594dece2fd8ef9eb7ce8f81f0f5eff37719ce673e3e5de3d32f5d9d0",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.trace.command": "8715b52e5a123068cd454e5865843b2e3474339bef5f0b1d5a534f58cf629eb1",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedAction.trace.json": "62553462eea96dd32835552ec2a9fc6c6e78baefa958ac5c7ac656c5b8cc3750"
+      }
+    },
+    {
+      "model": "SafetyConstrainedInitial",
+      "exit": 13,
+      "code": 2108,
+      "statistics": null,
+      "depth": null,
+      "trace_length": 0,
+      "files": {
+        "models/SafetyConstrainedInitial/SafetyConstrainedInitial.cfg": "778335269a8140b78401e892b4212fd36864374e410801537f6b5b41fd81e882",
+        "models/SafetyConstrainedInitial/SafetyConstrainedInitial.tla": "80a56094c9b12ba6ffd9305c52345323f92051ec9d6f6dc3314db7d60a776988",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.command": "89c652f68944fd800394ba5e0b98e6d7a79a94d0fc52e1a00cb27cf7a1d146b2",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.sany.stdout": "ac80bff26f003a67e7c352e50c9dc835abacec0ab7ff85e06b5486b876b6cfa0",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.stdout": "5dfab11a3b1a1bc3fb918ad264fd555c04e98fff70dd27100d7afe6fc1155812",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.trace.command": "966345f83d7c30a2105170fcfb55b6047a04816bf47728abdc2e25ef02d1757c",
+        "raw/tlc-2026.10.06.014338/SafetyConstrainedInitial.trace.json": "ca234950fef759aee2dec5026f32f6971862a2ee1a8d56096aa348696ca8c770"
+      }
+    },
+    {
+      "model": "SafetyDeadlock",
+      "exit": 11,
+      "code": 2114,
+      "statistics": {
+        "generated": 1,
+        "distinct": 1,
+        "left_on_queue": 0
+      },
+      "depth": 1,
+      "trace_length": 1,
+      "files": {
+        "models/SafetyDeadlock/SafetyDeadlock.cfg": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f",
+        "models/SafetyDeadlock/SafetyDeadlock.tla": "6a9ffffaf9a8912ed80ccefe6d2d5dc420fed660f225aa7ae54305df716c04ec",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.command": "8efc32a89f1defd0b41040eced67b7e5085174fdfcb7a431ad83fde9df005b46",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.exit": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.sany.stdout": "2c2e08ec6b54c1c66fb3af4b7dd874f089332ac9413c07cc72a4fcd560441957",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.stdout": "f7969c3f0c44a832aa46e9038c578d8b115f76f1d862dc268ebaa4d45ed111ef",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.trace.command": "449447f58908f0576747ab90754b660c608eb0bfcc4f2241b98e9b0b5d5a7d49",
+        "raw/tlc-2026.10.06.014338/SafetyDeadlock.trace.json": "07e323a2e19f6fb379fa565c84efd7dafb2703e14c770148ac15b86421aa9868"
+      }
+    },
+    {
+      "model": "SafetyHold",
+      "exit": 0,
+      "code": 2193,
+      "statistics": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0
+      },
+      "depth": 3,
+      "trace_length": 0,
+      "files": {
+        "models/SafetyHold/SafetyHold.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "models/SafetyHold/SafetyHold.tla": "c1927d8f0d06210fd9a85308315b2f7f800cc9ba583b6f17af826582df3b86d9",
+        "raw/tlc-2026.10.06.014338/SafetyHold.command": "a99e2952b7d60a7c3ed416fc56933a715eb6b12ad9ada82799d3c4910b527c7d",
+        "raw/tlc-2026.10.06.014338/SafetyHold.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyHold.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyHold.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyHold.sany.stdout": "165afa593f258d89a7e2643b2a2a38fdbe38bfd8c7004192f22f2cd7684213c2",
+        "raw/tlc-2026.10.06.014338/SafetyHold.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyHold.stdout": "eba67f14594abf4ac1ab7220f5d1f37385becadd2d347fa91e26eb0fc5d98a5d"
+      }
+    },
+    {
+      "model": "SafetyIf",
+      "exit": 0,
+      "code": 2193,
+      "statistics": {
+        "generated": 4,
+        "distinct": 3,
+        "left_on_queue": 0
+      },
+      "depth": 3,
+      "trace_length": 0,
+      "files": {
+        "models/SafetyIf/SafetyIf.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "models/SafetyIf/SafetyIf.tla": "221a4184ef7fe02ec1f2772327cd81ddd3096a4dbcdaa6402d163ae70969a60f",
+        "raw/tlc-2026.10.06.014338/SafetyIf.command": "e72bcae5ca3635ebbb6576e8aaa1aa033e14c0ba01fb24b83f116b4a323e8ca7",
+        "raw/tlc-2026.10.06.014338/SafetyIf.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyIf.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyIf.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyIf.sany.stdout": "c75b630e7ee662fc6dbbed7291a9bba3ba717c02937d851cb9b6fa4ae3001b5a",
+        "raw/tlc-2026.10.06.014338/SafetyIf.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyIf.stdout": "fe79b08a66e07a31c49e1535dde2db0e37b561e9dc2a2d3cccdb1eb5889e001a"
+      }
+    },
+    {
+      "model": "SafetyInitial",
+      "exit": 12,
+      "code": 2107,
+      "statistics": null,
+      "depth": null,
+      "trace_length": 0,
+      "files": {
+        "models/SafetyInitial/SafetyInitial.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "models/SafetyInitial/SafetyInitial.tla": "33632e3130b3dc4287299e1370556d2a7d5fcd812cede0913c62f9b529ae9e4a",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.command": "236fc6ee8308cf6a15c950d6847cc57244ab170f9bf0fb85713cbf6ae9429c01",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.sany.stdout": "d32fa6d5c99be57674288c1309ca71618c8200e1ea1e0c62be7bae40d648a528",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.stdout": "f67d75c52e039272dfbd54e202f0e95bd21f5162687d11912ee3bd158a01a42e",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.trace.command": "cf84dedf1d031ae88ae8de125e63e35475ba3e21d5c7983c7e3d23287e473005",
+        "raw/tlc-2026.10.06.014338/SafetyInitial.trace.json": "ca234950fef759aee2dec5026f32f6971862a2ee1a8d56096aa348696ca8c770"
+      }
+    },
+    {
+      "model": "SafetyInvariant",
+      "exit": 12,
+      "code": 2110,
+      "statistics": {
+        "generated": 3,
+        "distinct": 3,
+        "left_on_queue": 0
+      },
+      "depth": 3,
+      "trace_length": 3,
+      "files": {
+        "models/SafetyInvariant/SafetyInvariant.cfg": "269fa5a9134c343f1da3bbda27c87949edfcac71de917aa897bbd37b8334bfcf",
+        "models/SafetyInvariant/SafetyInvariant.tla": "26268b9a06be7e71640247018ae06d2822d6ebde258e16ec4457d314a9b297af",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.command": "f5de61190f2ea102a1b114e491fff43e234ed6957bd0f3d3a40754e7489098a0",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.exit": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.sany.stdout": "13a63cfefa826c340a78cec407a476e7b530f5251b717b2ae4e5fd56c1ccf838",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.stdout": "ac79b3a276788029e36f2b089b86f1c229112ab53f45b649f18f1d625c2a7ff7",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.trace.command": "794880fc257ef64840c445e8efc33168ec6861e20f409c32c93ba13962291bcb",
+        "raw/tlc-2026.10.06.014338/SafetyInvariant.trace.json": "d283867f9b02589d5067e46df617734d4e06f680d8082909ff4f715afcc73b0e"
+      }
+    },
+    {
+      "model": "SafetyPropertyInitial",
+      "exit": 13,
+      "code": 2108,
+      "statistics": null,
+      "depth": null,
+      "trace_length": 0,
+      "files": {
+        "models/SafetyPropertyInitial/SafetyPropertyInitial.cfg": "9acefc7ddd66acdae19c51976291b15780b035d81dccf071b1437bc8813f821f",
+        "models/SafetyPropertyInitial/SafetyPropertyInitial.tla": "a9f8558ba59ee541ca71f9a2fb500b6797e9462198aa08b02cb5176667ac0253",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.command": "fdbe2d46bff5f9cb053e1cb1deec67668da1a87c91c80841db0725c4ba48639c",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.exit": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.sany.stdout": "14b9bac1108497a40b6646b1ffe7c0294d61bd14a7699c785140fe7e3145474b",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.stdout": "2dbafa1c26e26bb3b252c70c1ff1d2309a33a096f7666f57a5a42e711116adf2",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.trace.command": "ef7fcffc0b6645af84925b5005b0381d2e90b0839ea18341b133e751c2e25975",
+        "raw/tlc-2026.10.06.014338/SafetyPropertyInitial.trace.json": "07e323a2e19f6fb379fa565c84efd7dafb2703e14c770148ac15b86421aa9868"
+      }
+    }
+  ],
+  "bounded_native_only": [
+    "SafetyInfinite"
+  ],
+  "history_files": {
+    "history-constant-next/model/SafetyDeadlock.cfg": "ea9bc9a520aaabeae3f9c97592849bf442e3249c8910603fd102a9531e07f97f",
+    "history-constant-next/model/SafetyDeadlock.tla": "be84a94a7ed00dbe3928ac222f2344eeb3fccae14b8fd0c84948817832397a0d",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.command": "8efc32a89f1defd0b41040eced67b7e5085174fdfcb7a431ad83fde9df005b46",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.exit": "6d57b664a1e6a401b8352095ad40cb5f8a5b95f32786bed036895569bcbdf2b8",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.sany.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.sany.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.sany.stdout": "fe63f62b790be560b00411472af66c966a48d0043e81cde7bf839e6da2dc7387",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "history-constant-next/tlc-2026.10.06.014338/SafetyDeadlock.stdout": "a5dfaf6cf5089f30eaba58702637f5396b40b23bfd04b9cb4cdb02e57fd7565b"
+  }
+}

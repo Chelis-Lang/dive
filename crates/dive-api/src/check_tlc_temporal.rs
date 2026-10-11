@@ -2,17 +2,18 @@
 use crate::tlc_temporal::{Error, Failure, Outcome, Report};
 use dive_check::capture::Complete;
 use serde_json::{Value, json};
-pub(super) fn complete(report: &Report) -> &Complete {
+pub(super) fn complete(report: &Report) -> Option<&Complete> {
     match report.outcome() {
-        Outcome::Holds(e) => &e.execution.capture,
-        Outcome::Violation(v) => &v.candidate().evidence.execution.capture,
+        Outcome::Holds(e) => Some(&e.execution.capture),
+        Outcome::Violation(v) => Some(&v.candidate().evidence.execution.capture),
+        Outcome::Safety(_) => None,
     }
 }
 pub(super) fn kind(failure: &Failure) -> &'static str {
     use dive_liveness::{tlc_final, tlc_scc};
     match &failure.error {
         Error::Thread(_) | Error::Document(_) => "internal-error",
-        Error::Validation { report, .. }
+        Error::Validation { report, .. } | Error::SafetyValidation { report, .. }
             if matches!(report.validation, dive_trace::Validation::Invalid(_)) =>
         {
             "internal-error"
@@ -55,13 +56,16 @@ fn capture(doc: &mut Value, c: &Complete) {
     }
 }
 pub(super) fn success(doc: &mut Value, report: &Report) {
-    capture(doc, complete(report));
+    if let Some(c) = complete(report) {
+        capture(doc, c);
+    }
     doc["execution"] = json!({"stage":"complete","capture_completed":true,"schedule":"final-only","selection":"tlc"});
     doc["elapsed_ms"] = json!(u64::try_from(report.elapsed().as_millis()).unwrap_or(u64::MAX));
     doc["notes"] = json!([
         "Explicit bounded final-only TLC selection; ordinary periodic scheduling, exact temporal storage and unsupported effect/recovery boundaries remain unavailable."
     ]);
     match report.outcome() {
+        Outcome::Safety(_) => {}
         Outcome::Holds(_) => {
             doc["tlc"] = json!({"code":2193,"name":"TLC_SUCCESS","exit_status":0,"reported":2193,"verified":true});
         }
@@ -79,7 +83,7 @@ fn stage(error: &Error) -> &'static str {
     match error {
         Error::Context(_) | Error::Input(_) | Error::Unsupported(_) => "admission",
         Error::Binding(_) => "binding",
-        Error::Validation { .. } => "independent-validation",
+        Error::Validation { .. } | Error::SafetyValidation { .. } => "independent-validation",
         Error::Document(_) => "serialization",
         Error::Thread(_) => "execution-evidence-unavailable",
         Error::Analysis(e) => match &e.error {
@@ -101,6 +105,28 @@ pub(super) fn failure(doc: &mut Value, failure: &Failure) {
     doc["notes"] = json!([
         "No temporal verdict is certified. Available prefix/complete graph evidence does not prove temporal acceptance or absence; unknown deciding TLC classes receive no agreement credit."
     ]);
+    if let Error::SafetyValidation {
+        result,
+        report,
+        limits,
+    } = &failure.error
+    {
+        doc["options"]["temporal_bounds"] = limits_json_for(limits);
+        doc["execution"] = json!({"stage":"independent-validation", "route":"bounded-safety-only",
+            "capture_completed":false, "temporal_obligations":0,
+            "temporal_certificate":false, "product_constructed":false,
+            "safety_stop":result.verdict.kind()});
+        if let Some(s) = result.stats {
+            doc["statistics"] = json!({"generated":s.generated,"distinct":s.distinct,
+                "left_on_queue":s.left_on_queue,"depth":s.depth,
+                "initial_generated":s.initial_generated,"reported_by_tlc":result.tlc_prints_stats});
+        }
+        doc["output"] = json!(result.output);
+        doc["notes"] = json!([format!(
+            "Finite safety witness is not certified: {:?}",
+            report.validation
+        )]);
+    }
     if let Error::Binding(e) = &failure.error {
         doc["output"] = json!(
             e.output
@@ -133,8 +159,12 @@ pub(super) fn failure(doc: &mut Value, failure: &Failure) {
     }
 }
 pub(super) fn human(report: &Report) -> String {
-    let s = &complete(report).stats;
+    let Some(complete) = complete(report) else {
+        return "Bounded safety-only route; no temporal certificate.\n".into();
+    };
+    let s = &complete.stats;
     let verdict = match report.outcome() {
+        Outcome::Safety(_) => "Bounded safety-only outcome; no temporal certificate.",
         Outcome::Holds(_) => "No acceptance in the supported final-only fingerprint graph.",
         Outcome::Violation(_) => {
             "Temporal properties violated; selected periodic word independently validated."
@@ -148,7 +178,9 @@ pub(super) fn human(report: &Report) -> String {
 
 /// Fixed entry/work ceilings actually used by this facade; no byte-budget claim.
 pub(super) fn limits_json() -> Value {
-    let l = dive_liveness::phase_graph::Limits::default();
+    limits_json_for(&dive_liveness::phase_graph::Limits::default())
+}
+pub(super) fn limits_json_for(l: &dive_liveness::phase_graph::Limits) -> Value {
     json!({
         "kind":"entry-and-work-counts", "aggregate_byte_budget":false,
         "capture":{"states":l.capture.states,"edges":l.capture.edges,"generated":l.capture.generated,"successors_per_unit":l.capture.successors_per_unit,"maximum_concurrent_sources":dive_check::capture::MAX_EXPANSION_UNITS},

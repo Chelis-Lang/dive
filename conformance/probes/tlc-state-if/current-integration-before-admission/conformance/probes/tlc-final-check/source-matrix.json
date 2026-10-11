@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
+  "scope": "Current focused API/CLI final-only controls and admission; original30 reference/120 native producer outcomes retain frozen historical-before-cli source and are not new broad-corpus evidence. Ordinary periodic checking and unverified errors receive no coverage.",
+  "source_sha256": {
+    "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
+    "crates/dive-liveness/src/tlc_scc.rs": "2a3386de8d846ce025b3f65d529be7b0c8501908a583cb8b67d8e8a87ba8f77e",
+    "crates/dive-liveness/src/tlc_witness.rs": "ece2eac8aa955ee0af5938bc3912c59851b166d9af2fdbf73fe995e3c30f84b5",
+    "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
+    "crates/dive-liveness/src/phase_execution.rs": "41c538f9a50c59bd83c0e02b18f579b43b131f87d90dbf4c8905cf0e7f905a51",
+    "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
+    "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
+    "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
+    "crates/dive-api/src/lib.rs": "7e1e90f04ac38eba01a13c0a26a603f4a7c14090a3383148f01458580fcaa6ed",
+    "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "263c5d553c2f45552a299b9da48375b9870b9cbc6865b2dd20fd8f1952d67a29",
+    "crates/dive-api/tests/tlc_temporal.rs": "04e589a6f4f40b8b43d0a80bc3a9e3ddb298dc37d6fd89ee83dabcdd38d74fd2",
+    "scripts/check-tlc-final.py": "6a543eca4ca83b62176e68072968ad155f3a86b52a057ff9f3d32e7082f496d3",
+    "docs/tlc-final-api.md": "e2654d58098f95ecc6216c5b3dec69d83285d71107e35db72726903ea2161a7a",
+    "docs/decisions/0040-pinned-final-scc-and-witness.md": "9850a8631ebe10981274db742171518a371b8c013b660825cd13bc264e3fc1fd",
+    "crates/dive-api/src/check.rs": "322b89128c1b44990e3396faeb7ff6056704c31f30f31530a595c08f3e843e3e",
+    "crates/dive-api/src/check_tlc_temporal.rs": "27d670e05f77b00b0a6725ae65bba7c7da1a77d525ba7ca1779246f1655852a2",
+    "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
+    "crates/dive-cli/tests/cli.rs": "5bd7ed87e105c35b3e72ae83793c84794deb34ae83e6bcd5ff58feeade1c353a",
+    "crates/dive-conformance/src/dive.rs": "8ad9f02117015c110e67f00636f81fd66f8f7956203444266c3fe6d80528dfb8",
+    "crates/dive-conformance/src/main.rs": "eca8d3f010fc3ecd0727a9d74d2029f1b6936bee7b3949d5556f9bf98146792a",
+    "crates/dive-conformance/src/pipeline.rs": "6dbb5f33b668a81df2965f5ac6876072378d593e728b7c10a3da9aca607760a4",
+    "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
+    "crates/dive-api/tests/tlc_final_safety.rs": "a97c26810bac5d0bf6340ac85fee3ca0b6623cd73926638d2e75e827fe37d9c1"
+  },
+  "artifact_sha256": {
+    "capture.json": "94865d795a2bf6e6af38f9f987fc97528c959d8d42ef4bbe7d073214885816e2",
+    "selection.json": "38084924bd532f82d83592f66f719775a6facdcda9782df217504ec8fe5d049f",
+    "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
+  },
+  "current_integration_scope": "Current bounded safety-only route with producer-retained actual caller Limits and focused controls. Exact before-limits successful 865-test source/gate, original producer observations and all-refusal studies remain separate historical evidence; no retagged run or general temporal certification."
+}

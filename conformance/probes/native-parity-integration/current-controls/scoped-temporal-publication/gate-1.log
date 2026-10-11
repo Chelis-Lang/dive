@@ -1,0 +1,11 @@
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-trace)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-sim)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-api)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-conformance)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-cli)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-bench)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-temporal-if-publication-work/crates/dive-eval)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 38.73s

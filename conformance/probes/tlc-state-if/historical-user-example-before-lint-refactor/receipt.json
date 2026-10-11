@@ -1,0 +1,12 @@
+{
+  "source_sha256": "4dc09dd786d79f540c107b3d32b2d33d84c355a0bc7dd7d7ad17aa28e5aaf6da",
+  "binary_sha256": "23aee10c32647c30ea4677fdd1508388ad58e4e0787615a434162ef97c7f45fb",
+  "compile_exit": 0,
+  "run_exit": 0,
+  "files": {
+    "stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

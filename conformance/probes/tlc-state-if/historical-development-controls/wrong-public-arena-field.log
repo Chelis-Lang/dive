@@ -1,0 +1,27 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-api)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 48.83s
+     Running tests/tlc_state_if.rs (/Users/jeff/code/dive-final-state-if-target/debug/deps/tlc_state_if-a458a3fe85c49944)
+
+running 4 tests
+test unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations ... FAILED
+test conditional_planning_errors_remain_before_any_graph_or_workers ... ok
+test conditional_effects_dynamic_captures_and_limits_never_gain_proof ... ok
+test pure_if_final_words_counts_and_all_independent_mutations ... ok
+
+failures:
+
+---- unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations stdout ----
+
+thread 'unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations' (110434422) panicked at /Users/jeff/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/index.rs:78:18:
+cannot access index 5 of JSON null
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.50s
+
+error: test failed, to rerun pass `-p dive-api --test tlc_state_if`

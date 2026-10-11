@@ -1,0 +1,46 @@
+properties	Live
+temporal_role_names	Live
+configured_properties	Live
+before	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNConj:-1;r.0.0.0.0:4:LNEven:-1;r.0.0.0.0.0:5:LNStateAST:0;r.0.0.0.1:6:LNEven:-1;r.0.0.0.1.0:7:LNStateAST:0;r.0.0.1:8:LNConj:-1;r.0.0.1.0:9:LNNeg:-1;r.0.0.1.0.0:4:LNEven:-1;r.0.0.1.0.0.0:5:LNStateAST:0;r.0.0.1.1:10:LNEven:-1;r.0.0.1.1.0:11:LNStateAST:0
+tag_count	4
+tagged_ids	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNConj:-1;r.0.0.0.0:4:LNEven:-1;r.0.0.0.0.0:5:LNStateAST:3;r.0.0.0.1:6:LNEven:-1;r.0.0.0.1.0:7:LNStateAST:2;r.0.0.1:8:LNConj:-1;r.0.0.1.0:9:LNNeg:-1;r.0.0.1.0.0:4:LNEven:-1;r.0.0.1.0.0.0:5:LNStateAST:3;r.0.0.1.1:10:LNEven:-1;r.0.0.1.1.0:11:LNStateAST:4
+tagged	N(G(D(C(E(s3),E(s2)),C(N(E(s3)),E(s4)))))
+pushed	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))))
+simplified	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))))
+dnf	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))))
+groups	1
+g0.temporal	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))))
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	
+actual.groups	1
+actual.g0.state	
+actual.g0.action	
+actual.g0.p0	AEAction=|AEState=|EAAction=
+actual.g0.promises	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));E(s3)
+actual.g0.tableauNodes	12
+actual.g0.initial_count	6
+actual.g0.n0.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))));D(G(N(s3)),G(N(s2)));D(E(s3),G(N(s4)));G(N(s3));N(s3);X(G(N(s3)));E(s3);X(E(s3))
+actual.g0.n0.next	6
+actual.g0.n1.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))));D(G(N(s3)),G(N(s2)));D(E(s3),G(N(s4)));G(N(s3));N(s3);X(G(N(s3)));G(N(s4));N(s4);X(G(N(s4)))
+actual.g0.n1.next	7
+actual.g0.n2.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))));D(G(N(s3)),G(N(s2)));D(E(s3),G(N(s4)));G(N(s2));N(s2);X(G(N(s2)));E(s3);s3
+actual.g0.n2.next	8
+actual.g0.n3.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))));D(G(N(s3)),G(N(s2)));D(E(s3),G(N(s4)));G(N(s2));N(s2);X(G(N(s2)));E(s3);X(E(s3))
+actual.g0.n3.next	9,10
+actual.g0.n4.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))));D(G(N(s3)),G(N(s2)));D(E(s3),G(N(s4)));G(N(s2));N(s2);X(G(N(s2)));G(N(s4));N(s4);X(G(N(s4)))
+actual.g0.n4.next	11
+actual.g0.n5.particle	E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4)))));X(E(C(D(G(N(s3)),G(N(s2))),D(E(s3),G(N(s4))))))
+actual.g0.n5.next	0,1,2,3,4,5
+actual.g0.n6.particle	G(N(s3));E(s3);N(s3);X(G(N(s3)));X(E(s3))
+actual.g0.n6.next	6
+actual.g0.n7.particle	G(N(s3));G(N(s4));N(s3);X(G(N(s3)));N(s4);X(G(N(s4)))
+actual.g0.n7.next	7
+actual.g0.n8.particle	G(N(s2));N(s2);X(G(N(s2)))
+actual.g0.n8.next	8
+actual.g0.n9.particle	G(N(s2));E(s3);N(s2);X(G(N(s2)));s3
+actual.g0.n9.next	8
+actual.g0.n10.particle	G(N(s2));E(s3);N(s2);X(G(N(s2)));X(E(s3))
+actual.g0.n10.next	9,10
+actual.g0.n11.particle	G(N(s2));G(N(s4));N(s2);X(G(N(s2)));N(s4);X(G(N(s4)))
+actual.g0.n11.next	11

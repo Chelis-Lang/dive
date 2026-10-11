@@ -1,0 +1,29 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.326s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 5.002s
+
+OK
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.131s
+
+OK
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+verified all 36 pinned direct controls, compiler failure and native before observations
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+verified all26 execution rows:15 completed graph fields,3 no-OOS boundaries,8 retained failures;8 clean TLC precedence controls and preserved producer histories; no strict verdict claim
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes
+verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-temporal-if-final-work/scripts/check-native-parity-integration.py", line 34, in <module>
+    assert sha((ROOT / name).read_bytes()) == digest, name
+AssertionError: conformance/probes/native-checkpoint/current-integration-source.json

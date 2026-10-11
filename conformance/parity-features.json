@@ -126,7 +126,13 @@
       "evidence_updates": [
         "Pure bounded captured-filter/map contexts have focused paired controls; opaque, effectful, infinite and recursive scoped functions remain unsupported. No full family certification."
       ],
-      "evidence_scope": "Retained temporal expression arguments have focused paired and independent-word evidence. Recursive/exported INSTANCE/operator gaps remain open."
+      "evidence_scope": "Retained temporal expression arguments have focused paired and independent-word evidence. Recursive/exported INSTANCE/operator gaps remain open.",
+      "notes": " Pure state IF final admission delegates to corrected shared planner authority (#168); selected scoped/particle/error/closing controls and prior refusals do not certify the family or ordinary periodic scheduling. Scoped final #134 controls distinguish original configured claims from exact derived LET/formal/INSTANCE names; reference expanded Action vector remains unclaimed. Cardinality-one DNF exact-shape repair, fresh independent witnesses and selected periodic words do not certify ordinary scheduling/full families.",
+      "conformance_evidence_paths": [
+        "conformance/probes/tlc-final-scopes/README.md",
+        "docs/tlc-final-scopes.md",
+        "crates/dive-api/tests/tlc_final_scopes.rs"
+      ]
     },
     {
       "id": "F-007",
@@ -419,7 +425,10 @@
         "crates/dive-api/tests/temporal_forwarding.rs",
         "conformance/probes/tlc-planning/README.md",
         "crates/dive-liveness/tests/tlc_planning.rs",
-        "conformance/probes/state-if-planning/README.md"
+        "conformance/probes/state-if-planning/README.md",
+        "conformance/probes/tlc-final-safety/README.md",
+        "crates/dive-api/tests/tlc_final_safety.rs",
+        "conformance/studies/tlc-final-safety-current/full-small-study/README.md"
       ],
       "evidence_scope": "crates/dive-liveness/tests/planning.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -427,9 +436,14 @@
       ],
       "conformance_evidence_paths": [
         "conformance/probes/tlc-tableau/README.md",
-        "crates/dive-liveness/tests/tlc_tableau.rs"
+        "crates/dive-liveness/tests/tlc_tableau.rs",
+        "conformance/probes/tlc-temporal-if-final/README.md",
+        "docs/tlc-temporal-if.md",
+        "conformance/probes/tlc-final-scopes/README.md",
+        "docs/tlc-final-scopes.md",
+        "crates/dive-api/tests/tlc_final_scopes.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Conditional conversion now preserves deciding2179/2215 and call fallback on24 pinned controls. Successful phase-L IF admission and full source conversion remain partial; no strict verdict credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Conditional conversion now preserves deciding2179/2215 and call fallback on24 pinned controls. Successful phase-L IF admission and full source conversion remain partial; no strict verdict credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Final/TLC models with no implied temporal obligations route actual bounded ordinary safety; no product/tableau/SCC certificate or family credit. Complete old small-model all-refusal studies remain historical. Counts/limits/route are source-qualified and finite witnesses independently replayed. A fresh unchanged explicit final/TLC small census on frozen safety source 41c7 records 5 agree, 135 unsupported, 0 disagree, 138 actual native invocations and exit 0; five rows route bounded safety with no temporal product certificate. Earlier all-refusal and zero-native failed-launcher histories remain intact; family remains partial/audit-required. Pure state IF final admission delegates to corrected shared planner authority (#168); selected scoped/particle/error/closing controls and prior refusals do not certify the family or ordinary periodic scheduling. Bounded shared-IF guard tag identity now matches 20 complete diagnostic stage/tableau controls with 5,076 independent words (#170); five reference failures and early-stop rows remain uncredited. This earlier source-only slice did not admit runtime; subsequent direct-IF final controls extend admission without periodic/family certification.; issue170 direct temporal-IF final controls add exact shared tags/particles and independent witness evidence; forwarding/early sinks/ordinary schedules remain partial Scoped final #134 controls distinguish original configured claims from exact derived LET/formal/INSTANCE names; reference expanded Action vector remains unclaimed. Cardinality-one DNF exact-shape repair, fresh independent witnesses and selected periodic words do not certify ordinary scheduling/full families."
     },
     {
       "id": "F-020",
@@ -470,16 +484,24 @@
         "crates/dive-check/tests/capture.rs",
         "conformance/probes/tlc-phase-execution/README.md",
         "crates/dive-liveness/tests/phase_execution.rs",
-        "crates/dive-check/tests/observed.rs"
+        "crates/dive-check/tests/observed.rs",
+        "conformance/probes/tlc-final-safety/README.md",
+        "crates/dive-api/tests/tlc_final_safety.rs",
+        "conformance/studies/tlc-final-safety-current/full-small-study/README.md"
       ],
       "evidence_updates": [
         "Bounded TLC normalization and ordered pre-tableau groups have clean projection and independent scoped-word controls. Binary/tableau/promise identities and strict execution remain pending; no family certification."
       ],
       "conformance_evidence_paths": [
         "conformance/probes/tlc-tableau/README.md",
-        "crates/dive-liveness/tests/tlc_tableau.rs"
+        "crates/dive-liveness/tests/tlc_tableau.rs",
+        "conformance/probes/tlc-temporal-if-final/README.md",
+        "docs/tlc-temporal-if.md",
+        "conformance/probes/tlc-final-scopes/README.md",
+        "docs/tlc-final-scopes.md",
+        "crates/dive-api/tests/tlc_final_scopes.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Ordered live source commits now insert multiple OOS/tableau products and immediately re-enumerate newly discovered records whose concrete fingerprint is done; 15 complete pinned graph projections and all 11 noncompleted/no-OOS rows are retained. Independent periodic claim and closing-edge mutants pass. Exact SCC/lasso selection, accepting-sink witnesses, initial error replay, scheduling and strict integrated verdicts remain unproved; no certification credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Ordered live source commits now insert multiple OOS/tableau products and immediately re-enumerate newly discovered records whose concrete fingerprint is done; 15 complete pinned graph projections and all 11 noncompleted/no-OOS rows are retained. Independent periodic claim and closing-edge mutants pass. Exact SCC/lasso selection, accepting-sink witnesses, initial error replay, scheduling and strict integrated verdicts remain unproved; no certification credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Final/TLC models with no implied temporal obligations route actual bounded ordinary safety; no product/tableau/SCC certificate or family credit. Complete old small-model all-refusal studies remain historical. Counts/limits/route are source-qualified and finite witnesses independently replayed. A fresh unchanged explicit final/TLC small census on frozen safety source 41c7 records 5 agree, 135 unsupported, 0 disagree, 138 actual native invocations and exit 0; five rows route bounded safety with no temporal product certificate. Earlier all-refusal and zero-native failed-launcher histories remain intact; family remains partial/audit-required. Pure state IF final admission delegates to corrected shared planner authority (#168); selected scoped/particle/error/closing controls and prior refusals do not certify the family or ordinary periodic scheduling. Bounded shared-IF guard tag identity now matches 20 complete diagnostic stage/tableau controls with 5,076 independent words (#170); five reference failures and early-stop rows remain uncredited. This earlier source-only slice did not admit runtime; subsequent direct-IF final controls extend admission without periodic/family certification.; issue170 direct temporal-IF final controls add exact shared tags/particles and independent witness evidence; forwarding/early sinks/ordinary schedules remain partial Scoped final #134 controls distinguish original configured claims from exact derived LET/formal/INSTANCE names; reference expanded Action vector remains unclaimed. Cardinality-one DNF exact-shape repair, fresh independent witnesses and selected periodic words do not certify ordinary scheduling/full families."
     },
     {
       "id": "F-021",
@@ -516,7 +538,10 @@
         "crates/dive-check/tests/capture.rs",
         "conformance/probes/tlc-phase-execution/README.md",
         "crates/dive-liveness/tests/phase_execution.rs",
-        "crates/dive-check/tests/observed.rs"
+        "crates/dive-check/tests/observed.rs",
+        "conformance/probes/tlc-final-safety/README.md",
+        "crates/dive-api/tests/tlc_final_safety.rs",
+        "conformance/studies/tlc-final-safety-current/full-small-study/README.md"
       ],
       "evidence_scope": "crates/dive-api/tests/temporal.rs; conformance/probes/temporal-forwarding/README.md; crates/dive-api/tests/temporal_forwarding.rs (retained temporal expressions only; recursive/exported INSTANCE/operator gaps remain)",
       "evidence_updates": [
@@ -524,9 +549,14 @@
       ],
       "conformance_evidence_paths": [
         "conformance/probes/tlc-tableau/README.md",
-        "crates/dive-liveness/tests/tlc_tableau.rs"
+        "crates/dive-liveness/tests/tlc_tableau.rs",
+        "conformance/probes/tlc-temporal-if-final/README.md",
+        "docs/tlc-temporal-if.md",
+        "conformance/probes/tlc-final-scopes/README.md",
+        "docs/tlc-final-scopes.md",
+        "crates/dive-api/tests/tlc_final_scopes.rs"
       ],
-      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Ordered live source commits now insert multiple OOS/tableau products and immediately re-enumerate newly discovered records whose concrete fingerprint is done; 15 complete pinned graph projections and all 11 noncompleted/no-OOS rows are retained. Independent periodic claim and closing-edge mutants pass. Exact SCC/lasso selection, accepting-sink witnesses, initial error replay, scheduling and strict integrated verdicts remain unproved; no certification credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged."
+      "notes": " Bounded particle/tableau numbering and promise projection matches the pinned construction; this is diagnostic metadata only, with strict phase-L, SCC, witness choice and scheduling still pending. Bounded inline diagnostic phase-L receipts have graph_insertion=false and no model-proof credit; initial consistency is separate. Dynamic graph/product insertion, actual parallel commits and scheduling remain open; original IF/body-first gaps #147/#149 are retained. One null-tableau OOS now commits actual native graph nodes from original concrete rows expanded through the true pool, with twelve completed pinned field projections and every selected failure retained. Complete capture before bins is not strict temporal stopping/selection/scheduling proof; multiple OOS/dynamic tableau and SCC/lasso integration remain pending under #140. Ordered live source commits now insert multiple OOS/tableau products and immediately re-enumerate newly discovered records whose concrete fingerprint is done; 15 complete pinned graph projections and all 11 noncompleted/no-OOS rows are retained. Independent periodic claim and closing-edge mutants pass. Exact SCC/lasso selection, accepting-sink witnesses, initial error replay, scheduling and strict integrated verdicts remain unproved; no certification credit. Bounded explicit final-only TLC fingerprint SCC/greedy-witness mode and separate schema-2 CLI/harness retain configured identity, independent replay and all source/control failures. Ordinary periodic/scheduled checking, exact temporal proof and unverified errors receive no credit; family status stays unchanged. Final/TLC models with no implied temporal obligations route actual bounded ordinary safety; no product/tableau/SCC certificate or family credit. Complete old small-model all-refusal studies remain historical. Counts/limits/route are source-qualified and finite witnesses independently replayed. A fresh unchanged explicit final/TLC small census on frozen safety source 41c7 records 5 agree, 135 unsupported, 0 disagree, 138 actual native invocations and exit 0; five rows route bounded safety with no temporal product certificate. Earlier all-refusal and zero-native failed-launcher histories remain intact; family remains partial/audit-required. Pure state IF final admission delegates to corrected shared planner authority (#168); selected scoped/particle/error/closing controls and prior refusals do not certify the family or ordinary periodic scheduling. Bounded shared-IF guard tag identity now matches 20 complete diagnostic stage/tableau controls with 5,076 independent words (#170); five reference failures and early-stop rows remain uncredited. This earlier source-only slice did not admit runtime; subsequent direct-IF final controls extend admission without periodic/family certification.; issue170 direct temporal-IF final controls add exact shared tags/particles and independent witness evidence; forwarding/early sinks/ordinary schedules remain partial Scoped final #134 controls distinguish original configured claims from exact derived LET/formal/INSTANCE names; reference expanded Action vector remains unclaimed. Cardinality-one DNF exact-shape repair, fresh independent witnesses and selected periodic words do not certify ordinary scheduling/full families."
     },
     {
       "id": "F-022",

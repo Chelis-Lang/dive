@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "base_commit": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "scope": "current bounded direct IF final admission and original configured/derived identities, no ordinary periodic/full-family certification",
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "00820e3299de74c702e4ee6ed380d955a1930b012f3d0b67954adce2f82bcc33",
+    "crates/dive-liveness/src/phase_l.rs": "0f7bfb58ac387ecfb68a751666ec10c6312c9a046628b0a7c13ac2a30521fa87",
+    "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
+    "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
+    "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
+    "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
+    "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
+    "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
+    "scripts/check-tlc-temporal-if-final.py": "1891aadc28b2436c3cd8bd774d7906068cb6cff00144ca0ec2147489f9e6eb37",
+    "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
+    "docs/tlc-temporal-if.md": "ed8caa805ea90dae2ab225a8059bbf18cb5ee9561ff03cd0ee2261f95bda4b6b",
+    "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
+    "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
+    "docs/user/temporal.md": "a7337a83aa488bcb78de5fd81f797a15ba64bf3733705acf3c075e56c8ea9a12",
+    "docs/provenance.md": "b83b8430d8c45074edca326e9f99dc6016688e6777e47048dfe37a83e07e03e7",
+    "docs/divergences.md": "d8d787a213057c82e3acefe019ebe1021d6055dcdb6f1e8ec00c4ad0229f2952",
+    "docs/tlc-differences.md": "20f07b2cf803dadb5b40feb48fee0b1ef80c1878ed462ebf8a8740b55a477044",
+    "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
+    "conformance/parity-features.json": "18f3284bc70f3907c5c6e22afed98d30b9e9715010dfc4c366469223eeace224"
+  }
+}

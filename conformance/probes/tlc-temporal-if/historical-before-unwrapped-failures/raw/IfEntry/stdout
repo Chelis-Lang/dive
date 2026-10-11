@@ -1,0 +1,28 @@
+properties	Live
+temporal_role_names	Live
+configured_properties	Live
+before	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNNeg:-1;r.0.0.0.0:4:LNStateAST:0;r.0.0.1:5:LNEven:-1;r.0.0.1.0:6:LNStateAST:0
+tag_count	2
+tagged_ids	r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNDisj:-1;r.0.0.0:3:LNNeg:-1;r.0.0.0.0:4:LNStateAST:1;r.0.0.1:5:LNEven:-1;r.0.0.1.0:6:LNStateAST:2
+tagged	N(G(D(N(s1),E(s2))))
+pushed	E(C(s1,G(N(s2))))
+simplified	E(C(s1,G(N(s2))))
+dnf	E(C(s1,G(N(s2))))
+groups	1
+g0.temporal	E(C(s1,G(N(s2))))
+g0.p0	AEAction=|AEState=|EAAction=
+g0.state	
+g0.action	
+actual.groups	1
+actual.g0.state	
+actual.g0.action	
+actual.g0.p0	AEAction=|AEState=|EAAction=
+actual.g0.promises	E(C(s1,G(N(s2))))
+actual.g0.tableauNodes	3
+actual.g0.initial_count	2
+actual.g0.n0.particle	E(C(s1,G(N(s2))));C(s1,G(N(s2)));s1;G(N(s2));N(s2);X(G(N(s2)))
+actual.g0.n0.next	2
+actual.g0.n1.particle	E(C(s1,G(N(s2))));X(E(C(s1,G(N(s2)))))
+actual.g0.n1.next	0,1
+actual.g0.n2.particle	G(N(s2));N(s2);X(G(N(s2)))
+actual.g0.n2.next	2

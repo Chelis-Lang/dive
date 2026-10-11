@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "issue170 previously blanket-refused unused direct temporal IF: clean pinned violation with unchanged arena bounds",
+  "timestamp": "2026-10-10T22:58:56.021807+00:00",
+  "selection_sha256": "68dc4952ef3d88480a0ca155d3458590f257c819cc4a7b90d7a615409e1f37a2",
+  "source_sha256": "1e488bd5571bc0b7f0006f5c456f8fe53fd410b524369c2b52ddafca19d2bf99",
+  "flags": {
+    "workers": 1,
+    "seed": 0,
+    "fp": 0,
+    "lncheck": "final"
+  },
+  "rows": [
+    {
+      "name": "TiUnused",
+      "exit": 13,
+      "timeout": false,
+      "message_codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2212,
+        2189,
+        2190,
+        2200,
+        2192,
+        2116,
+        2264,
+        2217,
+        2218,
+        2257,
+        2267,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "stdout_sha256": "f9bcad87343e3fa0e1222a5f4d78b814902023422606fbc10515e39a192a1731",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "model_source_sha256": {
+        "models/TiUnused/TiUnused.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/TiUnused/TiUnused.tla": "aaa53e6b18ffc6ff2012c76c00d0390ebe76729521c8e3ea8ff34ca15a6891f5"
+      }
+    }
+  ]
+}

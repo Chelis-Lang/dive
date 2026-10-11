@@ -1,0 +1,12 @@
+{
+  "source_and_binaries_unchanged": true,
+  "harness_exit": 1,
+  "elapsed_seconds": 22.296762958000002,
+  "artifact_sha256": {
+    "before.json": "101cde81bf1eac5c0fc2e8d66b4caebf2caaead4196b1c9992da175d1347f945",
+    "capture-cli.py": "28cc43d013a4f4422d0c4b8b420966354b103bcd8f6f37c736784b6696058ee6",
+    "reports/20261010T230855287-dive-final-tlc-small.json": "d77422cc81756cfe10d21c3ba9eda113ca3c440c5c46559cc3666c0e7f5b570b",
+    "run.log": "24351b2ada3a73d3d6c21897efb136a0cfdf91b4234f0d6f1ec358d4bfd00e59",
+    "run.py": "e0a78056081e96df0a027f3c0f1d23bb514b87d8fc21d9c53f66a26313dee520"
+  }
+}

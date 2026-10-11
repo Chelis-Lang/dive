@@ -1,0 +1,32 @@
+groups	1
+action_names	Live
+role_names	Live
+configured_names	Live
+g0.state_bins	0
+g0.action_bins	0
+g0.tableau	true
+initial.log	g0.n0.c0:true;g0.n0.c1:false;g0.n1.c0:true;g0.n1.c1:true;g0.n1.c2:true;g0.n2.c0:true;g0.n2.c1:true;g0.n2.c2:true
+initial.g0.roots	15040402659625261443:1;15040402659625261443:2;15040402659625261443:3
+initial.g0.records.15040402659625261443	1:false;2:false;3:false
+initial.g0.record_order.15040402659625261443	1;2;3
+source.0.fp	15040402659625261443
+source.0.incoming	0:17760107650593637555
+source.0.capacity	16
+source.0.log	g0.n0.c0:true;g0.n0.c1:true;g0.n0.c2:true;g0.n0.c0:true;g0.n0.c1:false;g0.n1.c0:true;g0.n1.c1:false;g0.n1.c0:true;g0.n1.c1:true;g0.n1.c2:true;g0.n2.c0:true;g0.n2.c1:false;g0.n2.c0:true;g0.n2.c1:true;g0.n2.c2:true;g0.n5.c0:false;g0.n5.c0:true;g0.n5.c0:true;g0.n5.c0:false
+source.0.g0.roots	15040402659625261443:1;15040402659625261443:2;15040402659625261443:3
+source.0.g0.node.15040402659625261443.1.states	
+source.0.g0.node.15040402659625261443.1.transitions	15040402659625261443:5:
+source.0.g0.node.15040402659625261443.2.states	
+source.0.g0.node.15040402659625261443.2.transitions	15040402659625261443:5:
+source.0.g0.node.15040402659625261443.3.states	
+source.0.g0.node.15040402659625261443.3.transitions	17760107650593637555:0:;17760107650593637555:3:;15040402659625261443:1:;15040402659625261443:2:;15040402659625261443:3:
+source.0.g0.node.15040402659625261443.5.states	
+source.0.g0.node.15040402659625261443.5.transitions	15040402659625261443:5:
+source.0.g0.records.15040402659625261443	1:true;2:true;3:true;5:true
+source.0.g0.record_order.15040402659625261443	1;2;3;5
+source.0.g0.records.17760107650593637555	0:false;3:false
+source.0.g0.record_order.17760107650593637555	0;3
+source.0.next_multiplier	1
+source.1.fp	17760107650593637555
+source.1.incoming	0:11330885170241725411
+source.1.capacity	16

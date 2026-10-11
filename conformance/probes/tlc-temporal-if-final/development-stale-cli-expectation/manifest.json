@@ -1,0 +1,10 @@
+{
+  "scope": "Unchanged full915 gate:914 pass, one stale CLI IfTableau refusal expectation fails against correctly validated pinned2116/exit13; exact before source preserved",
+  "files": {
+    "build-inputs.json": "ae7add1da4f5a9faf335a2ed2adeb32ce5588cfe9ff98b5b2f2a6a5572ea9c9d",
+    "build-related-source.tar.gz": "f61c4f33e13e9b76cbce109ed342ffb3e411b55e3016961b08aacec8e7b0947b",
+    "workspace-gate.log": "ea4414541a12d95455bd9fb9eb45af092e7cced414c70e49086460922057ef2f",
+    "source-matrix.json": "410ef8a51feb513506ae48e8d3fc57e715640f70ae15de103656800a1206e90b",
+    "cli.rs": "2bdea6bf0c5cb5480d9fa8c42421dfb9fd8e0292c6053a02de2e9c48d27ddb5a"
+  }
+}

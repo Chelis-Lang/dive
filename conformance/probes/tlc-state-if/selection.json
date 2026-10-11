@@ -1,0 +1,62 @@
+[
+  {
+    "name": "IfStateViolation",
+    "model": "IfStateViolation"
+  },
+  {
+    "name": "IfStateHold",
+    "model": "IfStateHold"
+  },
+  {
+    "name": "IfNested",
+    "model": "IfNested"
+  },
+  {
+    "name": "IfLocalArg",
+    "model": "IfLocalArg"
+  },
+  {
+    "name": "IfLet",
+    "model": "IfLet"
+  },
+  {
+    "name": "IfInstance",
+    "model": "IfInstance"
+  },
+  {
+    "name": "IfMulti",
+    "model": "IfMulti"
+  },
+  {
+    "name": "IfAction",
+    "model": "IfAction"
+  },
+  {
+    "name": "IfStateError",
+    "model": "IfStateError"
+  },
+  {
+    "name": "IfCallError",
+    "model": "IfCallError"
+  },
+  {
+    "name": "IfNonBool",
+    "model": "IfNonBool"
+  },
+  {
+    "name": "IfElseError",
+    "model": "IfElseError"
+  },
+  {
+    "name": "IfHoldTrue",
+    "model": "IfHoldTrue"
+  },
+  {
+    "name": "IfTableau",
+    "model": "IfTableau"
+  },
+  {
+    "name": "IfEntry",
+    "model": "IfEntry"
+  }
+]

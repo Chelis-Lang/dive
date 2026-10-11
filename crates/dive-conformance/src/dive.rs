@@ -586,6 +586,86 @@ fn final_document_shape(v: &Value) -> std::result::Result<(), String> {
     Ok(())
 }
 
+/// Validate report consistency only; `check_model` independently derives the
+/// actual route from fresh source/configuration binding before comparison credit.
+fn final_safety_shape(v: &Value) -> std::result::Result<(), String> {
+    let e = &v["execution"];
+    if e["route"] != "bounded-safety-only" {
+        return Ok(());
+    }
+    if !matches!(
+        e["stage"].as_str(),
+        Some("safety" | "independent-validation")
+    ) || e["temporal_obligations"] != 0
+        || e["temporal_certificate"] != false
+        || e["product_constructed"] != false
+        || v["verdict"] == "liveness-violation"
+        || (v["verdict"] == "success" && e["capture_completed"] != true)
+        || (v["verdict"] != "success" && e["capture_completed"] != false)
+    {
+        return Err("contradictory bounded safety-only route/proof/completion claims".into());
+    }
+    if v["verdict"] == "success" {
+        let bounds = &v["options"]["temporal_bounds"]["capture"];
+        for (stat, ceiling) in [("distinct", "states"), ("generated", "generated")] {
+            let value = v["statistics"][stat]
+                .as_u64()
+                .ok_or("missing completed safety count")?;
+            let cap = bounds[ceiling]
+                .as_u64()
+                .ok_or("missing completed safety ceiling")?;
+            if cap == 0 || value > cap {
+                return Err("completed safety count exceeds declared capture ceiling".into());
+            }
+        }
+        if v["statistics"]["left_on_queue"] != 0 {
+            return Err("completed safety search retains pending frontier states".into());
+        }
+    }
+    if matches!(
+        v["verdict"].as_str(),
+        Some(
+            "invariant-violation" | "property-violation" | "action-property-violation" | "deadlock"
+        )
+    ) {
+        let cx = &v["counterexample"];
+        let doc = dive_api::trace::TraceDoc::from_json(&cx["trace"])?;
+        let expected = match v["verdict"].as_str() {
+            Some("invariant-violation") => dive_api::trace::Ending::Invariant(
+                v["property"]
+                    .as_str()
+                    .ok_or("missing invariant identity")?
+                    .into(),
+            ),
+            Some("property-violation" | "action-property-violation") => {
+                dive_api::trace::Ending::Property(
+                    v["property"]
+                        .as_str()
+                        .ok_or("missing property identity")?
+                        .into(),
+                )
+            }
+            _ => dive_api::trace::Ending::Deadlock,
+        };
+        if cx["ending"] != "finite"
+            || doc.ending != Some(expected)
+            || doc.states.is_empty()
+            || cx["length"].as_u64() != Some(doc.states.len() as u64)
+            || doc.length != Some(doc.states.len())
+            || !doc.properties.is_empty()
+            || cx["states"].as_array().is_none_or(|s| {
+                s.len() != doc.states.len()
+                    || s.iter()
+                        .zip(&doc.states)
+                        .any(|(row, state)| row["values"] != serde_json::json!(state))
+            })
+        {
+            return Err("finite safety witness contradicts verdict/property/ending/rows".into());
+        }
+    }
+    Ok(())
+}
+
 /// Maps only the explicitly selected final-only schema-2 TLC mode. The result's
 /// own validation flag is never independent authority; the harness rebinds/replays.
 #[must_use]
@@ -643,7 +723,11 @@ fn map_check_result(outcome: &ProcessOutcome, tlc_profile: bool, final_tlc: bool
                 "final-only report does not declare the requested TLC mode/profile".into(),
             );
         }
+        if let Err(reason) = final_safety_shape(&v) {
+            return unclassified(outcome.exit_code, reason);
+        }
         match v["verdict"].as_str() {
+            Some("success") if v["execution"]["route"] == "bounded-safety-only" => {}
             Some("success" | "liveness-violation")
                 if v["execution"]["stage"] != "complete"
                     || v["execution"]["capture_completed"] != true =>
@@ -974,6 +1058,32 @@ impl Implementation for DiveImplementation {
             ));
         }
         let (command, outcome) = self.run_model(req, false)?;
+        if self.final_tlc {
+            let report: Option<Value> = serde_json::from_str(outcome.stdout.trim()).ok();
+            if report
+                .as_ref()
+                .is_some_and(|v| v["execution"]["route"] == "bounded-safety-only")
+            {
+                let paths: Vec<PathBuf> = self.module_path.iter().map(|e| e.path.clone()).collect();
+                match dive_api::tlc_temporal::safety_route_file(
+                    &req.corpus_root.join(&req.model.module),
+                    &req.corpus_root.join(&req.model.id),
+                    &paths,
+                ) {
+                    Ok(true) => {}
+                    Ok(false) => return Ok(ImplResult::Completed {
+                        result: bare(Verdict::Unclassified, outcome.exit_code,
+                            "independent source binding contradicts claimed empty temporal obligations".into()),
+                        command, elapsed: outcome.elapsed,
+                    }),
+                    Err(reason) => {
+                        return Ok(ImplResult::Unsupported(format!(
+                            "independent final safety route admission: {reason}"
+                        )));
+                    }
+                }
+            }
+        }
         Ok(
             match if self.final_tlc {
                 check_final_result(&outcome)
@@ -1343,5 +1453,64 @@ mod tests {
             matches!(check_final_result(&outcome(13,&flagged.to_string())),CheckMapping::Result(r) if r.verdict == Verdict::LivenessViolation)
         );
         Ok(())
+    }
+    #[test]
+    fn safety_route_fakes_cannot_claim_temporal_proof_or_bounded_completion() {
+        let valid = serde_json::json!({
+            "schema_version":2,"command":"check","verdict":"success",
+            "options":{"profile":"tlc","lncheck":"final","lasso":"tlc",
+                "temporal_scope":"bounded-final-only","ordinary_temporal_schedule_supported":false,
+                "int":"tlc","choose_order":"tlc","explore_order":"tlc","comparisons":"tlc",
+                "store":"fingerprint","fingerprint":{"scheme":"tlc"},"workers":{"used":4},
+                "temporal_bounds":{"capture":{"states":3,"generated":10}}},
+            "execution":{"stage":"safety","route":"bounded-safety-only","capture_completed":true,
+                "temporal_obligations":0,"temporal_certificate":false,"product_constructed":false},
+            "statistics":{"generated":4,"distinct":3,"left_on_queue":0,"depth":3,"initial_generated":1,"reported_by_tlc":true},
+            "tlc":{"code":2193,"exit_status":0,"verified":true}
+        });
+        assert!(
+            matches!(check_final_result(&outcome(0,&valid.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::Success)
+        );
+        for (path, value) in [
+            (
+                vec!["execution", "temporal_obligations"],
+                serde_json::json!(1),
+            ),
+            (
+                vec!["execution", "temporal_certificate"],
+                serde_json::json!(true),
+            ),
+            (
+                vec!["execution", "product_constructed"],
+                serde_json::json!(true),
+            ),
+            (
+                vec!["execution", "capture_completed"],
+                serde_json::json!(false),
+            ),
+            (vec!["statistics", "distinct"], serde_json::json!(4)),
+            (vec!["statistics", "generated"], serde_json::json!(11)),
+            (vec!["statistics", "left_on_queue"], serde_json::json!(1)),
+            (
+                vec!["options", "temporal_bounds", "capture", "states"],
+                serde_json::Value::Null,
+            ),
+        ] {
+            let mut fake = valid.clone();
+            let mut leaf = &mut fake;
+            for key in path {
+                leaf = &mut leaf[key];
+            }
+            *leaf = value;
+            assert!(
+                !matches!(check_final_result(&outcome(0,&fake.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::Success),
+                "{fake}"
+            );
+        }
+        let mut fake = valid.clone();
+        fake["verdict"] = serde_json::json!("liveness-violation");
+        assert!(
+            !matches!(check_final_result(&outcome(13,&fake.to_string())),CheckMapping::Result(r) if r.verdict==Verdict::LivenessViolation)
+        );
     }
 }

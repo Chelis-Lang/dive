@@ -16,6 +16,9 @@ use dive_model::{BindOptions, Model};
 use dive_trace::{Ending, Report as ValidationReport, Trace, TraceDoc, Validation};
 #[path = "tlc_temporal_admission.rs"]
 mod admission;
+#[path = "tlc_temporal_safety.rs"]
+mod safety_route;
+use safety_route::safety;
 
 use std::{
     sync::Arc,
@@ -49,11 +52,50 @@ impl Violation {
 /// Result restricted to supported final-only fingerprint temporal checking.
 #[derive(Clone, Debug)]
 pub enum Outcome {
+    /// No implied temporal obligation: actual bounded ordinary safety checking.
+    /// Its limits/refusals never certify completion; finite violations require
+    /// fresh independent in-memory and JSON replay before this value is returned.
+    Safety(Box<Safety>),
     /// No acceptance after all supported OOS/PEM checks on the constructed graph.
     /// The underlying fingerprint collision qualification remains applicable.
     Holds(Box<Evidence>),
     /// Exact pinned selected word independently validated twice.
     Violation(Box<Violation>),
+}
+/// Private-authority receipt for the safety-only route. The route is chosen
+/// from a freshly bound model with no implied temporal obligations, never from
+/// a caller-provided graph or report flag. No tableau/product/SCC is constructed.
+#[derive(Clone, Debug)]
+pub struct Safety {
+    limits: Limits,
+    result: Box<dive_check::CheckResult>,
+    validation: Option<ValidationReport>,
+    document: Option<TraceDoc>,
+}
+impl Safety {
+    /// Exact caller-supplied entry/work limits, retained by the producer.
+    /// Capture ceilings bound retained representatives, not aggregate heap bytes
+    /// or every stopping-state counter. Temporal product limits are unused on
+    /// this route; shared pre-binding and worker admission still apply.
+    #[must_use]
+    pub fn limits(&self) -> &Limits {
+        &self.limits
+    }
+    /// Actual engine verdict, prefix counts and workers, including resource stops.
+    #[must_use]
+    pub fn result(&self) -> &dive_check::CheckResult {
+        &self.result
+    }
+    /// Fresh independent JSON replay for a finite witness; absent without a witness.
+    #[must_use]
+    pub fn validation(&self) -> Option<&ValidationReport> {
+        self.validation.as_ref()
+    }
+    /// Independently replayed finite trace, if present.
+    #[must_use]
+    pub fn document(&self) -> Option<&TraceDoc> {
+        self.document.as_ref()
+    }
 }
 /// Explicit resolved final-only report; no ordinary strict CLI verdict claim.
 #[derive(Clone, Debug)]
@@ -109,6 +151,16 @@ pub enum Error {
         /// Actual independent replay failure.
         report: ValidationReport,
     },
+    /// Finite safety witness replay refused or invalid; actual engine evidence
+    /// remains available but earns no independently certified violation credit.
+    SafetyValidation {
+        /// Actual caller-supplied bounds retained through replay refusal.
+        limits: Box<Limits>,
+        /// Actual stopping outcome, not rewritten as a completed exploration.
+        result: Box<dive_check::CheckResult>,
+        /// Actual independent deciding replay report.
+        report: ValidationReport,
+    },
     /// Serialization could not construct a trace document.
     Document(String),
     /// A thread failure lost execution evidence; actual width is unknown.
@@ -124,7 +176,7 @@ impl Error {
             Self::Analysis(e) => e.error.code(),
             Self::Unsupported(_) => "DIVE-API-L010",
             Self::Binding(_) => "DIVE-API-L011",
-            Self::Validation { .. } => "DIVE-API-L012",
+            Self::Validation { .. } | Self::SafetyValidation { .. } => "DIVE-API-L012",
             Self::Document(_) => "DIVE-API-L013",
             Self::Thread(_) => "DIVE-API-L014",
         }
@@ -138,7 +190,7 @@ impl std::fmt::Display for Error {
             Self::Unsupported(s) => write!(f, "unsupported pinned final-only check: {s}"),
             Self::Binding(e) => write!(f, "final-only binding: {e:?}"),
             Self::Analysis(e) => e.error.fmt(f),
-            Self::Validation { report, .. } => write!(
+            Self::Validation { report, .. } | Self::SafetyValidation { report, .. } => write!(
                 f,
                 "independent final-only witness replay: {:?}",
                 report.validation
@@ -294,6 +346,9 @@ fn run(
     limits: Limits,
 ) -> Result<Outcome, Box<Failure>> {
     let model = admitted_model(ir, config, options, limits)?;
+    if model.implied_temporals.is_empty() {
+        return safety(ir, config, options, limits, &model).map(|r| Outcome::Safety(Box::new(r)));
+    }
     match tlc_final::check(&model, options, limits).map_err(|mut e| {
         Box::new(Failure {
             workers: e.workers.clone(),
@@ -412,4 +467,39 @@ pub fn check_final(
         options: options.clone(),
         elapsed: started.elapsed(),
     })
+}
+
+/// Independently derive whether a final-mode file can take the safety-only route.
+/// This performs fresh front-end/configuration and callback-free source admission
+/// before binding. A JSON route tag/property list supplies no authority. No
+/// exploration or temporal predicate is executed and no model proof is returned.
+///
+/// # Errors
+/// Input/loading/binding errors or this final mode's named admission restrictions.
+pub fn safety_route_file(
+    file: &std::path::Path,
+    config_file: &std::path::Path,
+    module_paths: &[std::path::PathBuf],
+) -> Result<bool, String> {
+    let analysis = crate::analyze_file(
+        file,
+        &crate::AnalyzeOptions {
+            after_standard: module_paths.to_vec(),
+            ..crate::AnalyzeOptions::default()
+        },
+    )
+    .map_err(|e| e.to_string())?;
+    if !analysis.accepted() {
+        return Err("final route source was rejected".into());
+    }
+    let ir = Arc::new(dive_ir::lower(analysis.analysis()).map_err(|e| e.to_string())?);
+    let bytes = std::fs::read(config_file).map_err(|e| e.to_string())?;
+    let (_, parsed) = dive_config::parse_bytes(&bytes);
+    let config = parsed
+        .into_config()
+        .ok_or("final route configuration was rejected")?;
+    let options = CheckOptions::tlc(0, 0);
+    let model =
+        admitted_model(&ir, &config, &options, Limits::default()).map_err(|e| e.to_string())?;
+    Ok(model.implied_temporals.is_empty())
 }

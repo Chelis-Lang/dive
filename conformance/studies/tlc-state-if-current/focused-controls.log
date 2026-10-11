@@ -1,0 +1,50 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-api)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-final-state-if-work/crates/dive-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 34.70s
+     Running tests/tlc_state_if.rs (/Users/jeff/code/dive-final-state-if-target/debug/deps/tlc_state_if-a458a3fe85c49944)
+
+running 4 tests
+test unused_and_forged_temporal_conditionals_cannot_hide_behind_annotations ... ok
+test conditional_planning_errors_remain_before_any_graph_or_workers ... ok
+test conditional_effects_dynamic_captures_and_limits_never_gain_proof ... ok
+test pure_if_final_words_counts_and_all_independent_mutations ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+
+     Running tests/cli.rs (/Users/jeff/code/dive-final-state-if-target/debug/deps/cli-7eb29837c83c467a)
+
+running 30 tests
+test analyze_accepts_and_reports_levels ... ok
+test analyze_rejects_with_codes_and_sany_cross_reference ... ok
+test check_refuses_and_rejects_with_distinct_codes ... ok
+test analyze_finds_modules_on_the_library_path ... ok
+test lsp_refuses_explicitly ... ok
+test check_reports_a_violation_with_each_profiles_exit_code ... ok
+test final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options ... ok
+test final_tlc_effects_are_refused_without_startup_output_or_proof ... ok
+test parse_accepts_a_valid_module ... ok
+test parse_missing_file_is_usage_error ... ok
+test parse_json_reports_diagnostics ... ok
+test parse_json_can_include_the_cst ... ok
+test frontier_spill_flags_and_directory_dependency ... ok
+test parse_refuses_embedded_configs ... ok
+test parse_reads_a_config ... ok
+test parse_reports_config_errors ... ok
+test parse_without_file_is_usage_error ... ok
+test explicit_final_tlc_mode_certifies_witnesses_and_reports_actual_execution ... ok
+test native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes ... ok
+test translate_process_storage_and_label_default_are_explicit ... ok
+test unknown_command_is_usage_error ... ok
+test simulate_is_a_seeded_finite_sample_and_refuses_unbuilt_modes ... ok
+test version_succeeds ... ok
+test translate_returns_an_admitted_module_without_rewriting_input ... ok
+test translate_label_options_preserve_files_and_default_configuration ... ok
+test validate_trace_checks_a_trace_against_the_spec ... ok
+test translate_process_fairness_is_explicit_and_never_a_proof ... ok
+test final_mode_safety_route_retains_actual_finite_verdicts_without_temporal_claims ... ok
+test bounded_final_temporal_check_reports_validated_lassos_and_mixed_profiles ... ok
+test pure_state_conditionals_are_certified_only_in_explicit_supported_final_mode ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+
