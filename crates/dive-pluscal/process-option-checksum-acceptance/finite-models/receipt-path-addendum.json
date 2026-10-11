@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "original_report_preserved": "finite-models/report.json",
+  "original_retained_generation_refusal_evidence": "baseline/report.json",
+  "actual_retained_source": "before-option-lift/report.json",
+  "qualified_note": "original report path was stale; original evidence and counts unchanged"
+}

@@ -109,3 +109,9 @@ singleton-UNCHANGED spelling rule: names longer than five UTF-16 units use
 five/six boundary and in branches. Default-initializer name conflicts retain
 their measured reference rejection and native named refusal; no scoped renaming
 is guessed. All earlier failed artifacts and gate producers remain archived.
+
+The next bounded option increment now also derives process Full CRCs with
+explicit fairness/automatic-label settings. See [the option guide](pluscal-process-checksum-options.md)
+for supported combinations, exact CLI/API distinctions, configured Validator
+evidence and the source-option-comment refusal. The original selection above
+remains its own immutable producer history.

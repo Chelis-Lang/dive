@@ -330,3 +330,10 @@ The source-backed singleton identity spelling additionally matches
 `UNCHANGED name` for Java UTF-16 length greater than five, equality otherwise.
 The original defaultInitValue whole-CST failure and length-five/six/branch
 controls remain retained. This is artifact fidelity, not a semantic divergence.
+
+### Process checksum option context
+
+| Implementation | Reference | License | Evidence and limits |
+| --- | --- | --- | --- |
+| Native process option AST checksum (`dive-pluscal/translate/checksum.rs`) | `pcal.ParseAlgorithm.getAlgorithm` 377–394 (declared fairness precedes wf/sf defaults), `InnerAddLabels`, `AST.Process.toString`, `AST.Multiprocess.toString`, `PcalTranslate.Explode`; pinned `94d0c50` | MIT | Exact native post-translation bytes/CRC on retained source/option pairs; generator fairness suppression remains separate, all unproved source-option contexts refuse |
+| Source-option preflight (`dive-pluscal/translate/mod.rs`) | `pcal.ParseAlgorithm.ProcessOptions`, `FindToken`; `pcal.trans.performTranslation`; `pcal.Validator.validate` | MIT | Conservative detection/refusal, not a port of option-comment parsing; retained original ignored-option wrong artifacts and configured/unconfigured primary evidence |

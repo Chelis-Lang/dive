@@ -138,3 +138,9 @@ Finite processes with declared fairness now have a separately proved Full
 serialization contract; see [runnable process examples](pluscal-process-checksums.md).
 Unproved process fairness/automatic-label options and scoped call/name contexts
 remain Full refusals. CRC equality is still neither integrity nor model proof.
+
+Bounded finite process Full serialization now accepts proved explicit fairness
+and automatic-label options; see [process checksum options](pluscal-process-checksum-options.md).
+It records the typed normalization context, refuses unproved in-source option
+comments and does not claim that command-line settings survive in the pinned
+header or that a CRC establishes source identity (D-020/D-021).

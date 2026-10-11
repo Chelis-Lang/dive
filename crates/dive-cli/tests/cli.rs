@@ -687,3 +687,19 @@ fn translate_process_fairness_is_explicit_and_never_a_proof()
     assert_eq!(std::fs::read_to_string(file)?, source);
     Ok(())
 }
+
+#[test]
+fn translate_rejects_multiple_fairness_flags_before_loading() {
+    for (first, second) in [("-wf", "-sf"), ("-nof", "-wfNext"), ("-wf", "-wf")] {
+        let output = dive(&[
+            "translate",
+            "missing-option-control.tla",
+            first,
+            second,
+            "--rewrite",
+        ]);
+        assert_eq!(output.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("select only one"));
+        assert_eq!(output.stdout, [] as [u8; 0]);
+    }
+}

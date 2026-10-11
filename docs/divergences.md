@@ -341,3 +341,25 @@ source-owned modifier lists have native post-Explode byte/CRC controls in
 admission and finite model/witness stages remain separate. Unproved process
 options/calls/name scopes stay Full refusals in both profiles. D-020 remains
 reference reproduction only; no stronger checksum default or family certificate.
+
+## D-021: PlusCal option context is absent from checksum headers (candidate)
+
+A clean pinned `pcal.trans -wf`/`-sf` or automatic-label translation can give
+`PCAL_DIVERGENCE_EXISTS` in a fresh unconfigured Validator, but `NO_DIVERGENCE`
+with the same settings. Declared-fairness `-nof` and fair-header cases retain
+separate measured outcomes. Source `PlusCal options (...)` comments do carry
+context into the reference Validator; native currently refuses that context by
+name before generation/CRC instead of silently ignoring its semantics.
+
+No stronger checksum/default policy is adopted. Explicit typed/CLI options have
+proved bounded process AST serialization; replacement reports record them.
+D-020's fair-only CRC weakness remains. See [D-021 user evidence](tlc-differences.md#d-021-pluscal-checksums-need-the-generation-options),
+[option use](pluscal-process-checksum-options.md), and all clean configured,
+unconfigured and original ignored-option native captures in
+`crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
+
+D-008 process checksum options update: supported explicit fairness and inserted
+label settings now have stage-separated raw/full controls; procedure/macro ASTs,
+scoped renaming and source-option declarations remain named Full refusals.
+F-034/F-035 are still partial; CRC derivation, artifact admission and finite
+model/witness checks do not certify the whole translator or liveness.

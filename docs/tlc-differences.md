@@ -1368,3 +1368,53 @@ long singleton unchanged variable. The pinned five-unit UTF-16 identity spelling
 rule is now matched; this restores artifact fidelity in both profiles, without
 a new divergence or proof claim. Opposite process modifiers and default-value
 name conflicts have separate captured dispositions.
+
+## D-021: PlusCal checksums need the generation options
+
+```tla
+---- MODULE OptionCRC ----
+EXTENDS Integers, TLC, Sequences
+(* --algorithm A variable g=0;
+process P \in {1,2} begin L:g:=1; E:skip; end process;
+end algorithm; *)
+====
+```
+
+The clean pinned `pcal.trans -wf OptionCRC.tla` keeps only two hexadecimal CRCs
+in the translation header; it does not persist `-wf`. In the retained minimal
+P-syntax control the pcal CRC is `247b4187`. A fresh unconfigured Validator gives
+`PCAL_DIVERGENCE_EXISTS` without any edit. The same Validator configured with
+`-wf` gives `NO_DIVERGENCE`. The paired `-sf` and inserted/custom-label controls
+show the same false change indication. An explicitly `fair+` process translated
+with `-nof` instead validates both ways because the source AST retains declared
+fairness even when the generated formula omits it.
+
+This is a context problem, not a source-equivalence or model-proof result.
+Pinned Validator reparses using its current options and source `PlusCal options
+(...)` declarations. The four retained in-source declaration controls validate
+unconfigured. Native's first option producer ignored those declarations: weak
+and strong cases produced admitted replacements with the wrong fairness, while
+missing-label cases were rejected. Those failures and exact primary outputs are
+preserved before the native source-context guard.
+
+**Status: measured upstream interoperability candidate; no corrected default.**
+For proved finite process shapes, dive derives Full CRCs from the exact explicit
+CLI/API options and reports `translation_options` on every replacement request.
+The API has one fairness enum; the CLI rejects repeated/conflicting fairness
+flags before loading. Native generation and Full derivation refuse unproved
+source-option declarations by name. Store/replay explicit settings with the
+artifact and configure reference validation consistently. An unconfigured
+Validator result never proves the source was edited.
+
+The compatibility counterpart is the same pinned CRC/options context under
+`--compat=tlc`, not a new checksum scheme. `--checksums tla` is the explicit
+partial body-only policy. The unchanged `--fair algorithm` weakness (D-020)
+can also hide changes, and its `NO_DIVERGENCE` result does not certify identity.
+Raw AST/CRC agreement, usable artifact admission, finite checking and independent
+witness validation stay separate (D-008).
+
+See [runnable option examples and limits](pluscal-process-checksum-options.md)
+and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
+for all primary/configured/unconfigured/native-before-guard evidence. General
+source-option parsing, scoped serialization, exact formatting and file writes
+remain pending rather than inferred from this bounded increment.
