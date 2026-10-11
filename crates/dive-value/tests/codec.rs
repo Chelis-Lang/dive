@@ -65,6 +65,7 @@ fn value(order: ValueOrder) -> impl Strategy<Value = Value> {
             .unwrap_or_else(|_| Value::tuple(v))),
             prop::collection::vec(inner.clone(), 0..4).prop_map(move |v| Value::set_raw(v, ctx)),
             prop::collection::vec(inner.clone(), 0..4).prop_map(Value::tuple),
+            prop::collection::vec(inner.clone(), 0..4).prop_map(Value::tuple_fcn),
             (inner.clone(), inner.clone()).prop_map(move |(x, y)| {
                 Value::record(vec![(NAMES.intern("fx"), x), (NAMES.intern("fy"), y)], ctx)
                     .unwrap_or(Value::FALSE)
@@ -306,6 +307,77 @@ fn huge_intervals_have_constant_size_keys() {
     let k = key(&v, ctx).expect("an interval has a key");
     assert!(k.len() < 16);
     assert_eq!(decode(&k), v);
+}
+
+#[test]
+fn structural_tuple_function_tag_preserves_kind_and_unchanged_quotient_keys() {
+    for order in ORDERS {
+        let ctx = ctx_for(order);
+        for values in [
+            vec![],
+            vec![Value::Int(1)],
+            vec![Value::Int(1), Value::Int(2)],
+        ] {
+            let literal = Value::tuple(values.clone());
+            let ordinary = Value::fcn(
+                values
+                    .iter()
+                    .cloned()
+                    .enumerate()
+                    .map(|(i, v)| (Value::Int(i64::try_from(i + 1).expect("small domain")), v))
+                    .collect(),
+                ctx,
+            )
+            .expect("contiguous ordinary function");
+            let function = Value::tuple_fcn(values);
+            let literal_bytes = encode(&literal, ctx);
+            let function_bytes = encode(&function, ctx);
+            assert_eq!(literal_bytes[0], 0x08);
+            assert_eq!(function_bytes[0], 0x0A);
+            assert_eq!(&literal_bytes[1..], &function_bytes[1..]);
+            assert_eq!(encode(&ordinary, ctx), function_bytes);
+            let nested_literal = Value::tuple(vec![
+                Value::record(vec![(NAMES.intern("fx"), literal.clone())], ctx).expect("record"),
+                literal.clone(),
+            ]);
+            let nested_function = Value::tuple(vec![
+                Value::record(vec![(NAMES.intern("fx"), ordinary.clone())], ctx).expect("record"),
+                function.clone(),
+            ]);
+            let nested_bytes = encode(&nested_function, ctx);
+            assert_eq!(encode(&decode(&nested_bytes), ctx), nested_bytes);
+            assert_ne!(encode(&nested_literal, ctx), nested_bytes);
+            assert_eq!(key(&nested_literal, ctx), key(&nested_function, ctx));
+            assert!(matches!(decode(&literal_bytes), Value::Fcn(f) if f.is_tuple_literal()));
+            assert!(
+                matches!(decode(&function_bytes), Value::Fcn(f) if !f.is_tuple_literal() && f.as_tuple().is_some())
+            );
+            assert_eq!(key(&literal, ctx), key(&function, ctx));
+            assert_eq!(key(&function, ctx).expect("unchanged key"), literal_bytes);
+            for polynomial in [0, 5] {
+                let fp = TlcFingerprint::new(polynomial).expect("polynomial");
+                assert_eq!(
+                    fp.fingerprint(&literal, ctx),
+                    fp.fingerprint(&function, ctx)
+                );
+                assert_eq!(
+                    fp.fingerprint(&literal, ctx),
+                    fp.fingerprint(&ordinary, ctx)
+                );
+                assert_eq!(
+                    fp.fingerprint(&nested_literal, ctx),
+                    fp.fingerprint(&nested_function, ctx)
+                );
+            }
+            for cut in 0..function_bytes.len() {
+                assert!(codec::decode(&mut &function_bytes[..cut], &mut |_| None).is_err());
+            }
+        }
+    }
+    // Old ambiguous bytes can only mean a literal tuple. A new decoder cannot
+    // infer that an old writer discarded the function's literal bit.
+    assert!(matches!(decode(&[0x08, 1, 2, 2]), Value::Fcn(f) if f.is_tuple_literal()));
+    assert!(matches!(decode(&[0x0A, 1, 2, 2]), Value::Fcn(f) if !f.is_tuple_literal()));
 }
 
 #[test]

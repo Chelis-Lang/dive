@@ -734,3 +734,15 @@ checks all 443 producing workspace Rust/Cargo inputs against archived and Git
 bytes; earlier source and runtime histories are not relabelled.
 
 | Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
+
+### Structural storage format 2 (#195)
+
+The pinned `tlc2/value/impl/TupleValue` and `FcnRcdValue` application/write
+contracts at `94d0c50` (MIT) retain distinct concrete classes despite mathematical
+function equality. The native `codec::encode_step`/decoder use separate tuple
+and tuple-function tags; this is dive's own versioned format, not Java byte
+interoperability. Canonical encoding and FP64 remain unchanged. CP02/FQ02/FI02
+admission and preserved predecessor-only format are documented in ADR 0060.
+Paired minimal raw reference/memory/spill/recovery evidence is in
+`conformance/probes/storage-tuple-function/`; equal error exits alone receive no
+representation-conformance credit.

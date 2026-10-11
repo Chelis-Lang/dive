@@ -1,0 +1,66 @@
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-eval)
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-store)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-trace)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sim)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.27s
+     Running tests/storage_tuple_function.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/storage_tuple_function-65c5a2e650f942d5)
+
+running 5 tests
+test actual_older_ambiguous_archive_refuses_without_search ... FAILED
+test apply_tlc ... FAILED
+test apply_dive ... FAILED
+test witness_dive ... FAILED
+test witness_tlc ... FAILED
+
+failures:
+
+---- actual_older_ambiguous_archive_refuses_without_search stdout ----
+
+thread 'actual_older_ambiguous_archive_refuses_without_search' (124475031) panicked at crates/dive-api/tests/storage_tuple_function.rs:225:10:
+typed refusal: Rejected { message: "DIVE-S0400: native magic/schema mismatch" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- apply_tlc stdout ----
+
+thread 'apply_tlc' (124475033) panicked at crates/dive-api/tests/storage_tuple_function.rs:62:5:
+assertion `left == right` failed
+  left: Null
+ right: Array []
+
+---- apply_dive stdout ----
+
+thread 'apply_dive' (124475032) panicked at crates/dive-api/tests/storage_tuple_function.rs:62:5:
+assertion `left == right` failed
+  left: Null
+ right: Array []
+
+---- witness_dive stdout ----
+
+thread 'witness_dive' (124475059) panicked at crates/dive-api/tests/storage_tuple_function.rs:62:5:
+assertion `left == right` failed
+  left: Null
+ right: Array []
+
+---- witness_tlc stdout ----
+
+thread 'witness_tlc' (124475060) panicked at crates/dive-api/tests/storage_tuple_function.rs:62:5:
+assertion `left == right` failed
+  left: Null
+ right: Array []
+
+
+failures:
+    actual_older_ambiguous_archive_refuses_without_search
+    apply_dive
+    apply_tlc
+    witness_dive
+    witness_tlc
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p dive-api --test storage_tuple_function`

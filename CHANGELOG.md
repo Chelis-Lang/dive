@@ -13,6 +13,11 @@ All notable changes to this project are documented here. The project will follow
   round trips from construction-preserving value transport and independent
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
+
+- Structural storage format 2 keeps integer-domain tuple functions distinct from
+  tuple literals in frontier spill and native recovery. Mathematical keys and
+  fingerprints stay unchanged; older value-bearing archives refuse explicitly.
+
 - Opt-in `--trace-format representation-v2` preserves admitted stored mixed
   sets and nonliteral tuple/record functions with checked construction witnesses.
   Legacy version1 stays default; transport is not a semantic certificate and

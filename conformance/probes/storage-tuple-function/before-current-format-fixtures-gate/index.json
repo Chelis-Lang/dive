@@ -1,0 +1,360 @@
+{
+  "producer_commit": "dc0f97d424a99d669c040062d7fd197eb6d4ebf0",
+  "source_index_sha256": "22a9fb2391b20fb0fe1f4a58446720a0a35abfe05e56c46c8b2210f5a2445781",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "nextest_threads": 2,
+    "CI_timeouts": "Unchanged ci profile per-test limits; local stages have no fabricated 15min CI completion claim"
+  },
+  "stages": [
+    {
+      "name": "controls",
+      "commands": [
+        {
+          "command": "cargo fmt --all --check",
+          "exit": 0,
+          "seconds": 4.355331374999995,
+          "log": "controls-0.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "command": "python3 scripts/test-validation-import.py",
+          "exit": 0,
+          "seconds": 0.6944534579999981,
+          "log": "controls-1.log",
+          "sha256": "71d128061574a20f085575bb4da9143f9daee3cc602d015a350b26ab0587ce0a"
+        },
+        {
+          "command": "python3 -I scripts/test-frontend-campaign.py",
+          "exit": 0,
+          "seconds": 4.025028749999997,
+          "log": "controls-2.log",
+          "sha256": "458b92d8faefcf11305c8d4ca3ac3fe7a8b86a707e5cfde35e320df92c9feb01"
+        },
+        {
+          "command": "python3 -I scripts/check-parity-ledger.py",
+          "exit": 0,
+          "seconds": 0.222878209000001,
+          "log": "controls-3.log",
+          "sha256": "4087f839a517df5dbd6511c33995dc89527b8c4475f738c43e9862c4b2218398"
+        },
+        {
+          "command": "python3 -I scripts/test-parity-ledger.py",
+          "exit": 0,
+          "seconds": 0.9245815000000022,
+          "log": "controls-4.log",
+          "sha256": "2dbe2ca4b5d97e5e7591b4f4335c92ce9b2fd21f3fdef4f2d61b5c923231194c"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-planning.py",
+          "exit": 0,
+          "seconds": 0.49160574999999795,
+          "log": "controls-5.log",
+          "sha256": "45ed7acf1403a7088c901e166377c2f3f6f5f5206f4a1db0281fcee1613282d0"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-tableau.py",
+          "exit": 0,
+          "seconds": 0.5556903339999977,
+          "log": "controls-6.log",
+          "sha256": "38e9b3082a2513ee7cd2f332e2b5bb2f047983e3cdcf9ca7f3fb6b468940e3d6"
+        },
+        {
+          "command": "python3 -I scripts/check-temporal-action-order.py",
+          "exit": 0,
+          "seconds": 0.25736208300000385,
+          "log": "controls-7.log",
+          "sha256": "564f68640fa6bfa8735d6a8bf446ef5969376bf6b5d444b84dbc5698216bf846"
+        },
+        {
+          "command": "python3 -I scripts/check-phase-l.py",
+          "exit": 0,
+          "seconds": 0.9994963329999962,
+          "log": "controls-8.log",
+          "sha256": "223f270f665f0f493efc50396debfd091f5c86363caeb497c5ef9380675289fd"
+        },
+        {
+          "command": "python3 -I scripts/check-phase-l-graph.py",
+          "exit": 0,
+          "seconds": 0.5011417919999985,
+          "log": "controls-9.log",
+          "sha256": "bc12843c5295b3585808f521be63b39df1493379d0405d6eaa79d49925ef2ea3"
+        },
+        {
+          "command": "python3 -I scripts/check-phase-execution.py",
+          "exit": 0,
+          "seconds": 0.4789704160000028,
+          "log": "controls-10.log",
+          "sha256": "1bd2ccddffd138892fa11f45a2d2a629a5e5ebd3dd47eacf0888cec35c2cdd6f"
+        },
+        {
+          "command": "python3 -I scripts/check-periodic-controller.py",
+          "exit": 0,
+          "seconds": 0.9216141249999978,
+          "log": "controls-11.log",
+          "sha256": "274474cc1907d80287f5b88dbc91434f4f20f0e721a7158b1df226cdddb24268"
+        },
+        {
+          "command": "python3 -I scripts/check-runtime-ratio.py",
+          "exit": 0,
+          "seconds": 0.23734333399999485,
+          "log": "controls-12.log",
+          "sha256": "6dc6be47602b9be3fd043ae7b317bcf26381b5e7e85bd52b567bfa8957fa60f8"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-final.py",
+          "exit": 0,
+          "seconds": 0.7255490419999973,
+          "log": "controls-13.log",
+          "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+        },
+        {
+          "command": "python3 -I scripts/check-state-if-planning.py",
+          "exit": 0,
+          "seconds": 0.27154033300000435,
+          "log": "controls-14.log",
+          "sha256": "70221fc3c4c830acc77d39f9fa6cd4eaf3fd893a4a8cd20adb2a726a2cac084f"
+        },
+        {
+          "command": "python3 -I scripts/check-predecessor-spill.py",
+          "exit": 0,
+          "seconds": 0.6212717920000017,
+          "log": "controls-15.log",
+          "sha256": "ee736a7259a65e8ad0d492c9862671fa464cef3fe4ec7c9dd7f170bc726e32ed"
+        },
+        {
+          "command": "python3 -I scripts/check-native-checkpoint.py",
+          "exit": 0,
+          "seconds": 0.9075682080000007,
+          "log": "controls-16.log",
+          "sha256": "0543c1c6a230798d4642392e1387501de782bd568eee6b8053b78f4dd3d9e8f1"
+        },
+        {
+          "command": "python3 -I scripts/check-view-normalization.py",
+          "exit": 0,
+          "seconds": 0.9945087079999979,
+          "log": "controls-17.log",
+          "sha256": "8005e4d37f7d463c4167c1c8ad195d5c947d95d11f19d7a750567959ccd360a0"
+        },
+        {
+          "command": "python3 -I scripts/check-view-random-stream.py",
+          "exit": 0,
+          "seconds": 1.9845348750000014,
+          "log": "controls-18.log",
+          "sha256": "25862df3d2f55666b67243dcaf8d53280bf822fc7eee408de80f21f4fd262089"
+        },
+        {
+          "command": "python3 -I scripts/check-trace-representation.py",
+          "exit": 0,
+          "seconds": 0.8786880420000003,
+          "log": "controls-19.log",
+          "sha256": "bce3d3c14a1aba1b954864fbb451319b702ef6ab3a194cf9c6811cfb2df6d1cb"
+        },
+        {
+          "command": "python3 -I scripts/check-native-parity-integration.py",
+          "exit": 0,
+          "seconds": 21.01203162499999,
+          "log": "controls-20.log",
+          "sha256": "1b87b93c0956515e80cf3bd68eab3c224329af4578b373a191234e52cefabc01"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-final.py",
+          "exit": 0,
+          "seconds": 0.9118055419999962,
+          "log": "controls-21.log",
+          "sha256": "017375928878e4ed8c4e1dd3b62c05561aa4421da9d9fa8651ffe73751fa4b88"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-final-safety.py",
+          "exit": 0,
+          "seconds": 3.5636747920000005,
+          "log": "controls-22.log",
+          "sha256": "ae3238c455225f84957e96f89fd80a5e05b67e255e8a6ac4126f4daf44755406"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-state-if.py",
+          "exit": 0,
+          "seconds": 1.1111973750000033,
+          "log": "controls-23.log",
+          "sha256": "5beb88844459a1f54ad70a0a4e37a5a62e0add877f72f425224983171a4bc7fe"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-temporal-if.py",
+          "exit": 0,
+          "seconds": 0.3263971660000067,
+          "log": "controls-24.log",
+          "sha256": "1137f8ddc0ffa3700abaae37d845680dfe412015ee048b9207517f6d89dd07d6"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-temporal-if-final.py",
+          "exit": 0,
+          "seconds": 1.628298749999999,
+          "log": "controls-25.log",
+          "sha256": "cad44c573c40ba14799244a5ac73aaa01019924eb602e265b9f6b3854e5c7f7e"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-final-scopes.py",
+          "exit": 0,
+          "seconds": 1.1920424999999994,
+          "log": "controls-26.log",
+          "sha256": "1299e7b3bbfde60bb74a1b90a91273d1ca263d1226f86758d547b9c59bbe0bc7"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-property-origins.py",
+          "exit": 0,
+          "seconds": 1.2258246250000013,
+          "log": "controls-27.log",
+          "sha256": "3d179a815cd5b45ec0cf865eb404ce6ef24bb97da8196197efb2d8276d1d3c19"
+        },
+        {
+          "command": "python3 -I scripts/check-material-capture.py",
+          "exit": 0,
+          "seconds": 1.5983634579999944,
+          "log": "controls-28.log",
+          "sha256": "bbd248ae76566b62fc2d2fb91ee2242e67c7d505e292f142dfc10849878e2f0a"
+        },
+        {
+          "command": "python3 -I scripts/check-temporal-operators.py",
+          "exit": 0,
+          "seconds": 1.5501782500000019,
+          "log": "controls-29.log",
+          "sha256": "ce5a7808c69505b899c61135ed918627bf577ce4d9cb51d4df04489dd322b5a3"
+        },
+        {
+          "command": "python3 -I scripts/check-native-temporal-operators.py",
+          "exit": 0,
+          "seconds": 3.190952750000008,
+          "log": "controls-30.log",
+          "sha256": "2b360275230677a1b5877c14230be9d9bd2ede7417039dd4f5db1525a3aca315"
+        },
+        {
+          "command": "python3 -I scripts/check-stored-successor-material.py",
+          "exit": 0,
+          "seconds": 0.9931288749999965,
+          "log": "controls-31.log",
+          "sha256": "421b9b40aeddd9efc6776008b05b14c1efe65eec8c5f2ee74380cd3ebad7d662"
+        },
+        {
+          "command": "python3 -I scripts/check-stored-successor-census.py",
+          "exit": 0,
+          "seconds": 0.48909229200000937,
+          "log": "controls-32.log",
+          "sha256": "c98c2725c762f17af07ecbfb02f603ee7cbac8081366dda907ad3126c9591e39"
+        },
+        {
+          "command": "python3 -I scripts/check-native-sequence-operators.py",
+          "exit": 0,
+          "seconds": 0.5334589999999935,
+          "log": "controls-33.log",
+          "sha256": "cc98199c7cb15839e728968ec4144e62aa90bb6a8f3cfc8895e22d15a3abaddc"
+        },
+        {
+          "command": "python3 -I scripts/check-tlc-partial-scc.py",
+          "exit": 0,
+          "seconds": 0.6698242080000085,
+          "log": "controls-34.log",
+          "sha256": "e34b9b02b5cac4dfa28467e7f4a5008ffe2da50222fe8b12902a1dac1d26efd8"
+        },
+        {
+          "command": "python3 -I scripts/check-test-partitions.py",
+          "exit": 0,
+          "seconds": 65.235341375,
+          "log": "controls-35.log",
+          "sha256": "00b0ce813e5113ad80820760bf2f428e8801879beac717bc3f7d2a46da4d0b58"
+        },
+        {
+          "command": "python3 -I scripts/test-workspace-gate.py",
+          "exit": 0,
+          "seconds": 1.4937927090000187,
+          "log": "controls-36.log",
+          "sha256": "5e11f4ac596aeb5b02a8b3f9239a443399e352692e29411a8aa1c990c59aac0b"
+        }
+      ]
+    },
+    {
+      "name": "clippy",
+      "commands": [
+        {
+          "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+          "exit": 0,
+          "seconds": 28.94021975000001,
+          "log": "clippy-0.log",
+          "sha256": "c71f698b9fcec2fbeabf86e191f93575ff40f585039a85c8ad85a6e6bcf0f864"
+        }
+      ]
+    },
+    {
+      "name": "nextest",
+      "commands": [
+        {
+          "command": "cargo nextest run --workspace --locked --profile ci --test-threads 2",
+          "exit": 100,
+          "seconds": 1078.7250214580001,
+          "log": "nextest-0.log",
+          "sha256": "255db5908c9400906a38aa7e6568e5b878b7e6500832fa2f66ff172162ea9404"
+        }
+      ]
+    },
+    {
+      "name": "doctests",
+      "commands": [
+        {
+          "command": "cargo test --workspace --doc --locked",
+          "exit": 0,
+          "seconds": 32.84611062499994,
+          "log": "doctests-0.log",
+          "sha256": "b1af01e1662070e57dc5f5e3081efa18170e00348ec34a010453956419a380e0"
+        }
+      ]
+    },
+    {
+      "name": "docs",
+      "commands": [
+        {
+          "command": "cargo doc --workspace --no-deps --locked",
+          "exit": 0,
+          "seconds": 43.888751917000036,
+          "log": "docs-0.log",
+          "sha256": "235d999998a4fc432130b4f24ee1bcb10c49e308f9b1d78f6ae627aea6efdee0"
+        }
+      ]
+    },
+    {
+      "name": "layering",
+      "commands": [
+        {
+          "command": "cargo xtask check-layering",
+          "exit": 0,
+          "seconds": 0.6787036250000256,
+          "log": "layering-0.log",
+          "sha256": "f39fcb94821bda20b929bc4f28f0d22ca19cae4d3dda388e831543c586312a9d"
+        }
+      ]
+    },
+    {
+      "name": "standalone",
+      "commands": [
+        {
+          "command": "cargo build -p dive-trace --locked",
+          "exit": 0,
+          "seconds": 3.129152750000003,
+          "log": "standalone-0.log",
+          "sha256": "1bb033aeb81c079eb7f106dcae3a1142dc2f4681f491cd1205fc35c3ba9595e2"
+        }
+      ]
+    },
+    {
+      "name": "deny",
+      "commands": [
+        {
+          "command": "cargo deny --locked check",
+          "exit": 0,
+          "seconds": 1.6110736250000173,
+          "log": "deny-0.log",
+          "sha256": "0fd9fb9fd294fe6666bb11135c2ca575347595e07618a81e737ed8c539472d26"
+        }
+      ]
+    }
+  ],
+  "total_seconds": 1317.7327364999999
+}

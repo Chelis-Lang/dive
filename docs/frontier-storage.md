@@ -50,3 +50,9 @@ constraints and empty initial frontiers. Each compares the memory path against
 Symmetry counterexamples also pass independent validation and corrupted
 witness controls. Deferred VIEW admission and filesystem failure controls must
 refuse rather than execute extra effects or certify an incomplete result.
+
+The transient value-bearing data and index use `DIVEFQ02`/`DIVEFI02`. Structural
+tag `0x0A` preserves nonliteral tuple functions separately from literal tag `0x08`.
+Old version-1 queue files refuse with `DIVE-S0200: frontier version: unsupported
+or corrupt frontier format`; no representation bit is inferred. Canonical keys
+and fingerprints are unchanged. See [ADR 0060](decisions/0060-structural-storage-format-two.md).

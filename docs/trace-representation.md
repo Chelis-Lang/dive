@@ -86,10 +86,11 @@ their own executable/source evidence and independently replayed controls.
 This increment does not fix reverse mixed-set construction in the default
 profile or broaden Random/VIEW shape admission. It does not authenticate an
 archive, certify reachability from bytes alone or solve arbitrary symbolic/lazy
-transport. The separate trusted-storage tuple-function bit-loss study records
-an existing frontier/checkpoint decoder limitation tracked separately as
-[#195](https://github.com/Chelis-Lang/dive/issues/195); version 2 does not change
-those formats. See [ADR 0055](decisions/0055-stored-trace-transport.md) and
+transport. The separate trusted-storage tuple-function bit-loss study is retained under
+[#195](https://github.com/Chelis-Lang/dive/issues/195). Its storage repair uses
+explicit CP02/FQ02/FI02 formats and rejects ambiguous older archives; trace
+version 2 itself remains a separate contract. See
+[the storage migration](native-checkpoint.md#structural-format-migration). See [ADR 0055](decisions/0055-stored-trace-transport.md) and
 [#190](https://github.com/Chelis-Lang/dive/issues/190).
 
 Decimal large integers are limited to 4,096 digits before parsing. A hand-built

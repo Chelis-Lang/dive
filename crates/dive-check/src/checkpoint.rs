@@ -25,8 +25,9 @@ use sha2::{Digest, Sha256};
 use crate::engine::{Keyed, Search};
 use crate::{CheckOptions, CheckResult, Verdict};
 
-const MAGIC: &[u8; 8] = b"DIVECP01";
-const SEMANTICS: &str = "tlc-94d0c50/native-checkpoint-0038-v1";
+const MAGIC: &[u8; 8] = b"DIVECP02";
+const SCHEMA: u32 = 2;
+const SEMANTICS: &str = "tlc-94d0c50/native-checkpoint-0060-structural-v2";
 const HEADER: usize = 48;
 /// Maximum complete native payload: 64 MiB. Codec/writer workspaces and ordinary
 /// search retention remain outside this archive bound.
@@ -461,7 +462,7 @@ impl Session {
         admit_source(ir, cfg)?;
         let ir_bytes = serde_json::to_vec(ir).map_err(|e| failure(e.to_string()))?;
         let identity = Identity {
-            schema: 1,
+            schema: SCHEMA,
             semantics: SEMANTICS.into(),
             executable_sha256: executable_hash().map_err(failure)?,
             ir_sha256: hash(&ir_bytes),
@@ -904,7 +905,10 @@ fn read(path: &Path) -> Fallible<(Snapshot, String, u64)> {
     if sha.as_slice() != &header[16..48] {
         return Err("payload checksum mismatch".into());
     }
-    let snapshot = serde_json::from_slice(&payload).map_err(|e| e.to_string())?;
+    let snapshot: Snapshot = serde_json::from_slice(&payload).map_err(|e| e.to_string())?;
+    if snapshot.identity.schema != SCHEMA || snapshot.identity.semantics != SEMANTICS {
+        return Err("native identity schema/semantics mismatch".into());
+    }
     Ok((snapshot, hex(&sha), len))
 }
 
@@ -1100,7 +1104,7 @@ fn encoded_shape(bytes: &[u8], variables: usize, names: usize) -> Fallible<()> {
                     0x1E | 0x20 | 0x22 => (0, false),
                     0x16 | 0x24 => (1, false),
                     0x18 => (2, false),
-                    0x08 | 0x10 | 0x12 | 0x1A | 0x1C | 0x26 | 0x28 | 0x2A => {
+                    0x08 | 0x0A | 0x10 | 0x12 | 0x1A | 0x1C | 0x26 | 0x28 | 0x2A => {
                         if t == 0x12 && read_byte(&mut input)? > 1 {
                             return Err("invalid raw-set normalization flag".into());
                         }
@@ -1165,6 +1169,8 @@ mod tests {
     }
     #[test]
     fn malformed_encoded_counts_depth_and_tokens_refuse_before_decoding() {
+        assert!(encoded_shape(&[0x0A, 1, 2, 2], 1, 1).is_ok());
+        assert!(encoded_shape(&[0x0A, 255, 255, 255, 255, 15], 1, 1).is_err());
         assert!(encoded_shape(&[2, 0], 1, 1).is_ok());
         assert!(encoded_shape(&[0x08, 255, 255, 255, 255, 15], 1, 1).is_err());
         assert!(encoded_shape(&[4, 255, 255, 255, 255, 15], 1, 1).is_err());
@@ -1291,7 +1297,7 @@ mod tests {
         }
         fs::remove_file(&p).expect("remove");
         let staging = dir.join(".snapshot.interrupted.tmp");
-        fs::write(&staging, b"DIVECP01\x01").expect("partial staged bytes");
+        fs::write(&staging, b"DIVECP02\x01").expect("partial staged bytes");
         assert!(read(&p).is_err());
         assert!(read(&staging).is_err());
         let original = b"immutable existing checkpoint sentinel";
@@ -1306,10 +1312,38 @@ mod tests {
         assert!(write(&dir.join("missing-parent/snapshot"), b"payload").is_err());
         fs::remove_dir_all(dir).expect("cleanup");
     }
+
+    #[test]
+    fn structurally_ambiguous_version_one_archives_refuse_even_with_valid_checksum() {
+        let parent = dir();
+        let path = parent.join("old-version");
+        let payload = serde_json::to_vec(&valid_snapshot()).expect("payload");
+        write(&path, &payload).expect("current writer");
+        let mut old = fs::read(&path).expect("archive");
+        old[..8].copy_from_slice(b"DIVECP01");
+        fs::write(&path, &old).expect("old magic with coherent checksum");
+        assert_eq!(
+            read(&path).expect_err("old format refuses"),
+            "native magic/schema mismatch"
+        );
+        fs::remove_file(&path).expect("remove old archive");
+        let mut wrong_schema = valid_snapshot();
+        wrong_schema.identity.schema = 1;
+        write(
+            &path,
+            &serde_json::to_vec(&wrong_schema).expect("old schema payload"),
+        )
+        .expect("new magic and coherent old schema checksum");
+        assert_eq!(
+            read(&path).expect_err("old schema refuses before seed defaults"),
+            "native identity schema/semantics mismatch"
+        );
+        fs::remove_dir_all(parent).expect("cleanup");
+    }
     fn valid_snapshot() -> Snapshot {
         Snapshot {
             identity: Identity {
-                schema: 1,
+                schema: SCHEMA,
                 semantics: SEMANTICS.into(),
                 executable_sha256: String::new(),
                 ir_sha256: String::new(),
