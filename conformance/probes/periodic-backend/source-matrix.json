@@ -4,7 +4,7 @@
     "crates/dive-check/src/capture.rs": "a4d42f21723b8a9e4f18a93f616772966e2a957064c23ad98d21b0482bf5b818",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
     "crates/dive-check/src/parallel.rs": "f164f2cacc5d16b4019d96460d95fb39887493b008ef4cdcab6a376258b39fb5",
-    "crates/dive-check/tests/observer_barrier.rs": "d00f316fbc1ba2e1a2c1cb270333f008b742e7c59b94f0887866090d1dbbd061",
+    "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6",
     "crates/dive-liveness/src/periodic_backend.rs": "6119db51e3ff100bb94c210c9c28eb741384b8d9fbbe17e3326cc6439966ca9b",
     "crates/dive-liveness/src/phase_execution.rs": "822484d1f4920e91ae891a90e70ad027084018528e4305e48570c82b88a1dd4d",
     "crates/dive-liveness/src/phase_graph.rs": "96ae19a181ecf1cdbe8b4b0122c9eb2fd1d8eb9638d50be7a8342c6ac4136f39",

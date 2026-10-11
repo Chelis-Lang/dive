@@ -23,7 +23,7 @@
     "AGENTS.md": "7918cab4df22cb91eab6a0f21c78089651e80ec740f0891109fb8393220223e3",
     ".github/workflows/ci.yml": "66cce18fb37ec7658b2f03fec6055d84c8c2fe8fded84467a7d03f6f2325c3d0",
     "conformance/parity-features.json": "51bfc1cd54816f2b0b390e988cfc7ad7c47ee2e23f68f4b49473355c3d55c0db",
-    "crates/dive-check/tests/observer_barrier.rs": "d00f316fbc1ba2e1a2c1cb270333f008b742e7c59b94f0887866090d1dbbd061"
+    "crates/dive-check/tests/observer_barrier.rs": "2ebe21b9633c3ba6da8c9cbee970e1c02f98113ae40afb98a753f73a9ac947d6"
   },
   "current_integration_scope": "Current request-owned service source integrity only. Preserved before-service matrices/source and original producers retain immutable identities; no ordinary scheduling/model proof certificate."
 }

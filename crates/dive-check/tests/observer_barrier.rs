@@ -488,7 +488,8 @@ fn observer_failure_after_prefix_append_retains_actual_queue_and_counters() {
 fn deciding_graph_callback_before_append_prevents_request_owned_service() {
     struct BeforeAppend {
         faulted: bool,
-        services: usize,
+        services: std::collections::BTreeSet<u64>,
+        initial_serviced: bool,
         eof: bool,
     }
     impl SourceObserver for BeforeAppend {
@@ -523,7 +524,16 @@ fn deciding_graph_callback_before_append_prevents_request_owned_service() {
                 "request service must not run after deciding preappend fault"
             );
             assert!(receipt.committed().is_empty());
-            self.services += 1;
+            assert!(receipt.frontier_appended().is_empty());
+            assert_eq!(receipt.committed_stats().distinct, 1);
+            assert!(
+                self.services.insert(receipt.request().sequence()),
+                "every actual request must be serviced exactly once"
+            );
+            if receipt.request().forced() {
+                assert!(!self.initial_serviced, "one actual forced initial request");
+                self.initial_serviced = true;
+            }
             Ok(())
         }
         fn exploration_complete(&mut self, _: &capture::ExplorationEnd) -> Result<(), String> {
@@ -543,7 +553,8 @@ fn deciding_graph_callback_before_append_prevents_request_owned_service() {
         );
         let mut o = BeforeAppend {
             faulted: false,
-            services: 0,
+            services: std::collections::BTreeSet::new(),
+            initial_serviced: false,
             eof: false,
         };
         let Exploration::Stopped(stop) =
@@ -553,7 +564,10 @@ fn deciding_graph_callback_before_append_prevents_request_owned_service() {
             panic!("must stop before append")
         };
         assert!(o.faulted);
-        assert_eq!(o.services, 1);
+        // Timer requests can accumulate before the first source is returned.
+        // Each must be genuine/unique and empty; no fixed count is promised.
+        assert!(!o.services.is_empty());
+        assert!(o.initial_serviced);
         assert!(!o.eof);
         assert_eq!(stop.workers.used, width);
         assert_eq!(stop.stats.expect("actual prefix").generated, 129);

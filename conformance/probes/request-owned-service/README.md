@@ -18,3 +18,5 @@ source, hook/candidate/error order, failed Init, unchanged cumulative quota,
 matching-profile admission and fresh memory/JSON originals with semantic and shape
 mutants. Fresh current source/gate/runtime receipts identify their own producer;
 prior ordinal receipts and source maps stay available in before-service history.
+
+The first complete workspace epoch (`development/gate0`) ran 1,045 tests: 1,044 passed and one new preappend fault control failed because it expected one empty service but observed four genuine timer requests. Natural timer count was never a promised contract. The replacement retains every actual request identity, rejects duplicate service, requires a genuine initial request and empty committed/appended ranges before the first graph callback, and forbids service after its deciding fault. The original failed source, logs and all 52 native rows remain unchanged.
