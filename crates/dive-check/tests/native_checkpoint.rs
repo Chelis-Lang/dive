@@ -233,7 +233,7 @@ fn coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_rece
             _ => json["discoveries"][1]["key"] = json["discoveries"][0]["key"].clone(),
         }
         let payload = serde_json::to_vec(&json).expect("serialize");
-        let mut mutated = b"DIVECP01".to_vec();
+        let mut mutated = b"DIVECP02".to_vec();
         mutated.extend((payload.len() as u64).to_le_bytes());
         mutated.extend(Sha256::digest(&payload));
         mutated.extend(payload);
@@ -256,6 +256,10 @@ fn coherently_checksummed_bad_state_keys_names_and_frontiers_refuse_without_rece
             ),
             "{kind}: {:?}",
             result.check
+        );
+        assert!(
+            !format!("{:?}", result.check.verdict).contains("native magic/schema mismatch"),
+            "{kind}: coherent current-format corruption must reach payload admission"
         );
         assert!(
             result.receipt.is_none(),
@@ -351,7 +355,7 @@ fn retained_near_maximum_generated_counts_refuse_before_continuation() {
         let mut value = original.clone();
         value["generated"] = serde_json::json!(generated);
         let payload = serde_json::to_vec(&value).expect("serialize");
-        let mut changed = b"DIVECP01".to_vec();
+        let mut changed = b"DIVECP02".to_vec();
         changed.extend((payload.len() as u64).to_le_bytes());
         changed.extend(Sha256::digest(&payload));
         changed.extend(payload);
@@ -385,7 +389,7 @@ fn retained_near_maximum_generated_counts_refuse_before_continuation() {
         let mut value = original.clone();
         value["generated"] = serde_json::json!(generated);
         let payload = serde_json::to_vec(&value).expect("serialize");
-        let mut changed = b"DIVECP01".to_vec();
+        let mut changed = b"DIVECP02".to_vec();
         changed.extend((payload.len() as u64).to_le_bytes());
         changed.extend(Sha256::digest(&payload));
         changed.extend(payload);
@@ -453,7 +457,7 @@ fn verify_native_counter_stopping_prefix(profile: bool, store: dive_store::Store
         let mut value = original.clone();
         value["generated"] = serde_json::json!(checkpoint::MAX_COUNTER - remaining);
         let payload = serde_json::to_vec(&value).expect("serialize");
-        let mut bytes = b"DIVECP01".to_vec();
+        let mut bytes = b"DIVECP02".to_vec();
         bytes.extend(
             u64::try_from(payload.len())
                 .expect("payload length")

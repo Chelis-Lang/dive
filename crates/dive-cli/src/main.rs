@@ -35,7 +35,7 @@ const EXIT_UNSUPPORTED: u8 = 3;
 fn usage() -> String {
     format!(
         "dive {}\nDeterministic Invariant Verification Engine\n\nUSAGE:\n    dive <COMMAND> [ARGS]\n\nCOMMANDS:\n    {}\n\n    dive parse [FILE.tla] [--config FILE.cfg] [--output human|json] [--cst]\n    dive translate <FILE.tla> [--compat=tlc] [--rewrite --checksums tla|full] [--replace-modified] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive analyze <FILE.tla> [--output human|json] [--library-path DIR]... [--module-path DIR]...\n    dive check <FILE.tla> [--config FILE.cfg] [--compat=tlc] [--store fp|exact] [--seed N] [--fp N]\n               [--workers N|auto] [--sequential] [-deadlock] [--trace-format v1|representation-v2]\n               [--frontier-memory-bytes N] [--frontier-directory DIR] [--output human|json]
-               [--predecessor-memory-bytes N] [--predecessor-directory DIR]
+               [--predecessor-memory-bytes N] [--predecessor-directory DIR]\n               [--seen-disk-entries N] [--seen-directory DIR] [--seen-key-bytes N]\n               [--seen-probe-steps N] [--seen-summary-pairs N]
                [--checkpoint FILE --checkpoint-after-levels N | --recover FILE]
                [--checkpoint-counters tlc|retain]
                [--lncheck final --lasso short|tlc] [--library-path DIR]... [--module-path DIR]...\n    dive simulate <FILE.tla> --traces N [--depth N] [--seed N] [--aril N] [--compat=tlc] [--output human|json]\n    dive dfid <FILE.tla> --max-level N [--compat=tlc] [--seed N] [--worker-seeds S,...] [--output human|json]\n    dive validate-trace <FILE.tla> --trace TRACE.json [--config FILE.cfg] [--claim ENDING]\n               [--compat=tlc] [--seed N] [--fp N] [-deadlock] [--output human|json] [--library-path DIR]... [--module-path DIR]...\n\n    dive check exit codes (default profile): 0 no error, 1 rejected input, 2 usage, 3 unsupported or\n    resource limit, 4 internal error, 10 property violated, 11 deadlock, 12 assumption, 13 evaluation\n    error. Under --compat=tlc (or DIVE_COMPAT=tlc) a verdict exits with TLC's status.\n",
@@ -306,6 +306,9 @@ fn check_command(
             .and_then(|v| v.parse().ok()),
         ..dive_api::CheckRequest::default()
     };
+    let mut seen_policy = dive_api::SeenOptions::default();
+    let mut seen_entries = false;
+    let mut seen_extra = false;
     let mut checkpoint_path: Option<std::path::PathBuf> = None;
     let mut recover_path: Option<std::path::PathBuf> = None;
     let mut checkpoint_after: Option<u64> = None;
@@ -411,6 +414,53 @@ fn check_command(
             }
             "-deadlock" => req.no_deadlock = true,
             "--sequential" => req.sequential = true,
+            "--seen-disk-entries" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => {
+                    seen_policy.limits.entries = n;
+                    seen_entries = true;
+                }
+                None => {
+                    return usage_error(
+                        err,
+                        "--seen-disk-entries expects a positive bounded entry count",
+                    );
+                }
+            },
+            "--seen-key-bytes" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => {
+                    seen_policy.limits.key_bytes = n;
+                    seen_extra = true;
+                }
+                None => return usage_error(err, "--seen-key-bytes expects a key byte bound"),
+            },
+            "--seen-probe-steps" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => {
+                    seen_policy.limits.probe_steps = n;
+                    seen_extra = true;
+                }
+                None => {
+                    return usage_error(err, "--seen-probe-steps expects a positive probe bound");
+                }
+            },
+            "--seen-summary-pairs" => match value().and_then(|v| v.parse().ok()) {
+                Some(n) => {
+                    seen_policy.limits.summary_pairs = n;
+                    seen_extra = true;
+                }
+                None => {
+                    return usage_error(
+                        err,
+                        "--seen-summary-pairs expects a pair-comparison bound",
+                    );
+                }
+            },
+            "--seen-directory" => match value() {
+                Some(dir) => {
+                    seen_policy.directory = Some(dir.into());
+                    seen_extra = true;
+                }
+                None => return usage_error(err, "--seen-directory expects a parent directory"),
+            },
             "--frontier-memory-bytes" => match value().as_deref().map(str::parse::<usize>) {
                 Some(Ok(n)) => req.frontier_memory_bytes = Some(n),
                 _ => {
@@ -490,6 +540,24 @@ fn check_command(
         let _ = writeln!(err, "error: `dive check` needs a file\n\n{}", usage());
         return ExitCode::from(EXIT_USAGE);
     };
+    if seen_extra && !seen_entries {
+        return usage_error(
+            err,
+            "--seen-directory and seen limits require --seen-disk-entries",
+        );
+    }
+    if seen_entries {
+        if let Err(error) = seen_policy.limits.validate() {
+            return usage_error(err, &error.to_string());
+        }
+        if final_check || checkpoint_path.is_some() || recover_path.is_some() {
+            return usage_error(
+                err,
+                "disk seen-state retention with temporal/capture or checkpoint/recovery is not implemented",
+            );
+        }
+        req.seen_disk = Some(seen_policy);
+    }
     if final_check != (short_lasso || tlc_lasso) {
         return usage_error(
             err,
@@ -1076,5 +1144,49 @@ mod predecessor_tests {
             assert!(String::from_utf8_lossy(&errors).contains("predecessor spill with DFID"));
         }
         assert_eq!(output, [] as [u8; 0]);
+    }
+}
+
+#[cfg(test)]
+mod seen_tests {
+    use super::*;
+    #[test]
+    fn malformed_or_orphan_disk_policy_refuses_before_reading_model() {
+        for flags in [
+            vec!["--seen-directory", "unused-parent"],
+            vec!["--seen-key-bytes", "64"],
+            vec!["--seen-probe-steps", "1"],
+            vec!["--seen-summary-pairs", "0"],
+            vec!["--seen-disk-entries", "0"],
+            vec!["--seen-disk-entries", "4", "--seen-key-bytes", "0"],
+            vec!["--seen-disk-entries", "4", "--seen-probe-steps", "0"],
+            vec!["--seen-disk-entries", "4", "--recover", "missing.cp"],
+            vec![
+                "--seen-disk-entries",
+                "4",
+                "--lncheck",
+                "final",
+                "--lasso",
+                "tlc",
+            ],
+        ] {
+            let mut arguments = vec!["missing-seen-model.tla".to_owned()];
+            arguments.extend(flags.iter().map(|s| (*s).to_owned()));
+            let mut output = Vec::new();
+            let mut errors = Vec::new();
+            assert_eq!(
+                check_command(&arguments, &mut output, &mut errors),
+                ExitCode::from(EXIT_USAGE)
+            );
+            assert_eq!(output, [] as [u8; 0]);
+            let error = String::from_utf8_lossy(&errors);
+            assert!(!error.contains("cannot read"), "{error}");
+            assert!(
+                error.contains("--seen-directory and seen limits require --seen-disk-entries")
+                    || error.contains("DIVE-S0700")
+                    || error.contains("is not implemented"),
+                "{error}"
+            );
+        }
     }
 }

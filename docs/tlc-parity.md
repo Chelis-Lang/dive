@@ -100,7 +100,7 @@ and a corresponding certification schema before the label can change.
 | F-028 | CLI/output conventions and message controls | partial | 6 | [sprint-status.md](sprint-status.md) |
 | F-029 | Trace/state dumps, ALIAS and trace exploration | partial | 6 | [trace_controls.rs](../crates/dive-api/tests/trace_controls.rs); [strict tuple-only replay](tuple-only-trace-replay.md) and [bounded tuple-variable admission](inductive-tuple-trace-replay.md); general variable-stack namespace histories remain unproved |
 | F-030 | Coverage and debugger services | missing | 6 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
-| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); seen/candidate/graph/SCC retention remains resident |
+| F-031 | Bounded-memory stores, frontiers, graphs and SCC spill | partial | 7 | [frontier controls](../crates/dive-check/tests/frontier_spill.rs), [predecessor controls](../crates/dive-api/tests/predecessor_spill.rs); [frontier limits](frontier-storage.md), [predecessor limits](predecessor-storage.md); default seen/candidate/graph/SCC retention remains resident; opt-in disk safety membership is partial |
 | F-032 | Native checkpoint and recovery | partial | 7 | [native-checkpoint.md](native-checkpoint.md) |
 | F-033 | Native distributed checking and recovery | missing | 7 | [tlc-parity-plan.md](design/tlc-parity-plan.md) |
 | F-034 | PlusCal translation and translation validation | partial | 8 | [pluscal-normalization.md](pluscal-normalization.md): bounded sequential artifacts; full translation pending; [bounded Full checksum editing](pluscal-rewriting.md), broader AST checksum scopes/file format pending |
@@ -668,10 +668,22 @@ AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
 
-The [tuple-history replay guide](inductive-tuple-trace-replay.md) now includes
-fixed nested `UNCHANGED` projections through actual lazy aliases, LET and
-substitution scopes (ADR 0071). The sealed proof admits four fresh alias
-controls and rejects altered words, while conditional tuple permutations retain
-strict refusal. The separate generated procedure study admits 32/32
-strict words at the archived producer; general runtime-name and stack provenance
-remain pending. No family certification or denominator changes.
+The first disk engine epoch refused invariant-error call-stack replay; its
+original refusal/error/count evidence remains historical and receives no replay credit.
+
+
+Positioned invariant-error replay (#217, ADR0072) adds actual fallible membership
+and insertion to the existing inline disk INIT/NEXT safety route. Clean
+ReplayNew gives 2 generated/4 distinct/2 logically queued; later storage failures
+retain the original error and ordered prefix but confer no completion credit.
+The bound action-property probe does not lift public configured PROPERTY refusal.
+Disk parallel/capture/temporal/recovery and full error-class coverage remain
+pending; F-031 stays partial/audit-required. The original `881b75992d0ef5dc11539018da526e5e55066027` producer
+passed independent source, full-gate and runtime readback; the combined receiving
+branch still requires its own qualification. See [the replay study](../conformance/probes/fallible-invariant-replay/README.md).
+
+The [composed core receiving delivery](core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.

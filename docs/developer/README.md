@@ -28,3 +28,15 @@ to promote coverage. ADR acceptance does not imply implementation completion.
 source callback and graph contract, independently of the exposed final/short mode.
 
 - [Configured periodic snapshot](../configured-periodic-snapshot.md): original configured/selected body identities, callback-free prebinding policy and ADR 0057; ordinary schedule authority remains unfinished.
+
+[Producer request/claim quiescence](../producer-progress-requests.md), [ADR 0059](../decisions/0059-producer-progress-requests.md) and [complete actual method controls](../../conformance/probes/progress-queue/README.md) track the original #201 boundary. The [committed-prefix guide](../committed-periodic-prefix.md),
+[request-service guide](../request-owned-periodic-service.md) and
+[candidate-admission guide](../producer-owned-temporal-candidate.md) characterize
+the subsequent implemented diagnostic stages. Ordinary scheduling, stopping
+counts and temporal completion remain separate unfinished obligations.
+
+The [composed core receiving delivery](../core-prefix-storage-composition.md) now has a separate
+1,346-test zero-skip gate and fresh selected release runtimes, with all 37
+required models agreeing at 1/4/8 workers. Component and failed producer
+identities remain separate; ordinary scheduling and full-family certification
+are still open.

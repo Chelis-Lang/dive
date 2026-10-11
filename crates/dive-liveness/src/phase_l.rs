@@ -524,6 +524,7 @@ pub struct Session<'a> {
     limits: Limits,
     multiplier: usize,
     progress: Progress,
+    concrete_audit: Option<(usize, std::collections::BTreeMap<u64, State>)>,
 }
 impl<'a> Session<'a> {
     /// Plans a diagnostic history with the existing fixed bounds. The current
@@ -587,6 +588,7 @@ impl<'a> Session<'a> {
             limits,
             multiplier: 1,
             progress,
+            concrete_audit: None,
         })
     }
     pub(super) fn orders(&self) -> &[crate::tlc_plan::OrderOfSolution] {
@@ -661,6 +663,11 @@ impl<'a> Session<'a> {
         self.fingerprint(state)
             .map_err(|error| failure(error, &self.progress, None))
     }
+    // Enabled only by the separate candidate-source producer before any state
+    // fingerprint. The ordinary/legacy receipt policy remains unchanged.
+    pub(super) fn audit_concrete_sources(&mut self, maximum: usize) {
+        self.concrete_audit = Some((maximum, std::collections::BTreeMap::new()));
+    }
     /// Actual cumulative diagnostic work; no checking verdict is implied.
     #[must_use]
     pub fn progress(&self) -> &Progress {
@@ -722,9 +729,30 @@ impl<'a> Session<'a> {
             .map(|v| state[v.index()].clone())
             .collect::<Option<Vec<_>>>()
             .ok_or_else(|| Error::Input("TLC variable permutation".into()))?;
-        self.fingerprint
+        if self.concrete_audit.is_some() {
+            step(&mut self.progress, self.limits)?;
+        }
+        let fingerprint = self
+            .fingerprint
             .fingerprint_state(&values, Ctx::tlc())
-            .map_err(Error::Value)
+            .map_err(Error::Value)?;
+        if let Some((maximum, originals)) = self.concrete_audit.as_mut() {
+            if let Some(original) = originals.get(&fingerprint) {
+                // Material admission above excluded providers/deferred values,
+                // foreign names and opposite storage order before comparison.
+                if original != state {
+                    return Err(Error::Input(
+                        "ambiguous original concrete fingerprint".into(),
+                    ));
+                }
+            } else {
+                if originals.len() >= *maximum {
+                    return Err(Error::Limit("original concrete fingerprint audit entries"));
+                }
+                originals.insert(fingerprint, state.clone());
+            }
+        }
+        Ok(fingerprint)
     }
     fn atom(&mut self, atom: Atom, state: &St) -> Result<bool, Error> {
         let o = self
@@ -1278,4 +1306,58 @@ pub fn diagnostic_slots(
         Ok(result)
     })();
     result.map_err(|e| failure(e, &progress, None))
+}
+
+#[cfg(test)]
+mod concrete_audit_tests {
+    #![allow(
+        clippy::expect_used,
+        reason = "explicit private collision-audit assertions"
+    )]
+    use super::*;
+    use std::sync::Arc;
+    #[test]
+    fn candidate_audit_refuses_known_ambiguity_before_dedup_and_bounds_retention() {
+        let a = dive_sema::analyze_source(
+            "Audit.tla",
+            "---- MODULE Audit ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=1\nLive == <>(x=2)\n====\n",
+            &dive_sema::Options::default(),
+        );
+        let ir = Arc::new(dive_ir::lower(&a).expect("IR"));
+        let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n")
+            .into_config()
+            .expect("cfg");
+        let model = dive_model::bind(ir, &cfg, &dive_model::BindOptions::tlc()).expect("model");
+        let zero: State = Arc::from([Some(Value::Int(0))]);
+        let one: State = Arc::from([Some(Value::Int(1))]);
+        let mut session = Session::new(&model, 0, 1, Limits::default()).expect("session");
+        session.audit_concrete_sources(2);
+        let fp = session
+            .fingerprint(&zero)
+            .expect("actual original fingerprint");
+        // A synthetic collision injection tests the refusal boundary; this does
+        // not claim a measured collision of the actual FP64 polynomial.
+        session
+            .concrete_audit
+            .as_mut()
+            .expect("audit")
+            .1
+            .insert(fp, one);
+        assert!(
+            matches!(session.fingerprint(&zero), Err(Error::Input(ref text)) if text == "ambiguous original concrete fingerprint")
+        );
+        let mut limited = Session::new(&model, 0, 1, Limits::default()).expect("session");
+        limited.audit_concrete_sources(0);
+        assert!(matches!(
+            limited.fingerprint(&zero),
+            Err(Error::Limit("original concrete fingerprint audit entries"))
+        ));
+        assert!(limited.concrete_audit.as_ref().expect("audit").1.is_empty());
+        let mut legacy = Session::new(&model, 0, 1, Limits::default()).expect("legacy session");
+        assert_eq!(
+            legacy.fingerprint(&zero).expect("unchanged legacy policy"),
+            fp
+        );
+        assert!(legacy.concrete_audit.is_none());
+    }
 }

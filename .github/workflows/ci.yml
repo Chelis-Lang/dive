@@ -97,8 +97,12 @@ jobs:
           python3 -I scripts/check-view-random-stream.py
           python3 -I scripts/check-trace-representation.py
           python3 -I scripts/check-tuple-only-replay.py
+          python3 -I scripts/check-fallible-seen-store.py
           python3 -I scripts/check-inductive-tuple-replay.py
           python3 -I scripts/check-fixed-tuple-projection.py
+          python3 -I scripts/check-core-prefix-storage-integration.py
+          python3 -I scripts/check-core-composed-epoch.py
+          python3 -I scripts/test-core-composed-epoch.py
           python3 -I scripts/check-native-parity-integration.py
           python3 -I scripts/check-tlc-final.py
           python3 -I scripts/check-tlc-final-safety.py
@@ -124,6 +128,18 @@ jobs:
           python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
           python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
           python3 -I scripts/check-periodic-snapshot.py
+          python3 -I scripts/check-progress-queue.py
+          python3 -I conformance/probes/storage-tuple-function/verify.py
+          python3 -I scripts/check-committed-prefix.py
+          python3 -I scripts/check-request-owned-service.py
+          python3 -I scripts/check-producer-owned-candidate.py
+          python3 -I scripts/check-fallible-seen-engine.py
+          python3 -I scripts/test-fallible-seen-git-proof.py
+          python3 -I scripts/check-fallible-invariant-replay.py
+          python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/verify-delivery.py
+          python3 -I crates/dive-pluscal/p-elsif-checksum-acceptance/test-delivery.py
+          python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py
+          python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Verify complete test partitions
@@ -146,14 +162,14 @@ jobs:
         run: cargo deny --locked check
 
   workspace-tests:
-    name: Workspace tests (${{ matrix.partition }}/8)
+    name: Workspace tests (${{ matrix.partition }}/16)
     needs: no-ai-authorship
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4, 5, 6, 7, 8]
+        partition: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -167,8 +183,8 @@ jobs:
       - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-nextest
-      - name: All workspace tests, partition ${{ matrix.partition }} of 8
-        run: cargo nextest run --workspace --locked --profile ci --partition hash:${{ matrix.partition }}/8
+      - name: All workspace tests, partition ${{ matrix.partition }} of 16
+        run: cargo nextest run --workspace --locked --profile ci --partition hash:${{ matrix.partition }}/16
 
   workspace-gate:
     # Required check name; must match `cargo xtask protect-main`.

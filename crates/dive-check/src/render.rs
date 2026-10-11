@@ -114,6 +114,23 @@ pub fn render_human(r: &CheckResult, ctx: Ctx) -> String {
             s.depth
         );
     }
+    if let Some(seen) = &r.seen {
+        let cleanup = seen
+            .after_cleanup
+            .is_some_and(|stats| stats.cleanup_completed);
+        let _ = writeln!(
+            out,
+            "Disk seen-state retention: {} admitted keys; actual inline worker {}; explicit cleanup completed: {cleanup}. This is not a total-memory budget.",
+            seen.admitted_keys, r.workers.used
+        );
+        if let Some(failure) = &seen.first_failure {
+            let _ = writeln!(
+                out,
+                "Seen storage {:?} failure: {}",
+                failure.phase, failure.error
+            );
+        }
+    }
     for n in &r.notes {
         let _ = writeln!(out, "note: {n}");
     }

@@ -74,6 +74,7 @@ mod exact;
 mod fpset;
 pub mod frontier;
 pub mod predecessor;
+pub mod seen;
 mod set;
 pub mod spill;
 pub mod state;

@@ -262,6 +262,11 @@ impl std::error::Error for Failure {
 }
 
 fn bind(ir: &Arc<Ir>, config: &ModelConfig, options: &CheckOptions) -> Result<Model, Error> {
+    if options.seen_disk.is_some() {
+        return Err(Error::Analysis(AnalysisError::Unsupported(
+            "disk seen-state retention with temporal capture is not implemented",
+        )));
+    }
     let mode = if options.profile == dive_eval::Profile::Tlc {
         dive_stdlib::random::RandomMode::Tlc
     } else {

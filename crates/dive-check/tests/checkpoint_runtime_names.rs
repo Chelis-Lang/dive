@@ -85,7 +85,7 @@ fn corrupt_name_tables_refuse_without_continuation_or_a_witness() {
                     }
                 }
                 let payload = serde_json::to_vec(&bad).expect("payload");
-                let mut bytes = b"DIVECP01".to_vec();
+                let mut bytes = b"DIVECP02".to_vec();
                 bytes.extend((payload.len() as u64).to_le_bytes());
                 bytes.extend(Sha256::digest(&payload));
                 bytes.extend(payload);

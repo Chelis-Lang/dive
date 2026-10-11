@@ -1,0 +1,8 @@
+---- MODULE ReplayPrintAlias ----
+EXTENDS Integers, TLC
+VARIABLE x
+CONSTANT Emit(_)
+Init == x = 0
+Next == Emit("alias") /\ (x' = 1 \/ x' = 2 \/ x' = 3)
+Inv == IF x = 1 THEN (1 \div 0) = 0 ELSE TRUE
+====

@@ -76,6 +76,9 @@ pub enum TemporalMode {
 /// What to check and how.
 #[derive(Clone, Debug, Default)]
 pub struct CheckRequest {
+    /// Explicit bounded transient disk seen-state route. None keeps the memory
+    /// reference; disk uses reported inline fallback and is not a total-RAM budget.
+    pub seen_disk: Option<dive_check::SeenOptions>,
     /// Opt-in trace-value transport. Legacy version 1 remains default. Version 2
     /// preserves admitted stored representation, not a semantic certificate.
     pub trace_encoding: dive_trace::TraceEncoding,
@@ -165,6 +168,20 @@ pub struct CheckReport {
 }
 
 fn admit_storage_request(req: &CheckRequest) -> Result<(), crate::ApiError> {
+    if let Some(disk) = &req.seen_disk {
+        disk.limits
+            .validate()
+            .map_err(|error| crate::ApiError::Rejected {
+                message: error.to_string(),
+            })?;
+        if req.temporal != TemporalMode::Ordinary {
+            return Err(crate::ApiError::Unsupported {
+                feature:
+                    "disk seen-state retention with temporal/capture checking is not implemented"
+                        .into(),
+            });
+        }
+    }
     if req.trace_encoding == dive_trace::TraceEncoding::RepresentationV2
         && req.temporal != TemporalMode::Ordinary
     {
@@ -226,6 +243,12 @@ pub fn check_file_checkpoint(
     req: &CheckRequest,
     checkpoint: &dive_check::checkpoint::Request,
 ) -> Result<CheckReport, crate::ApiError> {
+    if req.seen_disk.is_some() {
+        return Err(crate::ApiError::Unsupported {
+            feature: "disk seen-state retention with native checkpoint/recovery is not implemented"
+                .into(),
+        });
+    }
     if req.temporal != TemporalMode::Ordinary {
         return Err(crate::ApiError::Unsupported {
             feature: "native checkpoint with temporal checking is not implemented".into(),
@@ -296,6 +319,7 @@ fn check_file_in(
         Store::Exact => StoreMode::Exact,
     };
     opts.no_deadlock = req.no_deadlock;
+    opts.seen_disk.clone_from(&req.seen_disk);
     opts.frontier_memory_bytes = req.frontier_memory_bytes;
     opts.frontier_directory.clone_from(&req.frontier_directory);
     opts.workers = workers_requested;
@@ -619,6 +643,9 @@ impl CheckReport {
             "predecessor_memory_bytes": o.predecessor_memory_bytes,
             "predecessor_path_steps_limit": o.predecessor_memory_bytes.map(|_| dive_store::predecessor::MAX_PATH_STEPS),
         });
+        if let Some(disk) = &o.seen_disk {
+            options["seen_disk"] = json!({"entries_limit": disk.limits.entries, "key_bytes_limit": disk.limits.key_bytes, "probe_steps_limit": disk.limits.probe_steps, "summary_pairs_limit": disk.limits.summary_pairs, "directory": disk.directory, "execution": "inline-fallback", "resident_key_collection_bytes": 0, "total_memory_budget": false});
+        }
         if self.temporal == TemporalMode::FinalShort {
             options["lncheck"] = json!("final");
             options["lasso"] = json!("short");
@@ -864,6 +891,18 @@ impl CheckReport {
                 }
             }
             Phase::Checked(r, _) => {
+                if let Some(storage) = &r.seen {
+                    let facts = |s: dive_store::seen::Stats| json!({ "physical_entries": s.physical_entries, "expected_disk_bytes": s.disk_bytes, "resident_key_collection_bytes": s.resident_key_bytes, "poisoned": s.poisoned, "cleanup_completed": s.cleanup_completed });
+                    doc["seen_storage"] = json!({
+                        "mode": "fallible-disk", "admitted_keys": storage.admitted_keys,
+                        "scope": "seen-key/offset collections only; supplied keys, state values, frontiers, predecessors, candidates, traces, graphs, OS page cache and native archives are outside these bounds",
+                        "before_cleanup": storage.before_cleanup.map(facts), "after_cleanup": storage.after_cleanup.map(facts),
+                        "first_failure": storage.first_failure.as_ref().map(|failure| json!({"phase": format!("{:?}", failure.phase), "operation": format!("{:?}", failure.error.operation), "code": failure.error.code(), "message": failure.error.message, "cleanup_failure": failure.error.cleanup_failure, "generated": failure.generated, "predecessor": failure.predecessor, "successor_ordinal": failure.successor_ordinal})),
+                        "deciding_event_before_failure": storage.deciding_event_before_failure.as_ref().map(|v| format!("{v:?}")),
+                        "replay": storage.replay.as_ref().map(|r| json!({"original_error": format!("{:?}", r.original_error), "predecessor": r.predecessor, "stopped_successor_ordinal": r.stopped_successor_ordinal, "generated": r.generated, "admitted_keys": r.admitted_keys, "queued": r.queued, "unproved_print_output": r.unproved_print_output, "halted_by": r.halted_by.as_ref().map(|v| format!("{v:?}"))})),
+                        "crash_durable": false, "checkpoint_import_supported": false,
+                    });
+                }
                 doc["frontier_storage"] = json!({
                     "mode": if r.frontier.memory_bytes_per_queue.is_some() { "encoded-spill" } else { "memory-reference" },
                     "scope": "encoded current and next frontier queues only; legacy value-frontier heap, candidates, seen sets, traces, graphs and native archive work are not measured or bounded",

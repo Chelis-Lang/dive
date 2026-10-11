@@ -279,7 +279,8 @@ fn admitted_model(
     limits: Limits,
 ) -> Result<Model, Box<Failure>> {
     dive_eval::validate_ir(ir).map_err(|e| before(Error::Context(e), options))?;
-    if options.frontier_memory_bytes.is_some()
+    if options.seen_disk.is_some()
+        || options.frontier_memory_bytes.is_some()
         || options.frontier_directory.is_some()
         || options.predecessor_memory_bytes.is_some()
         || options.predecessor_directory.is_some()
