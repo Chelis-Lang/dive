@@ -40,3 +40,17 @@ on that disk Success. The corrected source refuses this unproved disk context
 before startup; resident success and warning are unchanged. Warning-only
 subscript inspection cannot establish structural admission. No wrong TLC
 verdict, error equivalence or safety certificate is claimed for this refusal.
+
+## Preserved public replay boundary update
+
+The frozen9bb full selection completed1326 tests with one failure in the old
+blanket PROPERTY-refusal assertion. Clean pinned `ErInvReplayProp` exits76,
+EC2111/detail2179, generated4/distinct4/queued1/depth3 and diagnostic states
+`(0,0)`, `(1,0)`, `(2,0)`. The actual public disk, resident and private disk
+routes match. The replacement control compares these exact observations plus
+output/store/transaction/cleanup facts at both profiles/stores, retains all
+private replay checks, and leaves temporal/effectful/Print refusal controls
+intact. [The failed gate and instrumented/pinned evidence](
+../../../conformance/probes/disk-safety-roles/replay-property-before/)
+are historical, not passing test credit. Error words remain diagnostic evidence,
+not independent violation certificates.

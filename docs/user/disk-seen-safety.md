@@ -229,3 +229,12 @@ original named witness mutants remain selected; the varied five/six/seven
 mutants per word total 864. The [portable readback](../../scripts/check-fallible-invariant-replay.py)
 checks the immutable packet without running the checker. Hash integrity is not
 a safety proof or archive authentication.
+
+A proved pure action PROPERTY can now share this invariant-error replay path.
+The pinned `ErInvReplayProp` control reports exit76/EC2111, four generated and
+four distinct states, one queued state, depth3, and the concrete diagnostic
+prefix `(0,0) -> (1,0) -> (2,0)` equally in resident/public/private disk checks.
+This is error-reconstruction evidence; it is not an independently validated
+violation word. Temporal or effectful roles and Print-dependent error replay
+still refuse explicitly. See [the preserved boundary control](
+../../conformance/probes/disk-safety-roles/replay-property-before/).

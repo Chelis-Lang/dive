@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             for store in [Store::Fingerprint,Store::Exact] {
                 let storage = if store == Store::Exact { "exact" } else { "fp" };
                 for width in [1,4,8] { for chaos in [None,Some(0),Some(7)] { for budget in [false,true] {
-                    let report = check_file(&CheckRequest{file:file.clone(),config:Some(file.with_extension("cfg")),seen_disk:Some(SeenOptions::default()),compat_tlc,store,workers:Some(width),seed:Some(7),fp:Some(0),chaos,frontier_memory_bytes:budget.then_some(0),predecessor_memory_bytes:budget.then_some(0),..CheckRequest::default()})?;
+                    let report = check_file(&CheckRequest{file:file.clone(),config:Some(file.with_extension("cfg")),seen_disk:Some(SeenOptions{limits:dive_api::SeenLimits{entries:1000,..dive_api::SeenLimits::default()},..SeenOptions::default()}),compat_tlc,store,workers:Some(width),seed:Some(7),fp:Some(0),chaos,frontier_memory_bytes:budget.then_some(0),predecessor_memory_bytes:budget.then_some(0),..CheckRequest::default()})?;
                     let json=report.to_json();
                     let label=format!("disk-{name}-{profile}-{storage}-{width}-{}-{}",chaos.map_or_else(||"None".into(),|n|n.to_string()),if budget{"True"}else{"False"});
                     let mut expected:serde_json::Value=serde_json::from_slice(&fs::read(runtime.join(format!("{label}.stdout")))?)?;

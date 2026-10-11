@@ -102,7 +102,7 @@
     "crates/dive-check/src/render.rs": "83797f3bfa8f03dc5cd9956834d972710771af004321c296ce2b89aa7c265fb3",
     "crates/dive-check/src/result.rs": "f54c19b8f0e2ae1c1e85a1b7f9269d45b9cf56b1e4b855090b6a31227d02784c",
     "crates/dive-check/src/seen.rs": "5602040e1b997aa5eb1b1aae4bb9286f39a2c15111f8532a5b6a9e0bdf409267",
-    "crates/dive-check/src/seen/tests.rs": "ed721b308e5f9c9b5b6ccab07869079116029d25bad75817b521c6eda8250d03",
+    "crates/dive-check/src/seen/tests.rs": "616db1a996b6fb89fa726265898a246f13a34c7f1963085c363c2dd3418b780c",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-check/tests/checkpoint_keys.rs": "d029dd778f340115a87a5473067027a20227f484d69f22e9016583454aceafa1",
     "crates/dive-check/tests/checkpoint_runtime_names.rs": "27f8b9429a0b6e837c60f4fed2bc0777b4c2f36a2ab070079c662de094d85756",
