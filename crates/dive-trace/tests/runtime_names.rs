@@ -610,3 +610,62 @@ fn string_mixed_opaque_and_effectful_sequence_inputs_stay_refused() {
         );
     }
 }
+
+#[test]
+fn configured_operator_constants_follow_authoritative_native_tuple_bindings() {
+    for (init, target, admitted) in [
+        ("<<0,1>>", "Tail", true),
+        ("\"ab\"", "Tail", false),
+        ("<<0,1>>", "ToString", false),
+    ] {
+        let source = format!(
+            "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nCONSTANT Drop(_)\nVARIABLES x,s\nInit == x=0 /\\ s = {init}\nNext == x'=1 /\\ s'=Drop(s)\nInv == x=0\n====\n"
+        );
+        for final_x in [1, 99] {
+            let model = tuple_replay_model(&source, &format!("CONSTANT Drop <- {target}\n"));
+            let word = TraceDoc::behavior(vec![
+                json!({"x":0,"s":{"seq":[0,1]}}),
+                json!({"x":final_x,"s":{"seq":[1]}}),
+            ])
+            .expect("configured native word")
+            .with_ending(Ending::Invariant("Inv".to_owned()));
+            let actual = validate_doc(&model, &word, &[], None).0.validation;
+            if admitted && final_x == 1 {
+                assert_eq!(actual, Validation::Valid);
+            } else if admitted {
+                assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
+            } else {
+                assert_eq!(
+                    actual,
+                    Validation::Unsupported(dive_trace::RUNTIME_NAMES_UNSUPPORTED.to_owned())
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn inductive_shape_admission_does_not_make_forged_initial_or_successor_values_valid() {
+    // Necessary Init facts justify accepted histories. They do not promise
+    // that no native call can run while a malformed input is being rejected.
+    let source = "---- MODULE TupleReplay ----\nEXTENDS Naturals, Sequences, TLC\nVARIABLES x,s\nInit == Len(Tail(s))=1 /\\ x=0 /\\ s = <<0,1>>\nNext == x'=1 /\\ s'=Tail(s)\nInv == x=0\n====\n";
+    for (initial, successor, admitted) in [
+        (json!({"seq":[0,1]}), json!({"seq":[1]}), true),
+        (json!("ab"), json!({"seq":[1]}), false),
+        (json!({"seq":[0,1]}), json!("b"), false),
+    ] {
+        let model = tuple_replay_model(source, "");
+        let word = TraceDoc::behavior(vec![
+            json!({"x":0,"s":initial}),
+            json!({"x":1,"s":successor}),
+        ])
+        .expect("adversarial concrete input")
+        .with_ending(Ending::Invariant("Inv".to_owned()));
+        let actual = validate_doc(&model, &word, &[], None).0.validation;
+        if admitted {
+            assert_eq!(actual, Validation::Valid);
+        } else {
+            assert!(matches!(actual, Validation::Invalid(_)), "{actual:?}");
+        }
+    }
+}

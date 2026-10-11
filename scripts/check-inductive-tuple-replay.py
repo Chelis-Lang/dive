@@ -56,3 +56,21 @@ for row in rows["rows"]:
             assert doc["result"] == ("valid" if row["label"].endswith("original") else "invalid")
             assert row["exit"] == (0 if row["label"].endswith("original") else 1)
 print("verified68 preimplementation consumers,12 pinned primary cases and retained capture failures; no current support or family certificate")
+
+# Preserve the first actual implementation qualification gap independently
+# of later fixes: the native configured-constant word was refused.
+epoch = BASE / "first-implementation-constant-gap"
+index = json.loads((epoch / "index.json").read_text())
+assert index["source_commit"] == "19deb55bfa94685e273cab286c20c6f5f0674d28"
+assert index["all_consumers_closed"] and not index["family_certified"]
+for name, expected in index["files_sha256"].items():
+    assert hashlib.sha256((epoch / name).read_bytes()).hexdigest() == expected
+read_gap = lambda name: gzip.decompress((epoch / (name + ".gz")).read_bytes())
+gap_steps = json.loads(read_gap("binary-production/steps.json"))
+assert gap_steps[-1]["label"] == "fresh-primary-and-words" and gap_steps[-1]["exit"] == 1
+gap_result = json.loads(read_gap("first-runtime/alias/tlc-original.stdout"))
+assert gap_result["result"] == "unsupported"
+gap_gate = json.loads(read_gap("gate-steps.json"))
+assert len(gap_gate) == 8 and all(row["exit"] == 0 for row in gap_gate)
+assert b"1214 tests run: 1214 passed, 0 skipped" in read_gap("gate/2.log")
+print("retained actual configured-native qualification failure and original1214 full-gate epoch")

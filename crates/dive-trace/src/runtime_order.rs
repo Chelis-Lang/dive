@@ -142,6 +142,15 @@ impl Proof<'_> {
         }
         let ev = &self.model.evaluator;
         let standard = match op {
+            OpRef::Const(id) => {
+                if !self.charge(depth + 1) {
+                    return false;
+                }
+                let Some(ConstBinding::Def(id)) = ev.constant_binding(*id) else {
+                    return false;
+                };
+                return self.call(&OpRef::Def(id), args, scope, depth + 1);
+            }
             OpRef::Std(op) => Some(*op),
             OpRef::Def(id) => {
                 let id = ev.redirected(*id);

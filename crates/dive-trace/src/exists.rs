@@ -127,6 +127,24 @@ impl TupleProof<'_> {
         ev.scope_enter(scope, id)
             .is_ok_and(|sc| self.tuple(body, &sc))
     }
+    // Resolve only authoritative configured native metadata. This never
+    // evaluates a constant/provider or transfers a user operator's context.
+    fn configured_native(&mut self, id: dive_ir::ConstId) -> Option<StdOp> {
+        if self.fuel == 0 {
+            return None;
+        }
+        self.fuel -= 1;
+        let ev = &self.model.evaluator;
+        let ConstBinding::Def(id) = ev.constant_binding(id)? else {
+            return None;
+        };
+        let id = ev.redirected(id);
+        let def = self.model.ir.defs().get(id.index())?;
+        if def.recursive || ev.is_value_override(id) {
+            return None;
+        }
+        def.std
+    }
     fn tuple(&mut self, expr: ExprId, scope: &Scope) -> bool {
         if self.fuel == 0 {
             return false;
@@ -170,6 +188,7 @@ impl TupleProof<'_> {
                 .is_ok_and(|sc| self.tuple(*body, &sc)),
             Expr::Apply { callee, args } => {
                 let op = match callee {
+                    OpRef::Const(id) => self.configured_native(*id),
                     OpRef::Std(op) => Some(*op),
                     OpRef::Def(id) => {
                         let id = ev.redirected(*id);

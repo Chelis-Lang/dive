@@ -51,6 +51,9 @@ establish it. Next must preserve the tuple on every branch through an equality,
 disjunctions and conditionals require all branches. Definitions, actual lazy
 parameter scopes and LET/substitution contexts retain their bound meaning.
 
+Configured operator constants redirected to known native sequence operators use their
+authoritative binding metadata. No provider is forced to discover an operator.
+
 The current operation slice includes tuple literals, concatenation, `Tail` and
 `SubSeq`. Mutually dependent tuple variables are retained only if the entire
 candidate set is inductive; removing one unproved variable removes dependent
@@ -60,6 +63,12 @@ construction, including `<<ToString(x)>>` even on an off-path branch.
 Proof construction is limited to 256 variables, 32,768 predicate visits and
 depth 64, with 256 visits per operand-shape proof. These are bounded inspection
 policies, not a total search memory guarantee. Exhaustion means refusal.
+
+These facts describe accepted histories. A malformed supplied initial value can
+reach a sequence operation before a later necessary equality rejects it; the
+validator still checks that equality. This is not a promise of zero runtime
+effects while rejecting every malformed word. The proof construction itself
+never evaluates expressions or interns names.
 
 ## Remaining refusals
 
