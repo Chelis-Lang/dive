@@ -1,0 +1,12 @@
+{
+  "index": 6,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "binding_code": null,
+    "startup_output": [],
+    "status": "refused",
+    "text": "unsupported: bounded pure zero-state supplied PERIODIC expression (DIVE-L0057)"
+  },
+  "selection": "original"
+}
