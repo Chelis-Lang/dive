@@ -316,10 +316,11 @@ The pinned PlusCal translator computes `7c28162a` for every tested `--fair`
 algorithm, because its ternary checksum expression hashes only `"fair"` and
 omits the normalized AST. Changing `x=0` to `x=9` without changing the translation
 leaves `Validator` reporting `NO_DIVERGENCE`. C/P primary bodies still have different
-TLA CRCs. No native corrected default or full algorithm-CRC implementation is
-adopted. Native `--rewrite --checksums tla` disables algorithm CRC explicitly;
-`--checksums full` refuses by name. Compatibility reproduction of the full
-algorithm CRC remains pending exact AST serialization. See D-020 in the
+TLA CRCs. No native corrected default is adopted. Bounded sequential full AST
+serialization now reproduces the reference CRC, with `fair_header_crc_only=true`
+reporting this weakness. `algorithm_checksum_verified` means verified reference
+CRC derivation, not source identity or proof. Unproved AST shapes remain named
+refusals; `--rewrite --checksums tla` explicitly disables algorithm CRC. See D-020 in the
 [user log](tlc-differences.md), D-008 for separate artifact admission, and
 `crates/dive-pluscal/rewrite-acceptance/fair-checksum/` for all six primary/four
 source-edit controls.

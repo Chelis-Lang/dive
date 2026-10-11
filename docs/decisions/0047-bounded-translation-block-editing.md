@@ -45,3 +45,30 @@ integrity, algorithm integrity, TLA admission and model proof remain separate.
 The six fair-algorithm controls expose an upstream algorithm-CRC collision (D-020);
 this increment does not fix it or adopt a new result-changing default. A later
 increment must prove the full serializer independently before offering full CRC.
+
+## Addendum: proved post-translation AST checksum subset
+
+Full requests now serialize the pinned `AST.toString()` after name-fix and
+translation/Explode for the admitted bounded sequential context. Exact native
+bytes are compared to each corresponding primary capture, separately from
+parsed/name-fixed-stage observations. The serializer retains reference newlines,
+expression-token encoding and C block flattening; unproved name fixes, processes,
+procedures, macros, definitions, multiline/junction tokens, elsif, multiple with
+binders and branch-internal labels refuse without producing a CRC. Existing
+normalization admission and budgets remain required. No dependency edge changes.
+
+`algorithm_checksum_verified` means the reference CRC derivation has been proved
+for the requested shape. It is not integrity certification or source identity.
+`algorithm_matched` compares the recorded reference CRC only. D-020 is deliberately
+reproduced: a fair header hashes only `fair`, with `fair_header_crc_only=true`. No
+stronger default is adopted. Old algorithm CRC absence/disablement/mismatch needs
+the same explicit replacement grant as a modified body. Body-only requests remain
+explicit overrides and broader generation remains separate from full serialization.
+
+The AST study retains original failed controls, all source-stage rejections and
+name/default/label-context refusals. API/CLI output is independently checked for
+nonproof flags, exact spans and CRCs, then admitted rewritten artifacts are checked
+with SANY and the pinned Validator, including corrupted header/body/source cases.
+The supplied-primary-body editor comparison earns exact editing-byte evidence
+only. Broader AST shapes, exact generator formatting, file writes and mapping
+format remain pending; no feature-family certification is inferred.

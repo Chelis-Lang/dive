@@ -44,7 +44,14 @@ fn exact_line_checksum_and_prefix_suffix_replacement() -> Result<(), Box<dyn std
 #[test]
 fn modified_missing_full_and_ambiguous_contracts_refuse() {
     let source = source();
-    assert!(rewrite_document(&source, "x == 1", &RewriteOptions::default()).is_err());
+    let unsupported = source.replace(
+        "L:x:=1;",
+        "L:if x=0 then x:=1; elsif x=1 then x:=2; else skip; end if;",
+    );
+    assert!(
+        rewrite_document(&unsupported, "x == 1", &RewriteOptions::default())
+            .is_err_and(|e| e.code == Code::Unsupported)
+    );
     let initial = rewrite_document(&source, "x == 1", &options());
     assert!(initial.is_ok());
     if let Ok(initial) = initial {
