@@ -1,0 +1,53 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-check)
+error[E0425]: cannot find function `snapshot` in this scope
+    --> crates/dive-check/src/checkpoint.rs:1208:24
+     |
+1208 |         let snapshot = snapshot();
+     |                        ^^^^^^^^ not found in this scope
+
+error[E0599]: no associated function or constant named `default` found for struct `options::CheckOptions` in the current scope
+    --> crates/dive-check/src/checkpoint.rs:1258:29
+     |
+1258 |             ..CheckOptions::default()
+     |                             ^^^^^^^ associated function or constant not found in `options::CheckOptions`
+     |
+    ::: crates/dive-check/src/options.rs:8:1
+     |
+   8 | pub struct CheckOptions {
+     | ----------------------- associated function or constant `default` not found for this struct
+     |
+note: if you're trying to build a new `options::CheckOptions` consider using one of the following associated functions:
+      options::CheckOptions::tlc
+      options::CheckOptions::dive
+    --> crates/dive-check/src/options.rs:70:5
+     |
+  70 |     pub const fn tlc(fp_index: usize, seed: i64) -> Self {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+  91 |     pub const fn dive(seed: i64) -> Self {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = help: items from traits can only be used if the trait is implemented and in scope
+     = note: the following trait defines an item `default`, perhaps you need to implement it:
+             candidate #1: `Default`
+
+error[E0308]: mismatched types
+    --> crates/dive-check/src/checkpoint.rs:1263:52
+     |
+1263 |             .push(vec![Some(dive_value::Value::int(1))].into(), 0)
+     |                             ---------------------- ^ expected `Int`, found integer
+     |                             |
+     |                             arguments to this function are incorrect
+     |
+note: associated function defined here
+    --> crates/dive-value/src/value.rs:72:12
+     |
+  72 |     pub fn int(i: Int) -> Self {
+     |            ^^^
+help: try wrapping the expression in `dive_value::Int::Small`
+     |
+1263 |             .push(vec![Some(dive_value::Value::int(dive_value::Int::Small(1)))].into(), 0)
+     |                                                    +++++++++++++++++++++++ +
+
+Some errors have detailed explanations: E0308, E0425, E0599.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `dive-check` (lib test) due to 3 previous errors

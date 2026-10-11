@@ -1,0 +1,64 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-procedure-fairness-work/crates/dive-pluscal)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 40.82s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-pluscal-procedure-fairness-target/debug/deps/dive_pluscal-33b0d32beaef331b)
+
+running 1 test
+test translation::fairness::tests::aggregate_fairness_work_is_charged_before_next_owner ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/fairness.rs (/Users/jeff/code/dive-pluscal-procedure-fairness-target/debug/deps/fairness-eebfcd1e44261389)
+
+running 1 test
+test retained_fairness_artifacts_and_errors ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.44s
+
+     Running tests/macros.rs (/Users/jeff/code/dive-pluscal-procedure-fairness-target/debug/deps/macros-f8b1d2a7039fdd39)
+
+running 5 tests
+test unchanged_scopes_do_not_hide_macro_free_process_names ... ok
+test repeated_large_actual_is_bounded_before_clone_amplification ... ok
+test original_ast_and_all_error_spans_remain_source_owned ... ok
+test pinned_macro_artifacts_rejections_and_uncredited_invalid_output ... ok
+test amplification_is_charged_before_output_allocation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.33s
+
+     Running tests/multiple.rs (/Users/jeff/code/dive-pluscal-procedure-fairness-target/debug/deps/multiple-daeca6cfbb026a0d)
+
+running 3 tests
+test aggregate_budget_fails_before_combining_parts ... ok
+test limits_charge_all_process_actions_and_bytes ... ok
+test retained_multiple_process_artifacts_and_errors ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.03s
+
+     Running tests/multiple_procedures.rs (/Users/jeff/code/dive-pluscal-procedure-fairness-target/debug/deps/multiple_procedures-23a067073658b705)
+
+running 3 tests
+test scopes_fairness_and_overlapping_domains_remain_explicit ... FAILED
+test shared_actions_and_storage_are_not_multiplied_by_process_count ... ok
+test retained_multiple_process_procedure_artifacts_match ... FAILED
+
+failures:
+
+---- scopes_fairness_and_overlapping_domains_remain_explicit stdout ----
+Error: "refusal"
+
+---- retained_multiple_process_procedure_artifacts_match stdout ----
+
+thread 'retained_multiple_process_procedure_artifacts_match' (111187271) panicked at crates/dive-pluscal/tests/multiple_procedures.rs:111:5:
+assertion `left == right` failed
+  left: 106
+ right: 94
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    retained_multiple_process_procedure_artifacts_match
+    scopes_fairness_and_overlapping_domains_remain_explicit
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.43s
+
+error: test failed, to rerun pass `-p dive-pluscal --test multiple_procedures`

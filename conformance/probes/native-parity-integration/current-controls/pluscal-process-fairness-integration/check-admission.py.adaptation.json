@@ -1,0 +1,17 @@
+{
+  "original": "crates/dive-pluscal/procedure-fairness-acceptance/check-admission.py",
+  "original_sha256": "87573f7b3a68b1fbfc1beadec483d91ef081e499741471a9fd2f7c8c4f5ff257",
+  "adapted_sha256": "23e7cf501436e4f2b83ab5c75bbd2b398c89252de9cfcfe723328f7f1e6fac87",
+  "changes": [
+    {
+      "old": "HERE=Path(__file__).resolve().parent",
+      "new": "HERE=Path('/Users/jeff/code/dive-pluscal-process-shipping-work/crates/dive-pluscal/procedure-fairness-acceptance')"
+    },
+    {
+      "old": "output=HERE/'admission'",
+      "new": "output=Path('/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/admission')"
+    }
+  ],
+  "assertions_weakened": false,
+  "historical_reports_changed": false
+}

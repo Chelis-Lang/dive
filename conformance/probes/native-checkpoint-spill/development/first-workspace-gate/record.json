@@ -1,0 +1,6 @@
+{
+  "source_commit": "f7143b64301fe43b31a2c809d5f85d425871ac43",
+  "checkpoint_source_sha256": "b79206336e126ab2adbcc36decec35dd61435b41bb3413fc0e5efe67f97e3ec9",
+  "release_binary_sha256": "7bf501cdf5b95a4c8f89ebc514bb6b985d9a3a1554089432d0729c0efacdb48c",
+  "qualification": "Workspace Clippy rejects assert!(!failures.is_empty()) in the new actual-close control. Replace with assert_ne!(failures,[]) to retain strict nonempty evidence and diagnostic output; production behavior and oracle evidence unchanged."
+}

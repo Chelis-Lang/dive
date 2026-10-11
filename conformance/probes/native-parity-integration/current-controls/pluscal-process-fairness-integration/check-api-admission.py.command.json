@@ -1,0 +1,14 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "python3",
+    "-I",
+    "/Users/jeff/code/dive-pluscal-process-shipping-work/conformance/probes/native-parity-integration/current-controls/pluscal-process-fairness-integration/fresh-check-api-admission.py",
+    "--target",
+    "/Users/jeff/code/dive-checkpoint-keys-shipping-target"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 2.5074329376220703,
+  "log_sha256": "9bcc46e0b8fabf42c322c351d1426568709fe8f213b98c770e2aeee1a80fd357"
+}

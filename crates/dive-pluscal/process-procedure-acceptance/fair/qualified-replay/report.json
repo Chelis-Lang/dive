@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "script_sha256": "b3d9d460a8f4b9fcc013df7203caebeb435ea40584dd0d57300847183e4af0e3",
+  "original_report_sha256": "50babfba3afb5ca16bc0dcd72b288851be207f204c4b04306340804668cf496f",
+  "native_sha256": "23466627a82d6cae363602d73f642f712b12a583e04cbbdd8013d3df943cfaf6",
+  "family_certified": false,
+  "tlc_violation_certified": false,
+  "scope": "Default/canonical replay is qualified separate evidence; no #124 guard relaxation or strict validation credit. Original strict disagreement campaign remains unchanged.",
+  "summary": {
+    "strict-complete-model-match": 2,
+    "strict-witness-pending": 2
+  },
+  "rows": [
+    {
+      "id": "ProcessProcedureFair_C_global.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.complete",
+      "outcome": "strict-complete-model-match"
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "outcome": "strict-witness-pending",
+      "strict_validation": {
+        "command": "validate-trace",
+        "length": 4,
+        "notes": [],
+        "result": "unsupported",
+        "schema_version": 1,
+        "unsupported": "runtime string encounter order: the independent validator cannot establish names created outside the supplied trace (#124)"
+      },
+      "tlc_certified": false
+    }
+  ],
+  "controls": [
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_C_global.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_C_global.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_C_global.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_C_global.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_C_global.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_C_global.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "control": "original",
+      "profile": "dive-default",
+      "result": "valid",
+      "exit_code": 0,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_P_global.violation.original.stdout.gz",
+          "sha256": "e28c96fbd1b31f748e94fde691a035a44c79ecc3d96516eacf8ae3658d1f88b9"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_P_global.violation.original.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "control": "invalid-init",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-init.stdout.gz",
+          "sha256": "14225ed24d99bc0509be45d4e61ae82e47a87420ab50f02d0b3215a8a121b6c5"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-init.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "control": "invalid-next",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-next.stdout.gz",
+          "sha256": "c54daafc21c006d8618dc6f85a35a92e21eb30c587719be0ccade4ebd2bcb36d"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-next.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "control": "missing-final-variable",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_P_global.violation.missing-final-variable.stdout.gz",
+          "sha256": "6e2ba81847131ecbcda5febf558689f37f741f3ccde4315f9b76ddf26a2cea42"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_P_global.violation.missing-final-variable.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "ProcessProcedureFair_P_global.violation",
+      "control": "invalid-closing",
+      "profile": "dive-default",
+      "result": "invalid",
+      "exit_code": 1,
+      "strict_tlc_credit": false,
+      "capture": {
+        "stdout": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-closing.stdout.gz",
+          "sha256": "30f6107e96e9074b95a15e0e0c436da13e26dacca3cc45e51db662ccf81a1de1"
+        },
+        "stderr": {
+          "path": "ProcessProcedureFair_P_global.violation.invalid-closing.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

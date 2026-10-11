@@ -559,6 +559,36 @@ replacement candidates and hooks return named refusal with zero used workers.
 Standard-module classification does not bypass this admission. Explicit sequential
 requests/fallback execution remain refused until their observer path is certified.
 
+The [single finite process procedure increment](pluscal-process-procedures.md)
+retains 112 capture-first C/P controls and owned parameter/local/stack/pc
+transfers. Native artifacts and generated-model/witness stages remain separate;
+all invalid primary output is uncredited. Multiple process/procedure ownership,
+renaming/process-declared fairness and strict #124 namespace replay remain pending.
+The separate two-row algorithm-level fair study proves global WF_vars(Next)
+artifact generation with CST/SANY and four finite Init/Next controls; it does
+not certify liveness execution. F-034/F-035
+stay partial/audit-required; no family denominator or certification change.
+
+The [shared finite-process procedure increment](pluscal-multiple-procedures.md)
+retains a separate complete 166-row C/P selection. One procedure normalization
+feeds all owned process bodies; global quotas and constant/procedure/member
+scheduling are source-backed. Invalid primary outputs and named scope/fairness
+refusals remain visible. Artifact, finite execution, strict namespace-pending
+and qualified canonical witness evidence stay separate. F-034/F-035 remain
+partial and audit-required, with no family denominator change.
+
+### Bounded process-owned procedure fairness
+
+The [fair procedure guide](pluscal-procedure-fairness.md) extends the native
+finite, disjoint caller path with per-caller transitive WF/SF and label modifiers.
+It preserves 328 original cases, 146 separately corrected modifier cases and six
+separate timeout follow-ups. These stages do not certify full F-034/F-035:
+SANY-invalid primary artifacts remain uncredited, fair Spec generation is
+nonproof, and strict #124 witness replay stays separate from qualified canonical
+replay. Scoped renaming, sequential procedure modifier interactions and full
+historical option/format/map contracts remain pending.
+
+
 F-032 pure finite safety recovery additionally resumes the saved level through
 the deterministic worker pool, with width/chaos and cross-width concrete-result
 controls and inline-equivalent native counter stopping prefixes. This remains

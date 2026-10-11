@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "script_sha256": "65d6acc940a4c626ee4abbc70e5e0bde6e06e809ffd74fa7c20ee42371bad085",
+  "guide_sha256": "d704f72c0793ae810364889845f1e3761d75873434409ef62a795979b7cf4987",
+  "library_sha256": "edc9c799311aae4b2e8f771d67bd1b3806e08a390b540f113cdae3f35f08529a",
+  "controls": 2,
+  "rows": [
+    {
+      "module": "FairCall",
+      "source_sha256": "3d99fbdd4db13704831a261f1bfca9b189b2d8e19db3c758206f828bf8526fa9",
+      "program_sha256": "8a23d1ecdf1c18d9056b4642f9963c0be49c8ebfb73d1943d9883bca8decec1c",
+      "result": "artifact",
+      "model_proved": false,
+      "exhaustive": false,
+      "exit_code": 0,
+      "capture": {
+        "stdout": {
+          "path": "FairCall.stdout.gz",
+          "sha256": "0aab0bfa9863c7ed2e793318ea1004156910908b385ff3e690949702fa6fe895"
+        },
+        "stderr": {
+          "path": "FairCall.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "module": "FairCallC",
+      "source_sha256": "ee0c647dd6d1d29140bfe800267966087d1b55899058fa1d504720ce3358755e",
+      "program_sha256": "79b2afc1765eac4c81a440222692bdbcbb922c3999d3681098fd32381aef6331",
+      "result": "artifact",
+      "model_proved": false,
+      "exhaustive": false,
+      "exit_code": 0,
+      "capture": {
+        "stdout": {
+          "path": "FairCallC.stdout.gz",
+          "sha256": "3a0edf40b76e45cafcf59bb660461ae7ad21b4deb99988930c9cce815eb7fdc4"
+        },
+        "stderr": {
+          "path": "FairCallC.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

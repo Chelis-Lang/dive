@@ -1,0 +1,16 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "bash",
+    "scripts/conformance-gate.sh",
+    "conformance/gates/cm1.txt",
+    "--workers",
+    "1,4,8",
+    "--dive-bin",
+    "/Users/jeff/code/dive-process-fairness-current-artifacts/dive"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 49.780927896499634,
+  "log_sha256": "178b0c5a36d8c60ab981e856eba6db8a580c1a840e18f74ebbe0789b74d210f3"
+}

@@ -1,0 +1,100 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.160s
+
+OK
+........
+----------------------------------------------------------------------
+Ran 8 tests in 1.260s
+
+OK
+Parity accounting: 37 families, {'implemented': 7, 'partial': 26, 'missing': 4}; certification audit remains required.
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.056s
+
+OK
+verified 84 projection controls, 12 actual models, 80 historical adapter controls and 12 historical pre-whitespace models
+verified 137 current and 136 historical tableau controls, all ten process failures, complete raw bytes and source hashes
+verified all 36 pinned direct controls, compiler failure and native before observations
+verified55 structural,35 actual synthetic LiveCheck,51 complete bound-model rows,20 clean TLC runs and every retained historical failure/source
+verified complete15 graph models,1 forced-collision control,15 clean TLC outcomes and all historical attempts/source matrices; no strict verdict claim
+verified all24 current and18 historical conditional controls, original capture failure and native regressions
+verified 936 original runs, 624 bounded comparisons, complete delivery source history and current integration hashes
+verified576 original full/pause/recovery rows,144 archives, complete immutable source history and current integration
+verified 7 immutable slice source histories and distinct combined source hashes; no family certification
+verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants
+   Compiling proc-macro2 v1.0.107
+   Compiling serde_core v1.0.229
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+    Checking serde_json v1.0.151
+   Compiling libc v0.2.190
+   Compiling serde_derive v1.0.229
+    Checking serde v1.0.229
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-ir)
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-pluscal)
+   Compiling getrandom v0.3.4
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-eval)
+    Checking bitflags v2.13.2
+   Compiling zerocopy v0.8.62
+    Checking rand_core v0.9.5
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-model)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-stdlib)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-liveness)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-sim)
+    Checking ppv-lite86 v0.2.21
+    Checking rand_chacha v0.9.0
+    Checking rand v0.9.5
+    Checking rand_xorshift v0.4.0
+    Checking unarray v0.1.4
+    Checking regex-syntax v0.8.11
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-api)
+    Checking errno v0.3.14
+   Compiling rustix v1.1.5
+    Checking proptest v1.11.0
+    Checking terminal_size v0.4.4
+    Checking anstyle v1.0.14
+    Checking clap_lex v1.1.1
+    Checking clap_builder v4.6.7
+   Compiling syn v2.0.119
+    Checking clap v4.6.7
+    Checking regex-lite v0.1.9
+    Checking condtype v1.3.0
+    Checking winnow v1.0.4
+   Compiling signal-hook v0.4.5
+    Checking toml_parser v1.1.4+spec-1.1.0
+    Checking signal-hook-registry v1.4.8
+    Checking toml_datetime v1.1.2+spec-1.1.0
+    Checking serde_spanned v1.1.2
+    Checking toml v1.1.7+spec-1.1.0
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-conformance)
+   Compiling divan-macros v0.1.21
+    Checking divan v0.1.21
+    Checking dive-value v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-value)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-store)
+    Checking dive-bench v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-bench)
+    Checking dive-syntax v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-syntax)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-config)
+    Checking dive-cli v0.0.0 (/Users/jeff/code/dive-checkpoint-spill-work/crates/dive-cli)
+error: used `assert!` to check that a value is not empty
+    --> crates/dive-check/src/checkpoint.rs:1271:9
+     |
+1271 |         assert!(!frontier.failures.is_empty());
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+     = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+     = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_ne!` to show the value on failure
+     |
+1271 -         assert!(!frontier.failures.is_empty());
+1271 +         assert_ne!(frontier.failures, [] as [std::string::String; 0]);
+     |
+
+error: could not compile `dive-check` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

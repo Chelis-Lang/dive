@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "stage": "process-procedure-fairness-token-artifacts",
+  "oracle_id": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "manifest_sha256": "52ea296c089cceda61ce8dc2debfd18ca080934ebeda6a8deb9571493be5a4f2",
+  "comparator_sha256": "c392c74f6c7c1e69e5ad8c36d05add32dc99de5329574a4c25b95800ff958b20",
+  "native_sha256": "3b274e19822b7f48a30e3a807bbecdc65fb0bc2fd51b4793070481ebc29933da",
+  "model_proved": false,
+  "pending": [
+    "unproved-overlapping-domains",
+    "name-renaming",
+    "unproved-scoped-renaming",
+    "unproved-macro-substitution",
+    "labels-inside-branches",
+    "historical-options",
+    "pretty-width",
+    "file-rewriting",
+    "checksums",
+    "mapping-format"
+  ],
+  "selected": 5,
+  "summary": {
+    "token-artifact-match": 5
+  },
+  "rows": [
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "e601493f7e409e74ed57e024d06329b44eba57d5bea0624d0ddf28ec9f89995e",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_call_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "24a6692d5c96e7565f323527a528128601ade169ff661f8f32ccf5601cbf94f8",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_minus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "5e3c245151c3d5bd3f5a5665b5d7bc99ed453e7433fd3c630e796ac9a45717a6",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_process_two_plus",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "56ad48f6e0f64aa351684a1803582a7c72c37a54c64cf84c18018df4a8f9ec13",
+      "action_count": 6,
+      "program_counter": true
+    },
+    {
+      "id": "FairProcedureModifier_P_mixed_reach_nested_modifiers",
+      "primary": "translated",
+      "primary_sany": "accepted",
+      "outcome": "token-artifact-match",
+      "generated_sha256": "3f4d6a40f3c54c1861bceff8b52b6de31b38ddd7fa6425bd12867e1168c01b00",
+      "action_count": 8,
+      "program_counter": true
+    }
+  ]
+}

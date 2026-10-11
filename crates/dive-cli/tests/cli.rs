@@ -784,9 +784,7 @@ fn native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes() {
     }
     for flags in [
         vec!["--lncheck", "final", "--lasso", "short"],
-        vec!["--frontier-memory-bytes", "0"],
         vec!["--frontier-directory", "unused"],
-        vec!["--predecessor-memory-bytes", "0"],
         vec!["--predecessor-directory", "unused"],
     ] {
         let mut args = vec![
@@ -806,6 +804,38 @@ fn native_checkpoint_option_contract_rejects_orphans_and_unsupported_modes() {
                 || String::from_utf8_lossy(&output.stderr).contains("frontier")
         );
         assert!(!std::path::Path::new("unused.cp").exists());
+    }
+}
+
+#[test]
+fn native_checkpoint_spill_budgets_pass_option_admission_before_input_error() {
+    for flags in [
+        vec!["--frontier-memory-bytes", "0"],
+        vec!["--predecessor-memory-bytes", "0"],
+        vec![
+            "--frontier-memory-bytes",
+            "0",
+            "--predecessor-memory-bytes",
+            "0",
+        ],
+    ] {
+        let archive = "admitted-spill-checkpoint-missing.cp";
+        let mut args = vec![
+            "check",
+            "missing-native-spec.tla",
+            "--checkpoint",
+            archive,
+            "--checkpoint-after-levels",
+            "0",
+        ];
+        args.extend(flags);
+        let output = dive(&args);
+        assert_eq!(output.status.code(), Some(2));
+        assert_eq!(output.stdout, [] as [u8; 0]);
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("cannot read missing-native-spec.tla")
+        );
+        assert!(!std::path::Path::new(archive).exists());
     }
 }
 

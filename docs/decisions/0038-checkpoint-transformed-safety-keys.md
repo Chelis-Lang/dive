@@ -108,3 +108,44 @@ controls cover both profiles/stores, 1/4/8 widths, chaos, cross-width restoratio
 actual later-level recovery, counters and concrete independent witnesses. The
 archive 64 MiB/state 65,536 bounds remain; parallel candidates/keys/scratch and
 ordinary retention are not a total-memory budget. Full F-032 remains partial.
+
+## Implementation addendum: transient spill recovery (2026-10-10)
+
+The previous addendum's spill exclusion is removed for the same pure finite
+safety slice. No semantic key/counter/default or dependency graph changes.
+Restoration decodes discoveries in original order, inserts configured keys,
+rebuilds the configured fallible predecessor log and streams only the saved
+frontier suffix directly into the configured queue. No second full decoded
+frontier or resident disk-offset index is introduced. A completed-level snapshot
+still retains native discovery payloads/parents independently of both budgets.
+
+Pause/recovery may use either budget, both or neither, and recovery may change
+budgets/directories/width. These are storage/execution choices excluded from
+semantic identity; executable/source/profile/store/config/key identity and all
+archive admission bounds remain unchanged. Queue/log failure prevents a model
+certificate, retains the original deciding event and preserves actual archive
+bytes if commit preceded a later cleanup failure. The additive receipt field
+`transient_storage_cleanup_completed` is computed from typed finalized storage
+evidence; no diagnostic substring changes behavior.
+
+The original complete parallel recovery source/raw receipts remain frozen.
+Current controls retain the original memory selection and run frontier-only,
+predecessor-only and both-zero storage across both profiles/stores, 1/4/8 widths,
+chaos and both completed-level boundaries. Counter reset/Retain, concrete
+independent witnesses, tiny/change-budget controls, corruption and blocked
+storage directories are separate obligations. Runtime/effect/temporal/deferred
+recovery and full F-032 certification remain pending. Native archive workspace,
+visited sets/candidates/worker scratch and reconstructed paths remain outside
+both transient budgets; no aggregate-memory or Java byte-interop claim.
+
+### Combined implementation verification, 2026-10-11
+
+The transient-storage continuation was integrated with the current parallel
+recovery/observer engine and newer temporal/PlusCal CLI without changing their
+production code. Its source-bound current receipt is
+`conformance/probes/native-checkpoint-spill/current-shipping/delivery.json`;
+the prior delivery/source maps remain immutable. Fresh 576-group recovery and
+96 failure selections, concrete independent witnesses, CLI/Rust guide examples,
+916 workspace tests and CM1/VTS at 1/4/8 passed. Limits, named exclusions and
+trusted-local non-certificate status remain as specified above. Local two-thread
+timing does not certify the Linux job budget; all test/time bounds are unchanged.

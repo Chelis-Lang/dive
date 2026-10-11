@@ -66,3 +66,10 @@ For pure conditional predicates through `FinalTlc`/`tlc_temporal::check_final`,
 see [the conditional API example](../tlc-state-if.md). Ordinary periodic
 scheduling, exact temporal identity and unproved captured bindings remain
 explicitly unavailable in this bounded path.
+
+
+The [fair procedure guide](../pluscal-procedure-fairness.md) includes a compiled
+Rust caller using `TranslationRequest.limits.fairness`. Shared finite process
+procedures retain per-ID ownership; their admitted translation reports still
+carry `model_proved: false`. Read [PlusCal boundaries](pluscal.md) before
+interpreting a generated Spec as a checker result.

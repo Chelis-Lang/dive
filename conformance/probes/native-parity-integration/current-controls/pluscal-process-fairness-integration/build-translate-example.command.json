@@ -1,0 +1,17 @@
+{
+  "source_commit": "1d0acf0f1916c1156010e296e6c26ea9c1fff759",
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "-p",
+    "dive-pluscal",
+    "--example",
+    "translate"
+  ],
+  "exit_code": 0,
+  "expected_exit_code": 0,
+  "elapsed_seconds": 30.110584259033203,
+  "log_sha256": "b7593b9088037f8775cd599ecd4ffa34ae6178bef061d04d8e4e0c9806919d5d"
+}
