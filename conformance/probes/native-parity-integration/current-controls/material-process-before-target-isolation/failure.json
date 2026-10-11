@@ -1,0 +1,19 @@
+{
+  "source_commit": "4ea768c28a1a99c77188404425b566f70ad88ccd",
+  "source_sha256": {
+    "crates/dive-liveness/src/phase_execution.rs": "1c68ca035f661941925037c63d2e39b1cf95cab69996a52fa03a6f6c13944d15",
+    "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
+    "crates/dive-api/Cargo.toml": "3ff682272044a869f39687d4a8b8608445ae6fadcd80f6755004a9a8b879b392",
+    "crates/dive-liveness/Cargo.toml": "4c8af3b4b55b9240787683779d0adbe95b71a1d487630b20d1a697f5260aa896"
+  },
+  "gate_stages_passed": 1,
+  "failed_stage": "clippy",
+  "failed_exit": 101,
+  "target_reused": "closed pluscal rewrite target",
+  "evidence_sha256": {
+    "dive-material-process-publication-driver.log": "4751ad56916be79d4d9a62068f135d09bc35d96201278c68a5aa2753cf447e67",
+    "dive-material-process-publication-gate-0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-material-process-publication-gate-1.log": "802b5d126baa6d799f105717bf8b7d1daaa6a03857635ffcfe80b6c613e7208a"
+  },
+  "scope": "Uncredited integration failure; source contains the requested field while loaded dependency reported it absent. Fresh isolated target required before diagnosis or code changes."
+}
