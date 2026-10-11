@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "exit_code": 130,
+  "reason": "Closed intermediate prefix before mandatory guard for retained ignored source options; final complete selection rerun required.",
+  "completed_prefix_rows": 252,
+  "family_certified": false,
+  "final_conformance_credit": false
+}

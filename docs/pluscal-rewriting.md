@@ -2,7 +2,7 @@
 
 `dive translate --rewrite` returns a replacement document in memory. It leaves
 its input file unchanged. The default `--checksums full` derives both reference
-checksums for the proved bounded sequential AST subset. Unproved AST shapes
+checksums for the proved bounded sequential and finite-process AST subsets. Unproved AST shapes
 return named unsupported results. Explicit `--checksums tla` supports the broader
 generator scope by recording only the generated-body CRC and disabling algorithm
 CRC; it never silently substitutes for full checking.
@@ -81,11 +81,12 @@ assignment (including parallel/selectors), skip/goto, await/assert/print, if/els
 either, single-binding with and while, including proved C block wrappers and
 label normalization. Nested `elsif`, multiple `with` binders, multiline
 expressions and normalized ASCII junction columns have proved raw CRC
-derivation. Multiline expression generation remains a named refusal;
+derivation. Bounded sequential non-junction multiline generation is admitted;
+unproved junction, binder, macro and process layouts remain named refusals.
 [the expression guide](pluscal-checksum-expressions.md) gives executable C/P
 and Rust examples and precise newline/column/refusal limits. The separately
 measured Unicode expression controls include `∧`, `≤`, `≠` and `∈`. Definitions,
-macros, procedures, processes, scoped name fixes, branch-internal labels,
+macros, procedures, scoped name fixes, branch-internal labels,
 labelled C wrappers and unproved
 proof-step-shaped expression tokens are named refusals. Use `--checksums tla`
 explicitly when generation is supported but full serialization is not; that
@@ -141,13 +142,15 @@ The original failed comparisons remain in the integration evidence.
 
 [Conditional and expression-layout checksum support](pluscal-checksum-expressions.md)
 describes the admitted nested `elsif` and multiple `with` forms. Multiline
-checksum serialization is available in the proved subset; multiline artifact
-generation still returns a named unsupported result in this delivery.
+checksum serialization and sequential non-junction multiline artifact generation
+are available in the proved subset. Multiline junction, macro, process and
+procedure layouts still return named unsupported results. See the
+[multiline guide](pluscal-multiline.md) for the precise boundaries.
 
 These checks do not certify full PlusCal parity, source integrity, model
 correctness or byte-for-byte generator formatting.
 
-## Current combined publication checks
+## Prior combined publication checks
 
 The [current source-bound receipt](../conformance/probes/native-parity-integration/current-controls/full-checksum-runtime-publication/verification.json) records the corrected combined
 runtime: 982 workspace tests, zero skipped, all eight local gate stages, the
@@ -179,3 +182,25 @@ All kept their input files unchanged and their nonproof fields false. Historical
 BodyOnly, quota, forgery, state-count and witness campaigns remain bound to their
 original producers. This publication adds no formatter, filesystem-write,
 mapping-format or full-family certification.
+
+Bounded sequential non-junction multiline generation and its executable CLI/API
+examples are documented in [the multiline guide](pluscal-multiline.md). The older
+raw multiline checksum captures remain separate from this new admission evidence.
+
+Finite processes with declared fairness now have a separately proved Full
+serialization contract; see [runnable process examples](pluscal-process-checksums.md).
+Proved explicit process fairness/automatic-label options have the separate
+contract below; unproved source-option declarations and scoped call/name contexts
+remain Full refusals. CRC equality is still neither integrity nor model proof.
+
+Source `PlusCal options (...)` declarations currently return a named unsupported
+result before native generation or algorithm CRC derivation. Use supported
+explicit CLI/API settings. This refusal prevents silently dropping source fairness
+or label options; it does not change supplied-body editing's separate nonproof
+contract. Evidence: `crates/dive-pluscal/source-option-acceptance/`.
+
+Bounded finite process Full serialization now accepts proved explicit fairness
+and automatic-label options; see [process checksum options](pluscal-process-checksum-options.md).
+It records the typed normalization context, refuses unproved in-source option
+comments and does not claim that command-line settings survive in the pinned
+header or that a CRC establishes source identity (D-020/D-021).

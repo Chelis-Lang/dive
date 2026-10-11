@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "binary_sha256": "d424bc58a0651e1fa18c0cf7f720c5b194550f5654892f3d6a7f931fd3f8cba3",
+  "script_sha256": "1a7d289a7b1b1bb8dfb56cbae024f295500ec2ca0ae3a64c64019f48cf9f126b",
+  "manifests": {
+    "owner-controls": "37494d692cc19a6b77ba6ae11c88f77e52c79ad653f33825c3ddc704d0255046"
+  },
+  "selected": 12,
+  "family_certified": false,
+  "artifact_admitted": false,
+  "summary": {
+    "exact-post-translation-serialization": 12
+  },
+  "rows": [
+    {
+      "id": "owner-controls__C_opposed-plus-minus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "daefdca39a02bc03dc139f80bbccc25e63bec2b521cfcb6244eaa17752976572"
+    },
+    {
+      "id": "owner-controls__C_opposed-minus-plus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "c6d0650c1381fa9fc85f574a9074a76a8fe774f41113d6c227ddc9e95a380260"
+    },
+    {
+      "id": "owner-controls__C_default-name",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "22edc63ddd3e344028bcca95c4b2d0598464d4f6fa039e11498d7993bf4300ac"
+    },
+    {
+      "id": "owner-controls__C_fair_opposed-plus-minus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "e92a8954da5096778dcd615d11fe7422ecb7d8aed97867ff0ee40f5d2e8d629d"
+    },
+    {
+      "id": "owner-controls__C_fair_opposed-minus-plus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "eeeed5400e14ea1117be852ce6589cfd4c717ad3bf9b9d64806aad4affcda08a"
+    },
+    {
+      "id": "owner-controls__C_fair_default-name",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "f7e3dd3b949f354e30636a5ef322cddf233c33e233ed5eb5ed51481041844bfe"
+    },
+    {
+      "id": "owner-controls__P_opposed-plus-minus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "daefdca39a02bc03dc139f80bbccc25e63bec2b521cfcb6244eaa17752976572"
+    },
+    {
+      "id": "owner-controls__P_opposed-minus-plus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "c6d0650c1381fa9fc85f574a9074a76a8fe774f41113d6c227ddc9e95a380260"
+    },
+    {
+      "id": "owner-controls__P_default-name",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "22edc63ddd3e344028bcca95c4b2d0598464d4f6fa039e11498d7993bf4300ac"
+    },
+    {
+      "id": "owner-controls__P_fair_opposed-plus-minus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "e92a8954da5096778dcd615d11fe7422ecb7d8aed97867ff0ee40f5d2e8d629d"
+    },
+    {
+      "id": "owner-controls__P_fair_opposed-minus-plus",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "eeeed5400e14ea1117be852ce6589cfd4c717ad3bf9b9d64806aad4affcda08a"
+    },
+    {
+      "id": "owner-controls__P_fair_default-name",
+      "outcome": "exact-post-translation-serialization",
+      "stdout_sha256": "f7e3dd3b949f354e30636a5ef322cddf233c33e233ed5eb5ed51481041844bfe"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "harness_sha256": "ad752663e6312dbdcb7c6a6e62d23bf2b02c3b8f44296223cd8802a2489a371f",
+  "native_sha256": "972104782466db0e129571874570fac7286b5f8a3c7745d332862565da8075de",
+  "workers": [
+    1,
+    4,
+    8
+  ],
+  "rows": [
+    {
+      "corpus": "examples",
+      "exit_code": 0,
+      "log_sha256": "2cab700fc2eb79d95d84814d81ef4cb463893fadfcfbd7a559485869d2efaae0"
+    },
+    {
+      "corpus": "validation-smoke",
+      "exit_code": 0,
+      "log_sha256": "683329a0653c0adb461f7d05d363a5f05c8248a59bae579afeb10a9f2fa2dac6"
+    }
+  ]
+}

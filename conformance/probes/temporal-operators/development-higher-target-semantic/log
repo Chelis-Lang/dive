@@ -1,0 +1,22 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+     Running tests/planning.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/planning-d61f4a7d1def2bed)
+
+running 1 test
+test unsupported_planning_never_executes_effects_or_guesses_a_scope ... FAILED
+
+failures:
+
+---- unsupported_planning_never_executes_effects_or_guesses_a_scope stdout ----
+
+thread 'unsupported_planning_never_executes_effects_or_guesses_a_scope' (116165826) panicked at crates/dive-liveness/tests/planning.rs:20:5:
+[Diagnostic { code: OperatorArgumentArity, severity: Error, message: "argument 1 of `Apply2` must be an operator with 2 parameters", span: Some(Span { file: FileId(0), range: 265..276 }), help: None, related: [], sany: Some(4271) }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    unsupported_planning_never_executes_effects_or_guesses_a_scope
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p dive-liveness --test planning`

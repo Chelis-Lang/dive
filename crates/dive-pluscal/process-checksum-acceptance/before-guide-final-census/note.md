@@ -1,0 +1,1 @@
+Executed unchanged examples before the final expanded finite-model census was written to the guide. Final rerun binds the complete guide digest; these repeated controls are historical, not additional selection credit.

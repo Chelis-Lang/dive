@@ -1,0 +1,10 @@
+{
+  "outcome": "Interrupted before test execution to repair analysis-bound finite guard; no outcome credit",
+  "source": {
+    "crates/dive-eval/src/scope.rs": "8b91e62af96a9ac5e6ebd563c83950756f8580a3599c760c513cc40864354b41",
+    "crates/dive-eval/src/finite.rs": "2d176f668ed7d9927754c5e2496967c2425397ba3a16ae9d46419285620de2d0",
+    "crates/dive-liveness/src/plan.rs": "894f3506558699451d7e5703ed63e3d27dc6e89717ff9c8b94e2d5bcb6d2906d",
+    "crates/dive-trace/src/temporal.rs": "7c080d39b288d1cb71b5daaf1ec55f6219c6842c0ea190f5f67c566f88786fdb",
+    "crates/dive-api/src/tlc_temporal_admission.rs": "3c160ac2e04858be1836aa10d7e3aa8a6da52605af15d77c0989d197d9f92f36"
+  }
+}

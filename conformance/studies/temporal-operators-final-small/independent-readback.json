@@ -1,0 +1,26 @@
+{
+  "source_commit": "7683204a1ab328ffc2dabb9b932f5c545e129b79",
+  "exact_git_and_archived_sources": 386,
+  "archive": "/tmp/dive-temporal-operator-small-source-archive",
+  "closed_artifacts": 559,
+  "immutable_binaries": 2,
+  "closed_receipt_sha256": "5fb061c291692b4d96d310bf640ea37b5ab1e184b10eaaf9e68ac5c039cebb10",
+  "counts": {
+    "agree": 53,
+    "disagree": 0,
+    "unsupported": 85,
+    "oracle-error": 0,
+    "timeout": 2,
+    "out-of-scope": 0,
+    "divergence-mode": 0,
+    "expected-divergence": 0,
+    "agree-pending-trace-validation": 0,
+    "known-upstream-change": 0
+  },
+  "row_count": 140,
+  "harness_exit": 1,
+  "family_certified": false,
+  "qualified_scope": "complete selected small tier, bounded final TLC profile only; unchanged600-second timeout outcomes retained",
+  "reader_history": "Initial census-local then guide-only archive expectations failed. Complete386-input source archive now independently derives each blob from exact768 commit and verifies recorded hashes; no runtime observation changed.",
+  "passed": true
+}

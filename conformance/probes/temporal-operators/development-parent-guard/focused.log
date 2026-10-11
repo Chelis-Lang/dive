@@ -1,0 +1,41 @@
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-model)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-sim)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-temporal-operator-work/crates/dive-api)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.51s
+     Running tests/temporal_operators.rs (/Users/jeff/code/dive-temporal-operator-target/debug/deps/temporal_operators-735b4238665dde24)
+
+running 7 tests
+test actual_operator_planning_keeps_existing_work_and_formula_bounds ... ok
+test binding_inlined_unused_operator_capture_is_refused_without_callbacks ... FAILED
+test configured_target_origin_and_runtime_domains_keep_named_boundaries ... ok
+test unused_opaque_effect_recursive_and_native_operators_do_not_gain_purity ... ok
+test erased_effect_annotations_never_authorize_hidden_native_operator_callbacks ... ok
+test retained_operator_formals_match_independent_words_and_closing_edges ... ok
+test clean_paired_primary_models_have_final_outcomes_with_fresh_validation ... FAILED
+
+failures:
+
+---- binding_inlined_unused_operator_capture_is_refused_without_callbacks stdout ----
+
+thread 'binding_inlined_unused_operator_capture_is_refused_without_callbacks' (115484210) panicked at crates/dive-api/tests/temporal_operators.rs:376:18:
+scalar capture: Unsupported("side effects or dynamically bound constants in temporal validation")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- clean_paired_primary_models_have_final_outcomes_with_fresh_validation stdout ----
+
+thread 'clean_paired_primary_models_have_final_outcomes_with_fresh_validation' (115484211) panicked at crates/dive-api/tests/temporal_operators.rs:168:33:
+OpExportedFormalHolds: Failure { error: Analysis(Failure { error: Execution(Failure { error: Phase(Failure { error: Planning(Bound(Unsupported(Refusal { request: Source { expr: ExprId(19), origin: Origin { file: Some(FileId(1)), range: (57, 65), begin: (4, 14), end: (4, 21), instance: Some(DefId(7)) }, location: "line 4, col 14 to line 4, col 21 of module Inner" }, cause: Source { expr: ExprId(17), origin: Origin { file: Some(FileId(1)), range: (61, 65), begin: (4, 18), end: (4, 21), instance: Some(DefId(7)) }, location: "line 4, col 18 to line 4, col 21 of module Inner" }, detail: "opaque/recursive/higher-order operator capture" }))), progress: Progress { actual_workers: 0, sources: 0, admissions: 0, insertions: 0, grows: 0, comparisons: 0, work: 0, values: 0, predicates: 0, completed_cells: 0, retained_cells: 0 }, partial: None }), stats: None, workers: Some(Workers { requested: 1, used: 0, sequential: false, reason: Some("parameter/ownership/planning check before execution") }), groups: [], phase_work: Progress { actual_workers: 0, sources: 0, admissions: 0, insertions: 0, grows: 0, comparisons: 0, work: 0, values: 0, predicates: 0, completed_cells: 0, retained_cells: 0 }, recursive_work: RecursiveWork { generated: 0, retained: 0, expansions: 0 }, last_commit_work: None }), evidence: None, workers: Some(Workers { requested: 1, used: 0, sequential: false, reason: Some("parameter/ownership/planning check before execution") }) }), workers: Some(Workers { requested: 1, used: 0, sequential: false, reason: Some("parameter/ownership/planning check before execution") }), evidence: None, elapsed: 1.650417ms }
+
+
+failures:
+    binding_inlined_unused_operator_capture_is_refused_without_callbacks
+    clean_paired_primary_models_have_final_outcomes_with_fresh_validation
+
+test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.47s
+
+error: test failed, to rerun pass `-p dive-api --test temporal_operators`

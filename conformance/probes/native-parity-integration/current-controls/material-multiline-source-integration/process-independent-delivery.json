@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source_commit": "89822a1c4dd35191c80855fec9cb2e513ad9d6b3",
+  "source_inputs_verified": 195,
+  "evidence_hashes_verified": 14141,
+  "family_certified": false,
+  "current_integrated_execution_claim": false,
+  "scope": "Independent immutable process checksum delivery readback; fresh combined publication gate still required."
+}

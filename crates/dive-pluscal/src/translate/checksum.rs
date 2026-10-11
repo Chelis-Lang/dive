@@ -1,9 +1,13 @@
 //! Bounded pinned post-translation AST serialization (ADR 0047).
-use super::{TranslationError, TranslationOptions, TranslationStage, error, labels, lower, macros};
+use super::{
+    FairnessOption, TranslationError, TranslationOptions, TranslationStage, error, labels, lower,
+    macros,
+};
 use crate::{
     Code,
     ast::{
-        BindingKind, Block, Body, Branch, Expr, Fairness, Span, StatementKind, StmtId, WithBinding,
+        BindingKind, Block, Body, Branch, Decl, Expr, Fairness, Label, Process, Span,
+        StatementKind, StmtId, WithBinding,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -172,6 +176,137 @@ impl Writer {
         self.push(">>")?;
         self.end();
         Ok(())
+    }
+    fn declarations(
+        &mut self,
+        parsed: &macros::Expanded,
+        declarations: &[Decl],
+    ) -> Result<(), TranslationError> {
+        self.sequence(declarations, |writer, v| {
+            writer.push("[var |-> \"")?;
+            writer.push(&v.name.text)?;
+            writer.push("\", eqOrIn |-> ")?;
+            writer.push(
+                if v.initial
+                    .as_ref()
+                    .is_none_or(|initial| initial.kind == BindingKind::Equal)
+                {
+                    "\"=\""
+                } else {
+                    "\"\\\\in\""
+                },
+            )?;
+            writer.push(", val |-> ")?;
+            if let Some(initial) = &v.initial {
+                writer.expression(parsed, Some(initial.expression))?;
+            } else {
+                writer.push("<< \"defaultInitValue\" >>")?;
+            }
+            writer.push("]")
+        })
+    }
+    fn quoted_labels(&mut self, labels: &[&Label], modifier: char) -> Result<(), TranslationError> {
+        self.indent("<<")?;
+        let mut first = true;
+        for label in labels
+            .iter()
+            .filter(|label| label.modifier == Some(modifier))
+        {
+            if !first {
+                self.push(", ")?;
+            }
+            first = false;
+            self.push("\"")?;
+            self.push(&label.name.text)?;
+            self.push("\"")?;
+        }
+        self.push(">>")?;
+        self.end();
+        Ok(())
+    }
+    fn process(
+        &mut self,
+        parsed: &macros::Expanded,
+        process: &Process,
+        labels: &[&Label],
+        options: &TranslationOptions,
+    ) -> Result<(), TranslationError> {
+        self.indent("")?;
+        self.push("[name   |-> \"")?;
+        self.push(&process.name.text)?;
+        self.push("\",")?;
+        self.newline()?;
+        self.push(" fairness |-> \"")?;
+        // ParseAlgorithm 377–394 records declared fairness even under -nof;
+        // wf/sf only supply missing declarations. Generator suppression is a
+        // separate contract and must not alter the serialized source AST.
+        let fairness = match (process.fairness, options.fairness) {
+            (Fairness::Unfair, FairnessOption::Weak) => Fairness::Weak,
+            (Fairness::Unfair, FairnessOption::Strong) => Fairness::Strong,
+            (declared, _) => declared,
+        };
+        self.push(match fairness {
+            Fairness::Unfair => "unfair",
+            Fairness::Weak => "wf",
+            Fairness::Strong => "sf",
+        })?;
+        self.push("\", minusLabels |-> ")?;
+        self.quoted_labels(labels, '-')?;
+        self.push(", plusLabels |->")?;
+        self.quoted_labels(labels, '+')?;
+        self.push(", proceduresCalled |-><<>>,")?;
+        self.newline()?;
+        self.push(" eqOrIn |-> ")?;
+        self.push(if process.id.kind == BindingKind::Equal {
+            "\"=\""
+        } else {
+            "\"\\\\in\""
+        })?;
+        self.push(",")?;
+        self.newline()?;
+        self.push(" id     |-> ")?;
+        self.expression(parsed, Some(process.id.expression))?;
+        self.push(",")?;
+        self.newline()?;
+        self.indent(" decls  |-> ")?;
+        self.declarations(parsed, &process.variables)?;
+        self.push(",")?;
+        self.end();
+        self.newline()?;
+        self.indent(" body   |-> ")?;
+        let (unlabelled, groups) = groups(parsed, &process.body)?;
+        if !unlabelled.is_empty() {
+            return Err(unsupported(
+                process.body.span,
+                "missing initial process label",
+            ));
+        }
+        self.labelled(parsed, &groups)?;
+        self.push("]")?;
+        self.end();
+        self.end();
+        Ok(())
+    }
+    fn processes(
+        &mut self,
+        parsed: &macros::Expanded,
+        processes: &[Process],
+        options: &TranslationOptions,
+    ) -> Result<(), TranslationError> {
+        // ParseAlgorithm appends modifiers in lexical encounter order. Arena
+        // construction can allocate children before parents; preserve source
+        // order explicitly and index each owner range without repeated walks.
+        let mut labels: Vec<_> = parsed
+            .statements
+            .iter()
+            .filter_map(|statement| statement.label.as_ref())
+            .collect();
+        labels.sort_by_key(|label| label.span.start);
+        self.sequence(processes, |writer, process| {
+            let start = labels.partition_point(|label| label.span.start < process.span.start);
+            let end = labels.partition_point(|label| label.span.start < process.span.end);
+            writer.process(parsed, process, &labels[start..end], options)
+        })
     }
     fn expression(
         &mut self,
@@ -472,10 +607,11 @@ impl Writer {
     }
 }
 
-/// Serialize the proved bounded sequential checksum subset.
+/// Serialize proved bounded sequential and finite-process checksum shapes.
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
-/// macros, processes, procedures and branch-internal labels are refused. Native generation/admission
+/// macros, procedures and branch-internal labels are refused. Admitted process
+/// fairness and automatic-label options retain the pinned parser precedence. Native generation/admission
 /// remains separate. A scoped worker provides a 16 MiB stack.
 ///
 /// # Errors
@@ -527,28 +663,24 @@ fn checksum_inline(
             diagnostic,
         }
     })?;
+    if let Some(span) = super::source_options_span(source) {
+        return Err(unsupported(span, "source option declaration context"));
+    }
     let algorithm = &parsed.algorithm;
     if !algorithm.macros.is_empty()
         || !algorithm.procedures.is_empty()
         || algorithm.definitions.is_some()
-        || !matches!(algorithm.body, Body::Sequential(_))
     {
         return Err(unsupported(
             algorithm.span,
-            "macros, procedures, processes or definitions",
+            "macros, procedures or definitions",
         ));
     }
     let mut parsed = macros::expand(parsed, options)?;
     labels::normalize(&mut parsed, options)?;
     // The existing admission pass proves no identifier fixups are required.
     lower::normalize(&parsed, options)?;
-    let Body::Sequential(block) = &parsed.algorithm.body else {
-        return Err(unsupported(parsed.algorithm.span, "process checksum"));
-    };
-    let (unlabelled, groups) = groups(&parsed, block)?;
-    if !unlabelled.is_empty() {
-        return Err(unsupported(block.span, "missing initial normalized label"));
-    }
+    let sequential = matches!(parsed.algorithm.body, Body::Sequential(_));
     let mut w = Writer {
         positions: token_positions(&parsed)?,
         text: String::new(),
@@ -556,44 +688,51 @@ fn checksum_inline(
         limit: options.max_output_bytes.min(4_194_304),
         span: parsed.algorithm.span,
     };
-    w.push("[type     |-> \"uniprocess\", ")?;
+    w.push(if sequential {
+        "[type     |-> \"uniprocess\", "
+    } else {
+        "[type    |-> \"multiprocess\", "
+    })?;
     w.newline()?;
     w.push(" name  |-> \"")?;
     w.push(&parsed.algorithm.name.text)?;
     w.push("\", ")?;
     w.newline()?;
-    w.indent(" decls  |-> ")?;
-    w.sequence(&parsed.algorithm.variables, |writer, v| {
-        writer.push("[var |-> \"")?;
-        writer.push(&v.name.text)?;
-        writer.push("\", eqOrIn |-> ")?;
-        writer.push(
-            if v.initial
-                .as_ref()
-                .is_none_or(|initial| initial.kind == BindingKind::Equal)
-            {
-                "\"=\""
-            } else {
-                "\"\\\\in\""
-            },
-        )?;
-        writer.push(", val |-> ")?;
-        if let Some(initial) = &v.initial {
-            writer.expression(&parsed, Some(initial.expression))?;
-        } else {
-            writer.push("<< \"defaultInitValue\" >>")?;
-        }
-        writer.push("]")
+    w.indent(if sequential {
+        " decls  |-> "
+    } else {
+        " decls |-> "
     })?;
+    w.declarations(&parsed, &parsed.algorithm.variables)?;
     w.push(",")?;
     w.end();
     w.newline()?;
-    w.push(" defs   |-> <<  >>,")?;
+    w.push(if sequential {
+        " defs   |-> <<  >>,"
+    } else {
+        " defs  |-> <<  >>,"
+    })?;
     w.newline()?;
-    w.push(" prcds  |-> <<>>,")?;
+    w.push(if sequential {
+        " prcds  |-> <<>>,"
+    } else {
+        " prcds |-> <<>>,"
+    })?;
     w.newline()?;
-    w.indent(" body  |-> ")?;
-    w.labelled(&parsed, &groups)?;
+    match &parsed.algorithm.body {
+        Body::Sequential(block) => {
+            let (unlabelled, groups) = groups(&parsed, block)?;
+            if !unlabelled.is_empty() {
+                return Err(unsupported(block.span, "missing initial normalized label"));
+            }
+            w.indent(" body  |-> ")?;
+            w.labelled(&parsed, &groups)?;
+        }
+        Body::Processes(processes) => {
+            w.indent(" procs |-> ")?;
+            w.processes(&parsed, processes, options)?;
+        }
+    }
     w.push("]")?;
     w.end();
     let fair = parsed.algorithm.fairness == Fairness::Weak;

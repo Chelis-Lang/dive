@@ -1,0 +1,8 @@
+{
+  "source_commit": "550d959e4223e1b6fce47ffd29d039d8dfef016c",
+  "rust_cargo_inputs_identical": 786,
+  "full_gate": "gate/verification.json",
+  "post_metadata_checks": "24 offline source guards, complete closed-census authority, final ledger and fmt checks",
+  "family_certified": false,
+  "qualification": "Later main reconciliation and evidence/docs edits preserve all gated Rust/Cargo inputs. The initial merge helper could not read an added README from the common ancestor; choosing the already shipped guard README resolved metadata only."
+}

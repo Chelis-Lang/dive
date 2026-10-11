@@ -43,7 +43,7 @@ fn report(
     stage: &str,
     details: Value,
 ) -> RewriteReport {
-    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
+    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
@@ -91,6 +91,20 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
         Ok(selection) => selection,
         Err(error) => return failure(file, request, "selection", &error),
     };
+    // The pinned translator reads declarations in the original file, including
+    // old output. Masking first can silently discard requested fairness.
+    if let Some(span) = dive_pluscal::source_option_declaration_span(source) {
+        return failure(
+            file,
+            request,
+            "source-options",
+            &Diagnostic {
+                code: Code::Unsupported,
+                span,
+                message: "unsupported PlusCal source option declaration; pass proved settings explicitly through the CLI/API".to_owned(),
+            },
+        );
+    }
     let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
     let generated = translate_source(file, &masked, &request.translation);
     if !generated.accepted() {

@@ -93,3 +93,42 @@ fifteen clean TLC outcomes are retained in `conformance/probes/tlc-phase-l-graph
 Multiple-OOS/tableau revisit ordering and strict SCC/lasso/schedule integration
 must follow this increment. #140 remains open and F-020/F-021/F-022 partial,
 F-023 missing. No default or integrated-liveness refusal is changed.
+
+## Addendum: stored capture admission, 2026-10-11
+
+The concrete pool capture proof admits callback-free stored string/model atoms,
+functions (including tuples/records), and Enum/Raw sets after shared ownership,
+role/scope and namespace admission. Expression and recursive material visits
+share the original50,000-per-predicate/128-depth proof; keys/ranges both charge.
+Configured OPEN dependence resolves through actual bound constants and scoped
+contexts without changing static effect flags. Opaque/unknown/unbound leaves,
+operator captures, cached/computed providers and effects remain refused before
+workers. This does not alter phase-L graph/product bounds or scheduled semantics.
+Clean paired final controls and independent witness mutations remain separate
+from historical broad-corpus evidence; see `docs/material-capture.md`.
+
+Supplied stored Enum/Raw sets, records and general functions must carry the
+admitted evaluator's ordering profile. Correct interner ownership alone cannot
+repair a cached canonical sequence used by TLC-mode CHOOSE. Tuple domains are
+ascending integer indices and exempt only at their outer representation. The
+pre-guard positive matrix and interrupted gate remain development evidence;
+opposite-profile public controls now refuse before workers or counters.
+
+## Addendum: pure user operator formals, 2026-10-11
+
+The captured-operator refusal is narrowed only for admitted known nonrecursive
+user targets with ordinary value formals. A callback-free analysis scope binds
+those formals to non-forcible AnalysisBound slots and preserves original lexical
+parents and dynamic substitutions. Planner, independent Word and capture/finite
+proofs inspect supplied targets even when unused; execution always uses actual
+arguments through scope_apply_param. Native effects/runtime names are inspected
+authoritatively rather than accepted from erased summary annotations.
+
+The original resource ceilings and material ordering/context rules remain. A
+configured operator's erased origin is not guessed: every ConstBinding::Def
+target also refuses when passed explicitly. Native/builtin, higher-order target,
+recursive, overridden and unknown callbacks still refuse. Clean accepted exported
+operator-formal INSTANCE cases and previous temporal-expression2213 cases remain
+distinct. Diagnostic null-liveness helper failures retain no field/error credit.
+See `docs/temporal-operators.md` and the source-bound paired controls; no new
+ordinary scheduling, family, corpus or aggregate-memory claim is made.

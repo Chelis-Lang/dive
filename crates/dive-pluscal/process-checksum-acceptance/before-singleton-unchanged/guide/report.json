@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "family_certified": false,
+  "script_sha256": "b7fc6971387eeb4b098bf3599dd02d22756f60cfac8441a32b4c9d873352c98c",
+  "guide_sha256": "ff19d04e3884c396cf60c8d4f96913248b67679a5faa00aa37e69f4b2c9fc6f1",
+  "native_sha256": "4ac9982975c94eaceaa81652e6fff629a1c0f01c3d564303b1bb202827ecf642",
+  "api_example_sha256": "ac6035ff096fa607021fb3368a2bcd295d37cfc231d38ee4d5f8e391846b757a",
+  "cargo_source": "crates/dive-api/examples/pluscal_process_checksum.rs",
+  "cargo_source_sha256": "a90b68a283ce4d1d98ce2f45a17cd6adbf007bb8444288af815a4348d60841eb",
+  "controls": 16,
+  "rows": [
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "policy": "full",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "7c4113189c3981a095cc8f395c031d2a693c1a2973f31120633563184bf97de1"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "policy": "full",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "7c4113189c3981a095cc8f395c031d2a693c1a2973f31120633563184bf97de1"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "policy": "tla",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "298c08568d884fb079d6cd71031191fc5cb8c7f37a52c58797a21c9cc25bcac9"
+    },
+    {
+      "syntax": "P",
+      "profile": "dive",
+      "policy": "tla",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "298c08568d884fb079d6cd71031191fc5cb8c7f37a52c58797a21c9cc25bcac9"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "policy": "full",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "9f63bf7b5522b5ec0181e50dea47ac51c99eca4dc0b7855b513be453a0dca5b7"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "policy": "full",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "9f63bf7b5522b5ec0181e50dea47ac51c99eca4dc0b7855b513be453a0dca5b7"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "policy": "tla",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "96bf404ff4c1f9c0af0c2a7df36ad16c19367bcae6267eaedfdb84ab033449bb"
+    },
+    {
+      "syntax": "P",
+      "profile": "tlc",
+      "policy": "tla",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "96bf404ff4c1f9c0af0c2a7df36ad16c19367bcae6267eaedfdb84ab033449bb"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "policy": "full",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "6956474ed67c4ff94eae0aff5636c91872b5c4b6e6bd503edd55017a2a98c5d8"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "policy": "full",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "6956474ed67c4ff94eae0aff5636c91872b5c4b6e6bd503edd55017a2a98c5d8"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "policy": "tla",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "dc71c7b024649d2cee0d9516ee4e6af5383d870a60f902a20968151808783302"
+    },
+    {
+      "syntax": "C",
+      "profile": "dive",
+      "policy": "tla",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "dc71c7b024649d2cee0d9516ee4e6af5383d870a60f902a20968151808783302"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "policy": "full",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "06e288e8d9a104d1b29dcd02cd31d84c46ffe2efea37c1f36a7844b643985c01"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "policy": "full",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "06e288e8d9a104d1b29dcd02cd31d84c46ffe2efea37c1f36a7844b643985c01"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "policy": "tla",
+      "surface": "cli",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "f93effd1bec930ceb304cc95c4014e0125b16597247c4916bfb8a5997167946c"
+    },
+    {
+      "syntax": "C",
+      "profile": "tlc",
+      "policy": "tla",
+      "surface": "cargo-owned-api",
+      "outcome": "admitted-nonproof-replacement",
+      "stdout_sha256": "f93effd1bec930ceb304cc95c4014e0125b16597247c4916bfb8a5997167946c"
+    }
+  ]
+}

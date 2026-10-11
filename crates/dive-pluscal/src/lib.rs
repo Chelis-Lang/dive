@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 pub use translation::{
     AlgorithmChecksum, FairnessOption, InsertedLabel, ProcessTranslation, Translation,
     TranslationError, TranslationMap, TranslationOptions, TranslationStage, TranslationWarning,
-    algorithm_checksum_at, translate, translate_at,
+    algorithm_checksum_at, source_option_declaration_span, translate, translate_at,
 };
 
 /// Stable native PlusCal diagnostic categories.

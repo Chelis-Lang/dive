@@ -505,8 +505,8 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
             Some(2)
         );
     }
-    // A higher-order formula whose scope is still unsupported is refused
-    // before it can produce a temporal verdict.
+    // Preserve the former known-user forwarding fixture as a real supported
+    // liveness violation: the allowed initial stutter falsifies []<>x.
     let opaque = temp_file(
         "OpaqueTemporal.tla",
         "---- MODULE OpaqueTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nT(p) == []<>p\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n",
@@ -518,9 +518,41 @@ fn final_temporal_mode_preserves_safety_stops_and_refuses_incomplete_options() {
         )
         .is_ok()
     );
-    let rejected = dive(&[
+    let supported = dive(&[
         "check",
         &opaque.to_string_lossy(),
+        "--seed=0",
+        "--lncheck=final",
+        "--lasso=short",
+        "--output=json",
+    ]);
+    assert_eq!(supported.status.code(), Some(10));
+    let supported: serde_json::Value =
+        serde_json::from_slice(&supported.stdout).unwrap_or_default();
+    assert_eq!(supported["verdict"], "liveness-violation");
+    assert_eq!(supported["counterexample"]["validation"], "valid");
+    assert_eq!(supported["counterexample"]["ending"], "lasso");
+    assert_eq!(supported["counterexample"]["back_to"], 1);
+    assert_eq!(supported["counterexample"]["length"], 1);
+    assert_eq!(
+        supported["counterexample"]["states"][0]["values"]["x"],
+        false
+    );
+    // A recursive operator actual remains unsupported before any evaluation.
+    let higher = temp_file(
+        "HigherTemporal.tla",
+        "---- MODULE HigherTemporal ----\nVARIABLE x\nInit == x = FALSE\nNext == x' = ~x\nRECURSIVE T(_)\nT(p) == IF p THEN p ELSE T(p)\nH(F(_),p) == F(p)\nP == H(T,x)\n====\n",
+    );
+    assert!(
+        std::fs::write(
+            higher.with_extension("cfg"),
+            "INIT Init\nNEXT Next\nPROPERTY P\n"
+        )
+        .is_ok()
+    );
+    let rejected = dive(&[
+        "check",
+        &higher.to_string_lossy(),
         "--lncheck=final",
         "--lasso=short",
         "--output=json",
@@ -1128,4 +1160,20 @@ fn final_temporal_if_retains_exported_forwarding_refusal() -> Result<(), Box<dyn
         );
     }
     Ok(())
+}
+
+#[test]
+fn translate_rejects_multiple_fairness_flags_before_loading() {
+    for (first, second) in [("-wf", "-sf"), ("-nof", "-wfNext"), ("-wf", "-wf")] {
+        let output = dive(&[
+            "translate",
+            "missing-option-control.tla",
+            first,
+            second,
+            "--rewrite",
+        ]);
+        assert_eq!(output.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("select only one"));
+        assert_eq!(output.stdout, [] as [u8; 0]);
+    }
 }

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "script_sha256": "ecdeaf5d0701c52b135bb5d8a9021ba15549006c26ff677213852e175b3b0746",
+  "compile_jobs": 2,
+  "test_threads": 2,
+  "status": "incomplete-or-failed",
+  "rows": [
+    {
+      "stage": "fmt",
+      "exit_code": 0,
+      "seconds": 4.461615333,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "validation-python",
+      "exit_code": 0,
+      "seconds": 0.760728458,
+      "log_sha256": "7ba93897900e19353195fcce50c5ec32521c817fc724ee41d3470cbb3012a3c5"
+    },
+    {
+      "stage": "frontend-python",
+      "exit_code": 0,
+      "seconds": 5.370877834000001,
+      "log_sha256": "90a8fcfb977645cc30cac36c7195bd837bb30998d99fe6c939a5365c148834a9"
+    },
+    {
+      "stage": "clippy",
+      "exit_code": 101,
+      "seconds": 12.154648208000001,
+      "log_sha256": "d125eaaca44998e14ec0bd19d7ae3750e604a1b125743955d6979b0e72acdf1c"
+    }
+  ]
+}

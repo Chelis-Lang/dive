@@ -1,16 +1,16 @@
 {
-  "schema_version": 1,
-  "kind": "source-and-test-obligation-matrix",
   "base_commit": "b65e254",
   "claim": "Snapshot of retained temporal expression forwarding implementation and test obligations; not a corpus-run report or strict certification. Recursive local function domains and exported temporal INSTANCE formals remain refused.",
-  "source_sha256": {
-    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
-    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
-    "crates/dive-trace/src/temporal.rs": "7fc135838c764142c6213ce42efac4d913da5a44f1efe8eca6a070cef776baf5",
-    "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
-    "crates/dive-api/tests/deferred_domains.rs": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
-    "conformance/studies/temporal-scopes-53-map.json": "602f7d67b104b6c51b7fcda4238199806215218f82ee174235460ee7a82d0227"
-  },
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "kind": "source-and-test-obligation-matrix",
+  "limitations": [
+    "recursive local-function domains",
+    "higher-order operator parameters",
+    "exported INSTANCE temporal formal arguments",
+    "public evaluator constructor malformed contexts (#129)",
+    "strict temporal scheduling/tableau/lasso certification"
+  ],
+  "limits_changed": false,
   "obligations": {
     "clean_pinned_source_config_pairs": 14,
     "temporal_truth_count_native_checks": 120,
@@ -21,14 +21,14 @@
     "fresh_document_negative_controls": 180,
     "unchecked_endpoint_no_panic_cases": 6
   },
-  "limits_changed": false,
-  "strict_liveness_claim": false,
-  "limitations": [
-    "recursive local-function domains",
-    "higher-order operator parameters",
-    "exported INSTANCE temporal formal arguments",
-    "public evaluator constructor malformed contexts (#129)",
-    "strict temporal scheduling/tableau/lasso certification"
-  ],
-  "current_integration_scope": "Published bounded Full/body-only editing with nested checksum expressions and CASE grouping repair; pure runtime-name checkpoint recovery; scoped final temporal checking. Original failed and successful campaigns remain immutable; no full-family certification."
+  "schema_version": 1,
+  "source_sha256": {
+    "crates/dive-eval/src/scope.rs": "10695d924523f746981f4d097a84dd997c3cf0f63696ec7389e87f8458cdfe13",
+    "crates/dive-liveness/src/plan.rs": "afb64cf4738bf319397e5f9ddee0dfb6cf7673e6db5c96ce0b73dcef168dab6b",
+    "crates/dive-trace/src/temporal.rs": "f413ba5be6057b98d6c0545c8b08a7021cb989291bc29227d0246336b0447c9a",
+    "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
+    "crates/dive-api/tests/deferred_domains.rs": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
+    "conformance/studies/temporal-scopes-53-map.json": "602f7d67b104b6c51b7fcda4238199806215218f82ee174235460ee7a82d0227"
+  },
+  "strict_liveness_claim": false
 }

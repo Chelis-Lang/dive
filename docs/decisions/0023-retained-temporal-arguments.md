@@ -76,3 +76,17 @@ are separate from derived names; the missing per-expanded-action original name
 vector remains a separate obligation. LNConj.toDNF retains singleton LNDisj
 factors in its cardinality-one result, before later flattening. Neither narrow
 repair broadens purity, resource budgets or ordinary liveness scheduling.
+
+## Addendum: original expanded Action identities (2026-10-11, #134)
+
+`SpecProcessor.processConfigProps` threads `configName` unchanged while it
+recursively changes the derived `name`. Each implied temporal Action receives
+that original configuration name. The binder now records that vector at the
+actual role insertion sites. Session and completed final execution preserve
+its order; final schema 2 exposes it alongside configured-before-splitting and
+derived-role vectors. `BoundProjection` retains its existing public construction
+surface. This is descriptive source-bound metadata, not an acceptance proof.
+Original configured witness claims and all resource/scheduling limits remain
+unchanged. Rebind publicly edited role vectors rather than reusing old binder
+origins. See `docs/tlc-property-origins.md` and the complete18 primary selection
+in `conformance/probes/tlc-final-property-origins`.

@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Capture clean complete process serialization before native Full admission."""
+import argparse,base64,gzip,hashlib,json,re,subprocess,zlib
+from pathlib import Path
+BASE=Path(__file__).resolve().parent
+PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def original_forms():
+ rows=[]
+ def add(n,ids='= 1',locals='',p='L:g:=g+1; E:skip;',c=None,fair='',extra=None,globalvars='g=0',prelude=''):
+  rows.append({'name':n,'processes':[('P',ids,locals,p,c or p,fair)]+(extra or []),'globals':globalvars,'prelude':prelude})
+ add('constant');add('members','\\in {1,2}');add('interval','\\in 1..2');add('string-constant','= "p"');add('string-members','\\in {"p","q"}')
+ add('local-equal',locals='z=0',p='L:z:=z+1; E:g:=z;');add('local-member','\\in {1,2}',locals='z\\in {0,1}',p='L:g:=z; E:skip;')
+ add('local-default',locals='z',p='L:z:=1; E:g:=z;');add('local-dependent','\\in {1,2}',locals='z=0,w\\in {z}',p='L:g:=w; E:skip;')
+ add('self','\\in {1,2}',locals='z=self',p='L:g:=z; E:skip;')
+ add('parallel',locals='z=0',p='L:g:=z+1 || z:=g+1; E:skip;')
+ add('if',p='L:if g=0 then g:=1; else g:=2; end if; E:skip;',c='L:if(g=0){g:=1;}else{g:=2;}; E:skip;')
+ add('if-no-else',p='L:if g=0 then g:=1; end if; E:skip;',c='L:if(g=0){g:=1;}; E:skip;')
+ add('elsif',p='L:if g=0 then g:=1; elsif g=1 then g:=2; else g:=3; end if; E:skip;',c='L:if(g=0){g:=1;}else if(g=1){g:=2;}else{g:=3;}; E:skip;')
+ add('while',p='L:while g<2 do g:=g+1; end while; E:skip;',c='L:while(g<2){g:=g+1;}; E:skip;')
+ add('either',p='L:either g:=1; or g:=2; end either; E:skip;',c='L:either{g:=1;}or{g:=2;}; E:skip;')
+ add('with',p='L:with a\\in {1,2} do g:=a; end with; E:skip;',c='L:with(a\\in {1,2}){g:=a;}; E:skip;')
+ add('goto',p='L:g:=1; goto E; E:skip;');add('loop',p='L:g:=1; goto L;')
+ add('weak',fair='fair ');add('strong',fair='fair+ ');add('plus',fair='fair ',p='L+:g:=1; E:skip;');add('minus',fair='fair+ ',p='L-:g:=1; E:skip;')
+ add('mixed-modifiers',fair='fair+ ',p='L-:g:=1; M+:g:=2; E:skip;')
+ add('two-constant',extra=[('Q','= 2','','M:g:=g+1; F:skip;','M:g:=g+1; F:skip;','')])
+ add('mixed-blocks',extra=[('Q','\\in {2,3}','z=0','M:z:=1; F:g:=z;','M:z:=1; F:g:=z;','')])
+ add('two-members','\\in {1,2}',extra=[('Q','\\in {3,4}','','M:g:=g+1; F:skip;','M:g:=g+1; F:skip;','fair ')])
+ add('empty-domain','\\in {}');add('reversed-domain','\\in 2..1')
+ add('overlap',extra=[('Q','= 1','','M:g:=1; F:skip;','M:g:=1; F:skip;','')])
+ add('local-name-collision',locals='z=0',extra=[('Q','= 2','z=0','M:z:=1; F:skip;','M:z:=1; F:skip;','')])
+ add('label-collision',extra=[('Q','= 2','','L:g:=1; E:skip;','L:g:=1; E:skip;','')])
+ add('global-name-collision',globalvars='g=0,pc=0');add('nonliteral-domain','\\in Nat')
+ add('branch-label',p='L:if g=0 then M:g:=1; else g:=2; end if; E:skip;',c='L:if(g=0){M:g:=1;}else{g:=2;}; E:skip;')
+ add('multiline',p='L:g:=1+\n 2; E:skip;');add('junction',p='L:await /\\ TRUE\n /\\ g=0; E:skip;')
+ add('malformed',p='L:g:=; E:skip;')
+ return rows
+def forms():
+ rows=[]
+ for name,vars,local,p,c in [('name-five','g=0,abcde=9','','L:g:=1; E:skip;',None),('name-six','g=0,abcdef=9','','L:g:=1; E:skip;',None),('branch-long','g=0,abcdef=9','','L:if g=0 then abcdef:=1; else g:=1; end if; E:skip;','L:if(g=0){abcdef:=1;}else{g:=1;}; E:skip;'),('default-local','g=0,defaultInitValue=9','z','L:g:=z; E:skip;',None)]:
+  rows.append({'name':name,'processes':[('P','= 1',local,p,c or p,'')],'globals':vars,'prelude':''})
+ return rows
+def main(a):
+ for name in ['java','jar','adapter']:setattr(a,name,getattr(a,name).resolve())
+ assert sha(a.jar)==PIN
+ out=BASE/'width-controls';out.mkdir(parents=True);rows=[]
+ for syntax in ['C','P']:
+  for fair in [False,True]:
+   for form in forms():
+    kind=form['name'];ident=f'{syntax}_{"fair_" if fair else ""}{kind}';module=ident.replace('-','_');processes=[]
+    for name,ids,locals,pbody,cbody,declaredfair in form['processes']:
+     declarations=('variables '+locals+'; ') if locals else ''
+     process=(declaredfair+'process '+name+' '+ids+' '+declarations+'begin '+pbody+' end process;') if syntax=='P' else (declaredfair+'process('+name+' '+ids+')'+declarations+'{'+cbody+'}')
+     processes.append(process)
+    globals='variables '+form['globals']+'; '
+    alg=globals+form['prelude']+' '.join(processes)+' end algorithm;' if syntax=='P' else '{'+globals+form['prelude']+' '.join(processes)+'}'
+    source=f'---- MODULE {module} ----\nEXTENDS Integers, TLC, Sequences\n(* --{"fair algorithm" if fair else "algorithm"} A {alg} *)\n====\n'
+    if kind=='utf8-tabs':source=source.replace('EXTENDS Integers', '\t\\* π🙂 layout\nEXTENDS Integers').replace('process(P','process(\tP').replace('process P','process\tP')
+    if kind=='crlf-comment':source=source.replace('process', '(* π🙂 *) process').replace('\n','\r\n')
+    path=out/(ident+'.tla');path.write_bytes(source.encode())
+    p=subprocess.run([str(a.java),'-cp',str(a.jar),'pcal.trans','-nocfg',str(path)],capture_output=True,timeout=30)
+    for stream in ['stdout','stderr']:(out/(ident+'.primary.'+stream+'.gz')).write_bytes(gzip.compress(getattr(p,stream),mtime=0))
+    raw=path.read_bytes();accepted=b'BEGIN TRANSLATION' in raw;path.write_bytes(source.encode())
+    if accepted:(out/(ident+'.translated.tla')).write_bytes(raw)
+    q=subprocess.run([str(a.java),'-cp',str(a.adapter)+':'+str(a.jar),'pcal.AstChecksumProbe',str(path)],capture_output=True,timeout=30)
+    for stream in ['stdout','stderr']:(out/(ident+'.adapter.'+stream+'.gz')).write_bytes(gzip.compress(getattr(q,stream),mtime=0))
+    stages={}
+    for line in q.stdout.decode().splitlines():
+     if line.startswith('STAGE\t'):
+      _,phase,crc,encoded,tree=line.split('\t');ast=base64.b64decode(encoded);(out/(ident+'.'+phase+'.ast')).write_bytes(ast);(out/(ident+'.'+phase+'.json')).write_bytes(base64.b64decode(tree));assert format(zlib.crc32(b'fair' if fair else ast),'x')==crc;stages[phase]={'crc':crc,'ast_sha256':hashlib.sha256(ast).hexdigest()}
+    crc=re.search(rb'pcal\)\s*=\s*"([0-9a-f]+)"',raw)
+    if accepted:assert 'translated' in stages and crc and stages['translated']['crc']==crc[1].decode(),ident
+    rows.append({'id':ident,'source_sha256':sha(path),'primary_exit':p.returncode,'primary_translated':accepted,'primary_crc':crc[1].decode() if crc else None,'stages':stages});print(ident,accepted,flush=True)
+ manifest={'schema_version':1,'jar_sha256':PIN,'adapter_sha256':sha(a.adapter/'pcal/AstChecksumProbe.class'),'source_script_sha256':sha(Path(__file__)),'selected':len(rows),'rows':rows,'files':{p.name:sha(p) for p in out.iterdir() if p.is_file()}}
+ (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+if __name__=='__main__':
+ p=argparse.ArgumentParser(description=__doc__)
+ for key in ['java','jar','adapter']:p.add_argument('--'+key,type=Path,required=True)
+ main(p.parse_args())

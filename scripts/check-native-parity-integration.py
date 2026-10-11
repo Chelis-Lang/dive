@@ -22,7 +22,11 @@ for row in slices:
     for name, digest in row["matrices_sha256"].items():
         matrix = BASE / name
         assert sha(matrix.read_bytes()) == digest, name
-        for source, expected in json.loads(matrix.read_text()).get("source_sha256", json.loads(matrix.read_text()).get("checked_sources", {})).items():
+        document = json.loads(matrix.read_text())
+        field = row.get("matrix_source_fields", {}).get(name)
+        sources = document[field] if field else document.get("source_sha256", document.get("checked_sources", {}))
+        assert isinstance(sources, dict), (name, field)
+        for source, expected in sources.items():
             assert row["source_sha256"][source] == expected, source
     for name, digest in row["source_sha256"].items():
         assert sha(gzip.decompress((directory / "sources" / (name + ".gz")).read_bytes())) == digest, name
@@ -30,6 +34,10 @@ current = json.loads((BASE / "current-source.json").read_text())
 assert current["schema_version"] == 1 and current["family_certified"] is False
 assert current["historical_slices_sha256"] == sha((BASE / "historical-slices.json").read_bytes())
 assert current["source_sha256"]
+# Generated integrity outputs are hashed separately, never recursively as their own source.
+assert "conformance/probes/native-parity-integration/current-source.json" not in current["source_sha256"]
+for name, digest in current.get("manifest_sha256", {}).items():
+    assert sha((ROOT / name).read_bytes()) == digest, name
 for name, digest in current["source_sha256"].items():
     assert sha((ROOT / name).read_bytes()) == digest, name
 print(f"verified {len(slices)} immutable slice source histories and distinct combined source hashes; no family certification")
@@ -124,3 +132,37 @@ raw_streams(checkpoint["controls"], controls / "checkpoint")
 for name, digest in checkpoint["archive_sha256"].items():
     assert sha((controls / "checkpoint" / name).read_bytes()) == digest, name
 print("verified retained combined-runtime 576 recovery runs, 668 translation cases, 456 full-CST/SANY artifacts, 76 finite models and 28 document mutants")
+
+# These closed observations retain their original producer, independent of the
+# current integrity maps and later feature integrations.
+frozen = controls / "core-options-random-frozen"
+receipt = json.loads((frozen / "receipt.json").read_text())
+gate = json.loads((frozen / "gate/verification.json").read_text())
+producer = json.loads((frozen / "producer.json").read_text())
+assert receipt["source_commit"] == gate["source_commit"] == producer["source_commit"] == "550d959e4223e1b6fce47ffd29d039d8dfef016c"
+assert receipt["source_tree"] == gate["source_tree"] == producer["source_tree"]
+assert gate["tests_passed"] == receipt["tests_passed"] == 1076
+assert gate["tests_skipped"] == receipt["tests_skipped"] == 0
+assert gate["gate_stages_passed"] == 8 and gate["source_guards_passed"] == 24
+assert sum(gate["inventory"]["hash_partitions"]) == 1076
+assert gate["inventory"]["disjoint_and_complete"] and gate["inventory"]["ignored_tests"] == 0
+assert receipt["family_certified"] is False and gate["family_certified"] is False
+for name, digest in gate["source_sha256"].items():
+    assert sha(gzip.decompress((frozen / "gate/source" / (name + ".gz")).read_bytes())) == digest, name
+for name, digest in gate["logs_sha256"].items():
+    assert sha((frozen / "gate/logs" / name).read_bytes()) == digest, name
+for name, digest in receipt["compressed_artifact_sha256"].items():
+    assert sha((frozen / name).read_bytes()) == digest, name
+for name, digest in receipt["raw_artifact_sha256"].items():
+    assert sha(gzip.decompress((frozen / "runtime" / (name + ".gz")).read_bytes())) == digest, name
+process_options = json.loads(gzip.decompress((frozen / "runtime/process-options/full-controls/report.json.gz").read_bytes()))
+assert process_options["selected"] == len(process_options["rows"]) == 524
+assert process_options["native_sha256"] == producer["binary_sha256"]["dive"]
+assert process_options["cst_sha256"] == producer["binary_sha256"]["cst"]
+for profile in ("dive", "tlc"):
+    assert process_options["summary"][profile] == {"full-derivation-and-admission": 320, "named-cli-option-rejection": 28, "rejected": 128, "named-refusal": 48}
+    for row in process_options["rows"]:
+        result = row[profile]
+        if result["outcome"] == "full-derivation-and-admission":
+            assert result["operator_structure_equal"] and result["sany"]["exit_code"] == result["validator"]["exit_code"] == 0, row["id"]
+print("Verified frozen550 complete1076 zero-skip gate and524 explicit-option cases;640 complete CST/SANY/Validator pairs; no family certification")

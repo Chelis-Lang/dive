@@ -1,0 +1,9 @@
+{
+  "source_commit": "6a6486fcae6c1296cf384c692228a5a2ddf9afa0",
+  "qualification": "Original producer gate omitted both required parity-ledger stages. Separate read-only frozen-source readback passed; parent integration runs the complete current gate. Original receipt is unchanged.",
+  "logs_sha256": {
+    "parity-ledger-readback.log": "218abb29a5af839875a1ca1491a536f98ed474581856c33ddc54c1ffeb486c4a",
+    "parity-ledger-tests-readback.log": "e26f0a6d67b11e2ca61159c0cffcb6e1a2e9da889d2c485c5cb6125256af2e15"
+  },
+  "family_certified": false
+}

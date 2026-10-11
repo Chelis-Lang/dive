@@ -1,0 +1,11 @@
+{
+  "source_commit": "550d959e4223e1b6fce47ffd29d039d8dfef016c",
+  "source_inputs_verified": 618,
+  "gate_logs_verified": 12,
+  "binary_inputs_verified": 5,
+  "tests_passed": 1076,
+  "tests_skipped": 0,
+  "process_option_models": 524,
+  "strict_cst_sany_validator_pairs": 640,
+  "family_certified": false
+}

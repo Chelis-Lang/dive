@@ -1,0 +1,11 @@
+{
+  "delivery_commit": "7683204a1ab328ffc2dabb9b932f5c545e129b79",
+  "inputs_verified": 386,
+  "archived_inputs_verified": 386,
+  "artifacts_verified": 3517,
+  "binaries_verified": 3,
+  "full_gate_stages_verified": 31,
+  "historical_uncommitted_run_identities_preserved": true,
+  "family_certified": false,
+  "delivery_index_sha256": "285feb0203e8da9d590b404a285e3c67fa8a2377775bd6ccaf8ffc5ce9fc0fad"
+}

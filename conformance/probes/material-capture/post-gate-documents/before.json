@@ -1,0 +1,8 @@
+{
+  "original_sha256": {
+    "conformance/probes/material-capture/README.md": "99deb9da68c8cd274f0ca8aa1509b4cf16f3c625b930f23097895386008be2e4",
+    "conformance/probes/material-capture/DESIGN.md": "61f306ea83b5c6cefc6df0e51cb8fada1ed0b7c099edbe75de040cbce28c223e",
+    "conformance/probes/material-capture/source-matrix.json": "0e4e3ae4ee4e5f1aefb9f4f0799e0a2be0d935d9d67e3480441fee8bd77e40fb"
+  },
+  "scope": "Docs/evidence bookkeeping only after all932 Rust tests/fullgate and37 safety rows1/4/8 ended; frozen Rust/Cargo unchanged"
+}

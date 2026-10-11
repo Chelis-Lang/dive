@@ -436,6 +436,19 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 
 ---
 
+**Bounded PlusCal multiline reports.** Sequential non-junction multiline
+expressions now generate with reference lexical changed-variable substitution.
+LF/CRLF, tabs, blank/comment lines and UTF-8 comments have separate retained
+controls. Junction indentation, binders and macro/process/procedure expression
+contexts still yield named unsupported reports. Full/body CRCs, whole operator
+CST/SANY admission and finite counts/independent witness checks are separate;
+neither a checksum match nor a translation report claims a checked model.
+The input file is unchanged. See `docs/pluscal-multiline.md` and its complete
+primary/refusal history. D-020's fair-only source-detection weakness is preserved,
+not silently corrected.
+
+---
+
 ## D-009: Comparisons that TLC refuses although TLA+ answers them
 
 | | |
@@ -1840,8 +1853,9 @@ usable artifact admission are separate contracts (D-008). See
 Bounded final scope evidence (#134) now distinguishes configured names from
 local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
 Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
-refusals. Original expanded-action attribution is still a missing native field,
-not an approved result-changing default. Ordinary periodic scheduling remains
+refusals. The additive property-origin increment below exposes original
+expanded Action names separately; its metadata is not a new result-changing
+default or ordinary liveness certificate. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
 
 
@@ -1856,3 +1870,112 @@ invalid generated artifact is admitted. See
 [the scope and executable examples](pluscal-checksum-expressions.md). D-020
 continues to expose the fair-header-only checksum weakness without correcting
 it by default.
+
+### Current identity metadata limitation and evidence
+
+The final-only JSON and Rust API expose three distinct temporal identity vectors:
+configured properties, original expanded Actions and derived role labels. A
+conjunction can have one configured `P`, two Action names `P`, and two source
+location labels. Those labels are not interchangeable. This is a matching
+metadata contract, not a new divergence or ordinary liveness certification.
+Exported temporal-formal INSTANCE cases still refuse when the pinned reference
+fails before producing that projection. See [the identity guide](tlc-property-origins.md).
+
+### Native concrete capture limitation narrowed
+
+TLC accepts a split action capturing `<<[tag |-> "ok", vals |-> {a,b}], <<1,2>>>>`
+and configured string/model/set constants. The earlier native final checker
+refused all32 selected runs at1/4 workers. A callback-free stored-value proof
+now admits the paired final controls while preserving opaque/cached providers,
+invalid namespaces, effects and existing50k/128 bounds as refusals. Public
+callers must supply sets/records/general functions with the evaluator's stored
+ordering profile; same-owned atoms alone do not preserve cached CHOOSE order.
+Tuples have profile-independent integer domains, but nested values still match.
+The pre-order-guard observations and interrupted gate remain blocked evidence.
+This matches
+the reference and does not change any approved default. The original failed
+selection remains evidence; see [the concrete capture guide](material-capture.md).
+Ordinary periodic checking and full family certification remain unfinished.
+
+
+**D-008 finite-process Full reports.** Declared-fairness finite process records
+now have proved native post-translation AST/CRC derivation, separately checked
+from admitted generated modules. Raw multiline process checksum matching does
+not lift the generator's layout refusal. Supported explicit process fairness and
+automatic labels have the separate [option contract](pluscal-process-checksum-options.md);
+source-option declarations, name rewrites and procedure/macro ASTs remain named Full refusals. Both profiles
+report nonproof editing results. See [process checksum examples](pluscal-process-checksums.md).
+D-020's fair-header-only source detection weakness remains explicit and unchanged.
+
+The process checksum source study retains a native generator CST failure for a
+long singleton unchanged variable. The pinned five-unit UTF-16 identity spelling
+rule is now matched; this restores artifact fidelity in both profiles, without
+a new divergence or proof claim. Opposite process modifiers and default-value
+name conflicts have separate captured dispositions.
+
+Pure operator-formal forwarding now has bounded explicit-final TLC admission;
+this resolves a native refusal rather than adding a result-changing default.
+Known user targets preserve caller scopes and are inspected even when unused;
+opaque/native/recursive/higher-order and configured-origin-ambiguous targets
+remain refused. Clean accepted INSTANCE operator-formal controls are separate
+from older exported temporal-expression failures2213. Full periodic/corpus/family
+parity is unclaimed; see [the operator guide](temporal-operators.md).
+
+## D-021: PlusCal checksums need the generation options
+
+```tla
+---- MODULE OptionCRC ----
+EXTENDS Integers, TLC, Sequences
+(* --algorithm A variable g=0;
+process P \in {1,2} begin L:g:=1; E:skip; end process;
+end algorithm; *)
+====
+```
+
+The clean pinned `pcal.trans -wf OptionCRC.tla` keeps only two hexadecimal CRCs
+in the translation header; it does not persist `-wf`. In the retained minimal
+P-syntax control the pcal CRC is `247b4187`. A fresh unconfigured Validator gives
+`PCAL_DIVERGENCE_EXISTS` without any edit. The same Validator configured with
+`-wf` gives `NO_DIVERGENCE`. The paired `-sf` and inserted/custom-label controls
+show the same false change indication. An explicitly `fair+` process translated
+with `-nof` instead validates both ways because the source AST retains declared
+fairness even when the generated formula omits it.
+
+This is a context problem, not a source-equivalence or model-proof result.
+Pinned Validator reparses using its current options and source `PlusCal options
+(...)` declarations. The four retained in-source declaration controls validate
+unconfigured. Native's first option producer ignored those declarations: weak
+and strong cases produced admitted replacements with the wrong fairness, while
+missing-label cases were rejected. Those failures and exact primary outputs are
+preserved before the native source-context guard.
+
+**Status: measured upstream interoperability candidate; no corrected default.**
+For proved finite process shapes, dive derives Full CRCs from the exact explicit
+CLI/API options and reports `translation_options` on every replacement request.
+The API has one fairness enum; the CLI rejects repeated/conflicting fairness
+flags before loading. Native generation and Full derivation refuse unproved
+source-option declarations by name. Store/replay explicit settings with the
+artifact and configure reference validation consistently. An unconfigured
+Validator result never proves the source was edited.
+
+The compatibility counterpart is the same pinned CRC/options context under
+`--compat=tlc`, not a new checksum scheme. `--checksums tla` is the explicit
+partial body-only policy. The unchanged `--fair algorithm` weakness (D-020)
+can also hide changes, and its `NO_DIVERGENCE` result does not certify identity.
+Raw AST/CRC agreement, usable artifact admission, finite checking and independent
+witness validation stay separate (D-008).
+
+See [runnable option examples and limits](pluscal-process-checksum-options.md)
+and `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`
+for all primary/configured/unconfigured/native-before-guard evidence. General
+source-option parsing, scoped serialization, exact formatting and file writes
+remain pending rather than inferred from this bounded increment.
+
+D-021 original-source control: a declaration inside a previous translation
+block is still read by the pinned translator. The retained native producer
+masked it first and admitted both Full and body-only output without requested
+weak fairness. High-level native rewriting now refuses before masking; the
+minimal source and both failed outputs are in
+`conformance/probes/pluscal-source-option-masking/`. Issue #182 remains open
+for source-option parsing and precedence; no stronger checksum default is
+adopted.

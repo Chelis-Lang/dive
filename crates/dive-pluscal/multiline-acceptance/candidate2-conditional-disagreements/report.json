@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "script_sha256": "7ea8d4d6b48d8249b98672b78b0786c1fcbcb232ec68cfea80baa24d8ea773b0",
+  "native_sha256": "9c4e2bb370e096dd71d2a403ddd10588bf3ee701de68f1da5184a30389d3b7b1",
+  "cst_sha256": "e539e8808280f2b2a7e258ed245800330b1426c3c09ba32511500b891d987263",
+  "selection_sha256": "450226fae600b17faf25e5b16cbcd05d17fa352ae9667e9a319738c426f6c31a",
+  "selected": 40,
+  "family_certified": false,
+  "summary": {
+    "operator-tree-disagreement": 16,
+    "operator-tree-match": 24
+  },
+  "rows": [
+    {
+      "id": "C_case-true-one",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "117669405ccf807a2345a0fa197e41c678e442478fb35d7d0c4dfa881a0cbe99"
+    },
+    {
+      "id": "C_case-true-lines",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "b53437a5415fe60bf125a81b45069158116f359d9b2c20dcb4862c98179931b8"
+    },
+    {
+      "id": "C_case-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "b2cb8f39e9bf29704a8c5e97fbc9e5d2c25d65acfff5f9ce8736b3ea6f3634d4"
+    },
+    {
+      "id": "C_case-first-body",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "9ff2bcfd933aa27939b1af760eac5969ea11c34702d54d9a2b744c0e7588c5a0"
+    },
+    {
+      "id": "C_case-parentheses",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "eb0e349642ff3cba9015b5eca9bd08828cba19c579c93ab49dd6be8f48ee5401"
+    },
+    {
+      "id": "C_if-true-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "0972153467dfbc794716f00357d64ff1abaae4b5752a444f54d3138aab790d09"
+    },
+    {
+      "id": "C_if-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "fb65d2094470c99241fa7af1b6384a851b9b5f18ae28d2807d82ccbcc8eb9a85"
+    },
+    {
+      "id": "C_if-else-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "528fc8e50b93203b357079d618b67e8b8011b3accedaa50def046401443c2cd2"
+    },
+    {
+      "id": "C_case-declaration",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "a006851e519711283ba5f61d726157a4ccbd3df1f80b73f13b93ddc59a57516f"
+    },
+    {
+      "id": "C_arrow-string",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "a86dd38f3ebc909b77674ddf9a31396ffa37bc9624a7ccd24dae903ff48066eb"
+    },
+    {
+      "id": "C_fair_case-true-one",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "ec1466c54da0aa176251e742ccc8913f5a21d567174ec97632e65059237e40b9"
+    },
+    {
+      "id": "C_fair_case-true-lines",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "5a7d7d715916da5fb87221f3a78a62907201e28213bfe6c8216411c0650532bd"
+    },
+    {
+      "id": "C_fair_case-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "5794a6645dea59cdbd59408cb1d00ccf25dd56f6a4923f11312d05bad4191db4"
+    },
+    {
+      "id": "C_fair_case-first-body",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "510b067bbcc19389ebd8fbdc837468b415a56508e09031cbe359805bce56b841"
+    },
+    {
+      "id": "C_fair_case-parentheses",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "906ae0e94d0aded58046c65e057a7cf7b5432dddc71aefa8f1432739c445086f"
+    },
+    {
+      "id": "C_fair_if-true-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "5be8a6774c368b21f2abaa86abd34166e8b2b0631d5113f67909dad9a42ff34a"
+    },
+    {
+      "id": "C_fair_if-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "b16b34309c7c5bfc652b6bd4142c6f984209497996b7bb4df8c80c8e6dda725e"
+    },
+    {
+      "id": "C_fair_if-else-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "dce7c20b05ce8fe61476c4ce522b54990576afe58d076fc4ac09000b6a3212ea"
+    },
+    {
+      "id": "C_fair_case-declaration",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "9a9e191b4f6d62dfeb0132c5a0e9a05d3e1c61b900e1e777e522a19c74452b11"
+    },
+    {
+      "id": "C_fair_arrow-string",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "3876ead3feb0d001e235b62c8facd3305d9a558b87c0bb6e16958dd6e38d01b2"
+    },
+    {
+      "id": "P_case-true-one",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "69acc851296516630d464105d6a6bbb5848b2da006702a02be81d56fdb6d335d"
+    },
+    {
+      "id": "P_case-true-lines",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "f225424527468b500210feffbee191c5908d4b9479dafbec9be5e8c20c6137ea"
+    },
+    {
+      "id": "P_case-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "48a21f3c003d4e6fb9c5d0602fd36f811811276eabaf65cd9373f4ff6c81bedb"
+    },
+    {
+      "id": "P_case-first-body",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "ee91cf5f1b8e1fd83bd9cbf63baf6a048e2a53c39472d047f5d2de9feda450e1"
+    },
+    {
+      "id": "P_case-parentheses",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "c36d68189a134fac2e54eeaabf8d14583044c93b6b8d8d1e89dfde243e3cb212"
+    },
+    {
+      "id": "P_if-true-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "4bf3db684d301ef9a3cbce1eb6c20cf412daee53e4f154535c4dd224edb30570"
+    },
+    {
+      "id": "P_if-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "03e97a1203beb9bb855fdf418026fc587b0966863d35dbe87ae0b31c5946dbc4"
+    },
+    {
+      "id": "P_if-else-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "2772af94072fcb9226817fce4d37f448f09a9bb91f742b25d4dba66370be9bab"
+    },
+    {
+      "id": "P_case-declaration",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "92ebfac52f205574ec431ad6ad4ea405161a71196c1b02d82b224093293a255f"
+    },
+    {
+      "id": "P_arrow-string",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "aafb91db78bb9793e91880f41bab9d0295e851026b9491d58d66426728460790"
+    },
+    {
+      "id": "P_fair_case-true-one",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "f138660191cc8ce00f25d993e2e3bcc1dfc06095ee7ffbedf7956b1d14c77f09"
+    },
+    {
+      "id": "P_fair_case-true-lines",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "7c34e7d9653c0c2f37df93fc01d7252420da543f9a76842c84e3462b0f060c43"
+    },
+    {
+      "id": "P_fair_case-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "89a00f2573d96e0c6fbe9fe85a18dde5447d7b0ca749aad499afdfd0d3df2bf1"
+    },
+    {
+      "id": "P_fair_case-first-body",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "58fa66fb4d4ca631289c4e6cc94478416750acc7bb2893f64db9125ed68555bd"
+    },
+    {
+      "id": "P_fair_case-parentheses",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "c7be2a589e557c71dbee062e172011fa3f3cca9619d60e9a7f18e417b22d9b95"
+    },
+    {
+      "id": "P_fair_if-true-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "a4d982b651bfde4c2ffc04e784f09b3b70bbec4c1056be5fe19ab411e00635f5"
+    },
+    {
+      "id": "P_fair_if-first-line",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "78f1b804367dde78d3909c5244be1a3b1093d95788caa1bac29e14997363d606"
+    },
+    {
+      "id": "P_fair_if-else-lines",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "3cb318b44a2b30527b3b7f40ec3444f351b76448b144da610a64261e7f04fda8"
+    },
+    {
+      "id": "P_fair_case-declaration",
+      "outcome": "operator-tree-disagreement",
+      "exit_code": 0,
+      "source_sha256": "3cf9a8937664c7269b3e737ba3f09e5912f33978f5c5a24916ca1124a3827efc"
+    },
+    {
+      "id": "P_fair_arrow-string",
+      "outcome": "operator-tree-match",
+      "exit_code": 0,
+      "source_sha256": "e52c8e0ec021b96068c00ba22d12af05d2049e1bbbcbba0588fbaea39f771a61"
+    }
+  ]
+}
