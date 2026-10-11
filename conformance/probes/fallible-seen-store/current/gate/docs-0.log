@@ -1,0 +1,14 @@
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-store)
+ Documenting dive-store v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-store)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+ Documenting dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+ Documenting dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+ Documenting dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+    Checking dive-conformance v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-conformance)
+ Documenting dive-conformance v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-conformance)
+ Documenting dive-cli v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-cli)
+ Documenting dive-bench v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-bench)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.80s
+   Generated /Users/jeff/code/dive-trace-representation-target/doc/dive_api/index.html and 20 other files

@@ -68,3 +68,8 @@ The first library permits coordinated exclusive calls. Parallel read views,
 ordinary BFS admission, semantic stopping-prefix integration, recovery and
 combined seen/frontier/predecessor budgets are later increments. See
 [ADR 0063](../decisions/0063-fallible-disk-seen-state-library.md).
+
+The [source-bound control study](../../conformance/probes/fallible-seen-store/README.md)
+records full key identity, rehash, poisoned-error and owned-cleanup controls, the
+actual Cargo example and current engine regression gates. It supplies library
+evidence; it does not turn this API into a checker storage option or checkpoint.

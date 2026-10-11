@@ -5,7 +5,7 @@
   "historical_slices_sha256": "3b370cfde055a5fea1a3a9a9bd5699307022d627e2a194c86d6d3127a027a91f",
   "source_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
-    ".github/workflows/ci.yml": "06f16d6de56ffeb5162c10748e4890da47441b6efb5c9fd0ef2d5b3ffd39ed95",
+    ".github/workflows/ci.yml": "bc2a0fdfc1d783e39cf7fda0087eb7aeffdc9647e0e0a041fc2bdde518b526d4",
     "AGENTS.md": "45e6e0d7fb3f4d767610e5aafe5a83726f3409e2b8f4bbfc6acc4c73fefec43b",
     "CHANGELOG.md": "25e4afe79399b4caf508843031819d221edfe74ef76aba7282d4ccf86a5b3889",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
@@ -8656,13 +8656,13 @@
     "conformance/probes/tlc-state-if/source-matrix.json": "8d8602dc5c65eb7bcd45116a4cd3d556786931f6e9814818e6691387b9385c02",
     "conformance/probes/tlc-temporal-if/source-matrix.json": "177a98e2aecaf8f8797e6a9a1d257af94c5a5aec0367e176ee5d60cc3c9c2052",
     "conformance/probes/tlc-temporal-if-final/source-matrix.json": "43f5d244a3cfab3e401fbb0629c0543054ff0096f2a17ab92938a7b57b3add3f",
-    "conformance/probes/tlc-final-scopes/source-matrix.json": "4697067c57f9be475efdeb151733b143d165d00e937fa45c789c996a8328dbe6",
+    "conformance/probes/tlc-final-scopes/source-matrix.json": "02137bd1ae05ac156951f2d83ceeeee5ff809dc54884978436838f2f49f78a56",
     "conformance/probes/tlc-phase-execution/source-matrix.json": "842db18fdb02ce4af02740bfcd70dc37c98d33e2b815185d0be68b1e0c906422",
     "conformance/probes/temporal-forwarding/source-matrix.json": "d6a7e544a300250232c44c012b1f194bac6268fe80934ecd1ddcecd09a67750c",
-    "conformance/probes/tlc-final-property-origins/source-matrix.json": "f7a145a65b9eae29fa88655dcce4d2e174a093eaa05819b75176f78a498d7e20",
-    "conformance/probes/material-capture/source-matrix.json": "a92191bde379549c5486f6e293d85c475dd7b9f7ed62a5a4ab50743e3d84b030",
-    "conformance/probes/temporal-operators/source-matrix.json": "f13697fce5901a4156154418299a78048d74f174a11655c104c0d283ccf2827a",
-    "conformance/probes/native-temporal-operators/source-matrix.json": "e0e4237c63e29e6fd84cc1b5226114e77282378389a0480e9998c1e71a9211ca"
+    "conformance/probes/tlc-final-property-origins/source-matrix.json": "f86763c8012fbb15bfdf0ffdc758858b489b7d75a7605aa7ffac24dfc189112a",
+    "conformance/probes/material-capture/source-matrix.json": "d316c61a8699b7efaf3b8854a1e2c263ad6c862874cdf8ccf31fa31b3e3f5469",
+    "conformance/probes/temporal-operators/source-matrix.json": "a34840ac4904ac74f604f189d6e1db3173cc72012b8a6371b55cda6366ba288b",
+    "conformance/probes/native-temporal-operators/source-matrix.json": "131a8c4d26638533cb9423e8b6e9a03d6f3303c07afda10f7a941146b6b08731"
   },
   "generated_manifest_paths": [
     "conformance/probes/material-capture/source-matrix.json",

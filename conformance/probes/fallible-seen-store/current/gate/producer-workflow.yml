@@ -1,0 +1,219 @@
+name: ci
+
+# Fast tier: runs on every push to main and every PR. Kept deliberately lean.
+# Conformance runs live in conformance.yml; benchmarks and profiling are never
+# run here (see docs/decisions/0001-workspace-and-ci.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  no-ai-authorship:
+    # Required check name; must match `cargo xtask protect-main`.
+    name: No AI authorship markers
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check commits for AI authorship markers
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            scripts/check-ai-markers.sh range "$PR_BASE" "$PR_HEAD"
+          elif [ -n "$PUSH_BEFORE" ] && [ "$PUSH_BEFORE" != "0000000000000000000000000000000000000000" ] \
+               && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+            # Scan every commit in the push, not just the tip.
+            scripts/check-ai-markers.sh range "$PUSH_BEFORE" "$SHA"
+          else
+            # New branch, force push, or manual run: scan full history.
+            scripts/check-ai-markers.sh all "$SHA"
+          fi
+
+  workspace-checks:
+    name: Workspace checks
+    needs: no-ai-authorship
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+        with:
+          tool: cargo-nextest,cargo-deny
+      - name: rustfmt
+        run: cargo fmt --all --check
+      - name: ValidationTestSuite import controls
+        run: python3 scripts/test-validation-import.py
+      - name: Frontend campaign controls
+        run: python3 -I scripts/test-frontend-campaign.py
+      - name: Parity ledger accounting and mutation controls
+        run: |
+          python3 -I scripts/check-parity-ledger.py
+          python3 -I scripts/test-parity-ledger.py
+      - name: Temporal projection evidence
+        run: |
+          python3 -I scripts/check-tlc-planning.py
+          python3 -I scripts/check-tlc-tableau.py
+          python3 -I scripts/check-temporal-action-order.py
+          python3 -I scripts/check-phase-l.py
+          python3 -I scripts/check-phase-l-graph.py
+          python3 -I scripts/check-phase-execution.py
+          python3 -I scripts/check-periodic-controller.py
+          python3 -I scripts/check-runtime-ratio.py
+          python3 -I scripts/check-tlc-final.py
+          python3 -I scripts/check-state-if-planning.py
+          python3 -I scripts/check-predecessor-spill.py
+          python3 -I scripts/check-native-checkpoint.py
+          python3 -I scripts/check-view-normalization.py
+          python3 -I scripts/check-view-random-stream.py
+          python3 -I scripts/check-trace-representation.py
+          python3 -I scripts/check-native-parity-integration.py
+          python3 -I scripts/check-tlc-final.py
+          python3 -I scripts/check-tlc-final-safety.py
+          python3 -I scripts/check-tlc-state-if.py
+          python3 -I scripts/check-tlc-temporal-if.py
+          python3 -I scripts/check-tlc-temporal-if-final.py
+          python3 -I scripts/check-tlc-final-scopes.py
+          python3 -I scripts/check-tlc-property-origins.py
+          python3 -I scripts/check-material-capture.py
+          python3 -I scripts/check-temporal-operators.py
+          python3 -I scripts/check-native-temporal-operators.py
+          python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
+
+          python3 -I scripts/check-stored-successor-material.py
+          python3 -I scripts/check-stored-successor-census.py
+          python3 -I scripts/check-native-sequence-operators.py
+          python3 -I scripts/check-tlc-partial-scc.py
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Verify complete test partitions
+        run: python3 -I scripts/check-test-partitions.py
+      - name: Required workspace result controls
+        run: python3 -I scripts/test-workspace-gate.py
+      - name: doctests
+        run: cargo test --workspace --doc --locked
+      - name: rustdoc
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --workspace --no-deps --locked
+      - name: dive-trace standalone (no feature unification)
+        # Features unify only across the packages selected, so this build
+        # fails if dive-trace reaches dive-eval's enumerator (ADR 0016 §2).
+        run: cargo build -p dive-trace --locked
+      - name: crate layering
+        run: cargo xtask check-layering
+      - name: cargo-deny
+        run: cargo deny --locked check
+
+  workspace-tests:
+    name: Workspace tests (${{ matrix.partition }}/8)
+    needs: no-ai-authorship
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: workspace-tests
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+        with:
+          tool: cargo-nextest
+      - name: All workspace tests, partition ${{ matrix.partition }} of 8
+        run: cargo nextest run --workspace --locked --profile ci --partition hash:${{ matrix.partition }}/8
+
+  workspace-gate:
+    # Required check name; must match `cargo xtask protect-main`.
+    # Always run: a skipped prerequisite must not become a passing required check.
+    name: Workspace gate
+    if: ${{ always() }}
+    needs: [no-ai-authorship, workspace-checks, workspace-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Require every prerequisite to pass
+        env:
+          AUTHORSHIP_RESULT: ${{ needs.no-ai-authorship.result }}
+          CHECKS_RESULT: ${{ needs.workspace-checks.result }}
+          TESTS_RESULT: ${{ needs.workspace-tests.result }}
+        run: scripts/workspace-gate.sh "$AUTHORSHIP_RESULT" "$CHECKS_RESULT" "$TESTS_RESULT"
+
+  conformance-gate:
+    # Required check name; must match `cargo xtask protect-main`.
+    # PR conformance gate (m5-plan CM1): `dive check --compat=tlc` must agree
+    # with the committed TLC goldens on a fixed model list. Never runs TLC.
+    name: Conformance gate
+    needs: no-ai-authorship
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DIVE_CACHE_DIR: ${{ github.workspace }}/../dive-cache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          key: release-gate
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Cache oracles, JRE and corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.DIVE_CACHE_DIR }}
+          key: dive-cache-${{ runner.os }}-${{ hashFiles('conformance/oracles.toml', 'conformance/corpora.toml') }}
+      - name: Build harness and dive
+        run: cargo build --release --locked -p dive-conformance -p dive-cli
+      - name: Fetch and verify oracles and corpus
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          target/release/dive-conformance oracle fetch
+          target/release/dive-conformance corpus fetch --corpus examples
+      - name: CM1 gate (1, 4 and 8 workers)
+        run: scripts/conformance-gate.sh conformance/gates/cm1.txt --workers 1,4,8
+      - name: ValidationTestSuite smoke gate (1, 4 and 8 workers)
+        env:
+          DIVE_GATE_CORPUS: validation-smoke
+        run: scripts/conformance-gate.sh conformance/gates/validation-smoke.txt --workers 1,4,8 --timeout 30
