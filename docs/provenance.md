@@ -555,3 +555,8 @@ The source-backed singleton identity spelling additionally matches
 `UNCHANGED name` for Java UTF-16 length greater than five, equality otherwise.
 The original defaultInitValue whole-CST failure and length-five/six/branch
 controls remain retained. This is artifact fidelity, not a semantic divergence.
+
+Source option admission guard: pinned `pcal.trans.performTranslation / ParseAlgorithm.ProcessOptions` token context
+and `Validator.validate` reparsing options, commit `94d0c5070852b37b801bb8998c436383ab7ee37b`
+(MIT). Native recognizes a conservative context for named refusal, not execution
+of the reference option parser. Captures: `crates/dive-pluscal/source-option-acceptance/`.

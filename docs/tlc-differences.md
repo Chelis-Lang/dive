@@ -1908,3 +1908,24 @@ long singleton unchanged variable. The pinned five-unit UTF-16 identity spelling
 rule is now matched; this restores artifact fidelity in both profiles, without
 a new divergence or proof claim. Opposite process modifiers and default-value
 name conflicts have separate captured dispositions.
+
+## D-021: PlusCal checksums need the generation options
+
+Translate a finite process with `pcal.trans -wf`: its header has two CRCs but does
+not retain `-wf`. In the retained P_plain_weak example, the algorithm CRC is
+`247b4187`. A fresh unconfigured Validator reports `PCAL_DIVERGENCE_EXISTS`,
+while the same Validator configured with `-wf` reports `NO_DIVERGENCE`. Strong
+fairness and automatic/custom label cases retain the same context limitation.
+
+A source comment such as `\* PlusCal options (-wf)` can instead provide this
+context. Native's first option producer ignored it and admitted weak/strong
+outputs missing fairness; both failures remain in the evidence. Native now
+refuses unproved source declarations before returning an artifact or CRC in both
+profiles. Supply supported settings explicitly and configure validation with the
+same settings. Attached keyword/punctuation forms ignored by the reference have
+separate controls; malformed declaration contexts may be conservatively refused.
+
+Status: measured interoperability candidate; no corrected default or model
+proof. `--compat=tlc` retains reference-compatible explicit settings, not a new
+checksum scheme. D-020's fair-header-only weakness still applies. All primary
+outputs and original failures are in `crates/dive-pluscal/source-option-acceptance/`.

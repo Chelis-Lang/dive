@@ -65,6 +65,8 @@ All notable changes to this project are documented here. The project will follow
   failures, typed TLC errors and source-order fallback before graph work.
 
 
+- Native PlusCal translation and algorithm CRC derivation explicitly refuse unproved source `PlusCal options (...)` declarations before returning an artifact.
+
 - Bounded finite-process Full checksum derivation for declared-fairness and
   source-owned modifier records, independently checked against reference AST
   bytes and admitted operator trees. Unproved option/name/call shapes remain

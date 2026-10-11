@@ -163,3 +163,12 @@ gap. The narrow `PcalTLAGen.GenLabeledStmt`/`GenIf`/`GenEither` rule emits
 Original whole-operator CST failure, five/six controls and default-initializer
 name-conflict refusals are retained before the repair; no semantic/default
 change is introduced. Modifier vectors remain partitioned by source owner.
+
+### Source option context guard
+
+Source `PlusCal options (...)` declarations can change effective fairness or label
+insertion outside the explicit typed request. Until this context is parsed and
+proved, native translation and algorithm checksum derivation return Unsupported
+before an artifact or CRC. Twenty clean spacing controls and four declarations
+retain the original ignored-context failures. Historical surface captures are
+qualified in `crates/dive-pluscal/source-option-acceptance/README.md`.

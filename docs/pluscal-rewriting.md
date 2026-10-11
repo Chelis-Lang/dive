@@ -191,3 +191,9 @@ Finite processes with declared fairness now have a separately proved Full
 serialization contract; see [runnable process examples](pluscal-process-checksums.md).
 Unproved process fairness/automatic-label options and scoped call/name contexts
 remain Full refusals. CRC equality is still neither integrity nor model proof.
+
+Source `PlusCal options (...)` declarations currently return a named unsupported
+result before native generation or algorithm CRC derivation. Use supported
+explicit CLI/API settings. This refusal prevents silently dropping source fairness
+or label options; it does not change supplied-body editing's separate nonproof
+contract. Evidence: `crates/dive-pluscal/source-option-acceptance/`.

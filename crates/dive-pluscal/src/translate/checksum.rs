@@ -653,6 +653,9 @@ fn checksum_inline(
             diagnostic,
         }
     })?;
+    if let Some(span) = super::source_options_span(source) {
+        return Err(unsupported(span, "source option declaration context"));
+    }
     let algorithm = &parsed.algorithm;
     if !algorithm.macros.is_empty()
         || !algorithm.procedures.is_empty()
