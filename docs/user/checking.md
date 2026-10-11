@@ -24,6 +24,24 @@ selects inline checking. Simulation and checkpoint widths have separate limits.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
+VIEW with random operators currently returns `unsupported` before binding,
+output or search, even under `--compat=tlc`. The source-wide guard also detects
+unused definitions and native aliases, including native replacements selected
+only by `CONSTANT C <- RandomElement` or an instantiated context alias. The unfinished native seeding path could
+produce different concrete draws despite equal counts; see the preserved
+[example and evidence](../../conformance/probes/view-random-seeding/README.md).
+Pure VIEW and direct source-call random checking without VIEW remain available.
+Random checking reports its actual inline width separately from requested workers.
+Native random replacements selected by `.cfg`, for example
+`CONSTANT C <- RandomElement`, now refuse before startup/output/search even
+without VIEW. This includes aliased targets, all four native random families,
+and mixed source/configured calls. Matching counts previously concealed both
+false violations and missed violations. Pure user replacements remain supported.
+The callback-free target scan is conservative across matching modules/aliases;
+shadowed or malformed targets can receive this refusal before a binding error.
+There is currently no compatibility flag that enables this unproved route.
+See [the exact reproducer and repair boundary](../../conformance/probes/configured-random-admission/README.md).
+
 Ordinary strict temporal model checking remains unsupported; use the explicit
 [final/short mode](temporal.md) for its supported subset. Refused library
 operators, unknown finite deadlock covers, resource stops and internal failures

@@ -5,6 +5,17 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Refuse configured native random replacements before startup/output/search in
+  both profiles and all capture routes, including source-visible/configured
+  mixed calls. Preserve false-success and false-violation controls; direct RNG
+  calls and pure user replacements remain supported (#180).
+
+- Refuse configured VIEW with source-level random operators before binding/output
+  or safety search in both profiles, including native aliases, cfg-selected
+  native replacement targets and unused random definitions. Preserve the
+  equal-count/different-draw defect; pure VIEW and untransformed random checking
+  retain their supported implementations (#178).
+
 - Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
   conjuncts, with complete generated-module syntax-tree regressions.
 

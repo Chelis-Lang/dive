@@ -62,3 +62,10 @@ Ordinary periodic scheduling remains unavailable.
 
 For caller-context forwarding and property names, see the
 [scoped final guide](../tlc-final-scopes.md).
+
+Configured native random replacements are refused before graph capture, including
+`CONSTANT C <- RandomElement`. A supplied bound model is checked through its
+actual constant bindings and native redirects; its earlier construction/startup
+is outside the capture guard. Pure captures remain available. Pinned final/TLC
+selection retains its existing pre-binding effect admission. See the
+[configured RNG repair and backend evidence](../../conformance/probes/configured-random-admission/README.md).

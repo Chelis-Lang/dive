@@ -106,11 +106,13 @@ The seed is not shown in the normal results, so a surprising run cannot easily b
 **What dive does.** dive also draws a fresh seed by default, and always reports it in both human and JSON output. `--seed S` reproduces the run exactly, at any worker count:
 - each random stream depends only on the seed, a key, and how many values have been drawn from it. The key is the expanded state's fingerprint for draws in `Next`, a fixed key for constants, `ASSUME`s and `Init`, and the trace number in simulation;
 - dive's state fingerprint is fixed, so the seed alone is enough;
-- counterexamples come from the stored trace, not from evaluating `Init` again, so they cannot be lost.
+- counterexamples use ordered replay. A startup draw before Init can still make that replay lose its trace, matching the pinned TLC limitation; dive never invents a replacement witness.
 
 The operators choose with TLC's algorithms (which element, which subset); only the source of randomness differs. A dive run that cannot be reproduced from its reported inputs is a bug.
 
-Under `--compat=tlc` dive reproduces TLC's choices exactly for a given `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding, and TLC's algorithm for each operator. Draws in `Next` also need TLC's own state fingerprints, which depend on TLC's variable order (ADR 0014), and the evaluator must re-evaluate `LET`s exactly where TLC does. Until both are built, dive refuses a spec that draws in `Next` under `--compat=tlc`, naming the feature. Draws in constants, `ASSUME`s and `Init` need neither.
+Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
+
+**Current dive limitation (#178).** A configured VIEW combined with any source-level random operator refuses before binding, output or search in both profiles. The scan includes unused definitions, native aliases and cfg-selected native replacement targets: this is a conservative temporary boundary, not a claim that every such definition executes. TLC seeds expansion from the transformed VIEW fingerprint; dive's unfinished path used the raw predecessor. On the minimal `V == n` probe at seed 7/fingerprint 0, both found four states and the same invariant violation, but TLC assigned `x` values `0, 78, 49, 21` while the old native path assigned `0, 80, 94, 100`. Matching counts concealed wrong concrete draws. SYMMETRY/random combinations also remain refused. The preserved [source, clean primary and native outputs](../conformance/probes/view-random-seeding/README.md) keep that defect separate from TLC's own limitations. Both old concrete traces receive an explicit independent-validator refusal; no independent certificate was demonstrated.
 
 **Evidence.**
 - Harness review finding M5, probe P9, ADR 0010 §4.
@@ -1841,6 +1843,7 @@ Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
 
 **D-008 checksum continuation:** nested `elsif` and multiple `with` binders now
 have bounded reference AST serialization. Strict operator-tree comparisons
