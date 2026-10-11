@@ -1,0 +1,38 @@
+Parsing file /Users/jeff/code/dive-native-operator-work/conformance/probes/native-temporal-operators/models/NativeLenAliasHolds/NativeLenAliasHolds.tla
+***Parse Error***
+Encountered "<1>" at line 4, column 10 and token "=<" 
+
+Residual stack trace follows:
+ExtendableExpr starting at line 4, column 10.
+ExtendableExpr starting at line 4, column 7.
+Expression starting at line 4, column 7.
+Definition starting at line 4, column 1.
+Module body starting at line 3, column 1.
+
+
+Fatal errors while parsing TLA+ spec in file NativeLenAliasHolds
+
+In module NativeLenAliasHolds
+
+Could not parse module NativeLenAliasHolds from file NativeLenAliasHolds.tla
+*** Errors: 1
+
+In module NativeLenAliasHolds
+
+Could not parse module NativeLenAliasHolds from file NativeLenAliasHolds.tla
+
+
+
+Starting... (2026-10-11 04:50:34)
+failure_code	3002
+Exception in thread "main" util.Assert$TLCRuntimeException: Parsing or semantic analysis failed.
+	at util.Assert.fail(Assert.java:58)
+	at tlc2.tool.impl.SpecProcessor.processSpec(SpecProcessor.java:448)
+	at tlc2.tool.impl.SpecProcessor.<init>(SpecProcessor.java:199)
+	at tlc2.tool.impl.Spec.<init>(Spec.java:111)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:212)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:202)
+	at tlc2.tool.impl.Tool.<init>(Tool.java:187)
+	at tlc2.tool.impl.FastTool.<init>(FastTool.java:62)
+	at tlc2.tool.liveness.IfIdentityProbe.run(IfIdentityProbe.java:112)
+	at tlc2.tool.liveness.IfIdentityProbe.main(IfIdentityProbe.java:100)

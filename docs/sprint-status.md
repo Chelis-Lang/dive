@@ -1,4 +1,4 @@
-# Sprint status, 2026-10-10
+# Sprint status, 2026-10-11
 
 M0 and M2–M4 are complete. The safety checker, independent trace validator
 and deterministic parallel search are implemented and protected by the CM1
@@ -40,7 +40,7 @@ Since the preserved standard report below, the verified increments now include:
   admission. Disjoint explicitly labelled sequential procedures support call graphs,
   saved frames, mutual recursion and self-tail calls. Disjoint finite processes also call shared procedures with per-ID stacks
   and pinned weak/strong process/procedure fairness. General scoped renaming,
-  sequential procedure modifiers, rewriting and checksums remain pending.
+  sequential procedure modifiers and complete translator parity remain pending. Bounded sequential multiline rewriting and finite-process Full checksums are available; unproved source contexts refuse explicitly.
 - Opt-in ordered disk frontiers for safety BFS. The 21 CM1 and 16 generated
   ValidationTestSuite models agree at 1/4/8 workers both with memory queues and
   disk forced from the start. Current/next encoded frontiers are bounded;
@@ -57,6 +57,36 @@ four missing families out of 37. Every family remains audit-required. The
 retained whole-selection standard report still provides the strict baseline;
 these smaller acceptance studies do not replace it or establish a percentage
 of complete TLC parity.
+
+## Current stored captures and translation context
+
+Bounded explicit final TLC checking now supports stored scalar/composite
+constant and action captures, original configured/expanded/derived property
+identities, and pure user operator formals. The native continuation admits
+`Len`, `Head` and `Cardinality` with callback-free context and stored-value
+checks; recursive, higher-order, configured-origin-ambiguous and effectful
+actuals remain named refusals. See the [operator guide](temporal-operators.md),
+[native operator guide](native-temporal-operators.md) and
+[material guide](material-capture.md) for executable CLI/Rust examples.
+
+Sequential multiline generation and finite-process Full checksum contexts
+preserve explicit fairness and automatic-label settings. Bounded source-declared
+options resolve before rewriting masks an old translation; declarations inside
+that old block and unproved option contexts remain named refusals. See
+[source options](pluscal-source-options.md). Validation checks
+complete operator structure and the generated module, but does not prove the
+model or provide exact translator formatting. The
+[process-option guide](pluscal-process-checksum-options.md) and
+[rewrite guide](pluscal-rewriting.md) spell out supported and refused cases.
+
+The frozen combined producer550 passed all 1,076 workspace tests with zero
+skips and all 37 required models at 1/4/8 workers. Its 524 explicit-option
+selection retains 320 admitted modules per profile with 640 complete
+CST/SANY/configured Validator comparisons. Later integrations have their own
+source-bound verification; these observations are never retagged. The separate
+complete 140-model user-operator producer768 study has 53 agreements, 85 refusals
+and two timeouts, retaining harness exit 1. Neither study changes the historical
+standard totals or certifies ordinary periodic liveness/full TLC families.
 
 ## Preserved standard strict model evidence
 

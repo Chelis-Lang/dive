@@ -168,18 +168,28 @@ fn process_ast_budgets_are_global_and_never_admit_partial_crc()
 }
 
 #[test]
-fn source_option_comments_have_no_artifact_or_full_crc() -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("process-option-checksum-acceptance/validator-context");
-    for name in ["weak", "strong", "labels", "root"] {
-        let source = std::fs::read_to_string(root.join(format!("SourceOptions_{name}.tla")))?;
+fn source_option_comments_have_proved_artifact_and_full_crc()
+-> Result<(), Box<dyn std::error::Error>> {
+    let root =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("source-option-semantics-acceptance/primary-v2");
+    for name in ["weak", "strong", "labels", "root-last"] {
+        let id = format!("P_plain_{name}_cli_sf");
+        let source = std::fs::read_to_string(root.join(format!("{id}.tla")))?;
         let selection = select_rewrite(&source, &RewriteOptions::default())?;
         let region = selection.algorithm.start..selection.algorithm.end;
-        let checksum =
-            algorithm_checksum_at(&source, region.clone(), &TranslationOptions::default());
-        assert!(checksum.is_err_and(|e| e.diagnostic.code == Code::Unsupported));
-        let artifact = dive_pluscal::translate_at(&source, region, &TranslationOptions::default());
-        assert!(artifact.is_err_and(|e| e.diagnostic.code == Code::Unsupported));
+        let options = TranslationOptions {
+            fairness: FairnessOption::Strong,
+            ..TranslationOptions::default()
+        };
+        let checksum = algorithm_checksum_at(&source, region.clone(), &options)?;
+        let expected = std::fs::read_to_string(root.join(format!("{id}.translated.ast")))?;
+        assert_eq!(checksum.serialized_ast, expected);
+        let artifact = dive_pluscal::translate_at(&source, region, &options)?;
+        assert!(artifact.option_context.source_declaration.is_some());
+        assert_eq!(
+            artifact.option_context.effective.fairness,
+            checksum.option_context.effective.fairness
+        );
     }
     Ok(())
 }

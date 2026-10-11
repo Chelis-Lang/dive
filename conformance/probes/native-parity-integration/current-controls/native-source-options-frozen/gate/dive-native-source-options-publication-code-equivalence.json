@@ -1,0 +1,9 @@
+{
+  "historical_runtime_commit": "397cc7dc5ae49d5cf410b490a1a79d9f24db1902",
+  "runtime_library_and_cargo_inputs_unchanged": true,
+  "checked_inputs": 778,
+  "only_changed_rust_input": [
+    "crates/dive-api/examples/native_temporal_operator.rs"
+  ],
+  "reason": "Cargo-owned guide makes existing default types explicit to satisfy workspace clippy; no library or model implementation changes. Historical runtime identity is not retagged."
+}

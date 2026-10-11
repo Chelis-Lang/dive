@@ -62,12 +62,23 @@ impl Guard<'_> {
         st: &St,
         depth: usize,
     ) -> crate::Result<()> {
-        let (def, analysis) = self
+        let ceiling = self.limit.saturating_mul(64).min(100_000);
+        let mut remaining = ceiling.saturating_sub(self.visits);
+        let native = self
             .evaluator
-            .scope_operator_analysis(scope, operator)?
-            .ok_or_else(|| {
-                EvalError::unsupported("opaque/recursive/higher-order finite operator")
-            })?;
+            .scope_native_operator_analysis(scope, operator, &mut remaining);
+        self.visits = ceiling - remaining;
+        let (def, analysis) = if native?.is_some() {
+            (None, scope.clone())
+        } else {
+            let (def, analysis) = self
+                .evaluator
+                .scope_operator_analysis(scope, operator)?
+                .ok_or_else(|| {
+                    EvalError::unsupported("opaque/recursive/higher-order finite operator")
+                })?;
+            (Some(def), analysis)
+        };
         let saved = self.analysis;
         self.analysis = true;
         let result = (|| {
@@ -82,10 +93,196 @@ impl Guard<'_> {
             for (body, captured) in captures {
                 self.walk(&captured, body, st, depth + 1)?;
             }
-            self.walk(&analysis, self.evaluator.ir().def(def).body, st, depth + 1)
+            if let Some(def) = def {
+                self.walk(&analysis, self.evaluator.ir().def(def).body, st, depth + 1)?;
+            }
+            Ok(())
         })();
         self.analysis = saved;
         result
+    }
+
+    // Newly admitted native formals may read the caller's states or cached
+    // lexical values. Source purity is insufficient to admit a deferred
+    // provider. Inspect storage, names and order before native evaluation.
+    #[allow(
+        clippy::too_many_lines,
+        reason = "explicit bounded callback-free representation/context admission walk"
+    )]
+    fn native_values(&mut self, scope: &Scope, st: &St) -> crate::Result<()> {
+        use crate::env::{Dyn, Ev, Frame, OpVal, Sv};
+        use std::sync::Arc;
+        enum Work {
+            Frame(Arc<Frame>, usize),
+            Dynamic(Dyn, usize),
+            Slot(Sv, usize),
+            Value(dive_value::Value, usize),
+        }
+        let cap = self.limit.saturating_mul(64).min(50_000);
+        let mut work = vec![
+            Work::Frame(scope.env.frame.clone(), 0),
+            Work::Dynamic(scope.env.dynamic.clone(), 0),
+        ];
+        for state in [&st.s0, &st.s1] {
+            if let StateRef::Vals(values) = state {
+                if work.len().saturating_add(values.len()) > cap.saturating_sub(self.visits) {
+                    return Err(EvalError::resource_limit("native stored input work"));
+                }
+                work.extend(values.iter().flatten().cloned().map(|v| Work::Value(v, 0)));
+            }
+        }
+        while let Some(item) = work.pop() {
+            self.visits = self.visits.saturating_add(1);
+            if self.visits > cap {
+                return Err(EvalError::resource_limit("native stored input work"));
+            }
+            let depth = match &item {
+                Work::Frame(_, d) | Work::Dynamic(_, d) | Work::Slot(_, d) | Work::Value(_, d) => {
+                    *d
+                }
+            };
+            if depth > 128 {
+                return Err(EvalError::resource_limit("native stored input depth"));
+            }
+            let room = |pending: usize, count: usize| -> crate::Result<()> {
+                if pending.saturating_add(count) > cap.saturating_sub(self.visits) {
+                    Err(EvalError::resource_limit("native stored input work"))
+                } else {
+                    Ok(())
+                }
+            };
+            match item {
+                Work::Frame(frame, _) => {
+                    room(
+                        work.len(),
+                        frame
+                            .slots
+                            .len()
+                            .saturating_add(usize::from(frame.parent.is_some())),
+                    )?;
+                    work.extend(
+                        frame
+                            .slots
+                            .iter()
+                            .cloned()
+                            .map(|v| Work::Slot(v, depth + 1)),
+                    );
+                    if let Some(parent) = &frame.parent {
+                        work.push(Work::Frame(parent.clone(), depth + 1));
+                    }
+                }
+                Work::Dynamic(dynamic, _) => {
+                    if dynamic.at.is_some() {
+                        return Err(EvalError::unsupported("native captured @ context"));
+                    }
+                    let mut link = dynamic.subst;
+                    while let Some(binding) = link.take() {
+                        self.visits = self.visits.saturating_add(1);
+                        if self.visits >= cap || work.len() >= cap.saturating_sub(self.visits) {
+                            return Err(EvalError::resource_limit("native stored input work"));
+                        }
+                        work.push(Work::Slot(binding.val.clone(), depth + 1));
+                        link.clone_from(&binding.next);
+                    }
+                }
+                Work::Slot(Sv::Val(v), _) => {
+                    room(work.len(), 1)?;
+                    work.push(Work::Value(v, depth + 1));
+                }
+                Work::Slot(Sv::Thunk(thunk), _) => {
+                    room(work.len(), 3)?;
+                    work.push(Work::Frame(thunk.env.frame.clone(), depth + 1));
+                    work.push(Work::Dynamic(thunk.env.dynamic.clone(), depth + 1));
+                    let cached = thunk
+                        .cache
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
+                    if let Some(cached) = cached.as_ref() {
+                        let Ev::V(v) = &cached.val else {
+                            return Err(EvalError::unsupported("native cached opaque function"));
+                        };
+                        let count = [&cached.s0, &cached.s1]
+                            .iter()
+                            .map(|s| match s {
+                                StateRef::Vals(v) => v.len(),
+                                _ => 0,
+                            })
+                            .fold(1_usize, usize::saturating_add);
+                        room(work.len(), count)?;
+                        work.push(Work::Value(v.clone(), depth + 1));
+                        for state in [&cached.s0, &cached.s1] {
+                            if let StateRef::Vals(values) = state {
+                                work.extend(
+                                    values
+                                        .iter()
+                                        .flatten()
+                                        .cloned()
+                                        .map(|v| Work::Value(v, depth + 1)),
+                                );
+                            }
+                        }
+                    }
+                }
+                Work::Slot(
+                    Sv::Op(OpVal::Def {
+                        parent, dynamic, ..
+                    }),
+                    _,
+                ) => {
+                    room(
+                        work.len(),
+                        usize::from(parent.is_some()) + usize::from(dynamic.is_some()),
+                    )?;
+                    if let Some(parent) = parent {
+                        work.push(Work::Frame(parent, depth + 1));
+                    }
+                    if let Some(dynamic) = dynamic {
+                        work.push(Work::Dynamic(dynamic, depth + 1));
+                    }
+                }
+                Work::Slot(Sv::Fcn(_), _) => {
+                    return Err(EvalError::unsupported("native captured opaque function"));
+                }
+                Work::Slot(_, _) => {}
+                Work::Value(value, _) => match value {
+                    dive_value::Value::Str(atom) | dive_value::Value::Model(atom) => {
+                        if self
+                            .evaluator
+                            .core
+                            .names
+                            .resolve(atom.tok())
+                            .is_none_or(|owned| owned.as_str() != atom.as_str())
+                        {
+                            return Err(EvalError::unsupported("native stored input namespace"));
+                        }
+                    }
+                    dive_value::Value::Fcn(function) => {
+                        if function.kind() != dive_value::FcnKind::Tuple
+                            && function.order() != self.evaluator.options().ctx.order
+                        {
+                            return Err(EvalError::unsupported("native stored input order"));
+                        }
+                        room(work.len(), function.len().saturating_mul(2))?;
+                        for (key, value) in function.iter() {
+                            work.push(Work::Value(key, depth + 1));
+                            work.push(Work::Value(value.clone(), depth + 1));
+                        }
+                    }
+                    dive_value::Value::Set(set) => {
+                        if set.order() != self.evaluator.options().ctx.order {
+                            return Err(EvalError::unsupported("native stored input order"));
+                        }
+                        let Some(elements) = set.stored_elements() else {
+                            return Err(EvalError::unsupported("native opaque/deferred input set"));
+                        };
+                        room(work.len(), elements.len())?;
+                        work.extend(elements.iter().cloned().map(|v| Work::Value(v, depth + 1)));
+                    }
+                    _ => {}
+                },
+            }
+        }
+        Ok(())
     }
 
     #[allow(
@@ -281,6 +478,22 @@ impl Guard<'_> {
                 }
                 OpRef::Std(s) => Some(s),
                 OpRef::Param(local) => {
+                    let ceiling = self.limit.saturating_mul(64).min(100_000);
+                    let mut remaining = ceiling.saturating_sub(self.visits);
+                    let native = ev.scope_native_operator_analysis(
+                        scope,
+                        &OpRef::Param(local),
+                        &mut remaining,
+                    );
+                    self.visits = ceiling - remaining;
+                    let native = native?;
+                    if native
+                        .is_some_and(|op| i32::try_from(args.len()).ok() != Some(op.java_arity()))
+                    {
+                        return Err(EvalError::unsupported(
+                            "native finite binding argument arity",
+                        ));
+                    }
                     self.operator_context(scope, &OpRef::Param(local), st, depth + 1)?;
                     for arg in args {
                         let Arg::Expr { expr, .. } = arg else {
@@ -289,6 +502,12 @@ impl Guard<'_> {
                             ));
                         };
                         self.walk(scope, *expr, st, depth + 1)?;
+                    }
+                    if native.is_some() {
+                        if !self.analysis {
+                            self.native_values(scope, st)?;
+                        }
+                        return Ok(());
                     }
                     let (def, called) =
                         ev.scope_apply_param(scope, local, args).ok_or_else(|| {

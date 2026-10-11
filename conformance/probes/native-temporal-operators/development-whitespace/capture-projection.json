@@ -1,0 +1,460 @@
+{
+  "schema_version": 1,
+  "scope": "actual parseLiveness shared object identity, tag visit count, normalization, OOS bins and numbered tableau; diagnostic projection only, no model proof",
+  "oracle": "tlc-2026.10.06.014338",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "reason": "Capture exact native forwarding normalization/group/particle fields; failed helper rows receive no credit",
+  "timestamp": "2026-10-11T03:50:38.472551+00:00",
+  "source_sha256": {
+    "IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
+    "capture-projection.py": "f99879f6e312a0842c87366cc31674b01ccd1009bb2bdc0a885fe4c10e72365d"
+  },
+  "selection_sha256": "7c00ea591356852cc9bd7116b5722b6691753e8685344ecccff536fec124792f",
+  "compiler": {
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "8bad5da8d5289b0b08327a381da83bd8700474f93988eb1c8e17385e0f60af32"
+  },
+  "rows": [
+    {
+      "name": "NativeCardinalityFails",
+      "model_source_sha256": {
+        "models/NativeCardinalityFails/NativeCardinalityFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeCardinalityFails/NativeCardinalityFails.tla": "6178115cc241a3e279dd547c386391dbcd592cbf5c5af5ee5f902d562c29a4a1"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "d918d0c1fa6816255d5b2234917fc16fd686aa25648a42fd2ccf9d06d8ef6d87"
+    },
+    {
+      "name": "NativeCardinalityHolds",
+      "model_source_sha256": {
+        "models/NativeCardinalityHolds/NativeCardinalityHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeCardinalityHolds/NativeCardinalityHolds.tla": "123f60804ce3c46ae301b2df8dc03e424e45950892c9f1cb8b76182a58fd99e0"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "ceba9201f038d18fea5cc7e24c9593bf71a17491b9a885765d2050035a5cc533"
+    },
+    {
+      "name": "NativeCardinalityRelayHolds",
+      "model_source_sha256": {
+        "models/NativeCardinalityRelayHolds/NativeCardinalityRelayHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeCardinalityRelayHolds/NativeCardinalityRelayHolds.tla": "0a913727e574d73840c31472a504d0275930094d5ed453fbbf65bb84f2575784"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "e2787249a134e4abcaa85f5088bae0341cfa65a76480cf69fb0335906b2b9d10"
+    },
+    {
+      "name": "NativeHeadEmptyError",
+      "model_source_sha256": {
+        "models/NativeHeadEmptyError/NativeHeadEmptyError.tla": "d48cbf42f69e7147dad2bc9472b59bc931cbb50ab427c9db3fbabeaf9b58f827",
+        "models/NativeHeadEmptyError/NativeHeadEmptyError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ea32b80ab1a49628f5c1470bb57dc97dad75e7d6f43938dca142c402165a9996"
+    },
+    {
+      "name": "NativeHeadFails",
+      "model_source_sha256": {
+        "models/NativeHeadFails/NativeHeadFails.tla": "0171ba80a44247b4225defa6824545ca0d84dc0fdd73411256a5dacb2378316c",
+        "models/NativeHeadFails/NativeHeadFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "730db4070f9e4ef9660eb062ea550de126aa7802622c1fbfb25ec27f7c1a5d84"
+    },
+    {
+      "name": "NativeHeadHolds",
+      "model_source_sha256": {
+        "models/NativeHeadHolds/NativeHeadHolds.tla": "bd5da6cbe15348d7fd4008acf8dac29238a10343ed36d40fe7e523128115947b",
+        "models/NativeHeadHolds/NativeHeadHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "ce2e6404356f011fe9049e2440554c180fbccfdcdef3fd323a9a3501777209a9"
+    },
+    {
+      "name": "NativeHeadLetFails",
+      "model_source_sha256": {
+        "models/NativeHeadLetFails/NativeHeadLetFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeHeadLetFails/NativeHeadLetFails.tla": "18386e7d7b489c2e3285be2130402c5f0c3984167f74eceee665e16073ad41d2"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "368b777726ff1f196cbe681e1b1711960b30f95e4ff2ecd0cf33e0c3a85fc91d"
+    },
+    {
+      "name": "NativeLenActionRefusal",
+      "model_source_sha256": {
+        "models/NativeLenActionRefusal/NativeLenActionRefusal.tla": "3af35e51d1b5ceb4c17f6ec9b98a5d0841a9b7d122303ccc6b76933f7edea5a4",
+        "models/NativeLenActionRefusal/NativeLenActionRefusal.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8a88027f5adff89b1430889549a77f202fd2bf4d886b1916b24958cf1e1ea722"
+    },
+    {
+      "name": "NativeLenAliasHolds",
+      "model_source_sha256": {
+        "models/NativeLenAliasHolds/NativeLenAliasHolds.tla": "d9c645d91ad12314e58ba7db3a385d75a5e0f1917a393c1d24ea3fa3aab76824",
+        "models/NativeLenAliasHolds/NativeLenAliasHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6f59f0885140d795d95c4d27f98f23ffb17bd40ed13b56e729ae21bfff7b916a"
+    },
+    {
+      "name": "NativeLenConstantHolds",
+      "model_source_sha256": {
+        "models/NativeLenConstantHolds/NativeLenConstantHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeLenConstantHolds/NativeLenConstantHolds.tla": "4f2fc556253c0f295c9afad6b98ed1cc512a63cfc7797475aa38b02792ad9eb5"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNBool:-1",
+        "tag_count": "0",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNBool:-1",
+        "tagged": "N(G(E(T)))",
+        "pushed": "E(G(F))",
+        "simplified": "E(G(F))",
+        "dnf": "E(G(F))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "F",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "F",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "6846a0ca1dcc11d58545591b096fd02a6b3522c4927845e6d20943ea349be059",
+      "stderr_sha256": "8f39d0896e6c514c1d27eca8ad8840ec24b56dc825f189d8a37d118cc5ba040b"
+    },
+    {
+      "name": "NativeLenFails",
+      "model_source_sha256": {
+        "models/NativeLenFails/NativeLenFails.tla": "fd25bc1f21e50e637c35db19e2b061da789526e50ed07dbf075f0e897811966a",
+        "models/NativeLenFails/NativeLenFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "c9a7db800d683485af5f7b06bd1d60d804c1bfd7b08fc5b8dd8d9b78d6d9fbf7"
+    },
+    {
+      "name": "NativeLenHolds",
+      "model_source_sha256": {
+        "models/NativeLenHolds/NativeLenHolds.tla": "3635cb430efa334bd73f9db984ebe0ce5f9d77a6d3e9805619ac4a4a18f1ef5b",
+        "models/NativeLenHolds/NativeLenHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "0e7bd271c119f402e01fb0e016363d9c09bdd5c8f6e71a983ec5a622af5865cc"
+    },
+    {
+      "name": "NativeLenTypeError",
+      "model_source_sha256": {
+        "models/NativeLenTypeError/NativeLenTypeError.tla": "bf3f44331cb260b4f3f01c8e3f312202eb1d70f28fdbe5662fc8746bf6a4b1c2",
+        "models/NativeLenTypeError/NativeLenTypeError.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "0342e81b4928437b14a0b3e6eb1bc1dd5ea6e489786f1b5e9a32e0b6c838625d"
+    },
+    {
+      "name": "NativePrintUnused",
+      "model_source_sha256": {
+        "models/NativePrintUnused/NativePrintUnused.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativePrintUnused/NativePrintUnused.tla": "c81fc5ef1677aa7a50c4bde9bfc0d7d9d7dec561c3173ff0daf5fa0478570aa5"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {
+        "properties": "",
+        "temporal_role_names": "",
+        "configured_properties": "Live"
+      },
+      "stdout_sha256": "7f7681e868f7e90cf6dd2e01efc725c8ddae59f64afb5edde4f209b2f34e06e5",
+      "stderr_sha256": "48471f407c2f903a36f01168cd31e7e8708f0e42c30f774ad9970ecd70de5e6f"
+    },
+    {
+      "name": "NativeUnusedHolds",
+      "model_source_sha256": {
+        "models/NativeUnusedHolds/NativeUnusedHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeUnusedHolds/NativeUnusedHolds.tla": "7922d66c508027cfcaa2a2e8ed78956e1e549a32c94999a8071c26189dc2433d"
+      },
+      "exit": 0,
+      "timeout": false,
+      "fields": {
+        "properties": "Live",
+        "temporal_role_names": "Use",
+        "configured_properties": "Live",
+        "before": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:0",
+        "tag_count": "1",
+        "tagged_ids": "r:0:LNNeg:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNStateAST:1",
+        "tagged": "N(G(E(s1)))",
+        "pushed": "E(G(N(s1)))",
+        "simplified": "E(G(N(s1)))",
+        "dnf": "E(G(N(s1)))",
+        "groups": "1",
+        "g0.temporal": "null",
+        "g0.p0": "AEAction=|AEState=|EAAction=0",
+        "g0.state": "",
+        "g0.action": "N(s1)",
+        "actual.groups": "1",
+        "actual.g0.state": "",
+        "actual.g0.action": "N(s1)",
+        "actual.g0.p0": "AEAction=|AEState=|EAAction=0",
+        "actual.g0.promises": "",
+        "actual.g0.tableauNodes": "0"
+      },
+      "stdout_sha256": "ca3693a4d2e673c4e2b99be64ca8735b332e78ba415cda752534cf11a51d6dd4",
+      "stderr_sha256": "db87404275ab3f19e16962f939545a3f8811a841a014496f1077e181413e920e"
+    },
+    {
+      "name": "NativeWrongArity",
+      "model_source_sha256": {
+        "models/NativeWrongArity/NativeWrongArity.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeWrongArity/NativeWrongArity.tla": "358a40737182feac88fac2a50204eb1bc0584282b352abb6ce6c06d8838f0546"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "01137119532f3bdcfd24794a9349d7712974494507ebf52ab85920fc5031c6bd"
+    },
+    {
+      "name": "NativeInstanceHolds",
+      "model_source_sha256": {
+        "models/NativeInstanceHolds/NativeInstanceHolds.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeInstanceHolds/NativeInstanceHolds.tla": "612d88c1015ee1cb53f54477be746454c8bb2e5b16a9946c51dc1942dacb52c5"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "39b684b371ced5303c08eae70cbf0e0401fd5441a40e9b4aa0cfd42a746cbfcc"
+    },
+    {
+      "name": "NativeInstanceFails",
+      "model_source_sha256": {
+        "models/NativeInstanceFails/NativeInstanceFails.cfg": "108b934c81be215505e7f1e2d32ada2de855f13f8f8922d90f3f7fe1f8521190",
+        "models/NativeInstanceFails/NativeInstanceFails.tla": "46e8d6d7b10bf66c179b0864c739e3137b02022c970f9da78c6348887a9574f1"
+      },
+      "exit": 1,
+      "timeout": false,
+      "fields": {},
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f6b75f8db3ecf675d6c03c9fec0a25fcc54f4067e13f3da5d02da92a9a24dfda"
+    }
+  ]
+}

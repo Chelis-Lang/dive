@@ -1264,6 +1264,7 @@ pub(super) fn generate(
         ));
     }
     Ok(Translation {
+        option_context: super::TranslationContext::explicit(options),
         tla: text,
         mappings,
         actions: model

@@ -1,0 +1,17 @@
+{
+  "raw_artifacts_verified": 13977,
+  "source_epochs_verified": [
+    {
+      "commit": "397cc7dc5ae49d5cf410b490a1a79d9f24db1902",
+      "paired_git_archive_inputs": 8997
+    },
+    {
+      "commit": "ba024b780252c6e7235ec03db1f2ed1a87cc1b59",
+      "paired_git_archive_inputs": 8997
+    }
+  ],
+  "immutable_executables_verified": 5,
+  "receipt_sha256": "8bc0c1dd4582b814ab3428856366c3eae29fabbb07cddf1706eacb87492181ab",
+  "success": true,
+  "family_certified": false
+}

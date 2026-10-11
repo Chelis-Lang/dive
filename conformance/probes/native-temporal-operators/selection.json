@@ -1,0 +1,102 @@
+[
+  {
+    "name": "NativeCardinalityFails",
+    "model": "NativeCardinalityFails",
+    "kind": "stored-successor-set-boundary"
+  },
+  {
+    "name": "NativeCardinalityHolds",
+    "model": "NativeCardinalityHolds",
+    "kind": "stored-successor-set-boundary"
+  },
+  {
+    "name": "NativeCardinalityRelayHolds",
+    "model": "NativeCardinalityRelayHolds",
+    "kind": "stored-successor-set-boundary"
+  },
+  {
+    "name": "NativeHeadEmptyError",
+    "model": "NativeHeadEmptyError",
+    "kind": "reference-boundary"
+  },
+  {
+    "name": "NativeHeadFails",
+    "model": "NativeHeadFails",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeHeadHolds",
+    "model": "NativeHeadHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeHeadLetFails",
+    "model": "NativeHeadLetFails",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeLenActionRefusal",
+    "model": "NativeLenActionRefusal",
+    "kind": "reference-boundary"
+  },
+  {
+    "name": "NativeLenAliasHolds",
+    "model": "NativeLenAliasHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeLenConstantHolds",
+    "model": "NativeLenConstantHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeLenFails",
+    "model": "NativeLenFails",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeLenHolds",
+    "model": "NativeLenHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeLenTypeError",
+    "model": "NativeLenTypeError",
+    "kind": "reference-boundary"
+  },
+  {
+    "name": "NativePrintUnused",
+    "model": "NativePrintUnused",
+    "kind": "reference-boundary"
+  },
+  {
+    "name": "NativeUnusedHolds",
+    "model": "NativeUnusedHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeWrongArity",
+    "model": "NativeWrongArity",
+    "kind": "reference-boundary"
+  },
+  {
+    "name": "NativeInstanceHolds",
+    "model": "NativeInstanceHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeInstanceFails",
+    "model": "NativeInstanceFails",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeCardinalityBoolHolds",
+    "model": "NativeCardinalityBoolHolds",
+    "kind": "native-pure"
+  },
+  {
+    "name": "NativeCardinalityBoolFails",
+    "model": "NativeCardinalityBoolFails",
+    "kind": "native-pure"
+  }
+]
