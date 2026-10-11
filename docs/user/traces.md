@@ -44,3 +44,17 @@ reconstructing a lasso from the displayed state list.
 
 See the [API rustdoc](../../crates/dive-api/src/trace.rs),
 [temporal contract](../temporal-api.md) and [validator independence ADR](../decisions/0016-trace-validator-independence.md).
+
+A known mixed-set limitation remains: a checker can emit canonical JSON set
+order containing a sequence before a record, which the current decoder
+rejects with `result: invalid` at the shape check. This happens in both profiles;
+it is decoder admission failure, not semantic replay of the word. The current
+VIEW normalization selection retains 36 such original shape failures and 108
+mutant shape failures, separately from 96 independently valid words and 288
+semantic mutant rejections. Twelve originals are separately supplied
+default-reverse candidates, not emitted checker certificates. No shape failure
+receives validation credit. The separate homogeneous checkpoint matrix proves
+216 valid original/recovered words and 216 altered-word rejections.
+[Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) and the
+[source-bound campaign](../../conformance/probes/view-concrete-normalization/README.md)
+retain the exact outputs and incomplete coverage.

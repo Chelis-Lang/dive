@@ -185,6 +185,25 @@ impl fmt::Debug for SetOp {
     }
 }
 
+/// The operand visited by TLC's `SetPredValue.deepNormalize` method.
+///
+/// Only evaluator-owned filters are recognized. Direct
+/// [`std::any::Any`] downcasts establish that authority without calling any
+/// provider method, evaluating a predicate, or enumerating a set. The returned
+/// operand is the bound set; the predicate and captured environment are not
+/// visited. Lazy set operations are not admitted here because their additional
+/// materialized-cache normalization contract is separate.
+/// Unknown providers return `None` and must not be assumed safe to normalize.
+#[must_use]
+pub fn deferred_filter_normalization_operand(provider: &dyn DeferredSet) -> Option<&Value> {
+    let any: &dyn std::any::Any = provider;
+    if let Some(filter) = any.downcast_ref::<Filter>() {
+        Some(&filter.in_val)
+    } else {
+        None
+    }
+}
+
 impl DeferredSet for SetOp {
     fn kind(&self) -> DeferredKind {
         self.kind
