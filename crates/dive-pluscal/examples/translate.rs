@@ -50,6 +50,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "-wf" => options.fairness = dive_pluscal::FairnessOption::Weak,
             "-sf" => options.fairness = dive_pluscal::FairnessOption::Strong,
             "-wfNext" => options.fairness = dive_pluscal::FairnessOption::Next,
+            "-termination" => {
+                let error = dive_pluscal::Diagnostic {
+                    code: dive_pluscal::Code::Unsupported,
+                    span: dive_pluscal::ast::Span {
+                        start: 0,
+                        end: source.len(),
+                    },
+                    message: "unsupported PlusCal translation option: -termination".into(),
+                };
+                let document = serde_json::json!({"stage":"Normalization","error":error,"code":error.code.as_str(),"model_proved":false,"exhaustive":false});
+                writeln!(std::io::stdout(), "{document}")?;
+                return Ok(());
+            }
             _ => return Err("unknown development option".into()),
         }
     }
