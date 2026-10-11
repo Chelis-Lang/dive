@@ -3,9 +3,13 @@ import argparse, base64, copy, gzip, hashlib, importlib.util, json, tempfile
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--base', type=Path, required=True)
-parser.add_argument('--out', type=Path, required=True)
+parser.add_argument('--base', type=Path, default=Path(__file__).resolve().parent)
+parser.add_argument('--out', type=Path)
 args = parser.parse_args()
+# Explicit output retains the evidence for review; CI gets an isolated scratch copy.
+scratch = tempfile.TemporaryDirectory(prefix='dive-procedure-delivery-controls-') if args.out is None else None
+if scratch is not None:
+    args.out = Path(scratch.name) / 'controls'
 spec = importlib.util.spec_from_file_location('procedure_verifier', args.base / 'verify-delivery.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

@@ -8224,7 +8224,7 @@
     "crates/dive-pluscal/multiple-procedure-checksum-acceptance/packaging/refresh-current-before.py": "abd9ca72d4579432ec55f63015ffde97298f77870fcc4d4e04de320e13bf408a",
     "crates/dive-pluscal/multiple-procedure-checksum-acceptance/public-controls.py": "444c5dfa0b5bf69f82a7cccb2ec1f6e87ac8b75ac6d406bda12ae1bab2f6eecf",
     "crates/dive-pluscal/multiple-procedure-checksum-acceptance/replay.py": "f93a9df411645749d58b0d0c7acfc533521acbb90c050256835cf6de6bc28ba8",
-    "crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py": "c1580472b3d9753e580579dae7a8b772c293a91227ec2a9388ecbbe5c1525518",
+    "crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-delivery.py": "2041fcb0474c4d3bad18e96541200542853fef78685f3d01ea0aa377bc2c7b8d",
     "crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify-delivery.py": "4b28d7968b3703eea66c64cff2b39c60918a0fe239ef4891a32d3db80c528851",
     "crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify.py": "ada0decc414dc51d0cce9ac70457401bee37ea4d7f596c8296999f7127169ade",
     "crates/dive-pluscal/nested-procedure-checksum-acceptance/README.md": "a6b1026c9bd9adbab79e7ef6f492fdbe905a7bc1c1e1e3c554eb2781265066ad",
