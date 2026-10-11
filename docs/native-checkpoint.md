@@ -3,8 +3,11 @@
 `dive check` can pause a supported safety search at a completed level and resume
 its saved frontier. Pure, concrete INIT/NEXT models can pause and resume
 through the deterministic worker pool, including supported pure VIEW and safety
-symmetry. It refuses liveness, runtime
-names/effects/checker reads and evaluator-driven deferred state values. These restrictions apply in both profiles and are reported explicitly.
+symmetry. Pure runtime string constructors are admitted with the explicit
+encounter-order rules documented below; TLC mode uses an inline one-worker
+fallback while canonical mode may use the pool. Liveness, random/effectful
+execution, checker reads and evaluator-driven deferred state values remain
+explicit refusals in this delivery. These restrictions apply in both profiles.
 
 ```sh
 dive check Counter.tla --config Counter.cfg --compat=tlc --seed 7 --fp 0 \
@@ -413,3 +416,20 @@ retain statistics for the already validated discovery prefix: these are import
 facts with no generated continuation, not recovered-search completion. The
 receipt is absent on malformed admission. Coherent malicious rewrites remain
 outside the trusted-local archive contract; checksums do not authenticate them.
+
+## Current pure-name recovery publication
+
+The [combined publication receipt](../conformance/probes/native-parity-integration/current-controls/full-checksum-runtime-publication/verification.json) binds fresh recovery controls to
+the same corrected runtime used for Full PlusCal editing. All 195 CLI controls
+and the exact Cargo-owned Rust guide pass: uninterrupted search, pause,
+repeated recovery, retained counters, TLC-reset counters, zero-budget spill,
+worker reporting and concrete witness handling. The 21 safety and 16 validation
+gate models agree at 1/4/8 workers. Input checkpoint files remain unchanged
+during import; their corruption checksum is not authentication.
+
+TLC runtime-name history still prevents independent witness certification;
+canonical-mode supported witnesses independently validate. This increment does
+not admit random/effectful checkpoint execution, Java archive interchange,
+temporal checkpointing or full recovery-family certification. Earlier broad
+campaigns retain their original source and executable hashes rather than being
+retagged as results of this combined producer.

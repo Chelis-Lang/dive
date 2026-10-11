@@ -1,0 +1,8 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-api)
+   Compiling dive-conformance v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-conformance)
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.58s
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-rewrite-publication-work/crates/dive-pluscal)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.71s
+Built exact frozen final producer b8fb13cdab443e7ad0206a467d9a392075f31397

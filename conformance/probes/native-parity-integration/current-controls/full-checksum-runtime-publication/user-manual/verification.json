@@ -1,0 +1,77 @@
+{
+  "source_commit": "b8fb13cdab443e7ad0206a467d9a392075f31397",
+  "source_sha256": "c763c9420db114069434216357c916db3a6dc3863f280d831f6137bdb10da8ef",
+  "binary_sha256": "e779ccf8f9ed5e3c293fe7c143a29b838b48b791b97d568283c0f41f32ae682a",
+  "controls": [
+    {
+      "profile": "dive",
+      "policy": "full",
+      "exit_code": 0,
+      "command": [
+        "translate",
+        "/Users/jeff/code/dive-pluscal-rewrite-publication-work/docs/user/examples/Algorithm.tla",
+        "--rewrite",
+        "--checksums",
+        "full",
+        "--output",
+        "json"
+      ]
+    },
+    {
+      "profile": "dive",
+      "policy": "tla",
+      "exit_code": 0,
+      "command": [
+        "translate",
+        "/Users/jeff/code/dive-pluscal-rewrite-publication-work/docs/user/examples/Algorithm.tla",
+        "--rewrite",
+        "--checksums",
+        "tla",
+        "--output",
+        "json"
+      ]
+    },
+    {
+      "profile": "tlc",
+      "policy": "full",
+      "exit_code": 0,
+      "command": [
+        "translate",
+        "/Users/jeff/code/dive-pluscal-rewrite-publication-work/docs/user/examples/Algorithm.tla",
+        "--rewrite",
+        "--checksums",
+        "full",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ]
+    },
+    {
+      "profile": "tlc",
+      "policy": "tla",
+      "exit_code": 0,
+      "command": [
+        "translate",
+        "/Users/jeff/code/dive-pluscal-rewrite-publication-work/docs/user/examples/Algorithm.tla",
+        "--rewrite",
+        "--checksums",
+        "tla",
+        "--output",
+        "json",
+        "--compat=tlc"
+      ]
+    }
+  ],
+  "family_certified": false,
+  "filesystem_write": false,
+  "evidence_sha256": {
+    "tlc-tla.stdout": "c26b49a72d9e6a3443019d85465b333198d7d6da534191d909a935700b97b9c3",
+    "tlc-tla.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-full.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc-full.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dive-tla.stdout": "505c28e8516e14fcf8ff55446d039fa9cf486f1c0a058dd7d767939f9dfc13b6",
+    "dive-tla.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tlc-full.stdout": "8c158e32bfb1648a497320764de9ed0bc1533c4f365f72fcaec4aba1868e20a1",
+    "dive-full.stdout": "017baf2dbf77f9be1de6a5c3d06cdb712c284e2f4c820a5b7280929b80fbba0e"
+  }
+}

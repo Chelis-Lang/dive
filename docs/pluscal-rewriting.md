@@ -146,3 +146,36 @@ generation still returns a named unsupported result in this delivery.
 
 These checks do not certify full PlusCal parity, source integrity, model
 correctness or byte-for-byte generator formatting.
+
+## Current combined publication checks
+
+The [current source-bound receipt](../conformance/probes/native-parity-integration/current-controls/full-checksum-runtime-publication/verification.json) records the corrected combined
+runtime: 982 workspace tests, zero skipped, all eight local gate stages, the
+21-model safety gate and 16 ValidationTestSuite smoke models at 1/4/8 workers.
+The validation smoke controls also retain CI's existing 30-second per-model
+bound. Local timings were measured under shared load and are not performance
+claims.
+
+Fresh Full controls account for the complete 216-row base selection and
+320-row nested/layout selection in both profiles. Every admitted artifact
+passes native enclosing-module analysis, pinned SANY, pinned Validator and an
+exact complete nontrivia syntax-tree comparison preserving parentheses, primes
+and operator grouping: 328 base pairs and
+172 nested pairs. Both selections retain their refusals, parser rejections and
+SANY-invalid primary outputs uncredited; 24 source/body/header corruptions keep
+the measured Validator dispositions. These are separate selections, not a
+claim of 536 unique specifications or full translator coverage.
+
+The earlier 977-test producer passed SANY and Validator but failed 12 strict
+syntax-tree comparisons. Its source, binaries and complete failing campaign
+remain [blocked development evidence](../conformance/probes/native-parity-integration/current-controls/full-checksum-runtime-before-cst-repair/verification.json).
+The repair preserves explicit TRUE for an empty ELSE and encloses CASE values
+according to the pinned translator's first-line parenthesis rule. Passing CRCs
+or parser acceptance never excuse a changed expression scope.
+
+The runnable Full guide passed 12 fresh CLI checks and its exact Cargo-owned
+Rust fence; the current user-manual example passed four profile/policy controls.
+All kept their input files unchanged and their nonproof fields false. Historical
+BodyOnly, quota, forgery, state-count and witness campaigns remain bound to their
+original producers. This publication adds no formatter, filesystem-write,
+mapping-format or full-family certification.

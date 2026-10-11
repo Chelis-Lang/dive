@@ -86,3 +86,8 @@ encounter order uses an explicit one-worker inline fallback; canonical default
 order may use the pool. The saved ordered name table restores execution context,
 not independent proof: TLC witness validation still explicitly refuses runtime
 name history. Keep that separate from the archive checksum and recovery result.
+
+The [current pure-name publication checks](../native-checkpoint.md#current-pure-name-recovery-publication)
+rerun pause/recovery, counter choices, spill cleanup and the executable Rust
+example on the combined runtime. They preserve the TLC runtime-name validator's
+explicit refusal and do not turn a native archive into an independent proof.
