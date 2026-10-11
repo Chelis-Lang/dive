@@ -82,3 +82,14 @@ from checking Init, Next and the ending claim.
 See [ADR 0064](decisions/0064-tuple-only-independent-replay.md),
 [the runtime-name controls](../crates/dive-trace/tests/runtime_names.rs) and
 [the known namespace limitation](tlc-differences.md#current-limitation-independent-runtime-name-trace-validation-124).
+
+## Validation
+
+The implementation was checked with 1,212 passing workspace tests and no skips.
+Eight operand forms ran both profiles and stores at workers 1/4/8, with and
+without scheduling chaos. All 192 actual counterexamples replayed as Valid;
+their 192 altered counterparts replayed as Invalid. The unchanged 21 CM1 and
+16 ValidationTestSuite gate models agreed at all three widths. This evidence
+covers the bounded operand proof above; it does not certify all sequence or
+runtime-name behavior. Original producer identities and an earlier disk-full
+gate failure are retained in the [case archive](../conformance/probes/tuple-only-replay/README.md).

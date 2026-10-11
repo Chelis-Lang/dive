@@ -27,3 +27,22 @@ Original command paths in archived drivers describe the producer machine;
 use the user guide for current portable invocations. Current implementation
 validation is run anew against its own source and binary identity. No family is
 certified and source-variable saved stacks still need an inductive shape proof.
+
+## Implemented epoch
+
+`implemented-epoch` retains the original frozen producer, its full source hash
+index, 945 portable compilation/contract inputs, all eight local gate logs and
+all 582 runtime consumers. The full gate ran 1,212 tests with no skips. Eight
+tuple-operand cases each ran both profiles, both stores, workers 1/4/8 and chaos
+0/13: 192 real invariant violations, 192 Valid original words and 192 Invalid
+altered words. All 21 CM1 and 16 ValidationTestSuite models fully agreed at
+workers 1/4/8. The Cargo guide compiled and ran against that producer.
+
+The preceding full-gate attempt exhausted filesystem space: all 1,212 tests
+ran, 1,171 passed and 41 failed. Its original logs and disposition remain under
+`storage-failed0`; the unchanged-source rerun supplies the green evidence. No
+test, expected result or time limit was weakened. Archiving and this verifier
+were added after all runtime consumers closed, so their delivery commit is not
+retagged as the original runtime producer. The full source index covers 70,821
+inputs; portable compilation sources are a separately identified subset, not
+a second claim that every historical payload was copied here.
