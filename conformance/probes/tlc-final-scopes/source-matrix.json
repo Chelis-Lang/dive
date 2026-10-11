@@ -4,7 +4,7 @@
   "schema_version": 1,
   "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed; post-consumer guide/receipt metadata only, Rust gate source identity retained separately",
   "source_sha256": {
-    ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
+    ".github/workflows/ci.yml": "1cee8ceba0aab8e5c7d0bf679b28948a4ffedd5e94150603151ceb11c34af3b0",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     "CHANGELOG.md": "ecf538baace36218a21c51b4f2d494a920af85334eae4b1e58b38a1ea9e0cccf",
     "conformance/parity-features.json": "6575647d851a8cb85b596e900a96b9e49510e12b356cf4c40af5d989377f0292",

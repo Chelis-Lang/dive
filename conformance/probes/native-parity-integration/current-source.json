@@ -5,7 +5,7 @@
   "historical_slices_sha256": "b904eaf690ea0f32fc9929305f1540324b04e7f1c2d5b1cc6d5341c7639da666",
   "source_sha256": {
     ".config/nextest.toml": "7b658a5c3403a139e4a3fb0a52ab51940a32de632e5dc77f688ac1196ba19867",
-    ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
+    ".github/workflows/ci.yml": "1cee8ceba0aab8e5c7d0bf679b28948a4ffedd5e94150603151ceb11c34af3b0",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     "CHANGELOG.md": "ecf538baace36218a21c51b4f2d494a920af85334eae4b1e58b38a1ea9e0cccf",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",

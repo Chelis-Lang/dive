@@ -1,7 +1,7 @@
 # Workspace CI scheduling
 
 The protected `Workspace gate` requires successful authorship checks, all
-`Workspace checks`, and each of four `Workspace tests` jobs. Every matrix job
+`Workspace checks`, and each of eight `Workspace tests` jobs. Every matrix job
 executes one disjoint hash partition of the full workspace suite. A failure,
 timeout, cancellation, skipped prerequisite or missing result fails the gate.
 
@@ -11,10 +11,10 @@ To reproduce partition coverage and one CI partition:
 ```sh
 python3 -I scripts/check-test-partitions.py
 python3 -I scripts/test-workspace-gate.py
-cargo nextest run --workspace --locked --profile ci --partition hash:1/4
+cargo nextest run --workspace --locked --profile ci --partition hash:1/8
 ```
 
-Repeat the last command with 2/4, 3/4 and 4/4 to run all partitions locally.
+Repeat the last command with partitions 2/8 through 8/8 to run all tests locally.
 The coverage verifier queries nextest for the full inventory and each actual
 partition, rejects empty inventories, duplicate tests, missing tests and extra
 tests, and reports each partition's selected count. It also verifies ignored
@@ -31,3 +31,9 @@ The initial cancellation at main 8b0b7db is recorded in issue #173 and the
 [workspace ADR](../decisions/0001-workspace-toolchain-and-ci.md). It is not a
 passing suite receipt. Partitioning changes scheduling, not TLC conformance
 coverage, generated goldens or the user-facing checker contract.
+
+The runtime-name checkpoint matrix has separate store/worker tests so each
+retains the existing 180-second bound on Linux. All original profile, chaos,
+pause, recovery-counter and witness assertions remain. PR #179’s initial timing
+failure and a mechanical equality check of the original assertion body are
+retained in `conformance/probes/native-parity-integration/current-controls/full-runtime-ci-before-scheduling-repair/`.
