@@ -9,9 +9,16 @@ All notable changes to this project are documented here. The project will follow
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
 
+- Closed pure ordinary VIEW/RandomElement checking seeds from the transformed
+  FP64 value while retaining concrete witnesses for independent replay. Stored
+  shape/work admission and existing startup, first-successor, symmetry,
+  Randomization-family, graph/temporal and RNG recovery refusals remain explicit.
+
 - Periodic backend runtime-fraction arithmetic matches 196 actual pinned updater
   observations, including wrapping and NaN/zero behavior. It remains separate
   from ordinary scheduling and checker verdicts.
+
+- Native commit-boundary lifecycle diagnostics use real borrowed dispatch authority, internal clock/controller polling and actual EOF final SCCs. No ordinary temporal verdict is enabled; see `docs/native-periodic-lifecycle.md`.
 
 - Source-owned periodic backend diagnostics retain pinned pointer-bucket growth/check-size snapshots, private joined-wave facts and first-candidate stopping. Original work bounds and independent replay remain required; ordinary periodic checking and partial Holds remain unsupported. See `docs/periodic-backend.md`.
 

@@ -130,3 +130,6 @@ error/stop/checkpoint schedule; that execution contract must be ported next
 without routing ordinary strict checks through final-only or short witnesses.
 
 Periodic backend increment #189 now derives actual pointer-bucket growth/check-size snapshots and stops the native source capture on its first explicit partial candidate. The [user guide](periodic-backend.md) qualifies that diagnostic contract. Real ordinary clock, queue suspension, ratio/PERIODIC/checkpoint transactions and complete stopping witnesses still gate ordinary temporal admission.
+
+
+Issue #189 now has a bounded native clock/dispatch diagnostic seam: internally sampled source-commit polling plus actual EOF final SCCs. Ordinary periodic CLI support still requires queue/timer stop-prefix equivalence, hook/checkpoint transactions and independent deciding witness certification.

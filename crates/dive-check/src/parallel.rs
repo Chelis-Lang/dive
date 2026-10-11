@@ -1323,9 +1323,17 @@ fn run_levels<'a: 'env, 'env, S: Keyed>(
                             first_id + wave_end as u64,
                         ),
                     };
-                    if let Some(observer) = &mut search.observer
-                        && let Err(message) = observer.source(observation)
-                    {
+                    let observation_result = if let Some(observer) = &mut search.observer {
+                        if observer.requires_dispatch_pause() {
+                            pool.with_pause(|pause| observer.paused_source(observation, pause))
+                                .and_then(std::convert::identity)
+                        } else {
+                            observer.source(observation)
+                        }
+                    } else {
+                        Ok(())
+                    };
+                    if let Err(message) = observation_result {
                         first = earlier(
                             first,
                             Some(Event {

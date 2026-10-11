@@ -112,7 +112,27 @@ The operators choose with TLC's algorithms (which element, which subset); only t
 
 Under `--compat=tlc`, supported untransformed checking reproduces TLC's choices for a fixed `-seed` and `-fp`: Java's `java.util.Random`, TLC's per-state seeding and each operator's algorithm. Next-state draws use TLC's variable order (ADR 0014), and LET expressions are evaluated where TLC evaluates them. Checking-path randomness runs inline with its actual width reported.
 
-**Current dive limitation (#178).** A configured VIEW combined with any source-level random operator refuses before binding, output or search in both profiles. The scan includes unused definitions, native aliases and cfg-selected native replacement targets: this is a conservative temporary boundary, not a claim that every such definition executes. TLC seeds expansion from the transformed VIEW fingerprint; dive's unfinished path used the raw predecessor. On the minimal `V == n` probe at seed 7/fingerprint 0, both found four states and the same invariant violation, but TLC assigned `x` values `0, 78, 49, 21` while the old native path assigned `0, 80, 94, 100`. Matching counts concealed wrong concrete draws. SYMMETRY/random combinations also remain refused. The preserved [source, clean primary and native outputs](../conformance/probes/view-random-seeding/README.md) keep that defect separate from TLC's own limitations. Both old concrete traces receive an explicit independent-validator refusal; no independent certificate was demonstrated.
+**VIEW-backed randomness (#178, partial).** The admitted ordinary RandomElement
+route seeds expansion from the configured VIEW fingerprint and retains concrete
+predecessors for independent replay. At seed 7/polynomial 0, `V == n` gives the
+clean TLC values `0,78,49,21`; the old raw-predecessor route gave `0,80,94,100`
+despite the same four states and invariant violation. The old wrong outputs and
+blanket refusal remain [historical evidence](../conformance/probes/view-random-seeding/README.md).
+The [capture-first continuation](../conformance/probes/view-random-stream/README.md)
+keeps the original 84 primary/prototype rows separately from wider-seed controls.
+`--compat=tlc` uses Java RNG with VIEW FP64 XOR seed; the default retains the
+approved replayable D-002 stream algorithm. Both modes disclose actual inline
+execution and retain the strict first-successor trace-printing refusal.
+
+Only closed pure VIEW/startup/Init contexts are admitted. Source-wide native
+family/effect/alias checks can refuse unused definitions before output or search.
+Stored concrete and projection values have a 16,384-visit/depth64 bound; compound
+or mixed sets, symbolic/deferred sets and nonliteral tuple/record representations
+remain refused by name. No normalization/provider/predicate callback grants this
+shape admission. The mixed-word decoder/comparison gap in #190 remains separate:
+no new certificate credit is assigned to those shapes. SYMMETRY/random,
+Randomization-family replacements, graph/temporal randomness and RNG checkpoint
+recovery remain unproved routes, with their existing explicit refusals.
 
 **Configured random calls (#180).** The minimal model below selects a native
 operator through its configuration rather than a source call:
@@ -2167,3 +2187,6 @@ share the same line, in both profiles. Expanded split/tab/space and malformed
 controls preserve real reference rejection boundaries. See the
 [macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
 Artifact admission and CRC equality still never establish model correctness.
+
+
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.
