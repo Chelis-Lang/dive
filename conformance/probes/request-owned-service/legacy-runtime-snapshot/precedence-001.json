@@ -1,0 +1,12 @@
+{
+  "index": 1,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "outcome": {
+    "binding_code": 2231,
+    "startup_output": [],
+    "status": "refused",
+    "text": "TLC_CONFIG_MISSING_INIT (2231): The configuration file did not specify the initial state predicate."
+  },
+  "selection": "precedence"
+}

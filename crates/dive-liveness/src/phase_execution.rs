@@ -650,7 +650,7 @@ impl Observer<'_> {
         let mut hooks = NativeHooks {
             observer: self,
             state,
-            source,
+            origin: HookOrigin::Source(source),
             pause,
             resumed: false,
         };
@@ -672,6 +672,82 @@ impl Observer<'_> {
                 force_before,
                 force_after: policy.force_liveness,
                 resume_requested: hooks.resumed,
+                outcome: outcome.as_ref().map(|o| *o).map_err(|e| format!("{e:?}")),
+            });
+        match outcome {
+            Ok(crate::periodic::Outcome::Complete) => Ok(()),
+            Ok(crate::periodic::Outcome::LivenessStopped(_)) => Err(Error::PartialCandidate),
+            Ok(crate::periodic::Outcome::PeriodicAssumptionFalse) => {
+                Err(Error::PeriodicAssumptionFalse)
+            }
+            Err(crate::periodic::Error::Callback(e)) => Err(e),
+            Err(crate::periodic::Error::ClockWentBackwards) => Err(Error::Execution(
+                "native liveness clock moved backwards".into(),
+            )),
+        }
+    }
+    fn lifecycle_service(
+        &mut self,
+        receipt: &capture::ExpansionQuiescence,
+        pause: &capture::DispatchPause<'_>,
+        state: &mut crate::periodic_lifecycle::State,
+    ) -> Result<(), Error> {
+        let initial = state.initial_stats.ok_or_else(|| {
+            Error::Input("request service before successful initialization".into())
+        })?;
+        self.partial_charge(Some(1))?;
+        let now = crate::periodic_lifecycle::time_millis()?;
+        if now.wrapping_sub(state.last) < 0 {
+            return Err(Error::Execution(
+                "native progress clock moved backwards".into(),
+            ));
+        }
+        // The actual pending request already passed producer-clock admission.
+        // Do not apply the old per-source elapsed filter a second time. Initial
+        // request.force is provenance, distinct from liveness force below.
+        state.last = now;
+        let ratio_before = state.ratio;
+        let force_before = state.force;
+        let graph_source = state.graph_source;
+        let mut policy = crate::periodic::Policy {
+            check_liveness: true,
+            runtime_ratio: state.ratio,
+            ratio_limit: state.options.ratio_limit,
+            force_liveness: state.force,
+            checkpoint: false,
+            periodic: state.hook.is_some(),
+        };
+        let mut hooks = NativeHooks {
+            observer: self,
+            state,
+            origin: HookOrigin::Request {
+                request: receipt.request(),
+                stats: receipt.committed_stats(),
+                graph_source,
+            },
+            pause,
+            resumed: false,
+        };
+        let outcome = crate::periodic::run(&mut policy, &mut hooks);
+        hooks.state.ratio = policy.runtime_ratio;
+        hooks.state.force = policy.force_liveness;
+        hooks
+            .state
+            .request_services
+            .push(crate::periodic_service::Invocation {
+                request: receipt.request(),
+                submitted: receipt.submitted(),
+                committed: receipt.committed(),
+                graph_source,
+                initial,
+                stats: receipt.committed_stats(),
+                workers: pause.workers(),
+                generation: pause.generation(),
+                predicates: receipt.predicate_workers(),
+                now,
+                ratio: (ratio_before, policy.runtime_ratio),
+                force: (force_before, policy.force_liveness),
+                resumed: hooks.resumed,
                 outcome: outcome.as_ref().map(|o| *o).map_err(|e| format!("{e:?}")),
             });
         match outcome {
@@ -1390,10 +1466,18 @@ impl Observer<'_> {
         })
     }
 }
+enum HookOrigin<'a, 'source> {
+    Source(&'a CommittedSource<'source>),
+    Request {
+        request: dive_check::progress::Request,
+        stats: Stats,
+        graph_source: Option<u64>,
+    },
+}
 struct NativeHooks<'a, 'model, 'source, 'pause> {
     observer: &'a mut Observer<'model>,
     state: &'a mut crate::periodic_lifecycle::State,
-    source: &'a CommittedSource<'source>,
+    origin: HookOrigin<'a, 'source>,
     pause: &'a capture::DispatchPause<'pause>,
     resumed: bool,
 }
@@ -1415,7 +1499,8 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
             }))
     }
     fn suspend_workers(&mut self) -> Result<bool, Error> {
-        if self.pause.workers() != self.source.barrier.workers() {
+        if matches!(self.origin, HookOrigin::Source(source) if self.pause.workers() != source.barrier.workers())
+        {
             return Err(Error::Input("dispatch pause/source pool mismatch".into()));
         }
         Ok(true)
@@ -1426,9 +1511,11 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
             force: forced,
             ..self.state.options.backend
         });
-        let result = self
-            .observer
-            .periodic_check(self.source.stats, Some(self.source.barrier));
+        let (stats, barrier) = match self.origin {
+            HookOrigin::Source(source) => (source.stats, Some(source.barrier)),
+            HookOrigin::Request { stats, .. } => (stats, None),
+        };
+        let result = self.observer.periodic_check(stats, barrier);
         self.observer.periodic = saved;
         match result {
             Ok(()) => Ok(0),
@@ -1470,13 +1557,30 @@ impl crate::periodic::Hooks for NativeHooks<'_, '_, '_, '_> {
                     .equal_values(&dive_value::Value::Bool(false), &value)
             })
             .map_err(|error| error.at(pred.expr));
-        self.state
-            .hook_evaluations
-            .push(crate::periodic_hook::Evaluation {
-                source: self.source.id,
-                expression: pred.expr,
-                result: result.clone(),
-            });
+        match self.origin {
+            HookOrigin::Source(source) => {
+                self.state
+                    .hook_evaluations
+                    .push(crate::periodic_hook::Evaluation {
+                        source: source.id,
+                        expression: pred.expr,
+                        result: result.clone(),
+                    });
+            }
+            HookOrigin::Request {
+                request,
+                graph_source,
+                ..
+            } => self
+                .state
+                .service_evaluations
+                .push(crate::periodic_service::Evaluation {
+                    request,
+                    graph_source,
+                    expression: pred.expr,
+                    result: result.clone(),
+                }),
+        }
         result.map_err(Error::PeriodicEvaluation)
     }
     fn checkpoint(&mut self) -> Result<(), Error> {
@@ -1510,9 +1614,16 @@ impl SourceObserver for Observer<'_> {
             .checked_add(receipt.claimed().len())
             .and_then(|c| c.checked_add(receipt.completed().len()))
             .and_then(|c| c.checked_add(receipt.failed().len()));
+        let Some(mut state) = self.lifecycle.take() else {
+            return self.retain(Err(Error::Input(
+                "request pause without owned lifecycle".into(),
+            )));
+        };
         let result = self.partial_charge(cost).and_then(|()| {
-            let Some(state) = &mut self.lifecycle else {
-                return Err(Error::Input("request pause without owned lifecycle".into()));
+            let result = if state.request_service {
+                self.lifecycle_service(&receipt, pause, &mut state)
+            } else {
+                Ok(())
             };
             state
                 .expansion_pauses
@@ -1521,8 +1632,9 @@ impl SourceObserver for Observer<'_> {
                     workers: pause.workers(),
                     generation: pause.generation(),
                 });
-            Ok(())
+            result
         });
+        self.lifecycle = Some(state);
         self.retain(result)
     }
     fn initial(
@@ -1542,7 +1654,8 @@ impl SourceObserver for Observer<'_> {
         self.retain(result)
     }
     fn initial_complete(&mut self, stats: Stats) -> Result<(), String> {
-        let result = if self.lifecycle.is_some() {
+        let result = if let Some(state) = &mut self.lifecycle {
+            state.initial_stats = Some(stats);
             Ok(())
         } else {
             self.periodic_check(stats, None)
@@ -1560,9 +1673,14 @@ impl SourceObserver for Observer<'_> {
         let Some(mut state) = self.lifecycle.take() else {
             return self.source(source);
         };
-        let result = self
-            .source_inner(&source)
-            .and_then(|()| self.lifecycle_poll(&source, pause, &mut state));
+        let result = self.source_inner(&source).and_then(|()| {
+            state.graph_source = Some(source.id);
+            if state.request_service {
+                Ok(())
+            } else {
+                self.lifecycle_poll(&source, pause, &mut state)
+            }
+        });
         self.lifecycle = Some(state);
         self.retain(result)
     }
@@ -1703,6 +1821,27 @@ pub(crate) fn execute_periodic_lifecycle_requests(
     hook: Option<(dive_model::Pred, usize)>,
     requests: Option<dive_check::progress::Options>,
 ) -> crate::periodic_lifecycle::Run {
+    execute_lifecycle_mode(model, options, limits, policy, hook, requests, false)
+}
+pub(crate) fn execute_periodic_service(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+    requests: dive_check::progress::Options,
+) -> crate::periodic_lifecycle::Run {
+    execute_lifecycle_mode(model, options, limits, policy, hook, Some(requests), true)
+}
+fn execute_lifecycle_mode(
+    model: &Model,
+    options: &CheckOptions,
+    limits: Limits,
+    policy: crate::periodic_lifecycle::Options,
+    hook: Option<(dive_model::Pred, usize)>,
+    requests: Option<dive_check::progress::Options>,
+    service: bool,
+) -> crate::periodic_lifecycle::Run {
     let mut failed_state = None;
     let outcome = execute_inner(
         model,
@@ -1710,10 +1849,10 @@ pub(crate) fn execute_periodic_lifecycle_requests(
         limits,
         true,
         Some(policy.backend),
-        Some((policy, hook, requests)),
+        Some((policy, hook, requests, service)),
         Some(&mut failed_state),
     );
-    let (backend, state) = match outcome {
+    let (backend, mut state) = match outcome {
         Ok((complete, checks, inspections, graph_inspections, checkpoints, state)) => (
             crate::periodic_backend::Run {
                 complete: Some(complete),
@@ -1743,6 +1882,15 @@ pub(crate) fn execute_periodic_lifecycle_requests(
             failed_state,
         ),
     };
+    let (request_services, service_evaluations) = state.as_mut().map_or_else(
+        || (Vec::new(), Vec::new()),
+        |state| {
+            (
+                std::mem::take(&mut state.request_services),
+                std::mem::take(&mut state.service_evaluations),
+            )
+        },
+    );
     let (
         invocations,
         final_checks,
@@ -1779,6 +1927,8 @@ pub(crate) fn execute_periodic_lifecycle_requests(
         },
     );
     crate::periodic_lifecycle::Run {
+        request_services,
+        service_evaluations,
         backend,
         options: policy,
         invocations,
@@ -1805,6 +1955,7 @@ type LifecycleInput = (
     crate::periodic_lifecycle::Options,
     Option<(dive_model::Pred, usize)>,
     Option<dive_check::progress::Options>,
+    bool,
 );
 
 #[allow(
@@ -1858,11 +2009,12 @@ fn execute_inner(
         .validate_context()
         .map_err(|error| early(Error::Input(error.to_string())))?;
     let lifecycle = lifecycle
-        .map(|(options, hook, requests)| {
+        .map(|(options, hook, requests, service)| {
             if let Some(requests) = requests {
                 requests.validate().map_err(Error::Input)?;
             }
             let mut state = crate::periodic_lifecycle::State::new(options)?;
+            state.request_service = service;
             state.hook = hook;
             state.requests = requests;
             Ok(state)

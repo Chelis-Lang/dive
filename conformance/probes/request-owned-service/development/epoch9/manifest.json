@@ -1,0 +1,4 @@
+{
+  "source_sha256": "73cfd621c4b4d9dc3f16c78e6efc029b00baee2f3701c0d51e297b783f60220d",
+  "qualification": "10 pass1 fail: safety commit winner incorrectly expected expansion-cut cancellation bit. Real verdict/counters match original; record actual phase distinction."
+}

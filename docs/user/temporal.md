@@ -119,3 +119,5 @@ The [configuration-owned snapshot diagnostic](../configured-periodic-snapshot.md
 The [producer-owned request diagnostic](../producer-progress-requests.md) adds real expansion claim/pause receipts to the configured snapshot. Completed uncommitted output is not a temporal graph write; ordinary periodic checking remains unsupported. Its runnable Cargo example documents the separate request/controller force policies.
 
 [Committed request prefixes](../committed-periodic-prefix.md) publish actual returned contiguous work under the existing owned pause. The Cargo example and typed receipts distinguish expansion, graph publication and physical frontier append; ordinary temporal checking remains unsupported.
+
+The [request-owned service diagnostic](../request-owned-periodic-service.md) runs the actual configuration hook/controller once after successful prefix append, including genuinely empty requests. Its executable Cargo example and receipts remain nonproof; ordinary scheduling is unsupported.

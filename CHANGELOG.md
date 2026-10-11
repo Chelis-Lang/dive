@@ -47,6 +47,7 @@ All notable changes to this project are documented here. The project will follow
   from ordinary scheduling and checker verdicts.
 
 
+- Add a bounded request-owned periodic Rust diagnostic: real prefix append precedes a single configured-hook/controller service, including empty requests. Separate receipts retain actual counters and source identity; no ordinary temporal verdict or default/profile change.
 
 - Producer-owned request pauses publish the maximal returned contiguous source prefix through the shared safety/graph path, retaining later buffers without regeneration. Typed receipts distinguish graph publication from physical frontier append; no ordinary temporal verdict or schedule credit. See `docs/committed-periodic-prefix.md`.
 

@@ -754,6 +754,42 @@ The [periodic backend controller](ordinary-periodic-controller.md) now implement
 
 **Example and measurement.** The minimal `LvPeriodic` probe stopped at 418,795, 167,402 and 162,021 distinct states in three pinned-TLC runs. All found the same violation, but the stopping counts depended on time. Fixed level boundaries make those counts reproducible across workers. They are a named scheduling difference, not a claim of exact TLC scheduling. Evidence: ADR 0017 §6 and the recorded probe transcripts.
 
+### Zero-duration ratio edge case (controlled component evidence)
+
+The pinned `ModelChecker.updateRuntimeRatio` returns NaN when previous ratio is
+zero and both elapsed runtime and liveness time are zero: `0/0`. The actual
+zero-duration sample in `conformance/probes/runtime-ratio/stage1.stdout` (ROW 4)
+records IEEE bits `7ff8000000000000`. The complete updater selection is 196
+rows plus three assertion negatives. Controlled actual `doPeriodicWork` rows
+in `conformance/probes/ordinary-periodic-work/capture.json` show supplied NaN
+with force=false skips its liveness callback; force=true still invokes it.
+These are actual component observations, not a measured ordinary TLC startup
+starvation run.
+
+A native diagnostic experiment used:
+
+```tla
+Init == x = 0
+Next == \E i \in 1..1024: x' = x + 1
+Live == <>(x = 2)
+Hook == TRUE
+```
+
+Its initial forced empty service can take zero milliseconds and produce NaN.
+With the current Java-compatible ratio policy, a width-3 run retained 12,337
+genuine requests, reached 3,929,089 generated occurrences and returned a shared
+ResourceLimit instead of selecting a later unforced candidate. This failed
+experiment is retained in `conformance/probes/request-owned-service/development/gate1`;
+it earns no success or schedule credit. JSON null ratios remain unchanged in
+that history; new diagnostic recordings also expose raw IEEE bits.
+
+A separately named `--liveness-ratio=finite` improvement is under consideration,
+not implemented or approved as a default. The current ratio arithmetic and TLC
+setting remain unchanged. The stable candidate control explicitly selects a
++Infinity ratio limit, no initially forced timer request, and a test-only
+returned-prefix/timer rendezvous. It proves diagnostic composition and replay,
+not ordinary timing or default-policy equivalence.
+
 ## D-015: Symmetry functions must actually be permutations
 
 **Status:** bounded checked/TLC groups, supported pure startup warnings and pure safety key reduction are implemented. Unverified startup exceptions, declaration shapes, lazy/deferred permutations, random seeding and symmetry with liveness remain named refusals. A declaration containing `[a |-> b, b |-> b]` is not bijective. TLC accepts it and closes the set under composition, permitting an unsound reduction. The owner-approved model default will name and reject the offending function; `--compat=tlc` retains TLC's acceptance. The minimal missed-invariant control below supplies numerical evidence for that policy.
@@ -2304,3 +2340,7 @@ an ordinary checker flag: seen sets remain resident during `dive check`. Its
 physical entry count does not certify a discovery prefix, and bounded collision
 summary refusal cannot be counted as completed safety. Frontier/predecessor
 budgets, recovery and total-memory qualifications remain unchanged.
+
+### Request-owned service limitation (#208)
+
+The [Rust diagnostic](request-owned-periodic-service.md) now services one real request after successful source-prefix graph publication and physical frontier append, including an empty request with no invented source. Pin94d0c50 measured empty FALSE2104 and repeated unchanged graph FALSE2104, hook division errors2179/exit2, and written-graph temporal2116 before the hook. Actual candidate words are replayed independently; clock/suspendAll/count/checkpoint parity remains unfinished. Every failed adapter/EOF-race and incorrect native test assumption remains preserved; no new TLC bug/default or ordinary verdict is declared.

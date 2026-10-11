@@ -794,3 +794,7 @@ provides actual fallible disk fingerprint/exact membership with bounded
 workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
 seen-memory CLI budgets remain pending; the library is not a full storage-family
 certificate. See `docs/user/disk-seen-library.md`.
+
+D-014 also retains the controlled zero-duration NaN updater/controller observation
+and a failed native diagnostic resource experiment in [the known-issues log](tlc-differences.md#zero-duration-ratio-edge-case-controlled-component-evidence).
+A finite-ratio improvement remains under consideration; no ratio default changes.

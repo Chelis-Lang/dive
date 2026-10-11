@@ -828,11 +828,16 @@ pub fn explore_observed_with_evidence(
 }
 
 fn run_on_thread(run: impl FnOnce() -> Exploration + Send) -> Result<Exploration, String> {
+    #[cfg(feature = "test-rendezvous")]
+    let rendezvous = crate::progress::testing::current();
     std::thread::scope(|scope| {
         match std::thread::Builder::new()
             .stack_size(dive_eval::RECOMMENDED_STACK)
-            .spawn_scoped(scope, run)
-        {
+            .spawn_scoped(scope, move || {
+                #[cfg(feature = "test-rendezvous")]
+                let _rendezvous = crate::progress::testing::install(rendezvous);
+                run()
+            }) {
             Ok(thread) => thread
                 .join()
                 .map_err(|_| "exploration thread panicked".to_owned()),

@@ -1,0 +1,2975 @@
+{
+  "evaluations": [
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 1,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 2,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 3,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 4,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 5,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 6,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": null,
+      "request_sequence": 7,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 8,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 9,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 10,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 11,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 12,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 13,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 14,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 15,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 16,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 17,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 18,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 19,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 20,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 0,
+      "request_sequence": 21,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 22,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 23,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 24,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 25,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 26,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 27,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 28,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 29,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 30,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 31,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 32,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 33,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 7,
+      "request_sequence": 34,
+      "result": "Ok(false)"
+    },
+    {
+      "expression": 65,
+      "graph_source": 8,
+      "request_sequence": 35,
+      "result": "Ok(false)"
+    }
+  ],
+  "final_checks": 1,
+  "label": "nonempty-safe-w1",
+  "legacy_hook_evaluations": 0,
+  "legacy_ordinal_invocations": 0,
+  "model_proof": false,
+  "ordinary_schedule_certified": false,
+  "partial_checks": 2,
+  "pauses": [
+    {
+      "claimed": [
+        2
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 1,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 2,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 3,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 4,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 5,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3,
+        6
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 6,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6
+      ],
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "completed": [
+        2,
+        3,
+        6
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 0,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 7,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5
+      ],
+      "committed": {
+        "end": 1,
+        "start": 0
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 0
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 8,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 9,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 10,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 11,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 12,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 13,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 14,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 15,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 16,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 17,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 18,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 19,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 20,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7,
+        4
+      ],
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "completed": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 1,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 21,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [
+        2,
+        3,
+        6,
+        0,
+        5,
+        7,
+        4,
+        1
+      ],
+      "committed": {
+        "end": 8,
+        "start": 1
+      },
+      "completed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 1
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 22,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 23,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 24,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 25,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 26,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 27,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 28,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 29,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 30,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 31,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 32,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 33,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [],
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "completed": [],
+      "failed": [],
+      "frontier_appended": {
+        "end": 8,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 34,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "claimed": [
+        8
+      ],
+      "committed": {
+        "end": 9,
+        "start": 8
+      },
+      "completed": [
+        8
+      ],
+      "failed": [],
+      "frontier_appended": {
+        "end": 9,
+        "start": 8
+      },
+      "pool": [
+        1,
+        0
+      ],
+      "request_sequence": 35,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 32786,
+        "left_on_queue": 0
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    }
+  ],
+  "safety_eof": {
+    "depth": 1,
+    "distinct": 9,
+    "generated": 32786,
+    "left_on_queue": 0
+  },
+  "services": [
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184700,
+      "request_sequence": 1,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184708,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184710,
+      "request_sequence": 2,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184719,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184723,
+      "request_sequence": 3,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184730,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184731,
+      "request_sequence": 4,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184739,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184741,
+      "request_sequence": 5,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184748,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184750,
+      "request_sequence": 6,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184790,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 0,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": null,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184791,
+      "request_sequence": 7,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731184792,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 0
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731184793,
+      "request_sequence": 8,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185071,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185073,
+      "request_sequence": 9,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185081,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185083,
+      "request_sequence": 10,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185089,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185091,
+      "request_sequence": 11,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185101,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185103,
+      "request_sequence": 12,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185112,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185113,
+      "request_sequence": 13,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185122,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185124,
+      "request_sequence": 14,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185132,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185134,
+      "request_sequence": 15,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185143,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185144,
+      "request_sequence": 16,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185154,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185154,
+      "request_sequence": 17,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185164,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185166,
+      "request_sequence": 18,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185173,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185175,
+      "request_sequence": 19,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185184,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185189,
+      "request_sequence": 20,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185190,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 1,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 0,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185195,
+      "request_sequence": 21,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185275,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 18,
+        "left_on_queue": 8
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 1
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185278,
+      "request_sequence": 22,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0010706638115631692
+      ],
+      "service_millis": 1791731185629,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 8,
+        "start": 0
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185351,
+      "request_sequence": 23,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0010706638115631692,
+        0.0
+      ],
+      "service_millis": 1791731185641,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185643,
+      "request_sequence": 24,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185651,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185655,
+      "request_sequence": 25,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185661,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185664,
+      "request_sequence": 26,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185671,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185673,
+      "request_sequence": 27,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185682,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185683,
+      "request_sequence": 28,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185692,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185693,
+      "request_sequence": 29,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185702,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185704,
+      "request_sequence": 30,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185713,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185715,
+      "request_sequence": 31,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185723,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185725,
+      "request_sequence": 32,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185733,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185737,
+      "request_sequence": 33,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185748,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 8,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 7,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185750,
+      "request_sequence": 34,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185763,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 28690,
+        "left_on_queue": 1
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    },
+    {
+      "committed": {
+        "end": 9,
+        "start": 8
+      },
+      "force": [
+        false,
+        false
+      ],
+      "graph_source": 8,
+      "initial_stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 9,
+        "left_on_queue": 9
+      },
+      "model_proof": false,
+      "outcome": "Ok(Complete)",
+      "pool": [
+        1,
+        0
+      ],
+      "predicate_workers": 0,
+      "request_forced": false,
+      "request_millis": 1791731185767,
+      "request_sequence": 35,
+      "resumed": true,
+      "runtime_ratio": [
+        0.0,
+        0.0
+      ],
+      "service_millis": 1791731185845,
+      "stats": {
+        "depth": 1,
+        "distinct": 9,
+        "generated": 32786,
+        "left_on_queue": 0
+      },
+      "submitted": {
+        "end": 9,
+        "start": 8
+      }
+    }
+  ],
+  "stop": null
+}
