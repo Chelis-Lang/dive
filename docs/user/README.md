@@ -17,6 +17,7 @@ still in progress. A named refusal or resource stop does not establish safety.
 | Translate or edit algorithms | [PlusCal](pluscal.md) | Admitted C/P translation, bounded source-option context and in-memory Full/body-only editing; process/procedure translation has a wider scope than editing |
 | Validate implementation traces | [Trace validation](traces.md) | Complete states, independent predicate replay |
 | Replay tuple sequence calls in TLC mode | [Tuple-only replay](../tuple-only-trace-replay.md) | Unevaluated shape proof; variable stack histories remain refused |
+| Replay tuple-valued variables | [Inductive tuple replay](../inductive-tuple-trace-replay.md) | Bounded Init/all-branches Next proof; arbitrary states and general saved stacks remain refused |
 | Check temporal properties | [Temporal checking](temporal.md) | Explicit final/short subset; ordinary strict path refuses |
 | Build a periodic backend | [Periodic controller](../ordinary-periodic-controller.md) | Callback ordering only; ordinary temporal verdicts remain unavailable |
 | Manage search storage or resume | [Storage and recovery](storage-recovery.md) | Separate budgets and bounded native recovery |

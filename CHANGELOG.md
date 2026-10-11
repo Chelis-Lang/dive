@@ -4,6 +4,9 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+
+- Independent whole-word replay can prove bounded tuple-preserving variable
+  histories from Init and every Next branch; unknown history remains refused.
 - Strict independent whole-word replay admits proved tuple-only `Tail`,
   concatenation and `SubSeq` operands while retaining string-history and
   variable-stack refusals; includes a runnable CLI/Cargo guide.
