@@ -1840,3 +1840,15 @@ The [Rust diagnostic](request-owned-periodic-service.md) now services one real r
 The [Rust candidate API](producer-owned-temporal-candidate.md) now privately reconstructs actual request or EOF words and validates them against two freshly bound independent models. It cannot certify ordinary scheduling, TLC stopping counts, temporal absence or model completion. An absent witness means only no admitted candidate, never Holds. Pin94d0c50 final baselines retain `Live == <>(x=1)` with Init x0 and Next x1 as exit13: initial stuttering is legal without fairness. The original mistaken expectation0 remains in the evidence, with a distinct holding `<>(x=0)` exit0 control. This is not a newly declared TLC bug or default change; ordinary CLI scheduling and checkpoint composition stay refused.
 
 The candidate-admission delivery passes its45-stage/1057-test gate and admits12 actual EOF words via two independent routes;48 deliberately corrupted words fail both. Source-error history is retained: an unparenthesized IF material workload leaves one variable undefined (pin exit75), whereas the separately parenthesized workload gives exit13. This is ordinary TLA+ grouping, not a TLC bug or semantic divergence. The required37 safety gates at1/4/8 remain green; none of these results certifies ordinary temporal scheduling.
+
+### Genuine optional configured-hook diagnostic (#220)
+
+The [bounded Rust diagnostic](optional-periodic-hook.md) retains actual absence
+instead of requiring a synthetic configured TRUE hook. Pinned26 selected method
+controls show unused FALSE/nonzero-arity declarations still yield null; unforced
+no-hook/no-liveness service returns0 without suspension, while a separately forced
+service really suspends/resumes and retains force when no liveness runs. Native
+request receipts likewise distinguish initial progress publication from forced
+liveness; an empty request is not EOF. This is not a new TLC bug/default change.
+Original hidden-startup/state/temporal/error refusals and all quotas remain; no
+ordinary scheduling, stopping-count, Holds or family certification is granted.

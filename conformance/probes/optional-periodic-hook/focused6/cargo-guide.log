@@ -1,0 +1,4 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.29s
+     Running `/Users/jeff/code/dive-periodic-snapshot-target/debug/examples/optional_periodic_candidate`
+origin=eof memory=Valid json=Valid model_proof=false

@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",

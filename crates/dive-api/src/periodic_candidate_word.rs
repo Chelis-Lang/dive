@@ -2,7 +2,7 @@
 use std::collections::BTreeMap;
 
 use dive_eval::{St, next::StateVals};
-use dive_liveness::{periodic_snapshot, phase_graph, tlc_witness};
+use dive_liveness::{periodic_lifecycle, phase_graph, tlc_witness};
 use dive_trace::{Ending, Trace};
 
 use super::{Error, Origin};
@@ -14,8 +14,8 @@ pub(super) struct Selected {
     pub identities: Vec<tlc_witness::Identity>,
     pub written: Vec<bool>,
 }
-pub(super) fn selected(run: &periodic_snapshot::Run) -> Result<Option<Selected>, Error> {
-    let lifecycle = run.lifecycle();
+pub(super) fn selected(run: &periodic_lifecycle::Run) -> Result<Option<Selected>, Error> {
+    let lifecycle = run;
     let backend = lifecycle.backend();
     let Some(stop) = backend.stop() else {
         return Ok(None);
@@ -126,11 +126,11 @@ fn identity(selected: &Selected, id: usize) -> Result<tlc_witness::Identity, Err
 
 pub(super) fn reconstruct(
     model: &dive_model::Model,
-    run: &periodic_snapshot::Run,
+    run: &periodic_lifecycle::Run,
     selected: &Selected,
     limits: phase_graph::Limits,
 ) -> Result<Trace, Error> {
-    let backend = run.lifecycle().backend();
+    let backend = run.backend();
     let mut meter = Meter {
         remaining: limits
             .graph
@@ -149,7 +149,7 @@ pub(super) fn reconstruct(
         .ok_or(Error::Limit("concrete witness positions"))?;
     meter.charge(count)?;
     let mut representatives: BTreeMap<u64, &StateVals> = BTreeMap::new();
-    for (index, source) in run.lifecycle().concrete_sources().iter().enumerate() {
+    for (index, source) in run.concrete_sources().iter().enumerate() {
         meter.charge(
             source
                 .values()

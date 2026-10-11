@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",
@@ -17,7 +17,7 @@
     "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f",
-    "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",
+    "crates/dive-model/src/lib.rs": "e8e06232e2dbfffa5a7add765e9f31313eff1a9568d2f77b15651aa8e70abda9",
     "crates/dive-value/src/codec.rs": "c69ec714cb3824e1446ff2c5d5cb51da5df4fb068ff7a1df5ae97ba14aa6d2e0",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
   },

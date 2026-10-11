@@ -143,3 +143,9 @@ F-023/#201: producer-owned timer requests now have a real claim barrier/joined m
 F-023/#208: request-owned diagnostic service composes the real appended prefix and configuration-owned hook, including empty requests. Ordinary CLI/schedule/error/count/checkpoint certification remains open; no family-completion credit.
 
 F-023/#213 now has privately reconstructed producer-owned candidate admission with fresh independent memory/JSON replay. No caller graph/trace/Valid flags certify a word. Next: prove actual ordinary timer/queue/stop/count/end/checkpoint composition before enabling ordinary verdicts; partial/no-candidate outcomes never imply Holds.
+
+F-023/#220 retains genuinely absent configured hooks through the shared binder,
+owned request service and independent candidate admission. Existing mandatory
+APIs remain required; no supplied TRUE replaces absence. This removes a source
+injection prerequisite without proving ordinary clock/queue/stop/count/checkpoint
+composition or Holds. See the [current executable contract](optional-periodic-hook.md).

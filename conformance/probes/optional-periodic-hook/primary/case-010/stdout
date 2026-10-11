@@ -1,0 +1,17 @@
+EVENT	setup-complete
+EVENT	configured-name:Hook
+EVENT	snapshot-class:tla2sany.semantic.OpDefNode
+EVENT	body-present:true
+EVENT	definition-name:Hook
+EVENT	definition-arity:0
+EVENT	body-identical:true
+EVENT	body-class:tla2sany.semantic.OpApplNode
+EVENT	body-kind:9
+EVENT	body-level:0
+EVENT	body-location:line 7, col 9 to line 7, col 16 of module Snapshot
+EVENT	evaluation-start
+EVENT	exception-class:tlc2.tool.EvalException
+EVENT	exception-code:2179
+MESSAGE-BEGIN
+The second argument of \div is 0.
+MESSAGE-END

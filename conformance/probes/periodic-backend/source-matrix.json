@@ -14,7 +14,7 @@
     "scripts/check-periodic-backend.py": "3155325bf12bbacd850fe4104280c3f741471e5c36a192c4c8b3fd02eb0797a3",
     "docs/periodic-backend.md": "cdee95999489b123f48264d9443a8c3ce201f47a26941559e64eff71be397716",
     "docs/decisions/0051-source-qualified-periodic-backend.md": "91c4d829b2cd0a315ce544bf2e5204dcc818cebea63dce8dc19285136f324771",
-    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98"
+    "conformance/parity-features.json": "580a67f63ce18f96baab7c5770e6d8bc03b6c239ddd4e0f40ae6d5073a4a6b5a"
   },
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
 }

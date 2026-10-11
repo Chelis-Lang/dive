@@ -17,11 +17,11 @@
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/user/temporal.md": "55a1ca6cce3f7dea59bf6377d3ad95fea137331b0604b5811b14c620ab50a460",
-    "docs/provenance.md": "a8dbe2507d1129baae116c27a7d038b871615c0c74e2c7b27f73128be9e704cc",
+    "docs/provenance.md": "f812db5142289bbe203d6b26b0cb170c5672075e56d20d466b74c0f2c8ca223a",
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
-    "docs/tlc-differences.md": "cbb6b825ffd051b30e90a1b48818b888d3c665c74f096e1adab238d1e4a574fb",
+    "docs/tlc-differences.md": "70bf0922bdcd46c9bc5b34191f763a02fa54890f3f8e7fc2fb74e71dfa9852be",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "c51cd1fc87aefbd6489d2aefbc1a2dddf3e454c0ba9def0165339d56acb6bc98",
+    "conformance/parity-features.json": "580a67f63ce18f96baab7c5770e6d8bc03b6c239ddd4e0f40ae6d5073a4a6b5a",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f"
   },
   "scoped_final_parent_history": {
@@ -33,5 +33,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate."
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof."
 }

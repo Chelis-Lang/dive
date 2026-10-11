@@ -1,0 +1,1 @@
+Failed test asserted controller resume for an initial progress request with absent hook and lifecycle.force=false. Request publication is not forced liveness. Actual no-hook controller can take early skip without resume and later reach real EOF. Separate explicit forced policy control added; no production change.

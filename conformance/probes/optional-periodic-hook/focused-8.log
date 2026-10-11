@@ -1,0 +1,13 @@
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running tests/optional_periodic_snapshot.rs (/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_snapshot-6443fcc969f22fc6)
+
+running 5 tests
+test errors_and_unproved_effects_keep_original_prebinding_dispositions ... ok
+test absent_unused_definitions_never_create_a_role_and_mandatory_api_stays_required ... ok
+test genuine_absence_preserves_prestartup_alias_cycle_shape_and_reservation_guards ... ok
+test original_present_name_and_actual_replacement_definition_are_preserved ... ok
+test retain_all_twenty_six_original_sources_at_the_actual_native_binding_stage ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.59s
+

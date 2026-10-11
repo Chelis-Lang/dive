@@ -66,14 +66,14 @@ impl Witness {
     }
 }
 /// Producer-owned diagnostic execution and optional independently admitted word.
-pub struct Report {
-    run: periodic_snapshot::Run,
+pub struct Report<R = periodic_snapshot::Run> {
+    run: R,
     witness: Option<Witness>,
 }
-impl Report {
+impl<R> Report<R> {
     /// Actual run, preserving ordered failures, partial passes, options and counters.
     #[must_use]
-    pub fn run(&self) -> &periodic_snapshot::Run {
+    pub fn run(&self) -> &R {
         &self.run
     }
     /// A selected witness admitted twice; absence never means temporal holds.
@@ -130,13 +130,13 @@ impl std::fmt::Display for Error {
 }
 impl std::error::Error for Error {}
 /// Noncertifying failure retaining its actual run when execution took place.
-pub struct Failure {
+pub struct Failure<R = periodic_snapshot::Run> {
     /// Typed deciding admission/replay failure.
     pub error: Error,
     /// Actual source-owned run; absent before execution or if a thread loses it.
-    pub run: Option<Box<periodic_snapshot::Run>>,
+    pub run: Option<Box<R>>,
 }
-impl std::fmt::Debug for Failure {
+impl<R> std::fmt::Debug for Failure<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Failure")
             .field("error", &self.error)
@@ -144,12 +144,12 @@ impl std::fmt::Debug for Failure {
             .finish()
     }
 }
-impl std::fmt::Display for Failure {
+impl<R> std::fmt::Display for Failure<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.error.fmt(f)
     }
 }
-impl std::error::Error for Failure {}
+impl<R> std::error::Error for Failure<R> {}
 
 /// Execute an internally owned configuration snapshot and independently admit
 /// only its actual selected concrete word. An ordinary checking route is never
@@ -177,7 +177,7 @@ pub fn check(
         .join()
         .map_err(|_| before(Error::Thread("candidate admission thread failed".into())))?
 }
-fn before(error: Error) -> Failure {
+fn before<R>(error: Error) -> Failure<R> {
     Failure { error, run: None }
 }
 fn check_inner(
@@ -188,12 +188,101 @@ fn check_inner(
     policy: periodic_lifecycle::Options,
     requests: dive_check::progress::Options,
 ) -> Result<Report, Box<Failure>> {
-    let snapshot =
-        periodic_snapshot::bind(ir.clone(), cfg).map_err(|e| before(Error::Binding(e)))?;
+    check_owned::<periodic_snapshot::Snapshot>(ir, cfg, options, limits, policy, requests)
+}
+/// Optional configuration-owned execution and witness admission. Absence derives
+/// from the original configuration; it never inserts TRUE or a supplied callback.
+/// The same private reconstruction and two fresh independent replay paths are used.
+/// No witness absence, partial pass or safety EOF certifies temporal Holds, ordinary
+/// scheduling equivalence, stopping counts or model completion.
+///
+/// # Errors
+/// The same original binding, source/context, fixed resource and replay failures
+/// as [`check`]. Existing mandatory selection remains unchanged.
+pub fn check_optional(
+    ir: Arc<Ir>,
+    cfg: ModelConfig,
+    options: CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<periodic_snapshot::OptionalRun>, Box<Failure<periodic_snapshot::OptionalRun>>> {
+    std::thread::Builder::new()
+        .stack_size(dive_eval::RECOMMENDED_STACK)
+        .spawn(move || {
+            check_owned::<periodic_snapshot::OptionalSnapshot>(
+                &ir, &cfg, &options, limits, policy, requests,
+            )
+        })
+        .map_err(|e| before(Error::Thread(e.to_string())))?
+        .join()
+        .map_err(|_| before(Error::Thread("candidate admission thread failed".into())))?
+}
+trait Owned {
+    type Run;
+    fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Self, Box<dive_model::Failure>>
+    where
+        Self: Sized;
+    fn model(&self) -> &dive_model::Model;
+    fn execute(
+        &self,
+        options: &CheckOptions,
+        limits: phase_graph::Limits,
+        policy: periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<Self::Run, dive_eval::EvalError>;
+    fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run;
+}
+macro_rules! owned {
+    ($snapshot:ty, $run:ty, $bind:path) => {
+        impl Owned for $snapshot {
+            type Run = $run;
+            fn bind(ir: Arc<Ir>, cfg: &ModelConfig) -> Result<Self, Box<dive_model::Failure>> {
+                $bind(ir, cfg)
+            }
+            fn model(&self) -> &dive_model::Model {
+                self.model()
+            }
+            fn execute(
+                &self,
+                options: &CheckOptions,
+                limits: phase_graph::Limits,
+                policy: periodic_lifecycle::Options,
+                requests: dive_check::progress::Options,
+            ) -> Result<Self::Run, dive_eval::EvalError> {
+                self.execute_candidate_source(options, limits, policy, requests)
+            }
+            fn lifecycle(run: &Self::Run) -> &periodic_lifecycle::Run {
+                run.lifecycle()
+            }
+        }
+    };
+}
+owned!(
+    periodic_snapshot::Snapshot,
+    periodic_snapshot::Run,
+    periodic_snapshot::bind
+);
+owned!(
+    periodic_snapshot::OptionalSnapshot,
+    periodic_snapshot::OptionalRun,
+    periodic_snapshot::bind_optional
+);
+fn check_owned<S: Owned>(
+    ir: &Arc<Ir>,
+    cfg: &ModelConfig,
+    options: &CheckOptions,
+    limits: phase_graph::Limits,
+    policy: periodic_lifecycle::Options,
+    requests: dive_check::progress::Options,
+) -> Result<Report<S::Run>, Box<Failure<S::Run>>> {
+    let snapshot = S::bind(ir.clone(), cfg).map_err(|e| before(Error::Binding(e)))?;
     let run = snapshot
-        .execute_candidate_source(options, limits, policy, requests)
+        .execute(options, limits, policy, requests)
         .map_err(|e| before(Error::Input(e)))?;
-    let result = admit(ir, cfg, snapshot.model(), &run, limits);
+    let result = admit(cfg, snapshot.model(), S::lifecycle(&run), limits, || {
+        S::bind(ir.clone(), cfg).map(|fresh| fresh.model().clone())
+    });
     match result {
         Ok(witness) => Ok(Report { run, witness }),
         Err(error) => Err(Box::new(Failure {
@@ -202,12 +291,13 @@ fn check_inner(
         })),
     }
 }
+
 fn admit(
-    ir: &Arc<Ir>,
     cfg: &ModelConfig,
     model: &dive_model::Model,
-    run: &periodic_snapshot::Run,
+    run: &periodic_lifecycle::Run,
     limits: phase_graph::Limits,
+    rebind: impl Fn() -> Result<dive_model::Model, Box<dive_model::Failure>>,
 ) -> Result<Option<Witness>, Error> {
     let Some(selected) = word::selected(run)? else {
         return Ok(None);
@@ -216,18 +306,18 @@ fn admit(
     let doc = trace.to_doc(model).map_err(Error::Document)?;
     // Original atom IDs belong to the execution interner. Decode lossless data
     // into a newly bound interner before independent in-memory replay.
-    let fresh_a = periodic_snapshot::bind(ir.clone(), cfg).map_err(Error::Binding)?;
+    let fresh_a = rebind().map_err(Error::Binding)?;
     let memory_trace =
-        dive_trace::Trace::decode(fresh_a.model(), &doc).map_err(|e| Error::Document(e.detail))?;
-    let memory = dive_trace::validate(fresh_a.model(), &memory_trace, None);
+        dive_trace::Trace::decode(&fresh_a, &doc).map_err(|e| Error::Document(e.detail))?;
+    let memory = dive_trace::validate(&fresh_a, &memory_trace, None);
     if memory.validation != Validation::Valid {
         return Err(Error::Validation(memory));
     }
     let bytes =
         serde_json::to_string(&doc.to_json()).map_err(|e| Error::Document(e.to_string()))?;
     let reparsed = TraceDoc::parse(&bytes).map_err(Error::Document)?;
-    let fresh_b = periodic_snapshot::bind(ir.clone(), cfg).map_err(Error::Binding)?;
-    let json = dive_trace::validate_doc(fresh_b.model(), &reparsed, &cfg.model_values, None).0;
+    let fresh_b = rebind().map_err(Error::Binding)?;
+    let json = dive_trace::validate_doc(&fresh_b, &reparsed, &cfg.model_values, None).0;
     if json.validation != Validation::Valid {
         return Err(Error::Validation(json));
     }
@@ -272,28 +362,28 @@ mod tests {
                 },
             )
             .expect("actual EOF");
-        let mut selected = word::selected(&run)
+        let mut selected = word::selected(run.lifecycle())
             .expect("selection")
             .expect("actual candidate");
-        assert!(word::reconstruct(snapshot.model(), &run, &selected, limits).is_ok());
+        assert!(word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits).is_ok());
         let anchor = selected.candidate.anchor;
         selected.written[anchor] = false;
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limits),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits),
             Err(Error::Reconstruction(_))
         ));
         selected.written[anchor] = true;
         let actual = selected.identities[anchor].fingerprint;
         selected.identities[anchor].fingerprint ^= 1;
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limits),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limits),
             Err(Error::Reconstruction(_))
         ));
         selected.identities[anchor].fingerprint = actual;
         let mut limited = limits;
         limited.graph.steps = run.lifecycle().backend().graph_inspections();
         assert!(matches!(
-            word::reconstruct(snapshot.model(), &run, &selected, limited),
+            word::reconstruct(snapshot.model(), run.lifecycle(), &selected, limited),
             Err(Error::Limit(_))
         ));
     }
@@ -336,6 +426,59 @@ mod tests {
                 });
             assert!(observed, "actual returned prefix rendezvous");
             let report = report.expect("request candidate");
+            let witness = report.witness().expect("validated candidate");
+            let Origin::Request(service) = witness.origin() else {
+                panic!("request origin");
+            };
+            assert!(!service.committed().is_empty());
+            assert!(!service.resume_requested());
+            assert!(report.run().lifecycle().service_evaluations().is_empty());
+            assert!(report.run().lifecycle().safety_eof().is_none());
+            assert_eq!(witness.memory_validation().validation, Validation::Valid);
+            assert_eq!(witness.json_validation().validation, Validation::Valid);
+        }
+    }
+    #[test]
+    fn genuine_optional_absence_preserves_actual_request_prefix_origin() {
+        let source = "---- MODULE Candidate ----\nEXTENDS Integers\nVARIABLE x\nInit == x=0\nNext == x'=IF x=0 THEN 1 ELSE 1\nLive == <>(x=2)\nHook == FALSE\n====\n";
+        for width in [1, 3, 4, 8] {
+            let analysis =
+                dive_sema::analyze_source("Candidate.tla", source, &dive_sema::Options::default());
+            let ir = Arc::new(dive_ir::lower(&analysis).expect("IR"));
+            let cfg =
+                dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\nCHECK_DEADLOCK FALSE\n")
+                    .into_config()
+                    .expect("cfg");
+            let options = CheckOptions {
+                workers: width,
+                chaos: Some(7),
+                ..CheckOptions::tlc(0, 0)
+            };
+            let (report, observed) =
+                dive_check::progress::testing::with_returned_prefix_request(|| {
+                    // Only this unit control bypasses the outer stack thread so the
+                    // existing explicit test scheduler is installed on the actual
+                    // execution caller. No caller supplies a Request or candidate.
+                    check_owned::<periodic_snapshot::OptionalSnapshot>(
+                        &ir,
+                        &cfg,
+                        &options,
+                        phase_graph::Limits::default(),
+                        periodic_lifecycle::Options {
+                            ratio_limit: f64::INFINITY,
+                            ..periodic_lifecycle::Options::default()
+                        },
+                        dive_check::progress::Options {
+                            interval: std::time::Duration::from_millis(1),
+                            force: false,
+                        },
+                    )
+                });
+            assert!(observed, "actual returned prefix rendezvous");
+            let report = report.expect("request candidate");
+            assert_eq!(report.run().configured_name(), None);
+            assert_eq!(report.run().definition(), None);
+            assert_eq!(report.run().expression(), None);
             let witness = report.witness().expect("validated candidate");
             let Origin::Request(service) = witness.origin() else {
                 panic!("request origin");

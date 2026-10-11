@@ -1,0 +1,14 @@
+EVENT	setup-complete
+EVENT	configured-name:Hook
+EVENT	snapshot-class:tla2sany.semantic.OpDefNode
+EVENT	body-present:true
+EVENT	definition-name:Hook
+EVENT	definition-arity:0
+EVENT	body-identical:true
+EVENT	body-class:tla2sany.semantic.OpApplNode
+EVENT	body-kind:9
+EVENT	body-level:0
+EVENT	body-location:line 8, col 9 to line 8, col 12 of module Snapshot
+EVENT	evaluation-start
+EVENT	value-class:tlc2.value.impl.BoolValue
+EVENT	value:FALSE

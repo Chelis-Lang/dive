@@ -533,3 +533,21 @@ authority (ADR 0065).
 Pinned `LiveWorker` greedy component/postfix selection, `AbstractDiskGraph.getPath` and `LongVec.pack` at94d0c50 preserve product selection before contiguous fingerprint packing. Native source-value retention/audit and privately constructible admission are dive architecture, not Java queue/schedule proof. Only actual successful source callbacks supply original values; raw fingerprints are audited before deduplication and recursive writes. Freshly bound independent `dive-trace` validates lossless rehomed memory and serialized/parsed JSON, including original configured property claims. `conformance/probes/producer-owned-candidate` retains every initial mismatch/refusal and clean primary final controls; no ordinary scheduling/count/model-proof certification.
 
 Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.
+
+## Optional configured periodic role (ADR0074, #220)
+
+The shared binder's optional mode follows pinned94d0c50 MIT
+`tlc2.tool.impl.SpecProcessor.processPeriodic` (1634–1650) null/definition/arity
+selection and actual pre-constant `Defns.snapshot` authority. Selected real
+`ModelChecker.doPeriodicWork` observations preserve absent-hook skip, separately
+forced suspension/resume, false2104 and type1000/error2179 outcomes. The complete26
+rows in `conformance/probes/optional-periodic-hook/primary` retain actual Java
+exception and observer queue cleanup. Additive optional native tokens and shared
+independent candidate admission are dive architecture; they do not establish
+ordinary Java queue/clock/count/model-proof equivalence. Existing mandatory APIs
+and original startup/predicate bounds remain unchanged.
+
+Optional-hook Init precedence includes a separate unmodified full TLC invocation:
+GENERAL1000 contains inner2179, then nested-expression2103 decides exit75. This is
+not substituted with the selected direct doInit2179 exception surface. Original
+failed assertion/source and both primary stages remain retained.

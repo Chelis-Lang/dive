@@ -1,6 +1,6 @@
 {
   "base_commit": "1cf68fda3f614534bbd39202149bfbdf255d443c",
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "schema_version": 1,
   "scope": "one null-tableau OOS actual graph commit fields and real safety pool; no model proof, temporal stopping prefix, SCC/lasso or schedule credit; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {

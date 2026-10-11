@@ -31,7 +31,7 @@
     "selection.json": "38084924bd532f82d83592f66f719775a6facdcda9782df217504ec8fe5d049f",
     "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
   },
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "scoped_final_parent_history": {

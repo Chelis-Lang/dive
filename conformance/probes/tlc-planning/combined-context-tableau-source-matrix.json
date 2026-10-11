@@ -1,6 +1,6 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
   "historical_integrations": [

@@ -1,0 +1,11 @@
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-api)
+error[E0609]: no field `capture_workers` on type `&dive_liveness::phase_execution::Failure`
+   --> crates/dive-api/tests/optional_periodic_candidate.rs:206:10
+    |
+206 |         .capture_workers
+    |          ^^^^^^^^^^^^^^^ unknown field
+    |
+    = note: available fields are: `error`, `stats`, `workers`, `groups`, `phase_work` ... and 2 others
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `dive-api` (test "optional_periodic_candidate") due to 1 previous error

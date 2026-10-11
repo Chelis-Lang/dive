@@ -18,7 +18,7 @@
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab"
   },
   "evidence_scope": "Current native admission controls, no new oracle or full family certification",
-  "current_integration_scope": "Current private producer-candidate integrity only. Original request-service/history/runtime producers retain immutable identities; no ordinary schedule/count/model proof certificate.",
+  "current_integration_scope": "Optional configured-role source integrity only. Prior compiled producers/runtime/failures remain immutable; no ordinary clock/queue/count/model proof.",
   "historical_public_ir_matrix": "conformance/probes/native-parity-integration/history/public-ir/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
   "historical_public_ir_matrix_sha256": "0b8bb554ac320a0edf35f2ebef5b3e2628ea1eb586c52a52811d33449ab67c42",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
