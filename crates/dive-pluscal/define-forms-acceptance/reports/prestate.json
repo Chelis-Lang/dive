@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "models": 8,
+  "selected": 96,
+  "rows": [
+    {
+      "id": "Forms_C_local_state.dive.1.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.dive.1.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.dive.4.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.dive.4.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.dive.8.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.dive.8.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.1.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.1.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.4.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.4.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.8.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_local_state.tlc.8.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.dive.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state.tlc.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.dive.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_state_domain.tlc.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.1.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.1.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.4.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.4.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.8.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.dive.8.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.1.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.1.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.4.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.4.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.8.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_C_function_multiple.tlc.8.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.1.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.1.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.4.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.4.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.8.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.dive.8.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.1.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.1.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.4.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.4.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.8.fp",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_local_state.tlc.8.exact",
+      "invariant_final_y": 0,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.dive.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state.tlc.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.dive.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.1.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.1.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.4.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.4.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.8.fp",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_state_domain.tlc.8.exact",
+      "invariant_final_y": 1,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.1.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.1.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.4.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.4.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.8.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.dive.8.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.1.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.1.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.4.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.4.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.8.fp",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    },
+    {
+      "id": "Forms_P_function_multiple.tlc.8.exact",
+      "invariant_final_y": 3,
+      "outcome": "exact-safe-invariant-counts"
+    }
+  ],
+  "native_sha256": "8c426fc6c2ad2648d6918c570e5c88148ec16da0a1513b79dc943a99c2bd004f",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "family_certified": false
+}

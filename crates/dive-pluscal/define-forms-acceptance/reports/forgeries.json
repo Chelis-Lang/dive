@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "selected": 28,
+  "genuine_controls": 4,
+  "forged_controls": 24,
+  "rows": [
+    {
+      "mutation": "baseline",
+      "controls": 4,
+      "exit_code": 0,
+      "outcome": "genuine-reference-accepted"
+    },
+    {
+      "mutation": "model_proved",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    },
+    {
+      "mutation": "exhaustive",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    },
+    {
+      "mutation": "result",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    },
+    {
+      "mutation": "profile",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    },
+    {
+      "mutation": "algorithm_checksum_verified",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    },
+    {
+      "mutation": "exit_code",
+      "controls": 4,
+      "exit_code": 1,
+      "outcome": "all-forgeries-rejected"
+    }
+  ],
+  "script_sha256": "e8c6c5c0dabc12469e670a5597cbb025967af9f432972585502a9d2e632e4510",
+  "strict_original_script_sha256": "b3412c25950816955b6de7d31682027b065490d7c5e65596008c76e40e0ac8f7",
+  "derived_single-guide_folder_script_sha256": "accb9dcb3790946f3418ba4ba8d40e78363bd40982b201e8564bbe51d94d83bf",
+  "family_certified": false
+}

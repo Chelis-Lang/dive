@@ -1,0 +1,896 @@
+{
+  "schema_version": 1,
+  "scope": "complete paired delta; original136selection retained separately",
+  "rows": [
+    {
+      "id": "Forms_C_local_constant",
+      "input_sha256": "fce6facc0874cd955813e57cfae568b163782029445d2421c7a199f38ab1c69f",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_constant",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_parameter",
+      "input_sha256": "33053eb3e65b2ce8cc6659f7048db85c702ebeaf86a62c8e23ace9c175150e47",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_parameter",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_state",
+      "input_sha256": "6be7ca8f265905e69d41cbb9863fd25c33186756da9df889c715708df00b2e62",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_state",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_constant",
+      "input_sha256": "9cbd439e6596e03f420c1ba722a0d8af089d39aa8b2c9b73a1dc10f23a18d8b2",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_state",
+      "input_sha256": "e7e0835deca12603360a917c93d7b43043664c57e6fc546590c97a15803ce446",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_state",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_state_domain",
+      "input_sha256": "0d857b91f803670f37ea82183eca856fb520c06aef00bb55cf85bc3d8416a534",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_state_domain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_function",
+      "input_sha256": "0dca6528b586ef26a8e067297462eb51e04df74abe4a39cbc62edc4d77e8d205",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_function",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_tuple",
+      "input_sha256": "24391f3e1752d4b7e50ea30b57e92f10b5011cf8bba53625cb9a4e11b63c0bbd",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_tuple",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_multiple",
+      "input_sha256": "7dead5541b07f519a05430481bc754202a3469e4718e390ac25ce207458d26e2",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_multiple",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_chain",
+      "input_sha256": "9638231f0b94d4a7605b24b04f354d0ab28df3fa335d4cebaef5afcc9949795b",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_chain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_calls_local",
+      "input_sha256": "39ed2a18bbcf9e7cdec6e1cdd995fb7e18c718b5b4775962bed22fbad2d3c124",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_calls_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_calls_function",
+      "input_sha256": "a06a0602a73ce372b9b1fd73b7ad22aee319011ac069ad1ac113c69788404b57",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_calls_function",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_let",
+      "input_sha256": "e544703d495263677d2270fb7f69f946352f8c82c90f8cb1d160c41c2e9cdad6",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_let",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_quantifier",
+      "input_sha256": "910242bfa091dee768d5bbd2c5ca6da4f717c8052d7bd4ad13622ab2fcf57d14",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_quantifier",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_case",
+      "input_sha256": "56a515af2acf13451127ce1939c31af5a848ffbdff64a69cb9a337f49134219b",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_case",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_record",
+      "input_sha256": "f5ad46b610d239bcc9cc4761ca03fb957786d9751b707e8bda796dcc89d27671",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_record",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_empty",
+      "input_sha256": "04b86036199f4e76f63f71e2e87bf53ae65b51cade450380fc405f6f0b162823",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_empty",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_bound_dependency",
+      "input_sha256": "79f43f8e250dae73c78601d400d34902ed01ac0173b75e45ab3108b61fd4e4c2",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_bound_dependency",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_recursive",
+      "input_sha256": "36258aa607c6b7187eeb92334af384fb7ba9567563314624afc23eb6d5f42e43",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_recursive",
+      "input_sha256": "d23db0d79d6043c5b414348d1a7ddf0a84f7a9d7ae19efb9fafde0be2a102306",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_bound_recursive",
+      "input_sha256": "1eb850468cec8fb1650c9f4c06f26a6717d1abaf82d06a8a7763647c6bc152ae",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_bound_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_action_domain",
+      "input_sha256": "6c7749f7f4ab51ce838f6cc31475011057df1b1a5a40d4304dd24e4ef79686e1",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_action_domain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_action_body",
+      "input_sha256": "ccd78bc058642af7f6e9268dc49f29f8ca670e3a738596d84588d887edb6bace",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_action_body",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_temporal",
+      "input_sha256": "bb3b38aa3daaeb9faac1e9c5ad2dbd1cbef8fc875dfc48672b80baf04e6683ab",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_temporal",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_conflict",
+      "input_sha256": "8cfb6ac9ef16024fe1311ab34f45d9bc2480e98bcd3d4827b4168036476253bd",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_conflict",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_init_conflict",
+      "input_sha256": "939c11d40bcb5e7f079231252aaaf495f01df0aa1c17c768a0817f0e17ef4889",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_init_conflict",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_duplicate",
+      "input_sha256": "fa5b9fe66262c1f7905bd502d8666ee39e02611dfacb065570c51c01c284cf60",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_duplicate",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_parameter_shadow",
+      "input_sha256": "5cb82493dd67b8e8a9390d96f1813b089d8ac81fc1855bcbad367dc67dda820d",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_parameter_shadow",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_helper_shadow",
+      "input_sha256": "7d0b03939a58e7c7e5a4e4d7b17b0a9c30b11fa61b9fe092628e6b961cf89c7e",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_helper_shadow",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_fields",
+      "input_sha256": "8322fd8bb68f00dbcddf6f546c1ba8dcd284603748e84b992eea64f7372a60cf",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_fields",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_undefined",
+      "input_sha256": "134a100d4a288a43c757d798de1df56596c7fd4802baddeef92974b3071da53d",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_undefined",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_undefined_bound",
+      "input_sha256": "e51c971f90401a299c87f489140faec3a1814cebd9ae96f94b6b3cafbe1559ae",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_undefined_bound",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_forward",
+      "input_sha256": "c116104d28fcabb00601557970f4b44dc6f02bf2267cf264da720358c712484c",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_forward",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_multiple_local",
+      "input_sha256": "73e2c582394194a59305196f80a599fee38cff519500365bd2f0f1c428f2524c",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_multiple_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_symbolic_local",
+      "input_sha256": "df262cec4521a6a37c418ad8c5fc8999f7b8fd1ffd857721949bf34c5df1c357",
+      "flags": [],
+      "syntax": "C",
+      "shape": "symbolic_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_constant_process",
+      "input_sha256": "3225d494101a5912cab2fa5ee841a2b57d74ffe6a562d02b2bad66bcf783d03a",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_constant_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_parameter_process",
+      "input_sha256": "8d84ea510d7c2fe20c258fcdb4a1556d84ebb418d748c6d549320a3ed509b944",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_parameter_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_state_process",
+      "input_sha256": "55ae857ea6a86861975862aa7d81fb1506da86d4c7350ba62f6c57864ceecfcd",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_state_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_constant_process",
+      "input_sha256": "9e9bf83eb5d242589805e6c3d37c13b2aef43bb9b41577eb068495c40232a31d",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_state_process",
+      "input_sha256": "f08971df494835cf8554e3c6f0cec232d03305c7378edab9f4c000d567a73881",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_state_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_state_domain_process",
+      "input_sha256": "ac410d22bdd4716d70b62147f642a497fea3614e2c1c82d4f498abc9492d1610",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_state_domain_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_local_function_process",
+      "input_sha256": "16677e312fdc8d023817c96a492d9e5ef39563f3af76c1bc8ecad74488fecb9b",
+      "flags": [],
+      "syntax": "C",
+      "shape": "local_function_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_tuple_process",
+      "input_sha256": "cf5a979d84261e7be05312321b7fed92d149422d155d25f7512de8d54a32f558",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_tuple_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_constant_crlf",
+      "input_sha256": "84f4203aaa0853c08bac63bcf9d52d2878290e46618c86922ec4c0b48abe2698",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant_crlf",
+      "process": false,
+      "style": "crlf"
+    },
+    {
+      "id": "Forms_C_function_constant_tabs",
+      "input_sha256": "2ccc0162d17ae06a76fe00baa84de5371af86a0ef9f8073364cfc3fe3ebf0ec9",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant_tabs",
+      "process": false,
+      "style": "tabs"
+    },
+    {
+      "id": "Forms_C_function_constant_unicode-comment",
+      "input_sha256": "9be08845c3e41ef5c7f327eeaff1a8e0675ba526933e8d828c671fc6abd057b2",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant_unicode-comment",
+      "process": false,
+      "style": "unicode-comment"
+    },
+    {
+      "id": "Forms_C_function_constant_fair",
+      "input_sha256": "ff0a32a1eec4abbca447720e424714c050845fce1fde1083839aa519be2afe72",
+      "flags": [],
+      "syntax": "C",
+      "shape": "function_constant_fair",
+      "process": false,
+      "style": "fair"
+    },
+    {
+      "id": "Forms_C_function_wf",
+      "input_sha256": "534df1fef45ccdbf267e330dc41410b3d77197096e207356fc5fc1d62a468c4f",
+      "flags": [
+        "-wf"
+      ],
+      "syntax": "C",
+      "shape": "function_wf",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_C_function_sf",
+      "input_sha256": "1794b042d7f42ee85cfe81b98bd4663d599dc881083c02e51e963e5ba3447ee3",
+      "flags": [
+        "-sf"
+      ],
+      "syntax": "C",
+      "shape": "function_sf",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_constant",
+      "input_sha256": "2a86059faa69eb3c5a69843a945eac46874aef1b9ec664166ccab113671a4ff2",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_constant",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_parameter",
+      "input_sha256": "6b610c49e08b33ddab7a3b9e808b38549ec2b75f2c1b83714a80c0dabdff53d1",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_parameter",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_state",
+      "input_sha256": "6953badf367120ac43d7e25d7a241aa575b55b3b706779dd166f902efedf5141",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_state",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_constant",
+      "input_sha256": "0018be4b1821ec8c617fc61e173334c53fdb93dc1ea5e59fd8f7053e66687813",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_state",
+      "input_sha256": "26cefe58688df53fa0170b93d1ccf1ddcf0d846eccf8c6581fe6500c75f03463",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_state",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_state_domain",
+      "input_sha256": "12fe799d5ef93f25884820c875ba43a4af2a5c4b77f6d471353c9ab7004c8fa7",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_state_domain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_function",
+      "input_sha256": "3732f5618078e27a514388c2102fe3fea23789a6eee7b9ee7516af7aa2ec258a",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_function",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_tuple",
+      "input_sha256": "a9ef4b9da220eb1c6d7f84630a6a49520f69413c9c6320d242dd5f7147f1a0a4",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_tuple",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_multiple",
+      "input_sha256": "5ccf7b6fcad82e10c46d47a74a8136f89c6a5c52b5d037ba87f34148737c13d5",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_multiple",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_chain",
+      "input_sha256": "8a6372f2fcdd33b6f80ee6fae4b7f69b3bd6c8af8d3df1e4266f2f0153eab098",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_chain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_calls_local",
+      "input_sha256": "b1057f576d398871eddf98888a5dc85279e28e27ac8a0325da85acb16cf44e2a",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_calls_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_calls_function",
+      "input_sha256": "662f69459e00404c12b2d75362980c94e030c393ef14972f7bd7493b23e7c24a",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_calls_function",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_let",
+      "input_sha256": "946c64e91eb0f1ea3b7d889628fcc86ba7f9039e8440f2571a065b677bd5a682",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_let",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_quantifier",
+      "input_sha256": "735cebe533e646e1802a535e09500bd145e9cb70dadf4d75585eed1ec5e4c912",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_quantifier",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_case",
+      "input_sha256": "1ff7e5d605823846b22d1126de33ea474c750fc9a3365672b75cf56e35fc2ca1",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_case",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_record",
+      "input_sha256": "aec2f2bceae1a2cb3aaa01d17d28b0ddd3bedd6790d15a0b03238848bea82edf",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_record",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_empty",
+      "input_sha256": "1623af8fbef61b769ae6f1f916cc1b648800bfb99b853f94da68ab482da06765",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_empty",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_bound_dependency",
+      "input_sha256": "dec8119a59dfa618a85ecb54586d156f46411fb17cabb768ee8162c8a620b0fd",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_bound_dependency",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_recursive",
+      "input_sha256": "78ebe867cd18179afa28e8326b19a73af1f8a4759324a23f49fff3319f110f68",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_recursive",
+      "input_sha256": "bf48728cfc20e8914205369c5a9733eb2508cbe6a8b09b7c3fc59222fe90f608",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_bound_recursive",
+      "input_sha256": "b3420f5645bc810016abf8d77131095f92971626f229258bb8d10fe65fd39c21",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_bound_recursive",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_action_domain",
+      "input_sha256": "b3ac4bf6eda88d5db2540023ff61315cc910b13c301d331dc14f3d3a6241c7f5",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_action_domain",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_action_body",
+      "input_sha256": "6e4e055182c8e91fcdb20fa521a2c4ced1d0a3c8d62f2d99ca0894c9572fe2f1",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_action_body",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_temporal",
+      "input_sha256": "039214c59c3772f7b49283b54e787eb4c0d55a494e2dc7ee578074f5d6b307f2",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_temporal",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_conflict",
+      "input_sha256": "735b0d27492efeddf57ef286caa59aee10aa395cf930b2ea3387e4acbeb48592",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_conflict",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_init_conflict",
+      "input_sha256": "22afdd847d1c3233a759211c36398aaf32710c49b475d67d2bf6cce69f179b25",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_init_conflict",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_duplicate",
+      "input_sha256": "47d8bce1f680166bd03cc0eb6fbfd32100d44bf2fc3aef5757d363b6f5611365",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_duplicate",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_parameter_shadow",
+      "input_sha256": "6469920e5aee7bf12beffa0ce5620091778835f5cc7df6e42e39ecf075ecd14e",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_parameter_shadow",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_helper_shadow",
+      "input_sha256": "8da3bfda665afc388f40fbe253e75afc06305a8e53d72a80001854867a7cebc3",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_helper_shadow",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_fields",
+      "input_sha256": "98235d628f3d9fca91fd8f4677ec603f56e1492617a8a8cbb83968b166c99b3d",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_fields",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_undefined",
+      "input_sha256": "c73cc95ed051fc89916e0d4e4dbb962d8db9a5e89dab4dd3179cf663ac3b2587",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_undefined",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_undefined_bound",
+      "input_sha256": "6735fafc7275363a27a3eca2343f497e3d51bf643fe69eed79232188450450dd",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_undefined_bound",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_forward",
+      "input_sha256": "6a0df25fe922691ab0c37f8c38abb20f882f5a7a8030085bf09090af11faee3b",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_forward",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_multiple_local",
+      "input_sha256": "6761575d1131f9df584d9223a90d10fd4f8a3c89f14498363df2fcad9da66cff",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_multiple_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_symbolic_local",
+      "input_sha256": "3f6c58e0685db944cdfbfa7a984db660555ba43bf08c0a1d8c86d84d14f748b5",
+      "flags": [],
+      "syntax": "P",
+      "shape": "symbolic_local",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_constant_process",
+      "input_sha256": "6a06d2093d7552ba52b494eb76828dd242218d498d41b594499229244af1ce71",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_constant_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_parameter_process",
+      "input_sha256": "998f5f703354a0d5814f81c005eecc470f5862c9004f6e320d35d4b238b93a49",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_parameter_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_state_process",
+      "input_sha256": "8f377f47130e63ac182635b3d9c468af5bd7644158f82598a807a0d044ae21ea",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_state_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_constant_process",
+      "input_sha256": "287ae94bf8b1bfd8ced4def1d27182f14e231714e13fbd7afc232bbf36232d31",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_state_process",
+      "input_sha256": "0228a43ba9ad807ad2d0f63be62a8964e465afbcecb6085b6de6ec1bf66e91b1",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_state_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_state_domain_process",
+      "input_sha256": "24d4f7cb92d2b1a0495db72327dfc321b820a0fb6d35880f38091e2b1a73e5e3",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_state_domain_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_local_function_process",
+      "input_sha256": "c54894fc0d6d4298dc3e491d963cabe6892ecd1cd04dd2aa55a64ad44d5c780d",
+      "flags": [],
+      "syntax": "P",
+      "shape": "local_function_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_tuple_process",
+      "input_sha256": "ec73bf57d190ad089c16f2c68877dca7f4c3c4f05375b4d8836cbd8bdb303b4a",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_tuple_process",
+      "process": true,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_constant_crlf",
+      "input_sha256": "be9c5021b535f0c5a98b9ddf59aabbb274918c020329475b99256e942cb74dc7",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant_crlf",
+      "process": false,
+      "style": "crlf"
+    },
+    {
+      "id": "Forms_P_function_constant_tabs",
+      "input_sha256": "ebb56c06b2cd4e43d5c0b2636ee91bfb57117cbcc3a0831102a0742b8be0088f",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant_tabs",
+      "process": false,
+      "style": "tabs"
+    },
+    {
+      "id": "Forms_P_function_constant_unicode-comment",
+      "input_sha256": "5597dcabadb76b8bc377ccfde2cc95f0f45c7d547c40452554cdffb791208671",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant_unicode-comment",
+      "process": false,
+      "style": "unicode-comment"
+    },
+    {
+      "id": "Forms_P_function_constant_fair",
+      "input_sha256": "38e5073d9dd2895ba647f9f27353878f8f2528d7740f6d9b55e8eb18749cbdbd",
+      "flags": [],
+      "syntax": "P",
+      "shape": "function_constant_fair",
+      "process": false,
+      "style": "fair"
+    },
+    {
+      "id": "Forms_P_function_wf",
+      "input_sha256": "53097218ffa0a0448fe496942c167982d151a2e024ec63b4b58ce9c21fed7b50",
+      "flags": [
+        "-wf"
+      ],
+      "syntax": "P",
+      "shape": "function_wf",
+      "process": false,
+      "style": ""
+    },
+    {
+      "id": "Forms_P_function_sf",
+      "input_sha256": "0c086a185ac8fe60ddc182611cabd91a2322e08fce6256207d0ccc91256fd0d0",
+      "flags": [
+        "-sf"
+      ],
+      "syntax": "P",
+      "shape": "function_sf",
+      "process": false,
+      "style": ""
+    }
+  ]
+}

@@ -686,3 +686,7 @@ The lifecycle foundation retains the separately captured controller, runtime-rat
 
 
 `dive-liveness::periodic_hook` matches the bounded supplied-expression portion of pinned MIT `tlc2.tool.ModelChecker.doPeriodicWork`, `Tool.eval(SemanticNode)` with empty state/context and Clear, and `BoolValue.equals` at `94d0c50`. All 59 actual method controls are retained. Configuration-owned snapshots and ordinary scheduling remain separate obligations.
+
+## LOCAL and function DEFINE admission
+
+`dive-pluscal` LOCAL and function definition placement matches the pinned MIT `pcal/PcalTLAGen.java` methods `GenVarsAndDefs` and `addExprToTLA`, and `AST.java` `Uniprocess`/`Multiprocess` definition serialization at `94d0c5070852b37b801bb8998c436383ab7ee37b`. Opaque declaration text and order, LOCAL visibility and function-domain positions remain reference-equivalent. Bounded domain/body dependency checks and action/temporal admission are native policy. Stage probes are development tools.
