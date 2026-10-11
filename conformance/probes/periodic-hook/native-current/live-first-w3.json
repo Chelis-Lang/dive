@@ -1,0 +1,25 @@
+{
+  "configured_hook": false,
+  "hooks": [],
+  "invocations": [
+    {
+      "actual_workers": 3,
+      "clock_millis": 1791713434677,
+      "force": [
+        true,
+        true
+      ],
+      "generation": 1,
+      "outcome": "Ok(LivenessStopped(2116))",
+      "resume": false,
+      "source": 0,
+      "stats": "Stats { generated: 2, distinct: 2, left_on_queue: 1, depth: 2, initial_generated: 1 }"
+    }
+  ],
+  "model_proof": false,
+  "name": "live-first-w3",
+  "ordinary_schedule_certified": false,
+  "safety_eof": null,
+  "stop": "source checkpoint found an unvalidated temporal candidate",
+  "supplied_expression": true
+}

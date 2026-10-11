@@ -1,0 +1,477 @@
+[
+  {
+    "id": "true-invoke",
+    "expr": "TRUE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "true-suspend-false",
+    "expr": "TRUE",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "true-live-error-first",
+    "expr": "TRUE",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "true-checkpoint-after",
+    "expr": "TRUE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "false-invoke",
+    "expr": "FALSE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "false-suspend-false",
+    "expr": "FALSE",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "false-live-error-first",
+    "expr": "FALSE",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "false-checkpoint-after",
+    "expr": "FALSE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "integer-invoke",
+    "expr": "1",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "integer-suspend-false",
+    "expr": "1",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "integer-live-error-first",
+    "expr": "1",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "integer-checkpoint-after",
+    "expr": "1",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "string-invoke",
+    "expr": "\"text\"",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "string-suspend-false",
+    "expr": "\"text\"",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "string-live-error-first",
+    "expr": "\"text\"",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "string-checkpoint-after",
+    "expr": "\"text\"",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "set-invoke",
+    "expr": "{1}",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "set-suspend-false",
+    "expr": "{1}",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "set-live-error-first",
+    "expr": "{1}",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "set-checkpoint-after",
+    "expr": "{1}",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "tuple-invoke",
+    "expr": "<<1>>",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "tuple-suspend-false",
+    "expr": "<<1>>",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "tuple-live-error-first",
+    "expr": "<<1>>",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "tuple-checkpoint-after",
+    "expr": "<<1>>",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "record-invoke",
+    "expr": "[a |-> 1]",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "record-suspend-false",
+    "expr": "[a |-> 1]",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "record-live-error-first",
+    "expr": "[a |-> 1]",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "record-checkpoint-after",
+    "expr": "[a |-> 1]",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "divide-zero-invoke",
+    "expr": "1 \\div 0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "divide-zero-suspend-false",
+    "expr": "1 \\div 0",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "divide-zero-live-error-first",
+    "expr": "1 \\div 0",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "divide-zero-checkpoint-after",
+    "expr": "1 \\div 0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "state-invoke",
+    "expr": "x=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "state-suspend-false",
+    "expr": "x=0",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "state-live-error-first",
+    "expr": "x=0",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "state-checkpoint-after",
+    "expr": "x=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "action-invoke",
+    "expr": "x'=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "action-suspend-false",
+    "expr": "x'=0",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "action-live-error-first",
+    "expr": "x'=0",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "action-checkpoint-after",
+    "expr": "x'=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "temporal-invoke",
+    "expr": "<>(x=0)",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "temporal-suspend-false",
+    "expr": "<>(x=0)",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "temporal-live-error-first",
+    "expr": "<>(x=0)",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "temporal-checkpoint-after",
+    "expr": "<>(x=0)",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "effect-invoke",
+    "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "effect-suspend-false",
+    "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "effect-live-error-first",
+    "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "effect-checkpoint-after",
+    "expr": "PrintT(\"HOOK_MARKER\") /\\ TRUE",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "short-state-invoke",
+    "expr": "FALSE /\\ x=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "short-state-suspend-false",
+    "expr": "FALSE /\\ x=0",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "short-state-live-error-first",
+    "expr": "FALSE /\\ x=0",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "short-state-checkpoint-after",
+    "expr": "FALSE /\\ x=0",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "model-value-invoke",
+    "expr": "Token",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "model-value-suspend-false",
+    "expr": "Token",
+    "liveness": false,
+    "suspended": false,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "model-value-live-error-first",
+    "expr": "Token",
+    "liveness": true,
+    "suspended": true,
+    "check_code": 2116,
+    "checkpoint": true
+  },
+  {
+    "id": "model-value-checkpoint-after",
+    "expr": "Token",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": true
+  },
+  {
+    "id": "undefined",
+    "expr": "TRUE",
+    "role": "Missing",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "arity",
+    "expr": "TRUE",
+    "role": "HookArg",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  },
+  {
+    "id": "constant-role",
+    "expr": "TRUE",
+    "role": "Token",
+    "liveness": false,
+    "suspended": true,
+    "check_code": 0,
+    "checkpoint": false
+  }
+]

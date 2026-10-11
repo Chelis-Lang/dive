@@ -1,0 +1,31 @@
+{
+  "configured_hook": false,
+  "hooks": [
+    {
+      "expr": 55,
+      "false_equality": true,
+      "source": 0
+    }
+  ],
+  "invocations": [
+    {
+      "actual_workers": 1,
+      "clock_millis": 1791713434583,
+      "force": [
+        false,
+        false
+      ],
+      "generation": 0,
+      "outcome": "Ok(PeriodicAssumptionFalse)",
+      "resume": false,
+      "source": 0,
+      "stats": "Stats { generated: 2, distinct: 2, left_on_queue: 1, depth: 2, initial_generated: 1 }"
+    }
+  ],
+  "model_proof": false,
+  "name": "value-1-w1",
+  "ordinary_schedule_certified": false,
+  "safety_eof": null,
+  "stop": "supplied pure PERIODIC expression evaluated FALSE (TLC 2104)",
+  "supplied_expression": true
+}

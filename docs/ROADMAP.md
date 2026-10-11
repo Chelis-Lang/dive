@@ -133,3 +133,5 @@ Periodic backend increment #189 now derives actual pointer-bucket growth/check-s
 
 
 Issue #189 now has a bounded native clock/dispatch diagnostic seam: internally sampled source-commit polling plus actual EOF final SCCs. Ordinary periodic CLI support still requires queue/timer stop-prefix equivalence, hook/checkpoint transactions and independent deciding witness certification.
+
+F-023 next-stage evidence now includes a bounded pure supplied-expression hook at actual native pauses. Configured PERIODIC snapshot binding, host/checkpoint effects, asynchronous queue timing, exact stop counts and ordinary deciding-witness replay remain open; diagnostic hook results earn no family/model credit.

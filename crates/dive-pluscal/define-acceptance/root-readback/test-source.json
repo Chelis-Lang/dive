@@ -1,0 +1,33 @@
+{
+  "delivery_commit": "68456837d9d75bdfc3b8ee5d36c1d658c8c93038",
+  "runtime_authority": false,
+  "family_certified": false,
+  "qualification": "Post-delivery exact committed test source readback. Covers earlier promotions and two later gate repairs; does not fill the historical scoped runtime source gap retroactively. Fresh integrated compilation/tests remain required.",
+  "inputs": {
+    "crates/dive-pluscal/tests/definitions.rs": {
+      "archive": "crates__dive-pluscal__tests__definitions.rs.gz",
+      "archive_sha256": "4c4f42a9b0817b462e7f5d1d85edc45cd827d8dbae3541edee33ef518adf84b7",
+      "delivery_git_sha256": "75cd5119727913d9d11371c5e93c197db805111bb9595865a2a9cd71276eddac"
+    },
+    "crates/dive-pluscal/tests/rewrite.rs": {
+      "archive": "crates__dive-pluscal__tests__rewrite.rs.gz",
+      "archive_sha256": "492caff95df7862fe0a8c19d1e8ca89cd9ae13a0103f5adce1e9ef2a7d333204",
+      "delivery_git_sha256": "66992526976d19c773ce1c9d73708dfe74ead51988c246f8dfd656e3e7eb1dd0"
+    },
+    "crates/dive-pluscal/tests/algorithm_checksum.rs": {
+      "archive": "crates__dive-pluscal__tests__algorithm_checksum.rs.gz",
+      "archive_sha256": "60ef06e26ff5bceed61669cf19c9dc2d64d78bc5c98910dfc311d3bfe3fd0215",
+      "delivery_git_sha256": "c2180a4dbd52da1ee4e0413c382623439c0f807181e189ca428edad5b48eae58"
+    },
+    "crates/dive-pluscal/tests/macro_checksum.rs": {
+      "archive": "crates__dive-pluscal__tests__macro_checksum.rs.gz",
+      "archive_sha256": "eae3f82ef3e42dd60911ac8b4a825dd4f073c6c41c04f9e7d7fe7b2d80089939",
+      "delivery_git_sha256": "09e63f8e613d4d9cab0bc582692deb2b0d92b483377f3792cc7816cb785bffc6"
+    },
+    "crates/dive-api/tests/rewrite.rs": {
+      "archive": "crates__dive-api__tests__rewrite.rs.gz",
+      "archive_sha256": "a243905d4872e936d2ef03e59e42bb9c628d5302f9818c7a91d0b025f7248689",
+      "delivery_git_sha256": "a7888264641d2030869d62ccef05bfb18dd787f1daa5bc2fe0e6747030954936"
+    }
+  }
+}

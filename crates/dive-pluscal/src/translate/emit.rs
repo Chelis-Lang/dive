@@ -898,14 +898,47 @@ pub(super) fn generate(
     if model.variables.iter().any(|var| var.initial.is_none()) {
         append("CONSTANT defaultInitValue\n\n".into(), span)?;
     }
-    append(
-        format!(
-            "{keyword} {}\n\nvars == << {} >>\n\n",
-            names.join(", "),
-            names.join(", ")
-        ),
-        span,
-    )?;
+    if let Some(definition) = parsed
+        .algorithm
+        .definitions
+        .filter(|expr| !tokens(parsed, *expr).is_empty())
+    {
+        let global_count = parsed.algorithm.variables.len() + usize::from(model.use_pc);
+        let (globals, locals) = names.split_at(global_count);
+        if !globals.is_empty() {
+            let keyword = if globals.len() == 1 {
+                "VARIABLE"
+            } else {
+                "VARIABLES"
+            };
+            append(format!("{keyword} {}\n\n", globals.join(", ")), span)?;
+        }
+        append(
+            format!(
+                "(* define statement *)\n{}\n\n",
+                super::definitions::render(parsed, definition, options)?
+            ),
+            definition.span,
+        )?;
+        if !locals.is_empty() {
+            let keyword = if locals.len() == 1 {
+                "VARIABLE"
+            } else {
+                "VARIABLES"
+            };
+            append(format!("{keyword} {}\n\n", locals.join(", ")), span)?;
+        }
+        append(format!("vars == << {} >>\n\n", names.join(", ")), span)?;
+    } else {
+        append(
+            format!(
+                "{keyword} {}\n\nvars == << {} >>\n\n",
+                names.join(", "),
+                names.join(", ")
+            ),
+            span,
+        )?;
+    }
     if !model.processes.is_empty() {
         let domains: Vec<_> = model
             .processes

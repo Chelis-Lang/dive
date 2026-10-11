@@ -1,0 +1,35 @@
+{
+  "configured_hook": false,
+  "hooks": [
+    {
+      "error_class": "Eval",
+      "error_code": 2179,
+      "error_text": "The second argument of \\div is 0.",
+      "eval_exception": true,
+      "expr": 57,
+      "origin": 57,
+      "source": 0
+    }
+  ],
+  "invocations": [
+    {
+      "actual_workers": 1,
+      "clock_millis": 1791713434613,
+      "force": [
+        false,
+        false
+      ],
+      "generation": 0,
+      "outcome": "Err(\"Callback(PeriodicEvaluation(EvalError(Inner { class: Eval, ec: DivisionByZero, message: \\\"The second argument of \\\\\\\\div is 0.\\\", origin: Some(ExprId(57)), eval_exception: true })))\")",
+      "resume": false,
+      "source": 0,
+      "stats": "Stats { generated: 2, distinct: 2, left_on_queue: 1, depth: 2, initial_generated: 1 }"
+    }
+  ],
+  "model_proof": false,
+  "name": "value-7-w1",
+  "ordinary_schedule_certified": false,
+  "safety_eof": null,
+  "stop": "TLC_MODULE_DIVISION_BY_ZERO (2179): The second argument of \\div is 0.",
+  "supplied_expression": true
+}

@@ -1,0 +1,6 @@
+{
+  "source_path": "crates/dive-liveness/tests/periodic_hook.rs",
+  "source_sha256": "eaecc51479086083adcb91c59dcfeb07c2c360b0c410ab43fc55870b5397e644",
+  "exit": 101,
+  "reason": "Draft configured constant used state-level Init replacement; binding correctly rejects before hook admission. Replace only the draft input with an actually constant replacement, preserving actual binder failure and hook negative obligations."
+}

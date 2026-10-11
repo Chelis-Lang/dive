@@ -673,3 +673,16 @@ invoke providers; trace replay stays independently built without enumeration.
 Original 84 diagnostic rows, wider seeds and shipping producer evidence remain
 separate under `conformance/probes/view-random-stream/`. Symmetry and other RNG
 families/recovery are excluded until their own contracts are proved.
+
+## Bounded PlusCal global DEFINE sections
+
+`dive-pluscal` global definition placement and expression rendering match the pinned MIT `pcal/PcalTLAGen.java` methods `GenVarsAndDefs`, `GenVarDecl`, `addExprToTLA`; `TLAExpr.java` normalization/rendering and `AST.java` definition serialization at `94d0c5070852b37b801bb8998c436383ab7ee37b`. Global declarations precede helpers and process locals follow. UTF-16/tab-expanded token columns and serialized definitions have source-backed evidence. Conservative declaration/cycle admission is native policy; reference adapters are development tools.
+
+The DEFINE evidence directory retains the original runtime scope gap and separately archived committed test promotions. Its portable original records and the fresh integrated gate are distinct authorities.
+
+## Supplied periodic hook composition
+
+The lifecycle foundation retains the separately captured controller, runtime-ratio and real queue controls under ADR0052; those controls do not certify ordinary scheduling.
+
+
+`dive-liveness::periodic_hook` matches the bounded supplied-expression portion of pinned MIT `tlc2.tool.ModelChecker.doPeriodicWork`, `Tool.eval(SemanticNode)` with empty state/context and Clear, and `BoolValue.equals` at `94d0c50`. All 59 actual method controls are retained. Configuration-owned snapshots and ordinary scheduling remain separate obligations.

@@ -1,0 +1,14 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running tests/checksum_expressions.rs (/Users/jeff/code/dive-pluscal-macro-checksum-target/debug/deps/checksum_expressions-bd79995b49e5ed3b)
+
+running 4 tests
+test empty_else_retains_true_before_branch_identity ... ok
+test expression_and_nested_output_bounds_are_explicit ... ok
+test trailing_with_separator_keeps_empty_binder_rejected ... ok
+test complete_nesting_layout_selection_matches_or_refuses ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+

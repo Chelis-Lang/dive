@@ -64,7 +64,12 @@ fn explicit_partial_replacement_is_admitted_without_proof() {
             "../../dive-pluscal/macro-checksum-acceptance/api-regression/primary/InvokedMacroApiRewrite.translated.ast"
         )
     );
-    let unsupported = SOURCE.replace("begin L:", "define F == 1 end define; begin L:");
+    let supported = SOURCE.replace("begin L:", "define F == 1 end define; begin L:");
+    let admitted = rewrite_source("R.tla", &supported, &RewriteRequest::default());
+    assert!(admitted.accepted(), "{}", admitted.to_json());
+    assert_eq!(admitted.to_json()["algorithm_checksum_verified"], true);
+    assert_eq!(admitted.to_json()["model_proved"], false);
+    let unsupported = SOURCE.replace("begin L:", "define F == x' end define; begin L:");
     let refused = rewrite_source("R.tla", &unsupported, &RewriteRequest::default());
     assert!(!refused.accepted());
     let document = refused.to_json();
@@ -72,7 +77,7 @@ fn explicit_partial_replacement_is_admitted_without_proof() {
     assert_eq!(document["result"], "unsupported");
     assert_eq!(
         document["generation"]["diagnostic"]["message"],
-        "unsupported PlusCal translation: define-block name binding"
+        "unsupported PlusCal translation: DEFINE action or temporal helper"
     );
     assert_eq!(document["model_proved"], false);
     assert_eq!(document["exhaustive"], false);
