@@ -773,3 +773,12 @@ preserves local export visibility, pre-state helper lookup and function domains.
 Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
 is distinct from public enclosing-module admission and model proof; invalid
 reference outputs remain uncredited. Both profiles keep these same semantics.
+Configured periodic diagnostic scope (#197): the pure snapshot factory is additive; ordinary `_PERIODIC` checking remains refused. Source/startup/effect and Java-exception restrictions are explicit limitations, not new result-changing defaults. See [the current user contract](configured-periodic-snapshot.md).
+D-009 trace transport boundary (#190): default legacy version 1 retains the
+known mixed-set shape failures. Opt-in `--trace-format representation-v2`
+preserves admitted forward stored sets and nonliteral tuple/record functions
+through checked constructor witnesses and independent replay. This changes no
+comparison, construction or Random/VIEW shape policy. A transported word is not
+a certificate. Reverse construction, arbitrary deferred/symbolic values and
+trusted-storage tuple bit loss (#195) remain separate. See
+[the schema and bounded CLI/API guide](trace-representation.md).
