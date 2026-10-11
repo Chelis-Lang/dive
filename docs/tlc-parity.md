@@ -667,16 +667,11 @@ global helpers and exact post-translation defs serialization. Declaration scope,
 AST/CRC, generated CST/SANY and finite model/witness stages remain separate.
 F-034/F-035 stay partial: recursive/scoped declarations and complete translator
 formatting/maps/options remain unproved.
-The source-qualified [periodic backend](periodic-backend.md) now derives pointer-table growth and per-OOS last-check snapshots from actual commits, with private joined-wave facts and first-candidate stopping. Thirty-two clean primary projections match at1/3/4/8 workers; four actual Java IO failures remain uncredited reference errors. These explicit-prefix diagnostics do not implement an ordinary clock schedule, Java queue suspension or a temporal verdict. F-023 stays missing/audit-required; no family or corpus certification gain.
 
-
-The explicit disk seen-state safety route (#212, ADR0068) extends P7 with full
-fingerprint/exact key admission through fallible inline insertion and audited
-cleanup. It admits explicit INIT/NEXT configurations only and reports requested
-widths separately from actual inline execution. PROPERTY/SPECIFICATION role
-decomposition, parallel read views, capture/temporal routing and disk seen-state
-recovery remain pending. Candidate/graph/reconstruction retention and OS page
-cache remain outside these bounds; F-031 remains partial/audit-required.
-
-Disk invariant-error call-stack replay remains a named refusal; its retained error
-word and initial counts do not receive completed replay or certificate credit.
+The [tuple-history replay guide](inductive-tuple-trace-replay.md) now includes
+fixed nested `UNCHANGED` projections through actual lazy aliases, LET and
+substitution scopes (ADR 0071). The sealed proof admits four fresh alias
+controls and rejects altered words, while conditional tuple permutations retain
+strict refusal. The separate generated procedure study admits 32/32
+strict words at the archived producer; general runtime-name and stack provenance
+remain pending. No family certification or denominator changes.

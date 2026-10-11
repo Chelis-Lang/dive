@@ -781,75 +781,7 @@ proof of necessary Init facts and all-branches Next preservation. It ports no
 checker enumeration algorithm and uses neither supplied witness states nor
 TLC's encounter-order side effects as type evidence.
 
-| Request-owned service (#208, ADR0065) | Pin94d0c50 `ModelChecker.doPeriodicWork`, real `StateQueue.suspendAll/resumeAll`, owned configured PERIODIC body and real Worker graph writes | MIT | 18 empty + 9 written controlled method observations; failed query/setup/EOF-race epochs preserved. Native post-append request transaction is bounded diagnostic architecture, not ordinary schedule/count/model-proof parity. |
-
-The request-service test scheduler (`dive-check/test-rendezvous`) is dive's own
-explicitly selected testing mechanism, not a TLC port: it signals only after
-actual expansion output ownership and waits for the real producer timer. It is
-excluded from default production dependencies and supplies no ordinary parity
-authority (ADR 0065).
-## P elsif procedure checksum overlay (#209)
-
-`translate/checksum_transfers.rs` virtual branch view and `checksum.rs` branch
-serialization match pinned `pcal.ParseAlgorithm` nested elsif If construction,
-`PcalTranslate.CopyAndExplodeLastStmt` shared Then/Else transfer flags and
-`PCalTLAGen.GenAssign/SortSass` after-generation visit ordering at commit94d0c507.
-No Java runtime is used by native translation. ADR0066 separates original header
-CRC authority from direct Explode xast; the complete32-row study retains both.
-
-
-## Disjoint sequential-procedure checksum owners (#214)
-
-`translate/checksum_transfers.rs` caches entry labels and indexes synthetic call
-frame targets and current return owners. It matches pinned `pcal.PcalTranslate`
-`ExplodeCall`/`ExplodeReturn` (`FindProc`, target parameters/local initialization,
-current-procedure restoration and continuation), while `checksum.rs` separately
-matches `ParseAlgorithm.GetProcedure`'s reset/shared `proceduresCalled` vector and
-`GetCall`'s first-encounter duplicate suppression. `AST.Procedure.toString`,
-`PCalTLAGen.GenAssign`/`SortSass` and existing shared If/elsif/With/Either/While
-visitation remain the serialization authorities at commit `94d0c507` (MIT).
-The last declared procedure owns main's call vector regardless of call targets;
-earlier declarations remain empty in this bounded main-only scope. Admission
-refuses procedure-call graphs before synthetic serialization. Lookup, sorting,
-entry scans and owned frame expansion share conservative bounded policy units;
-they are native admission controls, not Java runtime instructions or allocation
-measurements. No Java runtime is delegated to. See ADR 0069 and the complete
-98-row declared study; raw original-header bytes are not exploded-xast, artifact
-or model-proof credit.
-| Source-qualified periodic backend (#189) | `LiveCheck.doLiveCheck`/`check`/`check0`, `LiveWorker.call`, `DiskGraph.size`, `TableauDiskGraph.size`, `NodePtrTable`/`TableauNodePtrTable` registration and `AbstractDiskGraph.recordSize`/`makeNodePtrTbl`; pin94d0c50 | MIT | Actual32 source-growth projections, four controlled thrown-check failures and complete pointer/snapshot/threshold controls. Native private model-owned checkpoints, cumulative original work bounds and independent witness mutants; no ordinary clock/queue-suspension or model-proof claim. ADR0051 |
-
-
-| Native periodic lifecycle (#189) | ModelChecker.doPeriodicWork/updateRuntimeRatio; StateQueue suspendAll/resumeAll/finishAll and actual DiskStateQueue selected thread controls; pin94d0c50 | MIT |296 controller,196 updater and96 selected queue controls retain separate producers; native borrowed pool authority and internal source-commit timer/EOF SCC seam are diagnostic, not ordinary scheduler equivalence. ADR0052 |
-
-| `dive-liveness::periodic_hook` and lifecycle hook composition | `tlc2.tool.ModelChecker.doPeriodicWork` (hook after liveness before checkpoint/resume), `Tool.eval(SemanticNode)` (Context.Empty/Empty states/Clear), `BoolValue.equals`; pin94d0c50 | MIT | Complete59 actual method projections; supplied pure Pred composition only, configured snapshot binding and ordinary scheduling unclaimed |
-
-## Configuration-owned periodic snapshot (ADR 0057)
-
-`dive-model::periodic` and the diagnostic flag in the shared binder match pinned `tlc2.tool.impl.SpecProcessor` constructor snapshot timing and `processPeriodic` (1634–1650), with `tlc2.tool.Defns.snapshot`: substitutions precede snapshot, constant caching precedes role validation, selected original body and configured spelling remain distinct. Pin `94d0c5070852b37b801bb8998c436383ab7ee37b` (MIT); actual Java reflection reads metadata only. `dive-liveness::periodic_snapshot` prebinding grammar is a conservative native policy, not a port of TLC evaluation. Its structural nonconstant witness follows the shared `dive-model::LevelCx::try_level` cache authority rather than editable node/definition levels. All 38 primary controls and raw captures are retained in `conformance/probes/periodic-snapshot`; startup restrictions and Java-exception refusals earn no error-class parity credit.
-
-| Native producer request/claim-pause diagnostic (#201, ADR0059) | Pin94d0c50 `AbstractChecker.runTLC`, `ModelChecker.doPeriodicWork`, local `tlc2.tool.Worker.run`, `StateQueue.suspendAll/resumeAll/finishAll`; complete33 controlled/natural observations in `conformance/probes/progress-queue` | MIT | Actual native timer/claim gate and joined mutex pause are a separate bounded design; no Java queue/ordinary scheduling/count/model verdict equivalence is asserted. Distributed TLCWorker excluded. |
-
-| Actual request-prefix publication (#204, ADR0062) | Pin94d0c50 local `tlc2.tool.Worker.run/doNext`, `ModelChecker.doNextCheckLiveness/doPeriodicWork`, inherited real `StateQueue.suspendAll`; complete24 controlled observations in `conformance/probes/committed-prefix` | MIT | Shared ordered-prefix transaction is a separate bounded design. Original Next-return, graph-write, error and cleanup boundaries retained; no ordinary clock/queue/count/model-proof parity asserted. |
-
-The #204 primary root-pointer observer queries `getPtr(fp, -1)`: authoritative
-for DiskGraph, an invalid tableau index for TableauDiskGraph. Its raw result is
-preserved as an observer limitation, without tableau write-authority credit.
-Worker/controller outcomes and native owned publication remain separately
-measured; original #204 aggregate gate and disk-exhaustion epoch are retained.
-
-## Fallible seen-state ordinary safety admission (ADR0068)
-
-`dive-check/src/seen.rs` and the optional inline `Search` key path preserve the
-existing pinned `Worker.addElement`/`DoInitFunctor.addElement` ordering,
-`ModelChecker.reportSuccess` conditional fingerprint estimates and concrete
-predecessor replay at MIT pin94d0c50. Native disk failures/owned cleanup are
-explicit native policy, not Java I/O-error equivalence. Unchanged canonical
-bytes and fingerprint keyers are borrowed once; no Boolean disk adapter or
-future candidate bulk resolve is introduced. Independent concrete replay does
-not read checker stores. Graph, recovery and parallel read views remain refused.
-
-## Producer-owned temporal candidate admission (ADR0070, #213)
-
-Pinned `LiveWorker` greedy component/postfix selection, `AbstractDiskGraph.getPath` and `LongVec.pack` at94d0c50 preserve product selection before contiguous fingerprint packing. Native source-value retention/audit and privately constructible admission are dive architecture, not Java queue/schedule proof. Only actual successful source callbacks supply original values; raw fingerprints are audited before deduplication and recursive writes. Freshly bound independent `dive-trace` validates lossless rehomed memory and serialized/parsed JSON, including original configured property claims. `conformance/probes/producer-owned-candidate` retains every initial mismatch/refusal and clean primary final controls; no ordinary scheduling/count/model-proof certification.
-
-Candidate delivery10af preserves full45-stage/1057-test source receipts, default release feature isolation,27 separately corrected public outcomes, fresh memory/JSON witness mutants and all37 required safety gate models at1/4/8. The original unparenthesized IF material workload correctly produced an incomplete successor (four pin exit75 controls); four separately parenthesized controls give exit13. Every failed observer/source/script epoch remains retained, with no ordinary scheduling or corpus/family gain claimed.
+- `dive-trace::tuple_history` fixed tuple projection rule (ADR 0071): matches
+  TLA+ function/tuple equality and UNCHANGED semantics, using original actual
+  bound definitions and scopes. It is an independent logical admission proof,
+  not a port of the successor enumerator. Conditional/permuted projections refuse.
