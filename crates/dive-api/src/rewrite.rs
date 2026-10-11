@@ -43,7 +43,7 @@ fn report(
     stage: &str,
     details: Value,
 ) -> RewriteReport {
-    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
+    let mut document = json!({"schema_version":1,"command":"translate-rewrite","file":file,"result":match status {0=>"replacement",1=>"rejected",3=>"unsupported",_=>"internal-error"},"stage":stage,"accepted":status==0,"exit_code":status,"model_proved":false,"exhaustive":false,"requested_profile":if request.translation.compat_tlc {"tlc"} else {"dive"},"profile":if request.translation.compat_tlc {if request.editing.checksums==ChecksumPolicy::TranslationOnly {"tlc+overrides"} else {"tlc"}} else {"dive"},"overrides":if request.editing.checksums==ChecksumPolicy::TranslationOnly {vec!["translation-only-checksum"]} else {vec![]},"editing":request.editing,"translation_options":request.translation.limits,"requested_translation_options":request.translation.limits,"pending":["unproved-post-translation-ast-checksum-shapes","exact-primary-generator-pretty-bytes","file-writing","mapping-format","full-pluscal-translation"]});
     if let (Some(object), Value::Object(extra)) = (document.as_object_mut(), details) {
         object.extend(extra);
     }
@@ -91,19 +91,21 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
         Ok(selection) => selection,
         Err(error) => return failure(file, request, "selection", &error),
     };
-    // The pinned translator reads declarations in the original file, including
-    // old output. Masking first can silently discard requested fairness.
-    if let Some(span) = dive_pluscal::source_option_declaration_span(source) {
-        return failure(
-            file,
-            request,
-            "source-options",
-            &Diagnostic {
+    let context =
+        match dive_pluscal::resolve_translation_options(source, &request.translation.limits) {
+            Ok(context) => context,
+            Err(error) => return failure(file, request, "source-options", &error.diagnostic),
+        };
+    if let (Some(previous), Some(declaration)) = (selection.previous, &context.source_declaration)
+        && declaration.span.start < previous.end
+        && declaration.span.end > previous.start
+    {
+        return failure(file, request, "source-options", &Diagnostic {
                 code: Code::Unsupported,
-                span,
-                message: "unsupported PlusCal source option declaration; pass proved settings explicitly through the CLI/API".to_owned(),
-            },
-        );
+                span: dive_pluscal::source_option_declaration_span(source)
+                    .unwrap_or(declaration.span),
+                message: "unsupported PlusCal source option declaration inside previous translation; masking would change the deciding context".into(),
+            });
     }
     let masked = dive_pluscal::rewrite::mask_previous(source, selection.previous);
     let generated = translate_source(file, &masked, &request.translation);
@@ -154,7 +156,7 @@ pub fn rewrite_source(file: &str, source: &str, request: &RewriteRequest) -> Rew
         request,
         0,
         "replacement-analysis",
-        json!({"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
+        json!({"translation_options":context.effective,"option_context":context,"algorithm_checksum_verified":plan.algorithm_checksum_verified,"replacement":plan,"artifact":generated["artifact"],"analysis":analysis.to_json(),"body_checksum_verified":true,"exact_primary_generated_bytes":false}),
     )
 }
 /// Read a bounded UTF-8 module and return its in-memory replacement plan.

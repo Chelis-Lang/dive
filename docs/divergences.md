@@ -655,8 +655,9 @@ A clean pinned `pcal.trans -wf`/`-sf` or automatic-label translation can give
 `PCAL_DIVERGENCE_EXISTS` in a fresh unconfigured Validator, but `NO_DIVERGENCE`
 with the same settings. Declared-fairness `-nof` and fair-header cases retain
 separate measured outcomes. Source `PlusCal options (...)` comments do carry
-context into the reference Validator; native currently refuses that context by
-name before generation/CRC instead of silently ignoring its semantics.
+context into the reference Validator; the source context continuation admits only proved fairness/label settings and
+refuses unknown/malformed/conflicting contexts before generation/CRC instead of
+silently ignoring their semantics.
 
 No stronger checksum/default policy is adopted. Explicit typed/CLI options have
 proved bounded process AST serialization; replacement reports record them.
@@ -667,12 +668,21 @@ unconfigured and original ignored-option native captures in
 
 D-008 process checksum options update: supported explicit fairness and inserted
 label settings now have stage-separated raw/full controls; procedure/macro ASTs,
-scoped renaming and source-option declarations remain named Full refusals.
+scoped renaming and unproved source-option declarations remain named Full refusals.
 F-034/F-035 are still partial; CRC derivation, artifact admission and finite
 model/witness checks do not certify the whole translator or liveness.
 
 D-021 native masking repair: original bounded source declarations are checked
 before hiding previous translation output. Full and body-only high-level
-rewriting refuse them by name, including modified-block grants. The retained
+rewriting refuse deciding declarations overlapping old output, including
+modified-block grants. Proved declarations outside old output are resolved by
+the bounded source-context continuation. The retained
 missing-fairness reproduction and current source-span regression are distinct
 from reference CRC/Validator limitations. See the user log and issue #182.
+
+D-021 source parsing study: pinned unknown/conflicting declarations can print
+`Unrecoverable error`, exit 0, and write a partially configured translation.
+Both primary syntax studies are retained under
+`crates/dive-pluscal/source-option-semantics-acceptance/prestudy/` before native
+implementation. Unknown/malformed/partial-error contexts remain named refusals;
+no silent corrected default or unsupported-success credit is adopted.

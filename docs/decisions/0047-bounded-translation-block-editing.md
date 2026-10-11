@@ -198,3 +198,22 @@ serialization proof. Public AST equality, enclosing CST/SANY admission,
 checksums/corruptions and finite safety/witness evidence remain separate.
 No dependency/default/file-write/formatter contract changes.
 The executable contract is `docs/pluscal-process-checksum-options.md`.
+
+## Source option semantics continuation (#182)
+
+Generation and Full AST serialization share one bounded native resolver for the
+first whole-file reference-recognized `PlusCal options` declaration. Requested
+settings, effective settings and original declaration/argument spans are reported
+separately. One source fairness argument overrides CLI/API fairness; supported
+label/root arguments override only their corresponding settings. No runtime
+Java dependency or dependency graph change is introduced.
+
+Pinned `trans.performTranslation` ignores `ProcessOptions` error statuses and can
+write output after partial application. Unknown/malformed/conflicting contexts
+remain explicitly unsupported; no artifact or invented checksum is returned.
+The original source context is resolved before high-level rewrite masking, and
+a deciding declaration overlapping the previous translation is refused.
+Unicode-adjacent keyword tests, broader historical options and bare-CR Full AST
+serialization remain bounded refusals. Full and supplied-body editing retain
+separate admission obligations. See `docs/pluscal-source-options.md`, D-021 and
+the complete retained source-option acceptance selections.

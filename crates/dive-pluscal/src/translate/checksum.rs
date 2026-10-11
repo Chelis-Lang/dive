@@ -22,6 +22,8 @@ pub struct AlgorithmChecksum {
     pub checksum: String,
     /// The reference hashes only `fair` for a `--fair algorithm` header.
     pub fair_header_crc_only: bool,
+    /// Requested and effective settings used for exact AST serialization.
+    pub option_context: super::TranslationContext,
 }
 fn unsupported(span: Span, detail: &str) -> TranslationError {
     error(
@@ -663,9 +665,8 @@ fn checksum_inline(
             diagnostic,
         }
     })?;
-    if let Some(span) = super::source_options_span(source) {
-        return Err(unsupported(span, "source option declaration context"));
-    }
+    let context = super::resolve_translation_options(source, options)?;
+    let options = &context.effective;
     let algorithm = &parsed.algorithm;
     if !algorithm.macros.is_empty()
         || !algorithm.procedures.is_empty()
@@ -743,6 +744,7 @@ fn checksum_inline(
         w.text.as_bytes()
     });
     Ok(AlgorithmChecksum {
+        option_context: context,
         serialized_ast: w.text,
         checksum,
         fair_header_crc_only: fair,

@@ -204,3 +204,9 @@ and automatic-label options; see [process checksum options](pluscal-process-chec
 It records the typed normalization context, refuses unproved in-source option
 comments and does not claim that command-line settings survive in the pinned
 header or that a CRC establishes source identity (D-020/D-021).
+
+Supported source fairness/label declarations and their precedence are documented
+in [PlusCal source options](pluscal-source-options.md). Original context is
+checked before old blocks are masked; a deciding declaration inside the old
+block is refused. Explicit/source settings, CRC derivation, artifact admission
+and model proofs remain separate.

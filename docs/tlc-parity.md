@@ -631,3 +631,11 @@ named unsupported after retained ignored-option failures; unconfigured reference
 validation is qualified as D-021, with D-020 unchanged. See
 [the runnable CLI/API contract](pluscal-process-checksum-options.md).
 F-034/F-035 remain partial and audit-required; no denominator/certification change.
+
+Source-option context continuation (#182) uses the shared bounded first-declaration
+resolver for generation and Full checksum serialization, preserving requested and
+effective settings plus original spans. Unknown/malformed/conflicting option
+contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
+public admission, Validator and finite-model evidence remain separate. See
+[the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
+partial and audit-required; no certification or denominator change.

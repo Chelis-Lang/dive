@@ -576,5 +576,10 @@ Original-source PlusCal option preflight matches the pinned translator
 The native callback-free declaration span is shared with the high-level rewrite
 facade before `mask_previous`; no Java executes in the product. The minimal
 old-output fairness-loss control is retained in
-`conformance/probes/pluscal-source-option-masking/`; full option parsing remains
-pending.
+`conformance/probes/pluscal-source-option-masking/`; broader option parsing
+remains pending. The bounded continuation below preserves the public header-span
+alias while using full resolved extents for overlap admission.
+
+| Implementation | Reference | License | Evidence and limits |
+| --- | --- | --- | --- |
+| `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |

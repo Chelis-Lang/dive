@@ -1,0 +1,39 @@
+    Checking dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-pluscal)
+    Checking dive-sema v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-sema)
+    Checking dive-ir v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-ir)
+    Checking dive-config v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-config)
+    Checking dive-store v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-store)
+    Checking dive-eval v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-eval)
+    Checking dive-stdlib v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-stdlib)
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-trace)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-source-option-semantics-work/crates/dive-api)
+error: this `if` statement can be collapsed
+   --> crates/dive-api/src/rewrite.rs:99:5
+    |
+ 99 | /     if let (Some(previous), Some(declaration)) = (selection.previous, &context.source_declaration) {
+100 | |         if declaration.span.start < previous.end && declaration.span.end > previous.start {
+101 | |             return failure(file, request, "source-options", &Diagnostic {
+102 | |                 code: Code::Unsupported,
+...   |
+107 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D clippy::all`
+    = help: to override `-D clippy::all` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+ 99 ~     if let (Some(previous), Some(declaration)) = (selection.previous, &context.source_declaration)
+100 ~         && declaration.span.start < previous.end && declaration.span.end > previous.start {
+101 |             return failure(file, request, "source-options", &Diagnostic {
+...
+105 |             });
+106 ~         }
+    |
+
+error: could not compile `dive-api` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `dive-api` (lib) due to 1 previous error
