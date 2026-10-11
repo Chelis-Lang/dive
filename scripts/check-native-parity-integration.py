@@ -177,3 +177,7 @@ for verifier in ("verify.py", "verify-delivery.py"):
 # Always verify every portable sequential-procedure checksum runtime/source record.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/procedure-checksum-acceptance" / verifier)], check=True)
+
+# Always verify portable nested procedure-header source and raw runtime records.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/nested-procedure-checksum-acceptance" / verifier)], check=True)

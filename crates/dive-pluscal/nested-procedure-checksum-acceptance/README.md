@@ -27,3 +27,18 @@ same-line versus split/comment logical-token-line TRUE optimization. Original180
 selection/primary files remain unchanged. The interrupted first full gate never
 earns a passed-gate claim; the repaired source requires a complete fresh gate
 and all original/runtime and added-study controls.
+
+The repaired source retains all192 raw rows:149 exact AST/CRC matches,2 invalid
+primary raw pairs uncredited,24 named refusals and17 accounted grammar errors.
+Across384 public profile rows,290 replacements pass exact whole-module CST, SANY
+and both Validator contexts;44 return named refusals,38 account for reference
+errors and12 keep invalid primary artifacts uncredited. Eight added public
+refusals name multiline procedure expression layout despite exact raw header
+bytes. Those requests receive no replacement or public checksum claim.
+
+The original64 finite models exercise768 profile/worker/store settings. Eight
+additional complete loop models exercise96 settings;four extra loop source
+shapes retain their named generation refusal. The320 separate replay controls
+produce32 canonical valid and128 canonical invalid dispositions;96 TLC-profile
+unsupported and64 invalid remain qualified. No strict saved-frame witness is
+certified, and the supplementary loop study adds no witness credit.

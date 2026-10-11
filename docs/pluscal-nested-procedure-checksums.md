@@ -70,9 +70,11 @@ reference ordering; restores remain separate assignments. A `while TRUE` or
 same-line `while (TRUE)` discards the generated tail but can still mutate its
 stored header: an unvisited call frame keeps creation order. A parenthesized TRUE condition split across lines, including a newline
 inside an intervening comment, is
-not the reference's single-token-line TRUE optimization. Its conditional tail
-is generated and sorted. This preserves reference source behavior, not a claim
-that these predicates differ mathematically.
+not the reference's single-token-line TRUE optimization. At the stored-header stage, its conditional tail is visited and sorted. Public
+generation still returns named Unsupported for the unproved multiline procedure
+expression layout; this raw AST equality does not admit a replacement. These
+source distinctions preserve reference behavior without claiming that the
+predicates differ mathematically.
 
 Full still refuses recursive/multiple/process-owned procedures, unproved scoped
 renaming, macro/DEFINE combinations, automatic procedure labels, modifiers,
@@ -84,7 +86,9 @@ invented for an unsupported request, including a fair algorithm.
 Existing parser node/depth, normalization work, action and 4 MiB output ceilings
 remain. The conservative translation work policy reserves parameter-count +
 local-count + four units before each call expansion (or the same slot policy for
-a return), with at most four typed structures per unit. Callee-entry scanning,
+a return), with at most four constructed typed Node/Assignment/RHS/vector-container
+structures per unit. This is a conservative logical-work reservation, not a
+measurement of vector capacity, allocator bytes or evaluation cost. Callee-entry scanning,
 source/group copies, child control vectors, indexed transfer lookup and owned
 names/continuations are also reserved. These units are neither allocator calls
 nor evaluator instructions. Typed frame work is charged before allocation;

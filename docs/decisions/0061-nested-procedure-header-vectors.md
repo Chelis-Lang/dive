@@ -45,7 +45,10 @@ scan, owned spans and comparison-sort work once; each elsif uses a bounded index
 lookup instead of cloning or scanning the procedure arena again. Unsupported virtual elsif transfer chains,
 branch labels, call graphs, recursion, multiple/process-owned procedures,
 renaming and other unproved checksum combinations remain named refusals.
-No crate edges, raw generator behavior or checksum defaults change.
+No crate edges or checksum defaults change. The separately captured narrow
+logical-token-line IsTRUE repair also corrects the shared raw generator predicate;
+other generation contracts remain unchanged. Raw/header success for split/comment
+conditions still does not lift the existing multiline procedure-layout refusal.
 
 ## Consequences
 

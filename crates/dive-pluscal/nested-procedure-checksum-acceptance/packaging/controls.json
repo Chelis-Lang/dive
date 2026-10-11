@@ -1,0 +1,37 @@
+{
+  "runtime_source_commit": "657eaebd844bc33fe90d3f7e2698eaa50d8868e5",
+  "mutation_controls": 23,
+  "commands": [
+    {
+      "name": "guard",
+      "exit_code": 0
+    },
+    {
+      "name": "mutations",
+      "exit_code": 0
+    },
+    {
+      "name": "fmt",
+      "exit_code": 0
+    }
+  ],
+  "records": {
+    "guard": {
+      "archive": "guard.log.gz",
+      "archive_sha256": "15d0f8cf0ee9b419f74fc9ea10a82e285288d8967fde5f406bb7053af369f52b",
+      "raw_sha256": "4dce390f6551d635ff4ef9c7f4194fe871ee0fc0ef7eb34227940e2bcf493788"
+    },
+    "mutations": {
+      "archive": "mutations.log.gz",
+      "archive_sha256": "3c824db0fddecd68380565e417f5350d9d2e1c0e564d3f7bcfac1f6d0bc5f348",
+      "raw_sha256": "b216d6740109eb2271e9f85b581de52529e6678a41297fa4cbb4158841bef580"
+    },
+    "fmt": {
+      "archive": "fmt.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "rust_cargo_test_example_changes_after_gate": false,
+  "historical_producers_retagged": false
+}

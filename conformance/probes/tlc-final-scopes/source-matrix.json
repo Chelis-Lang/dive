@@ -38,7 +38,7 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "4d70034aa97a6378e5a016fea704c9ff575fc4b8a69ce4a1258f5064f884d689",
     "AGENTS.md": "cefc48524084ba9f06044cde939da15cfc57051212efa8f5fc5adf09392a2d4f",
-    "CHANGELOG.md": "99d86ae714ff2f4f01bc19eee5c9f7a2767249555db15a901e2cea7181800bcd",
+    "CHANGELOG.md": "2f8f12fb0713cb00de9e0883e75352a539e70bc77fb911796742003d0f260614",
     "conformance/parity-features.json": "16e20d94359ef5684a9c4e68ca901db9d390879b8c83ea4d3b0a625e6c521c5f",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -765,7 +765,7 @@
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
     "docs/divergences.md": "d6a08b3adbf28dbc485f3bd1828a7c639fb207db19076b1cc3b2103e92bca305",
     "docs/provenance.md": "fb681b1a0e0f5e89c75c930b85a3c8b96b856ced6bc52d6966f3d00a5e9f393a",
-    "docs/tlc-differences.md": "dbf98956719f3a927ef5f5e5ce8bc990631e08a07d63127b400cff7b6efa9c24",
+    "docs/tlc-differences.md": "d8039a19e23b8cd8356e407b1e9fe41925c5b16b3a112bb3eeb46493b89981ad",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/user/temporal.md": "13e70f736eb189ebbb6e3e8bc0b179a15dc3c103596eb4cefb3c118800c4e88b",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",

@@ -9,11 +9,13 @@ All notable changes to this project are documented here. The project will follow
   procedure If/With/Either/While transfers, with bounded typed expansion and
   separate artifact/model/replay qualifications (ADR 0061). Unvisited While TRUE
   tail assignments preserve reference creation order; split/comment token-line
-  conditions retain the conditional translation path.
+  conditions retain the conditional stored-header path. Public multiline
+  procedure generation remains named Unsupported.
 - Bounded Full PlusCal editing now derives exact header AST checksums for one
   disjoint labelled sequential procedure, with ordinary calls/returns and
-  call-goto. Nested transfers and wider ownership remain named checksum
-  refusals; artifact admission, CRC derivation and model proofs stay separate.
+  call-goto. This earlier increment retained nested transfers as refusals; the
+  later bounded nested continuation above lifts only its proved shapes. Wider
+  ownership remains unsupported; artifact admission and model proofs stay separate.
 
 - Trace JSON documentation now distinguishes tagged value kinds and document
   round trips from construction-preserving value transport and independent

@@ -125,3 +125,10 @@ nested-transfer refusals and CRC/witness qualification.
 The [nested procedure checksum guide](../pluscal-nested-procedure-checksums.md)
 adds proved shared If/With/Either/While header mutations; recursive, process-owned
 and scoped checksum shapes remain separate named boundaries.
+
+For the newly bounded nested sequential call/return header shapes, use the
+[nested procedure checksum guide](../pluscal-nested-procedure-checksums.md). It
+distinguishes exact stored-header bytes, admitted generated modules and finite
+model/trace evidence. Multiline procedure layouts and unproved P `elsif` transfers
+remain named checksum/generation refusals; strict saved-frame replay remains
+separately qualified under #124.

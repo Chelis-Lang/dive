@@ -2232,6 +2232,8 @@ producer that sorted shared call frames even after `while TRUE` discarded their
 generated tail. The repaired path preserves pinned creation order for that tail.
 Separately, TLC optimizes `(TRUE)` only when its tokens occupy one logical line;
 line breaks in a comment between tokens prevent that optimization. Native output
-must retain the conditional path in that spelling. The smallest paired C/P
+retains the conditional stored-header path in that spelling. Public generation
+continues to name the unsupported multiline procedure expression layout, with no
+replacement/CRC claim. The smallest paired C/P
 controls and original mismatches are in the nested-procedure checksum study;
 these are fidelity repairs, not new result-changing defaults or full parity.
