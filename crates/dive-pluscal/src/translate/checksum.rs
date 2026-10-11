@@ -83,29 +83,28 @@ pub(super) fn groups(
     Ok((unlabelled, groups))
 }
 fn procedure_checksum_admission(parsed: &macros::Expanded) -> Result<(), TranslationError> {
-    let Some(procedure) = parsed.algorithm.procedures.first() else {
+    if parsed.algorithm.procedures.is_empty() {
         return Ok(());
-    };
-    let Body::Sequential(main) = &parsed.algorithm.body else {
+    }
+    let Body::Sequential(_) = &parsed.algorithm.body else {
         return Err(unsupported(
             parsed.algorithm.span,
             "procedure/process checksum ownership",
         ));
     };
 
-    for (block, procedure_body) in [(main, false), (&procedure.body, true)] {
-        let (_, labelled) = groups(parsed, block)?;
+    for procedure in &parsed.algorithm.procedures {
+        let (_, labelled) = groups(parsed, &procedure.body)?;
         for (_, ids) in labelled {
-            if procedure_body
-                && ids
-                    .iter()
-                    .filter(|id| {
-                        parsed
-                            .statement(**id)
-                            .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
-                    })
-                    .count()
-                    > 1
+            if ids
+                .iter()
+                .filter(|id| {
+                    parsed
+                        .statement(**id)
+                        .is_some_and(|s| matches!(s.kind, StatementKind::Assign(_)))
+                })
+                .count()
+                > 1
             {
                 return Err(unsupported(
                     procedure.span,
@@ -257,17 +256,28 @@ impl Writer {
         self.newline()?;
         self.push("minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |->")?;
         // ParseAlgorithm.GetProcedure stores the static vector by reference.
-        // In this single nonrecursive procedure scope, subsequent main calls
-        // append this procedure's name once, including repeated calls.
-        let called = parsed.statements.iter().any(|s| {
-            matches!(&s.kind,
-            StatementKind::Call { name, .. } if name.text == procedure.name.text)
-        });
+        // Each GetProcedure resets the static vector. The last declaration
+        // shares that vector with main's subsequent distinct call targets.
+        let last = parsed
+            .algorithm
+            .procedures
+            .last()
+            .is_some_and(|p| p.name.text == procedure.name.text);
         self.push("<<")?;
-        if called {
-            self.push("\"")?;
-            self.push(&procedure.name.text)?;
-            self.push("\"")?;
+        if last {
+            for index in 0..self.header.main_called.len() {
+                if index > 0 {
+                    self.push(", ")?;
+                }
+                let owner = self.header.main_called[index];
+                let called =
+                    parsed.algorithm.procedures.get(owner).ok_or_else(|| {
+                        unsupported(procedure.span, "missing called-vector owner")
+                    })?;
+                self.push("\"")?;
+                self.push(&called.name.text)?;
+                self.push("\"")?;
+            }
         }
         self.push(">>,")?;
         self.newline()?;
@@ -495,11 +505,11 @@ impl Writer {
                 self.push(" >>")
             }
             Rhs::Tail => self.push("<< \"Tail\", \"(\", \"stack\", \")\" >>"),
-            Rhs::Frame(next) => {
+            Rhs::Frame { owner, next } => {
                 let procedure = parsed
                     .algorithm
                     .procedures
-                    .first()
+                    .get(*owner)
                     .ok_or_else(|| unsupported(self.span, "missing frame owner"))?;
                 self.push("<< \"<<\", \"[\", \"procedure\", \"|->\", ")?;
                 self.header_token(&procedure.name.text, true)?;
@@ -983,7 +993,7 @@ impl Writer {
 /// Expression line grouping, normalized junction columns, `elsif` and nested
 /// `with` binders follow the pinned serializer. Scoped renaming, definitions,
 /// recursive/process-owned procedures and branch-internal labels are refused.
-/// One explicitly labelled disjoint sequential procedure supports calls, returns
+/// Explicitly labelled disjoint sequential procedures support main calls, returns
 /// and adjacent call-goto, including proved nested If/With/Either and While shared
 /// vectors, with exact original/header AST ownership.
 /// Pure bounded nonrecursive
@@ -1045,27 +1055,35 @@ fn checksum_inline(
     let options = &context.effective;
     let algorithm = &parsed.algorithm;
     if !algorithm.procedures.is_empty() {
-        if algorithm.procedures.len() != 1
-            || !matches!(algorithm.body, Body::Sequential(_))
+        if !matches!(algorithm.body, Body::Sequential(_))
             || algorithm.definitions.is_some()
             || !algorithm.macros.is_empty()
             || options.insert_missing_labels
         {
             return Err(unsupported(
                 algorithm.span,
-                "checksum requires one explicitly labelled sequential procedure without definitions/macros",
+                "checksum requires explicitly labelled sequential procedures without definitions/macros",
             ));
         }
-        let procedure = &algorithm.procedures[0];
-        if parsed.statements.iter().any(|s| {
-            s.span.start >= procedure.body.span.start
-                && s.span.end <= procedure.body.span.end
-                && matches!(s.kind, StatementKind::Call { .. })
-        }) {
-            return Err(unsupported(
-                procedure.span,
-                "procedure call graph/recursion checksum",
-            ));
+        // Parsed procedure bodies are disjoint and in source order. Resolve
+        // each call once instead of rescanning the arena for every owner.
+        for statement in &parsed.statements {
+            if !matches!(statement.kind, StatementKind::Call { .. }) {
+                continue;
+            }
+            let index = algorithm
+                .procedures
+                .partition_point(|p| p.body.span.start <= statement.span.start);
+            if let Some(procedure) = index
+                .checked_sub(1)
+                .and_then(|i| algorithm.procedures.get(i))
+                .filter(|p| statement.span.end <= p.body.span.end)
+            {
+                return Err(unsupported(
+                    procedure.span,
+                    "procedure call graph/recursion checksum",
+                ));
+            }
         }
         if parsed
             .statements

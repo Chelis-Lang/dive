@@ -136,3 +136,12 @@ separately qualified under #124.
 For bounded sequential procedure `elsif` header editing, see
 [Procedure checksums with P elsif](../pluscal-p-elsif-checksums.md), with executable
 C/P and Cargo examples and separate artifact/count/strict-replay qualifications.
+
+
+Full editing also supports bounded [disjoint sequential procedure headers](../pluscal-multiple-procedure-checksums.md)
+with main-only calls and globally disjoint parameter/local names. Target-specific
+frames and return slots remain separate from the reference header's shared
+last-declaration call vector. The guide includes executable C/P and Cargo-owned
+Rust examples. Procedure-to-procedure, recursive, process-owned and scoped
+checksum shapes remain explicit refusals; no artifact checksum certifies a model
+or a strict saved-frame witness.

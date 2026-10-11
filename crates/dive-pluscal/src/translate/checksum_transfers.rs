@@ -5,13 +5,13 @@ use super::{
 };
 use crate::{
     Code,
-    ast::{Block, Body, Branch, Expr, Procedure, Span, StatementKind, StmtId},
+    ast::{Block, Body, Branch, Expr, Span, StatementKind, StmtId},
 };
 use std::collections::BTreeMap;
 
 pub(super) enum Rhs {
     Source(Option<Expr>),
-    Frame(String),
+    Frame { owner: usize, next: String },
     Quoted(String),
     Head(String),
     Tail,
@@ -28,18 +28,19 @@ pub(super) enum Node {
 #[derive(Default)]
 pub(super) struct Plan {
     pub blocks: BTreeMap<(usize, usize), Vec<Node>>,
+    pub main_called: Vec<usize>,
 }
 type Groups = Vec<(String, Vec<StmtId>)>;
 struct Builder<'a> {
     parsed: &'a macros::Expanded,
-    procedure: &'a Procedure,
+    procedure_owner: Option<usize>,
     plan: Plan,
     work: usize,
     bytes: usize,
     work_limit: usize,
     byte_limit: usize,
     depth_limit: usize,
-    procedure_entry: String,
+    procedure_entries: Vec<String>,
     transfer_spans: Vec<Span>,
 }
 impl Builder<'_> {
@@ -119,11 +120,20 @@ impl Builder<'_> {
     }
     fn call(
         &mut self,
+        name: &str,
         args: &[Expr],
         next: &str,
         generated: bool,
     ) -> Result<Vec<Node>, TranslationError> {
-        let p = self.procedure;
+        self.charge(self.parsed.algorithm.procedures.len(), 0)?;
+        let owner = self
+            .parsed
+            .algorithm
+            .procedures
+            .iter()
+            .position(|p| p.name.text == name)
+            .ok_or_else(|| unsupported(self.parsed.algorithm.span, "missing call frame owner"))?;
+        let p = &self.parsed.algorithm.procedures[owner];
         if args.len() != p.parameters.len() {
             return Err(unsupported(p.span, "procedure argument count"));
         }
@@ -149,7 +159,10 @@ impl Builder<'_> {
         let mut assignments = Vec::with_capacity(args.len().saturating_add(1));
         assignments.push(Assignment {
             variable: "stack".into(),
-            rhs: Rhs::Frame(next.into()),
+            rhs: Rhs::Frame {
+                owner,
+                next: next.into(),
+            },
         });
         for (param, argument) in p.parameters.iter().zip(args) {
             assignments.push(Assignment {
@@ -169,13 +182,70 @@ impl Builder<'_> {
                 rhs: Rhs::Source(local.initial.as_ref().map(|b| b.expression)),
             }]));
         }
-        self.charge(1, self.procedure_entry.len())?;
-        let entry = self.procedure_entry.clone();
+        let entry = self
+            .procedure_entries
+            .get(owner)
+            .ok_or_else(|| unsupported(p.span, "missing procedure entry"))?;
+        let bytes = entry.len();
+        self.charge(1, bytes)?;
+        let entry = self.procedure_entries[owner].clone();
         nodes.push(self.update(&entry)?);
         Ok(nodes)
     }
+    fn collect_main_called(&mut self) -> Result<(), TranslationError> {
+        let parsed = self.parsed;
+        // GetProcedure resets a static vector but stores it by reference. Main
+        // calls append only to the last declaration's vector, in parse order.
+        self.charge(parsed.statements.len(), 0)?;
+        let calls = parsed
+            .statements
+            .iter()
+            .filter(|s| matches!(s.kind, StatementKind::Call { .. }))
+            .count();
+        let sorting = usize::try_from(calls.bit_width()).unwrap_or(usize::MAX);
+        self.charge(
+            calls.saturating_mul(sorting.saturating_add(3)),
+            calls.saturating_mul(std::mem::size_of::<(usize, &str)>()),
+        )?;
+        let mut targets: Vec<_> = parsed
+            .statements
+            .iter()
+            .filter_map(|s| {
+                if let StatementKind::Call { name, .. } = &s.kind {
+                    Some((s.span.start, name.text.as_str()))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        targets.sort_by_key(|(start, _)| *start);
+        for (_, name) in targets {
+            self.charge(
+                parsed
+                    .algorithm
+                    .procedures
+                    .len()
+                    .saturating_add(self.plan.main_called.len()),
+                0,
+            )?;
+            let owner = parsed
+                .algorithm
+                .procedures
+                .iter()
+                .position(|p| p.name.text == name)
+                .ok_or_else(|| unsupported(parsed.algorithm.span, "missing called-vector owner"))?;
+            if !self.plan.main_called.contains(&owner) {
+                self.charge(1, std::mem::size_of::<usize>())?;
+                self.plan.main_called.push(owner);
+            }
+        }
+        Ok(())
+    }
     fn returning(&mut self) -> Result<Vec<Node>, TranslationError> {
-        let p = self.procedure;
+        let p = self
+            .procedure_owner
+            .and_then(|owner| self.parsed.algorithm.procedures.get(owner))
+            .ok_or_else(|| unsupported(self.parsed.algorithm.span, "missing return frame owner"))?;
         let names = p
             .variables
             .iter()
@@ -283,11 +353,11 @@ impl Builder<'_> {
         })?;
         let mut needs = true;
         match &s.kind {
-            StatementKind::Call { arguments, .. } => {
+            StatementKind::Call { name, arguments } => {
                 needs = false;
                 if shared {
                     nodes.pop();
-                    nodes.extend(self.call(arguments, next, generated)?);
+                    nodes.extend(self.call(&name.text, arguments, next, generated)?);
                 }
             }
             StatementKind::Return => {
@@ -306,12 +376,13 @@ impl Builder<'_> {
                         .filter(|_| ids.len() > 1)
                     {
                         if let Some(crate::ast::Statement {
-                            kind: StatementKind::Call { arguments, .. },
+                            kind: StatementKind::Call { name, arguments },
                             ..
                         }) = self.parsed.statement(previous)
                         {
                             nodes.pop();
                             nodes.extend(self.call(
+                                &name.text,
                                 arguments,
                                 label.text.trim_matches('"'),
                                 generated,
@@ -444,9 +515,9 @@ pub(super) fn build(
     parsed: &macros::Expanded,
     options: &TranslationOptions,
 ) -> Result<Plan, TranslationError> {
-    let Some(procedure) = parsed.algorithm.procedures.first() else {
+    if parsed.algorithm.procedures.is_empty() {
         return Ok(Plan::default());
-    };
+    }
     let Body::Sequential(main) = &parsed.algorithm.body else {
         return Err(unsupported(
             parsed.algorithm.span,
@@ -455,14 +526,14 @@ pub(super) fn build(
     };
     let mut builder = Builder {
         parsed,
-        procedure,
+        procedure_owner: None,
         plan: Plan::default(),
         work: parsed.statements.len(),
         bytes: 0,
         work_limit: options.parser.max_nodes.saturating_mul(4).min(200_000),
         byte_limit: options.max_output_bytes.min(4_194_304),
         depth_limit: options.parser.max_depth.min(256),
-        procedure_entry: String::new(),
+        procedure_entries: Vec::new(),
         transfer_spans: Vec::new(),
     };
     // Reserve the complete scan, owned spans and comparison-sort work before
@@ -497,15 +568,33 @@ pub(super) fn build(
         .map(|s| s.span)
         .collect();
     builder.transfer_spans.sort_by_key(|span| span.start);
-    let (_, proc_groups) = builder.groups(&procedure.body)?;
-    let entry = &proc_groups
-        .first()
-        .ok_or_else(|| unsupported(procedure.span, "missing procedure entry"))?
-        .0;
-    builder.charge(1, entry.len())?;
-    builder.procedure_entry.clone_from(entry);
-    builder.labelled(&proc_groups, "Error", true, 0)?;
+    builder.charge(
+        parsed.algorithm.procedures.len(),
+        parsed
+            .algorithm
+            .procedures
+            .len()
+            .saturating_mul(std::mem::size_of::<String>()),
+    )?;
+    // Cache each entry exactly once, before any frame expansion. All owners
+    // debit the same work/byte reservation rather than multiplying the quota.
+    for procedure in &parsed.algorithm.procedures {
+        let (_, proc_groups) = builder.groups(&procedure.body)?;
+        let entry = &proc_groups
+            .first()
+            .ok_or_else(|| unsupported(procedure.span, "missing procedure entry"))?
+            .0;
+        builder.charge(1, entry.len())?;
+        builder.procedure_entries.push(entry.clone());
+    }
+    for (owner, procedure) in parsed.algorithm.procedures.iter().enumerate() {
+        let (_, proc_groups) = builder.groups(&procedure.body)?;
+        builder.procedure_owner = Some(owner);
+        builder.labelled(&proc_groups, "Error", true, 0)?;
+    }
+    builder.procedure_owner = None;
     let (_, main_groups) = builder.groups(main)?;
     builder.labelled(&main_groups, "Done", true, 0)?;
+    builder.collect_main_called()?;
     Ok(builder.plan)
 }

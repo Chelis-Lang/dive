@@ -185,3 +185,8 @@ for verifier in ("verify.py", "verify-delivery.py"):
 # Mandatory portable P elsif source/runtime authority, distinct from live generation.
 for verifier in ("verify.py", "verify-delivery.py"):
     subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/p-elsif-checksum-acceptance" / verifier)], check=True)
+
+
+# New bounded procedure ownership has its own complete clean primary authority;
+# this readback grants no runtime or family certification.
+subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/multiple-procedure-checksum-acceptance/verify.py")], check=True)

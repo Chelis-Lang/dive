@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "Relation.tla": "396cfc86672145d54002f6052b0fcfcfc3802bc3294520b4d8add6d91e9504a5",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "6031d4492b4d7efd7a73cae0717a3edc2c65201d6d1494a16a159d8ee122e660",
+  "capture_sha256": "244a639d8e4fa69d52258f57a96d837ba0a66c50c76a4409c5a94dda4795ca63",
+  "adapter_sha256": {
+    "DefinitionProbe.class": "cff461fd85e24923876b2fded1c11969ef2c96ecad357fb7400d4fa5977a7337",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "MultipleHeader_C_locals_outside_body",
+      "flags": [],
+      "input_sha256": "86decc4c77948174c016fe6e21aa4909dea87c2985f6c49083ddf0bbc74f44df",
+      "output_sha256": "1a6dce17668dca64d5d9e7844dbe612a00fa71a26100f8f8745b9bbc0bf9cc1d",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_locals_outside_body.primary.stdout.gz",
+          "sha256": "5e9c225a7cd9df321409e1d4d7dc3bf6174c1279e6ce9c1d355769f14280b6d9"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_locals_outside_body.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "37b3820",
+        "79479742"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_locals_outside_body.stages.stdout.gz",
+          "sha256": "69f5079acbf9bb22b7a1970ca910bab7451b5f5fc7b9f74f22e609449e7b5273"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_locals_outside_body.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "37b3820",
+          "ast_sha256": "1ac883b532799d3bc86516a3f9d226afbe38b746694b6ec0744d6b653edadf72",
+          "json_sha256": "745e1f0c83c5640ae3e87c6b0e8601a73c2da6e448c48f81e3a0f0832d93d1dd"
+        },
+        "names": {
+          "crc": "37b3820",
+          "ast_sha256": "1ac883b532799d3bc86516a3f9d226afbe38b746694b6ec0744d6b653edadf72",
+          "json_sha256": "745e1f0c83c5640ae3e87c6b0e8601a73c2da6e448c48f81e3a0f0832d93d1dd"
+        },
+        "translated": {
+          "crc": "37b3820",
+          "ast_sha256": "1ac883b532799d3bc86516a3f9d226afbe38b746694b6ec0744d6b653edadf72",
+          "json_sha256": "745e1f0c83c5640ae3e87c6b0e8601a73c2da6e448c48f81e3a0f0832d93d1dd"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_locals_outside_body.sany.stdout.gz",
+          "sha256": "a182e4b920d3990871a738e3e9fa9203e0b03596d06be3cf56afa8076fcc3840"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_locals_outside_body.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MultipleHeader_C_locals_outside_body.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "MultipleHeader_C_local_from_parameter_outside_body",
+      "flags": [],
+      "input_sha256": "74bc686108b0b014a30b56844c1d4a82dcee295542c8bdc8dd1b0b0c2cf8d3ec",
+      "output_sha256": "1df751b17d21d5e146285d7523861fb67182c3ad789ba9c58cf1d4493ec6e374",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.primary.stdout.gz",
+          "sha256": "0b8f82e55b64ab75072a3f5f734b5d9dda1463d350898828203ed2ed11646881"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "b029bae9",
+        "e0b032a4"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.stages.stdout.gz",
+          "sha256": "622752962002f8c139fb9ca592aefe14136407a166499d3c1a8f7185baf7245e"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "b029bae9",
+          "ast_sha256": "e351a94dff9d8d7f18386ec59980e2890687bd038ad155d4cdffaa68760b3c62",
+          "json_sha256": "8ff2a924f24529cbfc80bdf5a27d236d140347816cb370c42c7c7a5dc27a1b3f"
+        },
+        "names": {
+          "crc": "b029bae9",
+          "ast_sha256": "e351a94dff9d8d7f18386ec59980e2890687bd038ad155d4cdffaa68760b3c62",
+          "json_sha256": "8ff2a924f24529cbfc80bdf5a27d236d140347816cb370c42c7c7a5dc27a1b3f"
+        },
+        "translated": {
+          "crc": "b029bae9",
+          "ast_sha256": "e351a94dff9d8d7f18386ec59980e2890687bd038ad155d4cdffaa68760b3c62",
+          "json_sha256": "8ff2a924f24529cbfc80bdf5a27d236d140347816cb370c42c7c7a5dc27a1b3f"
+        }
+      },
+      "header_status": "full",
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.sany.stdout.gz",
+          "sha256": "d93f63c2ecbd03c53042794d03022a83e2add9dd67dd459b4e8441c37bfb16ba"
+        },
+        "stderr": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "MultipleHeader_C_local_from_parameter_outside_body.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

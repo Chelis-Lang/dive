@@ -2245,3 +2245,24 @@ exact pairs and15 named P refusals; focused stored-header bytes/CRC now match al
 Public artifact/model evidence is separately source-bound, never inferred from
 CRC equality. General procedure/scoped checksums and strict saved-frame replay
 remain qualified; see [the runnable guide](pluscal-p-elsif-checksums.md).
+
+
+D-008 disjoint sequential procedure checksum continuation (ADR 0069): main can
+call globally disjoint, explicitly labelled procedures through the bounded Full
+editor. With declarations `Put(z,a)` then `Get(q,b)`, main calls `Put(1,2)` then
+`Get(3,4)`, the pinned stored header keeps `Put.proceduresCalled` empty and stores
+`<<"Put", "Get">>` on `Get`. The measured algorithm CRC is `99cb7254`. Reversing
+main calls yields `182d4367`; reversing declarations yields `8197b276` and moves
+the shared vector to `Put`. These original stored-header fields differ from the
+separate exploded call frames, whose saved slots belong to the actual target.
+Native serialization preserves both in both profiles; it does not infer header
+fields from reachability. Procedure-to-procedure/recursive/process/scoped checksum
+ownership stays refused by name. Fair CRC-only policy and strict saved-frame
+replay #124 remain unchanged; CRC equality does not certify a usable artifact,
+model proof or independently valid witness. Read [the guide](pluscal-multiple-procedure-checksums.md).
+
+The 98-row study also retains two invalid `-fair` command controls: clean pinned
+translator exit 255, separate development stage-probe exit 0 carrying the error,
+and native CLI exit 2. Those errors are not TLA grammar or checksum equivalence
+credit. Original verification-driver failures remain archived; corrected command
+accounting never changes their oracle or native bytes.

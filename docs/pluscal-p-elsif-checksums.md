@@ -62,8 +62,10 @@ virtual Else subtree owns an appended continuation update after that whole
 subtree. Source/header ordering and logical-token-line TRUE loop behavior remain
 observable; formatting or comment changes are not silently normalized away.
 
-Recursive, multiple-procedure, process-owned and scoped-renaming procedure Full
-checksums remain unsupported. Unproved multiline procedure generation may still
+That earlier source37 baseline refused multiple-procedure Full checksums.
+The later [disjoint procedure guide](pluscal-multiple-procedure-checksums.md)
+lifts proved main-only calls into distinct sequential owners. Recursive,
+process-owned and scoped-renaming procedure Full checksums remain unsupported. Unproved multiline procedure generation may still
 refuse even when the raw header AST and CRC match. Existing bounds are unchanged:
 source bytes/tokens/nodes/depth, action count, conservative expansion reservations
 and output bytes. A resource refusal emits no admitted replacement. Fair-header

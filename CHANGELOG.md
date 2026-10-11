@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Bounded Full PlusCal editing supports disjoint explicitly labelled sequential
+  procedures called from main. Typed call frames retain target ownership while
+  the original header preserves the last declaration's shared call vector
+  (ADR 0069). Call graphs, process-owned checksums and strict saved-frame witness
+  replay remain separate named boundaries; quotas and defaults are unchanged.
+
 - Bounded P `elsif` sequential-procedure Full checksums retain virtual Else
   ownership and conditional continuation updates, with pinned stored-header
   byte/CRC controls and unchanged resource budgets (ADR 0066). Artifact, model

@@ -709,3 +709,23 @@ serialization match pinned `pcal.ParseAlgorithm` nested elsif If construction,
 `PCalTLAGen.GenAssign/SortSass` after-generation visit ordering at commit94d0c507.
 No Java runtime is used by native translation. ADR0066 separates original header
 CRC authority from direct Explode xast; the complete32-row study retains both.
+
+
+## Disjoint sequential-procedure checksum owners (#214)
+
+`translate/checksum_transfers.rs` caches entry labels and indexes synthetic call
+frame targets and current return owners. It matches pinned `pcal.PcalTranslate`
+`ExplodeCall`/`ExplodeReturn` (`FindProc`, target parameters/local initialization,
+current-procedure restoration and continuation), while `checksum.rs` separately
+matches `ParseAlgorithm.GetProcedure`'s reset/shared `proceduresCalled` vector and
+`GetCall`'s first-encounter duplicate suppression. `AST.Procedure.toString`,
+`PCalTLAGen.GenAssign`/`SortSass` and existing shared If/elsif/With/Either/While
+visitation remain the serialization authorities at commit `94d0c507` (MIT).
+The last declared procedure owns main's call vector regardless of call targets;
+earlier declarations remain empty in this bounded main-only scope. Admission
+refuses procedure-call graphs before synthetic serialization. Lookup, sorting,
+entry scans and owned frame expansion share conservative bounded policy units;
+they are native admission controls, not Java runtime instructions or allocation
+measurements. No Java runtime is delegated to. See ADR 0069 and the complete
+98-row declared study; raw original-header bytes are not exploded-xast, artifact
+or model-proof credit.

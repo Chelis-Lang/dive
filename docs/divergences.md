@@ -773,3 +773,15 @@ preserves local export visibility, pre-state helper lookup and function domains.
 Domains and bodies share the action/temporal/cycle guard. Exact raw CRC equality
 is distinct from public enclosing-module admission and model proof; invalid
 reference outputs remain uncredited. Both profiles keep these same semantics.
+
+
+D-008 disjoint sequential procedure Full checksum continuation (ADR 0069)
+represents target/current frame owners separately from the last declaration's
+shared main-call vector. The original 64 C/P rows retain 62 clean reference
+translations and two grammar errors; two corrected declarations and 32 declared
+ownership/call-graph/option controls remain distinct. Named unproved call-graph,
+process/scoped and modifier boundaries emit no replacement or CRC. Both profiles
+retain the pinned header behavior, unchanged global quotas and D-020 weakness.
+Invalid `-fair` commands are command-stage uncredited controls, not language
+rejection or exit-equivalence credit. Artifact and strict saved-frame replay
+remain separately qualified. See [the runnable guide](pluscal-multiple-procedure-checksums.md).
