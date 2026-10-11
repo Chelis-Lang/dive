@@ -104,7 +104,7 @@
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
@@ -132,5 +132,6 @@
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
-  "scope": "; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately"
+  "scope": "; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged"
 }

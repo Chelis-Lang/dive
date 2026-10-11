@@ -5,7 +5,7 @@
   "source_sha256": {
     "crates/dive-api/src/check_tlc_temporal.rs": "14a783056521c38e9682dba1dac3573d94e7eb51ec9a17e1f370a8cde558df09",
     "crates/dive-liveness/src/phase_execution.rs": "1c68ca035f661941925037c63d2e39b1cf95cab69996a52fa03a6f6c13944d15",
-    "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-model/src/bind.rs": "c827daddd6babeffcc89af03a10df37ed00c26a746f6d9e22026d987a1d49485",
     "crates/dive-model/src/lib.rs": "17a954e0a1e9072e79b39238853172932824057ede33d0622382322f08ffe36b",
     "crates/dive-model/src/model.rs": "49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b",
@@ -14,15 +14,15 @@
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12",
     "scripts/check-tlc-final-scopes.py": "670faf49e11ce31ca8fbf08f4f828a24aec3a92d8f612abf635fd6d6e9cbb988",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
-    "docs/user/temporal.md": "8a622222921766a422392ed4161e0281df3c118f1267846e82c23b299deed951",
-    "docs/provenance.md": "cebc65341bfce08357b3adeb3ce4e0bf0dd220cff30a98390602e5681ce792ca",
-    "docs/divergences.md": "c56b50b4e9da5a36932437af2084fc54fb5fc03e1b13ffdad7b36e609541c910",
-    "docs/tlc-differences.md": "738f1cbd42cbbc6cfbc969bb6f5d45c7a165adef0da1f39149d81c81d9431dbc",
+    "docs/user/temporal.md": "9e05c8cc0bfcc0441eef424d9d864d082edb5b995791219851cacecaa112fc8d",
+    "docs/provenance.md": "d90cae071d3985a5d10327595d63b4243d900253ca2e362b1dd98e487a5dc0b0",
+    "docs/divergences.md": "188706143b3576e2f3ba1a3da8ccf0c168b9555b08b634d98345481c38554171",
+    "docs/tlc-differences.md": "1ad5d055927272b9d3de0f6479950a71db1af687e0274064196c82bd19ed9cbb",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "conformance/parity-features.json": "3439c8d35430e79c573bc93d0d7d5d8f27b5460a9e6463ef7294339adff0cf6b",
-    "CHANGELOG.md": "1cf57e06b919012e522441726a7247db45b3e97d3a673ab1e73186a2c5b06fbd",
-    "AGENTS.md": "159cd0cb7a331f5a1663e7484c5e33147385a5d3983a9a42908b5ad720fe9cbc",
-    ".github/workflows/ci.yml": "cfa20ebc7e399370cecc248f511cab2c78c2ab7fba7b3851872270ce10f0e4aa",
+    "conformance/parity-features.json": "e38dd099b223174290a61a0136502af92fae56153ac58eaab12c3180f84f39c5",
+    "CHANGELOG.md": "54d9eb6b2308d02ddae2651a2e399a52dbf3d6339b25723b136f358ae6891f7e",
+    "AGENTS.md": "312edaafe84a89056db4e3dd800c3af0882cab0d759053d5e521cdca548b7437",
+    ".github/workflows/ci.yml": "b146efd86af22d52e737c607ed95ec55efbe57b69fe36930ebafebb27070c68f",
     "conformance/probes/tlc-final-property-origins/SlotsProbe.java": "fd39196abc64c673109a41e3e371daf6c9663e64e951c2211653f61607f668e5",
     "conformance/probes/tlc-final-property-origins/SccInspector.java": "51f13e335d269a23f9f263d8bce5060862891929ec184e6e40a11aef8bacd83c",
     "conformance/probes/tlc-final-property-origins/capture-native.py": "f815169bcb507a758f87f71c215980dc5147aecd92ed73b1072370adaff9c054",
@@ -320,5 +320,6 @@
     "conformance/probes/tlc-final-property-origins/post-gate-document-history/source/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json.gz": "003113ee6aec8d63d0676367b71ee70d7f474e5de67695cc3fc352e87b8f5da8",
     "conformance/probes/tlc-final-property-origins/gate-current/post-document-controls.json": "8ff54d38627db2203642422fd3ba0e393c4799174ad1c11d3159fa6c41db2669",
     "conformance/probes/tlc-final-property-origins/gate-current/post-document-controls.log": "0a9f31640e57c92dde0c8644d24849294bcbc76686030301601952a8389b72f7"
-  }
+  },
+  "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion."
 }

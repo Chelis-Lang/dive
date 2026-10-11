@@ -551,3 +551,15 @@ accepts Len/Head/Cardinality with separately proved constant/state arguments and
 stored-input admission. It changes no result default or schedule. Other native,
 configured/opaque/effectful and unsupported state-storage/error boundaries retain
 named refusals; all20 clean probe outcomes remain accounted for separately.
+
+## Stored successor admission (existing final-mode limitation)
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.

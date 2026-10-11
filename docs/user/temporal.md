@@ -79,3 +79,5 @@ configured-origin-ambiguous, recursive and opaque targets remain named refusals.
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+See [Stored successor values](../stored-successor-material.md) for concrete set/function admission, namespace/order requirements and provider refusals.

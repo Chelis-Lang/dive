@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "base_commit": "92beded1ac83f1114e34a02cdbc384cf5ab94bc3",
+  "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed",
+  "source_sha256": {
+    "crates/dive-model/src/spec.rs": "bcffa83d4fb31b07288d14466f17be8e19fb39e956185e253d9539fc9c740e33",
+    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
+    "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
+    "crates/dive-liveness/src/phase_l.rs": "635a4a08659f76c4e541fd6c61f41b77bf26a93767ea1d6f25fa262781edc599",
+    "crates/dive-api/tests/tlc_final_scopes.rs": "5dfbc92a044a815773f1fea9fd61db55e4a4b9ff1bded2a38435907f6dd8d00e",
+    "crates/dive-liveness/tests/tlc_final_scopes.rs": "e1343c6c7a9d17aa8e79e4f4f58502134e437cfbf97cddf7624160e1beffac2c",
+    "scripts/check-tlc-final-scopes.py": "f687e4f900b61e50da24b9b976cbb4aefa6bcc65571d6ab5e64a3c7413a97a62",
+    "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
+    "docs/tlc-final-scopes.md": "050e38d9f2216d5ed7bb43e1f1d751b2ee881c11a2d73b8a371a747e98f00680",
+    "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
+    "docs/provenance.md": "ba8448f45a1da429011788ea69c0fdaee5f4feb2dc4f7ee05f7a3fad399759aa",
+    "docs/divergences.md": "f0b60a6b00de769227494e6926b4664e37a5bad0de28ef7b37a7c8257a62509b",
+    "docs/tlc-differences.md": "095413b56c87d3adae3f641c53d9c6621222f7552af29422f1e3a81420d26fe0",
+    "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
+    "CHANGELOG.md": "7adf15f2e208f54b35758510451c4d29caf8e308102b6584df99e8cf771550c8",
+    "AGENTS.md": "2b83410af49bea4e8a9a45ac3547cefcfc2ede9dff88d938f3b9af101758ff9c",
+    ".github/workflows/ci.yml": "3f1789d6fa711c3b8e5ff4e2cc7705a898eac1c52e018c6da281a7274165f1bd",
+    "conformance/parity-features.json": "0a16c31e8eca790bd27d60cb38f1a4ba3e496c8eccf6550376a32bde2bab5549",
+    "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
+    "conformance/probes/tlc-final-scopes/README.md": "a01740b0ba6a101a10e2a1634985b157d29b062ac9cb1e720493114295bebc9e"
+  }
+}

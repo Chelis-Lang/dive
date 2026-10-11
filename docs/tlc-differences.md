@@ -1739,3 +1739,15 @@ Configured/opaque/effectful targets still refuse. Concrete normalized set states
 unknown deciding runtime error classes and ordinary periodic scheduling remain
 limitations. See [the guide](native-temporal-operators.md) and the complete
 20-control probe selection; this is bounded support, not family certification.
+
+## Concrete successor representation boundary
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.

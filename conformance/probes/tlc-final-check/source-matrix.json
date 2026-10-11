@@ -39,5 +39,6 @@
     "matrix_sha256": "7903aa5999cb5318e456fe3846a57dd526ff25c2f4f76d930d686038e057c548",
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
-  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit"
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged"
 }

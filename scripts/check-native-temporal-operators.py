@@ -5,6 +5,12 @@ ROOT=Path(__file__).resolve().parent.parent
 BASE=ROOT/'conformance/probes/native-temporal-operators'
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 load=lambda p:json.loads(p.read_text())
+FROZEN_NATIVE=ROOT/'conformance/probes/stored-successor-material/frozen-native-producer'
+FROZEN_NATIVE_MAP=load(FROZEN_NATIVE/'manifest.json')['source_sha256']
+def native_source(path,digest):
+ if sha(ROOT/path)==digest:return
+ assert FROZEN_NATIVE_MAP[path]==digest,path
+ assert hashlib.sha256(gzip.decompress((FROZEN_NATIVE/'source'/(path+'.gz')).read_bytes())).hexdigest()==digest,path
 PIN='7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d'
 selection=load(BASE/'selection.json');assert len(selection)==20
 refs={}
@@ -43,7 +49,7 @@ comparison=load(study/'model-by-model.json');assert comparison['selected']==140 
 current=BASE/'native-current';c=load(current/'capture.json');assert c['source_and_binary_unchanged']is True
 assert c['selections_sha256']=={'selection.json':sha(BASE/'selection.json')}
 assert c['capture_source_sha256']==sha(BASE/'capture-native.py')
-for p,h in c['source_sha256'].items():assert sha(ROOT/p)==h,p
+for p,h in c['source_sha256'].items():native_source(p,h)
 assert [(r['model'],r['requested_workers'])for r in c['rows']]==[(r['name'],w)for r in selection for w in [1,3,4,8]]
 kind={r['name']:r['kind']for r in selection};counts={}
 for r in c['rows']:
@@ -71,5 +77,5 @@ for r in c['rows']:
   assert len(d['counterexample']['states'])==raw.count('@!@!@STARTMSG 2217:4 @!@!@')
  else:assert d['verdict']=='success'and d['counterexample']is None
 assert counts=={'success':28,'liveness-violation':20},counts
-for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():assert sha(ROOT/p)==h,p
+for p,h in load(BASE/'source-matrix.json')['source_sha256'].items():native_source(p,h)
 print('Verified20 clean rows/17 field projections/80 native observations:48 supported final outcomes,32 retained refusals/rejections; no ordinary/family/error upgrade')

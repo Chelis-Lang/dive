@@ -14,7 +14,7 @@
     "crates/dive-ir/src/std_op.rs": "a71a7924e88b422cd034199576128e6961b4af1074a51dc0a416cbd91cdf77d8",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/src/phase_l.rs": "56d36f155456006b17f6498ce905a4b3372c8a3ed92dcd908c61889ecd009dec",
+    "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
     "scripts/check-phase-l-graph.py": "55eccf20baaf46759ac88e4e7a8edc0141e4c11dd4e85bc409018350135f36f7"
   },
@@ -25,5 +25,6 @@
     "matrix_sha256": "b4ae3f5151199098ec073adae9b6e9f1a585690b5f736a9f5bc0dc308c0deddc",
     "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
   },
-  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit"
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "stored_successor_current_scope": "Current source authority only; original runtime studies stay source-bound and unretagged"
 }

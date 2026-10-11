@@ -121,6 +121,12 @@ fn tableau_text(t: &Tableau, i: usize) -> String {
 
 #[test]
 fn exact_operator_fields() {
+    complete_fields(
+        "stored-successor-material",
+        "capture-projection.json",
+        14,
+        0,
+    );
     complete_fields("temporal-operators", "capture.json", 10, 2);
     complete_fields(
         "native-temporal-operators",

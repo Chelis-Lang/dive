@@ -1,0 +1,11 @@
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-api)
+error[E0425]: cannot find value `bits` in this scope
+   --> crates/dive-api/tests/stored_successor_material.rs:183:58
+    |
+183 |                     let states: Vec<dive_trace::State> = bits
+    |                                                          ^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `dive-api` (test "stored_successor_material") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

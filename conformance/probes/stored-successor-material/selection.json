@@ -1,0 +1,72 @@
+[
+  {
+    "name": "StoredSetHolds",
+    "kind": "stored-successor",
+    "representation": "Set"
+  },
+  {
+    "name": "StoredSetFails",
+    "kind": "stored-successor",
+    "representation": "Set"
+  },
+  {
+    "name": "StoredRecordHolds",
+    "kind": "stored-successor",
+    "representation": "Record"
+  },
+  {
+    "name": "StoredRecordFails",
+    "kind": "stored-successor",
+    "representation": "Record"
+  },
+  {
+    "name": "StoredTupleHolds",
+    "kind": "stored-successor",
+    "representation": "Tuple"
+  },
+  {
+    "name": "StoredTupleFails",
+    "kind": "stored-successor",
+    "representation": "Tuple"
+  },
+  {
+    "name": "StoredGeneralHolds",
+    "kind": "stored-successor",
+    "representation": "General"
+  },
+  {
+    "name": "StoredGeneralFails",
+    "kind": "stored-successor",
+    "representation": "General"
+  },
+  {
+    "name": "StoredNestedHolds",
+    "kind": "stored-successor",
+    "representation": "Nested"
+  },
+  {
+    "name": "StoredNestedFails",
+    "kind": "stored-successor",
+    "representation": "Nested"
+  },
+  {
+    "name": "StoredStringsHolds",
+    "kind": "stored-successor",
+    "representation": "Strings"
+  },
+  {
+    "name": "StoredStringsFails",
+    "kind": "stored-successor",
+    "representation": "Strings"
+  },
+  {
+    "name": "StoredModelAtomsHolds",
+    "kind": "stored-successor",
+    "representation": "ModelAtoms"
+  },
+  {
+    "name": "StoredModelAtomsFails",
+    "kind": "stored-successor",
+    "representation": "ModelAtoms"
+  }
+]

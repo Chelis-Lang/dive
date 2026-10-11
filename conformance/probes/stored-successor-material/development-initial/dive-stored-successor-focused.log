@@ -1,0 +1,79 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling autocfg v1.5.1
+   Compiling num-traits v0.2.19
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling rowan v0.16.1
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-syntax)
+   Compiling num-integer v0.1.47
+   Compiling syn v3.0.6
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling num-bigint v0.5.1
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-sema)
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-ir)
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-eval)
+   Compiling serde_json v1.0.151
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-config)
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling digest v0.11.3
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-model)
+   Compiling cpufeatures v0.3.1
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-stdlib)
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-store)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-trace)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-check)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-successor-material-work/crates/dive-liveness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 31.91s
+     Running tests/phase_l.rs (/Users/jeff/code/dive-successor-material-target/debug/deps/phase_l-7aa7ffc7fd5de10e)
+
+running 10 tests
+test all_reference_livecheck_null_tableau_logs_preserve_failed_call_and_complete_selection ... ok
+test all_55_forced_key_structural_rows_match_every_java_field ... ok
+test state_if_planning_error_precedes_fingerprints_and_predicate_work ... ok
+test logical_capacity_history_and_partial_collection_are_preserved ... ok
+test receipts_do_not_certify_forged_words_closing_edges_or_property_claims ... ok
+test bounds_malformed_inputs_and_worker_metadata_cannot_become_success ... ok
+test public_opaque_values_and_unchecked_predicates_are_refused_without_callbacks_or_panics ... ok
+test caller_edited_fingerprint_permutation_returns_typed_input_refusal ... ok
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-successor-material-work/scripts/check-phase-l.py", line 64, in <module>
+    if __name__=='__main__':main()
+  File "/Users/jeff/code/dive-successor-material-work/scripts/check-phase-l.py", line 59, in main
+    for path,digest in combined['source_sha256'].items():assert sha(ROOT/path)==digest,path
+AssertionError: crates/dive-liveness/src/phase_l.rs
+test phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified ... FAILED
+test real_bound_fp_first_representatives_bins_initial_consistency_and_deciding_errors ... ok
+
+failures:
+
+---- phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified stdout ----
+
+thread 'phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified' (117736979) panicked at crates/dive-liveness/tests/phase_l.rs:604:5:
+assertion failed: std::process::Command::new("python3").args(["-I",
+                            "scripts/check-phase-l.py"]).current_dir(root).status().expect("checker").success()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    phase_l_evidence_hashes_selections_raw_bytes_and_before_observations_are_verified
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.27s
+
+error: test failed, to rerun pass `-p dive-liveness --test phase_l`

@@ -482,3 +482,15 @@ retain the old extra-negation mismatch; this is normalization fidelity only.
 | Bounded pure operator-formal admission (`scope_operator_analysis`, scoped temporal/independent Word and finite/capture proof) | `tlc2.tool.impl.Tool.getOpContext`, operator-param lookup / `OpLambdaValue` captured Context; `Liveness.astToLive` application context; pin `94d0c50` | MIT | Callback-free known user-body proof retains captured lexical/dynamic scope; actual application remains scope_apply_param; constant-origin ambiguity and all opaque/native/recursive targets explicitly refuse. Exact primary/projection/word/witness controls: `conformance/probes/temporal-operators/README.md`; no ordinary scheduling claim |
 
 | Bounded native temporal operator actuals | pinned `Tool.getOpContext`, `OpLambdaValue`, `Liveness.astToLive`, native `Sequences.Len/Head` and `FiniteSets.Cardinality`; commit94d0c50 | MIT | Metadata authority and actual scoped native dispatch; independent bounded admission/Word implementation. Raw20-selection reference failures remain separate; no new schedule/default. |
+
+## Stored successor representation admission
+
+The bounded final TLC path uses explicit stored Enum/Raw set elements and stored
+function entries before fingerprints/comparison, including normalized Raw sets.
+This is a native representation admission change, not a changed TLC semantic
+default. Cached provider/deferred sets remain refused. Existing8m/depth256
+Session bounds and separate50k/128 context bounds are unchanged. Pinned
+`LiveCheck.addNextState`/`SetOfStates` concrete-value behavior is retained; see
+[stored-state guide](stored-successor-material.md) and
+[paired source/evidence](../conformance/probes/stored-successor-material/README.md).
+Ordinary schedules and whole-family parity remain partial.
