@@ -1,0 +1,5 @@
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.92s
+   Compiling dive-cli v0.0.0 (/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.79s

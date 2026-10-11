@@ -65,6 +65,13 @@ All notable changes to this project are documented here. The project will follow
   failures, typed TLC errors and source-order fallback before graph work.
 
 
+- Bounded finite-process Full checksum derivation for declared-fairness and
+  source-owned modifier records, independently checked against reference AST
+  bytes and admitted operator trees. Unproved option/name/call shapes remain
+  named refusals. Runnable CLI/API examples separate CRC equality, artifact
+  admission and model proof. Singleton identity clauses now follow the
+  reference five-unit UTF-16 spelling threshold; original CST failure retained.
+
 - Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
   multiple `with` binders and LF/CRLF expression line grouping with normalized
   ASCII junction columns. C `with` trailing separators match the reference;

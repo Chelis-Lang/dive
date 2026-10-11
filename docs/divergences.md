@@ -631,3 +631,11 @@ in explicit final mode; this resolves a native limitation, not a new divergence.
 Stored representations, context/name authority, fixed recursive work/depth and
 deferred/opaque refusals are documented in [the guide](material-capture.md).
 No ordinary scheduling or whole-corpus certification is implied.
+
+
+D-008 finite-process Full checksum continuation: declared-fairness records and
+source-owned modifier lists have native post-Explode byte/CRC controls in
+`crates/dive-pluscal/process-checksum-acceptance/`. Exact-CST/SANY/Validator
+admission and finite model/witness stages remain separate. Unproved process
+options/calls/name scopes stay Full refusals in both profiles. D-020 remains
+reference reproduction only; no stronger checksum default or family certificate.

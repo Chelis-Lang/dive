@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-pluscal/process-checksum-acceptance/models.py", line 54, in <module>
+    main(p.parse_args())
+  File "/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-pluscal/process-checksum-acceptance/models.py", line 49, in main
+    report={'schema_version':1,'script_sha256':sha(Path(__file__).read_bytes()),'oracle_sha256':JAR,'native_sha256':sha(args.native.read_bytes()),'full_comparison_sha256':sha((BASE/'full-controls/report.json').read_bytes()),'selected':len(results),'retained_generation_refusal':refusal,'valid_witness_controls':sum(sum(v['outcome']=='valid' for v in r['independent_validation']) for r in results),'rejected_witness_mutants':sum(sum(v['outcome']=='rejected' for v in r['independent_validation']) for r in results),'worker_store_controls':sum(len(r['workers_stores']) for r in results),'family_certified':False,'rows':results}
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jeff/code/dive-pluscal-process-checksum-work/crates/dive-pluscal/process-checksum-acceptance/full-controls/report.json'

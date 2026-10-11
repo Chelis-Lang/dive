@@ -538,3 +538,20 @@ name-fix/process/procedure serialization or stronger checksum default is added.
 | `dive-check/src/capture/pure.rs` stored material/scoped OPEN admission | Existing native constructor/context authority, stored `Fcn::iter` and `Set::stored_elements`; actual pinned Tool/SpecProcessor configuration semantics at94d0c50 compared through18 clean final pairs | own design / matched MIT reference behavior | No provider evaluation/normalization authority;50k/128 recursive proof unchanged; raw primary/native controls in `conformance/probes/material-capture/` |
 
 | Bounded sequential multiline expression generation | `pcal/PcalTLAGen.java` `AddSubscriptsToExpr`, `NeedsParentheses`, `addExprToTLA`; `pcal/TLAExpr.java` token line normalization, pin `94d0c50` | MIT | Non-junction expression token order and changed-variable substitution, qualified by whole-module CST/SANY/CRC/finite controls in `crates/dive-pluscal/multiline-acceptance/`; indentation-sensitive/macro/process/procedure/binder layouts explicitly refused; primary pretty bytes not claimed |
+
+
+The finite-process checksum continuation ports `AST.Multiprocess.toString`,
+`AST.Process.toString` and `AST.VectorToSeqQuotedString` at the same `94d0c50`
+pin, with existing `VarDecl`/`LabeledStmt`/expression serialization. Native label
+ownership uses a bounded source-offset index rather than Java vector allocation
+order. Captured process modifiers, declarations, CRLF/tab/UTF-16 positions and
+post-Explode bytes are independently compared in
+`crates/dive-pluscal/process-checksum-acceptance/`. Runtime has no Java. Unproved
+options/scoped shapes refuse; raw CRC, artifact admission and model proof remain
+separate. D-020 is reproduced, not silently corrected.
+
+The source-backed singleton identity spelling additionally matches
+`PcalTLAGen.GenLabeledStmt`, `GenIf` and `GenEither` (same `94d0c50` pin):
+`UNCHANGED name` for Java UTF-16 length greater than five, equality otherwise.
+The original defaultInitValue whole-CST failure and length-five/six/branch
+controls remain retained. This is artifact fidelity, not a semantic divergence.

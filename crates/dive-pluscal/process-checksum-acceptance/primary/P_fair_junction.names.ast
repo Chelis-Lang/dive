@@ -1,0 +1,16 @@
+[type    |-> "multiprocess", 
+ name  |-> "A", 
+ decls |-> <<[var |-> "g", eqOrIn |-> "=", val |-> << "0" >>]>>,
+ defs  |-> <<  >>,
+ prcds |-> <<>>,
+ procs |-> <<[name   |-> "P",
+              fairness |-> "unfair", minusLabels |-> <<>>, plusLabels |-><<>>, proceduresCalled |-><<>>,
+              eqOrIn |-> "=",
+              id     |-> << "1" >>,
+              decls  |-> <<>>,
+              body   |-> <<[label |-> "L",
+                            stmts |-> <<[type |-> "when", 
+                                         exp |-> << "(col64) /\\", "TRUE"
+, "(col0) /\\", "g", "=", "0" >>]>>], 
+                           [label |-> "E",
+                            stmts |-> <<[type |-> "skip"]>>]>>]>>]

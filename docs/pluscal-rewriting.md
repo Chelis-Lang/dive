@@ -2,7 +2,7 @@
 
 `dive translate --rewrite` returns a replacement document in memory. It leaves
 its input file unchanged. The default `--checksums full` derives both reference
-checksums for the proved bounded sequential AST subset. Unproved AST shapes
+checksums for the proved bounded sequential and finite-process AST subsets. Unproved AST shapes
 return named unsupported results. Explicit `--checksums tla` supports the broader
 generator scope by recording only the generated-body CRC and disabling algorithm
 CRC; it never silently substitutes for full checking.
@@ -185,3 +185,8 @@ mapping-format or full-family certification.
 Bounded sequential non-junction multiline generation and its executable CLI/API
 examples are documented in [the multiline guide](pluscal-multiline.md). The older
 raw multiline checksum captures remain separate from this new admission evidence.
+
+Finite processes with declared fairness now have a separately proved Full
+serialization contract; see [runnable process examples](pluscal-process-checksums.md).
+Unproved process fairness/automatic-label options and scoped call/name contexts
+remain Full refusals. CRC equality is still neither integrity nor model proof.
