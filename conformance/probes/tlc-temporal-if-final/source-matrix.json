@@ -41,7 +41,7 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "conformance/parity-features.json": "f8445d1f2446cdcd5776c70696b960c9a6f13f12db525fb877abdae8eb97d7b6",
+    "conformance/parity-features.json": "bd97bbf90f2df5a85a3503caca5a5ad784bced51170f5cc3f6e32bd5c30c6f5f",
     "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
@@ -52,9 +52,9 @@
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "docs/divergences.md": "2e10f18939b3f05574c8a1aa7f8297b198dc6b9ef72fa09d1aee22dab8587201",
-    "docs/provenance.md": "092064d7da8bf6cf63c3ded31097a5ebda03bb3ea1f37d05a0958ab6418e1968",
-    "docs/tlc-differences.md": "401397e212682551cab9361234b14e73a8b9c61be9f3769ef4146b6b64afec2c",
+    "docs/divergences.md": "53dd3f6c4504f689b0e66d49a5f4236907fadeb0985a85b34d8ab83cbd3d2af5",
+    "docs/provenance.md": "16017121d94e1f2a664ac806f3cedf8d67939b0190aeed62109ff7b24adb773f",
+    "docs/tlc-differences.md": "7773a805df923f7aea23bf652c24e9cc845aa8b02023a0f88821b8b993a13657",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
@@ -63,6 +63,7 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1"
   },
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
+  "view_normalization_scope_addendum": "2026-10-11: current integration of unconditional concrete normalization before pure VIEW. Exact preceding main maps/changed bytes retained at conformance/probes/view-concrete-normalization/before/fe35-current-authority; original producer runs remain historical, not retagged. No RNG or family certification.",
   "view_random_admission_previous_authority": {
     "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
     "matrix_sha256": "510b896121368b487e3a914fe4edad4e04a41d109b1f84dcc47d333a59e0ea02",

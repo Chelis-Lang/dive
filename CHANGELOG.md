@@ -22,9 +22,12 @@ All notable changes to this project are documented here. The project will follow
 
 - A periodic backend controller preserves pinned queue/force/PERIODIC/checkpoint
   callback order, with all 296 selected Java observations and typed backend
-  failures. It does not enable ordinary temporal verdicts or certify clock math
-  and checkpoint persistence.
+  failures. It does not enable ordinary temporal verdicts or certify actual clock
+  authority and checkpoint persistence.
 
+
+
+- Memory VIEW preserves nonforcing normalization of evaluator-owned lazy filters; unknown providers and unproved lazy-operation caches remain explicit refusals. Spill and checkpoint deferred-value admission is unchanged.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and
@@ -37,7 +40,7 @@ All notable changes to this project are documented here. The project will follow
   strict first-successor printing, transformed-key, Randomization replacement,
   graph/temporal and recovery paths retain explicit refusals (#180).
 
-- Refuse configured native random replacements before startup/output/search in
+- Refuse unproved configured native random replacements before startup/output/search in
   both profiles and all capture routes, including source-visible/configured
   mixed calls. Preserve false-success and false-violation controls; direct RNG
   calls and pure user replacements remain supported (#180).
@@ -47,6 +50,11 @@ All notable changes to this project are documented here. The project will follow
   native replacement targets and unused random definitions. Preserve the
   equal-count/different-draw defect; pure VIEW and untransformed random checking
   retain their supported implementations (#178).
+
+- Normalize every concrete variable before evaluating VIEW, including ignored
+  variables and runs without symmetry. Unproved TLC normalization failures
+  explicitly refuse instead of reporting a model verdict with unprintable
+  states (#188). Preserve concrete parallel/recovered witnesses.
 
 - High-level PlusCal rewriting checks original source-option declarations before
   masking old translation blocks and refuses deciding declarations overlapping
@@ -63,7 +71,7 @@ All notable changes to this project are documented here. The project will follow
   are rejected before loading. Pinned Validator context limitations are documented.
 
 
-- Refuse configured native random replacements before startup/output/search in
+- Refuse unproved configured native random replacements before startup/output/search in
   both profiles and all capture routes, including source-visible/configured
   mixed calls. Preserve false-success and false-violation controls; direct RNG
   calls and pure user replacements remain supported (#180).

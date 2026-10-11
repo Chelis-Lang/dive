@@ -87,7 +87,7 @@ pub use crate::core::{CollectSink, PrintSink};
 pub use crate::env::{St, StateRef};
 pub use crate::error::{Ec, ErrorClass, EvalError, Result};
 pub use crate::host::{Counter, Host, HostError, RunConfig, TLCGET_NAMES};
-pub use crate::lazy::LazyFcn;
+pub use crate::lazy::{LazyFcn, deferred_filter_normalization_operand};
 pub use crate::options::{
     Comparisons, DEFAULT_MAX_DEPTH, ExplorationOrder, Options, Profile, RECOMMENDED_STACK,
 };

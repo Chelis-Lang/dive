@@ -31,6 +31,10 @@ only by `CONSTANT C <- RandomElement` or an instantiated context alias. The unfi
 produce different concrete draws despite equal counts; see the preserved
 [example and evidence](../../conformance/probes/view-random-seeding/README.md).
 Pure VIEW and direct source-call random checking without VIEW remain available.
+VIEW normalizes all concrete variables before computing a visited key, even
+variables the projection ignores. If a value cannot be normalized on the
+proved bounded path, the result is `unsupported`; an unprintable state never
+becomes a validated counterexample. See [the measured boundary](../../conformance/probes/view-concrete-normalization/README.md).
 Random checking reports its actual inline width separately from requested workers.
 Ordinary safety checking admits the configured `RandomElement` route, for example
 `CONSTANT C <- RandomElement`, using the actual bound native operator for startup
@@ -81,3 +85,10 @@ must never be treated as `success`.
 
 See [compatibility](compatibility.md), [storage](storage-recovery.md),
 [reports](reports-and-errors.md) and the [complete coverage ledger](../tlc-parity.md).
+
+A lazy filter ignored by VIEW does not require evaluating its predicate. The
+checker normalizes its stored bound set only. `x = {i \in Nat : Print(i,
+TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` finish with no Print output.
+Spilling or archiving that callback-bearing value still refuses explicitly;
+this support is limited to memory checking. Other unproved lazy representations
+remain unsupported.

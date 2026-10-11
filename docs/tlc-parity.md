@@ -645,5 +645,11 @@ partial and audit-required; no certification or denominator change.
 The [periodic controller](ordinary-periodic-controller.md) retains all296 actual
 pinned method observations for callback order, force state, deciding code and
 PERIODIC effect position. Supplied callbacks do not establish graph growth or
-checkpoint persistence. Clock-ratio arithmetic and ordinary checker integration
-remain pending; F-023 stays missing/audit-required and no certification total changes.
+checkpoint persistence. The separate numeric helper matches196 actual updater observations; clock
+authority and ordinary checker integration remain pending; F-023 stays missing/audit-required and no certification total changes.
+
+Pure VIEW normalization repair (#188) keeps F-016 partial: every concrete
+variable is normalized before projection, while unproved mixed-value errors
+refuse explicitly. The [retained study](../conformance/probes/view-concrete-normalization/README.md)
+separates original incorrect native verdicts, current recovery/witness controls
+and incomplete-state diagnostic limits. This adds evidence, not certification.

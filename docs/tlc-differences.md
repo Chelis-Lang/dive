@@ -544,6 +544,28 @@ TLC's normalization rules, so some heterogeneous set literals remain refusals.
 
 ---
 
+**VIEW normalization boundary (#188, 2026-10-11).** TLC normalizes every
+concrete variable before evaluating VIEW, including values the projection
+ignores. With `Init == n = 0 /\\ s = {<<1>>, [a |-> 1,b |-> 1]}`,
+`VIEW n`, and a pure incrementing `Next`, the clean pinned primary exits 255
+with EC1000 during initial fingerprinting. Earlier dive instead explored four
+states and reported an invariant violation with unprintable `s`; that output
+has no independent trace certificate. The repaired path performs the same
+normalization. Its current strict response to this unproved error-message/class
+boundary is named `unsupported`, with no counterexample, rather than a guessed
+TLC error or a completed model verdict. Canonical comparison defaults retain
+the approved D-009 rules. Compound positive cases and original/recovered
+concrete witnesses are tested in both profiles, stores and worker settings.
+[Source-qualified before and current evidence](../conformance/probes/view-concrete-normalization/README.md)
+retain the old wrong result separately. Memory VIEW also preserves TLC’s
+nonforcing normalization of evaluator-owned lazy filters: `x = {i \in Nat :
+Print(i, TRUE)}`, `Next == UNCHANGED x`, and `VIEW 0` complete with
+2 generated / 1 distinct / depth 1 and no Print output on the pinned primary.
+The checker visits the filter’s stored bound set without running its predicate.
+Unknown providers and lazy set-operation cache normalization remain refused;
+callback-bearing filters remain inadmissible to spill/checkpoint archives.
+Full VIEW/random and deferred-value family support remain outside this repair.
+
 ## D-010: The order in which sets are explored
 
 | | |
@@ -2083,3 +2105,14 @@ repeated forced original checks are diagnostics, not ordinary schedule runs.
 See the [user/API guide](partial-temporal-checks.md) and
 [complete controls](../conformance/probes/tlc-partial-scc/README.md).
 No new result-changing default or family certification is claimed.
+
+## Incomplete VIEW diagnostic limits (#188)
+
+The #188 investigation also retains incomplete VIEW states under
+`conformance/probes/view-concrete-normalization/incomplete-primary/`. Leaving
+`y` unassigned while storing `{<<1>>, [a |-> 1,b |-> 1]}` makes Init diagnostic
+printing throw EC1000/exit255; incomplete Next reports EC2109/exit75. The
+well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
+for Next. Mixed-value diagnostic printing remains unproved: rejecting an
+incomplete state before keying does not establish its exact printer/error
+counterpart, and no malformed-input-wide conformance is claimed.

@@ -376,7 +376,8 @@
       "issues": [
         66,
         178,
-        180
+        180,
+        188
       ],
       "acceptance": "Match VIEW identity, representative order and printed views; prove closing transitions or retain sufficient concrete lifting evidence. Do not construct a false temporal word from quotient representatives.",
       "interactions": [
@@ -389,11 +390,15 @@
         "crates/dive-check/tests/view_random.rs",
         "conformance/probes/view-random-seeding/README.md",
         "crates/dive-check/tests/configured_random.rs",
-        "conformance/probes/configured-random-admission/README.md"
+        "conformance/probes/configured-random-admission/README.md",
+        "crates/dive-check/tests/view_normalization.rs",
+        "crates/dive-api/tests/view_normalization.rs",
+        "conformance/probes/view-concrete-normalization/README.md"
       ],
       "evidence_updates": [
         "Source-wide VIEW/RNG guard refuses before binding/output/search: equal counts in the retained seed7/fp0 control concealed wrong concrete draws. Unused definitions/native aliases conservatively refuse; transformed seeding/replay remains uncertified. Status stays partial.",
-        "Configured native RNG targets conservatively refuse before binding/output/search, including mixed visible/configured RNG calls. False-success and false-violation controls retained; bound-context stream scheduling and replay remain pending; no status/certification credit."
+        "Configured native RNG targets conservatively refuse before binding/output/search, including mixed visible/configured RNG calls. False-success and false-violation controls retained; bound-context stream scheduling and replay remain pending; no status/certification credit.",
+        "Every concrete variable is deep-normalized before pure VIEW, including ignored variables without symmetry. Retained reverse mixed-value primary EC1000/native incorrect four-state violation is now an explicit refusal. Full/pause/reset/retain and concrete witness controls preserve profiles/stores/widths; RNG, temporal lifting and error-class counterpart stay partial/uncertified."
       ]
     },
     {

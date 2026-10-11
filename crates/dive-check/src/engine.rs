@@ -657,11 +657,11 @@ pub(crate) fn state_key_of<S: Keyed>(
             Ok(key)
         }
         Some(v) => {
-            if m.symmetry.is_some() {
-                let concrete = values(t).unwrap_or_default();
-                dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
-                    .map_err(|error| crate::model_error(&error))?;
-            }
+            // TLCStateMut.fingerPrint deep-normalizes every concrete variable
+            // before VIEW, even without symmetry and even when VIEW ignores it.
+            let concrete = values(t).unwrap_or_default();
+            dive_model::symmetry::Reduction::normalize_concrete(&concrete, ctx)
+                .map_err(|error| crate::model_error(&error))?;
             match m.eval(&v.pred, st1) {
                 Ok(x) => S::key(keyer, &[x], true, ctx).map_err(|e| store_verdict(&e)),
                 Err(e) => Err(error_verdict(&e, ErrorSite::View)),

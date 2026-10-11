@@ -1,0 +1,18 @@
+{
+  "source_commit": "15fda58d9f3e8a9a427428af2a92eac3812a5258",
+  "source_tree": "15099742859c174bba367c20a8d49d641ac94603",
+  "results": "1102/1103 passed; one unchanged original ViewDeferred regression; zero skipped; all seven other stages pass",
+  "failed_test": "dive-check::frontier_spill empty_frontier_and_deferred_view_admission",
+  "files_sha256": {
+    "4-docs.log.gz": "bb93860ecd85f51e6762ee4c35387a29378d620f5aade29757c31f0eca3b55f2",
+    "2-nextest.log.gz": "41504ce8e4c58100c9a77c25a6590aee70a6cf668ffdfd0d2da9f8a5102ba50c",
+    "results.json": "b21946bf550493ae0e3bfb4341bb4d347f07ab028a59fed6e870ef57db82850d",
+    "producer.json": "d702a67823eb7d103504f59430462668af8d334eadea999852ab1b7520637f55",
+    "0-checks.log.gz": "617809c711a13355002dc6fb0218a5bc115c1bbbeb21f15bc7089fda64658a1f",
+    "7-deny.log.gz": "28d61e506205af53c11e1bb1fa4583cc63ab3c283ebd097edd3628080c502a70",
+    "3-doc-tests.log.gz": "368d56b64bfa1b765863da96655681c6e2b5d151adf2b17e0f64d6516e5e8267",
+    "6-standalone-trace.log.gz": "3718d6f18b78529ce264881c829b84cbbea481a2c6295aebf02ead0f3a36a2fc",
+    "1-clippy.log.gz": "e92501b5ca012966b7df899c6790ca8d4d717183b84ed8193e21e8a9c5289b22",
+    "5-layering.log.gz": "4b90f671cc266731b4a1e5affe503b2742ba009b2dd5cf1aa4781d78aaae7f23"
+  }
+}
