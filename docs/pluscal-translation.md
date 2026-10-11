@@ -28,12 +28,14 @@ to the keyword, including when a label precedes it.
 Named refusals cover unproved procedure scopes/calls and `define`,
 unproved branch-internal label placement,
 name disambiguation/generated-name collisions and shadowing binders. TLA lexical
-binding constructs (including Unicode quantifiers/function binders) and multiline
-expression layout are refused until scope/layout-preserving substitution is
-proved. Complete module admission can reject malformed expression slices that
+binding constructs (including Unicode quantifiers/function binders) and unproved
+multiline junction/substitution contexts are refused. Bounded non-junction
+sequential multiline expressions are admitted; see [their guide](pluscal-multiline.md). Complete module admission can reject malformed expression slices that
 the source grammar retained. Existing generated translations, multiple algorithm
-markers, historical flags, pretty-width, file rewriting/checksums and TLC map
-format are pending. A source AST alone never certifies a translation.
+markers and bounded checksum editing are supported through
+[the in-memory rewrite API](pluscal-rewriting.md). Disk writes, historical flags,
+exact pretty-width bytes, broader AST checksum shapes and TLC map format remain
+pending. A source AST alone never certifies a translation.
 
 Default source bounds are 1 MiB / 100,000 tokens / 50,000 nodes / depth 128;
 hard source/depth ceilings are 4 MiB/256. The translator additionally caps 10,000
@@ -75,7 +77,8 @@ The pinned translator announces success for variables named `Next` or `vars`,
 but SANY rejects the resulting module. `with x=...` shadowing and some `define`
 outputs also appear in the retained invalid-artifact rows. Native generation
 refuses unproved naming paths before artifact admission. This is a current
-limitation, not a new name-disambiguation default. File checksums, formatting,
+limitation, not a new name-disambiguation default. Bounded Full/body-only
+checksums are supported; broader serialization, disk writes, exact formatting,
 precise mapping and full F-034 certification remain pending.
 
 See the [reproduction instructions](../crates/dive-pluscal/translation-acceptance/README.md)

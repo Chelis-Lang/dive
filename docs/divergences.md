@@ -609,8 +609,10 @@ See `conformance/probes/native-checkpoint-runtime-names/README.md` and
 
 D-008 checksum continuation retains strict generated-operator CST comparison,
 including an initially missing empty-Else TRUE conjunct now reproduced exactly.
-Multiline CRC derivation does not lift the named multiline-generation refusal;
-empty-Then layout also refuses explicitly. All 320 primary controls and original
+The checksum-only producer did not lift multiline-generation refusal. The later
+bounded non-junction sequential generator is documented in `docs/pluscal-multiline.md`;
+multiline junction/macro/process/procedure layouts and empty-Then generation still
+refuse explicitly. All 320 primary controls and original
 failures are in `crates/dive-pluscal/checksum-expression-acceptance/`. D-020
 remains compatibility reproduction only; no stronger checksum default.
 

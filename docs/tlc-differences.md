@@ -434,6 +434,19 @@ to (`sany_code`), so tools written against SANY's codes keep working.
 
 ---
 
+**Bounded PlusCal multiline reports.** Sequential non-junction multiline
+expressions now generate with reference lexical changed-variable substitution.
+LF/CRLF, tabs, blank/comment lines and UTF-8 comments have separate retained
+controls. Junction indentation, binders and macro/process/procedure expression
+contexts still yield named unsupported reports. Full/body CRCs, whole operator
+CST/SANY admission and finite counts/independent witness checks are separate;
+neither a checksum match nor a translation report claims a checked model.
+The input file is unchanged. See `docs/pluscal-multiline.md` and its complete
+primary/refusal history. D-020's fair-only source-detection weakness is preserved,
+not silently corrected.
+
+---
+
 ## D-009: Comparisons that TLC refuses although TLA+ answers them
 
 | | |

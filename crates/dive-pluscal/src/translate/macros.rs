@@ -22,6 +22,7 @@ struct Expression {
 #[derive(Clone)]
 pub(super) struct Expanded {
     parsed: Parsed,
+    declared_macros: bool,
     expressions: BTreeMap<(usize, usize), Expression>,
     statement_origins: BTreeMap<usize, (Span, Span)>,
     calls: BTreeMap<(usize, usize), Span>,
@@ -38,6 +39,9 @@ impl DerefMut for Expanded {
     }
 }
 impl Expanded {
+    pub(super) const fn declared_macros(&self) -> bool {
+        self.declared_macros
+    }
     pub(super) fn macro_origin(
         &self,
         id: StmtId,
@@ -715,6 +719,7 @@ pub(super) fn expand(
     if parsed.algorithm.macros.is_empty() {
         return Ok(Expanded {
             parsed,
+            declared_macros: false,
             expressions: BTreeMap::new(),
             statement_origins: BTreeMap::new(),
             calls: BTreeMap::new(),
@@ -733,6 +738,7 @@ pub(super) fn expand(
     let mut expander = Expander {
         expanded: Expanded {
             parsed,
+            declared_macros: true,
             expressions: BTreeMap::new(),
             statement_origins: BTreeMap::new(),
             calls,

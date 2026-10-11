@@ -936,3 +936,5 @@ All notable changes to this project are documented here. The project will follow
   and exact last-visit tag holes, with numbered-particle/edge and independent
   periodic-word controls. This source-level repair does not yet lift the staged
   final temporal-IF refusal or certify ordinary periodic scheduling (#170).
+
+- Bounded non-junction multiline sequential PlusCal generation with explicit layout/substitution refusals, independent artifact/CRC/model controls and executable CLI/Rust guide.

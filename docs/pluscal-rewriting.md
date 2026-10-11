@@ -179,3 +179,7 @@ All kept their input files unchanged and their nonproof fields false. Historical
 BodyOnly, quota, forgery, state-count and witness campaigns remain bound to their
 original producers. This publication adds no formatter, filesystem-write,
 mapping-format or full-family certification.
+
+Bounded sequential non-junction multiline generation and its executable CLI/API
+examples are documented in [the multiline guide](pluscal-multiline.md). The older
+raw multiline checksum captures remain separate from this new admission evidence.

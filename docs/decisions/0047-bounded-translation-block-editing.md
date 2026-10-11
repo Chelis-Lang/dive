@@ -118,3 +118,21 @@ from the innermost Then/Else pair, not from any earlier branch. Native P parsing
 now rejects that empty terminal pair. All 16 supplemental sources and four
 original disagreements remain retained; the active old gate was interrupted
 and the old 304-row campaign completed before creating the corrected producer.
+
+## Addendum: bounded non-junction multiline generation
+
+`PcalTLAGen.AddSubscriptsToExpr` retains lexical changed-variable substitution;
+`addExprToTLA` transports normalized lines and indentation. The next generator
+slice admits sequential expressions without junction-list tokens: significant
+token order and existing lexical substitutions define the same operator tree
+when whitespace is normalized. Multiline `/\`, `\/`, Unicode/alias junctions,
+binders, macro declarations and process/procedure contexts remain named refusals.
+Neither layout-sensitive grouping nor substitution ownership is guessed.
+
+Complete primary and original-refusal captures precede admission. Significant
+whole-module CST equality, pinned SANY acceptance, Full/body CRC and Validator
+corruptions qualify artifacts separately from finite model/witness controls.
+Invalid primary output is not admitted or counted as successful conformance.
+Global source/token/node/depth/action/output/document budgets are unchanged.
+No new dependency edge, formatter contract, checksum default or D-020 correction
+is introduced. The executable user contract is `docs/pluscal-multiline.md`.
