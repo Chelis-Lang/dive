@@ -18,7 +18,7 @@
     "docs/native-periodic-lifecycle.md": "c83848ad597976d1ee573fff97b12cac8e013e3374816c94adc886f1835aa16e",
     "docs/decisions/0052-native-periodic-lifecycle.md": "c7a89bc714f0de7c761598ef4b6c019f0a7fa79d2d7bb8ad0dc2a3d2d993c8e3",
     "scripts/check-periodic-lifecycle.py": "7e5fdf1ee6448f36b596936e2e51dccdb6670942a35d3d17f9e1ff80c8c302c1",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9"
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e"
   },
   "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

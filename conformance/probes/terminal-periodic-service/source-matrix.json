@@ -22,7 +22,7 @@
     "docs/terminal-periodic-service.md": "a7bdc4caec747f08e74ad595f436241975abac9ca599ba84b3ec0f4717a4f3f2",
     "docs/decisions/0076-exhausted-queue-terminal-service.md": "c8ce234c0140fbf7fe144e2e45c381530d117cfaa6c880defea288764a57c4f0",
     "scripts/check-terminal-periodic-service.py": "18baaa526f71fc1513f0e39aa13ef2bd4ddd710de879dd6bf73c4ccbbef02fc1",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9",
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
     "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
     ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340"
   },

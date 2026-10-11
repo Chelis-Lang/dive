@@ -32,3 +32,35 @@ original implementation; observer cleanup occurs separately after method return.
 See [the executable user guide](../../../docs/stopped-periodic-service.md) and
 [ADR 0078](../../../docs/decisions/0078-stopped-queue-worker-errors.md). No ordinary
 Holds, scheduling, whole-family or model-proof certificate is established here.
+
+## Closed native producer
+
+Clean production `8820b20158e48ff0ee98ab582ed3eb87cc1d3238` passed the full
+48-stage gate: 1,087 tests, zero failures/skips, doc tests, strict docs, Clippy,
+layering, isolated trace and dependency checks. `gate-current/before.json`
+inventories all 487 Rust/Cargo/literal compiler inputs and the 50 literal
+include inputs; `gate-current/source/` archives exact compiled bytes.
+`history-production-8820/` preserves the original current-source matrices and
+their exact current or already-historical authority before this metadata-only
+qualification.
+
+Fresh default-release execution in `gate-current/runtime-current/` retains all
+146 declared rows: 80 actual stopped-worker receipts, 40 exhausted-terminal
+receipts, 20 other earlier stops and six preexecution refusals. The 12 selected
+EOF words are Valid through fresh memory and JSON replay; all 48 strict mutants
+are Invalid through both routes. Controlled actual RequestPrefix selection is
+separately exercised by private API units at widths 1/3/4/8; default release
+feature scopes exclude the rendezvous. Native first errors/counters/output are
+compared to unchanged terminal execution, not credited as Java after-error
+queue/count/graph equivalence. All 21 CM1 and 16 validation-smoke models fully
+agree at workers 1/4/8. The executable Cargo example retains its exact output.
+
+Every original setup/test assumption failure remains in `development-focus/`
+or the earlier primary history. The initial fullgate launcher refused a dirty
+precommit tree before running any gate command; its preflight log is preserved
+separately. `primary/after-error-order-readback.json` independently reads all
+30 observed raw chronologies without fabricating graph/scheduling authority.
+Closed-executable cleanup records hashes and no-reader checks; qualified
+release binaries were retained unchanged. `delivery-index.json` identifies
+compiled production, delivery-only metadata, full payloads and immutable binary
+hashes. No successful controller or partial diagnostic is a model proof.

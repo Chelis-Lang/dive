@@ -20,10 +20,10 @@
     "crates/dive-api/src/periodic_candidate_word.rs": "c05c6e5679d1b273e263acc38d1548c2d6e1a594ac836570295a75baedf78e35",
     "crates/dive-api/tests/stopped_periodic_candidate.rs": "2c630222a95542c5baa7e170fa416b82b6bc11b866605fd53a8cba52eb107031",
     "crates/dive-api/examples/stopped_periodic_candidate.rs": "555b30658c302e46e41b9a088a94f9dc53b54a39d7aa9a7fc6387eab86d8a75c",
-    "docs/stopped-periodic-service.md": "1d6215a9764bbe11bca2608b847f3ab4e7ce8d2c47f150c64230e3d8f85541de",
-    "docs/decisions/0078-stopped-queue-worker-errors.md": "f3e44ba436fc77fc770867d26fc7e466cf6ed32c789ca73a6dd7cb6209de5608",
-    "scripts/check-stopped-periodic-service.py": "717e37847db3c908b93e58081828031ed1a67fd3a6aaf01462950e2190b104bc",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9",
+    "docs/stopped-periodic-service.md": "20c5da0b3b25a19d22146529a33397ba8158debbd9692de2b0b5f0f25bf4407f",
+    "docs/decisions/0078-stopped-queue-worker-errors.md": "f97601475dd216826786389b58ca785b8d65554822428880af49df89ddc62d09",
+    "scripts/check-stopped-periodic-service.py": "c20d27a36b96ab7a89ede010df134a329ad4782d2a2485c03809be5b17274cb1",
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
     "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
     ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340"
   }

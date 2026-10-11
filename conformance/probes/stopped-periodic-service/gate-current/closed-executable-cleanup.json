@@ -1,0 +1,847 @@
+{
+  "scope": "Only closed debug/deps Mach-O executable files, full48gate closed; retain all libraries and upcoming API/core/service/terminal test executables, target/cache/source/frozen qualified executables unchanged.",
+  "production_commit": "8820b20158e48ff0ee98ab582ed3eb87cc1d3238",
+  "lsof_exit": 1,
+  "lsof_stdout": "",
+  "lsof_stderr": "",
+  "files": [
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/actions-2dc496da4c5f05b4",
+      "bytes": 6717096,
+      "sha256": "185277614e63e7cb12f0aece2758fd9cd0c3fa9bf06b15fef0a57027d55f3af2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/analyze-7c5fa512b84aac0c",
+      "bytes": 21795384,
+      "sha256": "527f9fbe0a4e78246b730701999a5de3821052acebf206a64036b0b8a7e012a2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/api-f5fb0e3eda12e165",
+      "bytes": 12569048,
+      "sha256": "b36b57a2a9a59062eeb8b7876ad285ba390006c957a35a1eb2aabc09477cd219"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/ast-8b13ae9d0e08bc81",
+      "bytes": 2646392,
+      "sha256": "eedeb67ef08ec30cf3ac7fa7adf53337d86507ffbbaccfdc395a1052e1e94536"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/bounded_domains-8fdaefaffd7e0457",
+      "bytes": 11098608,
+      "sha256": "5d34a52e002b5b01103eb8cd71e08b63112e2e93ecbe0e845b4c013e8743644a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/bounds-5a9ffe99b05dc464",
+      "bytes": 12584840,
+      "sha256": "53dcc86a0765b05cfbaf297ef6cfabf3b52edb7a27035e944a1ad7b2ef8d4e25"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/cache_concurrency-c9f5d6ffceb0d356",
+      "bytes": 1409904,
+      "sha256": "f65b54cbb4f402c6c17821c2a4b016dff7af4a6d0c87fae767fdbce5018913c2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/capture-a41810e459153cb2",
+      "bytes": 18369496,
+      "sha256": "55128543593b3f4c25e9d6ad35827c90859bba8cbca3751965085c1d38c4b602"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/checkpoint_keys-a73ced49caefdf7a",
+      "bytes": 20948720,
+      "sha256": "71d99806815656002e90f1903e764047b690f815e78fcd37fa188b3495be39ab"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/cli-67457fd98ae1752f",
+      "bytes": 1815896,
+      "sha256": "e32bb34db7c01e02ee993049490e4862b82eb1bc707c9257d659ae529c374ce7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/codec-27c0a3ee6bc9290f",
+      "bytes": 4933224,
+      "sha256": "ead356e3e002ad5f929c94e6fa0720e4df4fb72a7679b5759f59719f1b41be12"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/collision_tlc-b562e10db9dd249b",
+      "bytes": 1724336,
+      "sha256": "71cc623367c308cede612975e045bf72863e373404ef781d263fe635ff20b1da"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/comparison-db5116e85fa44628",
+      "bytes": 1092200,
+      "sha256": "a205506020b2ddad01f63d4bf5864d5f5d42bc615cd702f8f2305d44d49c07f3"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/components-b66c7ff487c9da16",
+      "bytes": 1413080,
+      "sha256": "6b4edd4e83313e301ce7f1478fc04ba9595d7fb34d548d83ff323774ad42c162"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/config_name_order-85ee9412715f7dfc",
+      "bytes": 15068176,
+      "sha256": "419d68ad66aaac0343c8a3a371f8ffb558c18c74b6d275e6ecb7b21c2e4b53b7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/constructor_covers-a9cbeebd4d069800",
+      "bytes": 21925808,
+      "sha256": "2fd38c9c92fb76c5540f1e13f0f8fa5a7a648fc2b95b3c7435f5203563163ff1"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/contexts-4b2c149310fa723c",
+      "bytes": 14143400,
+      "sha256": "0e00f594d7e6d9b655b1f542d3ff445cfb6663a82eeab094ea6afd9c50126ea0"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/contexts-f1e83ac9d5aa590a",
+      "bytes": 12955864,
+      "sha256": "c890d0f93caca5b694823b756a9e42f961c9dbb3bb2f89d5e88f5efb307dc270"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/corpus-3618ca39b4d936da",
+      "bytes": 8452872,
+      "sha256": "827dbcfccf8773cff8e6f642d6b6c274ff702ab5da7bf5e779bb3e38bf00e006"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/corpus-b0a26bd487779841",
+      "bytes": 2554408,
+      "sha256": "49e731189cb7240ca371f3ca1dfe34bea04251094535ec3ba84109f2739820c0"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/deferred_domains-8debf4b6471b397f",
+      "bytes": 21955648,
+      "sha256": "caa0cc7a58cdd4e93ec80a58dd89a5961f166f73548923366ba4d137d035ae9a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dfid-096047f7ac6cbffb",
+      "bytes": 13580120,
+      "sha256": "ae4d1f04a21fb058930dc7d1c66241e4a285d1d0c6178704cbccdd5f8c75bb62"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dfid-2b50576bdb733292",
+      "bytes": 16242056,
+      "sha256": "2e6877beb1370d82227f64ad06ed783bd8bfb3cd6e9bc59d3a908b44d945be11"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive-c13e18be7b0fc0af",
+      "bytes": 27549176,
+      "sha256": "fe183b3d740826415ed1e04729e979645c51d7b7c17303a7a3c8046bff6a014d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive-f2112cdefa51256a",
+      "bytes": 30271896,
+      "sha256": "8db6ee29b9c7eb8f1d1a804b90744aa49f2c6f181985685254dbef3d6f193305"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_bench-2e892487492e7404",
+      "bytes": 1211912,
+      "sha256": "dab32d2ebc5d9aed82a71e2f1516fc9564f6a69026424271418c9d474916be3a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_bench-b0a5c2b67e8ace53",
+      "bytes": 2345736,
+      "sha256": "70a46d9ff2959b2f1c77c40be722e992f2c14a04ac510c18deebf2846f826997"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_compile-15b8e1c2b86e97d8",
+      "bytes": 1028400,
+      "sha256": "d308fd259f526281301bde6408c4864c468c6ee64f56ce6e7ebf4c77c8c6e1a7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_config-45db706e782ee59c",
+      "bytes": 1151328,
+      "sha256": "03e71675e2ad61b64d27695c2f5ee3930ef9a6b50e4b55b9e2e66e02927b9ed9"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_conformance-a063731d4b806251",
+      "bytes": 25720608,
+      "sha256": "e2427f6e51426169a6fabc8bfddf1dcd241f9141b97db42aa44e6057067e6957"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_conformance-c76da69714d45bd8",
+      "bytes": 1028464,
+      "sha256": "3a9f57daa0c73e5d51d5353abb4c70687863e922feadf0c1b69bbcfe0d915de2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_conformance-ff73a5fcea258687",
+      "bytes": 9215056,
+      "sha256": "b29e4598ee6bbeffffcaa95b73d265c7f86d01e3039622b8cebc1f859fa80650"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_eval-c9793be8b56a845c",
+      "bytes": 8470152,
+      "sha256": "9cf676a6b7c4c017e6b46f14fac79a2932462531aebb43bfaf87c6b153f8b6dc"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_ir-63158ed694c2be6b",
+      "bytes": 6147144,
+      "sha256": "37c41f2615d8900e0092a2feac95b22c9730a93072b162ccba4147285448ddef"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_liveness-af939d7cce67f91b",
+      "bytes": 20351744,
+      "sha256": "34a0dd2583eb8130ddddf0511e3e6871c8032dd06f5966983c214268ebe68a16"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_lsp-fab9b369a776b2f5",
+      "bytes": 1028344,
+      "sha256": "fa09da70684717a10d0dcd546b0b6a99d51aa6317db498d37fe2963696e20ce9"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_mode-79ef622b2d692a88",
+      "bytes": 3150200,
+      "sha256": "50cab2519b547118e516968907568cd0434ff69ea99a704d181e93558aea91d9"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_model-aec56be7c5db82f6",
+      "bytes": 1028376,
+      "sha256": "838c2130db9eebe3397839c9b82458f1652c87c73f52170a90045cece21a9ae5"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_pluscal-cf3babda47deb7af",
+      "bytes": 1028400,
+      "sha256": "f857bf7e63d953b79aa41cd2cc55feb6d45d683798ee698ddb228b2fd8c287eb"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_sema-749e8afce8f05c4d",
+      "bytes": 2527896,
+      "sha256": "f380be586c8f1a7f4747097adedc5ab1b4f0436971b9ec5a076e89746769be96"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_sim-03f5bb165f3969ba",
+      "bytes": 1028344,
+      "sha256": "61ee0b2fde6251a38913f2335ef4fbbcd6bbf06c3dd5c6026815b779424a6e64"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_stdlib-0ad7c9f20255db75",
+      "bytes": 3126512,
+      "sha256": "fd6dd3477bad0a5ffaa1d98b2111422db530915b33214a5084744a996a0c984d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_store-c3337165e3d47d4d",
+      "bytes": 1973720,
+      "sha256": "19f004326d9ab7aabe72495e9091a6dd3f841927287d07be7b6bec74a5504449"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_syntax-72bee563a25d2a20",
+      "bytes": 1557968,
+      "sha256": "a2f7060247b5dec67f78215bcdca533175aeb73f487bf32609726dfc40308aaf"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_trace-7feb5a361566179a",
+      "bytes": 13586216,
+      "sha256": "7f44ff4b07e138b6e49ac85aa63f36494828740f6efb6a44cafe99f52d4362da"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/dive_value-8642634527905586",
+      "bytes": 2406488,
+      "sha256": "4051bd156a9425797e72db92b8a51013daf78641b7b066803c2dd2e422bb3519"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/errors-edb837eb0d6d4c12",
+      "bytes": 17905688,
+      "sha256": "459956aefd7995f892fa9df8ef1465407a0f977debbf88818c4be446265addb7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/examples_random-d26ef43dfac154e5",
+      "bytes": 2893504,
+      "sha256": "986b79e23cd5007d6e0bf36162bfa38ca682a82b5efb49c56c4e628ef59cfa62"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/exists-6d362957b233ef3e",
+      "bytes": 13003608,
+      "sha256": "af7cd7df0015288b1f56ac0d3d12bf17539e977f0c32b0d3a8dd684fbad69f9f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/fairness-9ecb115d6afcf932",
+      "bytes": 5448616,
+      "sha256": "aaed472e7686817a994d2f5a4f1cca77cb4cbd6d51d93a5cc6bedaf25acfc0c2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/fingerprints-a77f98d3be8a1f77",
+      "bytes": 17701456,
+      "sha256": "24b1b269cb2dba85119568d91cba720a84f57d37e742fc48e47925bdcfd975c8"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/fixtures-bc7ce22a1cdcfa3e",
+      "bytes": 3850392,
+      "sha256": "fd54711048e04c2c5c9c753d5d7bbb312689c37ecf1923a703703379571d8781"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/frontier_spill-23d6619c5772fce3",
+      "bytes": 17736352,
+      "sha256": "c9cdc88d57d27c33445626b4f9ca7b47edaa414641209285964b1519df4f2d72"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/frontier_spill-3fc226876756aa5b",
+      "bytes": 27641120,
+      "sha256": "a1a0e435f358b79c51ac2514ec5b7f81aa6ec8888c4c8b66ef89239cd0e07902"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/invariance-e3e4b1a1f744978d",
+      "bytes": 17965832,
+      "sha256": "526a6b0de8798531c0feeacd3e00584043be0ec9a94892bdc4df1b27b0e12c2a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/java_random-7d2d9971897ec769",
+      "bytes": 1116896,
+      "sha256": "8564e5da610e943054be041afe38f5382635a0e987fd8ea9fffbd4db4281fb84"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/lasso_claims-69aee9d4230e876a",
+      "bytes": 15417072,
+      "sha256": "2757338ce7a4b1601e10af50394ebdced1e2f6e9bb32f735b92b53e9f6e11946"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/lassos-a9b8c6339b320780",
+      "bytes": 1829432,
+      "sha256": "9193cfe78a43d1b86a49912f7ff952e2f50549f94cb0197d667c25d06c17aea3"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/layout-70f3a189ad7b8f43",
+      "bytes": 2480248,
+      "sha256": "32f439c4e22dd43cb819b232ccbbc284ffab992dc82c0eaa9063d4581db5dfef"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/lazy_domains-3a1736356022f4dc",
+      "bytes": 21894048,
+      "sha256": "8ad4e210e72377fac254e5218681a86badb4768509eb9dd706df5bfd1e672a76"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/limits-68049f3c576e0415",
+      "bytes": 2753704,
+      "sha256": "9794a40469ea9232a5fbe8378ec6edc19591a9180f9531919de66e42a889cb69"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/lower-f7aa8961951ccb2b",
+      "bytes": 8742840,
+      "sha256": "73b215ee2957810685d467010b5fd3a4ae8b75b7c136aa9e804c65b5d6eb1452"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/macros-1040456adaa13f5c",
+      "bytes": 5454152,
+      "sha256": "064196d08b0214b196f8f7dedabd2fec96ca495828d3e1d0473cf25913be27ae"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/material_capture-3b7aacf704bfd60c",
+      "bytes": 23861920,
+      "sha256": "d59e218bc74c0845c34892069b9a086964016f05dc5294b63d943598266c706b"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/multiple-5d81505d2bd2c31c",
+      "bytes": 5475608,
+      "sha256": "06fc2ffa9b90c5b50eb13136b95b7db4782e1955720c3ee23bf6d49d20f4bb46"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/native_checkpoint-3669828fdee3ccc5",
+      "bytes": 27316032,
+      "sha256": "7e9692b5698449a3619eb8c2166981ed6eee55450cfa63d9ba78d466667ba27e"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/native_checkpoint-4e707f36d8aea99a",
+      "bytes": 19076752,
+      "sha256": "92eff7cc264ec7c9c19a1bbd82a97c93d6a6e90dce023815093eef92fef68ece"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/native_checkpoint_keys-f6a1143af23b58c1",
+      "bytes": 27006088,
+      "sha256": "5b564cae5f0832de71669aec2ded79955654089a98fc09bcf7e29a0b2cea9bfa"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/native_sequence_operators-6b6b42b7121a3ce3",
+      "bytes": 24008936,
+      "sha256": "c78250ee41d8e90ca006ba3305eb6bf000cd2bec620ca87cfcaef65144319c65"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/native_temporal_operators-cc803a85624377f2",
+      "bytes": 24078312,
+      "sha256": "0516cc10701d9054508a200ce81e3e18ca7599b4e861d6c7a85276069a6d81e4"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/next_examples-c2d7dbc4b088ac15",
+      "bytes": 12798656,
+      "sha256": "0fd5ea50ecd8537ae0442fff9fa7b2e8d04152e5526d310b1a876a9be68111b5"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/next_probes-d0027a2685903d00",
+      "bytes": 12651824,
+      "sha256": "31f6b89fba3d3cd4080a47dce824f1f8d4e0f4cbd6f04b2dcfd13ea52e299482"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/normalization-fab7a00a083a6b8c",
+      "bytes": 5482832,
+      "sha256": "eb7e8eb2f855283b28899c6815159292c848685bc45ad9c0ea8d1286765387ad"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/observed-56ba8e1a23aa02f9",
+      "bytes": 17826728,
+      "sha256": "285cfa69ef7e9aabafe68ddedb772901a3965c24df0d043ac228257b822b9712"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/observer_barrier-0b0882332998df05",
+      "bytes": 15704656,
+      "sha256": "eb24d91df06db5e3b9d61cb4b7889a24c01ed0275737fff657eed76bdfd4f95c"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/observer_barrier-91d8b36f9b26e3a6",
+      "bytes": 17743424,
+      "sha256": "c274c90316b38fc07587d44015a66b71a42724c9831935d4a7db4b383916f7b4"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_candidate-0b28a79834793440",
+      "bytes": 23423520,
+      "sha256": "b462fcaac833798e25736fc0084671b7f6746d669db7a3188751d0d99b0e2d90"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_candidate-dd76aa900833e3df",
+      "bytes": 23322736,
+      "sha256": "ff60d2ac6fd326d251b244f138b3bc26ed28c6176c5813ac76dbca61ebbdb3ad"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_snapshot-45649b50e4b7f85a",
+      "bytes": 20405032,
+      "sha256": "273a513c48f8f28202c679cb047b21241e191f2606061cdf293c2fc1cce2e626"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/optional_periodic_snapshot-6443fcc969f22fc6",
+      "bytes": 20400088,
+      "sha256": "f9541f6f025281fe333fdd5f6e66d70342a615776c56d752a498dbcff8497d7d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/options-6bf652ee028573eb",
+      "bytes": 10392872,
+      "sha256": "d593341f6144ed2d14b83179330712574922f2e412922c8546ca855699fd1a71"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/oracle-b1bbf73cc8c4199f",
+      "bytes": 2184424,
+      "sha256": "823029877ff1726e996058b8159222e2859eafcf72048a9ce179c743ff8665d1"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/parser-486b6a5f162a3f29",
+      "bytes": 1796360,
+      "sha256": "e3307c0161e0df655d22897fb8b8237935c9503b8bbe46d96158d2eb9caabeac"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/partial_execution-f3d52f2eb23255ab",
+      "bytes": 23332992,
+      "sha256": "301c6a055a92a758afa93a8c74bc44b355b8b59c4f4eff3b30d042371a401afa"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic-3d55b453cd38a881",
+      "bytes": 1138808,
+      "sha256": "0f5c3a02cea10c5f2fb9f9c8d85f1ba8ad4895e3bf8983a5e64ad664e2c8b032"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_backend-c1f9f9682fe5112c",
+      "bytes": 23349072,
+      "sha256": "6f4e368142b07f90e9f123f6e6f01c434c1ced425400f3ce7f99300c2e136b13"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_hook-575cdd9e868416da",
+      "bytes": 23431968,
+      "sha256": "63d0a12e18c1ae8166b334e9fbb0b5be509b831f74329ecd29836814461e0708"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_lifecycle-a87ae5d2a0065c59",
+      "bytes": 23162016,
+      "sha256": "55946fa75480d48481d144085f7759c9bc3981c8fa94078c648063cc809628c9"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_service-1c4c9687a9947203",
+      "bytes": 20805184,
+      "sha256": "870d404beff4c6f644d1fa222e65f4193dcf63230f8637cbb4db5b72de702025"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_service-9fdfb5afee795d55",
+      "bytes": 23528304,
+      "sha256": "d7e0fb869895277dc82e518a3d96a04d28482cf15db8be64f2d734150ce19aa6"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-0a627a2dea87bc8e",
+      "bytes": 26081472,
+      "sha256": "eb557109ab9b38f107665b46a8d9f2a3b0c3c13d169a870455440c445c2900e3"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/periodic_snapshot-13cd8ea87e9d47a2",
+      "bytes": 26193328,
+      "sha256": "32d7c3b565f19b2a65bb021c466b244f678e14a933ee1a1b674804ad50c3b70d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/phase_execution-78d9ab7cf6c88927",
+      "bytes": 23383952,
+      "sha256": "095442f232a3685d518b98e3f50a8849120b5593727e501ff9973dfd25d78cc7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/phase_graph-06515da92b20e8fd",
+      "bytes": 22277520,
+      "sha256": "b71800bd55cb32249cc972f00a03ae9469b0d830c04cd2c4610afff0a82430d5"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/phase_l-253f9f162f9286a1",
+      "bytes": 19160360,
+      "sha256": "846054d6776160a835de9a65994f43f6e48bb5c81b63f9cf78d0072cd77e0d32"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/phase_l_material-2fc8cf91cb0a40c9",
+      "bytes": 13805216,
+      "sha256": "83bbcdee967a93e5446bd3973aeeeac273d70ba4da11628c4b5c4bc1392a32a6"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/pipeline_totals-38efd1642a1bb3b5",
+      "bytes": 8256784,
+      "sha256": "4e0048a9d5830aa60cc750e381bdf03a2bea234e58c7fb4e52cb760a52b7f7e5"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/planning-fd58f009d575599b",
+      "bytes": 14602200,
+      "sha256": "0e40809a870dd69925ac1efcc81f85b838583d7c57a927ede8bad3ea60ab3ffb"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/predecessor_spill-5d0c800d7a6879f8",
+      "bytes": 27698064,
+      "sha256": "8421579d472b3181cc241448fc1c10a46e76dcf5285657bd4d40cf4184deec0c"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/primed_covers-ef3032ebd0c164b2",
+      "bytes": 14176992,
+      "sha256": "6f3a9e97b7839881d7c3bf2b456daf3f67c90061c2682fe82dee70e5de5a9c4f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/probes-56c314204e060688",
+      "bytes": 17907880,
+      "sha256": "6443f71f30bcf647758b236aea2bd7f38a9ca837d966404d61c512d88da61397"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/procedure_graph-80e440bd74039e03",
+      "bytes": 5633920,
+      "sha256": "ae36c2cd67ab7a14123353ca40c5cc1f2cfc01d207f83a9e66f13e9d3d6bf217"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/procedures-844e53e1da8cb83e",
+      "bytes": 5420936,
+      "sha256": "c973f2e46970e3f9c57674636b53d69fc6111f118948bf93a3fd53b2306e12df"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/processes-546a899f8c289014",
+      "bytes": 5484616,
+      "sha256": "c54d486f4b861fa22992060abe8365961f9949db20f2a3eeb4f3a8d7885c0d4a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/product-137582589ae2c139",
+      "bytes": 2706328,
+      "sha256": "a578c188dc6abb5a9ab72aba6cf801f4d627150aaf941f76ea1f87a7818bb887"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/properties-17f8f1846fa50342",
+      "bytes": 4909064,
+      "sha256": "8c23efa16e552f1e6a26c1d972d8cbd5a8f7f8a8a2eb155150fb0f8807eb3056"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/properties-425d1d19b9ebe762",
+      "bytes": 11542760,
+      "sha256": "20a2d52571455514c1e3e48ce9288eb79e74382f953b8a60d0cdf2264577dd9f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/properties-fec1a234161565e1",
+      "bytes": 7491016,
+      "sha256": "b5ceb3bf8ea51cadb1049d8f8fc52baeb865d336236c9fa00b24337a1aea9669"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/public_ir-16ebd50994bbf7d1",
+      "bytes": 21406440,
+      "sha256": "1228f7b844c20f9f9faa6952dda5b14800c0c1ff8c14b5b3dce14746441cfa84"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/recurrences-6d1fb665d1401a0a",
+      "bytes": 2670448,
+      "sha256": "e7354712551d38c39b1ac8bd6911c96a2933d82b48b165bca251063bdbd33c6a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/recursive_procedures-c3b63829f1f04281",
+      "bytes": 5636952,
+      "sha256": "04f0b5676856ec8a24fe49fde0b850b49bce8ff3f0b07ea0fe6e978f1899e58a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/review_adversarial-2e36eecf24bc7fc3",
+      "bytes": 4629920,
+      "sha256": "4c5e10d381dd0d1abf713614410a0feb0e822e001d831a44c4f9d5ffcc3193f2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/review_findings-2c59da9d7b1c4b97",
+      "bytes": 8742064,
+      "sha256": "a52929bd64735106869ad2dce3f048c5656faf3a6bf05fd771b69beb802f723f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/robustness-654451733816cd04",
+      "bytes": 2448840,
+      "sha256": "2c29927deea3f98042a79ffde466c2e683b61c1b987096828ab91ff77a724992"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/roles-d1032d9a4585532d",
+      "bytes": 12938856,
+      "sha256": "52804e267a9ea34bc5333e01b79e551f2271cb88a8e2131db8b4c7be2f3e1750"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/roundtrip-e89b8b879c467649",
+      "bytes": 5246648,
+      "sha256": "e16fbc28dc609d172fe4d62a6aee0c4f8259a61775b2ea487853ce788df383ac"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/runtime_names-60377ddb580f5eb9",
+      "bytes": 15306960,
+      "sha256": "dc832a0745d29438e1908cdbf122815b44e02fc72a92f011a1c249f7d1b0c054"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/runtime_ratio-b7b675095756eeed",
+      "bytes": 1076240,
+      "sha256": "9136d6e4ef2a56e4bad6bf9cf4e6bec2cef771929a54c73e0f1b1499e7f11ac2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/sany_cases-2943b5dc5ffb4792",
+      "bytes": 5162312,
+      "sha256": "60c0dc6b3cf668230d14a39e985bfc1004c92f6834506e6a3ad0c1c6d36dc91c"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/sany_cases-fed67c4a29256e39",
+      "bytes": 2200520,
+      "sha256": "dff3671eeb516967745196fac8cc5df3ed6c33facda675e144f9e26ea2d771d5"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/simulate-ca8a3a79be50943c",
+      "bytes": 16128872,
+      "sha256": "bc66abfd2d470ec06e06539b7b809699d9a538e56e7f558499931592061f2538"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/startup-913905ab4c247b06",
+      "bytes": 12474376,
+      "sha256": "c890b446529b4ee48f1d61300fe5d3739cab71ffcfb79264d381c43ddb5d98e1"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/state_fingerprint-c29a503def6c775e",
+      "bytes": 4743408,
+      "sha256": "765850d106a82d735e7af540a30c050394cf52b21a16be635465e89be7c5c34e"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/state_if_planning-a1357210b51e0189",
+      "bytes": 13625184,
+      "sha256": "f5fdb2c9bf1b21627efc1e1b14b19180eaa19d232c3772c5498d877525410781"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/stored_successor_material-e9ddabd29d8ce956",
+      "bytes": 23814328,
+      "sha256": "0fe5bef7c4cb186d3de119613bd3bcb6d3efdd3b8e6c0ffbca5b11a5c77da395"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/structure-91960e15cca8d23d",
+      "bytes": 2401448,
+      "sha256": "eeffa790eb47efeda3c86a38a99c2131d9cff649a3d713b6cd31c32d7734e822"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/symmetry-0b50bf51ebf2283d",
+      "bytes": 17793960,
+      "sha256": "967c9dbf3d5b5926de857a2cfad8885de7d4171f091badeb8669fa024fc8bc03"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/symmetry-ecd31810aa64123c",
+      "bytes": 1977720,
+      "sha256": "ac43e90edaf81de23bf0dd8caac964e1b798c06060bb5ee07a2ce38a1eaef7fe"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/symmetry_declaration-90a9e49cc9b5c2fd",
+      "bytes": 12494824,
+      "sha256": "daa9b8c44a99b7cbdfa58c7b6aeed7875f9a6fb3cb8f1547e203fef2b9aee536"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/symmetry_trace-7016fd1e5e518fe0",
+      "bytes": 27247152,
+      "sha256": "ec70410325c3069c6b806327aa9e7a92099a3d74e414706ef0da1fa43f542513"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tableau-e6f069951db6013c",
+      "bytes": 2358872,
+      "sha256": "ad5cce2eda2f51c44bc9882323bdc3d66d54ee2a16346bb6a6cab04b72e74304"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal-2618c2e5540cbe65",
+      "bytes": 23280760,
+      "sha256": "117681c5323987e5f67e6f57fb8d4d177cb96860ebf9b7d84536d22b20b1fa77"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal-fc77ba5125a2cdbb",
+      "bytes": 15492376,
+      "sha256": "1fc4066dfc3173b13d96258a930e6fa29264da51c93b6b5403d23d57186d0f9f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal_evidence-93afd27ec949c1a5",
+      "bytes": 21917696,
+      "sha256": "d9d4b5980d14016475a2431a907d7cffbdb4556b21de97c30e4576be20ff208f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal_forwarding-7c0b38f72dbf81e1",
+      "bytes": 25048904,
+      "sha256": "1f49abbd6cbb6262ff1b74f55f61a4becc335b3bca7491c3110bf99eee71b4c7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal_operators-5d5b3cfb177b48e3",
+      "bytes": 13762256,
+      "sha256": "ec4eb56073b4ec9bf7dbc26685652e0c07ad949c03c50fdc77eaed0c4ef34680"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/temporal_operators-deecf31f421f2c4a",
+      "bytes": 25786048,
+      "sha256": "bcfdd64d9073e68d8cb959b89449b05c0fc3be9e9cdf12dec98ae0688426851e"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_differential-cece8fe937bf1754",
+      "bytes": 3425520,
+      "sha256": "23e58b47af1bfbc70e143a2c7f42b9b21e0aae795c9c80c9a6998e5671703267"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_final-7505f4c2f841b834",
+      "bytes": 23068008,
+      "sha256": "497d88ad7b80ac918e441a5cc2c097848a697595f4d2b79ebd42b2e4a3067f2e"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_final_safety-1874c75a24a90e75",
+      "bytes": 23365120,
+      "sha256": "a29da5d6c989789a62a04254c444bb19797ea77267fbc320535c85f3aa81e658"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_final_scopes-763ee9af88655cb6",
+      "bytes": 23699312,
+      "sha256": "afd33ec8aabdf42b8ee0b40ed43b3a124d47dd04910312f8a6aae097cf70d76c"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_final_scopes-caf73a7089638e0e",
+      "bytes": 13763280,
+      "sha256": "bb8b16bc849155e20db0691eda6280e4506cea9b74b84076fa70bba742a21966"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_fixtures-8e5325caa00a818c",
+      "bytes": 10854416,
+      "sha256": "09e444fbcd83c870433bef8ab48263341eff3a4919b2bed2bdb2dccfe057a359"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_module-e350810fd437f98d",
+      "bytes": 17766840,
+      "sha256": "992a35e8be27c8fff2bf9e7e1730432133e49a6d47c1074ea452883f7423e28a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_oracle-4a7a66de7f8f9c0f",
+      "bytes": 2503192,
+      "sha256": "2dd0f37967184387b4d09133643e2613b27e344b6ab341d71e8128f16d4ab4ba"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_partial_scc-adc743f2a9d17ebf",
+      "bytes": 1794816,
+      "sha256": "caafadb4d30ae5ddd7e92f26d48fa2ea0bc742eccaf74d566bf55f4d2a625785"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_planning-6ae86b22fa1f22d4",
+      "bytes": 17361920,
+      "sha256": "44f01da2247a96b5a487fd2fcb6ba4011a2bb8998242932bd8cdd041d2a8f542"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_property_origins-81104481cfe32765",
+      "bytes": 26905096,
+      "sha256": "a3772aadf132ab3f945b7963ae47a1c728e175601c24cf9c04f0bc6ec4379dd8"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_random-a0f19938339b6c07",
+      "bytes": 3394088,
+      "sha256": "7afa229cb7db68a0fa6998288dc8a9eb74fb07588d48abc55ba0b33703593cbd"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_scc-70e33930f81ee469",
+      "bytes": 20909928,
+      "sha256": "085db0658b3ef8957bdb67f85a717d888fae262fe0f6f58b7162ff04b81457fa"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_state_fingerprints-d33efcd9bd519adc",
+      "bytes": 7775144,
+      "sha256": "b093c839750ff7499d6402c3ff29df85cf17c10a9d240313d0ac49faa322a9d3"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_state_if-ebcddf07a03c92da",
+      "bytes": 25552400,
+      "sha256": "8f0703c61fcfe3e450f9eeff345a7469d1c9c1a37e038cea5739cc1b080e6466"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_tableau-79fb13b3fab86993",
+      "bytes": 19028704,
+      "sha256": "af73a41a7ad3e9f7bde44e82331d3ecd7b4b9417fec73ea382c3484c6f45cf2d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_temporal-6ab17db0264ae2d3",
+      "bytes": 28830320,
+      "sha256": "5fb51ce3860aa6bbcca3dffb6c45bc3b879ddc63b6a0998e778005ad3ec50f8c"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_temporal_if-14372d63abb3d5ea",
+      "bytes": 14907552,
+      "sha256": "7c9efa0753731186a2ed6102e46606b62b596438adcbe50959691c7dc636501d"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/tlc_temporal_if-c6b672dfc31ad917",
+      "bytes": 25544128,
+      "sha256": "9868cca5855e067a6d2b4c6d42682a32ced743c59aff105f57f66efd2895e231"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/trace_check-3fe54a26e580c02c",
+      "bytes": 16297280,
+      "sha256": "384d15b7b3f158569e4555062bf68bfa6ea8fe61ac3165339dd45d9251c7ff3f"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/trace_controls-baa340cc96aeac0f",
+      "bytes": 16115056,
+      "sha256": "0fe7f7285ccf41825b1dbc0c8d5033eef2fe39467010fa699fe01687e0c48ef7"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/trace_random-f6a09bb8678cd33c",
+      "bytes": 27343136,
+      "sha256": "db60c816b969e7435fc1d43f906271aa9bc206ab07e6b392248b9d56e889c56a"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/trace_runtime_names-9bbc9e0e5c0e212d",
+      "bytes": 15437128,
+      "sha256": "8c421f1c05d6a28d9aced7eaec49608c22981ef3aec1b332eb784ba321219769"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/translation-038532cb83239b53",
+      "bytes": 8923168,
+      "sha256": "fa90cf0340f472ebfdeda818220e890975901c7c2abe4ea94bfce2904203f174"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/translation-896e4f2d67f7cb00",
+      "bytes": 5622896,
+      "sha256": "993db29dc27e349cecc8ea63b410c687a2d49956bdba67c7294017199b2a2cf2"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/var_order-3f4fe428816cbd36",
+      "bytes": 6291800,
+      "sha256": "5acbddfb1ab6c544bc86e6fddcbe76a7cd0faf8348f8c7dadfbcaf0090a87b0e"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/xtask-2b2c6dcc909fa4e1",
+      "bytes": 1757864,
+      "sha256": "a99128a9aa20f0d023d9744ae63fab96960c9d09b1a74e32ffa9e11c55355fde"
+    },
+    {
+      "path": "/Users/jeff/code/dive-periodic-snapshot-target/debug/deps/xtask-6f5001a2423e2051",
+      "bytes": 1630776,
+      "sha256": "f6fcd9d2d67415f7d2fbd0c772abe595c5aa913722886d1eacd6df4896ad6050"
+    }
+  ],
+  "bytes": 2084886440,
+  "retain_prefixes": [
+    "dive_api-",
+    "dive_check-",
+    "stopped_periodic_candidate-",
+    "stopped_observer-",
+    "terminal_periodic_candidate-",
+    "periodic_candidate-",
+    "terminal_observer-"
+  ],
+  "started_unix": 1791753710.144862,
+  "all_selected_absent": true,
+  "closed_unix": 1791753710.55232
+}

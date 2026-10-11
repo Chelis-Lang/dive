@@ -119,7 +119,9 @@ postjoin matching rules are documented in [ADR 0078](decisions/0078-stopped-queu
 ## Supported and refused combinations
 
 Execution currently requires matching TLC-profile checker/evaluator options and
-a private configuration-owned optional snapshot. Prestartup ownership, bounded
+a private configuration-owned optional snapshot with admitted temporal OOS groups.
+A safety-only model without those groups currently refuses this diagnostic
+endpoint; use ordinary safety checking for safety-only specifications. Prestartup ownership, bounded
 pure grammar, configured alias/replacement and zero-state hook guards remain.
 Unknown/effectful/opaque callbacks, state-variable hooks, malformed/foreign public
 IR, unknown ownership and configured unsupported features refuse before this

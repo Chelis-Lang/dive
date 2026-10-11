@@ -25,7 +25,7 @@
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
     "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
     ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9"
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e"
   },
   "current_integration_scope": "Stopped-worker transaction source integrity only. All prior producers/failed observations remain immutable; no ordinary clock/queue/count/model proof."
 }

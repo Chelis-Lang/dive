@@ -19,7 +19,7 @@
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
     "docs/tlc-differences.md": "186c213628d907b749c0fd1b629a02ccfe75d181a04691d60290dbdde6af9ec5",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9",
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
     "CHANGELOG.md": "4395aa1f1c2b2b3818ba96c7b0591acf26378e6d562bd9751ffb55600cf87cfb",
     "AGENTS.md": "135e93f3d2899caf9518ee0eb389544e327949980a60efefd39f0b3bb7b157b0",
     ".github/workflows/ci.yml": "b1a8f6a2b9c67e87f7d94c7bbab0861acf9f3049c53d8c186e99788e72397340",

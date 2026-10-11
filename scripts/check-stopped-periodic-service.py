@@ -47,3 +47,54 @@ for digest,path in history['source_archive_paths'].items():assert sha(gzip.decom
 family=next(x for x in load(ROOT/'conformance/parity-features.json')['families']if x['id']=='F-023')
 assert family['implementation_status']=='missing'and family['certification']=='audit-required'and 224 in family['issues']
 print('Complete four60-row stopped-worker reference histories, original first-error/method/CLI identities and exact current-source qualification; no ordinary proof')
+
+# Closed compiled/runtime producer is distinct from delivery-only Python/docs/maps.
+gate=BASE/'gate-current';before=load(gate/'before.json');after=load(gate/'after.json')
+assert before['producer']=='8820b20158e48ff0ee98ab582ed3eb87cc1d3238'
+assert before['source_sha256']==after['source_sha256']and after['all_steps_passed']and after['build_inputs_unchanged']
+assert len(before['source_sha256'])==487 and len(before['literal_include_sources'])==50 and not before['unresolved_include_macros']
+for path,digest in before['source_sha256'].items():
+    raw=gzip.decompress((gate/'source'/(path+'.gz')).read_bytes());assert sha(raw)==digest,path
+compiled=load(gate/'compiled-source-readback.json')
+assert compiled['producer']==before['producer']and compiled['source_sha256']==before['source_sha256']
+assert len(compiled['source_git_blob_sha1'])==487
+# Receiving integrations validate their own source map; they cannot retag the historical compiled producer.
+steps=load(gate/'steps.json');assert len(steps)==48 and all(s['exit']==0 for s in steps)
+assert '1087 tests run: 1087 passed, 0 skipped'in(gate/'workspace.log').read_text()
+assert sha((gate/'workspace.log').read_bytes())==after['log_sha256']
+runtime=gate/'runtime-current';closed=load(runtime/'runtime-closed.json');selection=load(runtime/'selection.json');manifest=load(runtime/'native-manifest.json')
+assert closed['production_commit']==before['producer']==selection['production_commit']==manifest['production_commit']
+assert closed['source_and_binaries_unchanged']and closed['source_sha256']==before['source_sha256']
+assert len(closed['steps'])==17 and all(s['exit']==0 for s in closed['steps'])
+assert sha((runtime/'runtime-source.rs').read_bytes())==selection['runner_sha256']==manifest['runner_source_sha256']
+assert len(selection['rows'])==len(manifest['rows'])==146
+assert {r['id']for r in selection['rows']}=={r['file'].removesuffix('.json')for r in manifest['rows']}
+native=[]
+for row in manifest['rows']:
+    path=runtime/'native-current'/row['file'];assert sha(path.read_bytes())==row['sha256'];record=load(path)
+    assert not record['model_proof']and not record['ordinary_schedule_certified'];native.append(record)
+assert sum(r.get('stopped_service')is not None for r in native)==80
+assert sum(r.get('terminal_service')is not None for r in native)==40
+assert sum(not r['execution_retained']for r in native)==6
+words=[r for r in native if 'document'in r];assert len(words)==12
+for row in words:
+    assert 'validation: Valid'in row['memory_validation']and 'validation: Valid'in row['json_validation']
+    assert len(row['mutants'])==4
+    for mutant in row['mutants']:
+        assert 'validation: Invalid'in mutant['memory_validation']and 'validation: Invalid'in mutant['json_validation']
+for corpus,count in [('examples',21),('validation-smoke',16)]:
+    reports=list((runtime/(corpus+'-reports')).glob('*.json'));assert len(reports)==1
+    models=load(reports[0])['models'];assert len(models)==count
+    for model in models:
+        assert model['outcome']=='agree'and {run['workers']for run in model['runs']}=={1,4,8}
+        assert all(run['outcome']=='agree'and not run['diffs']for run in model['runs'])
+for name in ['dive-api','dive-cli','dive-conformance','dive-trace']:
+    assert 'test-rendezvous'not in(runtime/(name+'-default-feature-scope.log')).read_text()
+assert 'feature="test-rendezvous"'not in(runtime/'default-check-cfg.log').read_text()
+assert 'original=invariant-violation code=2110 source=0 workers=4 joined=true hook_calls=0 model_proof=false'==(runtime/'cargo-guide.log').read_text().strip()
+current_history=load(BASE/'history-production-8820/manifest.json')
+for path,digest in current_history['matrices_sha256'].items():
+    raw=gzip.decompress((BASE/'history-production-8820/matrices'/(path+'.gz')).read_bytes());assert sha(raw)==digest
+    assert json.loads(raw)['source_sha256']==current_history['source_by_matrix'][path]
+for digest,path in current_history['source_archive_paths'].items():assert sha(gzip.decompress((ROOT/path).read_bytes()))==digest,path
+print('Closed exact8820:48gate/1087zero-skip,487compiled inputs,146native rows/80stopped/40terminal/6preexecution,12Valid+48Invalid both routes;37gate models1/4/8; no ordinary proof')

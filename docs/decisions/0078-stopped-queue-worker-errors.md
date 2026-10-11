@@ -61,3 +61,15 @@ All deciding temporal candidates still use the shared private reconstruction and
 fresh independent memory/JSON replay path. No caller word, graph, Valid flag,
 EOF boolean or suspension flag is admitted as authority. Ordinary scheduling and
 checkpoint composition remain explicit follow-up obligations.
+
+## Closed producer qualification
+
+Clean `8820b20158e48ff0ee98ab582ed3eb87cc1d3238` closes 48 gate stages with
+1,087 tests and no skips. All 487 Rust/Cargo/literal inputs are archived and
+Git-bound; fresh default release excludes the test-only rendezvous. The complete
+146-row native campaign, Cargo example, controlled actual request selection,
+legacy API checks and required 37 safety models at 1/4/8 are retained under
+`conformance/probes/stopped-periodic-service/gate-current/`. The separate
+metadata-only qualification strengthens portable receipt readback without
+changing those compiled inputs or promoting diagnostics to model proof.
+See the probe README and delivery index for exact counts and retained failures.

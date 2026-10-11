@@ -21,7 +21,7 @@
     "docs/divergences.md": "4a639a0bebdd900f304d5e33ef37afb5c8cedee3c067bd4ab70c2ef8840756af",
     "docs/tlc-differences.md": "186c213628d907b749c0fd1b629a02ccfe75d181a04691d60290dbdde6af9ec5",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "16ff1aa4526aa4903302891a8cf79106749d4e4f34459eb09ef29ad36422dad9",
+    "conformance/parity-features.json": "bf389f7f8e09556b174709f33bbfe3d41b749b7e6b0bd39bfcb0173f4509705e",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f"
   },
   "scoped_final_parent_history": {
