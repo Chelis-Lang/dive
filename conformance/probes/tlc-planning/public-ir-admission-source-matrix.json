@@ -59,7 +59,7 @@
     "crates/dive-eval/src/scope.rs": "987b09c529fa71335f708cb0545d2a84746717e1fb135cbf53da3ee0fa1aed6a",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab",
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
-    "crates/dive-liveness/src/lib.rs": "8a47409697445986befa3417cde9886d89b09e26f07275a34060ad2f071ea7e4",
+    "crates/dive-liveness/src/lib.rs": "55dab2554cb8e6b3428fa035cbd9310ef350c6cd420ec8f4e1ba145d6484cfae",
     "crates/dive-liveness/src/plan.rs": "74e17d45b1818fbf67ee98bacec3467a223d991f375f4e52764b014fefb746f0",
     "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/tests/tlc_planning.rs": "ea63d5f7a7996f64fcfb74b80c83c99cbd344b956c6a0f462b154ad39d934bf1",

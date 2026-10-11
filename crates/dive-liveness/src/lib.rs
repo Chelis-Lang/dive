@@ -54,8 +54,5 @@ pub mod periodic;
 /// Source-owned pointer growth and explicit partial-check stopping receipts.
 pub mod periodic_backend;
 
-/// Pinned controller/ratio primitives; native lifecycle integration remains separate.
-pub mod periodic;
-
 /// Native producer-owned commit-boundary clock/pool diagnostics.
 pub mod periodic_lifecycle;
