@@ -24,6 +24,14 @@ selects inline checking. Simulation and checkpoint widths have separate limits.
 
 Pure safety symmetry retains concrete counterexamples while canonicalizing
 visited keys. Unsupported representative/startup/value interactions refuse.
+VIEW with random operators currently returns `unsupported` before binding,
+output or search, even under `--compat=tlc`. The source-wide guard also detects
+unused definitions and native aliases. The unfinished native seeding path could
+produce different concrete draws despite equal counts; see the preserved
+[example and evidence](../../conformance/probes/view-random-seeding/README.md).
+Pure VIEW and random checking without VIEW remain available. Random checking
+reports its actual inline width separately from requested workers.
+
 Ordinary strict temporal model checking remains unsupported; use the explicit
 [final/short mode](temporal.md) for its supported subset. Refused library
 operators, unknown finite deadlock covers, resource stops and internal failures

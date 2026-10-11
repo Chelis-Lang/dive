@@ -24,7 +24,7 @@
     "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
     "crates/dive-check/src/dfid.rs": "4e6b75ba922f6c8559f0643ae45252c31d7f6b8835bef7cc111191be537b9d15",
     "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
-    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-check/src/lib.rs": "b90ac2018a20a01555bb3852d795a91d3ad7c4fcca2e6a06b5e34125777c9381",
     "crates/dive-check/src/options.rs": "02b241e295a338f801699ace3fd7f62c15c2ae06817abf10d00de47589b8071a",
     "crates/dive-check/src/result.rs": "873c1e2eb859b760465b82d26faf77d91572af59b5f3e69b72baad6194207e48",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
@@ -37,5 +37,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/predecessor-spill/current-integration-source.json",
+    "matrix_sha256": "369cee75bfbcf449db17752a73a00ac17521e1480ac7accb462e1664b86e3f19",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  },
+  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
 }

@@ -579,3 +579,12 @@ Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
 refusals. Original expanded-action attribution is still a missing native field,
 not an approved result-changing default. Ordinary periodic scheduling remains
 unsupported; the whole small-model study from the prior IF slice is unchanged.
+
+**D-002 native VIEW limitation (#178):** ordinary safety checking explicitly
+refuses configured VIEW with source-level random operators before binding/output
+or search. Unused definitions and typed native aliases are included in this
+conservative guard. Equal counts previously concealed different concrete draws
+at seed 7/fingerprint 0; [the preserved clean/native control](../conformance/probes/view-random-seeding/README.md)
+is a dive defect, not approved reference divergence. Pure VIEW and untransformed
+random checking remain supported; transformed-fingerprint seeding and independent
+replay remain pending in both profiles.

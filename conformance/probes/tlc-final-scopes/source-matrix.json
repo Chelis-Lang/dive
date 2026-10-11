@@ -13,14 +13,14 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "b10d7ae61b67afb20bbb4006539dc9b461a59b5676f5a5e131561f1095c588ef",
-    "docs/divergences.md": "ba4b7b34bee71afef5fefce4907ca20b1b12058c39ef5b7331864b1e7af7dfbd",
-    "docs/tlc-differences.md": "d7846cc6c9864994fa5657ecd0051a726f1ed8172ce5810d5f2c794005b505fa",
+    "docs/provenance.md": "c2d993ab172fdd70b7608906ba7ec1be192295682a9f70e2b853f2a42977344f",
+    "docs/divergences.md": "89b44ef85fdeb831eae8ae1c9ea3fc919cd23e507a729aa3ff0923cca71bd3b0",
+    "docs/tlc-differences.md": "1b2a1c2680216a5c3b7630c3c418e7fda054c6abe71e2f350302fbc048011028",
     "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
-    "CHANGELOG.md": "6a6ac9f695cce6bb74fcf972dee44823b7fb0713b6032d4e93628689a01e70eb",
+    "CHANGELOG.md": "8a71213b349d95a9d96bfddc0bcdd24c4c3cdebb08bc660964e309058081b623",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
-    "conformance/parity-features.json": "6e365423f8584c49024207d3660782f79ef408956570fd494d8ff5dee58f8781",
+    "conformance/parity-features.json": "9faeee18bf1288f95f83c56d5d68b955f62612d23f3fdafc2c2d3d1944edb373",
     "conformance/probes/tlc-final-scopes/user-example.rs": "55e7d30f20f1d138feb6a5a12de045d9a53896d0f9bc992ac7fbda07daca6f1b",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/manifest.json": "420385dd0a7a0fab710c51e59c7d8cc8c98209fd0ee4806599939d3584f5e568",
@@ -738,5 +738,11 @@
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": "8cf81138d5abd1724d798c5881a5e6d2473cccb4a06d3f46cc2dd7d4710c2eac",
     "conformance/probes/tlc-final-scopes/before-gate-doc-refresh/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": "c08074cf5e00aaeaa2df85f7b1010870b27c7f6753d1a6ecca6e2ecbae3cad47"
   },
-  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification"
+  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification",
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "335ef12cf2a2a04bcaa364f5a23651cb884b87010456a283b0063154f78de7e1",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  },
+  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
 }

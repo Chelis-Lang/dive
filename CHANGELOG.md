@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Refuse configured VIEW with source-level random operators before binding/output
+  or safety search in both profiles, including native aliases and unused random
+  definitions. Preserve the equal-count/different-draw defect and leave pure VIEW
+  and untransformed random checking available (#178).
+
 - Explicit final TLC mode now admits pure state conditional predicates through
   the corrected shared planner and fresh independent witness replay. Scoped
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;

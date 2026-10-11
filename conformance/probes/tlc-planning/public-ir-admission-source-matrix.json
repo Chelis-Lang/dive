@@ -28,5 +28,11 @@
     "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
     "crates/dive-trace/tests/contexts.rs": "0273f042f7cfdbcbca544c899ad945e0b85d9582ccaebc039df5e6d4621eee81",
     "crates/dive-eval/tests/contexts.rs": "9352fdc2e6ac5dd6d53f090af29b736841b72886207847228bdea456087917ab"
-  }
+  },
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+    "matrix_sha256": "56c9369474ed1c9c9621fe8c1b4702234d631052783af93be4bfb61d463d09c9",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  },
+  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
 }

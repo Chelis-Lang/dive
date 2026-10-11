@@ -1,0 +1,58 @@
+{
+  "native_source_commit": "d1102e5d6eb66898259f061949ab031ab6cfa334",
+  "native_sha256": "bcbd0c2fd63008f142929f00bb93fb2006a79cacd574bc5ba25dce0931277b2b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "commands": {
+    "tlc": {
+      "args": [
+        "/Users/jeff/code/dive-checkpoint-random-cache/jre/190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05/jdk-17.0.20.1+1-jre/Contents/Home/bin/java",
+        "-cp",
+        "/Users/jeff/code/dive-checkpoint-random-cache/sha256/7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d/tla2tools.jar",
+        "tlc2.TLC",
+        "-tool",
+        "-seed",
+        "7",
+        "-fp",
+        "0",
+        "-workers",
+        "1",
+        "-cleanup",
+        "-metadir",
+        "/tmp/dive-random-view-seeding-before/meta",
+        "-config",
+        "RandomView.cfg",
+        "RandomView.tla"
+      ],
+      "exit": 12
+    },
+    "native": {
+      "args": [
+        "/Users/jeff/code/dive-cleanup-evidence-20261010/checkpoint-runtime-names/dive",
+        "check",
+        "RandomView.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "exit": 12
+    }
+  },
+  "source_sha256": {
+    "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83"
+  },
+  "evidence_sha256": {
+    "tlc.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "engine.rs.gz": "91831e5fb0d91b3c780308df8c236f8dc1fd2d8143a21a9cfb7af625ae762814",
+    "RandomView.cfg": "825f0ccc77126d87abb4583670936afde61f2aef82795ba0b43d15ef12e65de8",
+    "tlc.stdout": "53358c9c09fa2811b21d178add2c8b95d91b2b09d372b31a78f48b13f8af1f37",
+    "native.stdout": "9fe11b86500d63719448cc419c11224e19a16134cf96a8a1bbe2c20d1a223a44",
+    "RandomView.tla": "9ff2eba068b15f9c517380bb31cc7a52891adfc95c042a11b099f92138dd859e",
+    "native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

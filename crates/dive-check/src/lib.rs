@@ -272,6 +272,20 @@ pub(crate) fn run_check_with_checkpoint(
     opts: &CheckOptions,
     mut checkpoint: Option<&mut checkpoint::Session>,
 ) -> CheckResult {
+    // The current expansion stream uses the raw predecessor fingerprint.
+    // TLCStateMutExt.fingerPrint applies VIEW first. Equal counts therefore
+    // do not establish equivalent draws or a sound concrete witness (#178).
+    // This source-wide guard intentionally includes unused definitions and
+    // native aliases, before binding can print or consume a startup stream.
+    if cfg.view.is_some() && engine::uses_random(ir) {
+        return bare(
+            Verdict::Unsupported {
+                feature: "randomness under VIEW needs transformed-fingerprint seeding and independent replay".into(),
+            },
+            opts,
+            ir,
+        );
+    }
     let mut notes = Vec::new();
     let host = Arc::new(engine::run_host(opts));
     let bind_opts = BindOptions {

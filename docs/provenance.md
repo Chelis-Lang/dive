@@ -495,3 +495,11 @@ predicate is one atom, evaluated by negating the existing pure bounded action
 search. The default formula kernel and independent Word implementation stay
 unchanged. Complete positive/negative fields and periodic/closing controls
 retain the old extra-negation mismatch; this is normalization fidelity only.
+
+The #178 VIEW/RNG admission guard is a temporary native soundness restriction,
+not a port or a change to TLC's random algorithm. Its evidence compares
+`RandomEnumerableValues.get` state seeding with `TLCStateMutExt.fingerPrint`
+(symmetry representative followed by VIEW) at pinned commit `94d0c50`.
+[Preserved source and raw outputs](../conformance/probes/view-random-seeding/README.md)
+show equal counts with unequal concrete draws; the guard promises no transformed
+RNG replay until that path is independently proved.

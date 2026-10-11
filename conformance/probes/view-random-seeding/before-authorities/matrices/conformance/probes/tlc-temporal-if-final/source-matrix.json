@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "base_commit": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
+  "scope": "current bounded direct IF final admission and original configured/derived identities, no ordinary periodic/full-family certification",
+  "source_sha256": {
+    "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
+    "crates/dive-liveness/src/phase_l.rs": "635a4a08659f76c4e541fd6c61f41b77bf26a93767ea1d6f25fa262781edc599",
+    "crates/dive-liveness/tests/tlc_temporal_if.rs": "013a817865ec0e4f0c6afd7cb90af6ff0edf9a855a0418e9fda470371d67bafe",
+    "crates/dive-api/src/tlc_temporal.rs": "f0ab135905a79e9ee2776f8e0805c89a8a23a0922ad63d12b7b8e6753abdde15",
+    "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
+    "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
+    "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
+    "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
+    "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
+    "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
+    "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
+    "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
+    "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
+    "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
+    "docs/provenance.md": "b10d7ae61b67afb20bbb4006539dc9b461a59b5676f5a5e131561f1095c588ef",
+    "docs/divergences.md": "ba4b7b34bee71afef5fefce4907ca20b1b12058c39ef5b7331864b1e7af7dfbd",
+    "docs/tlc-differences.md": "d7846cc6c9864994fa5657ecd0051a726f1ed8172ce5810d5f2c794005b505fa",
+    "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
+    "conformance/parity-features.json": "6e365423f8584c49024207d3660782f79ef408956570fd494d8ff5dee58f8781",
+    "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07"
+  },
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "496b6848d45ee0aa2b94d6340e50e99539782cc7927c26c9ad26446ac716f385",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
+  "current_integration_scope": "Combined spill publication and scoped temporal shape/role integration; immutable previous execution sources remain separate, no family certification"
+}

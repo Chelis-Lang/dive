@@ -22,7 +22,7 @@
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "a3f45df36f6c93869c47c3feb848c069ebe7064a2c6768534f41effc8d6b865d",
     "crates/dive-check/src/engine.rs": "11c76b270c4390b0da3157ce57dbc0f1a96851c21ccc723d62149e99d2613c83",
-    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-check/src/lib.rs": "b90ac2018a20a01555bb3852d795a91d3ad7c4fcca2e6a06b5e34125777c9381",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07",
     "crates/dive-model/src/lib.rs": "6520fd77a7ac023f52a61d0f0897df7fdc7d3b37015778236a9d9467edd240ad",
@@ -33,5 +33,11 @@
     "source_parent": "d0d95389f413edb04b38392918f0c98585682724",
     "historical_authority": "conformance/probes/native-checkpoint-spill/before-current-shipping-authorities/index.json",
     "scope": "Source integrity only; fresh combined runtime controls recorded separately; finite safety native recovery with separate transient frontier/predecessor budgets; no family certification"
-  }
+  },
+  "view_random_admission_previous_authority": {
+    "matrix": "conformance/probes/view-random-seeding/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "5d2121f3b57b1de314ad52c2de14b62a65bf33338abd9159d08f87aa2fb7a209",
+    "source_archive": "conformance/probes/view-random-seeding/before-authorities/sources"
+  },
+  "current_scope_addendum": "Conservative pre-bind VIEW/RNG admission repair; historical producer evidence and certification status remain unchanged."
 }
