@@ -5,7 +5,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = Path::new(
         "conformance/probes/native-temporal-operators/models/NativeHeadFails/NativeHeadFails.tla",
     );
-    let analysis = dive_sema::analyze_file(path, &Default::default())?;
+    let analysis = dive_sema::analyze_file(path, &dive_sema::Options::default())?;
     let ir = Arc::new(dive_ir::lower(&analysis)?);
     let cfg = dive_config::parse("INIT Init\nNEXT Next\nPROPERTY Live\n")
         .into_config()
@@ -14,7 +14,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         workers: 4,
         ..dive_check::CheckOptions::tlc(0, 0)
     };
-    let report = dive_api::tlc_temporal::check_final(&ir, &cfg, &options, Default::default())?;
+    let report = dive_api::tlc_temporal::check_final(
+        &ir,
+        &cfg,
+        &options,
+        dive_liveness::phase_graph::Limits::default(),
+    )?;
     let dive_api::tlc_temporal::Outcome::Violation(violation) = report.outcome() else {
         return Err("expected liveness violation".into());
     };
