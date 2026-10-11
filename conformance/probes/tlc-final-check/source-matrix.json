@@ -7,7 +7,7 @@
     "crates/dive-liveness/src/tlc_scc.rs": "194f2a4399abf8d999372853a5645b278b8da2c5bac39db1f92c9153862e769c",
     "crates/dive-liveness/src/tlc_witness.rs": "30324f83c734471c69b21b5f312efac861e698a02b8769b18474fe5e432391fc",
     "crates/dive-liveness/src/tlc_final.rs": "6fb576bb09179ad7a1be3bd4323632d1d95a03af77c6dfbdc129d78b3127b629",
-    "crates/dive-liveness/src/phase_execution.rs": "203795e697118e6a57e1570bdfa1854419822552dcd70a42b913afb6354c561b",
+    "crates/dive-liveness/src/phase_execution.rs": "dfd1574afe1662fabf890d8a5c201f118a2185165ce1fd48b28164d9b1d2ff22",
     "crates/dive-liveness/tests/tlc_scc.rs": "53a34833a8740ad0bf5851606f0fa77b4b182cb75c17bd69a9a2e88059d752d2",
     "crates/dive-liveness/tests/tlc_final.rs": "3488e103db644fcd8fe81ff3643a89bb9ea713577dcdf3c3012a48b19f60dd30",
     "crates/dive-liveness/examples/tlc_final_report.rs": "37d123ff4f2bc071c1b3b4b978eed03f1f57676b4b0172ef3cb9abae68a42335",
@@ -31,7 +31,7 @@
     "selection.json": "38084924bd532f82d83592f66f719775a6facdcda9782df217504ec8fe5d049f",
     "native-outcomes.json": "96188213fe069fa276f5c1f660553213676079e325eb595a914e5f9a04b7d05b"
   },
-  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification.",
+  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate.",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "scoped_final_parent_history": {

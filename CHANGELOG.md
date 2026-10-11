@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Producer-owned progress requests pause actual expansion claims and join admitted work under real dispatch authority; privately retained receipts keep uncommitted output separate from logical/temporal graph publication. Runnable Rust diagnostics grant no ordinary schedule or model-proof credit.
+
 - Add a bounded configuration-owned periodic snapshot Rust diagnostic with prebinding startup admission, original role/body identities and exact ordinary-check refusal. It grants no ordinary schedule or temporal proof.
 
 - Bounded pure supplied periodic expressions compose at real native pauses, retaining original comparison/evaluation errors. Configured `_PERIODIC` and ordinary temporal CLI remain refused; see `docs/periodic-hook.md`.

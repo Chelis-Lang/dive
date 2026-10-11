@@ -9,5 +9,5 @@
     "scripts/check-runtime-ratio.py": "d6992bf1ec42bdca6dab8f4a7cf4bfc3f0ee3dfdffd60699ab5675002fae1950",
     "docs/ordinary-periodic-controller.md": "3b6602080050c07b3fd9ff371e2749f3ce4973bed925ca9f05ddafcb03a89ccb"
   },
-  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification."
+  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate."
 }

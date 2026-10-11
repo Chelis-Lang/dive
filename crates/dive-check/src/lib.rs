@@ -74,6 +74,7 @@ mod host;
 mod options;
 mod parallel;
 mod pool;
+pub mod progress;
 mod render;
 mod result;
 

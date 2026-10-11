@@ -112,11 +112,34 @@ impl FinalCheck {
         &self.selection
     }
 }
+/// Actual pre-publication request service under the joined pool mutex.
+#[derive(Clone, Debug)]
+pub struct ExpansionPause {
+    pub(crate) receipt: dive_check::capture::ExpansionQuiescence,
+    pub(crate) workers: usize,
+    pub(crate) generation: u64,
+}
+impl ExpansionPause {
+    /// Actual claims/completed output versus the prior logical commit prefix.
+    #[must_use]
+    pub fn receipt(&self) -> &dive_check::capture::ExpansionQuiescence {
+        &self.receipt
+    }
+    /// Actual joined pool width and generation held during service.
+    #[must_use]
+    pub fn pool(&self) -> (usize, u64) {
+        (self.workers, self.generation)
+    }
+}
 /// Closed native diagnostic run. No outcome reports ordinary Holds or violation.
 #[derive(Clone, Debug)]
 pub struct Run {
     pub(crate) backend: periodic_backend::Run,
     pub(crate) options: Options,
+    pub(crate) expansion_pauses: Vec<ExpansionPause>,
+    pub(crate) request_options: Option<dive_check::progress::Options>,
+    pub(crate) requests_cancelled: bool,
+    pub(crate) aborted_request: Option<dive_check::progress::Request>,
     pub(crate) invocations: Vec<Invocation>,
     pub(crate) final_checks: Vec<FinalCheck>,
     pub(crate) eof: Option<Stats>,
@@ -142,6 +165,28 @@ impl Run {
     #[must_use]
     pub fn final_checks(&self) -> &[FinalCheck] {
         &self.final_checks
+    }
+    /// Actual extra claim-gate policy; absent for the existing commit-only path.
+    #[must_use]
+    pub fn request_options(&self) -> Option<dive_check::progress::Options> {
+        self.request_options
+    }
+    /// An actual expansion cut disabled requests while leaving earlier claims open.
+    #[must_use]
+    pub fn requests_cancelled(&self) -> bool {
+        self.requests_cancelled
+    }
+    /// The one pending request cancelled at that cut, if any. This is a bounded
+    /// stopping scalar, not a successful pause/hook/SCC or ordinary stop receipt.
+    #[must_use]
+    pub fn aborted_request(&self) -> Option<dive_check::progress::Request> {
+        self.aborted_request
+    }
+    /// Producer-clock claim pauses before current-wave graph publication.
+    /// No SCC or configured hook is run against uncommitted expansion output.
+    #[must_use]
+    pub fn expansion_pauses(&self) -> &[ExpansionPause] {
+        &self.expansion_pauses
     }
     /// Actual supplied-expression calls. These assert no configured `_PERIODIC` identity.
     #[must_use]
@@ -181,6 +226,10 @@ pub fn execute(
 
 pub(crate) struct State {
     pub options: Options,
+    pub requests: Option<dive_check::progress::Options>,
+    pub requests_cancelled: bool,
+    pub aborted_request: Option<dive_check::progress::Request>,
+    pub expansion_pauses: Vec<ExpansionPause>,
     pub start: i64,
     pub last: i64,
     pub ratio: f64,
@@ -214,6 +263,10 @@ impl State {
         let start = time_millis()?;
         Ok(Self {
             options,
+            requests: None,
+            requests_cancelled: false,
+            aborted_request: None,
+            expansion_pauses: Vec::new(),
             start,
             last: start,
             ratio: 0.0,

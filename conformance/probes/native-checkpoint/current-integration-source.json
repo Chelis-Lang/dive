@@ -1,5 +1,5 @@
 {
-  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification.",
+  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate.",
   "historical_integration_sources": [
     {
       "matrix": "before-final-mode-source/matrix.json",
@@ -14,7 +14,7 @@
     "crates/dive-api/tests/native_checkpoint.rs": "5862572c7b3618c7f856027cb2b0c0542bdfda896add46f4a3735b45c821b6e0",
     "crates/dive-check/src/checkpoint.rs": "096e3daa74bb0bbebb06fd0ebdb8f7e302b436fd1442ce9c971377d038a7745b",
     "crates/dive-check/src/engine.rs": "1de7a65983a7e04e05a5b95abb059612e5b8b8052a3a1decf6ee467c51f4da64",
-    "crates/dive-check/src/lib.rs": "195a9692b59cf78af884bf70facd01eb3188c75f00b43083882546396fb580b9",
+    "crates/dive-check/src/lib.rs": "c59a9e6ce5fb3e80e20a69432c1678ef46a985d75100d1f9469cc62503ba0cb5",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f",
     "crates/dive-model/src/lib.rs": "5b3375547916df8de057372abe036861356624a3fb3fe6903dd2f39a2a0a64d1",

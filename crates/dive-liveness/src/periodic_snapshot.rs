@@ -50,6 +50,32 @@ impl Snapshot {
         limits: crate::phase_graph::Limits,
         policy: crate::periodic_lifecycle::Options,
     ) -> Result<Run, EvalError> {
+        self.execute_inner(options, limits, policy, None)
+    }
+    /// Add an internally generated timer/initial-force lane to actual expansion
+    /// claims. Requests join claimed work under real dispatch authority, then
+    /// resume unclaimed work. Current-wave outputs remain uncommitted: only the
+    /// existing source-commit path evaluates the configured hook and temporal graph.
+    /// This diagnostic is not ordinary TLC queue/schedule or model-proof evidence.
+    ///
+    /// # Errors
+    /// The same callback-free snapshot/predicate admission as `execute`.
+    pub fn execute_requests(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: dive_check::progress::Options,
+    ) -> Result<Run, EvalError> {
+        self.execute_inner(options, limits, policy, Some(requests))
+    }
+    fn execute_inner(
+        &self,
+        options: &dive_check::CheckOptions,
+        limits: crate::phase_graph::Limits,
+        policy: crate::periodic_lifecycle::Options,
+        requests: Option<dive_check::progress::Options>,
+    ) -> Result<Run, EvalError> {
         admit_source(&self.bound.model().ir, &self.configuration)?;
         crate::periodic_hook::admit(self.bound.model(), self.bound.predicate())?;
         let mut model = self.bound.model().clone();
@@ -59,8 +85,18 @@ impl Snapshot {
                     && marker.feature == PeriodicSnapshot::ORDINARY_REFUSAL => {}
             _ => return Err(refusal()),
         }
-        let lifecycle =
-            crate::periodic_hook::execute(&model, self.bound.predicate(), options, limits, policy)?;
+        let lifecycle = if let Some(requests) = requests {
+            crate::periodic_hook::execute_requests(
+                &model,
+                self.bound.predicate(),
+                options,
+                limits,
+                policy,
+                requests,
+            )?
+        } else {
+            crate::periodic_hook::execute(&model, self.bound.predicate(), options, limits, policy)?
+        };
         Ok(Run {
             lifecycle,
             name: self.configured_name().to_owned(),

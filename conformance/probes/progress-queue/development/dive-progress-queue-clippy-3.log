@@ -1,0 +1,23 @@
+    Blocking waiting for file lock on package cache
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-periodic-snapshot-work/crates/dive-check)
+error: only a `panic!` in `if`-then statement
+   --> crates/dive-check/src/progress.rs:263:25
+    |
+263 | /                         if unwind {
+264 | |                             panic!("controlled request callback unwind");
+265 | |                         }
+    | |_________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#manual_assert
+    = note: `-D clippy::manual-assert` implied by `-D clippy::pedantic`
+    = help: to override `-D clippy::pedantic` add `#[allow(clippy::manual_assert)]`
+help: replace `if`-then-`panic!` with `assert!`
+    |
+263 -                         if unwind {
+264 -                             panic!("controlled request callback unwind");
+265 -                         }
+263 +                         assert!(!unwind, "controlled request callback unwind");
+    |
+
+error: could not compile `dive-check` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -10,18 +10,18 @@
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
-    "crates/dive-check/src/capture.rs": "d37e585e14ee0c606de70d7412fff0709bcb4dc161fc01b15dc3a9070426039a",
+    "crates/dive-check/src/capture.rs": "c4b939644434aac9fa90691e59695e65cfc9194de4d5aef9af22e51273877ed1",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "d525d87444795a3b6b615cdeb5fd6a9254f08f7e08e27d08bdf605d6106888c4",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
-    "docs/user/temporal.md": "5595270a6fa8e1815d7be549580ca064f7700839a28635ab8df8e39243cfe9f3",
-    "docs/provenance.md": "ce829ab3788a3583e28eded2bd06e40364ba2ed2544c7f0eb5b528153c8ceac1",
-    "docs/divergences.md": "01aba5d6f0733df2fb8207f237cdc7e5066f138e1e3f4d14e9d11d52995e3bdc",
-    "docs/tlc-differences.md": "1af6ada4d6cd6f7860db4ecdc5f6588283f98c8d2a64b55d0d37c6dd04348f08",
+    "docs/user/temporal.md": "8e932f903f5d014963befb8e5fddec12de69f7cb86e94498532a69a057e02226",
+    "docs/provenance.md": "070df42eaa909a947118814166947fe491fde6e19fece9dc0b7176cbdde24e5a",
+    "docs/divergences.md": "e58dd8c4d04f7860f3d579d5db84dc29070112a56fde541349258a231b2dcb40",
+    "docs/tlc-differences.md": "41385e416ef71c8f782b403eb7eed74b15bc238228d4104d1456c28498ab0e6f",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
-    "conformance/parity-features.json": "51aba76eff5080f9706729dbff37e8a5cba73e5ab0cdb0f1ff501a1f54a5e59c",
+    "conformance/parity-features.json": "6b9c1e259e54da97c0c45692d97518313253727b8307349ed4050610ab74ffd1",
     "crates/dive-cli/tests/cli.rs": "b330fd833990939657ff22b695b360f771bedc4024132232c9f96aa206d1f99f"
   },
   "scoped_final_parent_history": {
@@ -33,5 +33,5 @@
   "stored_successor_current_scope": "Current source authority for bounded callback-free stored successor admission; historical captures keep their original source identities; no broad/ordinary/family promotion.",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
   "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
-  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification."
+  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate."
 }

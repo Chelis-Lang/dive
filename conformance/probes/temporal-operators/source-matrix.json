@@ -12,10 +12,10 @@
     "crates/dive-liveness/tests/temporal_operators.rs": "3e78bc3a46a3b15ca03232377f320505d528c214947f511fd3ab4d304f4aa43e"
   },
   "source_sha256": {
-    ".github/workflows/ci.yml": "e739b9998ed8dfbbc7d1fabfdc96f0f4e1da60583b64c5496b14884e51f19e50",
-    "AGENTS.md": "e1f142e6236aec98d3c272179d748efde58009ac41c2ea20aae714ee12fdd19c",
-    "CHANGELOG.md": "2161503c83adc3c0302590d96e7ee23a0ee981b0c83e3c5a1100c6f460cc4f2a",
-    "conformance/parity-features.json": "51aba76eff5080f9706729dbff37e8a5cba73e5ab0cdb0f1ff501a1f54a5e59c",
+    ".github/workflows/ci.yml": "3597cc1df1403228103c6df33cd466bc4d359b07c1d3789a638ea2df05ec1127",
+    "AGENTS.md": "2d4dfa872b092ac91127f4743cd31b8a5c4741727759305ec17c10a218d3b247",
+    "CHANGELOG.md": "8d7a816be714b563e70388b1862a495a29cc74c73defeb6439169ad8f98baaae",
+    "conformance/parity-features.json": "6b9c1e259e54da97c0c45692d97518313253727b8307349ed4050610ab74ffd1",
     "conformance/probes/temporal-operators/DESIGN.md": "8ea7ce06846886f3b5134064e1fdde55a76c96ae8c3eddb776d453bbe8ffd61f",
     "conformance/probes/temporal-operators/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
@@ -3144,14 +3144,14 @@
     "crates/dive-liveness/tests/temporal_operators.rs": "edd838753d66ab1baae8c7966f2dd57cf4b7e9110f91145d7becc8d3d4b5dd32",
     "crates/dive-trace/src/temporal.rs": "e83c01512f120ece8ffa8b8880c7d8a742d7e37d5eeae1a7c180a61179f9140a",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
-    "docs/divergences.md": "01aba5d6f0733df2fb8207f237cdc7e5066f138e1e3f4d14e9d11d52995e3bdc",
-    "docs/provenance.md": "ce829ab3788a3583e28eded2bd06e40364ba2ed2544c7f0eb5b528153c8ceac1",
+    "docs/divergences.md": "e58dd8c4d04f7860f3d579d5db84dc29070112a56fde541349258a231b2dcb40",
+    "docs/provenance.md": "070df42eaa909a947118814166947fe491fde6e19fece9dc0b7176cbdde24e5a",
     "docs/temporal-operators.md": "107543cf79d996b9671c6c5b82705e8745c3beda9d7ea94040a1a33cdf7d0101",
-    "docs/tlc-differences.md": "1af6ada4d6cd6f7860db4ecdc5f6588283f98c8d2a64b55d0d37c6dd04348f08",
-    "docs/user/rust-api.md": "74e4aac92264669b17070f71fdad01e341b9683e1b8f12be6b93a6e239704f37",
-    "docs/user/temporal.md": "5595270a6fa8e1815d7be549580ca064f7700839a28635ab8df8e39243cfe9f3",
+    "docs/tlc-differences.md": "41385e416ef71c8f782b403eb7eed74b15bc238228d4104d1456c28498ab0e6f",
+    "docs/user/rust-api.md": "46339611eb6abdf853a07ece39e08fe9274a8f41b5994d17511b7c5b56f6026a",
+    "docs/user/temporal.md": "8e932f903f5d014963befb8e5fddec12de69f7cb86e94498532a69a057e02226",
     "scripts/check-material-capture.py": "61a9244a12241707d82bed553afbf4c46007fa9a3c80791874e6ad0a6370ad5a",
     "scripts/check-temporal-operators.py": "57621d5c2cff4c2c8b73f49afc7861f7a99d15fb4c473cf373f68119f433f29c"
   },
-  "current_integration_scope": "Current source integrity only; generated maps are separately checked. Preserved producer archives and raw observations retain their original identity. No family certification."
+  "current_integration_scope": "Current source integrity only. The preserved before-progress matrices/source and original raw producers keep their immutable identities; no ordinary scheduling or model-proof certificate."
 }
