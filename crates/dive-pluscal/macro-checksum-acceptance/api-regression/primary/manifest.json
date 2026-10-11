@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "oracle_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "reference_library_sha256": {
+    "Bags.tla": "b655ca5e4866f2c81caa43b18a02d0eaa3517784ebc0025259ae4901fd40b814",
+    "BagsTheorems.tla": "af67c8abfb23b0f3ee0d0fa6d0427948f268a14de1b9bb408e7acda23a1d1db4",
+    "BagsTheorems_proofs.tla": "749dcdc49aa7ac1717235c3d82b1f6cc1b389381a63033b40001db21174fba86",
+    "FiniteSetTheorems.tla": "484bf0f9ab6a69ef45f7282f7f92dcf1e6ae139e44117b0d5a4427635818e773",
+    "FiniteSetTheorems_proofs.tla": "a0c71d0b98986784096f9f56b4395edb76dd013bf621d6fa0b9659c1cdbf80a6",
+    "FiniteSets.tla": "eca905df95c16fb12f0f205a38b429c216a11b5c8429d270af044f05600a6380",
+    "NaturalsInduction.tla": "08f52420cdaaf11292ed366782b5ce5b596bb7cbe789526a1cfd8806dbf98624",
+    "NaturalsInduction_proofs.tla": "8b48da8d05a2eb61698c5cd512a25c07cfe64ad6295976a853b3697e9640cddb",
+    "RealTime.tla": "23078bd5961b783bb888cc5654a5c92ae6296fae4f426dc6e1f57a29109c52f0",
+    "SequenceTheorems.tla": "1fdbed9077bba9db329e499535be29f8d2e6fba3a2b338e364c3b0ec56596bf9",
+    "SequenceTheorems_proofs.tla": "8f30d6f458ac623df4db14c88ab758fcb2a97889e42427e67634dcfc61510b20",
+    "TLAPS.tla": "9afe54984062748a0568966434cc0945d682f8cd89fdbc38f73b5579751b0c55",
+    "WellFoundedInduction.tla": "6f2f274c2e987d1edcf004d8e37b053f1f82b912e66d6a51bae0af8012ddcbec",
+    "WellFoundedInduction_proofs.tla": "f3af7b047663143f50d33c2587ca96cfeb27d47a80f365701cc0f1f7f569584c"
+  },
+  "selection_sha256": "d763849d84574fd5045492dab771f68d2d38dfbc23db00b8cfbacaf00564b5fb",
+  "capture_sha256": "26722bffb2078caccb8b1d628200ea7090f82db74b077291fe4e3bd060360fe0",
+  "adapter_sha256": {
+    "SourceOptionProbe.class": "2b927b398ea4b7439fdfedaf345e0c349da5597583c35ab650c79a3947d1f36f",
+    "OptionValidatorProbe.class": "7be6c299f7d035ea88451f8819054daa17c8a4be81cfbdab34453fe1e2ddd4ee"
+  },
+  "selected": 2,
+  "native_credit": false,
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "InvokedMacroApiRewrite",
+      "flags": [],
+      "origin": "exact-existing-api-rewrite-regression",
+      "input_sha256": "3a2c5268f3e922195b0407650fb86034c2975c94722ca87bada8d1e3d782e7c1",
+      "output_sha256": "6c53288780fc9409fe3120d8097058619956d629826a2d9d971c32ebd9a23584",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "InvokedMacroApiRewrite.primary.stdout.gz",
+          "sha256": "f19157a80b412b0d644f2e53c29719b04fd16c963e617ecb930a2c8458044948"
+        },
+        "stderr": {
+          "path": "InvokedMacroApiRewrite.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "40fe0264",
+        "f56fbb5c"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "InvokedMacroApiRewrite.stages.stdout.gz",
+          "sha256": "c35b54c1a9ae355c6345a33bd34bbba74d47745bb9963f4751242fac14d95388"
+        },
+        "stderr": {
+          "path": "InvokedMacroApiRewrite.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "000721a7f675affa4cf07ae14c8a9941249193c499598b822efd5abcd2e061de"
+        },
+        "names": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "000721a7f675affa4cf07ae14c8a9941249193c499598b822efd5abcd2e061de"
+        },
+        "translated": {
+          "crc": "40fe0264",
+          "ast_sha256": "716a55f32cb4ce9fb55fcdf8da57dbb974b16492505ef1f89fc9e231c0a140dd",
+          "json_sha256": "000721a7f675affa4cf07ae14c8a9941249193c499598b822efd5abcd2e061de"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "InvokedMacroApiRewrite.sany.stdout.gz",
+          "sha256": "4c83c66f3c02b7ba05db2269d1778c66d954609ea11ae52061d67b4abcffb002"
+        },
+        "stderr": {
+          "path": "InvokedMacroApiRewrite.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "InvokedMacroApiRewrite.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "id": "DefineBlockApiRewrite",
+      "flags": [],
+      "origin": "exact-existing-api-rewrite-regression",
+      "input_sha256": "0d35c016927355687a46868fe135f6a4bd22ca65aeb35344fc72b3a6cabd0a99",
+      "output_sha256": "4380c05a82120edc895c42e5e06f4c6b783a5e3b5ee3c1b0ce1c75583b20fc22",
+      "primary": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineBlockApiRewrite.primary.stdout.gz",
+          "sha256": "f19157a80b412b0d644f2e53c29719b04fd16c963e617ecb930a2c8458044948"
+        },
+        "stderr": {
+          "path": "DefineBlockApiRewrite.primary.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "reference_errors": false,
+      "translated": true,
+      "header": [
+        "c3b157cb",
+        "e3faf4f0"
+      ],
+      "stages_process": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineBlockApiRewrite.stages.stdout.gz",
+          "sha256": "c1190878944a0c3e1118d4d79830d4a1353a4c4a409ce3d77bffb765e6f84080"
+        },
+        "stderr": {
+          "path": "DefineBlockApiRewrite.stages.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "context": {
+        "status": 1,
+        "found": false,
+        "settings": {
+          "fairness": "",
+          "label": false,
+          "root": "Lbl_"
+        }
+      },
+      "stages": {
+        "parse": {
+          "crc": "c3b157cb",
+          "ast_sha256": "8ec19ee8996249c8e7d6b39007eefece428adea269c8516e3f8302aa4317612d",
+          "json_sha256": "ab1c3773c1bf2cd74dff32f133fb138f1d5a1850997d9d531621dfaa0682006d"
+        },
+        "names": {
+          "crc": "c3b157cb",
+          "ast_sha256": "8ec19ee8996249c8e7d6b39007eefece428adea269c8516e3f8302aa4317612d",
+          "json_sha256": "ab1c3773c1bf2cd74dff32f133fb138f1d5a1850997d9d531621dfaa0682006d"
+        },
+        "translated": {
+          "crc": "c3b157cb",
+          "ast_sha256": "8ec19ee8996249c8e7d6b39007eefece428adea269c8516e3f8302aa4317612d",
+          "json_sha256": "ab1c3773c1bf2cd74dff32f133fb138f1d5a1850997d9d531621dfaa0682006d"
+        }
+      },
+      "sany": {
+        "exit_code": 0,
+        "stdout": {
+          "path": "DefineBlockApiRewrite.sany.stdout.gz",
+          "sha256": "1f7e9a1ef03bd5f9cdbf30610abf6be4ec914057e31c411051bf40b4ab18213f"
+        },
+        "stderr": {
+          "path": "DefineBlockApiRewrite.sany.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "accepted": true
+      },
+      "validator": {
+        "exit_code": 0,
+        "stdout": "VALIDATION\t[NO_DIVERGENCE]\n",
+        "stderr": {
+          "path": "DefineBlockApiRewrite.validator.stderr.gz",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ]
+}

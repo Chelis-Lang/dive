@@ -84,7 +84,7 @@ contracts. Separate owners keep separate +/- label lists, and inserted labels
 skip existing names using the selected prefix.
 
 Full serialization still refuses scoped renaming, conflicting labels/default
-initializer names, definitions, macros, procedures and unproved branch-label
+initializer names, definitions, unproved macro layouts, procedures and unproved branch-label
 or expression-layout shapes. It does not certify exact pretty-printing,
 translation maps or filesystem writes. Global parser/node/action/output limits
 still apply before a partial artifact or CRC can escape. Explicit `--checksums
@@ -147,3 +147,7 @@ The source-declaration continuation in [PlusCal source options](pluscal-source-o
 proves a bounded fairness/label subset and keeps requested/effective context
 separate. Historical source-comment refusals and wrong-fairness captures above
 remain evidence of earlier producers, rather than current positive credit.
+
+The separately proved [macro Full scope](pluscal-macro-checksums.md) lifts the
+blanket macro refusal for bounded nonrecursive substitution shapes; it does
+not certify untested process/option interactions.

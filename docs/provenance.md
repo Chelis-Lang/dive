@@ -588,3 +588,26 @@ alias while using full resolved extents for overlap admission.
 | Implementation | Reference | License | Evidence and limits |
 | --- | --- | --- | --- |
 | `dive-pluscal` source option context (`translate/options.rs`) | pinned `pcal/trans.performTranslation`, `parseAndProcessArguments`; `pcal/ParseAlgorithm.FindToken`, `GotoNextNonSpace`, `NextNonIdChar`, `ProcessOptions`, `NextDelimiterCol`; commit `94d0c5070852b37b801bb8998c436383ab7ee37b` | MIT | Whole-file first-declaration scan, first-fairness CLI override and bounded label/root processing; exact context/stage captures retained; unknown/malformed/partial reference errors and unproved Unicode keyword boundaries refused |
+
+## Bounded nonrecursive macro Full checksum serialization
+
+The serializer matches pinned `pcal.ParseAlgorithm.ExpandMacrosInStmtSeq`,
+`ExpandMacroCall` and `SubstituteInStmt`, `pcal.TLAExpr.substituteForAll` and
+`substituteAt`, `pcal.AST.toString` (macro vectors intentionally omitted), and
+`pcal.trans`/`pcal.Validator` CRC stages at `94d0c5070852b37b801bb8998c436383ab7ee37b`
+(MIT). Logical single-line substituted token positions are separate from native
+original-source provenance spans. Embedded trailing-star decoration matches the
+measured comment boundary without weakening standalone EOF. Full artifact
+admission and independent model proof remain separate. See
+`crates/dive-pluscal/macro-checksum-acceptance/` and ADR 0049.
+
+| `dive-api` PlusCal generated declaration insertion (`translate.rs`) | pinned `pcal.trans` translation-section placement immediately after the owned algorithm closing line, commit `94d0c50` | MIT semantics | C/P trailing generated-name references and real unknown-name negatives, with original `Lock` failure retained; strict enclosing-module analysis remains required |
+
+| Algorithm closing-line admission (`dive-api/src/translate.rs`, `dive-pluscal/src/rewrite.rs`) | pinned `pcal/trans.java` line847 `endStuff` admission and line853 section insertion; Java `String.trim` through ASCII 0x20 | MIT semantics | Both C/P empty/space/tab/CRLF/line-comment positives and inline/block-comment/NBSP negatives; original standalone false acceptances and SANY-invalid formfeed outputs retained |
+
+Algorithm marker ownership matches pinned `pcal/trans.java` lines713–743:
+line-first search, `--algorithm` before `--fair` on that line only, followed by
+normal parser validation. All 32 paired C/P controls retain clean primary
+outputs. The new development-only `MarkerOptionProbe` uses the same source
+selection; its separate class/name preserves the earlier helper's wrong
+same-line order as historical evidence. It is never a native dependency.

@@ -81,7 +81,8 @@ identity. The `--fair algorithm` header still hashes only `fair` (D-020), and
 explicit CLI-only options still need the same context in the reference Validator
 (D-021). The native tool does not invent a stronger default checksum. Exact
 primary formatting, filesystem writes/maps, general name renaming and unproved
-macro/procedure AST serialization remain pending.
+macro/procedure AST serialization remain pending. Bounded nonrecursive macro
+Full serialization is separately documented in [the macro guide](pluscal-macro-checksums.md).
 
 Development selection and raw primary errors are retained in
 `crates/dive-pluscal/source-option-semantics-acceptance/`; primary translation,

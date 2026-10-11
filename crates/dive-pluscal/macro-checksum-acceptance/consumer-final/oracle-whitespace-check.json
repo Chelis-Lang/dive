@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "scope": "Repository whitespace check flags exact retained primary/invalid-input bytes; no oracle data is trimmed. Production Rust/Cargo/doc whitespace check passes separately.",
+  "exit_code": 2,
+  "raw_log_sha256": "4d1c659db188045a123011693da47dd4bd541c880f8c3c4e059b9f900416f8ac",
+  "family_certified": false
+}

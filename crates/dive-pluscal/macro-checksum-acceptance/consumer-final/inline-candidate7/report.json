@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "binary_sha256": "44378ebf1ac6e4d7b702621877ae0f8dfc33ace995feff3dbaf8e1eb30bbf1fd",
+  "script_sha256": "28605961471f0ec701203041b2a9850275d99eb5e8b6c46a2cc09cef241262cc",
+  "selection_sha256": "b9aac305454008fef2751a2443fe52996471753d1b54bb47a2dabe7435775986",
+  "selected": 8,
+  "summary": {
+    "reference-rejection-uncredited": 8
+  },
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "Inline_C.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_C.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_C.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_C.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_P.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_P.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_P.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "Inline_P.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    }
+  ]
+}

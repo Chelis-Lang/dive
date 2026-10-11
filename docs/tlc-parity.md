@@ -639,3 +639,9 @@ contexts and old-block context masking refuse explicitly. Native AST/CRC/CST,
 public admission, Validator and finite-model evidence remain separate. See
 [the runnable source options guide](pluscal-source-options.md). F-034/F-035 remain
 partial and audit-required; no certification or denominator change.
+
+The #186 bounded macro checksum continuation keeps F-034/F-035 partial and
+audit-required. Logical substituted-token serialization and public artifact
+admission remain separate from model proof; original invalid-reference outputs
+and measured trailing-prose grammar gaps receive no completion credit.
+See [the maintained macro checksum guide](pluscal-macro-checksums.md).

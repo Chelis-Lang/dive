@@ -57,6 +57,23 @@ pub fn parse_at(
     region: std::ops::Range<usize>,
     opts: &Options,
 ) -> Result<Parsed, Diagnostic> {
+    parse_scoped(source, region, opts, true)
+}
+
+pub(crate) fn parse_prefix_at(
+    source: &str,
+    region: std::ops::Range<usize>,
+    opts: &Options,
+) -> Result<Parsed, Diagnostic> {
+    parse_scoped(source, region, opts, false)
+}
+
+fn parse_scoped(
+    source: &str,
+    region: std::ops::Range<usize>,
+    opts: &Options,
+    complete: bool,
+) -> Result<Parsed, Diagnostic> {
     std::thread::scope(|scope| {
         let failure = |code, message: String| Diagnostic {
             code,
@@ -66,7 +83,7 @@ pub fn parse_at(
         let worker = std::thread::Builder::new()
             .name("dive-pluscal-parser".into())
             .stack_size(16 * 1024 * 1024)
-            .spawn_scoped(scope, || parse_selected(source, region, opts))
+            .spawn_scoped(scope, || parse_selected(source, region, opts, complete))
             .map_err(|error| {
                 failure(
                     Code::Resource,
@@ -86,6 +103,7 @@ fn parse_selected(
     source: &str,
     region: std::ops::Range<usize>,
     opts: &Options,
+    complete: bool,
 ) -> Result<Parsed, Diagnostic> {
     let nearest = |offset: usize| {
         let mut offset = offset.min(source.len());
@@ -133,7 +151,14 @@ fn parse_selected(
             "algorithm marker requires a token boundary",
         ));
     }
-    let tokens = lexer::tokenize(source, after, region.end, opts.max_tokens)?;
+    let (tokens, deferred) = if complete {
+        (
+            lexer::tokenize(source, after, region.end, opts.max_tokens)?,
+            Vec::new(),
+        )
+    } else {
+        lexer::tokenize_prefix(source, after, region.end, opts.max_tokens)?
+    };
     let mut parser = Parser {
         tokens,
         pos: 0,
@@ -147,10 +172,19 @@ fn parse_selected(
     if fair {
         parser.need("algorithm")?;
     }
-    let algorithm = parser.algorithm(begin, fair)?;
-    if parser.pos != parser.tokens.len() {
+    let algorithm = parser
+        .algorithm(begin, fair)
+        .map_err(|error| deferred.first().cloned().unwrap_or(error))?;
+    if let Some(error) = deferred
+        .into_iter()
+        .find(|error| error.span.start < algorithm.span.end)
+    {
+        return Err(error);
+    }
+    if complete && parser.pos != parser.tokens.len() {
         return Err(parser.error(Code::Syntax, "unexpected trailing algorithm content"));
     }
+    parser.tokens.truncate(parser.pos);
     Ok(Parsed {
         source: source.to_owned(),
         algorithm,

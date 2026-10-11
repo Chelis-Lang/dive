@@ -667,7 +667,7 @@ unconfigured and original ignored-option native captures in
 `crates/dive-pluscal/process-option-checksum-acceptance/validator-context/`.
 
 D-008 process checksum options update: supported explicit fairness and inserted
-label settings now have stage-separated raw/full controls; procedure/macro ASTs,
+label settings now have stage-separated raw/full controls; unproved procedure/macro ASTs,
 scoped renaming and unproved source-option declarations remain named Full refusals.
 F-034/F-035 are still partial; CRC derivation, artifact admission and finite
 model/witness checks do not certify the whole translator or liveness.
@@ -692,3 +692,30 @@ Both primary syntax studies are retained under
 `crates/dive-pluscal/source-option-semantics-acceptance/prestudy/` before native
 implementation. Unknown/malformed/partial-error contexts remain named refusals;
 no silent corrected default or unsupported-success credit is adopted.
+
+### D-008 macro checksum stage qualification
+
+Bounded nonrecursive macro Full serialization retains expanded reference AST
+bytes separately from module admission. The original 240-row primary selection
+has 28 translated/SANY-invalid artifacts; none earns artifact or proof credit.
+Embedded ASCII-star decoration is now selected without source mutation, while
+two C/P arbitrary trailing-prose native syntax
+disagreements remain archived, with exact parser-consumed embedded end ownership
+now matching the paired controls. Full procedural/scoped layout and multiline/junction actuals
+remain explicit refusals. See [macro checksum scope](pluscal-macro-checksums.md).
+D-020 fair-header-only CRC weakness remains unchanged in both profiles.
+
+
+### D-008 embedded marker ownership repair
+
+A minimal comment containing `--fair algorithm A` (assigning `x := 1`) and a
+complete `--algorithm B` (assigning `x := 2`) on a later line exposed a native
+selector defect: the pinned translator emitted `x' = 1`, while source5 emitted
+`x' = 2` and admitted the module. Exact selector bytes in shipped main `fe35c73f5`
+match the original base; the source5 runtime evidence is not retagged as a main
+runtime. Original 16-case controls retain four raw and eight public wrong-answer
+rows. The repair uses pinned line order, preferring unfair only when both markers
+share the same line, in both profiles. Expanded split/tab/space and malformed
+controls preserve real reference rejection boundaries. See the
+[macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
+Artifact admission and CRC equality still never establish model correctness.

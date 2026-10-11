@@ -2015,3 +2015,41 @@ new corrected checksum or fairness default. A source declaration overriding
 CLI fairness is intended reference behavior and is tested separately. Artifact
 acceptance still requires enclosing-module analysis; zero from the translator
 never proves model correctness or a usable artifact (D-008).
+
+D-008's macro checksum continuation separates exact expanded AST CRC derivation
+from admitted TLA+ output and checked models. A minimal bounded macro
+`macro Set(v,a) begin v:=a; end macro;` can now derive Full checksums for
+`Set(x,1+2)`. Multiline actuals and substituted junction columns remain named
+refusals. The pinned translator accepts algorithm comments ending with arbitrary
+prose after `end algorithm;`; native embedded selection now stops only at a completely parsed algorithm end.
+The two original C/P failures remain archived; standalone parsing stays EOF strict.
+See [the macro checksum guide](pluscal-macro-checksums.md) for evidence and
+the unchanged fair-header-only checksum limitation.
+
+The macro continuation also retains dive's original `Lock` enclosing-module
+ordering failure: generated declarations were appended after definitions using
+`lock`, `pc` and `ProcSet`. Inserting them immediately after the algorithm
+comment restores the pinned declaration order; genuine unknown-name controls
+still reject. This is a native defect correction, not a new TLC divergence.
+
+The same study keeps two original standalone inline-definition false
+acceptances and four block-comment-tail false acceptances. Pinned translation
+rejects non-line-comment text after the algorithm comment on its closing line;
+native admission now enforces that exact wrapper boundary. Invalid formfeed
+reference artifacts remain uncredited. No new default grammar relaxation is
+introduced.
+
+
+### D-008 embedded marker ownership repair
+
+A minimal comment containing `--fair algorithm A` (assigning `x := 1`) and a
+complete `--algorithm B` (assigning `x := 2`) on a later line exposed a native
+selector defect: the pinned translator emitted `x' = 1`, while source5 emitted
+`x' = 2` and admitted the module. Exact selector bytes in shipped main `fe35c73f5`
+match the original base; the source5 runtime evidence is not retagged as a main
+runtime. Original 16-case controls retain four raw and eight public wrong-answer
+rows. The repair uses pinned line order, preferring unfair only when both markers
+share the same line, in both profiles. Expanded split/tab/space and malformed
+controls preserve real reference rejection boundaries. See the
+[macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
+Artifact admission and CRC equality still never establish model correctness.

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- PlusCal embedded selection follows pinned line-first marker ownership; a later
+  unfair algorithm cannot replace an earlier fair one. Same-line priority and
+  split/tab/space separators have paired primary controls (#192).
+- Bounded nonrecursive PlusCal macros support Full post-expansion AST CRCs.
+  Single-line substitutions retain logical serialization positions; multiline
+  actuals and substituted junction columns are refused. Embedded algorithm
+  comment decoration preserves original spans; standalone parsing still requires EOF.
+  Generated declarations precede trailing user definitions; unknown names still
+  reject and invalid caller ranges carry bounded UTF-8 diagnostics.
 - Bounded temporal operator actuals: `Len`, `Head`, and `Cardinality` retain
   scoped constant/state calls with independent word/witness checks and
   callback-free stored-input admission. Configured/opaque/effectful and

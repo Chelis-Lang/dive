@@ -170,3 +170,10 @@ mutants. CM1's 21 models and all 16 ValidationTestSuite models fully agree at
 [This source-qualified receipt](../conformance/probes/native-parity-integration/current-controls/macros-ordered-execution-integration/verification.json)
 preserves the prior source's results and precedes the procedure-graph increment;
 none of these bounded studies certifies the entire translator.
+
+## Full replacement checksums
+
+Bounded nonrecursive macro expansion also has native Full AST checksum
+serialization. See [macro checksums](pluscal-macro-checksums.md) for runnable
+CLI/Rust examples, exact layout restrictions and the separation between raw
+serialization, admitted replacement and model proof.
