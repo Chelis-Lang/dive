@@ -1,0 +1,21 @@
+{
+  "final_checks": [],
+  "graph_inspections": 0,
+  "invocations": [],
+  "model_proof": false,
+  "name": "default-refusal-w8",
+  "ordinary_schedule_certified": false,
+  "partial_candidate": false,
+  "safety_complete": false,
+  "safety_eof": null,
+  "stop": {
+    "code": "DIVE-L0042",
+    "stats": null,
+    "text": "unsupported phase-L diagnostic: phase-L receipts require TLC value/comparison/exploration mode",
+    "workers": {
+      "requested": 8,
+      "sequential": false,
+      "used": 0
+    }
+  }
+}

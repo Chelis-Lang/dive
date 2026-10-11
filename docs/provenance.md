@@ -648,3 +648,14 @@ normal parser validation. All 32 paired C/P controls retain clean primary
 outputs. The new development-only `MarkerOptionProbe` uses the same source
 selection; its separate class/name preserves the earlier helper's wrong
 same-line order as historical evidence. It is never a native dependency.
+
+
+### Native periodic lifecycle
+
+The native lifecycle diagnostic follows `ModelChecker.doPeriodicWork` and
+`updateRuntimeRatio`, with `StateQueue.suspendAll`, `resumeAll` and `finishAll`
+compared against actual selected `DiskStateQueue` thread controls at MIT-licensed
+pin `94d0c50`. The 296 controller, 196 updater and 96 queue observations retain
+separate producers. Borrowed native dispatch authority and the internal
+source-commit timer/EOF SCC seam are diagnostics; they do not establish ordinary
+scheduler equivalence. See [ADR 0052](decisions/0052-native-periodic-lifecycle.md).

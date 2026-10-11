@@ -1,0 +1,16 @@
+[package]
+name="native-lifecycle-safe-resume-control"
+version="0.0.0"
+edition="2024"
+publish=false
+
+[workspace]
+
+[dependencies]
+dive-check={path="../../../../crates/dive-check"}
+dive-liveness={path="../../../../crates/dive-liveness"}
+dive-config={path="../../../../crates/dive-config"}
+dive-model={path="../../../../crates/dive-model"}
+dive-ir={path="../../../../crates/dive-ir"}
+dive-sema={path="../../../../crates/dive-sema"}
+serde_json="1"

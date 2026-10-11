@@ -1,0 +1,4 @@
+{"final_checks":1,"first_outcome":"Ok(Complete)","force_after":false,"force_before":true,"invocations":4,"model_proof":false,"resume_requested":true,"safety_eof":{"distinct":4,"generated":5,"queue":0},"used":1,"width":1}
+{"final_checks":1,"first_outcome":"Ok(Complete)","force_after":false,"force_before":true,"invocations":4,"model_proof":false,"resume_requested":true,"safety_eof":{"distinct":4,"generated":5,"queue":0},"used":3,"width":3}
+{"final_checks":1,"first_outcome":"Ok(Complete)","force_after":false,"force_before":true,"invocations":4,"model_proof":false,"resume_requested":true,"safety_eof":{"distinct":4,"generated":5,"queue":0},"used":4,"width":4}
+{"final_checks":1,"first_outcome":"Ok(Complete)","force_after":false,"force_before":true,"invocations":4,"model_proof":false,"resume_requested":true,"safety_eof":{"distinct":4,"generated":5,"queue":0},"used":8,"width":8}

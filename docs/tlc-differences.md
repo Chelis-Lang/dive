@@ -2167,3 +2167,6 @@ share the same line, in both profiles. Expanded split/tab/space and malformed
 controls preserve real reference rejection boundaries. See the
 [macro checksum study](../crates/dive-pluscal/macro-checksum-acceptance/README.md).
 Artifact admission and CRC equality still never establish model correctness.
+
+
+The [native clock/dispatch lifecycle diagnostic](native-periodic-lifecycle.md) now samples its own clock and holds real pool dispatch authority during commit-boundary checks. Mandatory final SCCs run at actual safety EOF. TLC’s asynchronous progress-thread/queue timing remains unimplemented: no ordinary verdict or Holds is claimed, and PERIODIC/checkpoint transactions stay refused. Selected96 real queue controls are narrow lifecycle evidence, not model scheduling proof.

@@ -1,6 +1,7 @@
 {
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
   "historical_production_commit": "783fd577aaae54d1abb12553e10efffd1bed12a8",
+  "production_commit": "783fd577aaae54d1abb12553e10efffd1bed12a8",
   "schema_version": 1,
   "scope": "Current combined-source integrity only. Original producer783/dc execution, gate and runtime authority remain under history/native-operator-source-runtime-authority; fresh integration observations are separate. No ordinary/family certification.",
   "source_sha256": {
@@ -404,7 +405,7 @@
     "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
     "crates/dive-check/src/options.rs": "02b241e295a338f801699ace3fd7f62c15c2ae06817abf10d00de47589b8071a",
     "crates/dive-check/src/parallel.rs": "1b81bf965fbceeed02bdb9fc0f18caf090805c6858a28d759845784edfb62fc4",
-    "crates/dive-check/src/pool.rs": "044fdd4df186a1039a919c98334dca2d467288fcab9a8058617adb608d8ca852",
+    "crates/dive-check/src/pool.rs": "5196e43600e3affe54513fa930c87e10eb42af92dc7fec8ca4c141ee16c272a4",
     "crates/dive-check/src/render.rs": "a2d596d82d9e6dad1c6288829c54ae0e6a4397b02195cf034dd76574ab91107c",
     "crates/dive-check/src/result.rs": "873c1e2eb859b760465b82d26faf77d91572af59b5f3e69b72baad6194207e48",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
