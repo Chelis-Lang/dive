@@ -1,0 +1,258 @@
+[
+  {
+    "name": "PartialRoots-default-forced",
+    "model": "PartialRoots",
+    "sources": 128,
+    "obligation": "all-initial-roots-undone",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialRoots-default-growth",
+    "model": "PartialRoots",
+    "sources": 128,
+    "obligation": "all-initial-roots-undone",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialRoots-final-growth",
+    "model": "PartialRoots",
+    "sources": 128,
+    "obligation": "all-initial-roots-undone",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialRoots-final-forced",
+    "model": "PartialRoots",
+    "sources": 128,
+    "obligation": "all-initial-roots-undone",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialChild-default-forced",
+    "model": "PartialChild",
+    "sources": 128,
+    "obligation": "done-root-undone-child",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialChild-default-growth",
+    "model": "PartialChild",
+    "sources": 128,
+    "obligation": "done-root-undone-child",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialChild-final-growth",
+    "model": "PartialChild",
+    "sources": 128,
+    "obligation": "done-root-undone-child",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialChild-final-forced",
+    "model": "PartialChild",
+    "sources": 128,
+    "obligation": "done-root-undone-child",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialSelf-default-forced",
+    "model": "PartialSelf",
+    "sources": 128,
+    "obligation": "finished-self-cycle",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialSelf-default-growth",
+    "model": "PartialSelf",
+    "sources": 128,
+    "obligation": "finished-self-cycle",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialSelf-final-growth",
+    "model": "PartialSelf",
+    "sources": 128,
+    "obligation": "finished-self-cycle",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialSelf-final-forced",
+    "model": "PartialSelf",
+    "sources": 128,
+    "obligation": "finished-self-cycle",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialLater-default-forced",
+    "model": "PartialLater",
+    "sources": 128,
+    "obligation": "later-committed-cycle",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialLater-default-growth",
+    "model": "PartialLater",
+    "sources": 128,
+    "obligation": "later-committed-cycle",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialLater-final-growth",
+    "model": "PartialLater",
+    "sources": 128,
+    "obligation": "later-committed-cycle",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialLater-final-forced",
+    "model": "PartialLater",
+    "sources": 128,
+    "obligation": "later-committed-cycle",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialEA-default-forced",
+    "model": "PartialEA",
+    "sources": 128,
+    "obligation": "EA-false-root-enqueue",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialEA-default-growth",
+    "model": "PartialEA",
+    "sources": 128,
+    "obligation": "EA-false-root-enqueue",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialEA-final-growth",
+    "model": "PartialEA",
+    "sources": 128,
+    "obligation": "EA-false-root-enqueue",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialEA-final-forced",
+    "model": "PartialEA",
+    "sources": 128,
+    "obligation": "EA-false-root-enqueue",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialMultiple-default-forced",
+    "model": "PartialMultiple",
+    "sources": 128,
+    "obligation": "multiple-OOS",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialMultiple-default-growth",
+    "model": "PartialMultiple",
+    "sources": 128,
+    "obligation": "multiple-OOS",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialMultiple-final-growth",
+    "model": "PartialMultiple",
+    "sources": 128,
+    "obligation": "multiple-OOS",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialMultiple-final-forced",
+    "model": "PartialMultiple",
+    "sources": 128,
+    "obligation": "multiple-OOS",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialRevisit-default-forced",
+    "model": "PartialRevisit",
+    "sources": 128,
+    "obligation": "dynamic-tableau-done-revisit",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialRevisit-default-growth",
+    "model": "PartialRevisit",
+    "sources": 128,
+    "obligation": "dynamic-tableau-done-revisit",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialRevisit-final-growth",
+    "model": "PartialRevisit",
+    "sources": 128,
+    "obligation": "dynamic-tableau-done-revisit",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialRevisit-final-forced",
+    "model": "PartialRevisit",
+    "sources": 128,
+    "obligation": "dynamic-tableau-done-revisit",
+    "mode": "final",
+    "force": true
+  },
+  {
+    "name": "PartialGrowthSafe-default-forced",
+    "model": "PartialGrowthSafe",
+    "sources": 128,
+    "obligation": "successful-check-then-growth",
+    "mode": "default",
+    "force": true
+  },
+  {
+    "name": "PartialGrowthSafe-default-growth",
+    "model": "PartialGrowthSafe",
+    "sources": 128,
+    "obligation": "successful-check-then-growth",
+    "mode": "default",
+    "force": false
+  },
+  {
+    "name": "PartialGrowthSafe-final-growth",
+    "model": "PartialGrowthSafe",
+    "sources": 128,
+    "obligation": "successful-check-then-growth",
+    "mode": "final",
+    "force": false
+  },
+  {
+    "name": "PartialGrowthSafe-final-forced",
+    "model": "PartialGrowthSafe",
+    "sources": 128,
+    "obligation": "successful-check-then-growth",
+    "mode": "final",
+    "force": true
+  }
+]

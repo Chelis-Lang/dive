@@ -1,0 +1,1508 @@
+{
+  "schema_version": 1,
+  "selected": 240,
+  "parent_commit": "ba024b780252c6e7235ec03db1f2ed1a87cc1b59",
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "Macro_C_simple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_simple.tla",
+      "input_sha256": "5342822427e1fa0d2cd0a28c760cfb01d8e4c7abf86d51fe5b6a057395b7e779"
+    },
+    {
+      "id": "Macro_C_empty",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_empty.tla",
+      "input_sha256": "aab66b02b3420f6afceffe292d081ee14c545e87fd5c01cab2ed0fdd04e6370f"
+    },
+    {
+      "id": "Macro_C_zero",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_zero.tla",
+      "input_sha256": "b4c166d2390f72365f7e57862e4a9b52eaa6fd91aba40157448256b068a7a255"
+    },
+    {
+      "id": "Macro_C_unused",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_unused.tla",
+      "input_sha256": "674d9a62b23709cd390f0e610c66d0848f3fb4f358b420d482100ed36f7188f5"
+    },
+    {
+      "id": "Macro_C_compound",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_compound.tla",
+      "input_sha256": "27ef004d3dd06eb58fa9fe24b6694ce812da7c6ce744cd1ff92f6ca56f5821da"
+    },
+    {
+      "id": "Macro_C_nested_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_nested_rhs.tla",
+      "input_sha256": "240aa0515a080ce0a23de649d5f7f31bfd7a3e14f8f5a6985ed9e7f4f2df81b8"
+    },
+    {
+      "id": "Macro_C_simultaneous",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_simultaneous.tla",
+      "input_sha256": "3d1923fccf136d69809f4d2d38825d19f6a8ab8cb07bdad135c97e63e7f369b7"
+    },
+    {
+      "id": "Macro_C_duplicate_params",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_duplicate_params.tla",
+      "input_sha256": "9c3c8ae240a58b6a341c0278597586dad863a89e4cc009c093878795bfba4b29"
+    },
+    {
+      "id": "Macro_C_duplicate_macro",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_duplicate_macro.tla",
+      "input_sha256": "cc39be18ea4ae6000f2150b6d95e6527b7c845fdbb19353254adaeea06c2d57f"
+    },
+    {
+      "id": "Macro_C_prior_call",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_prior_call.tla",
+      "input_sha256": "4ee0385dc7d1fa1081f515436d23c881d8401d5cfe1f852916f918428f014531"
+    },
+    {
+      "id": "Macro_C_forward_call",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_forward_call.tla",
+      "input_sha256": "59eab87ba3f40693cc932ae2ace06f7b90c72af2798367493715a23280aa1192"
+    },
+    {
+      "id": "Macro_C_recursive",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_recursive.tla",
+      "input_sha256": "403c213621c52729cb95b81dd0752494d4ced5303baffcbac2a245b41e49862a"
+    },
+    {
+      "id": "Macro_C_unknown",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_unknown.tla",
+      "input_sha256": "520a3f42c82a2e9b8fab4c7b687529c3dc57d5ea8d19bbe13c4a1e0f914445f1"
+    },
+    {
+      "id": "Macro_C_arity_low",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_arity_low.tla",
+      "input_sha256": "d94b905f414a7f19989843c8c756b7f783989c5540cc73445839e65aae3b1741"
+    },
+    {
+      "id": "Macro_C_arity_high",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_arity_high.tla",
+      "input_sha256": "d2148b0a1fd2d2497ffdc057766deaea5d4f3341fe7d3a944c85a9f6673eb374"
+    },
+    {
+      "id": "Macro_C_literal_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_literal_lhs.tla",
+      "input_sha256": "cc6b4a8e76ca82c45686a9364cdb3e7673d4faaf710eece2cce38046293b2277"
+    },
+    {
+      "id": "Macro_C_compound_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_compound_lhs.tla",
+      "input_sha256": "4c4e5fd1364e8ffabcf1b74dc7762f29135eef124e0b7a90ea7d50b718e15a2b"
+    },
+    {
+      "id": "Macro_C_index_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_index_lhs.tla",
+      "input_sha256": "d71e992396ff92ae54eaa5865be5e75c1cd0a0035ea766953c1229fd7cfa6a93"
+    },
+    {
+      "id": "Macro_C_selector_append",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_selector_append.tla",
+      "input_sha256": "5aa1656c8dcc934753c695ab2c193abbda0f251f112b8fdd6d680f7137c44308"
+    },
+    {
+      "id": "Macro_C_field_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_field_lhs.tla",
+      "input_sha256": "6ffd8ce39d39753144e73ed40bf8a52eba6a4d81c45772898ecfa161f6f16aad"
+    },
+    {
+      "id": "Macro_C_selector_arg",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_selector_arg.tla",
+      "input_sha256": "5316a37f2df741abeb2953eae8a7d13bda7afcaad9c772514bc49edf1a58e07a"
+    },
+    {
+      "id": "Macro_C_field_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_field_rhs.tla",
+      "input_sha256": "2e1db98fb2736747be50524a50b3f3a24d9e19b360f9fb3e46dc8512ba9e0b59"
+    },
+    {
+      "id": "Macro_C_record_type",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_record_type.tla",
+      "input_sha256": "05c75a5216dbd48b4f05c17239a978636631d60cc6e53fefb90c3ab75eed8d20"
+    },
+    {
+      "id": "Macro_C_string_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_string_rhs.tla",
+      "input_sha256": "52e82e599baca311fddefc1456972db59d363371ef08ead3358e6df473570603"
+    },
+    {
+      "id": "Macro_C_bound_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_bound_capture.tla",
+      "input_sha256": "bdbddd0aaa301ccf707367c157895de5526f657432b5256365a94eb521206ada"
+    },
+    {
+      "id": "Macro_C_with",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_with.tla",
+      "input_sha256": "b9b222ec33c95f70e7ed071102ea0628cd939e5b7a953d1e2f6a8a2ee9ad4731"
+    },
+    {
+      "id": "Macro_C_with_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_with_capture.tla",
+      "input_sha256": "f405f02cc2f0ef35c5682b2927462fdc4b140974bcd0170b503920d1d38ca559"
+    },
+    {
+      "id": "Macro_C_if",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_if.tla",
+      "input_sha256": "fc2875d79338bbc097dd76b75e8943c8d709175a6b973db8373f0c7d3470bcc7"
+    },
+    {
+      "id": "Macro_C_either",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_either.tla",
+      "input_sha256": "6ca282ff06daae575b0f910d8fcb1aeac475c3d7223409711f439df85f0bf2c6"
+    },
+    {
+      "id": "Macro_C_while",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_while.tla",
+      "input_sha256": "a51b3a7a83d31b4063bbb244f04d40df826a395c8e39ab2d1e74cbb3e472c73d"
+    },
+    {
+      "id": "Macro_C_goto",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_goto.tla",
+      "input_sha256": "fc319844f07f2efccb0afeb77592cd62d360790057147b5060d2ceaea109e48c"
+    },
+    {
+      "id": "Macro_C_label_body",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_label_body.tla",
+      "input_sha256": "1782bd4f81496bf0b1438e153fd16ff0052d2dde362d9ea53ff590d20888fe5e"
+    },
+    {
+      "id": "Macro_C_assert",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_assert.tla",
+      "input_sha256": "74c565ea1b3f425e84419c99d055d7737e6c7fcea58c900ce4732560475a48fc"
+    },
+    {
+      "id": "Macro_C_await",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_await.tla",
+      "input_sha256": "7d31bd47ff2f942ffeb16deaf1be3fdf58ed19beda77af2f404a87c533770e0a"
+    },
+    {
+      "id": "Macro_C_print",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_print.tla",
+      "input_sha256": "96dd2566971f15481088411654620d0bfec2d75e15404fcbb8e7dbf2e7757654"
+    },
+    {
+      "id": "Macro_C_parallel",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_parallel.tla",
+      "input_sha256": "a831aa92870f4d0f480aaaa866f671d92c14592104b3922513e93c7b23915e8d"
+    },
+    {
+      "id": "Macro_C_repeated",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_repeated.tla",
+      "input_sha256": "c462f47eefb47adf2f02b36646217c65cc533172482a2639b47f620128b0ac98"
+    },
+    {
+      "id": "Macro_C_same_action_twice",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_same_action_twice.tla",
+      "input_sha256": "7ed10d6c2bed9f3b10674d777fe831eb0131e57690e531b452f4fd534754fcab"
+    },
+    {
+      "id": "Macro_C_auto_label",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_auto_label.tla",
+      "input_sha256": "de73aca2c657dace9befcdeb580013cb74532ed353dd6cf503c9a02b2bce87fc"
+    },
+    {
+      "id": "Macro_C_fair_modifier",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_fair_modifier.tla",
+      "input_sha256": "dfc9ed771b66f24b44637bade54ae19280336f48bc2959cea54981ff43512feb"
+    },
+    {
+      "id": "Macro_C_utf8",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_utf8.tla",
+      "input_sha256": "574ca0d0414aa9f7e0e9ac0e17399e657e0f6b0f0ad864fc45107774f0234ea9"
+    },
+    {
+      "id": "Macro_C_newline_arg",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_newline_arg.tla",
+      "input_sha256": "0cc03e6ba7d481639fccd7e9c6d6fb699a0b3b7b7ab702ec85572d0b33288f55"
+    },
+    {
+      "id": "Macro_C_tab",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_tab.tla",
+      "input_sha256": "a9d61bc4247b0c2be4809b0b14d5c31f99f18a8f8f75c3aec2a2618d0366a07e"
+    },
+    {
+      "id": "Macro_C_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_process.tla",
+      "input_sha256": "b0924ad41e8bfc78e81ecf51020a6414e431a1b3b1140524d48f6ec43a6867d4"
+    },
+    {
+      "id": "Macro_C_fair_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_fair_process.tla",
+      "input_sha256": "70662ebc97148c2e199ab448e36ff155440f1b5e493c3a0e0e6664be6bbcd23d"
+    },
+    {
+      "id": "Macro_C_multiple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_C_multiple.tla",
+      "input_sha256": "a30523f85ee0c67484b7c855d1763fa0f4982dbf6f322fd6b29f928332bbb6fc"
+    },
+    {
+      "id": "Macro_P_simple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_simple.tla",
+      "input_sha256": "86ff115e5993b26fdfe03f74219a11c8a07add81c59b9d16f39fd5b382d559e8"
+    },
+    {
+      "id": "Macro_P_empty",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_empty.tla",
+      "input_sha256": "5e4f0b227ce60a7ba3b1bc03bc615537fefadc317bb1c6368d9871b8b512e6ee"
+    },
+    {
+      "id": "Macro_P_zero",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_zero.tla",
+      "input_sha256": "9736cfa381077d76e72f606d8f43feb00750bd95161d194958fc0d21487724f2"
+    },
+    {
+      "id": "Macro_P_unused",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_unused.tla",
+      "input_sha256": "4a1ed37989fb7594ed9b88fa7705bc83b5c3474abac09ad263e57c2ba76a0619"
+    },
+    {
+      "id": "Macro_P_compound",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_compound.tla",
+      "input_sha256": "53e1e417d2f5a7c1d547e8507fc9887a273993b1886669c8351365242d803738"
+    },
+    {
+      "id": "Macro_P_nested_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_nested_rhs.tla",
+      "input_sha256": "ec43404522697126d544e5ebe3ebb283c21984d96db058cf84b245037bcd3878"
+    },
+    {
+      "id": "Macro_P_simultaneous",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_simultaneous.tla",
+      "input_sha256": "2d04b1cf14a773f51f4a4b0852a311419b649db1dbc6aebeb4e3ca293dbf628d"
+    },
+    {
+      "id": "Macro_P_duplicate_params",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_duplicate_params.tla",
+      "input_sha256": "334c59768b7008339232a7a416bdba78ab499ab0ed9be9a6e0d34f6be6c42221"
+    },
+    {
+      "id": "Macro_P_duplicate_macro",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_duplicate_macro.tla",
+      "input_sha256": "a8ab2f3d5477e3358ebdc92ee50c7ebe412cc850f452051a964fb4b2670fdeaa"
+    },
+    {
+      "id": "Macro_P_prior_call",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_prior_call.tla",
+      "input_sha256": "9211229591fbebaef058e68600bb2d10348caee9608a5019c326e0ff25f73456"
+    },
+    {
+      "id": "Macro_P_forward_call",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_forward_call.tla",
+      "input_sha256": "217b38a06ff2e9fb99c6e0ae1fa2fb3908b7dccf0ba7e4d62ccf47072511c392"
+    },
+    {
+      "id": "Macro_P_recursive",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_recursive.tla",
+      "input_sha256": "6c1471259263664a561dfc3b5a2dd30e4160d3ad7deda624b653b5518bb853bf"
+    },
+    {
+      "id": "Macro_P_unknown",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_unknown.tla",
+      "input_sha256": "18eee3fdbcd346aa58248478402fef0636a15177ef64c040a415a528819c4b40"
+    },
+    {
+      "id": "Macro_P_arity_low",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_arity_low.tla",
+      "input_sha256": "673f1c4c044898859326673f857069ddcb4747aeed5a485a063b4213ccc91681"
+    },
+    {
+      "id": "Macro_P_arity_high",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_arity_high.tla",
+      "input_sha256": "c093c40cae97359fd154fe676991dc01c51e2f574a05da300a1b55dc68be04b3"
+    },
+    {
+      "id": "Macro_P_literal_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_literal_lhs.tla",
+      "input_sha256": "0358dedd6b7889369ca1dfa2b09b3a67c61682bc8dec57686a23bfcbbf9a7979"
+    },
+    {
+      "id": "Macro_P_compound_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_compound_lhs.tla",
+      "input_sha256": "60e56cb882bdb76de9bd2f9b0afc47b8635881908040f7ca7a12cb2c049e92b3"
+    },
+    {
+      "id": "Macro_P_index_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_index_lhs.tla",
+      "input_sha256": "6d5eef2431a009fee96439ed97a9b6883ce30cb14f7dea8b4a02b986880d7f2f"
+    },
+    {
+      "id": "Macro_P_selector_append",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_selector_append.tla",
+      "input_sha256": "e603c4aeabc3adad400055ac894c442adf130afd6728e1066acc8ea4827e3405"
+    },
+    {
+      "id": "Macro_P_field_lhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_field_lhs.tla",
+      "input_sha256": "7a5343bf9912593097294ceb506a400bb9c837311426fd18a85c61a610e4dcbd"
+    },
+    {
+      "id": "Macro_P_selector_arg",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_selector_arg.tla",
+      "input_sha256": "74b00814fa0586415163d444f0cdac392db29c6bbbe1212e7f360fe6f6a7becd"
+    },
+    {
+      "id": "Macro_P_field_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_field_rhs.tla",
+      "input_sha256": "08f4737c3690dba5e0fb1d1117df7c3cd698fc6d430ef0b570cbeb1b48279e28"
+    },
+    {
+      "id": "Macro_P_record_type",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_record_type.tla",
+      "input_sha256": "c408f6a24cec2996cd207c9a1f43194205ce36958d180d5f89ee646d38c80000"
+    },
+    {
+      "id": "Macro_P_string_rhs",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_string_rhs.tla",
+      "input_sha256": "ed372b304fea6f5369dc19dd997e7738450fddfbfb34689c8e3a2463dd858cfd"
+    },
+    {
+      "id": "Macro_P_bound_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_bound_capture.tla",
+      "input_sha256": "48c3ec131822794ab5843ccd49fe81c53967602ffb8dd15aa5ce47693a5ef53d"
+    },
+    {
+      "id": "Macro_P_with",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_with.tla",
+      "input_sha256": "db1eb46936c45f0a24e867237ee8eeda82b589f1a29a4977dbefbb5302f84ab0"
+    },
+    {
+      "id": "Macro_P_with_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_with_capture.tla",
+      "input_sha256": "6381573fb43b4a9adbd29be14e57f5afba190adfb57b8b45f1805f47b2abecff"
+    },
+    {
+      "id": "Macro_P_if",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_if.tla",
+      "input_sha256": "9fb866b62d587f5e71878651a904e6b756dd36ec91ef5d30b282309dc2f10c05"
+    },
+    {
+      "id": "Macro_P_either",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_either.tla",
+      "input_sha256": "bbbcc90be76c3e5eb3daa4b640538f1f2184615eac74be39349eb90179835417"
+    },
+    {
+      "id": "Macro_P_while",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_while.tla",
+      "input_sha256": "bf9425061faa1fd6db554897efe116e0b6dc5b71ffb756acff3968ebb48e7690"
+    },
+    {
+      "id": "Macro_P_goto",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_goto.tla",
+      "input_sha256": "2fc647b0fc8c64d8a105a1ece3b58251d2e2514454c78bdb3700e15a6c833073"
+    },
+    {
+      "id": "Macro_P_label_body",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_label_body.tla",
+      "input_sha256": "2455127df8ea6c23944f3c569a2b03fe7b36a56f8efa94623e4b7044183353a1"
+    },
+    {
+      "id": "Macro_P_assert",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_assert.tla",
+      "input_sha256": "51fcb0e9af73405130575f3d79f63582f3a4ccbc6303fd71ce56564f66a9c545"
+    },
+    {
+      "id": "Macro_P_await",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_await.tla",
+      "input_sha256": "6b84cb79ef6267b8e20e00616af5d35a7fb1e4b103b0eec84175046c70e96cc7"
+    },
+    {
+      "id": "Macro_P_print",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_print.tla",
+      "input_sha256": "b19b9a5dace4f9f4984bf88d616e9b1c554ec0f6c88c9dd220b77b9eb6dfb5f1"
+    },
+    {
+      "id": "Macro_P_parallel",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_parallel.tla",
+      "input_sha256": "814bbeed5fcd7f0891d93db642de93a986f6ea6252c789ff770d37478bf64068"
+    },
+    {
+      "id": "Macro_P_repeated",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_repeated.tla",
+      "input_sha256": "49c204e4948f726737af6703cb476d5b4be16c5813cf3ff0e5b92045a50a48bf"
+    },
+    {
+      "id": "Macro_P_same_action_twice",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_same_action_twice.tla",
+      "input_sha256": "d97efd54f08764d33199ac72402833c380fc6a241a15aaaec191f35d52cf1c5d"
+    },
+    {
+      "id": "Macro_P_auto_label",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_auto_label.tla",
+      "input_sha256": "c85265379f87357541fc6bd3c1db92ff842e3e7c2c50dffb541a01c71094d8a3"
+    },
+    {
+      "id": "Macro_P_fair_modifier",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_fair_modifier.tla",
+      "input_sha256": "160adf573aeb3a97966da73795f43242908f212e17d166807e8ec7998fdfdc84"
+    },
+    {
+      "id": "Macro_P_utf8",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_utf8.tla",
+      "input_sha256": "5749a8084e5362baecfe84ee2f4a35c5a95af9d21af506532e1256aa0089486e"
+    },
+    {
+      "id": "Macro_P_newline_arg",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_newline_arg.tla",
+      "input_sha256": "913e3b90be871ff29ca7cef8dcf55cac8f45024e0b5b086fa632c1053fd80da5"
+    },
+    {
+      "id": "Macro_P_tab",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_tab.tla",
+      "input_sha256": "f6b3e24f948e6db0e298ac27faa3ba906563c2e9f9cfdc2ebed6a1881fdd9968"
+    },
+    {
+      "id": "Macro_P_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_process.tla",
+      "input_sha256": "6ee022aa5292bc720ee5e69a0411507306f2581cb5a38738bce3eaac0b3c2c59"
+    },
+    {
+      "id": "Macro_P_fair_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_fair_process.tla",
+      "input_sha256": "1e18c477c86b7d50148772779aa9eb06e7c4ecb24147ec8bff01cf2c11dc2601"
+    },
+    {
+      "id": "Macro_P_multiple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/cases/Macro_P_multiple.tla",
+      "input_sha256": "bb6e51bc04ca2cbb46a2076764b98fb7e9577d1541f8dfc5624a542a6e67f3ca"
+    },
+    {
+      "id": "MacroExtra_C_fair_modifier",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_fair_modifier.tla",
+      "input_sha256": "48c8111a6f94dba1bc51b1b2d6eded7a71cb23ac76090b2cfaf45b308e153b04"
+    },
+    {
+      "id": "MacroExtra_C_fair_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_fair_process.tla",
+      "input_sha256": "945f61df4469e9c60a82d42ea0742e3c73a8fee85d57f5462cd325c449c9a56d"
+    },
+    {
+      "id": "MacroExtra_C_auto_if",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_auto_if.tla",
+      "input_sha256": "7c519cee544b89895918dc770e1ed40afe863ebba956e0f21ac65a3eb4d3c6ca"
+    },
+    {
+      "id": "MacroExtra_C_auto_assert",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_auto_assert.tla",
+      "input_sha256": "e6222647ba6d4eb72ef6059073f1dcc76ede9b1bec234f2063eb3f5997c5bb8e"
+    },
+    {
+      "id": "MacroExtra_C_auto_while",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_auto_while.tla",
+      "input_sha256": "9639524a0f4369f80a1c958c6b55b12e9585d2d72afd7477c963c3985cab190f"
+    },
+    {
+      "id": "MacroExtra_C_nested_assert",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_nested_assert.tla",
+      "input_sha256": "2088d921ffe671fc87f14243b6e0bed3a737d036599a97d6a283576e2d7ce662"
+    },
+    {
+      "id": "MacroExtra_C_nested_unused",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_nested_unused.tla",
+      "input_sha256": "b16aea4d80ed930b322c08c914e37560efd074c30553471d55bb942921f585af"
+    },
+    {
+      "id": "MacroExtra_C_free_self",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_free_self.tla",
+      "input_sha256": "7e43b3586ae4283d173cd1fdbbaefa3aec14d39ea27951151134a4a7d0286b80"
+    },
+    {
+      "id": "MacroExtra_C_foreign_local",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_foreign_local.tla",
+      "input_sha256": "0861422f26272449cadf5a28c9faa6ae4dd04449b7b037a5707abf209a3c6301"
+    },
+    {
+      "id": "MacroExtra_C_unused_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_unused_foreign.tla",
+      "input_sha256": "3b2d2daae61a7387525e6e17134397e2ebd13b553e8e480442b31f1499ce3f81"
+    },
+    {
+      "id": "MacroExtra_C_cross_goto",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_cross_goto.tla",
+      "input_sha256": "20121f0183a6db3085364898774289d07ab444a5c46c249e9353c6fe6da7dbbf"
+    },
+    {
+      "id": "MacroExtra_C_with_rename",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_with_rename.tla",
+      "input_sha256": "6a86528b5ba0beb1c96fdda53a198c346d47d96fb3d36f8a99529f7c83dd5bcb"
+    },
+    {
+      "id": "MacroExtra_C_quoted",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_quoted.tla",
+      "input_sha256": "ffb7ddee5de1179e29a61a2c9a69e5258512e6935f7453419f5fe76ee6fc5355"
+    },
+    {
+      "id": "MacroExtra_C_escape",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_escape.tla",
+      "input_sha256": "575a0b1adf48fe4e9f21d6cab13593bc4e4303080f5608718c95dd2b62ed41fa"
+    },
+    {
+      "id": "MacroExtra_C_latin1",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_latin1.tla",
+      "input_sha256": "b902892e290527b20a734d324235396979df79b4df16a0348a2828d8cd1b9f7f"
+    },
+    {
+      "id": "MacroExtra_C_control_string",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_control_string.tla",
+      "input_sha256": "0acaa5c7be6c235c74481807ca2c002756f3bfdbd8d024711e0be451bba26515"
+    },
+    {
+      "id": "MacroExtra_C_record_field",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_record_field.tla",
+      "input_sha256": "8b54c83116b0ae2affc392b17fc766d8fd5882890b43883b69112448ed8725db"
+    },
+    {
+      "id": "MacroExtra_C_free_global",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_free_global.tla",
+      "input_sha256": "a39cf18d28ab4d316aa152fa0a604680cb08f6caddf4edc9007a01c592c65236"
+    },
+    {
+      "id": "MacroExtra_C_triple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_triple.tla",
+      "input_sha256": "d53eefc08f0d1c443fd521c1d067f9b18de4c3910783ab5d10d0a6fff7b722ce"
+    },
+    {
+      "id": "MacroExtra_C_function_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_function_capture.tla",
+      "input_sha256": "4bee5917ee0d585157741b01b542fe993d4c0c9f54d72b3b3888f40bfa76b4db"
+    },
+    {
+      "id": "MacroExtra_C_quantifier",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_quantifier.tla",
+      "input_sha256": "c2b63c8172613f1f1278752920d81e2e1326553e58382ddddb279d57381b68ae"
+    },
+    {
+      "id": "MacroExtra_C_free_done",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_free_done.tla",
+      "input_sha256": "912c7fb1643dec399ea6595e2838618a853f2f222d9cb2334f851a0350a6aaac"
+    },
+    {
+      "id": "MacroExtra_C_multiple_fair",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_multiple_fair.tla",
+      "input_sha256": "62b9111ab469d38c8b47dd3f2a6bbd0837f449a0fc6352d45dbe2855664a9103"
+    },
+    {
+      "id": "MacroExtra_C_unicode_actual",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_C_unicode_actual.tla",
+      "input_sha256": "e6336b26bea6c5c5082d4efaff1c45834c0951b055e7c3cbd4d6586a545326ab"
+    },
+    {
+      "id": "MacroExtra_P_fair_modifier",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_fair_modifier.tla",
+      "input_sha256": "e026bf544e5ac2a559e15c6efa949007c8110deac635966357151e35f40a2527"
+    },
+    {
+      "id": "MacroExtra_P_fair_process",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_fair_process.tla",
+      "input_sha256": "15ba4f55a7930a3cbd5c96062490f681b1bcdc24ed800deea356c02560019d0f"
+    },
+    {
+      "id": "MacroExtra_P_auto_if",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_auto_if.tla",
+      "input_sha256": "202bbe553c1342bccc787f7221a3b545a34ff2b54a409920d2eee0c15b632003"
+    },
+    {
+      "id": "MacroExtra_P_auto_assert",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_auto_assert.tla",
+      "input_sha256": "b4eb249a49c64f88bdace30d4c82501b024923b0040f50db95ccbb79a3600527"
+    },
+    {
+      "id": "MacroExtra_P_auto_while",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_auto_while.tla",
+      "input_sha256": "342c2930a00d604ea5ee366197685841275632c0b474bdbc697834891e04d940"
+    },
+    {
+      "id": "MacroExtra_P_nested_assert",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_nested_assert.tla",
+      "input_sha256": "c579dcf9fe7149eef41045362a3e018016ee8d29c829a96b79602bb5b5e048a2"
+    },
+    {
+      "id": "MacroExtra_P_nested_unused",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_nested_unused.tla",
+      "input_sha256": "597f391a1a90d616e7ff21492fc21d88e399606e200f107f64d200e32a18dd33"
+    },
+    {
+      "id": "MacroExtra_P_free_self",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_free_self.tla",
+      "input_sha256": "40052913dc68ab2eea8516136a8e4d17b45eddf4a695c3b90e73f350d9d525dd"
+    },
+    {
+      "id": "MacroExtra_P_foreign_local",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_foreign_local.tla",
+      "input_sha256": "528fb653170194e4e02ca7fbc9f0fa74d89ac3796a1b40b6d684ccceb19300a0"
+    },
+    {
+      "id": "MacroExtra_P_unused_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_unused_foreign.tla",
+      "input_sha256": "e123aaf9385c381c5e735369634cf681d1e9e4c00324e642e110770e30f7b0d1"
+    },
+    {
+      "id": "MacroExtra_P_cross_goto",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_cross_goto.tla",
+      "input_sha256": "fd9f0469d7cbe247dd0e85dd208260f37445c4f9341cbdd3ee18541b88de5a37"
+    },
+    {
+      "id": "MacroExtra_P_with_rename",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_with_rename.tla",
+      "input_sha256": "ca9dc7f1bb38cf2ba6d0d42af4d18a12a47e8bf57720ad322a88701c702fe7ae"
+    },
+    {
+      "id": "MacroExtra_P_quoted",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_quoted.tla",
+      "input_sha256": "55bae99451866f009ed152655cc440091bd04e0dda2d24fb92e0b88508280c70"
+    },
+    {
+      "id": "MacroExtra_P_escape",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_escape.tla",
+      "input_sha256": "e9f6ee293427906e22435eab9579a10bab754c5014bc3de9cc2e8c4a6761e6b3"
+    },
+    {
+      "id": "MacroExtra_P_latin1",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_latin1.tla",
+      "input_sha256": "bd86635bbc77f1b1f9fb09d64d105018d6a943e79754ab732d40bb91d356b2fe"
+    },
+    {
+      "id": "MacroExtra_P_control_string",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_control_string.tla",
+      "input_sha256": "b427525ff441ad7be9d7b2d240bc87e131ab948b44e6ff161a8e7a43c98fc032"
+    },
+    {
+      "id": "MacroExtra_P_record_field",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_record_field.tla",
+      "input_sha256": "44ceea3c543c7a1bf9bde2414d89389698792475ac9356765f73fa6c967e6b65"
+    },
+    {
+      "id": "MacroExtra_P_free_global",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_free_global.tla",
+      "input_sha256": "9a24dea22ce84a60af5867664de6def2ea532a03b2d584d1272518e6098db611"
+    },
+    {
+      "id": "MacroExtra_P_triple",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_triple.tla",
+      "input_sha256": "77e5e159356ec3ce1ea61815f5d0c0228c9d16eb296fe840edd4162d1bf93c60"
+    },
+    {
+      "id": "MacroExtra_P_function_capture",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_function_capture.tla",
+      "input_sha256": "30e38606304d1911d9606a921e975010401f694d9c22fc2ccb2fa30dbd29dbaf"
+    },
+    {
+      "id": "MacroExtra_P_quantifier",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_quantifier.tla",
+      "input_sha256": "ba8aee90d768c32ee2a351bb542f23eb0679c7b3db4170f2b0057b78b8050b09"
+    },
+    {
+      "id": "MacroExtra_P_free_done",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_free_done.tla",
+      "input_sha256": "1f53d5bbb54117c3b185ed76b9f386da0854112cd42733580bed9956989f5a8c"
+    },
+    {
+      "id": "MacroExtra_P_multiple_fair",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_multiple_fair.tla",
+      "input_sha256": "4359da6065ffd56074343137fb39aa5a1bd5acf1d4fe42bc13d4dad237e501de"
+    },
+    {
+      "id": "MacroExtra_P_unicode_actual",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/extra/cases/MacroExtra_P_unicode_actual.tla",
+      "input_sha256": "73f6e50a21b415855fe71d26c2ace45e32be61f208ac3555050ef06f5e483c80"
+    },
+    {
+      "id": "MacroOrigin_P_with",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_P_with.tla",
+      "input_sha256": "77788d8c93d63efd0e3f139873513d6518e6e6f00d8fd290bc9ee2416f01ebe6"
+    },
+    {
+      "id": "MacroOrigin_P_assert",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_P_assert.tla",
+      "input_sha256": "2e3d0699266103f4d525dccaa4ab8962c5a87f90f370ed386e97fcf954b2c25f"
+    },
+    {
+      "id": "MacroOrigin_P_if",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_P_if.tla",
+      "input_sha256": "0b00ba821e88f62040f89bce1de2273bfd671c5d21637d78414b868608a3505a"
+    },
+    {
+      "id": "MacroOrigin_P_while",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_P_while.tla",
+      "input_sha256": "065556e507050ae59b793f83a0afde2e92cde333b6f880d9afb6678d3751dc97"
+    },
+    {
+      "id": "MacroOrigin_C_with",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_C_with.tla",
+      "input_sha256": "3050ca4d3ea45373eb2d9de985de45d7f34633d475fb6ee78e22a30a24c918de"
+    },
+    {
+      "id": "MacroOrigin_C_assert",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_C_assert.tla",
+      "input_sha256": "f0d8f9a74e13070fd1436e2e548bbf501c36a0fd84c3ffcbcbbc46c52842bb5e"
+    },
+    {
+      "id": "MacroOrigin_C_if",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_C_if.tla",
+      "input_sha256": "ddaf234bc58937d9e9b0d7c93a5e5d390c52f8ddb4984c7048eb4a7f3eed065f"
+    },
+    {
+      "id": "MacroOrigin_C_while",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/origins/cases/MacroOrigin_C_while.tla",
+      "input_sha256": "cc7ffd9d633ef3be1a3996ea4ac838fe225d4b7b6de4b79fcbe8400094afee0d"
+    },
+    {
+      "id": "MacroScope_P_with_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_with_shadow.tla",
+      "input_sha256": "46ba4df82d349a96cfca1a8334c5ad01d030ea59e0d22fcf44235901a135ecd8"
+    },
+    {
+      "id": "MacroScope_P_let_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_let_shadow.tla",
+      "input_sha256": "5cce0f3f1fccafa152f278f8864d3fb013400b4a6583714f06ae70227a4bbba9"
+    },
+    {
+      "id": "MacroScope_P_function_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_function_shadow.tla",
+      "input_sha256": "0ec006e8a8ad04a9f730a5375d1710e2eb05c41504d0b0a116de86389ac63a64"
+    },
+    {
+      "id": "MacroScope_P_quantifier_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_quantifier_shadow.tla",
+      "input_sha256": "57c007bf28d34636bb220144c7aed4bb3d0db428975bf2019ac49804fb04e33f"
+    },
+    {
+      "id": "MacroScope_P_qualified_formal",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_qualified_formal.tla",
+      "input_sha256": "a8df9b38d3b0452cedad0c802a4f87dd9e651321452d7a8f0f9708577ddb65e1"
+    },
+    {
+      "id": "MacroScope_P_qualified_actual",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_qualified_actual.tla",
+      "input_sha256": "58b991bdfd74706eac3f9e1f6562049e02a23011f91640a13c807edd0da3cfbf"
+    },
+    {
+      "id": "MacroScope_P_record_selector",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_record_selector.tla",
+      "input_sha256": "7a17ea5c7cd5857cc269f7921094afd9160c7175d05c1a0d51bf81e4edbeb074"
+    },
+    {
+      "id": "MacroScope_P_simultaneous_defined",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_P_simultaneous_defined.tla",
+      "input_sha256": "1666c852888d59adacaf982a1f52be55652b83796e78b491673f3e8c0f407148"
+    },
+    {
+      "id": "MacroScope_C_with_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_with_shadow.tla",
+      "input_sha256": "e912a6b8d3f35bf258b71de023ff96e516af864d3176e0ce0a2b6eed724ae1b7"
+    },
+    {
+      "id": "MacroScope_C_let_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_let_shadow.tla",
+      "input_sha256": "befb63a609f1b75746df4a5e876987f42d352cf88eda810afd3b864d5203c3f4"
+    },
+    {
+      "id": "MacroScope_C_function_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_function_shadow.tla",
+      "input_sha256": "f162a65d9d957ee494713932496ee02dbf46dd9e736fd2dfb05f2d2baf4b1de2"
+    },
+    {
+      "id": "MacroScope_C_quantifier_shadow",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_quantifier_shadow.tla",
+      "input_sha256": "bda047b2563bcfdbe77da2e268372419fe841982e610cf010448114c75f25d24"
+    },
+    {
+      "id": "MacroScope_C_qualified_formal",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_qualified_formal.tla",
+      "input_sha256": "c4c63c373f980ccb52b4c92863f5bd817ef84428994a2fa5aa71694e0d467d67"
+    },
+    {
+      "id": "MacroScope_C_qualified_actual",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_qualified_actual.tla",
+      "input_sha256": "efd5886cd99987c10f45aa57e655103d58db9d5d538b407e89c16a049d9c9aae"
+    },
+    {
+      "id": "MacroScope_C_record_selector",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_record_selector.tla",
+      "input_sha256": "5180eeabb8936bf6c0be457992dde9ff9f3312844191051ec237c2ee5e9f3a86"
+    },
+    {
+      "id": "MacroScope_C_simultaneous_defined",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/scope/cases/MacroScope_C_simultaneous_defined.tla",
+      "input_sha256": "837da58d514bcf7e133a6dd79fd8972e387576418d8be500297dfa152557f2d1"
+    },
+    {
+      "id": "MacroProcess_C_set",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_set.tla",
+      "input_sha256": "b14e56e30e32e680e853b8efa92f8b1fd113dddd5f55fc598c618d76cc7b29c1"
+    },
+    {
+      "id": "MacroProcess_C_id",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_id.tla",
+      "input_sha256": "6993808ef8b03c19e39038de51f005c35dcc77a6459056540e9ab2cacc4f0817"
+    },
+    {
+      "id": "MacroProcess_C_mixed",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_mixed.tla",
+      "input_sha256": "38ef19bb0275f87979699ef6d5c65bbbb330929d8bf59551f66265fd3d68a717"
+    },
+    {
+      "id": "MacroProcess_C_fair",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_fair.tla",
+      "input_sha256": "f552eec8eeb5d41065e6fff45188fa49d046624801f5e681b137a0c15bd91739"
+    },
+    {
+      "id": "MacroProcess_C_strong",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_strong.tla",
+      "input_sha256": "d95ff6b6d55877cb164747c1df8ba2e9ba7899bf549ff17564b1678d7ab0c9f7"
+    },
+    {
+      "id": "MacroProcess_C_plus",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_plus.tla",
+      "input_sha256": "5ddd4e82556060ec5aea7ca4a9413cba5d374b0957ef0fb73843ff4b4118146f"
+    },
+    {
+      "id": "MacroProcess_C_minus",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_minus.tla",
+      "input_sha256": "9c06a06da54cbbcacc19961cb2451828c2f656e0e8c6d828661bc76db39cf5c1"
+    },
+    {
+      "id": "MacroProcess_C_nof",
+      "flags": [
+        "-nof"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_nof.tla",
+      "input_sha256": "4ceccaafb5bc7e5cea8ad84de2d638ec1c078e0072f8a2ededb80615ca696ff8"
+    },
+    {
+      "id": "MacroProcess_C_wf",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_wf.tla",
+      "input_sha256": "33c93b96da6c0b36bc619b1c27d9b56c5d7353ea2313a46dc0b7bee8972b4ed6"
+    },
+    {
+      "id": "MacroProcess_C_sf",
+      "flags": [
+        "-sf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_sf.tla",
+      "input_sha256": "7ccc0377d4313ef75e0101381187d6375c7c0fac438c07bb86e79188d2d2176e"
+    },
+    {
+      "id": "MacroProcess_C_wfnext",
+      "flags": [
+        "-wfNext"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_wfnext.tla",
+      "input_sha256": "a0af91c6fd187c516103c2ef28f7b95f82b550049014026bdea7c7b045528d48"
+    },
+    {
+      "id": "MacroProcess_C_auto",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_auto.tla",
+      "input_sha256": "fa037fe8dbc3e3442f44a6cf5fc8d1cd20591246ad53cc0a5fca75798903b1b8"
+    },
+    {
+      "id": "MacroProcess_C_with",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_with.tla",
+      "input_sha256": "ab08095e029bf899f0ccd3e97eb8b80632d10f19bd53ef6b6ae9e3b32b6252eb"
+    },
+    {
+      "id": "MacroProcess_C_free_self",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_free_self.tla",
+      "input_sha256": "adfed8b8267f3f33174854e5057004c231525e6979c4e4f149518cf8e3d3e75e"
+    },
+    {
+      "id": "MacroProcess_C_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_foreign.tla",
+      "input_sha256": "f8c056cc1a1d79d42616646c5f190aa852906a5075c7fd5bf96dfaeb8c579fe4"
+    },
+    {
+      "id": "MacroProcess_C_unused_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_C_unused_foreign.tla",
+      "input_sha256": "66656ce2e5d35c2d310df37c893c026a01ac44a1035e01e3b7d88baebd5379d4"
+    },
+    {
+      "id": "MacroProcess_P_set",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_set.tla",
+      "input_sha256": "23308f1ad76029d5584c6d49339821a2c217554da77b777521be088c02db93ec"
+    },
+    {
+      "id": "MacroProcess_P_id",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_id.tla",
+      "input_sha256": "bc6618255a5645d01eebc60e8e2149b9c48e6fa753a0f1009c9563ce3b5f0db5"
+    },
+    {
+      "id": "MacroProcess_P_mixed",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_mixed.tla",
+      "input_sha256": "5c1021b3382e9bfcaf4d8ff112795396cda37d1c4b7dc91c70d93d6820327e3d"
+    },
+    {
+      "id": "MacroProcess_P_fair",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_fair.tla",
+      "input_sha256": "1bdb9a5fcc3d708f5e3ded0dea63755a76d852c1b4bbaf0c8d8f69a4936a211c"
+    },
+    {
+      "id": "MacroProcess_P_strong",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_strong.tla",
+      "input_sha256": "1c68b46a142e5e0293c941cad7f0b293dd21137124a41d7e0e68a0a62fbe12b7"
+    },
+    {
+      "id": "MacroProcess_P_plus",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_plus.tla",
+      "input_sha256": "c05bcc9e48e64383071f53517224466d439a69ffd0b7e8dc251f9cf94b1cd67e"
+    },
+    {
+      "id": "MacroProcess_P_minus",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_minus.tla",
+      "input_sha256": "ca84a68d5d5d793a77a7686e6aecb774ea85e0b53aac481367ab1163e66f6c1c"
+    },
+    {
+      "id": "MacroProcess_P_nof",
+      "flags": [
+        "-nof"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_nof.tla",
+      "input_sha256": "e1ee2207eb689e5b40931d22ed7eb7f5d1ba9348f26ad014c3576e137051ea2f"
+    },
+    {
+      "id": "MacroProcess_P_wf",
+      "flags": [
+        "-wf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_wf.tla",
+      "input_sha256": "37a864015bd149659fcce85be95783a736352ad806be58804ad9e2eca357ac66"
+    },
+    {
+      "id": "MacroProcess_P_sf",
+      "flags": [
+        "-sf"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_sf.tla",
+      "input_sha256": "41bb306e38e3b73405efd4f20b836a6b659d5bab35db3f980e6a929ea0de3f91"
+    },
+    {
+      "id": "MacroProcess_P_wfnext",
+      "flags": [
+        "-wfNext"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_wfnext.tla",
+      "input_sha256": "ae953aca7a9e373a49147540cb24ff6586f80ca0e61e63031924de066f9573a5"
+    },
+    {
+      "id": "MacroProcess_P_auto",
+      "flags": [
+        "-label"
+      ],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_auto.tla",
+      "input_sha256": "771c4371ec47abafbb2f024f19baf841f96aa63f25ee0f2e7017d3f983ab67c5"
+    },
+    {
+      "id": "MacroProcess_P_with",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_with.tla",
+      "input_sha256": "8d1b2a2e08c6fee1d69b3429375bbdbfd48df391b61db2c4161b25c944f34ff3"
+    },
+    {
+      "id": "MacroProcess_P_free_self",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_free_self.tla",
+      "input_sha256": "95b7b37109a0ce6510c3777492e4cae06688751e1ec639da2e24f27c29a67413"
+    },
+    {
+      "id": "MacroProcess_P_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_foreign.tla",
+      "input_sha256": "d09ec10e4555ee0ea7e9cb69303bada0a24ae235b674091e45cbcc6c12dd4d55"
+    },
+    {
+      "id": "MacroProcess_P_unused_foreign",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/process/cases/MacroProcess_P_unused_foreign.tla",
+      "input_sha256": "6e9eed738a8daca6ea27c6489ec042a43fe94dfa9beabd5db0ea39331d08bea9"
+    },
+    {
+      "id": "MacroLexical_C_space",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_space.tla",
+      "input_sha256": "a8afdd7afe8cec74142c566161a860ce07fe15a80fe49e82a2db517226e83d67"
+    },
+    {
+      "id": "MacroLexical_C_tilde",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_tilde.tla",
+      "input_sha256": "a4d208e47a86a257450400ec6be4e42b7812d38a63b7c9cca40b6a34a7dc7b04"
+    },
+    {
+      "id": "MacroLexical_C_unit_separator",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_unit_separator.tla",
+      "input_sha256": "a12f4a54e23c0175db4283f53d4d80828912a81e1a4ceca300b4d14fb31f36d7"
+    },
+    {
+      "id": "MacroLexical_C_delete",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_delete.tla",
+      "input_sha256": "a92eecb9edbfcd6b547d68efd17904ec7754908fc2d1dd7582c5bda0f11b59c5"
+    },
+    {
+      "id": "MacroLexical_C_emoji",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_emoji.tla",
+      "input_sha256": "86f058d9a917bc0bb7d94a57eb106f0f264e563db41e142bcf1f73387cdbece4"
+    },
+    {
+      "id": "MacroLexical_C_escape_unicode",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escape_unicode.tla",
+      "input_sha256": "e2dfe4ac2f5d3e26fc4346b2936ee1d7c05fb64afacc3848c35f1bcbd680981e"
+    },
+    {
+      "id": "MacroLexical_C_escape_hex",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escape_hex.tla",
+      "input_sha256": "3025b50ec8849a2bb96fc46a1df52d76133446a38c1f884bb22334e94676ed81"
+    },
+    {
+      "id": "MacroLexical_C_escaped_tab",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_tab.tla",
+      "input_sha256": "8007773d56c97f4b3039162295972b3984b823525a7cc7dbbf9d04dab8c2bca9"
+    },
+    {
+      "id": "MacroLexical_C_escaped_newline",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_newline.tla",
+      "input_sha256": "2f42dfa474989891a09d72fd0af047b74a637650e6701e153c2a457e06a59139"
+    },
+    {
+      "id": "MacroLexical_C_escaped_formfeed",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_formfeed.tla",
+      "input_sha256": "fdfaa64a2c2701c0030d6ac6c6f90aedd33c3b04ebc7a55b31917961be0d309c"
+    },
+    {
+      "id": "MacroLexical_C_escaped_return",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_return.tla",
+      "input_sha256": "dad31a26acd36860e8489ffea86c2b8e8ee942978646e146a132384babd99fb5"
+    },
+    {
+      "id": "MacroLexical_C_escaped_quote",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_quote.tla",
+      "input_sha256": "067c18f54ca6243ff061f0bf5929dd8812aee309ebf1b8b1f773bcb1fdd9cbfb"
+    },
+    {
+      "id": "MacroLexical_C_escaped_backslash",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_C_escaped_backslash.tla",
+      "input_sha256": "95731044b400a02996c041b38ba23b6ddd3049aa3c41c6c2e4963b5c8d611cc7"
+    },
+    {
+      "id": "MacroLexical_P_space",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_space.tla",
+      "input_sha256": "6d5f8bcb267aab6583bac2a78938c9bf3c63866b7b08a2cdaf64def0ca73b148"
+    },
+    {
+      "id": "MacroLexical_P_tilde",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_tilde.tla",
+      "input_sha256": "3d67f7968411e87ce0aa41936e33125559f3b8823aebd446d4c6dbf3b43b4bb1"
+    },
+    {
+      "id": "MacroLexical_P_unit_separator",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_unit_separator.tla",
+      "input_sha256": "be9accffe8db1a50ad4a5b6ac5d9758f61fc0164e1fc3978276a09c2418e33d3"
+    },
+    {
+      "id": "MacroLexical_P_delete",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_delete.tla",
+      "input_sha256": "86b27ebd99f986166183573a2c69acd7120c3547e4b360d922d4038635ed5083"
+    },
+    {
+      "id": "MacroLexical_P_emoji",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_emoji.tla",
+      "input_sha256": "ae311d940ee8c6060622724626c2bbeb14c10d08bd53a8d44e3ddd8007ff62fd"
+    },
+    {
+      "id": "MacroLexical_P_escape_unicode",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escape_unicode.tla",
+      "input_sha256": "679a2cb90baa929dfc4832e905707c3c64990ab2f09475459a3901938a7d9d3f"
+    },
+    {
+      "id": "MacroLexical_P_escape_hex",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escape_hex.tla",
+      "input_sha256": "34f1c1bb2ec10972b768232fea41aa5b6d5c4cd8a21a243da3b87d05dc221c68"
+    },
+    {
+      "id": "MacroLexical_P_escaped_tab",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_tab.tla",
+      "input_sha256": "aa965378a13a11537ab4dc51bdce30225f703d00c2dc42d8aa3789127b43a03f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_newline",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_newline.tla",
+      "input_sha256": "19bd67950ea4562b383a501a88ca44a6e379d8eff61332c78000e43edb113053"
+    },
+    {
+      "id": "MacroLexical_P_escaped_formfeed",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_formfeed.tla",
+      "input_sha256": "ef9367beddb1e1a233f8f09f9fc0edc6859428a9c39e1afaafde8f9ca8a1159f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_return",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_return.tla",
+      "input_sha256": "30196040f92081375ccc72409c668a42e839a25e7a771fb8f57daea89f98074f"
+    },
+    {
+      "id": "MacroLexical_P_escaped_quote",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_quote.tla",
+      "input_sha256": "70e0f969b2aede1615909fb477637097b9e15cf65c1f73bb14f6740b8498feab"
+    },
+    {
+      "id": "MacroLexical_P_escaped_backslash",
+      "flags": [],
+      "origin": "crates/dive-pluscal/macro-acceptance/lexical/cases/MacroLexical_P_escaped_backslash.tla",
+      "input_sha256": "33c0e2d44e0d7d6217a003c0fb848a7790d155c00982ce907c2a49b339276113"
+    },
+    {
+      "id": "MacroChecksum_C_plain",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "0fe79fb08bedfc7fe62059e1d664d72e9bd3a7629beb183af8467c8c47779345"
+    },
+    {
+      "id": "MacroChecksum_C_source_weak",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "80f52bb7bd5bfbf42419fc2b822a9c7965a4ff0742493af8b8da9a968a19543f"
+    },
+    {
+      "id": "MacroChecksum_C_fair",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "5b745060e7ac0ee2da833a05fd2394e8f1f32fcfb66d3445cc6484800fb4b550"
+    },
+    {
+      "id": "MacroChecksum_C_crlf",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "c5b916b5c12506677bc5595ec642f4df8b3f7fbd5ae1d7144227e77618e84f82"
+    },
+    {
+      "id": "MacroChecksum_C_tabs",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "e025f51ca73cc1b29cbfa011017e254966eddd019e8cf14aec3a0e5830a1a555"
+    },
+    {
+      "id": "MacroChecksum_C_nested",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "9b5f363b4cbac33a30ab1fb7ec4ae82491277b44393c70ce977ccf66e5cda33b"
+    },
+    {
+      "id": "MacroChecksum_C_with",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "aa99bd804a39f21317f239c63d26bcf40d9f425d332bc9777a4b0d277d43402a"
+    },
+    {
+      "id": "MacroChecksum_C_source_label",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "8ac3a9f2725a03a1469a02edf250d5a8cd3e19d76b37475e32081ffd4519ae5e"
+    },
+    {
+      "id": "MacroChecksum_P_plain",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "4e37cf9e2b17d79dcd90bdc21295872cb6f60a7a1a11ceac17b9be276d0e650a"
+    },
+    {
+      "id": "MacroChecksum_P_source_weak",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "9bb874ba7921f9872c82e8d4eff3c034cb1c316cd430e9248a930ef6a5f224ef"
+    },
+    {
+      "id": "MacroChecksum_P_fair",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "ed5deecafbe4eca54958ced55e71be8cf06eb2c476c37717292ec26466388873"
+    },
+    {
+      "id": "MacroChecksum_P_crlf",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "c458df574fb28182bfa15de367059a8a873fd785ddc0850fb399ff25fd311b6d"
+    },
+    {
+      "id": "MacroChecksum_P_tabs",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "b6ca76e724b681bcaf513beb49229dbc7d9e1f482e7d0286f3b8bb101022bf92"
+    },
+    {
+      "id": "MacroChecksum_P_nested",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "5d241952fae8e7f4c2633feb2de6b30acbb5d849964999040cfe60f5a00520b1"
+    },
+    {
+      "id": "MacroChecksum_P_with",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "dd8719771264d077ccbe94215ca82b5f816c0c8c9d88c32db05b209b1348fec8"
+    },
+    {
+      "id": "MacroChecksum_P_source_label",
+      "flags": [],
+      "origin": "new-capture-control",
+      "input_sha256": "de89cf2b8b7f4af184d2c541eb5add071f784f8f2f9946e47c645973c600b2f3"
+    },
+    {
+      "id": "Lock",
+      "flags": [],
+      "origin": "pinned-examples/locks_auxiliary_vars/Lock.tla",
+      "input_sha256": "f10562642cb5d9cb6a3d3912d93917fa692a97ab9a879fa3b3f2c7989098765f"
+    },
+    {
+      "id": "Barriers",
+      "flags": [],
+      "origin": "pinned-examples/barriers/Barriers.tla",
+      "input_sha256": "34883b1e21d7b3c3fb02e5343844fa29f8663f9e602da0b3fc3f50653abc68ee"
+    }
+  ]
+}

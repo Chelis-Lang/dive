@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "selected": 12,
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "Ownership_C_identifier",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "096dffa445c4e76949ed357cd40966449934766765f696c6ea78e8e2416b48ee"
+    },
+    {
+      "id": "Ownership_C_second_algorithm",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "0416a16b8c72516647fde023b04e451320cf6b4152ce0b1dc52850163afbb199"
+    },
+    {
+      "id": "Ownership_C_unicode_string",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "3b419ed2d5a2829c9c20766d5c57b5bab53ba14ac55adb793c6151dc1bb0a78f"
+    },
+    {
+      "id": "Ownership_C_unclosed_quote",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "3d37938e4fe7cbe4c539c2d8664f859805af9a1411c1269479005e47c7893de6"
+    },
+    {
+      "id": "Ownership_C_bad_token",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "61db9baba780544c7b7f4af11a1897aba0fedefb6d921643abe21b19f6522a5d"
+    },
+    {
+      "id": "Ownership_C_missing_end",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "be7a4d8e40e7f8f264076fb0f8ca302388f60e9e6301b1a1d5bde69cd593772a"
+    },
+    {
+      "id": "Ownership_P_identifier",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "96fdd9f92c59ef6c58bb23cbfe748a390fdc55110c04f43582c1af46654034d2"
+    },
+    {
+      "id": "Ownership_P_second_algorithm",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "1e56ef57d48f6bf8be8c65c8d71b6a9704cc35aac13e39ebcfbb7025195a16e9"
+    },
+    {
+      "id": "Ownership_P_unicode_string",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "bb2cbc06911ad3d7a171d9cbbf64e693a6858a5d7bb934b3fc1c2e31675e329e"
+    },
+    {
+      "id": "Ownership_P_unclosed_quote",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "5108f68f9443e6508f15cd472757a3ba1b130ea1f249317e290c002caaff3b67"
+    },
+    {
+      "id": "Ownership_P_bad_token",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "2b80b567efab29ac88c05f76c2ca3a7b1710ea7bbf306e0c6d2d66e604f42f8f"
+    },
+    {
+      "id": "Ownership_P_missing_end",
+      "flags": [],
+      "origin": "exact-embedded-owned-end-admission-controls",
+      "input_sha256": "8a138fce8db8c9c1c37ea460c9743ac1b57134b20f0815f9629f0da7a9749895"
+    }
+  ]
+}

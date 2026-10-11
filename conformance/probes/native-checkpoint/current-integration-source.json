@@ -39,6 +39,7 @@
       "source_archive": "before-final-mode-source/sources"
     }
   ],
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "runtime_name_recovery_previous_authority": {
     "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
     "matrix_sha256": "f53b6961727674708c27d154d5e1b8e9b96c9d383d59b7bb5c1c679adac63fa9",
@@ -56,7 +57,7 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "40e8aee4a011b30ed8c43746c75cb4a9227625ac636b2195535b8d49f127e53a",
-    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
+    "crates/dive-check/src/engine.rs": "af6213f55fa7a25788c0b453c9f237771a8071699a5b7f7fd776564fa17e9b84",
     "crates/dive-check/src/lib.rs": "0fa0914f56551e102023c82b49aa05fdf17b0d6406cb9803859c4e15fbd1a72e",
     "crates/dive-cli/src/main.rs": "aeb9609d19ea071cc12a44c2d5877854e76376dfc974858bfd00aab5c0c595e9",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",

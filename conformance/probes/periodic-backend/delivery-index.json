@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "production_commit": "721ed27b0f37b7298c410162afd400f7e7c2ce54",
+  "closed_receipt": "gate-current/closed-receipt.json",
+  "closed_receipt_sha256": "4bbf4b44e16b117ae273dbd23d5b2054d1c63a7abd47ef5f8c4bf61bd2d71dba",
+  "artifact_count": 2507,
+  "source_files": 409,
+  "rust_inputs": 396,
+  "frozen_binary_directory": "periodic-backend-frozen-native (external immutable executables; exact hashes in closed receipt)",
+  "model_proof": false
+}

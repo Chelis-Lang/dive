@@ -35,6 +35,7 @@
   "current_source_qualification": "Current combined-source integrity after temporal IF, transient native recovery, process procedure fairness and opt-in translation-body editing. Archived producer outcomes retain their exact source identities; no new runtime or full-family credit.",
   "historical_execution_slice": "execution",
   "partial_scc_source_scope": "Current source bookkeeping for bounded diagnostic partial SCC only; earlier Append/runtime observations remain their immutable archived epoch.",
+  "periodic_backend_current_scope": "Current source-only integrity after explicit backend growth/snapshot/stop addition; all earlier runtime producers remain immutable archived epochs, no ordinary schedule/model-proof credit.",
   "runtime_name_recovery_previous_authority": {
     "matrix": "conformance/probes/native-checkpoint-runtime-names/before-authorities/matrices/conformance/probes/tlc-phase-execution/source-matrix.json",
     "matrix_sha256": "3eaf427c6de5f36515218c5617dea4c8aa4d360014240d081edaa8de8641a475",
@@ -49,13 +50,13 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
+    "crates/dive-check/src/capture.rs": "917a8de80c6bdec1dc28212119082453f2dbee978bb3daa99d5f92cbd28dcc31",
     "crates/dive-check/src/capture/pure.rs": "d0b9a4cf9c67d39256b9d8fa20a1ad1e155790db58cf7057ca0e0848bf08409b",
-    "crates/dive-check/src/engine.rs": "e13b8504d80837cf6985e730f5d13e3906247875c10f2436ac4c5406e64a0aef",
-    "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
+    "crates/dive-check/src/engine.rs": "af6213f55fa7a25788c0b453c9f237771a8071699a5b7f7fd776564fa17e9b84",
+    "crates/dive-check/src/parallel.rs": "1b81bf965fbceeed02bdb9fc0f18caf090805c6858a28d759845784edfb62fc4",
     "crates/dive-check/tests/observed.rs": "c8f85225161cce243a84987a31fdee83b58a367f6d6dbfaf6ba39dd09d910261",
-    "crates/dive-liveness/src/lib.rs": "19b5f04237b98adb1bd3af8333374ea29a15da3c7a4be4b3e07bb8cd20ebe71e",
-    "crates/dive-liveness/src/phase_execution.rs": "7508947abdfbc5751b14cb39a63a498869166970d3ae49a1053a3fb6bcd39f34",
+    "crates/dive-liveness/src/lib.rs": "1cc2723c0327ae840428d88516534a84e166e1b6587d4913c48a4f410d89ffcb",
+    "crates/dive-liveness/src/phase_execution.rs": "88d16a365dd9971f2c993486928419ef12c606e1e42d862306d8a3b21a78085d",
     "crates/dive-liveness/src/phase_l.rs": "5f2bd1ad8a93f4c2c114b484226b9714666bab7edec5785029329eda30e15df0",
     "crates/dive-liveness/tests/phase_execution.rs": "f6e3b74020f1211200420b0649bff0d6bdc3374eae09678ef4835ce35944575f",
     "scripts/check-phase-execution.py": "c6d786e7f18bed23bb297afb2b347b07238a10f1332ca08be55035bdef5cab9e"

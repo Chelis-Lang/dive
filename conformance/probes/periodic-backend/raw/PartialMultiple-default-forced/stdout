@@ -1,0 +1,63 @@
+groups	2
+action_names	Live;Live
+role_names	line 6, col 9 to line 6, col 15 of module PartialMultiple;line 6, col 20 to line 6, col 26 of module PartialMultiple
+configured_names	Live
+g0.state_bins	0
+g0.action_bins	0
+g0.tableau	true
+g1.state_bins	0
+g1.action_bins	0
+g1.tableau	true
+initial.log	
+initial.g0.roots	15040402659625261443:0
+initial.g0.records.15040402659625261443	0:false
+initial.g0.record_order.15040402659625261443	0
+initial.g1.roots	15040402659625261443:0
+initial.g1.records.15040402659625261443	0:false
+initial.g1.record_order.15040402659625261443	0
+check.initial.before.due	false
+check.initial.before.g0.size	1
+check.initial.before.g0.last	1
+check.initial.before.g1.size	1
+check.initial.before.g1.last	1
+check.initial.code	0
+check.initial.after.due	false
+check.initial.after.g0.size	1
+check.initial.after.g0.last	1
+check.initial.after.g1.size	1
+check.initial.after.g1.last	1
+source.0.fp	15040402659625261443
+source.0.incoming	0:15040402659625261443;1:17760107650593637555;2:11330885170241725411
+source.0.capacity	16
+source.0.log	
+source.0.g0.roots	15040402659625261443:0
+source.0.g0.node.15040402659625261443.0.states	
+source.0.g0.node.15040402659625261443.0.transitions	15040402659625261443:0:;11330885170241725411:0:
+source.0.g0.records.15040402659625261443	0:true
+source.0.g0.record_order.15040402659625261443	0
+source.0.g0.records.17760107650593637555	
+source.0.g0.record_order.17760107650593637555	
+source.0.g0.records.11330885170241725411	0:false
+source.0.g0.record_order.11330885170241725411	0
+source.0.g1.roots	15040402659625261443:0
+source.0.g1.node.15040402659625261443.0.states	
+source.0.g1.node.15040402659625261443.0.transitions	15040402659625261443:0:;17760107650593637555:0:
+source.0.g1.records.15040402659625261443	0:true
+source.0.g1.record_order.15040402659625261443	0
+source.0.g1.records.17760107650593637555	0:false
+source.0.g1.record_order.17760107650593637555	0
+source.0.g1.records.11330885170241725411	
+source.0.g1.record_order.11330885170241725411	
+source.0.next_multiplier	1
+check.source.0.before.due	true
+check.source.0.before.g0.size	2
+check.source.0.before.g0.last	1
+check.source.0.before.g1.size	2
+check.source.0.before.g1.last	1
+check.source.0.code	2116
+check.source.0.after.due	true
+check.source.0.after.g0.size	2
+check.source.0.after.g0.last	2
+check.source.0.after.g1.size	2
+check.source.0.after.g1.last	1
+completion	partial-candidate-no-model-proof

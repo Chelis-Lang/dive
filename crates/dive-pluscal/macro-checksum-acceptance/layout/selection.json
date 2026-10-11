@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "selected": 16,
+  "native_credit": false,
+  "rows": [
+    {
+      "id": "MacroLayout_C_multiline_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "f7ebc0f7503378118ec32de0b27c1e6f672fe4c068dcb07f251624b4bee5fa79"
+    },
+    {
+      "id": "MacroLayout_C_inline_junction_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "302281c43dc6c29eff667a9473115b2080c3b75cbd0d6890d212577d81136b0b"
+    },
+    {
+      "id": "MacroLayout_C_body_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "4bd0d31f10fc4c8f9442c67ec0957bbdc210fa23dfabfcd0c7394b3d1b0e354c"
+    },
+    {
+      "id": "MacroLayout_C_unchanged_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "e74f4a578ec6ed508f87dd7be6d8a0d5f4364533646006212166e3a54b5ab066"
+    },
+    {
+      "id": "MacroLayout_C_multiline_body",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "2736c2c4f7b7c09ed650e8c88ba608afba97cbe399abe94c7c409cbb623e79ee"
+    },
+    {
+      "id": "MacroLayout_C_comment_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "ea3fe565343672a2635b01e18ef7cf250be2110335468c78068aa2999ec0a5e7"
+    },
+    {
+      "id": "MacroLayout_C_ascii_string",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "48be8f15813f2fefe0c05fcb16868b82933b9613412ae0cbf4e27cd89125698e"
+    },
+    {
+      "id": "MacroLayout_C_unicode_comment",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "a4b96effad06a042199a1a9fc8c7a9dca8d77aaa14de92fc74ccd6039982069d"
+    },
+    {
+      "id": "MacroLayout_P_multiline_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "8ca20c2bec2340b8819a4671e9e6e409600951f9cdeeee5456b9e90db3f7e87d"
+    },
+    {
+      "id": "MacroLayout_P_inline_junction_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "6f08ecddd25c72aa87171057c9c65d81d893c6d6370d23356c3e497616798012"
+    },
+    {
+      "id": "MacroLayout_P_body_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "59c59d8cf184409a9eaba70bda0963df635db7450f5a55b36017928f8f8459c8"
+    },
+    {
+      "id": "MacroLayout_P_unchanged_junction",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "62294bf90372f1ec747060abd85038333400ec34ef3e0928a23697a23875e64b"
+    },
+    {
+      "id": "MacroLayout_P_multiline_body",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "bdd4e73c45c5c2543a3077492efdb7e7b2b6c789ade3553b5d251b3954ce88bc"
+    },
+    {
+      "id": "MacroLayout_P_comment_arg",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "4d857bce35a9666aa14a25d2a7739667c7e0b8fb8e83ca6a6e2744e5cd04edb0"
+    },
+    {
+      "id": "MacroLayout_P_ascii_string",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "a8c359332b32de7bfe51f4809d55760799142f47ef734409bf722411523f42b9"
+    },
+    {
+      "id": "MacroLayout_P_unicode_comment",
+      "flags": [],
+      "origin": "macro-logical-layout-control",
+      "input_sha256": "44558a42a1bf2d9e291e637cf391dfe59a04886a226b1224a0422063586a4359"
+    }
+  ]
+}

@@ -89,3 +89,5 @@ work/depth admission checks are separate from finite graph construction.
 Bounded direct `Len`, `Head`, and `Cardinality` operator actuals are described in
 [Pure native temporal operator arguments](../native-temporal-operators.md), with
 executable CLI/Rust examples and retained refusal boundaries.
+
+The [source-owned periodic backend](../periodic-backend.md) is a separate `dive_liveness::periodic_backend::execute` diagnostic. Its Cargo-owned example binds a real model and retains source-growth/check snapshots, actual caller limits and joined native-wave evidence. A candidate remains unvalidated and no outcome certifies ordinary temporal checking.

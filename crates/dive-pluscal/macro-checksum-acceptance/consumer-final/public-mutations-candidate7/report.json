@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "script_sha256": "bf040a10452e63b0d9be3c95b74c5a44aba62041cf80be7dd739e3bd90a9efce",
+  "runner_sha256": "e2bc5309edfa682aee1cc0255c68a2527647b3ba28131e63c082184900d040cc",
+  "genuine_sha256": "59b724e12fec39ed2c87fb3d184fb7322f68bcde9b9896f47ecf59a2e99b1232",
+  "selected": 6,
+  "rows": [
+    {
+      "mutation": "model_proved",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    },
+    {
+      "mutation": "exhaustive",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    },
+    {
+      "mutation": "result",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    },
+    {
+      "mutation": "exit_code",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    },
+    {
+      "mutation": "algorithm_checksum_verified",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    },
+    {
+      "mutation": "body_checksum_verified",
+      "exit_code": 1,
+      "summary": {
+        "disagree": 2
+      }
+    }
+  ]
+}

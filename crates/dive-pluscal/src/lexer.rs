@@ -10,7 +10,30 @@ pub(crate) fn tokenize(
     end: usize,
     max_tokens: usize,
 ) -> Result<Vec<Token>, Diagnostic> {
+    tokenize_owned(source, start, end, max_tokens, false).map(|(tokens, _)| tokens)
+}
+
+// Embedded source parsing may ignore ordinary tokens after the owned grammar
+// end, but malformed quoted/comment lexical state and resource limits remain
+// deciding errors. Deferred diagnostics are admitted only beyond that end.
+pub(crate) fn tokenize_prefix(
+    source: &str,
+    start: usize,
+    end: usize,
+    max_tokens: usize,
+) -> Result<(Vec<Token>, Vec<Diagnostic>), Diagnostic> {
+    tokenize_owned(source, start, end, max_tokens, true)
+}
+
+fn tokenize_owned(
+    source: &str,
+    start: usize,
+    end: usize,
+    max_tokens: usize,
+    prefix: bool,
+) -> Result<(Vec<Token>, Vec<Diagnostic>), Diagnostic> {
     let mut tokens = Vec::new();
+    let mut deferred = Vec::new();
     for raw in dive_syntax::tokens::tokenize_spec(&source[start..end]) {
         let span = Span {
             start: start + usize::from(raw.range.start()),
@@ -20,18 +43,28 @@ pub(crate) fn tokenize(
         // SANY does not use these PlusCal punctuation tokens. Its lexer flags
         // them individually; PlusCal's token manager accepts these spellings.
         if raw.error.is_some() && !matches!(text, ";" | "≔" | "‖") {
-            return Err(Diagnostic {
+            let error = Diagnostic {
                 code: Code::Lexical,
                 span,
                 message: format!("invalid PlusCal token: {text:?}"),
-            });
+            };
+            if prefix && raw.error == Some(dive_syntax::tokens::LexError::UnexpectedCharacter) {
+                deferred.push(error);
+            } else {
+                return Err(error);
+            }
         }
         if text.starts_with('"') && text.chars().any(|c| !(' '..='~').contains(&c)) {
-            return Err(Diagnostic {
+            let error = Diagnostic {
                 code: Code::Lexical,
                 span,
                 message: "illegal character in PlusCal string (pinned Tokenize.STRING)".into(),
-            });
+            };
+            if prefix {
+                deferred.push(error);
+            } else {
+                return Err(error);
+            }
         }
         if raw.kind.is_trivia() {
             continue;
@@ -65,5 +98,5 @@ pub(crate) fn tokenize(
         }
         fused.push(token);
     }
-    Ok(fused)
+    Ok((fused, deferred))
 }

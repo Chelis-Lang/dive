@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "binary_sha256": "44378ebf1ac6e4d7b702621877ae0f8dfc33ace995feff3dbaf8e1eb30bbf1fd",
+  "script_sha256": "28605961471f0ec701203041b2a9850275d99eb5e8b6c46a2cc09cef241262cc",
+  "selection_sha256": "f9c489c6eaf03433e1c28525dcbf765cda5824184c3e532725e20e7c55a4f744",
+  "selected": 80,
+  "summary": {
+    "admitted-exact-cst": 48,
+    "reference-rejection-uncredited": 32
+  },
+  "family_certified": false,
+  "rows": [
+    {
+      "id": "ClosingLine_C_empty.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_empty.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_empty.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_empty.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_spaces.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_spaces.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_spaces.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_spaces.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tab.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tab.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tab.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tab.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_crlf.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_crlf.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_crlf.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_crlf.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_line_comment.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_line_comment.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_line_comment.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_line_comment.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tight_line_comment.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tight_line_comment.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tight_line_comment.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_tight_line_comment.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_inline_definition.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_inline_definition.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_inline_definition.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_inline_definition.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_block_comment.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_block_comment.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_block_comment.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_block_comment.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_nbsp.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_nbsp.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_nbsp.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_nbsp.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_formfeed.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_formfeed.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_formfeed.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_C_formfeed.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_empty.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_empty.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_empty.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_empty.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_spaces.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_spaces.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_spaces.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_spaces.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tab.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tab.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tab.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tab.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_crlf.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_crlf.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_crlf.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_crlf.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_line_comment.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_line_comment.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_line_comment.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_line_comment.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tight_line_comment.dive.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tight_line_comment.dive.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tight_line_comment.tlc.translate",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_tight_line_comment.tlc.rewrite",
+      "outcome": "admitted-exact-cst",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_inline_definition.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_inline_definition.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_inline_definition.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_inline_definition.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_block_comment.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_block_comment.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_block_comment.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_block_comment.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_nbsp.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_nbsp.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_nbsp.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_nbsp.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_formfeed.dive.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_formfeed.dive.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_formfeed.tlc.translate",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    },
+    {
+      "id": "ClosingLine_P_formfeed.tlc.rewrite",
+      "outcome": "reference-rejection-uncredited",
+      "detail": ""
+    }
+  ]
+}

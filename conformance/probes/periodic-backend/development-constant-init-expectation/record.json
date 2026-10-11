@@ -1,0 +1,6 @@
+{
+  "exit": 101,
+  "source_sha256": "c00b04c376dc1aa9af6ae8c175f7ed6f03d6c4f155aec3d087fac5178feeacac",
+  "log_sha256": "f40526adadf6708af427b5fa58b52ef05b5d609d7f3b574a6616c99b0d98ad0d",
+  "reason": "Constant Init TRUE is rejected by binding before capture; use state-level incomplete self-equality as generation negative."
+}
