@@ -789,3 +789,8 @@ Producer request limitation (#201): [the bounded Rust diagnostic](producer-progr
 ### Actual committed request-prefix limitation (#204)
 
 The [Rust request diagnostic](committed-periodic-prefix.md) publishes only an actually returned contiguous source prefix before its periodic check, using the shared safety/output/count path and retaining later buffers. Graph/source publication can precede physical frontier append; deciding callbacks preserve that boundary. Complete24 actual pinned method observations include returned-but-unwritten Next output, later graph writes,2179 worker errors,2116 candidates,2104 hook stops and EOF. Hook exceptions exit2 without probe cleanup; early nonexception returns can leave workers alive. These measured boundaries earn no ordinary native scheduling/count/verdict credit. The original8192-binding candidate retains its independent-validator work refusal. No new semantic default or D-ID applies; ordinary scheduling/checkpoint/model proof remain unfinished.
+D-007 storage increment (ADR 0063): additive `dive_store::seen::DiskSeen`
+provides actual fallible disk fingerprint/exact membership with bounded
+workspaces and explicit owned cleanup. Ordinary engine/parallel admission and
+seen-memory CLI budgets remain pending; the library is not a full storage-family
+certificate. See `docs/user/disk-seen-library.md`.

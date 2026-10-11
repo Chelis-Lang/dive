@@ -2290,3 +2290,13 @@ continues to name the unsupported multiline procedure expression layout, with no
 replacement/CRC claim. The smallest paired C/P
 controls and original mismatches are in the nested-procedure checksum study;
 these are fidelity repairs, not new result-changing defaults or full parity.
+
+### Disk seen-state retention is a library increment
+
+D-007 now has an additive Rust disk-membership library, described in
+[the user guide](user/disk-seen-library.md). It preserves full fingerprints or
+canonical exact bytes and reports storage failures explicitly. This is not yet
+an ordinary checker flag: seen sets remain resident during `dive check`. Its
+physical entry count does not certify a discovery prefix, and bounded collision
+summary refusal cannot be counted as completed safety. Frontier/predecessor
+budgets, recovery and total-memory qualifications remain unchanged.

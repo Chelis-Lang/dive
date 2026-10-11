@@ -20,8 +20,8 @@
     "docs/decisions/0057-configured-periodic-snapshot.md": "56feb5229466e490f2e32c323093f1552224181917d9cfcc8fbe5584262bc002",
     "scripts/check-periodic-snapshot.py": "07cbae337d6f538d2693bb1559abe7c2c579652e6c1e7c015ad6cd7b8e25dabe",
     "AGENTS.md": "c07334e641376c465f25c39314924b9b8cd2f98629642d69d18f6a8a41ab745b",
-    ".github/workflows/ci.yml": "381ad153d199168ac76e921855c9db8b746c92ca6a2dc428cb3275ed3fcb7018",
-    "conformance/parity-features.json": "f77bd5f871151a9e94d4b0ad2a8d4e373fd0da786ebe455ae0d0466edc440684"
+    ".github/workflows/ci.yml": "ece1f4ee1744c62213cdb9fc1999742e24c05fb3afff96f1086ca91e7e45c317",
+    "conformance/parity-features.json": "2e37d9f6c082d35a9ab2ca73e43e5bca8e5f249211aece93328b86eb96f54b50"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
 }

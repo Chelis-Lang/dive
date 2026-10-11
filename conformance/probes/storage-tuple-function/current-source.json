@@ -369,7 +369,7 @@
     "crates/dive-store/src/exact.rs": "be75a40eaad82dc0730ef7d64e472fd75829e14b61cec1aaf2b66eea6d28952f",
     "crates/dive-store/src/fpset.rs": "160f1dbea729f6e91443226a3a3b20d511fafa23834b53e57cf3cf08cc738b4c",
     "crates/dive-store/src/frontier.rs": "debe908d9d329657b7d0cb21027d9f4a96db700f2ed9e385e9aa1ef30c2aeb4c",
-    "crates/dive-store/src/lib.rs": "430360c5f607a6fcce67713b5ff5171b4cc3f42aef16b5f6f74c4d41f7647d9a",
+    "crates/dive-store/src/lib.rs": "37905146ce4b2ff57411dbe5ce9dbf67092ef85bcf87c17de367f6eb457a26fa",
     "crates/dive-store/src/predecessor.rs": "d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5",
     "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
     "crates/dive-store/src/spill.rs": "991d8530de7ef1c38d16e183a227fc452aff6a9fad248d48e2714d74543d54e8",

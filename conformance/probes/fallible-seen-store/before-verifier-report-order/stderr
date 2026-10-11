@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-store.py", line 208, in <module>
+    print(json.dumps(verify(args.delivery, args.current_root, args.binary_root), sort_keys=True))
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-fallible-seen-store.py", line 177, in verify
+    assert [int(row[0]) for row in selected] == list(range(1, count + 1))
+AssertionError

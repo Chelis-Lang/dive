@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/jeff/code/dive-trace-representation-work/scripts/check-tlc-temporal-if.py", line 35, in <module>
+    for path,digest in json.loads((BASE/'source-matrix.json').read_text())['source_sha256'].items():assert sha(ROOT/path)==digest,path
+AssertionError: conformance/parity-features.json

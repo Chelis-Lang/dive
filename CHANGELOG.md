@@ -25,6 +25,7 @@ All notable changes to this project are documented here. The project will follow
   validation. Mixed record/tuple set decoding limitations remain tracked in #190;
   this clarification does not change admission or validation behavior.
 
+- Add a fallible private-file seen-state library for full fingerprints and canonical exact keys, with bounded disk indexing/rehash, first-error poisoning and explicit audited cleanup. Ordinary checker admission remains pending (ADR 0063).
 - Structural storage format 2 keeps integer-domain tuple functions distinct from
   tuple literals in frontier spill and native recovery. Mathematical keys and
   fingerprints stay unchanged; older value-bearing archives refuse explicitly.

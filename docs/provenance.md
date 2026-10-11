@@ -765,3 +765,14 @@ Nested procedure header continuation also matches pinned `PcalTranslate.IsTRUE`
 192 primary rows (original180 plus4+8 token-line/tail controls) retain original
 failed native producer results. Native work reservation/indexing is a bounded
 implementation policy, not ported evaluator complexity or allocation counts.
+
+## Fallible disk seen-state library
+
+`dive-store/src/seen.rs` and `seen/files.rs` match the error boundary of pinned
+`tlc2.tool.fp.FPSet.put`, `contains` and `checkFPs` (`94d0c50`, MIT): I/O is
+fallible and cannot be a membership answer. `DiskFPSet.diskLookup` and
+`checkFPs` are reference semantics, not copied Java storage layouts. Native
+open-addressed disk indexing, private ownership, bounded rehash/audit and
+first-error poisoning are dive designs (ADR 0063). Fingerprint gap uses existing
+`collision::closer`/subset authority; bounded pair work refuses explicitly.
+No ordinary engine or checkpoint admission is established by this library.

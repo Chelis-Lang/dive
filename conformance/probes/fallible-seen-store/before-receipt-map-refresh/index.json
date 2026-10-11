@@ -1,0 +1,87 @@
+{
+  "producer_before_metadata": "0be524349e4b09f452ee399edc7005653a4825d5",
+  "scope": "Original current maps before adding the portable verifier to CI; compiled449 inputs unchanged.",
+  "inputs": {
+    "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json": {
+      "archive": "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json.gz",
+      "sha256": "9bae7ce5724cf5fa07537b276434ab3516ac239b41454b91e996e30ea08af67f"
+    },
+    "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json": {
+      "archive": "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json.gz",
+      "sha256": "6448a0b9be76665c881fa3b488f5864b19889f5648cef084923fff6e2a0917f4"
+    },
+    "conformance/probes/tlc-phase-l-graph/source-matrix.json": {
+      "archive": "conformance/probes/tlc-phase-l-graph/source-matrix.json.gz",
+      "sha256": "11201b0103442538d1104d97eb8ff30e52b566cbbda2b7ec1e4abf503f947416"
+    },
+    "conformance/probes/predecessor-spill/current-integration-source.json": {
+      "archive": "conformance/probes/predecessor-spill/current-integration-source.json.gz",
+      "sha256": "f6f8e9a3d2450b93f5a87b1a56cd868725e1e3e645826020ce30e53f8d51fafd"
+    },
+    "conformance/probes/native-checkpoint/current-integration-source.json": {
+      "archive": "conformance/probes/native-checkpoint/current-integration-source.json.gz",
+      "sha256": "d22378700d41f5b10d31a27c6e9a5d44a05d39198adc82733df4980ad7604223"
+    },
+    "conformance/probes/tlc-final-check/source-matrix.json": {
+      "archive": "conformance/probes/tlc-final-check/source-matrix.json.gz",
+      "sha256": "89e73d711e395ea66aa5e928b3337e68e42d82e61c9d992ff6352d5fdbd09bb0"
+    },
+    "conformance/probes/tlc-state-if/source-matrix.json": {
+      "archive": "conformance/probes/tlc-state-if/source-matrix.json.gz",
+      "sha256": "8d8602dc5c65eb7bcd45116a4cd3d556786931f6e9814818e6691387b9385c02"
+    },
+    "conformance/probes/tlc-temporal-if/source-matrix.json": {
+      "archive": "conformance/probes/tlc-temporal-if/source-matrix.json.gz",
+      "sha256": "177a98e2aecaf8f8797e6a9a1d257af94c5a5aec0367e176ee5d60cc3c9c2052"
+    },
+    "conformance/probes/tlc-temporal-if-final/source-matrix.json": {
+      "archive": "conformance/probes/tlc-temporal-if-final/source-matrix.json.gz",
+      "sha256": "43f5d244a3cfab3e401fbb0629c0543054ff0096f2a17ab92938a7b57b3add3f"
+    },
+    "conformance/probes/tlc-final-scopes/source-matrix.json": {
+      "archive": "conformance/probes/tlc-final-scopes/source-matrix.json.gz",
+      "sha256": "4697067c57f9be475efdeb151733b143d165d00e937fa45c789c996a8328dbe6"
+    },
+    "conformance/probes/tlc-phase-execution/source-matrix.json": {
+      "archive": "conformance/probes/tlc-phase-execution/source-matrix.json.gz",
+      "sha256": "842db18fdb02ce4af02740bfcd70dc37c98d33e2b815185d0be68b1e0c906422"
+    },
+    "conformance/probes/temporal-forwarding/source-matrix.json": {
+      "archive": "conformance/probes/temporal-forwarding/source-matrix.json.gz",
+      "sha256": "d6a7e544a300250232c44c012b1f194bac6268fe80934ecd1ddcecd09a67750c"
+    },
+    "conformance/probes/tlc-final-property-origins/source-matrix.json": {
+      "archive": "conformance/probes/tlc-final-property-origins/source-matrix.json.gz",
+      "sha256": "f7a145a65b9eae29fa88655dcce4d2e174a093eaa05819b75176f78a498d7e20"
+    },
+    "conformance/probes/material-capture/source-matrix.json": {
+      "archive": "conformance/probes/material-capture/source-matrix.json.gz",
+      "sha256": "a92191bde379549c5486f6e293d85c475dd7b9f7ed62a5a4ab50743e3d84b030"
+    },
+    "conformance/probes/temporal-operators/source-matrix.json": {
+      "archive": "conformance/probes/temporal-operators/source-matrix.json.gz",
+      "sha256": "f13697fce5901a4156154418299a78048d74f174a11655c104c0d283ccf2827a"
+    },
+    "conformance/probes/native-temporal-operators/source-matrix.json": {
+      "archive": "conformance/probes/native-temporal-operators/source-matrix.json.gz",
+      "sha256": "e0e4237c63e29e6fd84cc1b5226114e77282378389a0480e9998c1e71a9211ca"
+    },
+    "conformance/probes/native-parity-integration/current-source.json": {
+      "archive": "conformance/probes/native-parity-integration/current-source.json.gz",
+      "sha256": "ba0d2957e00bfe9a435644b109ce17b534e17d66cd4e021acd6b4fdc020d7cf7"
+    },
+    "conformance/probes/native-parity-integration/historical-slices.json": {
+      "archive": "conformance/probes/native-parity-integration/historical-slices.json.gz",
+      "sha256": "3b370cfde055a5fea1a3a9a9bd5699307022d627e2a194c86d6d3127a027a91f"
+    },
+    "conformance/probes/view-random-stream/current-source.json": {
+      "archive": "conformance/probes/view-random-stream/current-source.json.gz",
+      "sha256": "8dca5877fd6fb44382f65810460c8310274a9bc387ffb7a5898b8a73b3546821"
+    }
+  },
+  "failed_guard_exit": 1,
+  "guard_sha256": {
+    "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": "f49ade047de7930cc1ccdd45ef2cbba79a09b91d703eff91c5f46afd4bed5787"
+  }
+}

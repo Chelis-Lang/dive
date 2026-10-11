@@ -1,0 +1,121 @@
+{
+  "runtime_producer": {
+    "source_commit": "0be524349e4b09f452ee399edc7005653a4825d5",
+    "source_index_sha256": "34cac2407cb68cf6717201babd480eeb6900c42bd48c61f2facc4f82cb4d90e5",
+    "binaries_sha256": {
+      "dive": "7b43a600e4f66d0b8d570e4e949f3119984fedd89044e102787dd631749ee03d",
+      "dive-conformance": "e01cbdf57f0cd9cde87ab3ee9675e13c36a6b759f6defa9c8744df70d98bedf0",
+      "dive-store-controls": "f99a849b20f0a4ea3588e5b37f02d7ee2edeb0799c6c9efaac847e785039795f",
+      "disk_seen": "fc3cf0974fef880a3035a827a09eed21187934456af4aaa51852a6e32f46f865"
+    }
+  },
+  "environment": {
+    "CARGO_TARGET_DIR": "/Users/jeff/code/dive-trace-representation-target",
+    "CARGO_BUILD_JOBS": "2",
+    "DIVE_CACHE_DIR": "/Users/jeff/code/dive-trace-representation-cache"
+  },
+  "widths": [
+    1,
+    4,
+    8
+  ],
+  "gate_selection": {
+    "cm1_models": 21,
+    "validation_smoke_models": 16
+  },
+  "build": {
+    "name": "build",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "-p",
+      "dive-cli",
+      "-p",
+      "dive-conformance",
+      "--locked"
+    ],
+    "exit": 0,
+    "seconds": 25.819996584000002,
+    "stdout": "build.stdout",
+    "stderr": "build.stderr",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e212c2ee9a0ff5bad330c35578f072f19176f73d90fd692dd201d49e428a19e4"
+  },
+  "rows": [
+    {
+      "name": "library-controls",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "dive-store",
+        "--lib",
+        "seen::",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 1.8839927910000007,
+      "stdout": "library-controls.stdout",
+      "stderr": "library-controls.stderr",
+      "stdout_sha256": "1a0c4ddcbb49135246adb10c72df4ea5b4290a8c4ff13cc3c67b8dabf9db4c33",
+      "stderr_sha256": "cc141d518f40751825d75e6bb4197194d7de129fd0f8e4b53bf943213551dbc1"
+    },
+    {
+      "name": "rust-guide",
+      "command": [
+        "cargo",
+        "run",
+        "-p",
+        "dive-store",
+        "--example",
+        "disk_seen",
+        "--locked"
+      ],
+      "exit": 0,
+      "seconds": 0.7950068329999951,
+      "stdout": "rust-guide.stdout",
+      "stderr": "rust-guide.stderr",
+      "stdout_sha256": "0b516f823d19b1646a2bbf8e27bd8016285be3fb33f7b863b2c6d6282cfe8ad5",
+      "stderr_sha256": "e915d03f8c78c461a37acae47a5d8412b52c5ed146ac9341c2923e4a8538fa11"
+    },
+    {
+      "name": "cm1",
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/cm1.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-library-current-binaries/dive"
+      ],
+      "exit": 0,
+      "seconds": 14.187900249999998,
+      "stdout": "cm1.stdout",
+      "stderr": "cm1.stderr",
+      "stdout_sha256": "4140e0ea928e679e5d891fddc379dedcde8fc7a9a1e97b80ca7ab5c715823e2b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "validation-smoke",
+      "command": [
+        "bash",
+        "scripts/conformance-gate.sh",
+        "conformance/gates/validation-smoke.txt",
+        "--workers",
+        "1,4,8",
+        "--dive-bin",
+        "/Users/jeff/code/dive-storage-tuple-function-artifacts/seen-library-current-binaries/dive"
+      ],
+      "exit": 0,
+      "seconds": 0.5589036670000027,
+      "stdout": "validation-smoke.stdout",
+      "stderr": "validation-smoke.stderr",
+      "stdout_sha256": "78c2bd318c2ac4e3390a13b327c3ded2c3bc033852324f3312bf0dae33b6ea78",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "driver_sha256": "8109153077f67699a025e82faa4080bbc888455a2f90ab7e8b714d4b49e28397",
+  "scope": "Library controls and unchanged engine gates; no native disk engine admission"
+}

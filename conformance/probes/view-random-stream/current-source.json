@@ -363,7 +363,7 @@
     "crates/dive-store/src/exact.rs": "be75a40eaad82dc0730ef7d64e472fd75829e14b61cec1aaf2b66eea6d28952f",
     "crates/dive-store/src/fpset.rs": "160f1dbea729f6e91443226a3a3b20d511fafa23834b53e57cf3cf08cc738b4c",
     "crates/dive-store/src/frontier.rs": "debe908d9d329657b7d0cb21027d9f4a96db700f2ed9e385e9aa1ef30c2aeb4c",
-    "crates/dive-store/src/lib.rs": "430360c5f607a6fcce67713b5ff5171b4cc3f42aef16b5f6f74c4d41f7647d9a",
+    "crates/dive-store/src/lib.rs": "37905146ce4b2ff57411dbe5ce9dbf67092ef85bcf87c17de367f6eb457a26fa",
     "crates/dive-store/src/predecessor.rs": "d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5",
     "crates/dive-store/src/set.rs": "89c78879c534c5f3c6a70461428d344748ee860354ab27834898885733af240a",
     "crates/dive-store/src/spill.rs": "991d8530de7ef1c38d16e183a227fc452aff6a9fad248d48e2714d74543d54e8",
@@ -441,7 +441,7 @@
     "xtask/src/features.rs": "4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5",
     "xtask/src/layering.rs": "1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97",
     "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9",
-    ".github/workflows/ci.yml": "381ad153d199168ac76e921855c9db8b746c92ca6a2dc428cb3275ed3fcb7018",
+    ".github/workflows/ci.yml": "ece1f4ee1744c62213cdb9fc1999742e24c05fb3afff96f1086ca91e7e45c317",
     "scripts/check-view-random-stream.py": "33685188da1046cb16a3408215b07d2845568f250c1a1225ae179b09b1dd7b1d",
     "conformance/probes/view-random-stream/README.md": "00efa718f5c4a40e6b122f0d2103476f8022245d4917e58af00c3a5c48b1ec5f",
     "conformance/probes/view-random-stream/capture_native.py": "55d0942a14ee19f5598142236fbcf27c1f570233d7367bd3fac6bbf1349bc03d"

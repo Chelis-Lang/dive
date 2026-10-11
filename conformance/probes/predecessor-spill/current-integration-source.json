@@ -65,7 +65,7 @@
     "crates/dive-check/src/result.rs": "873c1e2eb859b760465b82d26faf77d91572af59b5f3e69b72baad6194207e48",
     "crates/dive-cli/src/main.rs": "5fa883e1593e5adf259e47dd921661d1917449143e22b725e173d3dcdcfed709",
     "crates/dive-store/src/error.rs": "79c26928ecf4bf78dc2bd356f8115007f6784369d16a6aa033f0713b58a0210f",
-    "crates/dive-store/src/lib.rs": "430360c5f607a6fcce67713b5ff5171b4cc3f42aef16b5f6f74c4d41f7647d9a",
+    "crates/dive-store/src/lib.rs": "37905146ce4b2ff57411dbe5ce9dbf67092ef85bcf87c17de367f6eb457a26fa",
     "crates/dive-store/src/predecessor.rs": "d5de7427a8a1ade65a61bb44ab9281e4c494a509a248232f82bc02d5cec3c2e5",
     "crates/dive-store/src/trace.rs": "3df7a6b8f467346733c961998dc75729f2f5685917453c6c7106db7952f33f72"
   },
