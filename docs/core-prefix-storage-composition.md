@@ -69,3 +69,11 @@ contains source, logs and independent readback controls. Production Rust,
 Cargo/toolchain inputs and all literal fixture sites match the original runtime
 producer. The 41 existing runtime campaigns retain `05b3a1ef`; splitting tests
 does not re-execute or retag those campaigns.
+
+The initial eight-job CI split subsequently passed seven partitions but timed
+out in the remaining partition on a Linux runner. The current CI declaration
+uses sixteen disjoint partitions with the same complete tests and unchanged
+timeouts. The retained failed log and scheduling contract are in the
+[CI matrix record](../conformance/probes/ci-storage-matrices/README.md).
+This scheduling continuation requires its own qualification; the earlier
+`d21ea2c6` gate and `05b3a1ef` runtime receipts retain their producer identities.

@@ -36,8 +36,8 @@
   "schema_version": 1,
   "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed; post-consumer guide/receipt metadata only, Rust gate source identity retained separately; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
-    "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
+    ".github/workflows/ci.yml": "bc7bd0ae55ecced1f9edb8f4e652da0c29a65912b6a6a5316efc6a04f1354b4b",
+    "AGENTS.md": "620d73a018df6ae3790ea8b5821f98a75979dc7aa40994731c87a437c2c1e38d",
     "CHANGELOG.md": "707c72d6f06f60645608e1e332d4e8ccf0bca8aaa5cf01759ca760a45247ed5b",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67",
     "conformance/probes/tlc-final-scopes/README.md": "9629bd5dc03ec78d2fb4d32fe4921ab9f830e46d05adc1c30ded47efd7a90ef7",

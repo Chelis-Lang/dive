@@ -1,13 +1,30 @@
 """Verify actual nextest hash partitions form the complete workspace inventory."""
 import json
+import re
 from pathlib import Path
 import subprocess
+
+
+PARTITIONS = 16
+
+
+def workflow_partitions(text):
+    """Require the executed CI denominator and complete declared matrix to agree."""
+    matched = re.search(r"^        partition: \[([^\]\n]+)\]$", text, re.M)
+    if matched is None:
+        raise ValueError("Missing workspace partition matrix")
+    numbers = [int(n.strip()) for n in matched[1].split(",")]
+    if numbers != list(range(1, PARTITIONS + 1)):
+        raise ValueError("Incomplete or duplicated workspace partition matrix")
+    if "--partition hash:${{ matrix.partition }}/" + str(PARTITIONS) not in text:
+        raise ValueError("Workspace nextest command uses a different denominator")
+    return numbers
 
 
 def inventory(partition=None):
     command = ["cargo", "nextest", "list", "--workspace", "--locked", "--profile", "ci", "--message-format", "json"]
     if partition is not None:
-        command.extend(["--partition", f"hash:{partition}/8"])
+        command.extend(["--partition", f"hash:{partition}/{PARTITIONS}"])
     result = subprocess.run(command, check=True, stdout=subprocess.PIPE, text=True)
     data = json.loads(result.stdout)
     selected = set()
@@ -74,13 +91,28 @@ def matrix_controls(selected, policy):
     return rejected
 
 
+workflow = Path(".github/workflows/ci.yml").read_text()
+declared_partitions = workflow_partitions(workflow)
+workflow_mutants = [
+    workflow.replace("hash:${{ matrix.partition }}/16", "hash:${{ matrix.partition }}/15"),
+    workflow.replace("13, 14, 15, 16]", "13, 14, 15]"),
+    workflow.replace("13, 14, 15, 16]", "13, 14, 15, 15]"),
+]
+for mutant in workflow_mutants:
+    try:
+        workflow_partitions(mutant)
+    except ValueError:
+        pass
+    else:
+        raise SystemExit("Corrupt workflow partition declaration was accepted")
+
 complete, ignored, all_tests = inventory()
 policy = json.loads(Path("conformance/probes/ci-storage-matrices/selection.json").read_text())
 matrix_cases = matrix_coverage(complete, policy)
 matrix_mutants = matrix_controls(complete, policy)
 covered = set()
 counts = []
-for number in range(1, 9):
+for number in declared_partitions:
     selected, partition_ignored, partition_all = inventory(number)
     if partition_all != all_tests or partition_ignored != ignored:
         raise SystemExit(f"Inventory changed in partition {number}")
@@ -90,4 +122,4 @@ for number in range(1, 9):
     counts.append(len(selected))
 if covered != complete:
     raise SystemExit(f"Partitions omit {len(complete - covered)} workspace tests")
-print(json.dumps({"selected_tests": len(complete), "ignored_tests": len(ignored), "hash_partitions": counts, "disjoint_and_complete": True, "preserved_matrix_cases": matrix_cases, "rejected_matrix_mutants": matrix_mutants}))
+print(json.dumps({"selected_tests": len(complete), "ignored_tests": len(ignored), "hash_partitions": counts, "disjoint_and_complete": True, "preserved_matrix_cases": matrix_cases, "rejected_matrix_mutants": matrix_mutants, "rejected_workflow_mutants": len(workflow_mutants)}))

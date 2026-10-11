@@ -23,8 +23,8 @@
     "docs/committed-periodic-prefix.md": "bdf9a4771f2cf50ae31dcb0b02cabaf4927618737e5625dd705072f6ba8b3a0f",
     "docs/decisions/0062-committed-periodic-prefix.md": "c6c9bb2aec7e61f229ca8b4f6608e21854c0645c3975fcf17bd766d8843a1b6b",
     "scripts/check-committed-prefix.py": "7b146601bbbf31fed0d5a798369b1257a21c7bb1740ffe9ac3edfa15e549ec65",
-    "AGENTS.md": "dc62fd1415da06fb808e1a162f1d00ce0c0f7ee3583338155f63ce6fa8d8569f",
-    ".github/workflows/ci.yml": "574081f59d7aecc3a3041acc85f7321a0bda566c05110b7a39713de38a20c586",
+    "AGENTS.md": "620d73a018df6ae3790ea8b5821f98a75979dc7aa40994731c87a437c2c1e38d",
+    ".github/workflows/ci.yml": "bc7bd0ae55ecced1f9edb8f4e652da0c29a65912b6a6a5316efc6a04f1354b4b",
     "conformance/parity-features.json": "12fbd25f2a61860c9af815abdc67496503061c7766debd7ef147946d60345e67"
   },
   "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
