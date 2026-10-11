@@ -142,3 +142,9 @@ cargo test -p dive-api --test configured_random --locked
 The metadata receipt commit changes no Rust or Cargo producer inputs. Named
 refusals prevent the observed wrong answers; they do not prove configured RNG
 stream equivalence, broader backend support or parity-family completion.
+
+The final metadata review also found a truncated changelog introduced while
+merging current main. The [exact producer-era documentation and source maps](changelog-integration-before/index.json)
+are preserved. The subsequent documentation-only repair restores the complete
+current-main history and adds both guarded-refusal entries. Producer Rust/Cargo
+inputs and recorded runtime/source receipts remain unchanged.
