@@ -1611,42 +1611,16 @@ fn search_in<S: Keyed>(
     let accounting = crate::frontier::accounting(opts);
     let mut next = crate::frontier::Queue::new(opts, accounting.clone());
     let recovered = if let Some(session) = s.checkpoint.take() {
-        let restored = session.restore::<S>(&mut s);
+        let restored = session.restore::<S>(&mut s, &mut next);
         s.checkpoint = Some(session);
         restored
     } else {
         Ok(None)
     };
     let (stop, stats) = match recovered {
-        Ok(Some((restored, level))) => {
-            let mut queue = crate::frontier::Queue::new(opts, accounting.clone());
-            let mut failure = None;
-            for (values, id) in restored {
-                if let Err(verdict) = queue.push(values, id) {
-                    failure = Some(verdict);
-                    break;
-                }
-            }
-            if let Some(verdict) = failure {
-                workers.used = 1;
-                workers.sequential = true;
-                workers.reason = Some(
-                    "native checkpoint restoration stopped before the worker pool started".into(),
-                );
-                (
-                    Some(Stop {
-                        verdict,
-                        in_init: false,
-                        path: None,
-                        then: None,
-                    }),
-                    s.stats(0),
-                )
-            } else {
-                s.begin_levels(queue, opts, &mut workers, level)
-            }
-        }
+        Ok(Some(level)) => s.begin_levels(next, opts, &mut workers, level),
         Err(verdict) => {
+            drop(next);
             workers.used = 1;
             workers.sequential = true;
             workers.reason =

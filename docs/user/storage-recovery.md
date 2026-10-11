@@ -39,7 +39,11 @@ or independently checked model certificates. Source/configuration/profile/model
 identity and structural bounds are checked. Pure supported VIEW and safety symmetry
 are admitted: recovery recomputes the configured reduced keys while preserving
 original concrete discoveries and witnesses. Liveness, runtime effects/names or
-checker reads, unsupported deferred values, transient storage budgets remain explicit refusals. Filesystem/recovery failures never report success.
+checker reads and unsupported deferred values remain explicit refusals. Frontier and
+predecessor budgets can be used independently or together for pause/recovery;
+recovery may change budgets or worker width. Native archive work remains outside
+both transient budgets. The [runnable spill recovery example](../native-checkpoint.md#recovery-with-transient-disk-storage)
+includes CLI/Rust requests and cleanup/failure evidence. Filesystem/recovery failures never report success.
 
 See [native checkpoint details](../native-checkpoint.md) for exact limits,
 no-overwrite commits, default recovery settings, API requests and evidence.
@@ -63,7 +67,12 @@ or archive creation, including public Rust IR; pure aliases remain supported.
 The [source and raw study](../../conformance/probes/native-checkpoint-keys/README.md)
 separates historical evidence from the current integrated implementation.
 
-The [current integrated verification](../native-checkpoint.md#current-integrated-verification)
+Current source-bound spill/recovery and executable CLI/Rust example evidence is
+in the [combined recovery receipt](../../conformance/probes/native-checkpoint-spill/current-shipping/delivery.json).
+It proves the listed finite-safety selection, not total-memory bounds, archive
+authenticity or complete TLC recovery interoperability.
+
+The [earlier main integrated verification](../native-checkpoint.md#earlier-parallel-integrated-verification)
 records worker-width, counter-prefix and independently checked concrete-witness
 controls on the shipped feature combination. These controls certify their
 declared fields; they do not certify temporal recovery or a complete archive

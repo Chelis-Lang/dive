@@ -51,3 +51,13 @@ work. No crate dependency edge changes.
 Evidence: `crates/dive-store/src/predecessor.rs` corruption and failure controls;
 `crates/dive-api/tests/predecessor_spill.rs` zero/tiny-budget equality and independent
 symmetry witness controls; `docs/predecessor-storage.md` records the delivery checks.
+
+## Native recovery composition (2026-10-10)
+
+The pure safety checkpoint slice now reconstructs this transient store from the
+saved ordered discoveries/frontier instead of reopening temporary files. Storage
+budgets may change on recovery. ADR 0038's dated continuation preserves concrete
+keys/parents/ordinals, counter policies, actual workers and cleanup evidence.
+Native archive discovery metadata and encode/decode work are separately bounded
+and excluded from this store's capacity budget. Full runtime/temporal checkpoint
+state and Java archive import remain deferred.

@@ -340,7 +340,7 @@ pause. Completed-level barriers retain the logical discovery/predecessor/frontie
 order; native counter-limit stops match inline prefixes. Boundary-zero pauses
 report actual 1 before the pool starts. This removes a dive limitation, not a
 claim that TLC cannot recover parallel runs. Counter defaults, archive bounds
-and trust qualifications are unchanged; runtime/temporal/spill recovery remains
+and trust qualifications are unchanged; runtime/temporal recovery remains
 refused. See the [separate parallel study](../conformance/probes/native-checkpoint-parallel/README.md).
 
 **Configured-key recovery (ADR 0038).** Pure supported VIEW and safety symmetry
@@ -356,6 +356,16 @@ Public Rust context aliases resolving constant replacements are admitted by thei
 actual definition IDs before binding. An effectful local alias refuses before
 output or an archive; structurally valid arena metadata alone is not a purity
 certificate. This is a native admission repair ([issue #164](https://github.com/Chelis-Lang/dive/issues/164)), not a TLC defect. See [raw controls](../conformance/probes/native-checkpoint-keys/README.md).
+
+D-007 native recovery additionally composes with the existing opt-in frontier
+and predecessor budgets, independently or together. This removes a native
+limitation; it is not a new TLC defect or result-changing default. Saved concrete
+frontiers/parents are reconstructed into fresh transient stores in reference
+order. Archive/discovery workspace is excluded from both budgets; no total RAM,
+Java byte-interop or archive certificate claim. Counter reset/Retain and pure
+VIEW/symmetry witnesses retain their existing semantics. See
+[the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
+and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
 
 ## D-008: Results are data, and diagnostics are built for people and agents
 
