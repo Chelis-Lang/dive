@@ -71,6 +71,8 @@ enum CfgConst<'a> {
 
 /// The binder's state.
 pub(crate) struct Binder<'a> {
+    /// Callback-free pre-startup role decomposition; evaluation-demanding paths refuse.
+    pub(crate) structural_admission: bool,
     /// Diagnostic binding only: retain the configured pre-constant periodic body.
     pub(crate) periodic_snapshot: crate::periodic::Mode,
     pub(crate) t: Tables,
@@ -110,6 +112,7 @@ impl<'a> Binder<'a> {
     ) -> R<Self> {
         Ok(Self {
             periodic_snapshot: crate::periodic::Mode::Ordinary,
+            structural_admission: false,
             t: Tables::new(ir)?,
             cfg,
             opts,

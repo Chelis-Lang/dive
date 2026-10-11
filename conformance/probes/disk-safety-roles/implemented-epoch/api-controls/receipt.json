@@ -1,0 +1,12 @@
+{
+  "producer": "7fae387c11675b6a72119cc0013dd18f4eac33cb",
+  "consumer_sha256": "ca1f2f87e85189f794151c5219cf9df30d4d972a463ae117b723879842ad54cd",
+  "cli_sha256": "f2d389b4c50050b6a49d635709fe7f7f09ca61550b2cf9c63caed006f7eccdc2",
+  "consumer_source_sha256": "257c8375cacb8a7eb66b81e3aa2ad978913ed322ccc649e91e21720caa59ff5b",
+  "public_selected": 2088,
+  "independent_valid": 432,
+  "actual_named_mutants_invalid": 2592,
+  "stdout_sha256": "4ee8665381354b5d364568d8b20a5b122e8bb956e1839b09c847ff288b130662",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "family_certified": false
+}

@@ -1,0 +1,47 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling unicode-ident v1.0.26
+   Compiling num-traits v0.2.19
+   Compiling serde_core v1.0.229
+   Compiling text-size v1.1.1
+   Compiling rustc-hash v1.1.0
+   Compiling hashbrown v0.14.5
+   Compiling countme v3.0.1
+   Compiling rowan v0.16.1
+   Compiling dive-syntax v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-syntax)
+   Compiling syn v3.0.8
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.5.1
+   Compiling dive-value v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-value)
+   Compiling dive-sema v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sema)
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-ir)
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-eval)
+   Compiling libc v0.2.190
+   Compiling zmij v1.0.23
+   Compiling dive-config v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-config)
+   Compiling serde_json v1.0.154
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-stdlib)
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling const-oid v0.10.2
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling digest v0.11.3
+   Compiling cpufeatures v0.3.1
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.11.0
+   Compiling dive-store v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-store)
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-trace)
+   Compiling dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+   Compiling dive-sim v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sim)
+   Compiling dive-pluscal v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-pluscal)
+   Compiling dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+   Compiling dive-disk-role-controls v0.0.0 (/Users/jeff/code/dive-trace-representation-work/conformance/probes/disk-safety-roles/controls)
+    Finished `release` profile [optimized] target(s) in 1m 18s

@@ -58,10 +58,10 @@
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "295d1a3641f579ff2101114bce67b9e966a677b153b5a6ead6d8e994c4e23d17",
     "crates/dive-check/src/engine.rs": "5424ae75ba41ce8b0e112c68fcfd8a821824289222b5e836eade3b28abb6e836",
-    "crates/dive-check/src/lib.rs": "2180ed2f47d92bdff33ec544604b4b2d2c7bfc8a2ed66cd617031128a771d153",
+    "crates/dive-check/src/lib.rs": "bead11282e3b776c2f158f1bf9d9dd0999e06631e0992aa084f387d1e2d54cbf",
     "crates/dive-cli/src/main.rs": "afd16f424cdcb84b69cc40fd06ab58fb61f8b6b2de999bd873a088a29795a1d8",
     "crates/dive-cli/tests/cli.rs": "03c7ac3ad643364bf2e6cf5d240b0d47c394ce80a05a360fb113bd598b56ae31",
-    "crates/dive-model/src/lib.rs": "d178738a24ce92bd4439edc5d04f28443ff39771f0185f4ce40dd54ea13c4861",
+    "crates/dive-model/src/lib.rs": "781e5a88577bfd9e4cd980185289cf1d6894539642ca6057bc3769b5ed6084ac",
     "crates/dive-value/src/codec.rs": "89a94f87b12fe8845ca3a227d9b0073e54863e134a5a57fa431a0ae9e42098df",
     "scripts/check-native-checkpoint.py": "e2a527c9191711c1091a5511acf890eef2ebc06ab0ed65aa476cefe4c15bdcdd"
   },

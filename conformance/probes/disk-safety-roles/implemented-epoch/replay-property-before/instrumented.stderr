@@ -1,0 +1,445 @@
+   Compiling dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.86s
+     Running unittests src/lib.rs (/Users/jeff/code/dive-trace-representation-target/debug/deps/dive_check-99fca5828fb4d40d)
+INSTRUMENTED Tlc Fingerprint MEMORY=CheckResult {
+    seen: None,
+    frontier: FrontierUsage {
+        memory_bytes_per_queue: None,
+        max_record_bytes: None,
+        peak_retained_bytes: 0,
+        retained_bytes: 0,
+        spilled_bytes: 0,
+        deciding_event_before_failure: None,
+        failures: [],
+    },
+    predecessor: PredecessorUsage {
+        storage: Usage {
+            retained_bytes: 48,
+            peak_retained_bytes: 48,
+            written_bytes: 0,
+            records: 4,
+            spilled: false,
+        },
+        failures: [],
+        deciding_event_before_failure: None,
+        cleanup_completed: true,
+    },
+    verdict: EvaluationError {
+        site: Invariant,
+        code: 2111,
+        name: "TLC_INVARIANT_EVALUATION_FAILED",
+        reported: 2111,
+        message: "Evaluating invariant Inv failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
+        verified: true,
+        cause: EvalError(
+            Inner {
+                class: Eval,
+                ec: DivisionByZero,
+                message: "The second argument of \\div is 0.",
+                origin: Some(
+                    ExprId(
+                        697,
+                    ),
+                ),
+                eval_exception: true,
+            },
+        ),
+    },
+    stats: Some(
+        Stats {
+            generated: 4,
+            distinct: 4,
+            left_on_queue: 1,
+            depth: 3,
+            initial_generated: 1,
+        },
+    ),
+    tlc_prints_stats: true,
+    counterexample: Some(
+        Counterexample {
+            states: [
+                TraceState {
+                    label: "<Initial predicate>",
+                    action: None,
+                    values: [
+                        0,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        1,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        2,
+                        0,
+                    ],
+                    text: None,
+                },
+            ],
+        },
+    ),
+    collision: None,
+    store: Fingerprint,
+    fp_index: Some(
+        0,
+    ),
+    tlc_fingerprints: true,
+    var_names: [
+        "x",
+        "y",
+    ],
+    tlc_var_order: [
+        0,
+        1,
+    ],
+    output: [],
+    warnings: [],
+    notes: [],
+    workers: Workers {
+        requested: 1,
+        used: 1,
+        sequential: true,
+        reason: Some(
+            "sequential mode requested (--sequential)",
+        ),
+    },
+    elapsed: 6.180958ms,
+} PUBLIC=CheckResult {
+    seen: Some(
+        SeenUsage {
+            limits: Limits {
+                key_bytes: 67108864,
+                entries: 16777216,
+                probe_steps: 33554432,
+                summary_pairs: 1000000,
+            },
+            admitted_keys: 4,
+            before_cleanup: Some(
+                Stats {
+                    physical_entries: 4,
+                    disk_bytes: 352,
+                    resident_key_bytes: 0,
+                    poisoned: false,
+                    cleanup_completed: false,
+                },
+            ),
+            after_cleanup: Some(
+                Stats {
+                    physical_entries: 4,
+                    disk_bytes: 0,
+                    resident_key_bytes: 0,
+                    poisoned: false,
+                    cleanup_completed: true,
+                },
+            ),
+            first_failure: None,
+            deciding_event_before_failure: None,
+            replay: Some(
+                SeenReplay {
+                    original_error: EvaluationError {
+                        site: Invariant,
+                        code: 2111,
+                        name: "TLC_INVARIANT_EVALUATION_FAILED",
+                        reported: 2111,
+                        message: "Evaluating invariant Inv failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
+                        verified: true,
+                        cause: EvalError(
+                            Inner {
+                                class: Eval,
+                                ec: DivisionByZero,
+                                message: "The second argument of \\div is 0.",
+                                origin: Some(
+                                    ExprId(
+                                        697,
+                                    ),
+                                ),
+                                eval_exception: true,
+                            },
+                        ),
+                    },
+                    predecessor: 1,
+                    stopped_successor_ordinal: 0,
+                    generated: 4,
+                    admitted_keys: 0,
+                    queued: 0,
+                    unproved_print_output: false,
+                    halted_by: None,
+                },
+            ),
+        },
+    ),
+    frontier: FrontierUsage {
+        memory_bytes_per_queue: None,
+        max_record_bytes: None,
+        peak_retained_bytes: 0,
+        retained_bytes: 0,
+        spilled_bytes: 0,
+        deciding_event_before_failure: None,
+        failures: [],
+    },
+    predecessor: PredecessorUsage {
+        storage: Usage {
+            retained_bytes: 48,
+            peak_retained_bytes: 48,
+            written_bytes: 0,
+            records: 4,
+            spilled: false,
+        },
+        failures: [],
+        deciding_event_before_failure: None,
+        cleanup_completed: true,
+    },
+    verdict: EvaluationError {
+        site: Invariant,
+        code: 2111,
+        name: "TLC_INVARIANT_EVALUATION_FAILED",
+        reported: 2111,
+        message: "Evaluating invariant Inv failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
+        verified: true,
+        cause: EvalError(
+            Inner {
+                class: Eval,
+                ec: DivisionByZero,
+                message: "The second argument of \\div is 0.",
+                origin: Some(
+                    ExprId(
+                        697,
+                    ),
+                ),
+                eval_exception: true,
+            },
+        ),
+    },
+    stats: Some(
+        Stats {
+            generated: 4,
+            distinct: 4,
+            left_on_queue: 1,
+            depth: 3,
+            initial_generated: 1,
+        },
+    ),
+    tlc_prints_stats: true,
+    counterexample: Some(
+        Counterexample {
+            states: [
+                TraceState {
+                    label: "<Initial predicate>",
+                    action: None,
+                    values: [
+                        0,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        1,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        2,
+                        0,
+                    ],
+                    text: None,
+                },
+            ],
+        },
+    ),
+    collision: None,
+    store: Fingerprint,
+    fp_index: Some(
+        0,
+    ),
+    tlc_fingerprints: true,
+    var_names: [
+        "x",
+        "y",
+    ],
+    tlc_var_order: [
+        0,
+        1,
+    ],
+    output: [],
+    warnings: [],
+    notes: [],
+    workers: Workers {
+        requested: 1,
+        used: 1,
+        sequential: true,
+        reason: Some(
+            "disk seen-state retention uses inline search until immutable disk read views are proved",
+        ),
+    },
+    elapsed: 10.295666ms,
+} PRIVATE(verdict,stats,word,output,seen,workers)=(
+    EvaluationError {
+        site: Invariant,
+        code: 2111,
+        name: "TLC_INVARIANT_EVALUATION_FAILED",
+        reported: 2111,
+        message: "Evaluating invariant Inv failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
+        verified: true,
+        cause: EvalError(
+            Inner {
+                class: Eval,
+                ec: DivisionByZero,
+                message: "The second argument of \\div is 0.",
+                origin: Some(
+                    ExprId(
+                        697,
+                    ),
+                ),
+                eval_exception: true,
+            },
+        ),
+    },
+    Some(
+        Stats {
+            generated: 4,
+            distinct: 4,
+            left_on_queue: 1,
+            depth: 3,
+            initial_generated: 1,
+        },
+    ),
+    Some(
+        Counterexample {
+            states: [
+                TraceState {
+                    label: "<Initial predicate>",
+                    action: None,
+                    values: [
+                        0,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        1,
+                        0,
+                    ],
+                    text: None,
+                },
+                TraceState {
+                    label: "<Step line 6, col 12 to line 6, col 40 of module ErInvReplayProp>",
+                    action: Some(
+                        "Step",
+                    ),
+                    values: [
+                        2,
+                        0,
+                    ],
+                    text: None,
+                },
+            ],
+        },
+    ),
+    [],
+    Some(
+        SeenUsage {
+            limits: Limits {
+                key_bytes: 67108864,
+                entries: 16777216,
+                probe_steps: 33554432,
+                summary_pairs: 1000000,
+            },
+            admitted_keys: 4,
+            before_cleanup: Some(
+                Stats {
+                    physical_entries: 4,
+                    disk_bytes: 352,
+                    resident_key_bytes: 0,
+                    poisoned: false,
+                    cleanup_completed: false,
+                },
+            ),
+            after_cleanup: Some(
+                Stats {
+                    physical_entries: 4,
+                    disk_bytes: 0,
+                    resident_key_bytes: 0,
+                    poisoned: false,
+                    cleanup_completed: true,
+                },
+            ),
+            first_failure: None,
+            deciding_event_before_failure: None,
+            replay: Some(
+                SeenReplay {
+                    original_error: EvaluationError {
+                        site: Invariant,
+                        code: 2111,
+                        name: "TLC_INVARIANT_EVALUATION_FAILED",
+                        reported: 2111,
+                        message: "Evaluating invariant Inv failed.\n@!@!@STARTMSG 2179:0 @!@!@\nThe second argument of \\div is 0.\n@!@!@ENDMSG 2179 @!@!@",
+                        verified: true,
+                        cause: EvalError(
+                            Inner {
+                                class: Eval,
+                                ec: DivisionByZero,
+                                message: "The second argument of \\div is 0.",
+                                origin: Some(
+                                    ExprId(
+                                        697,
+                                    ),
+                                ),
+                                eval_exception: true,
+                            },
+                        ),
+                    },
+                    predecessor: 1,
+                    stopped_successor_ordinal: 0,
+                    generated: 4,
+                    admitted_keys: 0,
+                    queued: 0,
+                    unproved_print_output: false,
+                    halted_by: None,
+                },
+            ),
+        },
+    ),
+    Workers {
+        requested: 1,
+        used: 1,
+        sequential: true,
+        reason: Some(
+            "disk seen-state retention uses inline search until immutable disk read views are proved",
+        ),
+    },
+)
+
+thread 'seen::tests::private_bound_action_property_replay_matches_memory_without_lifting_public_role' (131799436) panicked at crates/dive-check/src/seen/tests.rs:797:13:
+assertion failed: matches!(refused.verdict, Verdict::Unsupported { .. })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p dive-check --lib`

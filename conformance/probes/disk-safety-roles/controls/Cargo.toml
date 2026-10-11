@@ -1,0 +1,11 @@
+[workspace]
+
+[package]
+name = "dive-disk-role-controls"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+dive-api = { path = "../../../../crates/dive-api" }
+serde_json = "1"

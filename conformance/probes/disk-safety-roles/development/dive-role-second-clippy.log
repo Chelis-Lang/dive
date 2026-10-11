@@ -1,0 +1,94 @@
+    Checking dive-model v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-model)
+    Checking dive-check v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-check)
+    Checking dive-trace v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-trace)
+    Checking dive-sim v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-sim)
+    Checking dive-liveness v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-liveness)
+    Checking dive-api v0.0.0 (/Users/jeff/code/dive-trace-representation-work/crates/dive-api)
+error: used `assert!` to check that a value is empty
+  --> crates/dive-check/tests/disk_roles.rs:57:29
+   |
+57 | ...                   assert!(disk.output.is_empty());
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+   = note: `-D clippy::assert-is-empty` implied by `-D clippy::pedantic`
+   = help: to override `-D clippy::pedantic` add `#[allow(clippy::assert_is_empty)]`
+help: use `assert_eq!` to show the value on failure
+   |
+57 -                             assert!(disk.output.is_empty());
+57 +                             assert_eq!(disk.output, [] as [std::string::String; 0]);
+   |
+
+error: field assignment outside of initializer for an instance created with Default::default()
+   --> crates/dive-check/tests/disk_roles.rs:144:13
+    |
+144 | /             disk.directory = Some(
+145 | |                 Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/never-created-role-admission"),
+146 | |             );
+    | |______________^
+    |
+note: consider initializing the variable with `dive_check::SeenOptions { directory: Some(
+                      Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/never-created-role-admission"),
+                  ), ..Default::default() }` and removing relevant reassignments
+   --> crates/dive-check/tests/disk_roles.rs:143:13
+    |
+143 |             let mut disk = SeenOptions::default();
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#field_reassign_with_default
+    = note: `-D clippy::field-reassign-with-default` implied by `-D clippy::all`
+    = help: to override `-D clippy::all` add `#[allow(clippy::field_reassign_with_default)]`
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/disk_roles.rs:154:13
+    |
+154 |             assert!(result.output.is_empty());
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+154 -             assert!(result.output.is_empty());
+154 +             assert_eq!(result.output, [] as [std::string::String; 0]);
+    |
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/disk_roles.rs:185:9
+    |
+185 |         assert!(result.output.is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+185 -         assert!(result.output.is_empty());
+185 +         assert_eq!(result.output, [] as [std::string::String; 0]);
+    |
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/disk_roles.rs:211:9
+    |
+211 |         assert!(result.output.is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+211 -         assert!(result.output.is_empty());
+211 +         assert_eq!(result.output, [] as [std::string::String; 0]);
+    |
+
+error: used `assert!` to check that a value is empty
+   --> crates/dive-check/tests/disk_roles.rs:235:9
+    |
+235 |         assert!(result.output.is_empty());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#assert_is_empty
+help: use `assert_eq!` to show the value on failure
+    |
+235 -         assert!(result.output.is_empty());
+235 +         assert_eq!(result.output, [] as [std::string::String; 0]);
+    |
+
+error: could not compile `dive-check` (test "disk_roles") due to 6 previous errors
+warning: build failed, waiting for other jobs to finish...

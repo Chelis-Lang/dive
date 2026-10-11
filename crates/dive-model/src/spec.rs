@@ -406,6 +406,22 @@ impl Binder<'_> {
 
     /// The scope an instance substitution wrapper starts, and its location.
     fn subst_scope(&self, scope: &Scope, e: ExprId) -> R<Scope> {
+        if self.structural_admission
+            && let Expr::Subst { bindings, .. } = self.ir().expr(e)
+            && bindings.iter().any(|b| {
+                matches!(
+                    b.value,
+                    dive_ir::Arg::Expr {
+                        pass: dive_ir::Pass::Strict,
+                        ..
+                    }
+                )
+            })
+        {
+            return Err(BindError::unsupported(
+                "pure safety role admission needs strict instance-substitution evaluation",
+            ));
+        }
         self.ev()
             .scope_subst(scope, e)
             .map_err(|err| BindError::unsupported(format!("binding instance substitutions: {err}")))
@@ -443,6 +459,11 @@ impl Binder<'_> {
                     },
                     Look::Value(v) => Found::Value(v),
                     Look::Literal(lit) => {
+                        if self.structural_admission {
+                            return Err(BindError::unsupported(
+                                "pure safety role admission needs literal lookup evaluation",
+                            ));
+                        }
                         match self.ev().eval_scoped(
                             &self
                                 .ev()
@@ -772,7 +793,7 @@ impl Binder<'_> {
                 },
                 _ => true,
             },
-            Expr::Subst { body, .. } => match self.ev().scope_subst(scope, e) {
+            Expr::Subst { body, .. } => match self.subst_scope(scope, e) {
                 Ok(s) => self.collect_subscript(*body, &s, out, depth + 1),
                 Err(_) => false,
             },
@@ -874,6 +895,11 @@ impl Binder<'_> {
                 bounds,
                 body,
             } if bounds.iter().all(|b| b.domain.is_some()) => {
+                if self.structural_admission {
+                    return Err(BindError::unsupported(
+                        "pure safety role admission needs quantified PROPERTY domain evaluation",
+                    ));
+                }
                 let body = *body;
                 // `opDefEvaluator.contexts(pred1, c)`: the domains in TLC's
                 // context, which does not hold the substitutions; a

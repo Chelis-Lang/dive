@@ -210,6 +210,7 @@ python3 -I crates/dive-pluscal/multiple-procedure-checksum-acceptance/test-deliv
 python3 -I scripts/check-optional-periodic-hook.py
 python3 -I scripts/check-terminal-periodic-service.py
 python3 -I scripts/check-stopped-periodic-service.py
+
 python3 -I scripts/check-parity-ledger.py
 python3 -I scripts/test-parity-ledger.py
 python3 -I scripts/check-tlc-planning.py
@@ -219,15 +220,43 @@ python3 -I scripts/check-phase-l.py
 python3 -I scripts/check-phase-l-graph.py
 python3 -I scripts/check-phase-execution.py
 python3 -I scripts/check-tlc-final.py
-
 python3 -I scripts/check-state-if-planning.py
 python3 -I scripts/check-predecessor-spill.py
 python3 -I scripts/check-native-checkpoint.py
-python3 -I scripts/check-native-parity-integration.py
 python3 -I scripts/check-view-normalization.py
 python3 -I scripts/check-view-random-stream.py
 python3 -I crates/dive-pluscal/macro-checksum-acceptance/verify.py
 python3 -I crates/dive-pluscal/define-acceptance/verify-delivery.py
+
+python3 -I scripts/check-trace-representation.py
+python3 -I scripts/check-fallible-seen-store.py
+python3 -I scripts/check-fallible-seen-engine.py
+python3 -I scripts/test-fallible-seen-git-proof.py
+python3 -I scripts/check-disk-safety-roles.py
+python3 -I scripts/test-disk-safety-role-proof.py
+python3 -I scripts/check-native-parity-integration.py
+python3 -I scripts/check-tlc-final-safety.py
+python3 -I scripts/check-tlc-state-if.py
+python3 -I scripts/check-tlc-temporal-if.py
+python3 -I scripts/check-tlc-temporal-if-final.py
+python3 -I scripts/check-tlc-final-scopes.py
+python3 -I scripts/check-tlc-property-origins.py
+python3 -I scripts/check-material-capture.py
+python3 -I scripts/check-temporal-operators.py
+python3 -I scripts/check-native-temporal-operators.py
+python3 -I crates/dive-pluscal/source-option-semantics-acceptance/integration-runners/verify.py
+python3 -I scripts/check-stored-successor-material.py
+python3 -I scripts/check-stored-successor-census.py
+python3 -I scripts/check-native-sequence-operators.py
+python3 -I scripts/check-tlc-partial-scc.py
+python3 -I scripts/check-periodic-backend.py
+python3 -I scripts/check-periodic-lifecycle.py
+python3 -I scripts/check-periodic-hook.py
+python3 -I scripts/check-periodic-snapshot.py
+python3 -I scripts/check-progress-queue.py
+python3 -I scripts/check-committed-prefix.py
+python3 -I scripts/check-test-partitions.py
+python3 -I scripts/test-workspace-gate.py
 cargo clippy --workspace --all-targets --locked -- -D warnings
 python3 -I scripts/check-test-partitions.py
 python3 -I scripts/test-workspace-gate.py

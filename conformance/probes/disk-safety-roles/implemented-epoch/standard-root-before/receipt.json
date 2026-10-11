@@ -1,0 +1,35 @@
+{
+  "producer": "9bb256a65a70513d0894ddd16d7773be68ec9d6f",
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "Cargo.toml"
+  ],
+  "environment": {
+    "CARGO_TARGET_DIR": "private warm target",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_INCREMENTAL": "0",
+    "DIVE_CACHE_DIR": "agent-owned"
+  },
+  "binary": "dive-standard-root-admission-control",
+  "binary_sha256": "840d7ba54d25e3f55bd053b306a7497efa6dc7000a23ac9ab909aedfa68afa54",
+  "payload_sha256": {
+    "Cargo.toml": "23d8b370b796e6c860d690e8c14a1ad25573cfc7c16eadba0849700759ecc843",
+    "modified-ir.json": "b4d70b3253a7be5b2d5c068a32ba408029f2a07ec71c12c87064fcf95a7b7d84",
+    "Cargo.lock": "8289f864ac5ed69e5da9e0d4ed05b63e94eb151e34d007ef1d434fdeafc8e634",
+    "raw.stderr": "550c21979f71a6fad213c30ba6532fe8bdea335d89899a3e95bc885492693299",
+    "dive-standard-root-admission-control": "840d7ba54d25e3f55bd053b306a7497efa6dc7000a23ac9ab909aedfa68afa54",
+    "raw.stdout": "b2bab4207574e1ed34c6c96e6ce6aa4350068c4bd9f1f9b881bc94aaa56713f4",
+    "first-setup/raw.stderr": "704d9b62b1bcc91818c8409da8c74102153746614bdbd526db1eb71d61618bd5",
+    "first-setup/main.rs": "4d0ff56e3d94ac11a9170bddf68eaf16fca459267e528da4185b08a26ee4c53a",
+    "first-setup/raw.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/main.rs": "4c91d4fc4039c05fa3dc41bf9775dbf9a8cf60ca14aedfe107cc979e4b50cb20"
+  },
+  "selected_runs": 4,
+  "actual_result": "All source and caller-standard-root controls in both profiles refuse PrintT with empty output/no stats/no owned seen store. No flag-only admission bypass.",
+  "qualification": "Public serde roundtrip caller module-standard metadata control. Original root assumption Def is zero-argument TopLevel (the documented scope for assumptions), so standard TopLevel rooting still inspects it. No TLC parity defect or broader malformed-scope claim. Initial compilation setup error is retained separately; no root source edited.",
+  "family_certified": false
+}

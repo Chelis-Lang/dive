@@ -1,0 +1,32 @@
+diff --git a/crates/dive-check/src/seen/tests.rs b/crates/dive-check/src/seen/tests.rs
+index 350ea4cf8..e2be17d2e 100644
+--- a/crates/dive-check/src/seen/tests.rs
++++ b/crates/dive-check/src/seen/tests.rs
+@@ -760,9 +760,6 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
+                 ..SeenOptions::default()
+             });
+             let refused = crate::check(&ir, &cfg, &options);
+-            assert!(matches!(refused.verdict, Verdict::Unsupported { .. }));
+-            assert!(refused.stats.is_none());
+-            assert_eq!(std::fs::read_dir(&parent).expect("parent").count(), 0);
+             // This is a private bound-engine transaction test, not public PROPERTY admission.
+             let host = Arc::new(crate::engine::run_host(&options));
+             let bind = dive_model::BindOptions {
+@@ -776,6 +773,7 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
+             host.set_config(Some(config.clone()));
+             model.evaluator.intern_bfs_config(&config);
+             let disk = crate::engine::search(&model, &options, &host);
++            eprintln!("INSTRUMENTED {:?} {store:?} MEMORY={memory:#?} PUBLIC={refused:#?} PRIVATE(verdict,stats,word,output,seen,workers)={:#?}", options.profile, (&disk.verdict, &disk.stats, &disk.counterexample, &disk.output, &disk.seen, &disk.workers));
+             assert_eq!(disk.verdict, memory.verdict);
+             assert_eq!(disk.stats, memory.stats);
+             assert_eq!(
+@@ -796,6 +794,9 @@ fn private_bound_action_property_replay_matches_memory_without_lifting_public_ro
+             assert!(usage.replay.is_some());
+             assert!(usage.first_failure.is_none());
+             assert!(usage.after_cleanup.expect("close").cleanup_completed);
++            assert!(matches!(refused.verdict, Verdict::Unsupported { .. }));
++            assert!(refused.stats.is_none());
++            assert_eq!(std::fs::read_dir(&parent).expect("parent").count(), 0);
+             std::fs::remove_dir(parent).expect("parent");
+             options.seen_disk = None;
+         }

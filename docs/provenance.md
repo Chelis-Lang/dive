@@ -915,3 +915,25 @@ error/counters through joins; no claim reproduces Java graph writes after errors
 natural clock scheduling or ordinary model proof. See
 [ADR0078](decisions/0078-stopped-queue-worker-errors.md) and the
 [executable guide](stopped-periodic-service.md).
+
+### Source-owned disk safety role admission (#221)
+
+`dive-model::admit_pure_safety_roles` reuses actual `Binder::process_spec` and
+`process_config` tables and decomposition: MIT pin94d0c50
+`tlc2.tool.impl.SpecProcessor.processSpec/processConfig/processConfigSpec/processConfigProps`,
+`SymbolNodeValueLookupProvider.lookup/getLevelBound`, and `ModuleNode.processConstantDefns`.
+The native structural-only mode refuses evaluation-demanding domains/literals/
+strict substitutions and checks actual native dispatch before startup. It does
+not replace levels/predicates with guessed values. Source visit/depth admission,
+conservative unused roots and pre-startup native refusals are original bounded
+policy, not claimed Java error parity. Resident binding is unchanged; no crate
+edge changes. The declared before-selection and current proof scope are in
+`conformance/probes/disk-safety-roles/` and ADR0075.
+
+The role admission runtime source is frozen at `7fae387c11675b6a72119cc0013dd18f4eac33cb`.
+Its archived selected inputs include 1,347 Git/live pairs and all 61 literal
+include sites/56 targets derived from actual workspace Rust sources. Portable
+commit/tree objects establish the selected Git blob identities without requiring
+an unsquashed producer object in a future clone. This is selected-input provenance,
+not a hermetic build or independent semantic certificate. Runtime/gate histories
+and metadata-only current authority stay separate in the role study.

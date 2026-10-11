@@ -2401,7 +2401,7 @@ full fingerprints or canonical exact keys on disk through Result operations.
 The original resident command remains default; admitted complete outcomes and
 concrete witnesses match that reference. Requested parallel widths currently
 use reported inline fallback, not advertised scaling. Entry/probe/summary limits
-and I/O/cleanup errors refuse completion. Configured PROPERTY/SPECIFICATION, graph, temporal, checkpoint/
+and I/O/cleanup errors refuse completion. Unproved configured role contexts, graph, temporal, checkpoint/
 recovery and DFID combinations remain unsupported. Separate frontier and
 predecessor budgets can combine, without a total-RAM/crash/import claim.
 [Executable user/API guide](user/disk-seen-safety.md).
@@ -2420,7 +2420,7 @@ operations in source/ordinal order. `ReplayNew` proves that successful replay
 can add distinct/queued states while generated stays frozen: clean TLC gives
 2 generated/4 distinct/2 queued, depth 2, exit 76. Storage/bound/cleanup failures
 retain the original error and diagnostic prefix while refusing completion;
-unknown error classes remain unverified. Public PROPERTY/SPECIFICATION,
+unknown error classes remain unverified. Unproved PROPERTY/SPECIFICATION contexts,
 parallel disk/capture/temporal and recovery restrictions remain. See
 [the user guide](user/disk-seen-safety.md) and [source-bound replay study](../conformance/probes/fallible-invariant-replay/README.md).
 
@@ -2535,3 +2535,33 @@ liveness successor records after its error winner, while native diagnostics
 contain only the earlier actually committed prefix. No ordinary queue/count/graph
 or clock parity follows. The [guide](stopped-periodic-service.md) distinguishes
 actual method returns, CLI exits, callback failures and joins.
+
+### Source-owned disk safety roles (#221)
+
+Disk checking now has a bounded pre-startup role path through the actual shared
+binder, admitting proven pure safety PROPERTY/SPECIFICATION forms. It does not
+use syntax-level temporal filtering: `Init /\ [][Next]_x` decomposes into safety
+roles, while actual temporal assumptions or obligations refuse. The declared
+29-model before-selection keeps clean pinned output, resident results and the old
+blanket disk refusal separately. A strict INSTANCE expression occurring only
+in the SPECIFICATION subscript remains refused before startup: the selected
+primary and resident control succeed with three states and warning 2140, while
+warning-only subscript inspection does not prove structural disk admission.
+The preliminary4f disk Success and failed admission regression are preserved.
+This is a scoped native restriction, not a wrong TLC verdict. LET/INSTANCE/configured aliases are selected,
+not granted support merely by name. The frozen `7fae387c` producer passed the
+full gate (1,326 tests, zero skips) and all 2,320 current-role CLI observations.
+Its 2,088 public API comparisons retain 432 independently Valid words and
+2,592 Invalid named mutants; seven refusal models stay selected without proof
+credit. Original resident reports and diagnostic error words are qualified
+separately in the study.
+
+The policy is deliberately partial. A fairness-only specification that succeeds
+in the resident route remains refused on disk; quantified PROPERTY domain
+execution and opaque wrappers also stay selected with no agreement credit.
+Unused effectful source can cause an earlier refusal, before startup output or a
+later role diagnostic. INIT/NEXT-only binder ordering, disk-key bounds, actual
+inline fallback, Print-dependent error-replay refusal and independent trace
+requirements remain unchanged. This is a native limitation, not a new reference
+bug or semantic default. [CLI/Rust contract](user/disk-seen-safety.md) and
+[ADR0075](decisions/0075-source-owned-pure-safety-role-admission.md).
