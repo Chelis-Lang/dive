@@ -197,3 +197,7 @@ for verifier in ("verify.py", "verify-delivery.py"):
 
 # The complete acyclic checksum capture preserves source/error stages separately.
 subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance/verify.py")], check=True)
+
+# Acyclic procedure observations keep frozen source/runtime and repaired command epochs.
+for verifier in ("verify.py", "verify-delivery.py"):
+    subprocess.run([sys.executable, "-I", str(ROOT / "crates/dive-pluscal/acyclic-procedure-checksum-acceptance" / verifier)], check=True)

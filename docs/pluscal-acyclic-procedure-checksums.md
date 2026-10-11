@@ -90,8 +90,31 @@ native changes. The clean primary retry has 116 SANY-valid artifacts and 14
 reference errors. Original-after-generation header stages and direct exploded
 ownership remain distinct. Focused controls require exact stored-header bytes/CRC
 for all 32 new cases and the four formerly refused forward/reverse owner cases,
-with retained recursive negatives and unchanged aggregate budgets. Complete
-public CST/SANY/Validator, model/mutant and runnable guide evidence is recorded
-separately as qualification finishes. See [ADR 0073](decisions/0073-acyclic-procedure-header-checksums.md)
+with retained recursive negatives and unchanged aggregate budgets. The frozen producer passed all 53 local gate stages, including 1,197 tests with
+no skips. Its complete 130-row raw campaign contains 104 exact stored-header
+byte/CRC matches, 18 named refusals, six accounted reference rejections and two
+invalid reference commands without parity credit. Across both profiles, the 260
+public rows contain 208 admitted whole-CST/SANY/Validator matches, 36 named
+refusals, 12 accounted rejections and four invalid-command rows. Every original
+180-row and supplemental selection remains separately replayed; no target drops.
+
+The 62 predeclared finite source models produced 124 complete/violation runs and
+1,488 profile/worker/store settings with exact counts. The independent replay
+campaign has 62 canonical Valid and 248 canonical Invalid controls; strict TLC
+mode has 186 Unsupported and 124 Invalid, with **zero strict saved-frame Valid**.
+Two separately sourced 20-control guide cohorts, 24 checksum controls and 28
+actual comparator-forgery controls passed. Corrected commands ran all 21 CM1
+and 16 VTS models at widths 1, 4 and 8. Original missing-script and ignored
+`DIVE_BIN` command failures remain failed, with each explicit repair retained.
+
+Evidence archives prove selected source/input identity, not a hermetic compiler
+or runtime environment. The original 15,944-input source index remains unchanged.
+A separate before-heavy-gate audit preserves 70 literal includes and 65 unique
+fixture targets: 22 were already indexed and 43 are separately Git/source/archive
+qualified. Another 208 external reference inputs qualify supplemental commands;
+they do not acquire Git or compiler-source credit. The original ENOSPC capture
+is retained without primary/native credit; the clean retry remains separate.
+Portable readback verifies exact bytes and actual stage dispositions. Packaging
+only adds verification/documentation; it does not retag the original producer. See [ADR 0073](decisions/0073-acyclic-procedure-header-checksums.md)
 and `crates/dive-pluscal/acyclic-procedure-checksum-acceptance/`.
 F-034/F-035 remain partial; this scope is not a full translator/API certificate.

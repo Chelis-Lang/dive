@@ -48,3 +48,16 @@ finite model results and independent replay are separate evidence stages.
 Strict saved-frame replay remains qualified under #124; canonical-only validation
 cannot become TLC-profile credit. Fair-header-only equality is the measured weak
 reference detection policy, not an integrity certificate. F-034/F-035 stay partial.
+
+## Qualification
+
+Frozen source `64964b539a207e5727d8a537e03887bcaea5f197` closed all 53
+gate stages, including 1,197 tests with no skips. Full 130 raw / 260 public
+selections retain every error/refusal/invalid-command disposition. The declared
+finite models produced 1,488 settings; independent replay has zero strict
+saved-frame Valid and 62 separately qualified canonical Valid. Portable readback
+preserves actual stages, initial ENOSPC and six failed commands plus explicit
+repairs. Selected source identity is distinct from a hermetic environment:
+15,944 original inputs, 43 separate literal fixtures and 208 external reference
+inputs keep their own authorities. Post-gate verification/documentation does not
+retag source/runtime. See the executable guide and acceptance delivery.

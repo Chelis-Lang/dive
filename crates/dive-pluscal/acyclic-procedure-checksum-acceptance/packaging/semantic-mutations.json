@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "source_commit": "64964b539a207e5727d8a537e03887bcaea5f197",
+  "driver_sha256": "a9246cd23d64770141c6b794a439d4ac16492a4a2575204df92a9ba5897c3c6b",
+  "verifier_sha256": "198156bedb4a17478cb5a4efa39beb6a80a81ba8d3add199b05c8a3785c6dccc",
+  "selected": 28,
+  "rows": [
+    {
+      "control": "baseline",
+      "accepted": true,
+      "detail": {
+        "records": 36586,
+        "source_inputs": 15944,
+        "gate_tests": 1197,
+        "model_settings": 1488,
+        "strict_saved_frame_valid": 0,
+        "family_certified": false
+      }
+    },
+    {
+      "control": "source-byte",
+      "accepted": false,
+      "detail": "source archive:crates/dive-pluscal/src/translate/checksum.rs"
+    },
+    {
+      "control": "reference-input-byte",
+      "accepted": false,
+      "detail": "supplement input:branch-study/cases/ElsifBranch_elsewith.tla"
+    },
+    {
+      "control": "first-source-retagged",
+      "accepted": false,
+      "detail": "failed capture retagged"
+    },
+    {
+      "control": "gate-failed",
+      "accepted": false,
+      "detail": "full gate"
+    },
+    {
+      "control": "gate-stage-drop",
+      "accepted": false,
+      "detail": "full gate"
+    },
+    {
+      "control": "gate-skip",
+      "accepted": false,
+      "detail": "gate log identity"
+    },
+    {
+      "control": "failed-command-hidden",
+      "accepted": false,
+      "detail": "original failed commands concealed"
+    },
+    {
+      "control": "repair-raises-quota",
+      "accepted": false,
+      "detail": "repair identity"
+    },
+    {
+      "control": "gate-repair-extra-flags",
+      "accepted": false,
+      "detail": "repair exceeds explicit binary binding"
+    },
+    {
+      "control": "raw-drop",
+      "accepted": false,
+      "detail": "raw census:final-runtime/raw-new"
+    },
+    {
+      "control": "raw-proof",
+      "accepted": false,
+      "detail": "raw false proof"
+    },
+    {
+      "control": "raw-ast",
+      "accepted": false,
+      "detail": "raw exact header bytes/CRC"
+    },
+    {
+      "control": "raw-crc",
+      "accepted": false,
+      "detail": "raw exact header bytes/CRC"
+    },
+    {
+      "control": "public-proof",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-exhaustive",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-profile",
+      "accepted": false,
+      "detail": "public claims"
+    },
+    {
+      "control": "public-cst",
+      "accepted": false,
+      "detail": "whole CST"
+    },
+    {
+      "control": "validator-divergence",
+      "accepted": false,
+      "detail": "Validator"
+    },
+    {
+      "control": "model-count",
+      "accepted": false,
+      "detail": "primary counts"
+    },
+    {
+      "control": "model-width-drop",
+      "accepted": false,
+      "detail": "finite model"
+    },
+    {
+      "control": "model-width-duplicated",
+      "accepted": false,
+      "detail": "complete worker/store/profile matrix"
+    },
+    {
+      "control": "public-selection-duplicated",
+      "accepted": false,
+      "detail": "public complete paired selection"
+    },
+    {
+      "control": "replay-strict-credit",
+      "accepted": false,
+      "detail": "replay census"
+    },
+    {
+      "control": "guide-false-proof",
+      "accepted": false,
+      "detail": "guide claims"
+    },
+    {
+      "control": "crc-proof",
+      "accepted": false,
+      "detail": "CRC controls"
+    },
+    {
+      "control": "forgery-accepted",
+      "accepted": false,
+      "detail": "forgery controls"
+    },
+    {
+      "control": "primary-mutation-accepted",
+      "accepted": false,
+      "detail": "primary integrity mutations"
+    }
+  ],
+  "family_certified": false,
+  "all_record_and_archive_hashes_recomputed_before_verification": true
+}
