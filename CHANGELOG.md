@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
+  conjuncts, with complete generated-module syntax-tree regressions.
+
+
 - Explicit final TLC mode now admits pure state conditional predicates through
   the corrected shared planner and fresh independent witness replay. Scoped
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
