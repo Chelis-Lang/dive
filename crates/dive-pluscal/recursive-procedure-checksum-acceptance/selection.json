@@ -928,112 +928,112 @@
     {
       "id": "RecursiveHeader_C_self_base",
       "flags": [],
-      "input_sha256": "ae00d377f1c1c607f79cd36397e3bec649c5b30745bc7bd73e0a1fccce2fdae4",
+      "input_sha256": "b935687aea3c1646b50a0deec8e591aba5e9af25a6c461601b23bbd185788949",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_self_tail",
       "flags": [],
-      "input_sha256": "6fa03bdf4b4321584595bcee428915b9acad6ae3628f52d953a205a4385585e6",
+      "input_sha256": "8f9bacf142a0982de77fb120e96db4548b34a219964f1d86302b1a3ddb4fa611",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_self_local",
       "flags": [],
-      "input_sha256": "6365fdb808a89d5b1d1ceeb1d3886950bb35acaa7f074c8faf70aea5ebe78eb6",
+      "input_sha256": "f22cdfde595f1514faeb95149ca32baf5bfc8411e71198043bdc428908672bdd",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_self_two_args",
       "flags": [],
-      "input_sha256": "4d4fdc5bcd60e2236b61fc555bbe9c32b6cb6af81657221f59ceedadf57cce94",
+      "input_sha256": "19da67690d8b190f8b70d797395c7b9c9fca8b8809564bc5883f5f21a2de67e4",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_mutual_forward",
       "flags": [],
-      "input_sha256": "4635ab21673bfaf27e731bd09a94e7098695211be2f1c7ff20951da4be760a21",
+      "input_sha256": "b9a0c5740c9b1c67aafbb1836d400e1d1109272f8d5cd9e9d83cfd816fde55f7",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_mutual_reverse",
       "flags": [],
-      "input_sha256": "9c89c55a67171af453491b2967f0195a5f58fd0635ed0885437a359c76d5ca10",
+      "input_sha256": "3355576f520f7591df360d9c387fb4b214f1a666c69190c23a179476479b5402",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_mutual_local",
       "flags": [],
-      "input_sha256": "b39d25602964b01dcbd59e989a9abdc7112e3a581e77a78877c943380101377b",
+      "input_sha256": "770ff63def1dbe48d5270977657ee5eedd6de9f33bbe1b2bfefcd9756cfc0cc9",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_mutual_tail",
       "flags": [],
-      "input_sha256": "8c866fe57456db3cbf43cb785774557dbeee865ab9d45f19f6187877df7d0b21",
+      "input_sha256": "b578879b5f792eaad18e2ed9137619af921525a140becddd01878a0c9050e3e5",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_if_self",
       "flags": [],
-      "input_sha256": "54211b9b4e2caf065097c39906b2ece99b76e6b89d47d69510bb7e578840c8d2",
+      "input_sha256": "80921e8db6ec4444c907a89709c2a748ebc0fc5c2dcb541cab37a56420a4605f",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_elsif_self",
       "flags": [],
-      "input_sha256": "36d8a277ebd1e0c12db33234ff7feddfe12961bcc334b0324f979fbbb08c1c75",
+      "input_sha256": "a9f2307fc91ca50b75fc9159c89d27d3af9713fd0d5397266a9f0aebe7a039d0",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_with_self",
       "flags": [],
-      "input_sha256": "ea1c51ce8535e623c45e292de432bcfab22c4138eaeff259fb5b391546fdda11",
+      "input_sha256": "1a45aa79246d074d640d4de0c0b71a865dfd5e24e535a9cd9388389135420adb",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_either_self",
       "flags": [],
-      "input_sha256": "aeb86be1763749f72f3fc56e4e6fc8c4eaeb36bc75c39418fa6c7b99400db9ff",
+      "input_sha256": "820885a87a7fc8ca91f8113acbb530a2234ffd567c6f42614aca2ee2b16ad561",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_while_self",
       "flags": [],
-      "input_sha256": "7d8d8f2ad73c97fc3fc2e0c329b3af6307a3e8961255605b20d411f0b11ce8ec",
+      "input_sha256": "34bbf29657e067ff240a93b07b82ebe6eb5a108229e0876bad678599b4e1ec03",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_unused_recursive",
       "flags": [],
-      "input_sha256": "67bd9ca4a27026ec21d7ef0ed4bd27de544ce17453e0360396721df81d6a1755",
+      "input_sha256": "325b2f7c3db9438d7814840500942262726a504364856501767f1e59a4c6d9a8",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_nonterminating_self",
       "flags": [],
-      "input_sha256": "320d65ae15f6589837d7671ca777a200759a05f362d508afa7363f06c3bf5496",
+      "input_sha256": "cc08a8de72c05e7d303b90d9b9aefe739ef5416d8c04281275569bfcd0b83f2b",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
     {
       "id": "RecursiveHeader_C_zero_param_self_tail",
       "flags": [],
-      "input_sha256": "76899ca3b98d3aa6a81e47b3b9a3ec5bfc3be53ac62ae3a3ac8e5e4888bf88f0",
+      "input_sha256": "31b1b42d2924b35a786fd6324adedc0f1f5da57a969c47c0986d66325bb8df2c",
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     },
@@ -1149,5 +1149,7 @@
       "history_scope": "recursive32",
       "intended_contract": "reference stages decide actual validity; no initial native or proof credit"
     }
-  ]
+  ],
+  "first_declaration_commit": "f56bc86a8d722da6becefe6527ca02004e3416a9",
+  "corrected_before_native_changes": true
 }
