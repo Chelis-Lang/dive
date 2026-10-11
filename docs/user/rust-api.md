@@ -94,3 +94,5 @@ The [source-owned periodic backend](../periodic-backend.md) is a separate `dive_
 
 
 The [native clock/dispatch lifecycle](../native-periodic-lifecycle.md) adds `dive_liveness::periodic_lifecycle::execute`, with a Cargo-owned example. It polls only at committed source boundaries under real dispatch authority and checks SCCs at actual EOF; it grants no ordinary temporal verdict.
+
+The [pure supplied periodic-expression diagnostic](../periodic-hook.md) adds `dive_liveness::periodic_hook::execute`. It holds real native dispatch authority, but does not bind configured `_PERIODIC` or certify an ordinary verdict. Its Cargo-owned example documents original typed errors and bounds.

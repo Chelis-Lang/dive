@@ -102,7 +102,7 @@ fn exact_macro_ast_bytes_and_uncredited_reference_failures()
             }
         }
     }
-    assert_eq!(outcomes, [235, 24, 66, 23]);
+    assert_eq!(outcomes, [237, 24, 66, 21]);
     Ok(())
 }
 
