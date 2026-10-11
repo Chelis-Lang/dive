@@ -637,3 +637,19 @@ invoke providers; trace replay stays independently built without enumeration.
 Original 84 diagnostic rows, wider seeds and shipping producer evidence remain
 separate under `conformance/probes/view-random-stream/`. Symmetry and other RNG
 families/recovery are excluded until their own contracts are proved.
+
+
+## Checked stored trace transport
+
+`dive-trace/src/value_repr.rs` is dive's native version2 transport (ADR0055),
+using the existing `Value::set`, `Value::fcn`, record and tuple constructors.
+Pinned `SetEnumValue.normalize`, `ValueVec.sort`, `TupleValue` and `FcnRcdValue`
+representation are semantic references at `94d0c50`, under MIT; JSON, admission
+budgets and construction witnesses are dive's own design. The storage codec's
+native format is not exposed to untrusted words. Its tuple tag loses the
+nonliteral tuple distinction; the separate preserved spill/recovery study
+records that remaining storage limitation without changing its format here.
+Encoder witness probes use the existing Quiet marker authority solely to keep
+shared operand normalization markers unchanged. Provider/opaque representation
+is refused before probing. `dive-trace` retains its standalone generator-free
+build; transport success proves shape, not Init/Next/ending or reachability.

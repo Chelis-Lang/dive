@@ -854,3 +854,15 @@ mod tests {
         }
     }
 }
+
+/// Runs the ordinary set constructor while preserving normalization markers in
+/// borrowed operand values. Intended for checked representation transport probes,
+/// not a new comparison policy. Callers must first reject deferred/provider values
+/// if their boundary requires callback-free behavior.
+///
+/// # Errors
+/// The same comparison and construction errors as [`Value::set`].
+pub fn probe_set(elems: Vec<Value>, ctx: Ctx) -> Result<Value> {
+    let _quiet = crate::value::quiet::Quiet::enter();
+    Value::set(elems, ctx)
+}

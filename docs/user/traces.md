@@ -12,9 +12,11 @@ dive validate-trace docs/user/examples/Counter.tla --config docs/user/examples/C
 The validator evaluates Init and the original next-state relation as predicates
 over supplied concrete states. It is independent of the checker's successor
 enumerator. Every state must assign every spec variable; missing/partial states
-are not completed by guessing. Supported lossless values retain their exact
-representations in the document. TLC dumpTrace JSON is also an accepted input
-format within the validator's documented boundary.
+are not completed by guessing. Version 1 normalizes value JSON and has known
+representation gaps. Opt-in version 2 retains admitted stored representations
+with checked construction witnesses; successful transport is still not semantic
+validation. TLC dumpTrace JSON is also an accepted input format within the
+validator's documented boundary.
 
 Rust applications can validate their own observed state sequence:
 
@@ -39,8 +41,8 @@ Validation distinguishes valid, invalid and explicitly refused. Named random
 replay restrictions, unavailable finite deadlock/ENABLED covers, effects and
 unknown closing evidence do not become `valid`. Supply the original seed/fp and
 profile when required. The in-memory lasso back edge is zero-based; checker
-summary `back_to` display is one-based. Prefer the lossless trace document to
-reconstructing a lasso from the displayed state list.
+summary `back_to` display is one-based. Prefer the supplied trace document over reconstructing a lasso from displayed
+states, and inspect its decoder and independent-validation disposition.
 
 See the [API rustdoc](../../crates/dive-api/src/trace.rs),
 [temporal contract](../temporal-api.md) and [validator independence ADR](../decisions/0016-trace-validator-independence.md).
@@ -58,3 +60,10 @@ receives validation credit. The separate homogeneous checkpoint matrix proves
 [Follow-up #190](https://github.com/Chelis-Lang/dive/issues/190) and the
 [source-bound campaign](../../conformance/probes/view-concrete-normalization/README.md)
 retain the exact outputs and incomplete coverage.
+
+Opt-in `--trace-format representation-v2` addresses the admitted forward mixed
+record/tuple set and nonliteral function transport boundary. Version1 stays the
+default with its existing observed failures; it is not silently retagged as
+lossless. See the [schema, runnable CLI/Rust guide and limits](../trace-representation.md).
+Reverse construction, arbitrary deferred/symbolic values and Random/VIEW shape
+extensions remain unsupported. No prior shape failure earns new replay credit.

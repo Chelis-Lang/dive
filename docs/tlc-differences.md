@@ -2147,3 +2147,17 @@ well-formed set counterpart reports EC2102/exit255 for Init and EC2109/exit75
 for Next. Mixed-value diagnostic printing remains unproved: rejecting an
 incomplete state before keying does not establish its exact printer/error
 counterpart, and no malformed-input-wide conformance is claimed.
+
+
+### Opt-in stored trace transport (#190)
+
+Trace version 1 remains the default and retains the measured 36 original/108
+altered shape failures above. Version 2 (`--trace-format representation-v2`)
+uses checked stored representation for admitted forward mixed record/tuple sets
+and nonliteral tuple/record functions. It recomputes construction witnesses under
+the bound profile; normalized/order/literal claims never substitute for semantic
+Init/Next/ending validation. The transport does not alter comparison semantics,
+reverse-set construction or Random/VIEW admission. Deferred/symbolic/interval
+and unproved witness shapes remain explicit transport refusals. The
+[guide and schema](trace-representation.md) specify limits and migration.
+Historical shape failures remain excluded from certificate credit.

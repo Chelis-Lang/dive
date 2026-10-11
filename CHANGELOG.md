@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The project will follow
 [Semantic Versioning](https://semver.org/) once the library API is published.
 
 ## Unreleased
+- Opt-in `--trace-format representation-v2` preserves admitted stored mixed
+  sets and nonliteral tuple/record functions with checked construction witnesses.
+  Legacy version1 stays default; transport is not a semantic certificate and
+  provider/symbolic/unproved shapes retain explicit bounded refusals.
+
 - Closed pure ordinary VIEW/RandomElement checking seeds from the transformed
   FP64 value while retaining concrete witnesses for independent replay. Stored
   shape/work admission and existing startup, first-successor, symmetry,

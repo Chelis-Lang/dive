@@ -85,7 +85,8 @@
       "conformance_evidence": "crates/dive-value/tests/tlc_differential.rs",
       "issues": [
         28,
-        61
+        61,
+        195
       ],
       "acceptance": "All value classes and constructor-sensitive equality, normalization, enumeration, print and errors; both profiles including integer overflow and canonical ordering.",
       "interactions": [
@@ -335,7 +336,8 @@
       "rust_evidence": "crates/dive-store/src/lib.rs",
       "conformance_evidence": "crates/dive-store/tests/tlc_state_fingerprints.rs",
       "issues": [
-        28
+        28,
+        195
       ],
       "acceptance": "Bit-exact TLC stream, safe default mixing, exact identity and probabilities; forced collisions, symmetry/VIEW keys, spill and replay produce no silent state loss.",
       "interactions": [
@@ -844,7 +846,8 @@
       "rust_evidence": "crates/dive-api/src/check.rs",
       "conformance_evidence": "crates/dive-api/tests/trace_controls.rs",
       "issues": [
-        124
+        124,
+        190
       ],
       "acceptance": "TLC trace loading, generated trace specs, binary/JSON/state/DOT dumps, ALIAS and exploration preserve evaluation side effects; retain clean oracle run when dumpTrace perturbs overrides.",
       "interactions": [
@@ -853,7 +856,13 @@
         "F-026",
         "F-027"
       ],
-      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required."
+      "notes": "Independent TLC-order validation refuses runtime namespace history absent from the witness (#124); canonical controls remain decisive. Certification stays audit-required.",
+      "additional_evidence": [
+        "docs/trace-representation.md",
+        "docs/decisions/0055-stored-trace-transport.md",
+        "crates/dive-api/tests/trace_representation.rs",
+        "crates/dive-trace/tests/value_representation.rs"
+      ]
     },
     {
       "id": "F-030",
@@ -914,7 +923,8 @@
       "conformance_evidence": "docs/native-checkpoint.md",
       "issues": [
         152,
-        164
+        164,
+        195
       ],
       "acceptance": "Versioned native checkpoints include model/profile identity, queues, stores, temporal graph, streams and committed effects; interruptions/resume equal uninterrupted runs. Java checkpoint import is excluded.",
       "interactions": [
@@ -1166,7 +1176,11 @@
         "crates/dive-pluscal/procedure-fairness-acceptance/corrected-modifiers/primary/manifest.json",
         "crates/dive-pluscal/procedure-fairness-acceptance/corrected-modifiers/comparison.json",
         "docs/pluscal-process-checksums.md",
-        "conformance/probes/native-parity-integration/current-controls/core-options-random-frozen/receipt.json"
+        "conformance/probes/native-parity-integration/current-controls/core-options-random-frozen/receipt.json",
+        "docs/trace-representation.md",
+        "docs/decisions/0055-stored-trace-transport.md",
+        "crates/dive-api/tests/trace_representation.rs",
+        "crates/dive-trace/tests/value_representation.rs"
       ],
       "certification": "audit-required",
       "conformance_evidence": "docs/pluscal-rewriting.md",
@@ -1200,10 +1214,11 @@
         162,
         163,
         171,
-        172
+        172,
+        190
       ],
       "name": "Public Rust APIs and cargo-test integration",
-      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required.",
+      "notes": "Runtime-name checker startup and inline encounter order now have three clean pinned seed controls (#122); independent TLC-order trace validation refuses missing namespace history (#124). Family certification remains audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded native translation API admits syntax/name/level-checked enclosing modules with explicit nonproof dispositions; historical/rewrite/checksum/map contracts remain pending. Native translation reports inserted-label metadata and required default-initialization configuration; no file rewriting or proof is implied. Single unfair literal-ID/finite-membership process translation now has 242 retained rows: 102 token/CST/SANY artifacts, 91 rejections and 49 named refusals, plus 26 finite model controls at 1/4/8 workers in fingerprint/exact stores and seven independent witnesses/28 invalid mutants. Process storage/source metadata is explicit; multiple blocks, fairness, renaming and full options remain pending. Family stays partial/audit-required. Bounded disjoint finite multi-process translation now retains all 264 selected C/P rows: 206 token/CST/SANY artifacts, 10 matching rejections and 48 named refusals. Curated generated-model checks cover 60 finite runs at 1/4/8 workers and fingerprint/exact stores, with 14 independently valid witnesses and 56 rejected mutants. Global action and normalized-node quotas are accounted across blocks; process/local/domain/source metadata and nonproof API dispositions are checked. Full renaming/procedure/macro/options/rewrite/checksum/map parity remains pending; family remains partial and audit-required. Opt-in checked stored transport v2 covers admitted forward mixed sets and nonliteral tuple/record functions; legacy v1 decoder failures and #195 trusted-storage bit loss remain separate. Transport is not a certificate; provider/symbolic/reverse construction and Random/VIEW extensions remain unsupported. Family remains partial/audit-required.",
       "phase": 9,
       "pinned_source": "tlc2/TLC.java",
       "rust_evidence": "crates/dive-api/src/lib.rs"

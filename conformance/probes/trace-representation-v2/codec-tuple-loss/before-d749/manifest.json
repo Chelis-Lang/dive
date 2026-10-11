@@ -1,0 +1,232 @@
+{
+  "producer": "d749f9b06e7e727e4cb4e1b4231a12a5cddcd696",
+  "binary_sha256": "9c6b94b1c5d8a05f6af60b9626b969716f5c8fd43fb1d301c19d1e91744c46ea",
+  "rows": [
+    {
+      "case": "memory",
+      "command": [
+        "/Users/jeff/code/dive-view-random-current-artifacts/current-binaries/dive",
+        "check",
+        "conformance/probes/trace-representation-v2/codec-tuple-loss/specs/TupleStorage.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json"
+      ],
+      "status": 75,
+      "summary": {
+        "verdict": "evaluation-error",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "diagnostic": null,
+        "counterexample": {
+          "ending": "finite",
+          "length": 1,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": "<Initial predicate>",
+              "text": "/\\ n = 0\n/\\ s = <<1>>\n",
+              "values": {
+                "n": 0,
+                "s": [
+                  1
+                ]
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "ec": "GENERAL",
+              "kind": "error"
+            },
+            "format": "dive-trace",
+            "length": 1,
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "n": 0,
+                  "s": {
+                    "seq": [
+                      1
+                    ]
+                  }
+                }
+              }
+            ],
+            "variables": [
+              "n",
+              "s"
+            ],
+            "version": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "frontier-zero",
+      "command": [
+        "/Users/jeff/code/dive-view-random-current-artifacts/current-binaries/dive",
+        "check",
+        "conformance/probes/trace-representation-v2/codec-tuple-loss/specs/TupleStorage.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json",
+        "--frontier-memory-bytes",
+        "0"
+      ],
+      "status": 75,
+      "summary": {
+        "verdict": "evaluation-error",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "diagnostic": null,
+        "counterexample": {
+          "ending": "finite",
+          "length": 1,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": "<Initial predicate>",
+              "text": "/\\ n = 0\n/\\ s = <<1>>\n",
+              "values": {
+                "n": 0,
+                "s": [
+                  1
+                ]
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "ec": "GENERAL",
+              "kind": "error"
+            },
+            "format": "dive-trace",
+            "length": 1,
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "n": 0,
+                  "s": {
+                    "seq": [
+                      1
+                    ]
+                  }
+                }
+              }
+            ],
+            "variables": [
+              "n",
+              "s"
+            ],
+            "version": 1
+          }
+        }
+      }
+    },
+    {
+      "case": "predecessor-zero",
+      "command": [
+        "/Users/jeff/code/dive-view-random-current-artifacts/current-binaries/dive",
+        "check",
+        "conformance/probes/trace-representation-v2/codec-tuple-loss/specs/TupleStorage.tla",
+        "--compat=tlc",
+        "--seed",
+        "7",
+        "--fp",
+        "0",
+        "--workers",
+        "1",
+        "--output",
+        "json",
+        "--predecessor-memory-bytes",
+        "0"
+      ],
+      "status": 75,
+      "summary": {
+        "verdict": "evaluation-error",
+        "statistics": {
+          "depth": 1,
+          "distinct": 1,
+          "generated": 1,
+          "initial_generated": 1,
+          "left_on_queue": 0,
+          "reported_by_tlc": true
+        },
+        "diagnostic": null,
+        "counterexample": {
+          "ending": "finite",
+          "length": 1,
+          "states": [
+            {
+              "action": null,
+              "index": 1,
+              "label": "<Initial predicate>",
+              "text": "/\\ n = 0\n/\\ s = <<1>>\n",
+              "values": {
+                "n": 0,
+                "s": [
+                  1
+                ]
+              }
+            }
+          ],
+          "trace": {
+            "ending": {
+              "ec": "GENERAL",
+              "kind": "error"
+            },
+            "format": "dive-trace",
+            "length": 1,
+            "states": [
+              {
+                "action": null,
+                "values": {
+                  "n": 0,
+                  "s": {
+                    "seq": [
+                      1
+                    ]
+                  }
+                }
+              }
+            ],
+            "variables": [
+              "n",
+              "s"
+            ],
+            "version": 1
+          }
+        }
+      }
+    }
+  ]
+}

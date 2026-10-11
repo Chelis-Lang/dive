@@ -6,8 +6,8 @@
   "source_sha256": {
     ".github/workflows/ci.yml": "e743c36fc46b4caca4a97fd8a28c7726e79ff13bb7b4d96092b5130eb5f28965",
     "AGENTS.md": "45e6e0d7fb3f4d767610e5aafe5a83726f3409e2b8f4bbfc6acc4c73fefec43b",
-    "CHANGELOG.md": "281295bfc39698691f5355444099b5727229717aa6863aa801492b1ec2c63b12",
-    "conformance/parity-features.json": "1d14755b7f342a8e8c0302c76b9ab8ac76faa070ae38881f8999f8e693c445dc",
+    "CHANGELOG.md": "a92089301dbfa878cb6de71aee1e671f0687d53d78c239aec768cc03fe0b84d8",
+    "conformance/parity-features.json": "f1fcceaee091858ca8569a5435f40cac2b3de672588314512c4d2cc36a582e34",
     "conformance/probes/material-capture/DESIGN.md": "92e44120a99741e65dd2670fe4309321bb48a0e2270b1c4cd73f9794ece7632d",
     "conformance/probes/material-capture/README.md": "34efa350dfb28ba0cebc2e02f615736361fbf7764cb0a336cdd0315b68da74ac",
     "conformance/probes/material-capture/binaries-current.json": "e91d3eac273b37d0eb6186f609c261db34a1bc6a3f2e95fe92d1b3feaae1d30a",
@@ -3053,8 +3053,8 @@
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "3edb37bb21b8b8a0223fc2b6e36b5cb2ac38d51904793c637b633a39ceaab111",
     "docs/material-capture.md": "f7dcd2f6028c2262e120a9ba9c951874b180c32324c83d4049bf7ff6070689ed",
-    "docs/provenance.md": "afdf2df1a2d7a0c1b89394e55fb17aacd021063d5067bad982c2de81c3e66887",
-    "docs/tlc-differences.md": "4ea5afad18a322d7317d2ff8e0fdde34934e92b0d2ac9bff2e33847692c88225",
+    "docs/provenance.md": "23781a3bed13e2a8287df866e07b8558aa623445d9208603881e662dfb6bae1b",
+    "docs/tlc-differences.md": "637ac91738f78217f1cf1dca117ab9b06dd4d7009cb54d73e41a4da2693203b0",
     "docs/user/temporal.md": "24314194bc1cc9f2493890819179170f2882610f6f5a61735755e9a4aa3b0b16",
     "scripts/check-material-capture.py": "2d5234c62f7bcd46b7731133253135b982de8405f4c1ebd00c1dd9b66a90fecd",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"
