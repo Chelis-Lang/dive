@@ -67,11 +67,11 @@ behavior in models that do not require this guard is unchanged.
 
 ## Remaining limits
 
-Saved procedure stacks are variables. `Tail(stack)` remains refused under
-strict replay until a source-wide inductive shape proof establishes its
-initial value and every possible assignment. Inspecting only the stack values
-in the proposed witness would miss off-path name construction. This increment
-does not provide that proof or establish general runtime-name provenance.
+Saved procedure stacks require a separate source-wide inductive shape proof.
+The [bounded variable-history continuation](inductive-tuple-trace-replay.md)
+describes the new supported proof rules and remaining refusals. Inspecting only
+stack values in a proposed witness never establishes its history. The original
+literal-operand increment does not establish general runtime-name provenance.
 
 The namespace-forgery controls from issue #124 remain mandatory: reading a
 counterexample must never establish the string encounter order that proves it.

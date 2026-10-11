@@ -9,6 +9,7 @@
 | User contract and runnable usage | [User manual](../user/README.md) |
 | Feature design and rationale | [ADRs](../decisions/), [design plans](../design/) |
 | Strict tuple-only replay admission | [ADR 0064](../decisions/0064-tuple-only-independent-replay.md), [user boundary](../tuple-only-trace-replay.md) |
+| Tuple-variable whole-word admission | [ADR 0067](../decisions/0067-inductive-tuple-replay.md), [implemented boundary](../inductive-tuple-trace-replay.md), [original producer evidence](../../conformance/probes/inductive-tuple-replay/README.md) |
 | TLC limitations and behavior changes | [User-facing differences](../tlc-differences.md), [registry](../divergences.md) |
 | Reference source/license provenance | [Provenance](../provenance.md) |
 | Reproduction, pins and reports | [Corpus guide](../conformance-corpora.md), [harness README](../../crates/dive-conformance/README.md) |
