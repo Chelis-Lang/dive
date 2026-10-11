@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project will follow
 
 ## Unreleased
 
+- Preserve pinned PlusCal CASE assignment parentheses and empty-Else TRUE
+  conjuncts, with complete generated-module syntax-tree regressions.
+
+
 - Explicit final TLC mode now admits pure state conditional predicates through
   the corrected shared planner and fresh independent witness replay. Scoped
   LET/INSTANCE, entry/closing and error controls retain all earlier refusals;
@@ -22,9 +26,17 @@ All notable changes to this project are documented here. The project will follow
   accepting-sink early witnesses, ordinary schedules and existing bounds remain
   explicit restrictions.
 
+- Native safety checkpoint/recovery admits pure string/name construction, retaining
+  the reported TLC inline encounter-order fallback and canonical parallel path.
+  Runtime effects/checker reads and independent TLC runtime-name witness proof
+  remain explicitly unsupported; queue/log budgets keep their separate scope.
+
 - Pure safety native checkpoint/recovery now composes with opt-in frontier and
   predecessor disk budgets, including deterministic parallel VIEW/symmetry
   recovery and explicit finalized transient cleanup evidence.
+- CI runs the complete workspace test suite in four disjoint partitions, with
+  unchanged test/job limits. The required workspace check fails if any
+  prerequisite fails, is cancelled or is skipped.
 
 - CI runs the complete workspace test suite in four disjoint partitions, with
   unchanged test/job limits. The required workspace check fails if any
@@ -38,6 +50,24 @@ All notable changes to this project are documented here. The project will follow
 - TLC-shaped temporal planning preserves eager state-conditional conversion
   failures, typed TLC errors and source-order fallback before graph work.
 
+
+- Native bounded PlusCal Full checksum serialization now covers nested `elsif`,
+  multiple `with` binders and LF/CRLF expression line grouping with normalized
+  ASCII junction columns. C `with` trailing separators match the reference;
+  empty/missing binders still reject. CRC derivation is separate from artifact
+  admission and proof; multiline generation and empty-Then layout remain named
+  refusals. Empty-Else TRUE fidelity is restored, with fair-only CRC weakness
+  unchanged.
+
+- Full reference AST/body CRC derivation for a proved bounded sequential PlusCal
+  subset. Default rewrite requests expose exact serialized AST evidence; unproved
+  shapes refuse by name. Fair-header CRCs retain the upstream weakness explicitly
+  and all generation remains nonproof. See `docs/pluscal-rewriting.md`.
+
+- Bounded in-memory PlusCal block replacement through `dive translate --rewrite`
+  and Rust APIs. Explicit `--checksums tla` records body CRC and disables unproved
+  algorithm checking; modified bodies need `--replace-modified`. Other AST shapes
+  and file writes remain named unsupported. See `docs/pluscal-rewriting.md`.
 
 - Native process-owned procedure fairness for bounded finite callers: reachable
   WF/SF clauses, process/procedure label modifiers and pinned option precedence,
@@ -60,6 +90,7 @@ All notable changes to this project are documented here. The project will follow
   are rejected. See `docs/pluscal-process-procedures.md`.
 
 
+
 - Native recursive sequential PlusCal procedures: self/mutual call stacks,
   frame-preserving self-tail calls and source-bounded normalization. Both syntaxes
   retain pinned artifacts/errors without unrolling. Invalid upstream output is
@@ -67,6 +98,21 @@ All notable changes to this project are documented here. The project will follow
   separate. Process-owned/scoped renaming and strict namespace provenance are
   still pending. See `docs/pluscal-recursive-procedures.md`.
 
+
+- Native PlusCal translation supports multiple disjoint sequential procedures and
+  nonrecursive nested calls, with procedure-owned frames and exact adjacent
+  call/return normalization. Cycles, unproved name rewriting and process stacks
+  remained named refusals in that earlier graph increment. Generated modules are validated artifacts, never proofs;
+  strict namespace/deadlock replay gaps remain explicit.
+
+- Native bounded sequential PlusCal procedure calls/returns: saved stack frames,
+  parameter/local initialization, procedure action wrappers and original spans;
+  unproved scopes refuse explicitly, with qualified replay evidence kept separate.
+
+- Native PlusCal translation admits multiple disjoint finite process blocks, with
+  source-owned scalar/indexed storage, shared CASE `pc` initialization, actions
+  and fairness formulas. Aggregate bounds and named scope/domain refusals remain
+  active; artifacts report no exhaustive search or model proof.
 
 - Bounded single-process PlusCal translation supports weak/strong declarations,
   post-colon `+`/`-` label modifiers and pinned `-nof`/`-wf`/`-sf`/`-wfNext`
@@ -428,6 +474,8 @@ All notable changes to this project are documented here. The project will follow
   `ErPlusNonIntNaturals` and `RvNatDiv` now agree with dive.
 
 ### Added
+- Native bounded C/P PlusCal macro expansion, simultaneous argument/assignment-selector substitution, nested prior declarations, original macro call/definition locations, and finite process/fairness interactions. Enclosing-module admission rejects invalid reference outputs; expansion budgets return named resource results. Full procedure/name/options/rewrite/map parity remains pending.
+
 - Opt-in `dive check --lncheck final --lasso short`, using the bounded final
   temporal backend and independently validated lossless lassos. Version 2
   reports retain complete property claims, seed, store and actual worker width;

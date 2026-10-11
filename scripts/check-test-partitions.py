@@ -6,7 +6,7 @@ import subprocess
 def inventory(partition=None):
     command = ["cargo", "nextest", "list", "--workspace", "--locked", "--profile", "ci", "--message-format", "json"]
     if partition is not None:
-        command.extend(["--partition", f"hash:{partition}/4"])
+        command.extend(["--partition", f"hash:{partition}/8"])
     result = subprocess.run(command, check=True, stdout=subprocess.PIPE, text=True)
     data = json.loads(result.stdout)
     selected = set()
@@ -38,7 +38,7 @@ def inventory(partition=None):
 complete, ignored, all_tests = inventory()
 covered = set()
 counts = []
-for number in range(1, 5):
+for number in range(1, 9):
     selected, partition_ignored, partition_all = inventory(number)
     if partition_all != all_tests or partition_ignored != ignored:
         raise SystemExit(f"Inventory changed in partition {number}")

@@ -149,3 +149,27 @@ the prior delivery/source maps remain immutable. Fresh 576-group recovery and
 916 workspace tests and CM1/VTS at 1/4/8 passed. Limits, named exclusions and
 trusted-local non-certificate status remain as specified above. Local two-thread
 timing does not certify the Linux job budget; all test/time bounds are unchanged.
+
+
+## Implementation addendum: pure runtime names (2026-10-11)
+
+The constructor-only native recovery admission restriction is removed for pure
+admitted models. The existing ordered-name archive and startup-prefix validation
+restore names before binding; every discovered concrete state and transformed
+key remains checked. Source admission still rejects impure native operators,
+checker/register reads, randomness, effectful user/alias startup and temporal
+state before effects. No schema, counter default or archive trust change is made.
+
+A bound model with the typed `sequential_names_only` flag uses the ordinary inline
+engine, including when width one plus chaos could otherwise speculate. This flag
+is derived from the complete role/constant/native reachability analysis; no
+substring reason test admits a model. Other sequential effects remain refused.
+Canonical ordering uses the existing deterministic level pool. Completed-level
+pause, reset/retain counting and transient queue/parent storage compose with both.
+
+Independent TLC predicate/witness replay keeps its named runtime-order refusal;
+restoring an untrusted witness's names would be a false certificate. Native
+trusted-local replay and canonical independent witness controls are separately
+qualified. Before-refusal source/raw observations and clean pinned Java primary
+runs are maintained in `conformance/probes/native-checkpoint-runtime-names/`.
+The user contract and runnable request are in `docs/native-checkpoint.md`.
