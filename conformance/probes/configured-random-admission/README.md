@@ -61,8 +61,8 @@ Public file/API negatives cover another 48 settings with startup effects.
 
 Source authority refresh is separate from these runtime observations. Original
 receipts and producer/source maps stay immutable; the before-authorities archive
-preserves their exact bytes before current integrity maps are recomputed. Fresh
-full-gate, executable and conformance receipts will be recorded separately.
+preserves their exact bytes before current integrity maps are recomputed. The [current receipt](current/receipt.json) records the separate fresh gate,
+executable and conformance observations.
 
 ## Capture and alternate backend audit
 
@@ -100,3 +100,51 @@ The first full gate after current-main integration stopped on two Clippy
 assertions now use strict empty-vector equality. Production and oracle bytes were
 unchanged. The current-main source authorities are archived independently under
 `current-main-before-authorities/` before refreshing current integrity hashes.
+
+## Frozen current-source verification (2026-10-11)
+
+[Current source and runtime receipt](current/receipt.json) identifies producer
+`475ef10ce38f3c45037ea90437b9d12e326b3916`, its exact tree, 247 archived
+production inputs and the SHA-256 of each executable. The complete local gate
+passed 1,047 tests with zero skipped, plus the Python/source-authority checks,
+Clippy, documentation, layering, standalone validator and dependency checks.
+All 21 CM1 and 16 ValidationTestSuite smoke models fully agreed at 1/4/8 workers.
+The local two-thread nextest stage took 996 seconds and the complete sequential
+local gate took 1,620 seconds under shared host load. These are local timings;
+CI's eight partitions, 15-minute job limit and 180-second per-test bound remain
+unchanged. No conformance golden was edited.
+
+The immutable current executable additionally passed 240 CLI settings and
+144 independent valid/broken-Init witness checks. Three clean seeded TLC primary
+runs retain their actual success, safety-violation and temporal-violation results;
+144 current property-bearing runs refuse before work. A separately compiled
+public Rust consumer passed 24 API and 48 supplied-model capture controls,
+with exact linked-library and executable hashes retained. These are separate
+from the historical wrong-answer executables and the workspace test evidence.
+
+[Protocol history](current/protocol-before/index.json) retains two initial
+external-script failures: textual `.cfg` names containing `!` are rejected by
+the existing parser, and final/short checking uses the graph-capture refusal
+rather than the ordinary safety refusal. Valid typed `ModelConfig` alias controls
+remain in the frozen workspace suite; the CLI campaign uses the accepted natural
+replacement name after an instantiated import. The corrected scripts retain
+strict no-work/refusal assertions. Neither failure prompted a production,
+parser, oracle or golden change. Every script and raw observation names the
+producer that actually ran; a new executable requires a new receipt.
+
+Re-run the focused public controls with:
+
+```sh
+cargo test -p dive-check --test configured_random --locked
+cargo test -p dive-api --test configured_random --locked
+```
+
+The metadata receipt commit changes no Rust or Cargo producer inputs. Named
+refusals prevent the observed wrong answers; they do not prove configured RNG
+stream equivalence, broader backend support or parity-family completion.
+
+The final metadata review also found a truncated changelog introduced while
+merging current main. The [exact producer-era documentation and source maps](changelog-integration-before/index.json)
+are preserved. The subsequent documentation-only repair restores the complete
+current-main history and adds both guarded-refusal entries. Producer Rust/Cargo
+inputs and recorded runtime/source receipts remain unchanged.

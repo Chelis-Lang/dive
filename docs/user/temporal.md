@@ -76,6 +76,7 @@ Pure user operator formals in bounded explicit final TLC mode retain local and
 INSTANCE scopes; see [operator arguments](../temporal-operators.md). Native,
 configured-origin-ambiguous, recursive and opaque targets remain named refusals.
 
+
 Configured native random replacements are refused before graph capture, including
 `CONSTANT C <- RandomElement`. A supplied bound model is checked through its
 actual constant bindings and native redirects; its earlier construction/startup
