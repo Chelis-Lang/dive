@@ -127,3 +127,19 @@ with harness exit 1. It adds seven agreements to the earlier material producer.
 It is retained in the [complete census](../conformance/studies/temporal-operators-final-small/README.md).
 Those outcomes do not describe this later native-actual producer; its evidence
 is the complete 20-row control selection and all 80 width observations above.
+
+## Current publication controls
+
+Frozen publication producer `ba024b780252c6e7235ec03db1f2ed1a87cc1b59`
+reran all 20 selected models at 1, 3, 4 and 8 workers: 48 supported observations
+(28 successes and 20 independently validated violations), with 32 retained
+unsupported or primary semantic-rejection boundaries and no timeouts. Every
+comparison field and stderr agrees with the preceding integration producer;
+only recorded input paths and elapsed time differ. The Cargo-owned Rust guide
+was built and executed from this same frozen source.
+
+The [integration receipt](../conformance/probes/native-parity-integration/current-controls/native-source-options-frozen/receipt.json)
+records its 1,087-test workspace gate, all 37 required model gates at 1, 4 and 8
+workers, exact source and executable identities, and the separate source-option
+runtime campaign. It does not widen this guide's admission, certify ordinary
+periodic scheduling or establish a complete temporal-feature parity percentage.

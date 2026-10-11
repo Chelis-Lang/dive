@@ -1,4 +1,6 @@
 {
+  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification.",
+  "historical_production_commit": "783fd577aaae54d1abb12553e10efffd1bed12a8",
   "schema_version": 1,
   "scope": "Current combined-source integrity only. Original producer783/dc execution, gate and runtime authority remain under history/native-operator-source-runtime-authority; fresh integration observations are separate. No ordinary/family certification.",
   "source_sha256": {
@@ -8,6 +10,7 @@
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",
     "Cargo.toml": "82df34332006267f0285d80842086c97b6c4a0d0b04b11beff65a9092d15d538",
     "conformance/parity-features.json": "98b985566c314c5434145e4d71c08ffc43e9e56bfa147d6bfe3801e316e76a98",
+    "conformance/probes/native-temporal-operators/DELIVERY.md": "e68adec63c2831be25073886c810abebc945aca9f03f2723361376bb90db9a60",
     "conformance/probes/native-temporal-operators/DESIGN.md": "83bdc655995e985d6d6d0302d605c75fca6764d2ba689b5c726939843aca56c0",
     "conformance/probes/native-temporal-operators/IfIdentityProbe.java": "ce37a0511be63983f9cec017331b1fd7b9e7f9b5b917bcebcc6da3fa1bc88615",
     "conformance/probes/native-temporal-operators/README.md": "44f6b4651ccaf9631ecc0a431e5d749d4d34e7c8b7916b631b4d1bdcb2073f08",
@@ -338,6 +341,9 @@
     "conformance/probes/native-temporal-operators/projection-raw/compiler.stderr": "8bad5da8d5289b0b08327a381da83bd8700474f93988eb1c8e17385e0f60af32",
     "conformance/probes/native-temporal-operators/projection-raw/compiler.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "conformance/probes/native-temporal-operators/selection.json": "330919b6db89a51f592f8e541fca77021bd6f81649760bd59408889ea27c543d",
+    "conformance/probes/native-temporal-operators/user-example-controls/receipt.json": "508257e464127ffcef817fa504ca2f31bb56d5ffe301ce8d44e95cb30e3b376d",
+    "conformance/probes/native-temporal-operators/user-example-controls/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "conformance/probes/native-temporal-operators/user-example-controls/stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
     "conformance/probes/native-temporal-operators/user-example.rs": "c83576d4df6cb42377f9ebee5a7062e198cb92b3f3215cf4ab149add301587a7",
     "crates/dive-api/Cargo.toml": "3ff682272044a869f39687d4a8b8608445ae6fadcd80f6755004a9a8b879b392",
     "crates/dive-api/src/analyze.rs": "aaeb74b50ecf6b114afbed23825ba57998ad0ead1b029a0e6caacb8b22aec245",
@@ -721,24 +727,18 @@
     "crates/dive-value/tests/tlc_differential.rs": "6ed886834eb2c68e9bd97072739f39ee910d23e68751bfd3732c7474f0018cf6",
     "docs/decisions/0029-bounded-phase-l-receipts.md": "9e2aa19441cbad3b50f9b5c4bc8846a0e55f0a902ceaaa5f2ea888f4c81d97a7",
     "docs/divergences.md": "201d97b6458af34744c35e1fd05fbbf0db163bd8615a64367c41d1ad4556a6c3",
-    "docs/native-temporal-operators.md": "4f53ef37977574838a1f6f44fac960a6d3dfee8f5f6f9bb7f933cb30f752e482",
+    "docs/native-temporal-operators.md": "f4e6a76385e575e249367cb0f3827b0a685c24dd539df5dce7988b5d0a3e4cb0",
     "docs/provenance.md": "55347c1afcb6bb96ce6e20957f150468f961c6febc9651bd05c4e58ddac35e2a",
     "docs/temporal-operators.md": "3aef14d6e6718257cf7df20b75c69a8910fbcdfad1071b5b5d262836479bedd9",
     "docs/tlc-differences.md": "55809e6f035467000ea4ece7292614963e4af94bf1d30ea182fbb404be30b29c",
     "docs/user/rust-api.md": "1c2c649dc326e61b87d06eaad3fc087d6e709470043704391d3464365a9e17fb",
-    "docs/user/temporal.md": "db4623edab9bb7ac63bb3330a3ef33d9d47f35a7ca98361b47bf2f561618f424",
+    "docs/user/temporal.md": "66c78d2a460f443fcff7f3f968db220a27c9db184c8f777e4314a0175acb9c91",
     "rust-toolchain.toml": "5c93b0bc9781994987494808030f259cb11c2a9c9b733e6a63b8b6d49598d14e",
     "scripts/check-native-temporal-operators.py": "a42e85b378b0c8150cbd83d8ab1036c3ccea26607c9bfc6c2023b8050acac88a",
     "scripts/check-temporal-operators.py": "46cca16e943d19e6ac690b555a051d26891733c3cc481e0ce48634a82fbc172a",
     "xtask/Cargo.toml": "a80ad02ad30366f7e67fae0289c144824a2b0b6d5ef026d2c03a008a68c7207e",
     "xtask/src/features.rs": "4479feaaf3c8e015be79e3f0e87b9e0a633f753d45bf966ede771211fa356fa5",
     "xtask/src/layering.rs": "1dd773541e4e272f73aa67a2deaf629d9ede1881a1ba67c0fe087db9053dab97",
-    "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9",
-    "conformance/probes/native-temporal-operators/user-example-controls/stdout": "538f5a1a8e6c49dfdaf37cc9ee5c0b0d08332f618b47246445013f45ce0a9af3",
-    "conformance/probes/native-temporal-operators/user-example-controls/stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "conformance/probes/native-temporal-operators/user-example-controls/receipt.json": "508257e464127ffcef817fa504ca2f31bb56d5ffe301ce8d44e95cb30e3b376d",
-    "conformance/probes/native-temporal-operators/DELIVERY.md": "e68adec63c2831be25073886c810abebc945aca9f03f2723361376bb90db9a60"
-  },
-  "historical_production_commit": "783fd577aaae54d1abb12553e10efffd1bed12a8",
-  "current_integration_scope": "Current source integrity only. Generated manifests are separately checked outputs; frozen runtime observations retain original producer identities. No family certification."
+    "xtask/src/main.rs": "0da38a21725aabda9b4383ecec1679c6db5958d98b366131af978b91ff47b7d9"
+  }
 }

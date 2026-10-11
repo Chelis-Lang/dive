@@ -84,13 +84,16 @@ state-dependent temporal quantifier domains remain open. Finite constant-domain
 quantified actions are supported. The validator still builds without the
 checker's successor enumerator.
 
-S1 now has a bounded closure kernel matching 1,329 direct pinned Java cases,
+The early S1 closure stage introduced a bounded kernel matching 1,329 direct pinned Java cases,
 including non-bijective maps in TLC mode and explicit checked-mode rejection.
 Raw SyEmpty evidence records the empty-generator failure. Pure declaration preparation now preserves the pre-constant name snapshot,
 configuration replacements and normalized function representations, with four
-early name/type errors matching raw pinned captures. This explicit stage does
-not enable checking: warning construction, model-value validation and group
-attachment remain open, and SYMMETRY checking is still refused.
+early name/type errors matching raw pinned captures. That stage alone did not
+enable checking. Subsequent [safety symmetry implementation](../user/checking.md)
+now binds and reduces supported safety models, with retained 12-model evidence
+in the [symmetry probes](../../conformance/reports/studies/symmetry-safety.md). Wider
+VIEW/liveness interactions and the model-symmetry audit remain partial; the early
+closure receipt does not certify those later contracts.
 
 L6–L10, the remaining symmetry S1–S5 work and the full model conformance
 milestones remain open.

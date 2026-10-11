@@ -99,3 +99,26 @@ The complete selection retains **752 profile rows**. Its raw stage census is 480
 The executable guide has 13 CLI/API/Cargo controls. Six unchanged/corrupted checksum controls and 15 forged-report mutations passed; 496 requested-context audits preserve the actual input settings. The selected generated modules have 24 finite primary checking controls across 288 native worker/store/profile settings. Independent strict replay records 12 valid witnesses and 48 rejected mutants; any original strict refusal remains pending rather than certified. These finite safety checks do not prove generated fairness/liveness properties.
 
 The frozen uncommitted producer passed 719 workspace tests, all other local gate stages, and its ancestor CM1 20/VTS16 at workers 1, 4 and 8. The delivery receipt retains the original producer bytes and failed campaigns; eventual committed-source equality is checked separately. Current-main integration must run its own complete gates. F-034/F-035 remain partial.
+
+## Current integration verification
+
+The source-option runtime campaign was repeated against frozen committed producer
+`397cc7dc5ae49d5cf410b490a1a79d9f24db1902`. All 752 selected raw and public
+profile rows, 288 finite-model worker/store/profile controls, 13 executable
+guides, 12 strict valid witnesses, 48 rejected witness mutants and the checksum
+and forged-report controls above are retained separately from the original
+uncommitted producer. The public census remains 480 admitted, 16 primary-invalid
+rows without credit, 32 accounted rejections and 224 named refusals.
+
+Publication gate producer `ba024b780252c6e7235ec03db1f2ed1a87cc1b59`
+passed all eight workspace gate stages with **1,087 tests passed and none skipped**.
+Its library Rust and Cargo inputs are identical to the runtime producer; the
+only Rust change makes two `Default` types explicit in the Cargo-owned native
+operator example and its matching Markdown block. Fresh publication binaries
+fully agree on CM1's 21 models and all 16 ValidationTestSuite smoke models at
+1, 4 and 8 workers, including the smoke models' strict 30-second controls.
+
+The [frozen integration receipt](../conformance/probes/native-parity-integration/current-controls/native-source-options-frozen/receipt.json)
+retains both source epochs, raw observations, executable identities and failed
+preliminary gates. These bounded controls do not certify the complete PlusCal
+translator or generated fairness/liveness checking. F-034/F-035 remain partial.

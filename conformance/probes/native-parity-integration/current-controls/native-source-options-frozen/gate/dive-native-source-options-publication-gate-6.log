@@ -1,0 +1,6 @@
+   Compiling dive-ir v0.0.0 (/Users/jeff/code/dive-native-source-options-publication-work/crates/dive-ir)
+   Compiling dive-eval v0.0.0 (/Users/jeff/code/dive-native-source-options-publication-work/crates/dive-eval)
+   Compiling dive-stdlib v0.0.0 (/Users/jeff/code/dive-native-source-options-publication-work/crates/dive-stdlib)
+   Compiling dive-model v0.0.0 (/Users/jeff/code/dive-native-source-options-publication-work/crates/dive-model)
+   Compiling dive-trace v0.0.0 (/Users/jeff/code/dive-native-source-options-publication-work/crates/dive-trace)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.09s
