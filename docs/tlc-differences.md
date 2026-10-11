@@ -1801,7 +1801,9 @@ Ordinary safety checking now refuses configured native random targets before
 binding, output or search in both profiles. The callback-free scan resolves
 matching module contexts and native replacement names, including mixed visible
 and configured calls; it may conservatively refuse unused, shadowed or malformed
-matches. There is no flag that restores this unproved behavior. Direct source
+matches. There is no flag that restores this unproved behavior. Every legacy/pool graph capture route also refuses actual bound native constant
+targets and redirects before search; caller construction is outside that guard.
+Direct source
 random calls without native cfg replacements, and pure user replacements, retain
 their supported paths. Correct bound-context inline scheduling/per-state seeding
 and independent concrete replay remain pending; this is a dive defect repair,

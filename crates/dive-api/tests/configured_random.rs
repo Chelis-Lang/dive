@@ -44,3 +44,51 @@ fn configured_random_refuses_false_positive_and_false_negative_models_without_ef
     }
     std::fs::remove_dir_all(dir).expect("cleanup");
 }
+
+#[test]
+fn property_bearing_final_routes_do_not_return_configured_rng_false_verdicts() {
+    let dir = std::env::temp_dir().join(format!(
+        "dive-configured-final-random-{}",
+        std::process::id()
+    ));
+    std::fs::create_dir(&dir).expect("private directory");
+    let file = dir.join("ConfiguredFinal.tla");
+    for live in ["<> (n=3)", "[]<> (n>=0)"] {
+        for inv in ["x # 74", "x # 80"] {
+            std::fs::write(&file,format!("---- MODULE ConfiguredFinal ----\nEXTENDS Naturals,TLC\nCONSTANT C(_)\nVARIABLES n,x\nInit == n=0 /\\ x=0\nNext == n<3 /\\ n'=n+1 /\\ x'=C(1..100)\nInv == {inv}\nLive == {live}\n====\n")).expect("source");
+            std::fs::write(dir.join("ConfiguredFinal.cfg"),"INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\nCONSTANT C <- RandomElement\nPROPERTY Live\n").expect("cfg");
+            for temporal in [
+                dive_api::TemporalMode::FinalShort,
+                dive_api::TemporalMode::FinalTlc,
+            ] {
+                for compat in [false, true] {
+                    for store in [Store::Fingerprint, Store::Exact] {
+                        for width in [1, 4, 8] {
+                            for chaos in [None, Some(19)] {
+                                let r = check_file(&CheckRequest {
+                                    file: file.clone(),
+                                    temporal,
+                                    compat_tlc: compat,
+                                    store,
+                                    workers: Some(width),
+                                    seed: Some(7),
+                                    fp: Some(0),
+                                    chaos,
+                                    ..CheckRequest::default()
+                                })
+                                .expect("request");
+                                let j = r.to_json();
+                                assert_eq!(j["verdict"], "unsupported", "{j}");
+                                assert_eq!(r.exit_code(), 3);
+                                assert!(j["counterexample"].is_null());
+                                assert_eq!(j["options"]["workers"]["used"], 0);
+                                assert!(j["statistics"].is_null());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    std::fs::remove_dir_all(dir).expect("cleanup");
+}

@@ -185,3 +185,188 @@ fn each_native_random_family_and_transitive_constant_target_refuses() {
     let cfg = dive_config::parse("INIT Init\nNEXT Next\nINVARIANT Inv\nCHECK_DEADLOCK FALSE\nCONSTANT C <- D\nCONSTANT D <- RandomElement\n").into_config().expect("transitive cfg");
     assert_refuses(&lower(&text), &cfg);
 }
+
+#[test]
+fn supplied_bound_models_refuse_native_targets_in_legacy_and_pool_capture() {
+    let plain = lower(&source("x # 74", ""));
+    let instance = lower(&source("x # 74", "I == INSTANCE TLC"));
+    let custom = lower(&source(
+        "x # 74",
+        "Replacement(S) == CHOOSE a \\in S : TRUE",
+    ));
+    let id = custom
+        .defs()
+        .iter()
+        .position(|d| d.name == "Replacement")
+        .expect("target");
+    let mut value = serde_json::to_value(custom.as_ref()).expect("IR JSON");
+    value["defs"][id]["std"] =
+        serde_json::to_value(dive_ir::StdOp::TlcRandomElement).expect("native authority");
+    let custom = Arc::new(serde_json::from_value(value).expect("typed IR"));
+    let redirected =
+        lower(&source("x # 74", "").replace("CONSTANT C(_)", "C(S) == CHOOSE a \\in S : TRUE"));
+    for (ir, target) in [
+        (plain, "RandomElement"),
+        (instance, "I!RandomElement"),
+        (custom, "Replacement"),
+        (redirected, "RandomElement"),
+    ] {
+        let mut cfg = config("");
+        let dive_config::ConstantEntry::Substitution { target: rhs, .. } = &mut cfg.constants[0]
+        else {
+            panic!("substitution")
+        };
+        rhs.text = target.into();
+        for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
+            for store in [StoreMode::Fingerprint, StoreMode::Exact] {
+                for workers in [1, 4, 8] {
+                    for chaos in [None, Some(19)] {
+                        let mut opts = CheckOptions::tlc(0, 7);
+                        opts.profile = profile;
+                        opts.eval = dive_eval::Options::for_profile(profile);
+                        opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+                        opts.store = store;
+                        opts.workers = workers;
+                        opts.chaos = chaos;
+                        for pooled in [false, true] {
+                            let model = dive_model::bind(
+                                ir.clone(),
+                                &cfg,
+                                &dive_model::BindOptions {
+                                    eval: opts.eval,
+                                    ..dive_model::BindOptions::tlc()
+                                },
+                            )
+                            .expect("supplied native model");
+                            let result = if pooled {
+                                dive_check::capture::explore_concrete_parallel_with_evidence(
+                                    &model,
+                                    &opts,
+                                    dive_check::capture::Limits::default(),
+                                )
+                                .expect("capture admission")
+                            } else {
+                                dive_check::capture::explore(
+                                    &model,
+                                    &opts,
+                                    dive_check::capture::Limits::default(),
+                                )
+                            };
+                            let dive_check::capture::Exploration::Stopped(result) = result else {
+                                panic!("native random capture falsely complete")
+                            };
+                            assert!(
+                                matches!(&result.verdict,Verdict::Unsupported {feature} if feature == "graph capture with configured native random replacements"),
+                                "{target}: {result:?}"
+                            );
+                            assert_eq!(
+                                (result.workers.requested, result.workers.used),
+                                (workers, 0)
+                            );
+                            assert!(result.stats.is_none() && result.counterexample.is_none());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pure_native_imports_and_user_replacements_keep_legacy_capture() {
+    let text = source("TRUE", "Replacement(S) == CHOOSE a \\in S : TRUE");
+    let ir = lower(&text);
+    let mut cfg = config("");
+    let dive_config::ConstantEntry::Substitution { target, .. } = &mut cfg.constants[0] else {
+        panic!("substitution")
+    };
+    target.text = "Replacement".into();
+    for profile in [dive_eval::Profile::Dive, dive_eval::Profile::Tlc] {
+        let mut opts = CheckOptions::tlc(0, 7);
+        opts.profile = profile;
+        opts.eval = dive_eval::Options::for_profile(profile);
+        opts.tlc_fingerprints = profile == dive_eval::Profile::Tlc;
+        let m = dive_model::bind(
+            ir.clone(),
+            &cfg,
+            &dive_model::BindOptions {
+                eval: opts.eval,
+                ..dive_model::BindOptions::tlc()
+            },
+        )
+        .expect("pure model");
+        let dive_check::capture::Exploration::Complete(c) =
+            dive_check::capture::explore(&m, &opts, dive_check::capture::Limits::default())
+        else {
+            panic!("pure capture refused")
+        };
+        assert_eq!(c.graph.states.len(), 4);
+        assert_eq!(
+            c.safety_result().stats.as_ref().expect("stats").generated,
+            4
+        );
+    }
+}
+
+#[derive(Default)]
+struct NoPrint(std::sync::atomic::AtomicUsize);
+impl dive_eval::PrintSink for NoPrint {
+    fn print(&self, _: String) {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+#[test]
+fn malformed_native_bindings_are_not_constructible_before_names_or_callbacks() {
+    let ir = lower(&source("TRUE", "Replacement(S) == CHOOSE a \\in S : TRUE"));
+    for redirect in [false, true] {
+        let mut m = dive_eval::Model::new(ir.clone());
+        if redirect {
+            m.redirects.insert(
+                ir.root_def("Replacement").expect("definition"),
+                dive_ir::DefId(u32::MAX),
+            );
+        } else {
+            m.constants[0] = Some(dive_eval::ConstBinding::Def(dive_ir::DefId(u32::MAX)));
+        }
+        let names = m.names.clone();
+        let before = names.len();
+        let sink = Arc::new(NoPrint::default());
+        let err = dive_eval::Evaluator::with_sink(m, dive_eval::Options::tlc(), sink.clone())
+            .expect_err("malformed context");
+        assert_eq!(err.code(), "DIVE-EVAL-C001");
+        assert_eq!(names.len(), before);
+        assert_eq!(sink.0.load(std::sync::atomic::Ordering::SeqCst), 0);
+    }
+}
+#[test]
+fn foreign_native_bound_models_refuse_in_legacy_capture_before_assumptions() {
+    let ir = lower(&source("TRUE", "ASSUME PrintT(\"must not print\")"));
+    let valid =
+        dive_model::bind(ir.clone(), &config(""), &dive_model::BindOptions::tlc()).expect("model");
+    let foreign =
+        dive_model::bind(ir, &config(""), &dive_model::BindOptions::tlc()).expect("foreign names");
+    for field in [false, true] {
+        let mut model = valid.clone();
+        if field {
+            model.ir = lower(&source("TRUE", ""));
+        } else {
+            model.names = foreign.names.clone();
+        }
+        let result = dive_check::capture::explore(
+            &model,
+            &CheckOptions::tlc(0, 7),
+            dive_check::capture::Limits::default(),
+        );
+        let dive_check::capture::Exploration::Stopped(r) = result else {
+            panic!("foreign legacy capture complete")
+        };
+        assert!(
+            matches!(&r.verdict,Verdict::Unsupported {feature} if feature.contains("DIVE-EVAL-C004")),
+            "{r:?}"
+        );
+        assert_eq!(r.workers.used, 0);
+        assert!(r.output.is_empty() && r.stats.is_none() && r.counterexample.is_none());
+        assert!(valid.evaluator.take_output().is_empty());
+        assert!(foreign.evaluator.take_output().is_empty());
+    }
+}

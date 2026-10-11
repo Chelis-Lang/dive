@@ -21,7 +21,7 @@
     "crates/dive-api/src/config.rs": "62d378cf7271f749512db9a0b6d5dcd40b384669c67e17edbd49ca694e5a7140",
     "crates/dive-api/tests/native_checkpoint.rs": "4bc4284f51c5113264d87a9da9ad6671c3c3597cd359b97df72db5b298858224",
     "crates/dive-check/src/checkpoint.rs": "a3f45df36f6c93869c47c3feb848c069ebe7064a2c6768534f41effc8d6b865d",
-    "crates/dive-check/src/engine.rs": "0f9d832edf11573a7e486ef1472bb02c2dabaa16e7467b18e6a45309d1b27542",
+    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
     "crates/dive-check/src/lib.rs": "3a924b12f02585c61f6c57739f0e473fb1adf5b6a9a6a116c37c0469b68c206f",
     "crates/dive-cli/src/main.rs": "70a5c3118e907bb0fe227d3fd084562bc80aa18eae421069503ced1876ad2e0b",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07",
@@ -50,5 +50,11 @@
     "matrix_sha256": "c73c104a8be63f9f1523d7d439afae498bcd00e85471131321ea2b07bfabc2f2",
     "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
   },
-  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/native-checkpoint/current-integration-source.json",
+    "matrix_sha256": "e6f8ba3e7ca9664669efb3c6743c1d880e87f57aa7a6835ec15021876b2860b9",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
 }

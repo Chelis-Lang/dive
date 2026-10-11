@@ -13,10 +13,10 @@
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "docs/tlc-final-scopes.md": "7830b7cc577f66b540f8d0d24519160954801f366c5c7e84ad60b889e9a2297f",
     "docs/decisions/0023-retained-temporal-arguments.md": "29b887704952b2749ff26eede9bfb5226479cae8fbdc912ba98a7b766e4c2977",
-    "docs/provenance.md": "34d648daefca84c6851d884e55a58e7dd3c7c89b1b3e6b47180b2a00e63cd1ab",
+    "docs/provenance.md": "d024cab6a105aba0ce0f1226481c6cde007322dc9c60b7e6699d31175aeaaa2d",
     "docs/divergences.md": "547ae8a1ab15393a7a4f94ec569b0cf61d3bf4f1657c152964a8504cd4da6315",
-    "docs/tlc-differences.md": "1fc5d7bad92fdad5850e3cd28aea0d730d502ac4c94c339adf1be8c04f6a951b",
-    "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
+    "docs/tlc-differences.md": "3b3af415e47d920b6adc74dea22059858096e118c5c841956e90c55ab811f6fc",
+    "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
     "CHANGELOG.md": "d0435c2a418c34d2e678db9969557af05536972e5783610d5043abca27a869c0",
     "AGENTS.md": "a6a0a1e79bc1b0d6b7258cc8cff8c3e9c5f5d3272794d5122c59b43bac5903b5",
     ".github/workflows/ci.yml": "927515df717df37afa836f79c3edfc2e9128e0aace48c9ea7478aa6b37df6e5f",
@@ -755,5 +755,11 @@
     "matrix_sha256": "70d97009a5474a051cad3b148456b004751a6d4163e74b8833024a49aec5d441",
     "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
   },
-  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-final-scopes/source-matrix.json",
+    "matrix_sha256": "ab72819f10bd797f45c245b05f6efab3b406ade84b3644032cbe65e865b722e3",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
 }

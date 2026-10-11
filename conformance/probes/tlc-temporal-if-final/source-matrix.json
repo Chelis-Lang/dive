@@ -10,16 +10,16 @@
     "crates/dive-api/src/tlc_temporal_safety.rs": "c9bf3541832e7d1df120154053829e4032bdc5c0ff695a10db014b9b73b0afde",
     "crates/dive-api/tests/tlc_temporal_if.rs": "290d83698216ee0d3f25712f2936b8ccb7a4fc8d980197411e180bb12ff009a7",
     "crates/dive-api/tests/tlc_state_if.rs": "e38b81983e5774167576a7b229ea6e3fee8cf7a8a88286ce4627ba32479fac82",
-    "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
+    "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "scripts/check-tlc-temporal-if-final.py": "a267501f6899a3a0a2138c54234d2f5e605056be609aa3324b90c1c7e7d016f1",
     "scripts/check-tlc-state-if.py": "3eb427c1719de2be971f70653e2a14714d56ae1b0009173888ae17de8d3e040f",
     "docs/tlc-temporal-if.md": "bf21561f4c601b387fffd0fe9e829fad24468910d34e9ed09684eff5b6bcf9df",
     "docs/tlc-state-if.md": "5a011e9e08c7818d8d9a6de546a40c0734a2fd7a469c4758e5e006fa2ad58b88",
     "docs/tlc-final-api.md": "57f0856b12e4e055ba11388f21e83319b9d7c481ceda2175539f4b189b320ac3",
-    "docs/user/temporal.md": "ff9b9598416b77d3bfb095e2d709a0d264a4d390865994a6b15e47d076bf25d2",
-    "docs/provenance.md": "34d648daefca84c6851d884e55a58e7dd3c7c89b1b3e6b47180b2a00e63cd1ab",
+    "docs/user/temporal.md": "3b674bcb67182a0b8fb4213b14428a31a9cff934e291c5d797026945f516c30b",
+    "docs/provenance.md": "d024cab6a105aba0ce0f1226481c6cde007322dc9c60b7e6699d31175aeaaa2d",
     "docs/divergences.md": "547ae8a1ab15393a7a4f94ec569b0cf61d3bf4f1657c152964a8504cd4da6315",
-    "docs/tlc-differences.md": "1fc5d7bad92fdad5850e3cd28aea0d730d502ac4c94c339adf1be8c04f6a951b",
+    "docs/tlc-differences.md": "3b3af415e47d920b6adc74dea22059858096e118c5c841956e90c55ab811f6fc",
     "docs/decisions/0036-conditional-planning-error-order.md": "9d21dda28490460ad0535a5df77442fb5607a2bc47a4d48a73f5ad9c0d11e008",
     "conformance/parity-features.json": "3372bc7ea1589c29cfe8d83c2e00501fee47a8562928441a0a6268312c46503f",
     "crates/dive-cli/tests/cli.rs": "30dd24b417387c5d4dddc87a838f3a68fd150d6ad1f73be7408ea185aa9c1a07"
@@ -47,5 +47,11 @@
     "matrix_sha256": "447eab06558d52d527eda2cb38e5bd62ed018f2eb506230ec2f96f6b83b30b43",
     "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
   },
-  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-temporal-if-final/source-matrix.json",
+    "matrix_sha256": "116384bce8347cefd51d297faf1d62c11afa8ec677151ff364c61a08a54b96f1",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
 }

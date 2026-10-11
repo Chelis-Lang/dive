@@ -518,3 +518,10 @@ at pinned `94d0c50`; this callback-free refusal is dive admission design, not a
 ported/proven stream algorithm. Bound-context scheduling and `Worker.run` per-state
 stream seeding remain pending. Both concrete wrong-verdict probes are preserved
 in `conformance/probes/configured-random-admission/README.md`.
+
+The same #180 boundary in graph capture inspects supplied admitted constant
+bindings and evaluator redirects before host/search; no body/lazy callback is
+invoked. It preserves unused native imports/pure legacy captures. Original caller
+binding is outside that check. The property-bearing final/short false invariant
+control and pinned-final/DFID/simulation/checkpoint refusals are separately recorded
+in `conformance/probes/configured-random-admission/backend-before/`.

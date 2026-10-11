@@ -1019,5 +1019,11 @@
     "matrix_sha256": "28140fb5ede5125b4f670cfdc13ff1cb511d3dc541320b327471c86b5b105c98",
     "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
   },
-  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-state-if/source-matrix.json",
+    "matrix_sha256": "1321e451335c1f080517dad4b32f0e1e0eba6381bbd533d7a86ad43830bec198",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
 }

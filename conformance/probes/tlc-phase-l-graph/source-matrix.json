@@ -12,9 +12,9 @@
   },
   "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
-    "crates/dive-check/src/capture.rs": "153b071c92e10ec9834553011332eb663e1a1d85cd6d99610d2e0c4aed10b522",
+    "crates/dive-check/src/capture.rs": "81457a04cff6b579480753c51c5eb9e860f34ec580072de10bf588e394d3ef87",
     "crates/dive-check/src/capture/pure.rs": "715b50710948575ce14b14d04354ab041db6511cdc8b8510b60e9c6c628924af",
-    "crates/dive-check/src/engine.rs": "0f9d832edf11573a7e486ef1472bb02c2dabaa16e7467b18e6a45309d1b27542",
+    "crates/dive-check/src/engine.rs": "4bad4e31093f7ac80d576aeebbc69cf9d0224e1fec3dc428e9f6f8b71999b2bd",
     "crates/dive-check/src/parallel.rs": "14e2c5ab30d017a375a32a626df88df284404d69e50a077e1259f66548fe169d",
     "crates/dive-check/tests/capture.rs": "4e7c30f5fea828bfbaee0750b0e3978130309202948c4a8f447dae492b35febb",
     "crates/dive-eval/src/lib.rs": "c1baf05fa793350435c70bf69b54602b9d32927d257c026a3bdc2b439a5f2758",
@@ -47,5 +47,11 @@
     "matrix_sha256": "f88adcc3d2dc3746592be0d23af540a3164415911c51c993e4cc304db90c74ab",
     "source_archive": "conformance/probes/configured-random-admission/before-authorities/sources"
   },
-  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged."
+  "configured_native_rng_scope_addendum": "Configured native RNG authority independently refuses before ordinary safety binding/output/search; historical producer evidence and certification status remain unchanged.",
+  "bound_capture_rng_previous_authority": {
+    "matrix": "conformance/probes/configured-random-admission/capture-before-authorities/matrices/conformance/probes/tlc-phase-l-graph/source-matrix.json",
+    "matrix_sha256": "516904f1ce61c836668080c13db17a292a85c8312a56c7e4540772251b823a4a",
+    "source_archive": "conformance/probes/configured-random-admission/capture-before-authorities/sources"
+  },
+  "bound_capture_rng_scope_addendum": "Supplied bound native constant and redirect authority refuses in every graph capture route before host/search; historical producer evidence and certification status remain unchanged."
 }

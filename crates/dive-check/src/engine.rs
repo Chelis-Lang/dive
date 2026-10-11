@@ -298,6 +298,49 @@ pub(crate) fn configured_random_target(ir: &dive_ir::Ir, cfg: &dive_config::Mode
     })
 }
 
+// A supplied bound model no longer carries its source cfg. Inspect admitted
+// constant bindings and actual redirects without invoking any expression or
+// lazy callback. Unused native imports alone must not refuse pure captures.
+pub(crate) fn bound_configured_random(model: &Model) -> Result<bool, String> {
+    // The shared capture entry admission already verifies full model context.
+    // Keep the helper defensive against any future caller as well.
+    model
+        .evaluator
+        .validate_model_context(&model.ir, &model.names)
+        .map_err(|e| e.to_string())?;
+    let native = |id: dive_ir::DefId| -> Result<bool, String> {
+        if model.ir.defs().get(id.index()).is_none() {
+            return Err("DIVE-EVAL-C001: invalid configured native definition".into());
+        }
+        let id = model.evaluator.redirected(id);
+        let def = model
+            .ir
+            .defs()
+            .get(id.index())
+            .ok_or_else(|| "DIVE-EVAL-C001: invalid redirected native definition".to_owned())?;
+        Ok(def.std.is_some_and(random_op))
+    };
+    for (index, _) in model.ir.consts().iter().enumerate() {
+        let index = u32::try_from(index)
+            .map_err(|_| "DIVE-EVAL-C005: constant index overflow".to_owned())?;
+        if let Some(dive_eval::ConstBinding::Def(id)) =
+            model.evaluator.constant_binding(dive_ir::ConstId(index))
+            && native(id)?
+        {
+            return Ok(true);
+        }
+    }
+    for (index, _) in model.ir.defs().iter().enumerate() {
+        let index = u32::try_from(index)
+            .map_err(|_| "DIVE-EVAL-C005: definition index overflow".to_owned())?;
+        let id = dive_ir::DefId(index);
+        if model.evaluator.redirected(id) != id && native(id)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 /// TLC's level of a state at BFS level `n` (initial states are level 1).
 pub(crate) fn level_of(n: u64) -> i64 {
     i64::try_from(n).unwrap_or(i64::MAX)

@@ -63,3 +63,33 @@ Source authority refresh is separate from these runtime observations. Original
 receipts and producer/source maps stay immutable; the before-authorities archive
 preserves their exact bytes before current integrity maps are recomputed. Fresh
 full-gate, executable and conformance receipts will be recorded separately.
+
+## Capture and alternate backend audit
+
+The legacy supplied-`Model` capture path also missed configured native RNG.
+Its [exact Rust consumer/source/executable/rlib authority](backend-before/capture-index.json)
+returned a false TLC-profile invariant violation; pooled capture already refused
+on context purity. Every capture route now checks admitted constant bindings
+and actual native definition redirects, without callbacks, before its host/search.
+Pure legacy captures with unused TLC native imports and pure replacements remain
+supported. Capture callers have already constructed/bound their supplied model:
+this guard does not undo their earlier startup effects or claim pre-binding work.
+The controls add 192 capture negatives across profiles/stores/1/4/8/chaos and
+both inline/pool endpoints, plus pure legacy positives.
+
+Property-bearing public final routes add 192 no-work/refusal settings, preserving
+both wrong-invariant models and two liveness predicates. The frozen clean
+[primary/property-bearing audit](backend-before/property-audit-index.json)
+with `Live == []<>(n>=0)` succeeds, but the old compat final/short path reported
+false invariant violation x74. Pinned final/TLC selection already refused the
+impure configured target before binding; default pinned selection refuses its
+profile. The initial `Live == <>(n=3)` control has a genuine TLC temporal violation
+because fairness is absent. Its original failed exit-zero assumption and raw
+source remain separate; no primary bytes were changed to obtain success.
+
+The recorded alternate CLI observations at frozen producer4ec show simulation
+and DFID refusing unresolved constant-operator effects, and checkpoint refusing
+runtime effects in RandomElement. These backends do not pass through the ordinary
+guard; their observed refusals are not evidence of a proved configured stream.
+The [source/commands/raw observations](backend-before/index.json) retain their
+actual stage and output. No cross-backend seeded stream claim is made.
