@@ -6,8 +6,8 @@ base=Path(__file__).resolve().parent
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 identity=json.loads(producer.read_text());assert identity['binary_sha256']==sha(binary)
 index={'runtime_producer':identity,'primary_sha256':sha(base/'primary/index.json'),'rows':[],'validation':[],
- 'equality_allowlist':['elapsed_ms','options.workers.requested','options.workers.chaos','options.store','collision'],
- 'qualification':'Within each profile/source/seed/fp all remaining JSON fields equal; actual used1 and each exact/fingerprint collision qualification asserted before normalization. Default approved RNG differs from clean TLC; strict concrete values compared completely.'}
+ 'equality_allowlist':['elapsed_ms','options.workers.requested','options.workers.chaos','options.store','options.fingerprint','collision'],
+ 'qualification':'Within each profile/source/seed/fp all remaining JSON fields equal; each documented store fingerprint metadata is asserted separately before normalization; actual used1 and each exact/fingerprint collision qualification asserted before normalization. Default approved RNG differs from clean TLC; strict concrete values compared completely.'}
 primary=json.loads((base/'primary/index.json').read_text())
 
 def execute(args,d,name):
@@ -20,6 +20,9 @@ def normalized(j,store):
  worker=j['options']['workers'];assert worker['used']==1 and worker['sequential'] is True
  worker.pop('requested');worker.pop('chaos')
  assert j['options'].pop('store')==store
+ fingerprint=j['options'].pop('fingerprint')
+ if store=='exact':assert fingerprint is None,fingerprint
+ else:assert fingerprint=={'polynomial_index':fp,'polynomial_source':'flag','scheme':'tlc' if j['options']['profile']=='tlc' else 'dive'},fingerprint
  collision=j.pop('collision')
  if store=='exact' or j['verdict']!='success':assert collision is None,collision
  else:
@@ -44,7 +47,7 @@ for p in primary['cases']:
      stats=j['statistics'];assert [stats['generated'],stats['distinct'],stats['left_on_queue']]==p['stats'] and stats['depth']==p['depth'],(p,j)
      assert stats['initial_generated']==1 and stats['reported_by_tlc'] is True
      assert j['output']==[] and j['warnings']==[] and j['diagnostics']==[]
-     assert j['options']['seed']==seed and j['options']['fingerprint']['polynomial_index']==fp
+     assert j['options']['seed']==seed
      assert j['options']['workers']['requested']==width
      if p['exit']:
       assert j['property']=='Inv' and j['counterexample']['length']==len(p['states'])

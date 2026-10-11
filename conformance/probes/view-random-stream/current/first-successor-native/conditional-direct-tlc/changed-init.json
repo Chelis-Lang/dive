@@ -1,0 +1,32 @@
+{
+  "ending": {
+    "kind": "invariant",
+    "name": "Inv"
+  },
+  "format": "dive-trace",
+  "length": 2,
+  "states": [
+    {
+      "action": null,
+      "values": {
+        "n": 0,
+        "x": 1
+      }
+    },
+    {
+      "action": {
+        "location": "<Next line 6, col 9 to line 6, col 49 of module ViewStream>",
+        "name": "Next"
+      },
+      "values": {
+        "n": 1,
+        "x": 78
+      }
+    }
+  ],
+  "variables": [
+    "n",
+    "x"
+  ],
+  "version": 1
+}

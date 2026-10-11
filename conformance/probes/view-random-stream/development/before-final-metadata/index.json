@@ -1,0 +1,42 @@
+{
+  "frozen_source_commit": "d749f9b06e7e727e4cb4e1b4231a12a5cddcd696",
+  "qualification": "Metadata/current guard changes only after complete immutable runtime closure; no Rust/Cargo changes",
+  "files": {
+    "conformance/probes/native-parity-integration/current-source.json": {
+      "sha256": "8e1df027bd9eb5404270196d8b3367450dd262bd4674b67c342f7c0bc7c1fb93",
+      "archive": "conformance/probes/native-parity-integration/current-source.json.gz"
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "38e12afabe9425a4afaed09bb0aba8138035d884c3ee10b382f9daf0b10bfbb9",
+      "archive": ".github/workflows/ci.yml.gz"
+    },
+    "conformance/probes/view-random-stream/README.md": {
+      "sha256": "6bfb6f4f44194e757e5ae017dfc3e1886257e53e9837d5bb6a6be0d42066cf06",
+      "archive": "conformance/probes/view-random-stream/README.md.gz"
+    },
+    "conformance/probes/view-random-stream/capture_native.py": {
+      "sha256": "41d2ac52dda0a582d5b2122df1e30090895d681ed7cd44fa93446efe5f6958b8",
+      "archive": "conformance/probes/view-random-stream/capture_native.py.gz"
+    },
+    "conformance/probes/tlc-final-scopes/source-matrix.json": {
+      "sha256": "fd6b1f1f6aba740fa523f9de1e4e69a888b36f4106868d7de3cdcdd4607040e3",
+      "archive": "conformance/probes/tlc-final-scopes/source-matrix.json.gz"
+    },
+    "conformance/probes/tlc-final-property-origins/source-matrix.json": {
+      "sha256": "9dba80b3ab8b91c5e54951ce582c51511774d90b8b5af92f9b191c16ab2cee88",
+      "archive": "conformance/probes/tlc-final-property-origins/source-matrix.json.gz"
+    },
+    "conformance/probes/material-capture/source-matrix.json": {
+      "sha256": "b940e4e2982e01405ce7965cd6531cd62a2197de63a9edcae06f06df9dac0282",
+      "archive": "conformance/probes/material-capture/source-matrix.json.gz"
+    },
+    "conformance/probes/temporal-operators/source-matrix.json": {
+      "sha256": "316b0f876015ef604dbc2a0c2932a1662e9f18634fcb10df0485fc1e5467bd2a",
+      "archive": "conformance/probes/temporal-operators/source-matrix.json.gz"
+    },
+    "conformance/probes/native-temporal-operators/source-matrix.json": {
+      "sha256": "f73ceb27cacf374984ff1dc9b0b5916e039b797c86a53862864ba0536e6ea5a8",
+      "archive": "conformance/probes/native-temporal-operators/source-matrix.json.gz"
+    }
+  }
+}

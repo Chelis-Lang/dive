@@ -4,7 +4,7 @@
   "schema_version": 1,
   "scope": "Current combined-source integrity only. Original producer783/dc execution, gate and runtime authority remain under history/native-operator-source-runtime-authority; fresh integration observations are separate. No ordinary/family certification.",
   "source_sha256": {
-    ".github/workflows/ci.yml": "38e12afabe9425a4afaed09bb0aba8138035d884c3ee10b382f9daf0b10bfbb9",
+    ".github/workflows/ci.yml": "e743c36fc46b4caca4a97fd8a28c7726e79ff13bb7b4d96092b5130eb5f28965",
     "AGENTS.md": "45e6e0d7fb3f4d767610e5aafe5a83726f3409e2b8f4bbfc6acc4c73fefec43b",
     "CHANGELOG.md": "281295bfc39698691f5355444099b5727229717aa6863aa801492b1ec2c63b12",
     "Cargo.lock": "a53cf1415137f0694a495a5fb97b6ea2a365230b0509a31c1b00c9715e50f3f4",

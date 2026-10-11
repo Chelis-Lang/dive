@@ -35,7 +35,7 @@
   "schema_version": 1,
   "scope": "Bounded final-only scoped LET attribution, singleton DNF and direct negated ENABLED fidelity; ordinary periodic/family and expanded original action vector unclaimed; post-consumer guide/receipt metadata only, Rust gate source identity retained separately; current source includes additive original expanded temporal Action names; prior scoped producer maps/source retained separately",
   "source_sha256": {
-    ".github/workflows/ci.yml": "38e12afabe9425a4afaed09bb0aba8138035d884c3ee10b382f9daf0b10bfbb9",
+    ".github/workflows/ci.yml": "e743c36fc46b4caca4a97fd8a28c7726e79ff13bb7b4d96092b5130eb5f28965",
     "AGENTS.md": "45e6e0d7fb3f4d767610e5aafe5a83726f3409e2b8f4bbfc6acc4c73fefec43b",
     "CHANGELOG.md": "281295bfc39698691f5355444099b5727229717aa6863aa801492b1ec2c63b12",
     "conformance/parity-features.json": "1d14755b7f342a8e8c0302c76b9ab8ac76faa070ae38881f8999f8e693c445dc",

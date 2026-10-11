@@ -54,3 +54,26 @@ no-VIEW), direct/configured routes, polynomials 0/7 and seeds 0/7/14/42/12345678
 140 clean single-worker primary observations without dumpTrace. Original 84
 observations are preserved separately, not replaced or retagged. Current native,
 mutant and independent replay controls must be tied to their exact producer.
+
+The exact current producer and gate are recorded in `current/receipt.json`.
+Its full workspace gate passed 1,144 tests with zero skipped. Fresh runtime
+controls cover all 140 new oracle rows at both profiles/stores, widths 1/4/8
+and chaos scheduling: 3,360 runs, 240 independently valid emitted words and
+720 rejected mutants. Store/fingerprint/collision metadata is asserted for each
+store before the specifically named equality allowlist is applied. The original
+consumer's mistaken indexing of exact-store nullable fingerprint metadata is
+retained; correcting that consumer did not change runtime Rust or the oracle.
+
+Ten additional clean first-successor captures print only the initial state.
+Their 240 native runs remain explicitly unsupported. Twenty separately supplied
+full words validate, and 60 altered words fail; that is not agreement with TLC's
+partial printed trace. Another 192 source-wide admission controls refuse before
+output/search, including unused impure bodies and an unused random-family import.
+Fresh CM1's 21 models and ValidationTestSuite's 16 smoke models pass at 1/4/8.
+The executable Rust API guide also passes. Current receipts retain their own
+source/binary identities; the original 84-case prototype remains separate.
+
+Run `python3 -I scripts/check-view-random-stream.py` to verify the immutable
+source/evidence and exact selection accounting. Invalid ending-name mutants are
+rejections, not additional semantic Next-certificate credit. #190's mixed-set
+exclusions and all other named restrictions above remain open.
