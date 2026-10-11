@@ -1,0 +1,6 @@
+{
+  "scope": "Guide/receipt/matrix refresh after all Rust and runtime consumers; original producer matrices/bytes retained, no Rust/Cargo/build input changed",
+  "rust_source_unchanged": true,
+  "source_checks_exit": 0,
+  "metadata_log_sha256": "58ed7301ff86c59cbf3000f884d76c06737eec1311961c0db1d36902f3fa61d6"
+}

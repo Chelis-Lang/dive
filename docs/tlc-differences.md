@@ -1778,3 +1778,10 @@ failure rather than silently dropping a clause. Generation does not prove
 liveness or remove strict #124 namespace replay restrictions. See
 [fair procedure use](pluscal-procedure-fairness.md) for runnable C/P and Rust
 examples and the complete supported/refused contract.
+
+Bounded final scope evidence (#134) now distinguishes configured names from
+local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
+refusals. Original expanded-action attribution is still a missing native field,
+not an approved result-changing default. Ordinary periodic scheduling remains
+unsupported; the whole small-model study from the prior IF slice is unchanged.

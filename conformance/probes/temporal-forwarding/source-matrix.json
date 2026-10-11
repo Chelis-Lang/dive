@@ -4,11 +4,11 @@
   "base_commit": "b65e254",
   "claim": "Snapshot of retained temporal expression forwarding implementation and test obligations; not a corpus-run report or strict certification. Recursive local function domains and exported temporal INSTANCE formals remain refused.",
   "source_sha256": {
-    "crates/dive-eval/src/scope.rs": "1e1d023271b5a1a41ca578ad68264252ed8067f89387e67b291b36e013d03f69",
-    "crates/dive-liveness/src/plan.rs": "d6fa11d02c47a15ec3682d0e5d5ab49876d3003036bc5af728356b9c3d545d85",
-    "crates/dive-trace/src/temporal.rs": "4ab53bfdc0b651fbafc5f45c242627d3c068700d3d5fd705ee9f1c9f510af823",
-    "crates/dive-api/tests/temporal_forwarding.rs": "3936955dc6d95e1fd39c9ccb38d5ed8c2f669ef8e09ba7da1a83e668af2fb51a",
-    "crates/dive-api/tests/deferred_domains.rs": "4c0bc53a6ba10a2b395fbaeb89999e1c693b8c8a758edf92aad5c908bd169555",
+    "crates/dive-eval/src/scope.rs": "0d0050626144655c84eb269815d15b27127e2804d1c9e6b2c72892dc3585dfd3",
+    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
+    "crates/dive-trace/src/temporal.rs": "7fc135838c764142c6213ce42efac4d913da5a44f1efe8eca6a070cef776baf5",
+    "crates/dive-api/tests/temporal_forwarding.rs": "c006ca556f42712215fb5a9bfa453d822fb7e150f77966a9881ad9afa1286a60",
+    "crates/dive-api/tests/deferred_domains.rs": "e733a7eeb7bb6aae207b2557ce25e912ebfa7aac27e35f70fe536a50556d0ea2",
     "conformance/studies/temporal-scopes-53-map.json": "602f7d67b104b6c51b7fcda4238199806215218f82ee174235460ee7a82d0227"
   },
   "obligations": {
@@ -29,5 +29,6 @@
     "exported INSTANCE temporal formal arguments",
     "public evaluator constructor malformed contexts (#129)",
     "strict temporal scheduling/tableau/lasso certification"
-  ]
+  ],
+  "current_integration_scope": "Current combined-source integrity includes spill/process fairness plus scoped temporal shape/role fixes. Frozen 92/f27 native, guide and gate evidence stays source-archive-qualified; fresh combined execution is separate, no family certification."
 }

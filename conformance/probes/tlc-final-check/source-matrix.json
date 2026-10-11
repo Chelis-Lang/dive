@@ -6,10 +6,16 @@
   },
   "base_commit": "c16ff0ab0d5f9e5eb1ebcae901603668876a8a61",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "Focused current-source admission/final API/CLI/worker contracts; all original producer outcomes and the72f8 full-refusal census retain their separate immutable source histories; no wider parity certification.",
+  "current_integration_scope": "Current combined-source integrity includes spill/process fairness plus scoped temporal shape/role fixes. Frozen 92/f27 native, guide and gate evidence stays source-archive-qualified; fresh combined execution is separate, no family certification.",
   "current_source_qualification": "Current combined-source integrity after direct temporal IF, transient checkpoint storage, process procedure fairness and CI integration. Immutable producer outcomes remain attached to their archived sources; this map supplies no new runtime or full-family parity credit.",
   "schema_version": 1,
   "scope": "Current integrated-source integrity; historical final producer outcomes remain bound to preserved sources and are not recertified by this matrix.",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-final-check/source-matrix.json",
+    "matrix_sha256": "7903aa5999cb5318e456fe3846a57dd526ff25c2f4f76d930d686038e057c548",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
     "crates/dive-api/src/check.rs": "d00b22ba80f1ce56be58da8f1be8bfb4a6b4136cfa21ef6683fa99bcf961d630",
     "crates/dive-api/src/check_tlc_temporal.rs": "27d670e05f77b00b0a6725ae65bba7c7da1a77d525ba7ca1779246f1655852a2",

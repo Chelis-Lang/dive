@@ -1,0 +1,1 @@
+First standalone rustc attempt selected incompatible feature-built rlibs and failed with duplicate crate types. No model ran; this is tooling evidence only. The Cargo-owned retry uses one resolved dependency graph.

@@ -1,7 +1,7 @@
 {
   "context_delivery_commit": "7ea2ce0c8d96e5dae3a63fc8794de54fc8ea75e6",
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "current_integration_scope": "Combined spill/process fairness, state/temporal IF and scoped LET/DNF/negated ENABLED fixes; current integrity only, producer observations separately frozen, no full family certification",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "evidence_scope": "Current combined native controls only; no new oracle agreement or family certification",
   "historical_context_matrix_sha256": "aae49c09c536ea64df4586e7d2aa38c28e9b4e247906c7f2506139efe03964e9",
@@ -61,6 +61,11 @@
       "matrix_sha256": "b547a5b8c232e4241013661f3cddaea4ae69d63d52f72a919728292c9104b329",
       "source_archive": "conformance/probes/native-checkpoint-parallel/before-authorities/sources",
       "scope": "immutable combined source before deterministic native parallel checkpoint recovery"
+    },
+    {
+      "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "matrix_sha256": "a58b10b86311b86a3c274b6217ff78df1fa5af447dfe56557c9dd8e47d4b30ff",
+      "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
     }
   ],
   "historical_pre_context_planning_matrix_sha256": "daac985ec3ffe01e1e1f7e70b35430e9f211dbb12642351b67aaee0859bd604d",
@@ -86,6 +91,12 @@
   "parent_translation_commit": "e2a3a8d5343c0831e28529c8ae282e549f0736f5",
   "reason": "Preserve combined phase-L integration source history and add pinned conditional planning error precedence controls for issue147",
   "schema_version": 1,
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+    "matrix_sha256": "a58b10b86311b86a3c274b6217ff78df1fa5af447dfe56557c9dd8e47d4b30ff",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
     "conformance/probes/tlc-planning/capture-models.py": "eb5f9a405efc3fb1888c88215403fd17d7483599b6fbc6d77885b1c1a2662290",
     "conformance/probes/tlc-planning/capture.py": "c523b37016187a370741ee821e102c6c73b6741f511bc027d9c1dc6cbf29b65c",
@@ -101,9 +112,9 @@
     "crates/dive-liveness/src/formula.rs": "b350d46c81044cd835f552aa0b37092eba2bffbeb84de89fddbd22a792a3532d",
     "crates/dive-liveness/src/lib.rs": "14ab6187ffd57910568ca5cf8878fd31f205622e53f9bb71e33e009b578cf71b",
     "crates/dive-liveness/src/phase_graph.rs": "c58f3bf3a3cd265aca8416e36384e5a1b79ca6c3a972709ea2e0c6472221f6a5",
-    "crates/dive-liveness/src/phase_l.rs": "0f7bfb58ac387ecfb68a751666ec10c6312c9a046628b0a7c13ac2a30521fa87",
-    "crates/dive-liveness/src/plan.rs": "5adbf560c59388d3b194b43596d3d9f50b399e78c45037eab7ae44b423688db2",
-    "crates/dive-liveness/src/tlc_plan.rs": "00820e3299de74c702e4ee6ed380d955a1930b012f3d0b67954adce2f82bcc33",
+    "crates/dive-liveness/src/phase_l.rs": "635a4a08659f76c4e541fd6c61f41b77bf26a93767ea1d6f25fa262781edc599",
+    "crates/dive-liveness/src/plan.rs": "2b4d2d9704928c28d49fd8f381143b915c9a7e8e876b8950f7e3bad2aa564525",
+    "crates/dive-liveness/src/tlc_plan.rs": "9e398a4155e620a8d8a5bf209e99b2f0d578dacb8b5adaa57104aeb09d2e99b9",
     "crates/dive-liveness/src/tlc_tableau.rs": "3cee6cf787c687c33e843d2deb7f8309f2eba64a6caa65494384dd2eb5c143e2",
     "crates/dive-liveness/tests/phase_graph.rs": "5ac07587ecc69432b30a19ea0a358b7aeb379fe6cc5be28d703500ace48fe4b5",
     "crates/dive-liveness/tests/phase_l.rs": "b333f4afd393931661befbd22724cb3716848901a4a256e9f5e62b3d9da9f1ea",

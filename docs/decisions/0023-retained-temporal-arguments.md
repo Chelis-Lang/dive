@@ -60,3 +60,19 @@ the prior panics; it is not an oracle result. Constructing an evaluator with an
 invalid redirect target can still panic before these endpoints run (#129).
 General caller-created IR/context validation remains a separate partial API
 obligation; this increment does not redesign the evaluator constructor.
+
+## Addendum: bounded final execution and attribution (2026-10-11, #134)
+
+Fresh source-bound explicit final controls cover pure direct/local forwarding,
+nested LET, INSTANCE bodies/substitutions and ENABLED with independent memory,
+JSON and periodic-word replay. The earlier constructor-failure observations
+remain historical: shared fallible context/IR admission now rejects malformed
+inputs before callbacks. The raw original failures are not rewritten.
+
+SpecProcessor.processConfigProps distinguishes local zero-arity OpDef lookup
+from formal LazyValue unwrapping when naming derived roles. The evaluator's lazy
+slot representation must retain that attribution distinction. Configured names
+are separate from derived names; the missing per-expanded-action original name
+vector remains a separate obligation. LNConj.toDNF retains singleton LNDisj
+factors in its cardinality-one result, before later flattening. Neither narrow
+repair broadens purity, resource budgets or ordinary liveness scheduling.

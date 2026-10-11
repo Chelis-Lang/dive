@@ -572,3 +572,10 @@ Java byte-interop or archive certificate claim. Counter reset/Retain and pure
 VIEW/symmetry witnesses retain their existing semantics. See
 [the runnable recovery guide](native-checkpoint.md#recovery-with-transient-disk-storage)
 and [separate preserved study](../conformance/probes/native-checkpoint-spill/README.md).
+
+Bounded final scope evidence (#134) now distinguishes configured names from
+local/formal/INSTANCE derived roles; see [the scoped final guide](tlc-final-scopes.md).
+Exported INSTANCE temporal-formal and opaque/effectful combinations remain named
+refusals. Original expanded-action attribution is still a missing native field,
+not an approved result-changing default. Ordinary periodic scheduling remains
+unsupported; the whole small-model study from the prior IF slice is unchanged.

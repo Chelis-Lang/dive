@@ -1,0 +1,21 @@
+properties	
+temporal_role_names	
+configured_properties	P
+before	r:0:LNConj:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNDisj:-1;r.0.0.0.0:4:LNNeg:-1;r.0.0.0.0.0:5:LNStateEnabled:0;r.0.0.0.1:6:LNAction:0
+tag_count	2
+tagged_ids	r:0:LNConj:-1;r.0:1:LNAll:-1;r.0.0:2:LNEven:-1;r.0.0.0:3:LNDisj:-1;r.0.0.0.0:4:LNNeg:-1;r.0.0.0.0.0:5:LNStateEnabled:1;r.0.0.0.1:6:LNAction:2
+tagged	C(G(E(D(N(s1),a2))))
+pushed	C(G(E(D(N(s1),a2))))
+simplified	G(E(D(N(s1),a2)))
+dnf	G(E(D(N(s1),a2)))
+groups	1
+g0.temporal	null
+g0.p0	AEAction=0|AEState=|EAAction=
+g0.state	
+g0.action	D(N(s1),a2)
+actual.groups	1
+actual.g0.state	
+actual.g0.action	D(N(s1),a2)
+actual.g0.p0	AEAction=0|AEState=|EAAction=
+actual.g0.promises	
+actual.g0.tableauNodes	0

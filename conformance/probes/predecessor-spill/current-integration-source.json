@@ -1,6 +1,6 @@
 {
   "current_integration_base": "e62cdb96933c86aca302f103d3b4ca1316cf78ee",
-  "current_integration_scope": "combined conditional planning, concrete graph, pure safety recovery, public IR admission and bounded multiple-process fairness; no full family certification",
+  "current_integration_scope": "Combined spill/process fairness, state/temporal IF and scoped LET/DNF/negated ENABLED fixes; current integrity only, producer observations separately frozen, no full family certification",
   "current_source_qualification": "Current final direct temporal-IF source. Original producer sources/raw controls remain separately archived; no historical run retagged or family/periodic credit.",
   "historical_integration_sources": [
     {
@@ -11,6 +11,12 @@
   ],
   "schema_version": 1,
   "scope": "combined native frontier and predecessor storage; no total-memory claim",
+  "scoped_final_parent_history": {
+    "matrix_path": "conformance/probes/tlc-final-scopes/shipped-parent-source/matrices/conformance/probes/predecessor-spill/current-integration-source.json",
+    "matrix_sha256": "cce0fd3110e1117544e96263a8ca6e961c7f9df27df9ab98debf8c4d35bc5a9f",
+    "source_archive": "conformance/probes/tlc-final-scopes/shipped-parent-source/source"
+  },
+  "source_refresh_scope": "Current narrow scoped LET name/cardinality-one DNF/direct negated ENABLED fidelity, base92beded1; immutable original captures and gate receipts remain historical, no ordinary schedule/family credit",
   "source_sha256": {
     "crates/dive-api/src/check.rs": "d00b22ba80f1ce56be58da8f1be8bfb4a6b4136cfa21ef6683fa99bcf961d630",
     "crates/dive-api/tests/predecessor_spill.rs": "81d5e2c37d032be0fc2f84840fab13e01170442387fb3bd7e8f82d6a619c768e",
