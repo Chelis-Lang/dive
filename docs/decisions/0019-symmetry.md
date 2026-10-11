@@ -239,3 +239,26 @@ The original single-worker FastPaxos timeout is retained in the initial raw
 report. Shared machine load and differing captured binaries make these
 functional conformance results, not performance benchmarks. These results do
 not close the deferred/liveness/random/startup contracts above.
+
+## Implementation addendum: pure VIEW normalization (2026-10-11, #188)
+
+`TLCStateMut.fingerPrint` normalizes every concrete variable before VIEW even
+without a symmetry declaration. The shared key path now follows that order;
+normalization applies to ignored variables too. Concrete predecessor retention
+and VIEW-after-symmetry order are unchanged. The bounded helper already used
+by safety symmetry is reused without a crate dependency change. Unproved
+normalization/error-class cases refuse explicitly instead of guessing EC1000
+or reporting a model verdict. Paired primary/native evidence, compound
+controls, actual native recovery and independent concrete witness controls
+are retained in `conformance/probes/view-concrete-normalization/`. No random
+VIEW, full lazy-value family, full memory bound or checkpoint certificate claim is added.
+
+The first shared-key full gate at `15fda58d` exposed the original supported
+`ViewDeferred` memory-checking fixture: 1102/1103 tests passed. The test and
+complete failed epoch are preserved. The correction uses a callback-free
+`Any` downcast to the evaluator’s private filter representation, following
+`SetPredValue.deepNormalize`: visit only its bound set, never the predicate
+or captured environment. It retains the cumulative 32-million-node / 256-depth
+limits. Unknown providers and Cup/Cap/Diff/Union cache-normalization contracts
+remain refused. Existing spill admission still refuses the callback-bearing
+state rather than evaluate it.

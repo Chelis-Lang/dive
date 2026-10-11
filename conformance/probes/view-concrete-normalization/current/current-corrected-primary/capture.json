@@ -1,0 +1,215 @@
+{
+  "oracle_source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "flags": [
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "<private>"
+  ],
+  "reason": "Fresh clean primary recapture for concrete VIEW normalization repair; no trace instrumentation",
+  "rows": [
+    {
+      "model": "reverse-mixed",
+      "exit": 255,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        1000,
+        2186
+      ],
+      "states": 0,
+      "generated": null,
+      "distinct": null,
+      "depth": null,
+      "files_sha256": {
+        "Compound.tla": "000fdd2836c9c079f244d7446ac96c6e9120127faf46418b208c38a4655a466c",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "f1e9203356769ee5407a7c5797ef64ed3811a1b75c64027d784c14563bffd237",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "mixed-set",
+      "exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "states": 4,
+      "generated": 4,
+      "distinct": 4,
+      "depth": 4,
+      "files_sha256": {
+        "Compound.tla": "9b91a2ebbff8b849b440f644e4065c7d1618476c972ebabb47c987bb06bd1b65",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "9b8d6bda5d5e9dfe024d28a50ee71a87496f2e7859a8747298e166f112371b48",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "set",
+      "exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "states": 4,
+      "generated": 4,
+      "distinct": 4,
+      "depth": 4,
+      "files_sha256": {
+        "Compound.tla": "4b944aa69f70223f82a7d0fc75e4e9938fc69edb2d2854cacc0f8ea3e81f84c3",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "cf8306f9fe2c9084d0ac56ed1e0fc4ab54ecba382d716ac6b6c361150b9b76b2",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "tuple-set",
+      "exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "states": 4,
+      "generated": 4,
+      "distinct": 4,
+      "depth": 4,
+      "files_sha256": {
+        "Compound.tla": "c4a146bd0e544b3f82f9e6ad96206cfcc468b2ffc225fa511dbb316e8eb57c37",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "45227646388261660ebf85856817a19594e61e12f7f1a70418b62c452f693bc8",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "record-set",
+      "exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "states": 4,
+      "generated": 4,
+      "distinct": 4,
+      "depth": 4,
+      "files_sha256": {
+        "Compound.tla": "dc8071bc93786ca54f8a7a19c0cf5e119e8baf6ccbb89cc6af3a287248c42906",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "848ee4d5feaf5ee07e67f2d824470120fd3db3a1e10c14d90d70af2123fb1b79",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "function-set",
+      "exit": 12,
+      "codes": [
+        2262,
+        2401,
+        2187,
+        2220,
+        2219,
+        2185,
+        2189,
+        2190,
+        2110,
+        2121,
+        2217,
+        2217,
+        2217,
+        2217,
+        2200,
+        2199,
+        2194,
+        2186
+      ],
+      "states": 4,
+      "generated": 4,
+      "distinct": 4,
+      "depth": 4,
+      "files_sha256": {
+        "Compound.tla": "48d416f08d35d183f87f64883c0041c96ab8ba6dfbb534a8ab31266fd21b4320",
+        "Compound.cfg": "de94f455ae2e9d9e48cdaa7ad33c83dea1d5c0dfe534ffa3ad787d13b6f6f5f6",
+        "stdout": "7f343c7d837cbac7346da4df3f82da2b3ab1bfd0daabe5ac7b8fb46edd601e3a",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

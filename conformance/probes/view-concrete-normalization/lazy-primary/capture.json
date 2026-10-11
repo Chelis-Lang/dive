@@ -1,0 +1,86 @@
+{
+  "oracle_source_commit": "94d0c5070852b37b801bb8998c436383ab7ee37b",
+  "oracle_sha256": "7beec0f04818732a62fa193731711a99aa4f11279499b2360a7d156c519ea78d",
+  "java_sha256": "af8b122943345320b179c75c3404d56a981017739746b75f9caf583632f0bea0",
+  "flags": [
+    "-tool",
+    "-workers",
+    "1",
+    "-seed",
+    "7",
+    "-fp",
+    "0",
+    "-cleanup",
+    "-metadir",
+    "<private>"
+  ],
+  "rows": [
+    {
+      "model": "filter",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "9f15abe2b50794ef3d5d74948765143a55a75f69b86c63bb384672350c387a40",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "cc7d04bff55bcdbc8eaa26d875dcd7a30dac383ad778cbcbfe900064babe71df",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "cup",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "ddbbd6776fb89872cc00697cad6850b470747b6bf0dd0a70a9a1a04676e221a7",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "4fbe5feb65e1e3a7317907652d17cc6c422d841d003c3ee83aab5bc728a5cd9e",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "cap",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "7ea5330080ae71de2956c450c70e9e005707f31fda2bfee1eb1929348b10dd05",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "d7a28ff376272bf73e8a407879ec747ba53f86832843f075061bb0b16efbb9d4",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "diff",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "6e842d6f78ea33569d074d83c5534a028f4fd9d870b1055de7b613e191caf8ec",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "1e66064df08d9cd8752599e6994467c0a84dd18f49cc71ab6f543a084bb61bd5",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "union",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "1a9744b9d242c3d9de4578f0f7dffa8310ad4560c6597fb1d68257211091cf07",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "3811878aab7509e745b2a465748f8f2bc2972f0d78189670ef39e1f080465eb2",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "model": "nested",
+      "exit": 0,
+      "files_sha256": {
+        "LazyView.tla": "a45242c9e995f84eb36caf8c0568c0b002a14ddf2f0b90e400e55fc51c4cf0fa",
+        "LazyView.cfg": "888696b5005d75ae0fa2b816ace6b30716d1cab30a18915e72d22d2256ac6585",
+        "stdout": "8232f087cd822c75a16a8f4f72b6aed0375bbe45a2f9b3c02e9177253a2fa387",
+        "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "source_sha256": {
+    "UnionValue.java": "935ed89dad355f6cca39e4ff9f21be0783f0ccc8b94d23180354fd19464fdd16",
+    "SetCapValue.java": "35dfcd97f34d8f2c7c8ca2cef62b71425fa5f034649c66beb89268fcb718b1a6",
+    "SetCupValue.java": "9edd49fea12064cc4df3b14bbfa66ec92cfafd4680c823434ac1ecf10c401fb2",
+    "SetPredValue.java": "8223270957f11ca076d0e145aab69fc70b8b83ba19bdbf15f5b9eeb43bb469d7",
+    "SetDiffValue.java": "38e66f6e647baebbe845fc09043d14d24264f7aa775b9eb5b496ae45c8a39d0a"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "parent_commit": "060489e7845b38b894d67b58c9a8c3a9fa18094c",
+  "changed_source_sha256": {
+    "docs/tlc-differences.md": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b"
+  },
+  "matrices": [
+    {
+      "path": "conformance/probes/tlc-planning/combined-context-tableau-source-matrix.json",
+      "before_sha256": "67f2cabd5d6563a2914f902afb8323b7cf971e4dc7eb178c1c0af7f0c7f0db96",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-planning/public-ir-admission-source-matrix.json",
+      "before_sha256": "63acab18689323569f6ab3651a97a8c4eb95c33fbcd22e43db4ec3f08a881614",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-phase-l-graph/source-matrix.json",
+      "before_sha256": "4cff982992b827021ff44aa9d88a1af9318e875259ea0c3f6fde7d98b7e9295d",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/predecessor-spill/current-integration-source.json",
+      "before_sha256": "20f5612ff7beb6b6037de562b02c8fd52dd39b452ece49f5660e65a2b6e2943f",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/native-checkpoint/current-integration-source.json",
+      "before_sha256": "6f1d9df3ea0df9ee0f505ac08aaf9dabe8b11fc74612f24563e91da3d0d5192e",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-final-check/source-matrix.json",
+      "before_sha256": "0c13bf591a1c2b4f3a6c137d9028a8bc62310ceca42dcb6e394b24b9219c8791",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-state-if/source-matrix.json",
+      "before_sha256": "c91c00284f290a8ab91cb855ee34caeffa6a4a50a26d32cb8d1df051499fd113",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if/source-matrix.json",
+      "before_sha256": "29e29ba2275578826626df95bd221ead969dda65583c2d4636f4991ab5c9d333",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-temporal-if-final/source-matrix.json",
+      "before_sha256": "88f1184f8d732a742781e3cc82915edc7872850997b3e5519213dbf7deff5a5c",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-final-scopes/source-matrix.json",
+      "before_sha256": "9dfd392442c0eb19fc7a11b62c7f31360a047165b82325996ddb21016b702e52",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/tlc-phase-execution/source-matrix.json",
+      "before_sha256": "12b91eb32eeac1d5026715db85e2af10ff1a1db236ec4a5646c6281ca4f0f9d8",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/temporal-forwarding/source-matrix.json",
+      "before_sha256": "d651b1437385fec7333987fc0481b2c40e1a3167a62ce93eadce4c638ed99f49",
+      "changed_source": {}
+    },
+    {
+      "path": "conformance/probes/tlc-final-property-origins/source-matrix.json",
+      "before_sha256": "95ba70f3917dc7745ef59595a5c244c599ad26a1e6b0ef0ff2d979dc251049d7",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/material-capture/source-matrix.json",
+      "before_sha256": "e7a987de7da6810cfc7e135ad324258e2893261742cb3eb49a489cbebb172d9d",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/temporal-operators/source-matrix.json",
+      "before_sha256": "3acc4a775cdfe2af1037e1332fa685129518776b266b8cb0312c26c16ec15a6c",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/native-temporal-operators/source-matrix.json",
+      "before_sha256": "0195322483abfe6953c482ea2d1e6981443e7a9ac6e5ec8261502c3ca9977004",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    },
+    {
+      "path": "conformance/probes/native-parity-integration/current-source.json",
+      "before_sha256": "b69f33c83306b221e16ec3ea8ce3e89ac7c97c544e0d89f918f279d033e87ea6",
+      "changed_source": {
+        "docs/tlc-differences.md": {
+          "before": "3bdc4b4739f6b80a07c0bfcc8561c1248b32e1ecd4cab9d59be6fedb18f6933b",
+          "after": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c"
+        }
+      }
+    }
+  ],
+  "scope": "Frozen060 docs/map bytes preserved; refresh existing current metadata hashes only, no Rust/Cargo changes or runtime retagging"
+}

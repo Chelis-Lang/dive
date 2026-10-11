@@ -1,0 +1,1 @@
+{"command":"validate-trace","failure":{"check":"init","detail":"the initial predicate line 4, col 9 to line 4, col 35 of module Compound is false in the first state","state":0},"length":4,"notes":[],"result":"invalid","schema_version":1}

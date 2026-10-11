@@ -4,10 +4,10 @@
   "schema_version": 1,
   "scope": "Additive bounded final temporal identity fields, source-bound primary/native/example controls; unchanged witness/default/limits/ordinary contract; all family statuses partial",
   "source_sha256": {
-    ".github/workflows/ci.yml": "0b236203257437ec97e43f6675426d09e8849cdc794e27ae75cf6ebb8b9cde06",
-    "AGENTS.md": "de4f1598de25b884de4e27bbe6efcd0335e97338f229538e0e047bf32595f2a6",
-    "CHANGELOG.md": "108a1a4d43f40a2345a964db7f7f5ba1300fe6f3a6bade7d767520930aa6b6d9",
-    "conformance/parity-features.json": "fbf1f7ca19ed7bb2a3e7d86558d71e83cf07740785cf00a61a3b63405f2a4c03",
+    ".github/workflows/ci.yml": "f9cc0c4ea9cf8a29c0b9e78d21024ab3ef0d21960f84863b0bf6f3785b002cfb",
+    "AGENTS.md": "1a0ded06a3e8410deb649c27bc200bacf080ad63042a707c9984a685b2491752",
+    "CHANGELOG.md": "00f1c60bd5c3cf47658b52b7fecfa0b27be463cf08efafcb71f9f3ff366a44bd",
+    "conformance/parity-features.json": "8ce55161386450e0cf470e5d45754b70205ed14e66d3c7b02394bd3b05696326",
     "conformance/probes/tlc-final-property-origins/DESIGN.md": "aa5a122a7c7f071967dab07a00b9080313ce74dae1b51be2729a2321d0e41792",
     "conformance/probes/tlc-final-property-origins/FinalProbe.java": "0224c4df90f503d7f217fd24d33b6bfc554afaf1d3f6d1c16e98fae7861a89ce",
     "conformance/probes/tlc-final-property-origins/ModelProbe.java": "2265ede294a4c73120901a8efaa2c9c7f0082785513bfa77282c2deacca66499",
@@ -313,13 +313,14 @@
     "crates/dive-model/src/model.rs": "49364d80e43f6427d0f3bc9879f8ec78975cde0c7a71dce9cfa06f9c7f21b32b",
     "crates/dive-model/src/spec.rs": "0b23f75dae433b3689758fbcabc1b5246f89b5d0a38b0dec12ffb49763970275",
     "docs/decisions/0023-retained-temporal-arguments.md": "ab4aa254a027c48aa50c4313bd8f9ea147c573f4f9062afa4367149fcf0a4efe",
-    "docs/divergences.md": "85b80b230977c2e0eb46dde7d1065b9b4476db77a062cd436b2cbf021670b659",
-    "docs/provenance.md": "cd14599471589d38faec316f864193ceea8f1b38caf02e24537f5d6462d3d3e9",
-    "docs/tlc-differences.md": "ed047f93ab9a769f34e3b795783f2f9b4b2ec372cff06d1e0fcdd1935ed967a4",
+    "docs/divergences.md": "9878bd97f8b0d9496f9dc8be5b479de6075c5e2dea27bb62266d500fdb647559",
+    "docs/provenance.md": "7ff14b51560faba8419ce99b164326a24ffc57b32afe9729f41fa83ad7873297",
+    "docs/tlc-differences.md": "fe4bcd0cc0ab24999e5a097b7f8f7db863212eb9077d716bb494e2323257f90c",
     "docs/tlc-final-scopes.md": "57b779cd9245e1a8b6257bf1e3c204be7d3a82ff7e59df7bc9fccddb87f18c6a",
     "docs/tlc-property-origins.md": "8cba53847ae64920e915a1c0437e7b57928a20b70104d05e7d8fcba95bdfed63",
     "docs/user/temporal.md": "b969cc5ab1f7c31fdbda2a3970e3a3a651cde3d0f9ca73b55504527c760662f5",
     "scripts/check-tlc-final-scopes.py": "890ff5ab49a719e017409cde6e48096cc1dae4b6030afcf6dfaa7999dfec71a5",
     "scripts/check-tlc-property-origins.py": "d7c17f21c956f2e6d622743d3a484b6712968f02ea7a4549e32df59bb77f1b12"
-  }
+  },
+  "view_normalization_scope_addendum": "Current source integrity only; exact preceding fe35 map/source retained at conformance/probes/view-concrete-normalization/before/fe35-current-authority. Historical runtime controls unchanged."
 }
